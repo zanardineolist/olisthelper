@@ -2,6 +2,10 @@
 const { google } = require('googleapis');
 require('dotenv').config();
 
+console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
+console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET);
+console.log("GOOGLE_REDIRECT_URI:", process.env.GOOGLE_REDIRECT_URI);
+
 const auth = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -22,6 +26,7 @@ function getAuthUrl() {
 }
 
 async function getUserDetails(code) {
+    console.log("Código recebido para autenticação:", code);
     const { tokens } = await auth.getToken(code);
     auth.setCredentials(tokens);
 
