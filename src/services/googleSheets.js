@@ -16,11 +16,13 @@ function getAuthUrl() {
     const scopes = [
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/userinfo.profile'
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'openid' // Adicionando o escopo 'openid' para garantir compatibilidade
     ];
     return auth.generateAuthUrl({
-        access_type: 'offline',
+        access_type: 'offline', // Mantém o token de atualização disponível
         scope: scopes,
+        response_type: 'code', // Especifica que queremos um código de autorização
         redirect_uri: process.env.OLISTHELPER_GOOGLE_REDIRECT_URI // Incluindo explicitamente o redirect_uri
     });
 }
