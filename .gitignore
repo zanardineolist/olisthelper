@@ -1,5 +1,4 @@
-# Ignorar variáveis de ambiente e dependências locais
+# Ignore environment files
 .env
+backend/google-service-account-key.json
 node_modules/
-.DS_Store
-*.log
