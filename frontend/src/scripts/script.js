@@ -1,3 +1,17 @@
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/google-client-id')
+        .then(response => response.json())
+        .then(data => {
+            const metaTag = document.createElement('meta');
+            metaTag.name = 'google-signin-client_id';
+            metaTag.content = data.clientId;
+            document.head.appendChild(metaTag);
+        })
+        .catch(error => {
+            console.error('Error fetching Google Client ID:', error);
+        });
+});
+
 document.getElementById('toggle-theme').addEventListener('click', () => {
     document.body.classList.toggle('light-mode');
 });

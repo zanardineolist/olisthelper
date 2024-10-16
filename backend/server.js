@@ -12,6 +12,10 @@ const auth = new google.auth.GoogleAuth({
 });
 const spreadsheetId = process.env.SPREADSHEET_ID;
 
+app.get('/api/google-client-id', (req, res) => {
+    res.json({ clientId: process.env.GOOGLE_CLIENT_ID });
+});
+
 app.post('/api/checkUser', async (req, res) => {
     try {
         const client = await auth.getClient();
