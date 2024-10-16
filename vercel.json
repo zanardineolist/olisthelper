@@ -4,6 +4,10 @@
     {
       "src": "src/scripts/**/*.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "src/pages/*.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -16,11 +20,7 @@
       "dest": "src/scripts/auth/callback.js"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "src/scripts/$1.js"
-    },
-    {
-      "src": "(.*)",
+      "src": "/(.*)",
       "dest": "src/pages/index.html"
     }
   ]
