@@ -1,19 +1,27 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "src/scripts/**/*.js",
-        "use": "@vercel/node"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/api/(.*)",
-        "dest": "src/scripts/$1.js"
-      },
-      {
-        "src": "(.*)",
-        "dest": "src/pages/index.html"
-      }
-    ]
-  }
+  "version": 2,
+  "builds": [
+    {
+      "src": "src/scripts/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/auth/login",
+      "dest": "src/scripts/auth/login.js"
+    },
+    {
+      "src": "/api/auth/callback",
+      "dest": "src/scripts/auth/callback.js"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "src/scripts/$1.js"
+    },
+    {
+      "src": "(.*)",
+      "dest": "src/pages/index.html"
+    }
+  ]
+}
