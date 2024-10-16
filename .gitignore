@@ -1,0 +1,5 @@
+# Ignorar variáveis de ambiente e dependências locais
+.env
+node_modules/
+.DS_Store
+*.log
