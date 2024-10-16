@@ -17,7 +17,7 @@ function getAuthUrl() {
     return auth.generateAuthUrl({
         access_type: 'offline',
         scope: scopes,
-        redirect_uri: process.env.GOOGLE_REDIRECT_URI // Inclua explicitamente o redirect_uri
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI // Incluindo explicitamente o redirect_uri
     });
 }
 
