@@ -1,4 +1,0 @@
-# Ignore environment files
-.env
-backend/google-service-account-key.json
-node_modules/
