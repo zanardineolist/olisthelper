@@ -1,4 +1,16 @@
-const handleSubmit = async () => {
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
+import FormComponent from '../components/FormComponent';
+
+export default function Form() {
+  const { data: session } = useSession();
+  const [formData, setFormData] = useState({ analista: '', categoria: '', descricao: '' });
+
+  if (!session) {
+    return <p>Você precisa estar logado para acessar o formulário.</p>;
+  }
+
+  const handleSubmit = async () => {
     try {
       const response = await fetch('/api/appendSheet', {
         method: 'POST',
@@ -7,7 +19,7 @@ const handleSubmit = async () => {
         },
         body: JSON.stringify({ data: [formData.analista, formData.categoria, formData.descricao] }),
       });
-  
+
       if (response.ok) {
         alert('Solicitação enviada com sucesso!');
         setFormData({ analista: '', categoria: '', descricao: '' });
@@ -18,4 +30,13 @@ const handleSubmit = async () => {
       console.error(error);
       alert('Erro ao enviar solicitação.');
     }
-  };  
+  };
+
+  return (
+    <FormComponent
+      formData={formData}
+      setFormData={setFormData}
+      handleSubmit={handleSubmit}
+    />
+  );
+}
