@@ -12,14 +12,12 @@ export default function Register() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    // Verifica se o e-mail é do domínio permitido
     if (!/@(tiny|olist)\.com\.br$/.test(email)) {
       setError('Only users with @tiny.com.br or @olist.com emails are allowed.');
       return;
     }
 
     try {
-      // Envia a solicitação de registro para o backend
       const response = await axios.post('/api/auth', {
         name,
         email,
@@ -45,37 +43,40 @@ export default function Register() {
     <div className={styles.container}>
       <form className={styles.form} onSubmit={handleRegister}>
         <div>
-          <label>Name *</label>
+          <label className={styles.label}>Name *</label>
           <input
             type="text"
+            className={styles.input}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
         </div>
         <div>
-          <label>Email *</label>
+          <label className={styles.label}>Email *</label>
           <input
             type="email"
+            className={styles.input}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
         <div>
-          <label>Password *</label>
+          <label className={styles.label}>Password *</label>
           <input
             type="password"
+            className={styles.input}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        <button type="submit">Register</button>
+        <button type="submit" className={styles.button}>Register</button>
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
       </form>
-      <button onClick={handleGoogleRegister}>Register with Google</button>
+      <button onClick={handleGoogleRegister} className={styles.button}>Register with Google</button>
     </div>
   );
 }

@@ -12,19 +12,19 @@
   flex-direction: column;
 }
 
-label {
+.label {
   margin-bottom: 5px;
   font-weight: bold;
 }
 
-input {
+.input {
   margin-bottom: 15px;
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
 
-button {
+.button {
   background-color: #007bff;
   color: white;
   padding: 10px;
@@ -33,7 +33,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+.button:hover {
   background-color: #0056b3;
 }
 

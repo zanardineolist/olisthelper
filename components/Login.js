@@ -11,14 +11,12 @@ export default function Login({ onRegister, onForgotPassword }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      // Envia a solicitação de login para o backend
       const response = await axios.post('/api/auth/login', {
         email,
         password,
       });
       if (response.status === 200) {
         console.log('Login successful', response.data);
-        // Aqui você pode redirecionar o usuário ou salvar o token
       }
     } catch (err) {
       setError('Failed to log in. Please check your credentials.');
@@ -34,29 +32,31 @@ export default function Login({ onRegister, onForgotPassword }) {
       <form className={styles.form} onSubmit={handleLogin}>
         <img src="/logo.png" alt="Bootstrap Brain" />
         <div>
-          <label>Email *</label>
+          <label className={styles.label}>Email *</label>
           <input
             type="email"
+            className={styles.input}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
         <div>
-          <label>Password *</label>
+          <label className={styles.label}>Password *</label>
           <input
             type="password"
+            className={styles.input}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        <button type="submit">Log In</button>
+        <button type="submit" className={styles.button}>Log In</button>
         {error && <p className={styles.error}>{error}</p>}
       </form>
-      <button onClick={handleGoogleLogin}>Log in with Google</button>
-      <button onClick={onRegister}>Create new account</button>
-      <button onClick={onForgotPassword}>Forgot password</button>
+      <button onClick={handleGoogleLogin} className={styles.button}>Log in with Google</button>
+      <button onClick={onRegister} className={styles.button}>Create new account</button>
+      <button onClick={onForgotPassword} className={styles.button}>Forgot password</button>
     </div>
   );
 }
