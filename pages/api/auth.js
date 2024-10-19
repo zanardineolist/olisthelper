@@ -47,6 +47,8 @@ export default async function handler(req, res) {
       google.options({ auth: client });
 
       // Inserir os dados do usuário na aba "Usuários"
+      console.log('Spreadsheet ID:', process.env.SHEET_ID);
+
       await sheets.spreadsheets.values.append({
         spreadsheetId: process.env.SHEET_ID,
         range: 'Usuários',
