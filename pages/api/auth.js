@@ -15,10 +15,11 @@ export default async function handler(req, res) {
 
     try {
       // Autenticação no Google Sheets
-      const auth = new google.auth.GoogleAuth({
-        credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
-        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-      });
+      console.log('Google Credentials:', process.env.GOOGLE_CREDENTIALS);
+        const auth = new google.auth.GoogleAuth({
+          credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS),
+          scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        });
 
       const client = await auth.getClient();
       google.options({ auth: client });
