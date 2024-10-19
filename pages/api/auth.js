@@ -5,6 +5,7 @@ const sheets = google.sheets('v4');
 
 export default async function handler(req, res) {
   console.log(`[LOGIN API] - Method: ${req.method}`);
+  console.log(`[LOGIN API] - URL: ${req.url}`);
 
   if (req.method === 'POST') {
     const { email, password } = req.body;

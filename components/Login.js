@@ -11,16 +11,17 @@ export default function Login({ onRegister, onForgotPassword }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      console.log('[Login Component] - Attempting login with:', email, password);
       const response = await axios.post('/api/auth/login', {
         email,
         password,
       });
       if (response.status === 200) {
-        console.log('Login successful', response.data);
+        console.log('[Login Component] - Login successful', response.data);
         // Aqui você pode redirecionar o usuário ou salvar o token
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('[Login Component] - Login error:', err);
       setError(err.response?.data?.error || 'Failed to log in. Please check your credentials.');
     }
   };  
