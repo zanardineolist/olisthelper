@@ -31,7 +31,7 @@ export default function Login({ onRegister, onForgotPassword }) {
 
   return (
     <div className={styles.container}>
-      <form onSubmit={handleLogin}>
+      <form className={styles.form} onSubmit={handleLogin}>
         <img src="/logo.png" alt="Bootstrap Brain" />
         <div>
           <label>Email *</label>
