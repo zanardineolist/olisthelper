@@ -17,9 +17,10 @@ export default function Login({ onRegister, onForgotPassword }) {
       });
       if (response.status === 200) {
         console.log('Login successful', response.data);
+        // Aqui você pode redirecionar o usuário ou salvar o token
       }
     } catch (err) {
-      setError('Failed to log in. Please check your credentials.');
+      setError(err.response?.data?.error || 'Failed to log in. Please check your credentials.');
     }
   };
 
