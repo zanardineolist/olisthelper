@@ -5,7 +5,7 @@ const sheets = google.sheets('v4');
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
 
     try {
       const auth = new google.auth.GoogleAuth({
@@ -27,36 +27,26 @@ export default async function handler(req, res) {
       const client = await auth.getClient();
       google.options({ auth: client });
 
-      // Ler os dados da aba "Usuários" do Google Sheets
-      const response = await sheets.spreadsheets.values.get({
+      // Gerar ID aleatório de 4 dígitos
+      const id = Math.floor(1000 + Math.random() * 9000);
+
+      // Criptografar a senha
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Inserir os dados do usuário na aba "Usuários"
+      await sheets.spreadsheets.values.append({
         spreadsheetId: process.env.SHEET_ID,
-        range: 'Usuários!A:E',
+        range: 'Usuários',
+        valueInputOption: 'RAW',
+        resource: {
+          values: [[id, name, email, hashedPassword, 'user']],
+        },
       });
 
-      const rows = response.data.values;
-      if (!rows || rows.length === 0) {
-        return res.status(404).json({ error: 'No users found.' });
-      }
-
-      // Encontrar o usuário pelo email
-      const user = rows.find((row) => row[2] === email);
-      if (!user) {
-        return res.status(401).json({ error: 'Invalid email or password.' });
-      }
-
-      // Verificar a senha
-      const hashedPassword = user[3];
-      const passwordMatch = await bcrypt.compare(password, hashedPassword);
-      if (!passwordMatch) {
-        return res.status(401).json({ error: 'Invalid email or password.' });
-      }
-
-      // Login bem-sucedido
-      return res.status(200).json({ message: 'Login successful', user: { id: user[0], name: user[1], email: user[2] } });
-
+      return res.status(200).json({ message: 'User registered successfully' });
     } catch (err) {
-      console.error('Failed to login:', err);
-      return res.status(500).json({ error: 'Failed to login.' });
+      console.error('Failed to register user:', err);
+      return res.status(500).json({ error: 'Failed to register user.' });
     }
   } else {
     res.setHeader('Allow', ['POST']);

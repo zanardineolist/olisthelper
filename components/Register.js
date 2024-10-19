@@ -10,30 +10,23 @@ export default function Register() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const handleRegister = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (!/@(tiny|olist)\.com\.br$/.test(email)) {
-      setError('Only users with @tiny.com.br or @olist.com emails are allowed.');
-      return;
-    }
-
     try {
-      const response = await axios.post('/api/auth', {
-        name,
+      console.log('[Login Component] - Attempting login with:', email, password);
+      const response = await axios.post('/api/login', {
         email,
         password,
       });
       if (response.status === 200) {
-        setSuccess('User registered successfully. You can now log in.');
-        setError('');
-        setName('');
-        setEmail('');
-        setPassword('');
+        console.log('[Login Component] - Login successful', response.data);
+        // Aqui você pode redirecionar o usuário ou salvar o token
       }
     } catch (err) {
-      setError('Failed to register user');
+      console.error('[Login Component] - Login error:', err);
+      setError(err.response?.data?.error || 'Failed to log in. Please check your credentials.');
     }
-  };
+  };  
 
   const handleGoogleRegister = () => {
     signIn('google');
