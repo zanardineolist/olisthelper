@@ -1,5 +1,5 @@
 {
-    "name": "projeto-suporte",
+    "name": "olist-helper",
     "version": "1.0.0",
     "private": true,
     "scripts": {
@@ -8,14 +8,14 @@
       "start": "next start"
     },
     "dependencies": {
-      "next": "latest",
-      "react": "latest",
-      "react-dom": "latest",
-      "next-auth": "^4.0.0",
-      "googleapis": "^100.0.0"
+      "axios": "^0.26.1",
+      "bcryptjs": "^2.4.3",
+      "googleapis": "^91.0.0",
+      "next": "12.1.0",
+      "react": "17.0.2",
+      "react-dom": "17.0.2",
+      "next-auth": "^4.3.2"
     },
-    "devDependencies": {
-      "dotenv": "^10.0.0"
-    }
+    "devDependencies": {}
   }
   
