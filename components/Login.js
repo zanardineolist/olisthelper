@@ -20,9 +20,10 @@ export default function Login({ onRegister, onForgotPassword }) {
         // Aqui você pode redirecionar o usuário ou salvar o token
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.response?.data?.error || 'Failed to log in. Please check your credentials.');
     }
-  };
+  };  
 
   const handleGoogleLogin = () => {
     signIn('google');

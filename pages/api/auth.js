@@ -4,8 +4,11 @@ import bcrypt from 'bcryptjs';
 const sheets = google.sheets('v4');
 
 export default async function handler(req, res) {
+  console.log(`[LOGIN API] - Method: ${req.method}`);
+
   if (req.method === 'POST') {
     const { email, password } = req.body;
+    console.log(`[LOGIN API] - Received Data: email=${email}`);
 
     try {
       // Autenticação no Google Sheets
@@ -36,12 +39,14 @@ export default async function handler(req, res) {
 
       const rows = response.data.values;
       if (!rows || rows.length === 0) {
+        console.log('[LOGIN API] - No users found in the spreadsheet.');
         return res.status(404).json({ error: 'No users found.' });
       }
 
       // Encontrar o usuário pelo email
       const user = rows.find((row) => row[2] === email);
       if (!user) {
+        console.log('[LOGIN API] - Email not found.');
         return res.status(401).json({ error: 'Invalid email or password.' });
       }
 
@@ -49,17 +54,20 @@ export default async function handler(req, res) {
       const hashedPassword = user[3];
       const passwordMatch = await bcrypt.compare(password, hashedPassword);
       if (!passwordMatch) {
+        console.log('[LOGIN API] - Password does not match.');
         return res.status(401).json({ error: 'Invalid email or password.' });
       }
 
       // Login bem-sucedido
+      console.log(`[LOGIN API] - Login successful for user: ${user[1]}`);
       res.status(200).json({ message: 'Login successful', user: { id: user[0], name: user[1], email: user[2] } });
 
     } catch (err) {
-      console.error('Failed to login:', err);
+      console.error('[LOGIN API] - Failed to login:', err);
       res.status(500).json({ error: 'Failed to login.' });
     }
   } else {
+    console.log(`[LOGIN API] - Method ${req.method} Not Allowed`);
     res.setHeader('Allow', ['POST']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
