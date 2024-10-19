@@ -1,21 +1,12 @@
 {
-    "name": "olist-helper",
-    "version": "1.0.0",
-    "private": true,
-    "scripts": {
-      "dev": "next dev",
-      "build": "next build",
-      "start": "next start"
-    },
-    "dependencies": {
-      "next": "^13.5.7",
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0",
-      "next-auth": "^4.24.8",
-      "bcryptjs": "^2.4.3",
-      "axios": "^0.26.1",
-      "googleapis": "^91.0.0"
-    },
-    "devDependencies": {}
+  "name": "olist-helper",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "googleapis": "^92.0.0"
+  },
+  "scripts": {
+    "dev": "vercel dev"
   }
-  
+}
