@@ -9,17 +9,16 @@ export default NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async signIn({ user, account, profile }) {
       const allowedDomains = process.env.AUTHORIZED_DOMAINS.split(',');
       const emailDomain = user.email.split('@')[1];
 
-      // Verifica se o domínio do e-mail é permitido
       if (!allowedDomains.includes(`@${emailDomain}`)) {
         return false;
       }
 
-      // Adiciona usuário à planilha do Google Sheets
       await addUserToSheet(user);
       return true;
     },
@@ -28,5 +27,4 @@ export default NextAuth({
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
 });
