@@ -1,0 +1,29 @@
+import { google } from 'googleapis';
+
+export async function addUserToSheet(user) {
+  try {
+    const auth = new google.auth.JWT(
+      process.env.GOOGLE_CLIENT_EMAIL,
+      null,
+      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      ['https://www.googleapis.com/auth/spreadsheets']
+    );
+
+    const sheets = google.sheets({ version: 'v4', auth });
+    const sheetId = process.env.SHEET_ID;
+
+    // Gerar ID aleatório de 4 dígitos
+    const userId = Math.floor(1000 + Math.random() * 9000);
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: sheetId,
+      range: 'Usuários!A:D',
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: [[userId, user.name, user.email, 'user']],
+      },
+    });
+  } catch (error) {
+    console.error('Erro ao adicionar usuário à planilha:', error);
+  }
+}
