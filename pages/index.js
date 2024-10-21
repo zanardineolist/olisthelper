@@ -22,9 +22,10 @@ export default function LoginPage() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100vh',
-        backgroundColor: '#001647',
-        padding: '20px',
+        minHeight: '100vh',
+        backgroundColor: '#121212', // Background dark mode
+        padding: '0',
+        margin: '0',
       }}
     >
       <div
@@ -32,7 +33,7 @@ export default function LoginPage() {
           textAlign: 'center',
           maxWidth: '400px',
           width: '100%',
-          backgroundColor: '#0A4EE4',
+          backgroundColor: '#1E1E1E', // Background para a caixa de login, mais escuro
           borderRadius: '10px',
           boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.5)',
           padding: '40px',
@@ -44,6 +45,7 @@ export default function LoginPage() {
             alt="Olist Helper Logo"
             width={150}
             height={150}
+            onError={(e) => (e.target.style.display = 'none')}
           />
         </div>
         <h2 style={{ color: '#F0A028', marginBottom: '20px' }}>Login</h2>
