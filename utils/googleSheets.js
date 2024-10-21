@@ -47,7 +47,7 @@ export async function getUserFromSheet(email) {
 
     const rows = response.data.values;
     if (rows) {
-      return rows.find((row) => row[2] === email);
+      return rows.find((row) => row[2] === email); // Coluna C contém o e-mail
     }
     return null;
   } catch (error) {
