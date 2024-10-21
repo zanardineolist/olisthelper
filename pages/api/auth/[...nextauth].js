@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { addUserToSheet } from '../../../utils/googleSheets';
+import { addUserToSheet, getUserFromSheet } from '../../../utils/googleSheets';
 
 export default NextAuth({
   providers: [
@@ -19,7 +19,11 @@ export default NextAuth({
         return false;
       }
 
-      await addUserToSheet(user);
+      // Verifique se o usuário já existe na planilha
+      const existingUser = await getUserFromSheet(user.email);
+      if (!existingUser) {
+        await addUserToSheet(user);
+      }
       return true;
     },
     async session({ session, token }) {

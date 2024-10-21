@@ -27,3 +27,31 @@ export async function addUserToSheet(user) {
     console.error('Erro ao adicionar usuário à planilha:', error);
   }
 }
+
+export async function getUserFromSheet(email) {
+  try {
+    const auth = new google.auth.JWT(
+      process.env.GOOGLE_CLIENT_EMAIL,
+      null,
+      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      ['https://www.googleapis.com/auth/spreadsheets']
+    );
+
+    const sheets = google.sheets({ version: 'v4', auth });
+    const sheetId = process.env.SHEET_ID;
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Usuários!A:D',
+    });
+
+    const rows = response.data.values;
+    if (rows) {
+      return rows.find((row) => row[2] === email);
+    }
+    return null;
+  } catch (error) {
+    console.error('Erro ao buscar usuário na planilha:', error);
+    return null;
+  }
+}
