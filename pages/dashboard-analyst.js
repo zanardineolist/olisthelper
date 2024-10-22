@@ -3,6 +3,7 @@ import { getSession } from 'next-auth/react';
 export async function getServerSideProps(context) {
   const session = await getSession(context);
 
+  // Redireciona se o usuário não estiver autenticado ou não for um analista
   if (!session || session.role !== 'analyst') {
     return {
       redirect: {
@@ -23,22 +24,24 @@ import { useRouter } from 'next/router';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-export default function DashboardAnalyst() {
-  const { data: session, status } = useSession();
+export default function DashboardAnalyst({ session }) {
+  const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState({});
   const [filter, setFilter] = useState('7');
 
-  // Verifique o status da sessão e exiba um indicador de carregamento até que ela esteja carregada
+  // Definir `isClient` como true quando estiver no lado do cliente
   useEffect(() => {
-    if (status === 'authenticated') {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient && session) {
       fetchRecords();
-    } else if (status === 'unauthenticated') {
-      router.push('/my'); // Redireciona se o usuário não estiver autenticado
     }
-  }, [status, filter]);
+  }, [isClient, filter, session]);
 
   const fetchRecords = async () => {
     if (!session?.user?.id) {
@@ -74,8 +77,8 @@ export default function DashboardAnalyst() {
     }
   };
 
-  // Enquanto o status da sessão for 'loading', mostramos um indicador de carregamento
-  if (status === 'loading' || loading) {
+  // Mostrar um indicador de carregamento enquanto os dados não estão prontos
+  if (!isClient || loading) {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
         Carregando...
