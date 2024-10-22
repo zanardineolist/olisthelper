@@ -3,13 +3,13 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 export default function RegistrarForm() {
-  const { data: session, status } = useSession();
+  const sessionResponse = useSession();
   const router = useRouter();
   const [analysts, setAnalysts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true); // Carregamento dos dados iniciais
+  const [submitting, setSubmitting] = useState(false); // Carregamento do envio do formulário
   const [formData, setFormData] = useState({
     analyst: '',
     category: '',
@@ -17,8 +17,10 @@ export default function RegistrarForm() {
   });
 
   useEffect(() => {
+    const { data: session, status } = sessionResponse;
+
     if (status === 'loading') {
-      return;
+      return; // Não faz nada até que o status seja definido.
     }
 
     if (status === 'unauthenticated' || !session) {
@@ -26,6 +28,7 @@ export default function RegistrarForm() {
       return;
     }
 
+    // Carregar a lista de analistas e categorias
     const loadAnalystsAndCategories = async () => {
       try {
         const res = await fetch('/api/get-analysts-categories');
@@ -35,12 +38,12 @@ export default function RegistrarForm() {
       } catch (err) {
         console.error('Erro ao carregar analistas e categorias:', err);
       } finally {
-        setLoading(false);
+        setLoading(false); // Finaliza o carregamento
       }
     };
 
     loadAnalystsAndCategories();
-  }, [session, status, router]);
+  }, [sessionResponse, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,6 +55,8 @@ export default function RegistrarForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { data: session } = sessionResponse;
+
     if (!session) {
       alert('Você precisa estar autenticado para enviar o formulário.');
       return;
@@ -89,6 +94,8 @@ export default function RegistrarForm() {
   const handleNavigation = (path) => {
     router.push(path);
   };
+
+  const { data: session, status } = sessionResponse;
 
   if (status === 'loading' || loading) {
     return (
@@ -259,7 +266,7 @@ export default function RegistrarForm() {
                 width: '100%',
                 transition: 'background-color 0.3s ease',
               }}
-              disabled={submitting}
+              disabled={submitting} // Desativa o botão durante o envio
             >
               {submitting ? 'Enviando...' : 'Enviar Dúvida'}
             </button>
