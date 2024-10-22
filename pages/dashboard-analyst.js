@@ -87,16 +87,27 @@ export default function DashboardAnalyst({ session }) {
 
   // Função para buscar o leaderboard (ranking)
   const fetchLeaderboard = async (data) => {
-    if (!data || !data.rows || data.count === 0) {
+    if (!data || !data.rows || !Array.isArray(data.rows) || data.count === 0) {
       setLeaderboard([]);
       return;
     }
 
-    // Calcular o ranking dos usuários que mais solicitaram ajuda
+    // Calcular o ranking dos usuários que mais solicitaram ajuda no mês atual
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
     const userHelpCounts = data.rows.reduce((acc, row) => {
-      const userName = row[2]; // Assume que o nome do usuário está na coluna 3
-      if (userName) {
-        acc[userName] = (acc[userName] || 0) + 1;
+      const [dateStr, , userName] = row;
+
+      if (dateStr && userName) {
+        const [day, month, year] = dateStr.split('/').map(Number);
+        const recordDate = new Date(year, month - 1, day);
+
+        // Verifica se o registro é do mês e ano atual
+        if (recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear) {
+          acc[userName] = (acc[userName] || 0) + 1;
+        }
       }
       return acc;
     }, {});
