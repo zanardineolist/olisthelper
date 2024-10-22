@@ -3,7 +3,7 @@ import { getSession, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 export default function RegistrarForm() {
-  const { data: session, status } = useSession(); // Corrigir o uso do hook useSession
+  const sessionData = useSession();
   const router = useRouter();
   const [analysts, setAnalysts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -13,12 +13,17 @@ export default function RegistrarForm() {
     description: '',
   });
 
-  useEffect(() => {
-    if (status === 'loading') return; // Evitar execução durante o carregamento da sessão
+  // Verificações de status da sessão
+  const { data: session, status } = sessionData;
 
-    // Redirecionar para a página inicial se não estiver autenticado
+  useEffect(() => {
+    if (status === 'loading') return; // Não faça nada enquanto a sessão estiver carregando
+
     if (!session) {
-      router.push('/');
+      router.push('/'); // Redirecionar para a página inicial se não houver sessão
+    } else if (session && session.user.profile !== 'analyst') {
+      // Se o perfil do usuário não for 'analyst', redirecionar para a página principal
+      router.push('/my');
     } else {
       // Carregar a lista de analistas e categorias da planilha
       fetch('/api/get-analysts-categories')
@@ -26,7 +31,8 @@ export default function RegistrarForm() {
         .then((data) => {
           setAnalysts(data.analysts);
           setCategories(data.categories);
-        });
+        })
+        .catch((err) => console.error('Erro ao carregar analistas e categorias:', err));
     }
   }, [session, status, router]);
 
@@ -45,21 +51,27 @@ export default function RegistrarForm() {
       return;
     }
 
-    const response = await fetch('/api/register-doubt', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ...formData,
-        userName: session.user.name,
-        userEmail: session.user.email,
-      }),
-    });
+    try {
+      const response = await fetch('/api/register-doubt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          userName: session.user.name,
+          userEmail: session.user.email,
+        }),
+      });
 
-    if (response.ok) {
-      alert('Dúvida registrada com sucesso!');
-    } else {
+      if (response.ok) {
+        alert('Dúvida registrada com sucesso!');
+        setFormData({ analyst: '', category: '', description: '' }); // Limpar o formulário após o envio
+      } else {
+        alert('Erro ao registrar a dúvida, tente novamente.');
+      }
+    } catch (error) {
+      console.error('Erro ao enviar o formulário:', error);
       alert('Erro ao registrar a dúvida, tente novamente.');
     }
   };
@@ -74,6 +86,14 @@ export default function RegistrarForm() {
   }
 
   // Renderizar o formulário apenas se a sessão estiver disponível
+  if (!session) {
+    return (
+      <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
+        Redirecionando...
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
