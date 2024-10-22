@@ -36,10 +36,7 @@ export default NextAuth({
     async signIn({ user }) {
       const authorizedDomains = process.env.AUTHORIZED_DOMAINS?.split(",") || [];
 
-      // Remover "@" dos domínios permitidos, caso haja algum
       const cleanAuthorizedDomains = authorizedDomains.map(domain => domain.trim().replace(/^@/, ''));
-
-      // Extrair o domínio do email do usuário
       const userDomain = user.email.split("@")[1];
 
       console.log("Domínio do usuário:", userDomain);

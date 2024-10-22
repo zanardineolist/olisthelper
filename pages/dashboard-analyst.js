@@ -9,6 +9,7 @@ export async function getServerSideProps(context) {
 
   console.log("Sessão no getServerSideProps:", session);
 
+  // Se o usuário não está autenticado ou não é "analyst", redireciona para /my
   if (!session || session.role !== 'analyst') {
     console.log("Redirecionando no getServerSideProps porque o papel do usuário não é 'analyst'.");
     return {
@@ -32,7 +33,8 @@ export default function DashboardAnalyst({ session }) {
   const [filter, setFilter] = useState('7');
 
   useEffect(() => {
-    if (!session || !session.user?.id) {
+    if (!session || !session.user?.id || session.role !== 'analyst') {
+      console.log("Redirecionando do useEffect porque a sessão é inválida ou o papel não é 'analyst'.");
       router.push('/my');
       return;
     }
