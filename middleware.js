@@ -4,6 +4,8 @@ import { NextResponse } from "next/server";
 export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
+  console.log("Token recebido no middleware:", token);
+
   const protectedPaths = ['/registrar', '/my', '/dashboard-analyst'];
   const pathIsProtected = protectedPaths.some((path) =>
     req.nextUrl.pathname.startsWith(path)

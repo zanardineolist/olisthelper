@@ -67,6 +67,7 @@ export default NextAuth({
 
         // Definir o papel do usuário a partir da planilha
         token.role = await getUserRole(user.email);
+        console.log("Papel do usuário definido no JWT:", token.role);
       }
       return token;
     },

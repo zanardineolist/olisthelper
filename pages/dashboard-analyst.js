@@ -7,6 +7,8 @@ import 'chart.js/auto';
 export async function getServerSideProps(context) {
   const session = await getSession(context);
 
+  console.log("Sessão no getServerSideProps:", session);
+
   // Se o usuário não está autenticado ou não é "analyst", redireciona para a página inicial
   if (!session || session.role !== 'analyst') {
     return {
