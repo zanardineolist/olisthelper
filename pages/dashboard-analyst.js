@@ -25,7 +25,7 @@ export async function getServerSideProps(context) {
   };
 }
 
-export default function DashboardAnalyst({ session }) {
+export default function DashboardAnalyst() {
   const router = useRouter();
   const { data: currentSession, status } = useSession();
   const [loading, setLoading] = useState(true);
@@ -39,8 +39,8 @@ export default function DashboardAnalyst({ session }) {
       return;
     }
 
-    // Se não há sessão ou o papel do usuário não é "analyst", redireciona para /my
-    if (!currentSession || currentSession.role !== 'analyst') {
+    // Se o status da sessão for "unauthenticated" ou o papel do usuário não for "analyst", redireciona para /my
+    if (status === 'unauthenticated' || !currentSession || currentSession.role !== 'analyst') {
       console.log("Redirecionando do useEffect porque a sessão é inválida ou o papel não é 'analyst'.");
       router.push('/my');
       return;
@@ -83,6 +83,7 @@ export default function DashboardAnalyst({ session }) {
     setFilter(e.target.value);
   };
 
+  // Mostrar um indicador de carregamento enquanto a sessão não está pronta ou os dados não foram carregados
   if (status === 'loading' || loading) {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
