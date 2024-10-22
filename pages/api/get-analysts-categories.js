@@ -12,14 +12,12 @@ export default async function handler(req, res) {
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
-    // Obter categorias
     const categoriesResponse = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Categorias!A1:A',
+      range: 'Categorias!A2:A',
     });
     const categories = categoriesResponse.data.values.flat();
-
-    // Obter analistas
+    
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Usuários!A:D',
