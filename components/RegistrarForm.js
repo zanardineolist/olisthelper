@@ -3,7 +3,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 export default function RegistrarForm() {
-  const sessionResponse = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [analysts, setAnalysts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -17,33 +17,32 @@ export default function RegistrarForm() {
   });
 
   useEffect(() => {
-    const { data: session, status } = sessionResponse;
+    // Verificar status de carregamento e autenticação
+    if (status === 'loading') return; // Não faz nada até que o status seja definido.
 
-    if (status === 'loading') {
-      return; // Não faz nada até que o status seja definido.
-    }
-
-    if (status === 'unauthenticated' || !session) {
+    if (status === 'unauthenticated') {
       router.push('/');
       return;
     }
 
-    // Carregar a lista de analistas e categorias
-    const loadAnalystsAndCategories = async () => {
-      try {
-        const res = await fetch('/api/get-analysts-categories');
-        const data = await res.json();
-        setAnalysts(data.analysts);
-        setCategories(data.categories);
-      } catch (err) {
-        console.error('Erro ao carregar analistas e categorias:', err);
-      } finally {
-        setLoading(false); // Finaliza o carregamento
-      }
-    };
+    if (session) {
+      // Carregar a lista de analistas e categorias
+      const loadAnalystsAndCategories = async () => {
+        try {
+          const res = await fetch('/api/get-analysts-categories');
+          const data = await res.json();
+          setAnalysts(data.analysts);
+          setCategories(data.categories);
+        } catch (err) {
+          console.error('Erro ao carregar analistas e categorias:', err);
+        } finally {
+          setLoading(false); // Finaliza o carregamento
+        }
+      };
 
-    loadAnalystsAndCategories();
-  }, [sessionResponse, router]);
+      loadAnalystsAndCategories();
+    }
+  }, [session, status, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,7 +54,6 @@ export default function RegistrarForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { data: session } = sessionResponse;
 
     if (!session) {
       alert('Você precisa estar autenticado para enviar o formulário.');
@@ -94,8 +92,6 @@ export default function RegistrarForm() {
   const handleNavigation = (path) => {
     router.push(path);
   };
-
-  const { data: session, status } = sessionResponse;
 
   if (status === 'loading' || loading) {
     return (
