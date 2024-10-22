@@ -17,13 +17,18 @@ export default function RegistrarFormPage() {
   });
 
   useEffect(() => {
-    // Se o usuário não estiver autenticado, redireciona para a página inicial
+    if (status === 'loading') {
+      // Sessão ainda está carregando, não fazemos nada
+      return;
+    }
+
     if (status === 'unauthenticated') {
+      // Usuário não autenticado, redireciona para a página inicial
       router.push('/');
     }
 
     if (status === 'authenticated') {
-      // Carrega analistas e categorias apenas quando autenticado
+      // Carrega analistas e categorias apenas quando o usuário está autenticado
       const loadAnalystsAndCategories = async () => {
         try {
           const res = await fetch('/api/get-analysts-categories');
@@ -42,7 +47,7 @@ export default function RegistrarFormPage() {
 
       loadAnalystsAndCategories();
     }
-  }, [status, session, router]);
+  }, [status, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
