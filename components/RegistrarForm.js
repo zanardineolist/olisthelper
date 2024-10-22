@@ -16,21 +16,29 @@ export default function RegistrarForm() {
     description: '',
   });
 
+  // Adicionando logs para depuração
+  console.log('RegistrarForm - Status da Sessão:', status);
+  console.log('RegistrarForm - Sessão:', session);
+
   useEffect(() => {
-    // Verificar status de carregamento e autenticação
-    if (status === 'loading') return; // Não faz nada até que o status seja definido.
+    if (status === 'loading') {
+      console.log('RegistrarForm - Sessão está carregando...');
+      return; // Não faz nada até que o status seja definido.
+    }
 
     if (status === 'unauthenticated') {
+      console.log('RegistrarForm - Usuário não autenticado, redirecionando...');
       router.push('/');
       return;
     }
 
     if (session) {
-      // Carregar a lista de analistas e categorias
+      console.log('RegistrarForm - Usuário autenticado, carregando analistas e categorias...');
       const loadAnalystsAndCategories = async () => {
         try {
           const res = await fetch('/api/get-analysts-categories');
           const data = await res.json();
+          console.log('RegistrarForm - Analistas e Categorias carregados:', data);
           setAnalysts(data.analysts);
           setCategories(data.categories);
         } catch (err) {
@@ -61,6 +69,7 @@ export default function RegistrarForm() {
     }
 
     setSubmitting(true);
+    console.log('RegistrarForm - Enviando dúvida:', formData);
 
     try {
       const response = await fetch('/api/register-doubt', {
@@ -70,16 +79,18 @@ export default function RegistrarForm() {
         },
         body: JSON.stringify({
           ...formData,
-          userName: session.user.name,
-          userEmail: session.user.email,
+          userName: session?.user?.name,
+          userEmail: session?.user?.email,
         }),
       });
 
       if (response.ok) {
         alert('Dúvida registrada com sucesso!');
+        console.log('RegistrarForm - Dúvida registrada com sucesso');
         setFormData({ analyst: '', category: '', description: '' }); // Limpa o formulário
       } else {
         alert('Erro ao registrar a dúvida, tente novamente.');
+        console.error('Erro ao registrar dúvida:', response);
       }
     } catch (error) {
       console.error('Erro ao enviar o formulário:', error);
