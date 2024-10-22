@@ -14,11 +14,10 @@ export async function getServerSideProps(context) {
   }
 
   return {
-    props: { session },
+    props: { session }, // Passa a sessão como props para o lado do cliente
   };
 }
 
-import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Bar } from 'react-chartjs-2';
@@ -37,12 +36,7 @@ export default function DashboardAnalyst({ session }) {
     setIsClient(true);
   }, []);
 
-  useEffect(() => {
-    if (isClient && session) {
-      fetchRecords();
-    }
-  }, [isClient, filter, session]);
-
+  // Função para buscar registros
   const fetchRecords = async () => {
     if (!session?.user?.id) {
       console.error("ID do analista não encontrado.");
@@ -76,6 +70,13 @@ export default function DashboardAnalyst({ session }) {
       setLoading(false);
     }
   };
+
+  // Carregar registros quando estiver no lado do cliente e o session estiver disponível
+  useEffect(() => {
+    if (isClient && session) {
+      fetchRecords();
+    }
+  }, [isClient, filter, session]);
 
   // Mostrar um indicador de carregamento enquanto os dados não estão prontos
   if (!isClient || loading) {
