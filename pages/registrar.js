@@ -16,7 +16,6 @@ export default function RegistrarPage() {
     description: '',
   });
 
-  // Efeito para verificar a autenticação e carregar dados dos analistas/categorias
   useEffect(() => {
     // Se a sessão está carregando, ainda não podemos fazer nada
     if (status === 'loading') {
@@ -52,15 +51,6 @@ export default function RegistrarPage() {
     }
   }, [status, router]);
 
-  // Função para atualizar o estado dos dados do formulário
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   // Função para lidar com o envio do formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,8 +70,8 @@ export default function RegistrarPage() {
         },
         body: JSON.stringify({
           ...formData,
-          userName: session.user.name,
-          userEmail: session.user.email,
+          userName: session?.user?.name, // Verificar se session e session.user existem
+          userEmail: session?.user?.email,
         }),
       });
 
@@ -97,11 +87,6 @@ export default function RegistrarPage() {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  // Função para navegar entre as páginas do sistema
-  const handleNavigation = (path) => {
-    router.push(path);
   };
 
   // Renderizar um loading enquanto os dados não estão prontos
