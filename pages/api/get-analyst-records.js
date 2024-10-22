@@ -3,8 +3,8 @@ import { google } from 'googleapis';
 export default async function handler(req, res) {
   const { analystId, filter } = req.query;
 
-  if (!analystId || analystId === 'undefined') {
-    return res.status(400).json({ error: 'ID do analista é obrigatório e deve ser válido.' });
+  if (!analystId || analystId === 'undefined' || !filter) {
+    return res.status(400).json({ error: 'ID do analista e filtro são obrigatórios e devem ser válidos.' });
   }
 
   try {
@@ -17,18 +17,22 @@ export default async function handler(req, res) {
 
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
-    const sheetName = `${analystId}`;
 
-    // Verificar se a aba existe
+    // Obter as informações da planilha (metadados)
     const sheetMeta = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
     });
 
-    const foundSheet = sheetMeta.data.sheets.find(sheet => sheet.properties.title === sheetName);
-    if (!foundSheet) {
+    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
+    const sheetName = sheetMeta.data.sheets.find((sheet) => {
+      return sheet.properties.title.startsWith(`#${analystId}`);
+    })?.properties.title;
+
+    if (!sheetName) {
       return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
     }
 
+    // Caso a aba seja encontrada, prosseguir para obter os valores
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: `${sheetName}!A:F`,
