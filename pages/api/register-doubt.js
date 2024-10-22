@@ -26,14 +26,24 @@ export default async function handler(req, res) {
     const formattedDate = date.toLocaleDateString('pt-BR');
     const formattedTime = date.toLocaleTimeString('pt-BR');
 
-    // Verifique se o `analyst` é válido antes de tentar adicionar dados na aba
-    if (!sheetId) {
-      throw new Error('SHEET_ID não definido nas variáveis de ambiente.');
+    // Obter as informações da planilha (metadados)
+    const sheetMeta = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+
+    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
+    const sheetName = sheetMeta.data.sheets.find((sheet) => {
+      return sheet.properties.title.startsWith(`#${analyst}`);
+    })?.properties.title;
+
+    if (!sheetName) {
+      return res.status(400).json({ error: `A aba correspondente ao ID '${analyst}' não existe na planilha.` });
     }
 
+    // Caso a aba exista, prosseguir com o append
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      range: `${analyst}!A:F`,
+      range: `${sheetName}!A:F`,
       valueInputOption: 'USER_ENTERED',
       resource: {
         values: [[formattedDate, formattedTime, userName, userEmail, category, description]],
