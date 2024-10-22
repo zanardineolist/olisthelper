@@ -1,9 +1,28 @@
-import { useEffect, useState } from 'react';
+import { getSession } from 'next-auth/react';
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+
+  // Se o usuário não estiver autenticado, redirecionar para a página inicial
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: { session },
+  };
+}
+
 import { useSession, signOut } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
-export default function RegistrarPage() {
-  const { data: session, status } = useSession();
+export default function RegistrarPage({ session }) {
   const router = useRouter();
   const [analysts, setAnalysts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -17,48 +36,38 @@ export default function RegistrarPage() {
   });
 
   useEffect(() => {
-    // Se a sessão está carregando, ainda não podemos fazer nada
-    if (status === 'loading') {
-      return;
-    }
-
-    // Se o usuário não estiver autenticado, redirecionar para a página inicial
-    if (status === 'unauthenticated') {
-      router.push('/');
-      return;
-    }
-
-    // Se a sessão está autenticada, carregar os dados
-    if (status === 'authenticated') {
-      const loadAnalystsAndCategories = async () => {
-        try {
-          setLoading(true);
-          const res = await fetch('/api/get-analysts-categories');
-          if (!res.ok) {
-            throw new Error('Erro ao buscar analistas e categorias');
-          }
-          const data = await res.json();
-          setAnalysts(data.analysts);
-          setCategories(data.categories);
-        } catch (err) {
-          console.error('Erro ao carregar analistas e categorias:', err);
-        } finally {
-          setLoading(false);
+    const loadAnalystsAndCategories = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/get-analysts-categories');
+        if (!res.ok) {
+          throw new Error('Erro ao buscar analistas e categorias');
         }
-      };
+        const data = await res.json();
+        setAnalysts(data.analysts);
+        setCategories(data.categories);
+      } catch (err) {
+        console.error('Erro ao carregar analistas e categorias:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      loadAnalystsAndCategories();
-    }
-  }, [status, router]);
+    loadAnalystsAndCategories();
+  }, []);
+
+  // Função para atualizar o estado dos dados do formulário
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   // Função para lidar com o envio do formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!session) {
-      alert('Você precisa estar autenticado para enviar o formulário.');
-      return;
-    }
 
     setSubmitting(true);
 
@@ -70,8 +79,8 @@ export default function RegistrarPage() {
         },
         body: JSON.stringify({
           ...formData,
-          userName: session?.user?.name, // Verificar se session e session.user existem
-          userEmail: session?.user?.email,
+          userName: session.user.name,
+          userEmail: session.user.email,
         }),
       });
 
@@ -90,7 +99,7 @@ export default function RegistrarPage() {
   };
 
   // Renderizar um loading enquanto os dados não estão prontos
-  if (status === 'loading' || loading) {
+  if (loading) {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
         Carregando...
