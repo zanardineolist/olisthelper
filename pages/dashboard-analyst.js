@@ -9,11 +9,11 @@ export async function getServerSideProps(context) {
 
   console.log("Sessão no getServerSideProps:", session);
 
-  // Se o usuário não está autenticado ou não é "analyst", redireciona para a página inicial
   if (!session || session.role !== 'analyst') {
+    console.log("Redirecionando no getServerSideProps porque o papel do usuário não é 'analyst'.");
     return {
       redirect: {
-        destination: '/',
+        destination: '/my',
         permanent: false,
       },
     };
@@ -29,16 +29,14 @@ export default function DashboardAnalyst({ session }) {
   const [loading, setLoading] = useState(true);
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState({});
-  const [filter, setFilter] = useState('7'); // Default: últimos 7 dias
+  const [filter, setFilter] = useState('7');
 
   useEffect(() => {
-    // Se a sessão não estiver disponível, redirecionar para a página inicial
     if (!session || !session.user?.id) {
-      router.push('/');
+      router.push('/my');
       return;
     }
 
-    // Buscar registros do analista
     const fetchRecords = async () => {
       try {
         setLoading(true);
@@ -75,7 +73,6 @@ export default function DashboardAnalyst({ session }) {
     setFilter(e.target.value);
   };
 
-  // Mostrar um indicador de carregamento enquanto os dados não estão prontos
   if (loading) {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>

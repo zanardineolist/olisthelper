@@ -6,19 +6,12 @@ export async function middleware(req) {
 
   console.log("Token recebido no middleware:", token);
 
-  const protectedPaths = ['/registrar', '/my', '/dashboard-analyst'];
-  const pathIsProtected = protectedPaths.some((path) =>
-    req.nextUrl.pathname.startsWith(path)
-  );
-
-  if (pathIsProtected && (!token || token.role === undefined)) {
-    if (req.nextUrl.pathname !== '/') {
-      return NextResponse.redirect(new URL('/', req.url));
+  // Verificar se o token existe e se o papel do usuário é "analyst"
+  if (req.nextUrl.pathname.startsWith('/dashboard-analyst')) {
+    if (!token || token.role !== 'analyst') {
+      console.log("Redirecionando porque o usuário não tem permissão para acessar o dashboard do analista.");
+      return NextResponse.redirect(new URL('/my', req.url));
     }
-  }
-
-  if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && token?.role !== 'analyst') {
-    return NextResponse.redirect(new URL('/', req.url));
   }
 
   return NextResponse.next();

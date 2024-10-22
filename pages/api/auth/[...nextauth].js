@@ -42,14 +42,12 @@ export default NextAuth({
       // Extrair o domínio do email do usuário
       const userDomain = user.email.split("@")[1];
 
-      // Log para depuração
       console.log("Domínio do usuário:", userDomain);
       console.log("Domínios permitidos:", cleanAuthorizedDomains);
 
-      // Verificar se o domínio do usuário está na lista de domínios autorizados
       if (cleanAuthorizedDomains.length > 0 && !cleanAuthorizedDomains.includes(userDomain)) {
         console.log("Usuário não autorizado devido ao domínio.");
-        return false; // Bloqueia caso o domínio não esteja na lista permitida
+        return false;
       }
 
       return true;
@@ -59,13 +57,12 @@ export default NextAuth({
         session.id = token.id;
         session.role = token.role; // Adiciona o papel à sessão
       }
+      console.log("Sessão no callback session:", session);
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-
-        // Definir o papel do usuário a partir da planilha
         token.role = await getUserRole(user.email);
         console.log("Papel do usuário definido no JWT:", token.role);
       }
