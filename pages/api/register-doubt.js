@@ -22,7 +22,8 @@ export default async function handler(req, res) {
     const formattedDate = date.toLocaleDateString('pt-BR');
     const formattedTime = date.toLocaleTimeString('pt-BR');
 
-    const analystSheetName = `${analyst} Analyst`;
+    // Identificar a aba do analista apenas pelo ID numérico
+    const analystSheetName = `${analyst}`;
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
