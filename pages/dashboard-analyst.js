@@ -3,7 +3,6 @@ import { getSession } from 'next-auth/react';
 export async function getServerSideProps(context) {
   const session = await getSession(context);
 
-  // Se o usuário não estiver autenticado, redirecionar para a página inicial
   if (!session || session.role !== 'analyst') {
     return {
       redirect: {
@@ -24,52 +23,55 @@ import { useRouter } from 'next/router';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-export default function DashboardAnalyst({ session }) {
+export default function DashboardAnalyst() {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState({});
-  const [filter, setFilter] = useState('7'); // Default: últimos 7 dias
+  const [filter, setFilter] = useState('7');
 
   useEffect(() => {
-    const fetchRecords = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/get-analyst-records?analystId=${session.user.id}&filter=${filter}`);
-        if (!res.ok) {
-          throw new Error('Erro ao buscar registros.');
-        }
+    if (status === 'authenticated') {
+      fetchRecords();
+    }
+  }, [status, filter]);
 
-        const data = await res.json();
-        setRecordCount(data.count);
-        setChartData({
-          labels: data.dates,
-          datasets: [
-            {
-              label: 'Dúvidas Auxiliadas',
-              data: data.counts,
-              backgroundColor: 'rgba(75, 192, 192, 0.6)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1,
-            },
-          ],
-        });
-      } catch (err) {
-        console.error('Erro ao carregar registros:', err);
-      } finally {
-        setLoading(false);
+  const fetchRecords = async () => {
+    if (!session?.user?.id) {
+      console.error("ID do analista não encontrado.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/get-analyst-records?analystId=${session.user.id}&filter=${filter}`);
+      if (!res.ok) {
+        throw new Error('Erro ao buscar registros.');
       }
-    };
 
-    fetchRecords();
-  }, [session, filter]);
-
-  const handleFilterChange = (e) => {
-    setFilter(e.target.value);
+      const data = await res.json();
+      setRecordCount(data.count);
+      setChartData({
+        labels: data.dates,
+        datasets: [
+          {
+            label: 'Dúvidas Auxiliadas',
+            data: data.counts,
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+          },
+        ],
+      });
+    } catch (err) {
+      console.error('Erro ao carregar registros:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Mostrar um indicador de carregamento enquanto a sessão não está pronta ou os dados não foram carregados
-  if (loading) {
+  if (loading || status !== 'authenticated') {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
         Carregando...
@@ -85,7 +87,7 @@ export default function DashboardAnalyst({ session }) {
       </div>
       <div>
         <label htmlFor="filter">Filtrar por:</label>
-        <select id="filter" value={filter} onChange={handleFilterChange}>
+        <select id="filter" value={filter} onChange={(e) => setFilter(e.target.value)}>
           <option value="1">Hoje</option>
           <option value="7">Últimos 7 dias</option>
           <option value="30">Últimos 30 dias</option>

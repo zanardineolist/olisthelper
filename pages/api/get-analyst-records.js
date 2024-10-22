@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   const { analystId, filter } = req.query;
 
   if (!analystId || analystId === 'undefined') {
-    return res.status(400).json({ error: 'Analyst ID é obrigatório e deve ser válido.' });
+    return res.status(400).json({ error: 'ID do analista é obrigatório e deve ser válido.' });
   }
 
   try {
@@ -17,8 +17,7 @@ export default async function handler(req, res) {
 
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
-
-    const sheetName = `#${analystId}`; // Nome da aba com o ID do analista
+    const sheetName = `#${analystId}`;
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: `${sheetName}!A:F`,
@@ -31,7 +30,7 @@ export default async function handler(req, res) {
 
     const currentDate = new Date();
     const filteredRows = rows.filter((row, index) => {
-      if (index === 0) return false; // Ignorar cabeçalho
+      if (index === 0) return false;
 
       const [dateStr] = row;
       const [day, month, year] = dateStr.split('/');
@@ -49,7 +48,6 @@ export default async function handler(req, res) {
 
     const count = filteredRows.length;
     const dates = filteredRows.map((row) => row[0]);
-
     const countsObj = dates.reduce((acc, date) => {
       acc[date] = (acc[date] || 0) + 1;
       return acc;

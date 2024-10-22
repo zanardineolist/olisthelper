@@ -19,9 +19,9 @@ async function getUserRole(email) {
   });
 
   const rows = response.data.values;
-  const userRow = rows.find((row) => row[2] === email); // Coluna C contém o e-mail
+  const userRow = rows.find((row) => row[2] === email);
 
-  return userRow ? userRow[3] : 'user'; // Retorna o papel do usuário, se encontrado
+  return userRow ? userRow[3] : 'user';
 }
 
 export default NextAuth({
@@ -35,15 +35,10 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       const authorizedDomains = process.env.AUTHORIZED_DOMAINS?.split(",") || [];
-
       const cleanAuthorizedDomains = authorizedDomains.map(domain => domain.trim().replace(/^@/, ''));
       const userDomain = user.email.split("@")[1];
 
-      console.log("Domínio do usuário:", userDomain);
-      console.log("Domínios permitidos:", cleanAuthorizedDomains);
-
       if (cleanAuthorizedDomains.length > 0 && !cleanAuthorizedDomains.includes(userDomain)) {
-        console.log("Usuário não autorizado devido ao domínio.");
         return false;
       }
 
@@ -52,16 +47,14 @@ export default NextAuth({
     async session({ session, token }) {
       if (token) {
         session.id = token.id;
-        session.role = token.role; // Adiciona o papel à sessão
+        session.role = token.role || 'user';
       }
-      console.log("Sessão no callback session:", session);
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = await getUserRole(user.email);
-        console.log("Papel do usuário definido no JWT:", token.role);
       }
       return token;
     },
