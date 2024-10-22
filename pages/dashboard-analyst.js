@@ -1,4 +1,4 @@
-import { getSession } from 'next-auth/react';
+import { getSession, useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Bar } from 'react-chartjs-2';
@@ -27,22 +27,30 @@ export async function getServerSideProps(context) {
 
 export default function DashboardAnalyst({ session }) {
   const router = useRouter();
+  const { data: currentSession, status } = useSession();
   const [loading, setLoading] = useState(true);
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState({});
-  const [filter, setFilter] = useState('7');
+  const [filter, setFilter] = useState('7'); // Default: últimos 7 dias
 
   useEffect(() => {
-    if (!session || !session.user?.id || session.role !== 'analyst') {
+    // Se o status da sessão for "loading", significa que ainda não temos uma resposta definitiva.
+    if (status === 'loading') {
+      return;
+    }
+
+    // Se não há sessão ou o papel do usuário não é "analyst", redireciona para /my
+    if (!currentSession || currentSession.role !== 'analyst') {
       console.log("Redirecionando do useEffect porque a sessão é inválida ou o papel não é 'analyst'.");
       router.push('/my');
       return;
     }
 
+    // Buscar registros do analista
     const fetchRecords = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/get-analyst-records?analystId=${session.user.id}&filter=${filter}`);
+        const res = await fetch(`/api/get-analyst-records?analystId=${currentSession.user.id}&filter=${filter}`);
         if (!res.ok) {
           throw new Error('Erro ao buscar registros.');
         }
@@ -69,13 +77,13 @@ export default function DashboardAnalyst({ session }) {
     };
 
     fetchRecords();
-  }, [session, filter, router]);
+  }, [currentSession, filter, router, status]);
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
   };
 
-  if (loading) {
+  if (status === 'loading' || loading) {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
         Carregando...
