@@ -4,6 +4,7 @@ export default async function handler(req, res) {
   const { analystId, filter } = req.query;
 
   if (!analystId || analystId === 'undefined' || !filter) {
+    console.log('Erro: ID do analista ou filtro não fornecidos ou inválidos.');
     return res.status(400).json({ error: 'ID do analista e filtro são obrigatórios e devem ser válidos.' });
   }
 
@@ -18,6 +19,8 @@ export default async function handler(req, res) {
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
+    console.log(`Buscando metadados da planilha com ID: ${sheetId} para o analista: ${analystId}`);
+
     // Obter as informações da planilha (metadados)
     const sheetMeta = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
@@ -29,8 +32,11 @@ export default async function handler(req, res) {
     })?.properties.title;
 
     if (!sheetName) {
+      console.log(`Erro: A aba correspondente ao ID '${analystId}' não existe na planilha.`);
       return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
     }
+
+    console.log(`Aba localizada: ${sheetName}`);
 
     // Caso a aba seja encontrada, prosseguir para obter os valores
     const response = await sheets.spreadsheets.values.get({
@@ -39,13 +45,17 @@ export default async function handler(req, res) {
     });
 
     const rows = response.data.values;
+
     if (!rows || rows.length === 0) {
-      return res.status(200).json({ count: 0, dates: [], counts: [] });
+      console.log('Nenhum registro encontrado na aba especificada.');
+      return res.status(200).json({ count: 0, dates: [], counts: [], rows: [] });
     }
+
+    console.log(`Total de registros encontrados: ${rows.length}`);
 
     const currentDate = new Date();
     const filteredRows = rows.filter((row, index) => {
-      if (index === 0) return false;
+      if (index === 0) return false; // Pular cabeçalho
 
       const [dateStr] = row;
       const [day, month, year] = dateStr.split('/');
@@ -58,8 +68,11 @@ export default async function handler(req, res) {
     });
 
     if (!filteredRows || filteredRows.length === 0) {
-      return res.status(200).json({ count: 0, dates: [], counts: [] });
+      console.log('Nenhum registro encontrado após o filtro aplicado.');
+      return res.status(200).json({ count: 0, dates: [], counts: [], rows: [] });
     }
+
+    console.log(`Total de registros após o filtro: ${filteredRows.length}`);
 
     const count = filteredRows.length;
     const dates = filteredRows.map((row) => row[0]);
@@ -68,10 +81,13 @@ export default async function handler(req, res) {
       return acc;
     }, {});
 
+    console.log('Contagem de registros por data:', countsObj);
+
     res.status(200).json({
       count,
       dates: Object.keys(countsObj),
       counts: Object.values(countsObj),
+      rows: filteredRows, // Adicionar as linhas para uso no leaderboard
     });
   } catch (error) {
     console.error('Erro ao obter registros do analista:', error);
