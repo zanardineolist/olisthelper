@@ -31,9 +31,12 @@ export default function DashboardAnalyst() {
   const [chartData, setChartData] = useState({});
   const [filter, setFilter] = useState('7');
 
+  // Verifique o status da sessão e exiba um indicador de carregamento até que ela esteja carregada
   useEffect(() => {
     if (status === 'authenticated') {
       fetchRecords();
+    } else if (status === 'unauthenticated') {
+      router.push('/my'); // Redireciona se o usuário não estiver autenticado
     }
   }, [status, filter]);
 
@@ -71,7 +74,8 @@ export default function DashboardAnalyst() {
     }
   };
 
-  if (loading || status !== 'authenticated') {
+  // Enquanto o status da sessão for 'loading', mostramos um indicador de carregamento
+  if (status === 'loading' || loading) {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
         Carregando...
