@@ -14,7 +14,7 @@ export async function getServerSideProps(context) {
   }
 
   return {
-    props: { session }, // Passa a sessão como props para o lado do cliente
+    props: { session },
   };
 }
 
@@ -28,7 +28,7 @@ export default function DashboardAnalyst({ session }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [recordCount, setRecordCount] = useState(0);
-  const [chartData, setChartData] = useState({});
+  const [chartData, setChartData] = useState(null); // Inicializado como null para indicar dados não carregados
   const [filter, setFilter] = useState('7');
 
   // Definir `isClient` como true quando estiver no lado do cliente
@@ -51,21 +51,29 @@ export default function DashboardAnalyst({ session }) {
       }
 
       const data = await res.json();
-      setRecordCount(data.count);
-      setChartData({
-        labels: data.dates,
-        datasets: [
-          {
-            label: 'Dúvidas Auxiliadas',
-            data: data.counts,
-            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            borderWidth: 1,
-          },
-        ],
-      });
+
+      if (data.count === 0) {
+        setRecordCount(0);
+        setChartData(null);
+      } else {
+        setRecordCount(data.count);
+        setChartData({
+          labels: data.dates,
+          datasets: [
+            {
+              label: 'Dúvidas Auxiliadas',
+              data: data.counts,
+              backgroundColor: 'rgba(75, 192, 192, 0.6)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1,
+            },
+          ],
+        });
+      }
     } catch (err) {
       console.error('Erro ao carregar registros:', err);
+      setRecordCount(0);
+      setChartData(null);
     } finally {
       setLoading(false);
     }
@@ -102,7 +110,13 @@ export default function DashboardAnalyst({ session }) {
         </select>
       </div>
       <div style={{ marginTop: '20px' }}>
-        <Bar data={chartData} />
+        {chartData ? (
+          <Bar data={chartData} />
+        ) : (
+          <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
+            Nenhum dado disponível para o período selecionado.
+          </div>
+        )}
       </div>
     </div>
   );
