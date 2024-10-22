@@ -17,14 +17,19 @@ export default function RegistrarFormPage() {
   });
 
   useEffect(() => {
-    if (status === 'loading') return;
-
+    // Se o usuário não estiver autenticado, redireciona para a página inicial
     if (status === 'unauthenticated') {
       router.push('/');
-    } else if (status === 'authenticated') {
+    }
+
+    if (status === 'authenticated') {
+      // Carrega analistas e categorias apenas quando autenticado
       const loadAnalystsAndCategories = async () => {
         try {
           const res = await fetch('/api/get-analysts-categories');
+          if (!res.ok) {
+            throw new Error('Erro ao buscar analistas e categorias');
+          }
           const data = await res.json();
           setAnalysts(data.analysts);
           setCategories(data.categories);
@@ -72,7 +77,7 @@ export default function RegistrarFormPage() {
 
       if (response.ok) {
         alert('Dúvida registrada com sucesso!');
-        setFormData({ analyst: '', category: '', description: '' }); // Limpa o formulário
+        setFormData({ analyst: '', category: '', description: '' });
       } else {
         alert('Erro ao registrar a dúvida, tente novamente.');
       }
@@ -91,7 +96,7 @@ export default function RegistrarFormPage() {
   if (status === 'loading' || loading) {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
-        Carregando analistas e categorias...
+        Carregando...
       </div>
     );
   }

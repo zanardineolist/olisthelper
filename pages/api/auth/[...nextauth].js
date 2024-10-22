@@ -1,6 +1,5 @@
-import NextAuth from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-import { addUserToSheet, getUserFromSheet } from '../../../utils/googleSheets';
+import NextAuth from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
 
 export default NextAuth({
   providers: [
@@ -11,24 +10,24 @@ export default NextAuth({
   ],
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async signIn({ user, account, profile }) {
-      const allowedDomains = process.env.AUTHORIZED_DOMAINS.split(',');
-      const emailDomain = user.email.split('@')[1];
-
-      if (!allowedDomains.includes(`@${emailDomain}`)) {
+    async signIn({ user }) {
+      const authorizedDomains = process.env.AUTHORIZED_DOMAINS?.split(",") || [];
+      if (!authorizedDomains.includes(user.email.split("@")[1])) {
         return false;
-      }
-
-      // Verifique se o usuário já existe na planilha
-      const existingUser = await getUserFromSheet(user.email);
-      if (!existingUser) {
-        await addUserToSheet(user);
       }
       return true;
     },
     async session({ session, token }) {
-      session.id = token.id;
+      if (token?.id) {
+        session.id = token.id;
+      }
       return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
     },
   },
 });
