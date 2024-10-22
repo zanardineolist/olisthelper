@@ -43,18 +43,22 @@ export default async function handler(req, res) {
       return diffDays <= filter;
     });
 
-    const count = filteredRows.length;
+    if (!filteredRows || filteredRows.length === 0) {
+      return res.status(200).json({ count: 0, dates: [], counts: [] });
+    }
 
+    const count = filteredRows.length;
     const dates = filteredRows.map((row) => row[0]);
-    const counts = dates.reduce((acc, date) => {
+
+    const countsObj = dates.reduce((acc, date) => {
       acc[date] = (acc[date] || 0) + 1;
       return acc;
     }, {});
 
     res.status(200).json({
       count,
-      dates: Object.keys(counts),
-      counts: Object.values(counts),
+      dates: Object.keys(countsObj),
+      counts: Object.values(countsObj),
     });
   } catch (error) {
     console.error('Erro ao obter registros do analista:', error);

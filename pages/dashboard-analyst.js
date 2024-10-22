@@ -31,7 +31,7 @@ export default function DashboardAnalyst({ session }) {
 
   useEffect(() => {
     // Se a sessão não estiver disponível, redirecionar para a página inicial
-    if (!session) {
+    if (!session || !session.user?.id) {
       router.push('/');
       return;
     }
