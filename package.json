@@ -1,5 +1,5 @@
 {
-  "name": "google-sheets-login",
+  "name": "olist-helper",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -13,8 +13,8 @@
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "googleapis": "^100.0.0",
-    "react-chartjs-2": "^5.0.0",
-    "chart.js": "^3.0.0"
+    "react-chartjs-2": "^5.2.0",
+    "chart.js": "^4.1.1"
   },
   "devDependencies": {
     "eslint": "8.0.1",
