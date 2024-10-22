@@ -17,7 +17,18 @@ export default async function handler(req, res) {
 
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
-    const sheetName = `#${analystId}`;
+    const sheetName = `${analystId}`;
+
+    // Verificar se a aba existe
+    const sheetMeta = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+
+    const foundSheet = sheetMeta.data.sheets.find(sheet => sheet.properties.title === sheetName);
+    if (!foundSheet) {
+      return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
+    }
+
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: `${sheetName}!A:F`,
