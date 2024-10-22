@@ -4,6 +4,24 @@ import { useRouter } from 'next/router';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+
+  // Se o usuário não está autenticado ou não é "analyst", redireciona para a página inicial
+  if (!session || session.role !== 'analyst') {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: { session },
+  };
+}
+
 export default function DashboardAnalyst({ session }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -12,8 +30,8 @@ export default function DashboardAnalyst({ session }) {
   const [filter, setFilter] = useState('7'); // Default: últimos 7 dias
 
   useEffect(() => {
-    // Caso a sessão não esteja disponível, redirecionar para a página inicial
-    if (!session || session.role !== 'analyst') {
+    // Se a sessão não estiver disponível, redirecionar para a página inicial
+    if (!session) {
       router.push('/');
       return;
     }
@@ -55,6 +73,7 @@ export default function DashboardAnalyst({ session }) {
     setFilter(e.target.value);
   };
 
+  // Mostrar um indicador de carregamento enquanto os dados não estão prontos
   if (loading) {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
@@ -82,28 +101,4 @@ export default function DashboardAnalyst({ session }) {
       </div>
     </div>
   );
-}
-
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-
-  // Se o usuário não está autenticado ou não é "analyst", redireciona para a página inicial
-  if (!session || session.role !== 'analyst') {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  // Certificar que o papel do usuário está sendo passado corretamente
-  return {
-    props: {
-      session: {
-        ...session,
-        role: session.role || 'user', // Garantir que o papel seja definido
-      },
-    },
-  };
 }
