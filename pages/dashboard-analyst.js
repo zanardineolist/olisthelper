@@ -12,6 +12,13 @@ export default function DashboardAnalyst({ session }) {
   const [filter, setFilter] = useState('7'); // Default: últimos 7 dias
 
   useEffect(() => {
+    // Caso a sessão não esteja disponível, redirecionar para a página inicial
+    if (!session || session.role !== 'analyst') {
+      router.push('/');
+      return;
+    }
+
+    // Buscar registros do analista
     const fetchRecords = async () => {
       try {
         setLoading(true);
@@ -42,7 +49,7 @@ export default function DashboardAnalyst({ session }) {
     };
 
     fetchRecords();
-  }, [session, filter]);
+  }, [session, filter, router]);
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
@@ -90,9 +97,13 @@ export async function getServerSideProps(context) {
     };
   }
 
+  // Certificar que o papel do usuário está sendo passado corretamente
   return {
     props: {
-      session,
+      session: {
+        ...session,
+        role: session.role || 'user', // Garantir que o papel seja definido
+      },
     },
   };
 }
