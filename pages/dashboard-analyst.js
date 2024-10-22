@@ -1,17 +1,10 @@
-import { getSession, useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { Bar } from 'react-chartjs-2';
-import 'chart.js/auto';
+import { getSession } from 'next-auth/react';
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
 
-  console.log("Sessão no getServerSideProps:", session);
-
-  // Se o usuário não está autenticado ou não é "analyst", redireciona para /my
+  // Se o usuário não estiver autenticado, redirecionar para a página inicial
   if (!session || session.role !== 'analyst') {
-    console.log("Redirecionando no getServerSideProps porque o papel do usuário não é 'analyst'.");
     return {
       redirect: {
         destination: '/my',
@@ -25,34 +18,24 @@ export async function getServerSideProps(context) {
   };
 }
 
-export default function DashboardAnalyst() {
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { Bar } from 'react-chartjs-2';
+import 'chart.js/auto';
+
+export default function DashboardAnalyst({ session }) {
   const router = useRouter();
-  const session = useSession();
   const [loading, setLoading] = useState(true);
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState({});
   const [filter, setFilter] = useState('7'); // Default: últimos 7 dias
 
   useEffect(() => {
-    const { data: currentSession, status } = session;
-
-    // Se o status da sessão for "loading", significa que ainda não temos uma resposta definitiva.
-    if (status === 'loading') {
-      return;
-    }
-
-    // Se o status da sessão for "unauthenticated" ou o papel do usuário não for "analyst", redireciona para /my
-    if (status === 'unauthenticated' || !currentSession || currentSession.role !== 'analyst') {
-      console.log("Redirecionando do useEffect porque a sessão é inválida ou o papel não é 'analyst'.");
-      router.push('/my');
-      return;
-    }
-
-    // Buscar registros do analista
     const fetchRecords = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/get-analyst-records?analystId=${currentSession.user.id}&filter=${filter}`);
+        const res = await fetch(`/api/get-analyst-records?analystId=${session.user.id}&filter=${filter}`);
         if (!res.ok) {
           throw new Error('Erro ao buscar registros.');
         }
@@ -79,14 +62,14 @@ export default function DashboardAnalyst() {
     };
 
     fetchRecords();
-  }, [session, filter, router]);
+  }, [session, filter]);
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
   };
 
   // Mostrar um indicador de carregamento enquanto a sessão não está pronta ou os dados não foram carregados
-  if (session.status === 'loading' || loading) {
+  if (loading) {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
         Carregando...
