@@ -56,6 +56,7 @@ export default function DashboardAnalyst({ session }) {
       if (data.count === 0) {
         setRecordCount(0);
         setChartData(null);
+        setLeaderboard([]); // Garantir que o leaderboard seja limpo quando não houver registros
       } else {
         setRecordCount(data.count);
         setChartData({
@@ -70,14 +71,15 @@ export default function DashboardAnalyst({ session }) {
             },
           ],
         });
-      }
 
-      // Buscar leaderboard
-      fetchLeaderboard(data);
+        // Passar as linhas de registro para o leaderboard
+        fetchLeaderboard({ ...data, rows: data.rows });
+      }
     } catch (err) {
       console.error('Erro ao carregar registros:', err);
       setRecordCount(0);
       setChartData(null);
+      setLeaderboard([]);
     } finally {
       setLoading(false);
     }
@@ -85,7 +87,7 @@ export default function DashboardAnalyst({ session }) {
 
   // Função para buscar o leaderboard (ranking)
   const fetchLeaderboard = async (data) => {
-    if (!data || data.count === 0) {
+    if (!data || !data.rows || data.count === 0) {
       setLeaderboard([]);
       return;
     }
