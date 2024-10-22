@@ -9,7 +9,7 @@ export async function middleware(req) {
     req.nextUrl.pathname.startsWith(path)
   );
 
-  if (pathIsProtected && !token) {
+  if (pathIsProtected && (!token || token.role === undefined)) {
     if (req.nextUrl.pathname !== '/') {
       return NextResponse.redirect(new URL('/', req.url));
     }

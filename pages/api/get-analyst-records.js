@@ -3,8 +3,8 @@ import { google } from 'googleapis';
 export default async function handler(req, res) {
   const { analystId, filter } = req.query;
 
-  if (!analystId) {
-    return res.status(400).json({ error: 'Analyst ID é obrigatório' });
+  if (!analystId || analystId === 'undefined') {
+    return res.status(400).json({ error: 'Analyst ID é obrigatório e deve ser válido.' });
   }
 
   try {
