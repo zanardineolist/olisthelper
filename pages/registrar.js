@@ -1,7 +1,19 @@
-import dynamic from 'next/dynamic';
+import { useSession } from 'next-auth/react';
+import RegistrarForm from '../components/RegistrarForm';
 
-const RegistrarPage = dynamic(() => import('../components/RegistrarForm'), {
-  ssr: false,
-});
+export default function RegistrarPage() {
+  const { status } = useSession();
 
-export default RegistrarPage;
+  if (status === 'loading') {
+    return <div>Carregando...</div>;
+  }
+
+  if (status === 'unauthenticated') {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
+    return null;
+  }
+
+  return <RegistrarForm />;
+}
