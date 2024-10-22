@@ -27,13 +27,15 @@ export async function getServerSideProps(context) {
 
 export default function DashboardAnalyst() {
   const router = useRouter();
-  const { data: currentSession, status } = useSession();
+  const session = useSession();
   const [loading, setLoading] = useState(true);
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState({});
   const [filter, setFilter] = useState('7'); // Default: últimos 7 dias
 
   useEffect(() => {
+    const { data: currentSession, status } = session;
+
     // Se o status da sessão for "loading", significa que ainda não temos uma resposta definitiva.
     if (status === 'loading') {
       return;
@@ -77,14 +79,14 @@ export default function DashboardAnalyst() {
     };
 
     fetchRecords();
-  }, [currentSession, filter, router, status]);
+  }, [session, filter, router]);
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
   };
 
   // Mostrar um indicador de carregamento enquanto a sessão não está pronta ou os dados não foram carregados
-  if (status === 'loading' || loading) {
+  if (session.status === 'loading' || loading) {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
         Carregando...
