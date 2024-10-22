@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { getSession, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 export default function RegistrarForm() {
-  const sessionData = useSession();
+  const { data: session, status } = useSession(); // Corrigir o uso do hook useSession
   const router = useRouter();
   const [analysts, setAnalysts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -13,27 +13,26 @@ export default function RegistrarForm() {
     description: '',
   });
 
-  // Verificações de status da sessão
-  const { data: session, status } = sessionData;
-
   useEffect(() => {
-    if (status === 'loading') return; // Não faça nada enquanto a sessão estiver carregando
-
-    if (!session) {
-      router.push('/'); // Redirecionar para a página inicial se não houver sessão
-    } else if (session && session.user.profile !== 'analyst') {
-      // Se o perfil do usuário não for 'analyst', redirecionar para a página principal
-      router.push('/my');
-    } else {
-      // Carregar a lista de analistas e categorias da planilha
-      fetch('/api/get-analysts-categories')
-        .then((res) => res.json())
-        .then((data) => {
-          setAnalysts(data.analysts);
-          setCategories(data.categories);
-        })
-        .catch((err) => console.error('Erro ao carregar analistas e categorias:', err));
+    if (status === 'loading') {
+      // O status está carregando, não faça nada até a sessão estar definida
+      return;
     }
+
+    if (status === 'unauthenticated' || !session) {
+      // Se não há sessão ou o status for não autenticado, redirecionar para a página de login
+      router.push('/');
+      return;
+    }
+
+    // Carregar a lista de analistas e categorias da planilha quando o usuário está autenticado
+    fetch('/api/get-analysts-categories')
+      .then((res) => res.json())
+      .then((data) => {
+        setAnalysts(data.analysts);
+        setCategories(data.categories);
+      })
+      .catch((err) => console.error('Erro ao carregar analistas e categorias:', err));
   }, [session, status, router]);
 
   const handleChange = (e) => {
@@ -76,7 +75,6 @@ export default function RegistrarForm() {
     }
   };
 
-  // Mostrar carregamento enquanto a sessão estiver sendo carregada
   if (status === 'loading') {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
@@ -85,8 +83,7 @@ export default function RegistrarForm() {
     );
   }
 
-  // Renderizar o formulário apenas se a sessão estiver disponível
-  if (!session) {
+  if (status === 'unauthenticated') {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
         Redirecionando...
