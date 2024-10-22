@@ -8,6 +8,8 @@ export default function RegistrarForm() {
   const [analysts, setAnalysts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     analyst: '',
     category: '',
@@ -24,13 +26,20 @@ export default function RegistrarForm() {
       return;
     }
 
-    fetch('/api/get-analysts-categories')
-      .then((res) => res.json())
-      .then((data) => {
+    const loadAnalystsAndCategories = async () => {
+      try {
+        const res = await fetch('/api/get-analysts-categories');
+        const data = await res.json();
         setAnalysts(data.analysts);
         setCategories(data.categories);
-      })
-      .catch((err) => console.error('Erro ao carregar analistas e categorias:', err));
+      } catch (err) {
+        console.error('Erro ao carregar analistas e categorias:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAnalystsAndCategories();
   }, [session, status, router]);
 
   const handleChange = (e) => {
@@ -48,6 +57,8 @@ export default function RegistrarForm() {
       return;
     }
 
+    setSubmitting(true);
+
     try {
       const response = await fetch('/api/register-doubt', {
         method: 'POST',
@@ -63,19 +74,37 @@ export default function RegistrarForm() {
 
       if (response.ok) {
         alert('Dúvida registrada com sucesso!');
-        setFormData({ analyst: '', category: '', description: '' });
+        setFormData({ analyst: '', category: '', description: '' }); // Limpa o formulário
       } else {
         alert('Erro ao registrar a dúvida, tente novamente.');
       }
     } catch (error) {
       console.error('Erro ao enviar o formulário:', error);
       alert('Erro ao registrar a dúvida, tente novamente.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleNavigation = (path) => {
     router.push(path);
   };
+
+  if (status === 'loading' || loading) {
+    return (
+      <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
+        Carregando analistas e categorias...
+      </div>
+    );
+  }
+
+  if (status === 'unauthenticated') {
+    return (
+      <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
+        Redirecionando...
+      </div>
+    );
+  }
 
   return (
     <div
@@ -221,7 +250,7 @@ export default function RegistrarForm() {
             <button
               type="submit"
               style={{
-                backgroundColor: '#E64E36',
+                backgroundColor: submitting ? '#F0A028' : '#E64E36',
                 color: '#fff',
                 padding: '10px 20px',
                 border: 'none',
@@ -230,10 +259,9 @@ export default function RegistrarForm() {
                 width: '100%',
                 transition: 'background-color 0.3s ease',
               }}
-              onMouseOver={(e) => (e.target.style.backgroundColor = '#F0A028')}
-              onMouseOut={(e) => (e.target.style.backgroundColor = '#E64E36')}
+              disabled={submitting}
             >
-              Enviar Dúvida
+              {submitting ? 'Enviando...' : 'Enviar Dúvida'}
             </button>
           </form>
         </div>
