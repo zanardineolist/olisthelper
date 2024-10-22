@@ -3,7 +3,7 @@ import { getSession, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 export default function RegistrarPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession(); // Corrigir o uso do hook useSession
   const router = useRouter();
   const [analysts, setAnalysts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -14,11 +14,13 @@ export default function RegistrarPage() {
   });
 
   useEffect(() => {
-    // Verificar se o usuário está autenticado
+    if (status === 'loading') return; // Evitar execução durante o carregamento da sessão
+
+    // Redirecionar para a página inicial se não estiver autenticado
     if (!session) {
       router.push('/');
     } else {
-      // Carregar lista de analistas e categorias da planilha
+      // Carregar a lista de analistas e categorias da planilha
       fetch('/api/get-analysts-categories')
         .then((res) => res.json())
         .then((data) => {
@@ -26,7 +28,7 @@ export default function RegistrarPage() {
           setCategories(data.categories);
         });
     }
-  }, [session]);
+  }, [session, status, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,6 +40,11 @@ export default function RegistrarPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!session) {
+      alert('Você precisa estar autenticado para enviar o formulário.');
+      return;
+    }
+
     const response = await fetch('/api/register-doubt', {
       method: 'POST',
       headers: {
@@ -57,6 +64,16 @@ export default function RegistrarPage() {
     }
   };
 
+  // Mostrar carregamento enquanto a sessão estiver sendo carregada
+  if (status === 'loading') {
+    return (
+      <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
+        Carregando...
+      </div>
+    );
+  }
+
+  // Renderizar o formulário apenas se a sessão estiver disponível
   return (
     <div
       style={{
@@ -66,6 +83,7 @@ export default function RegistrarPage() {
         minHeight: '100vh',
         backgroundColor: '#121212',
         padding: '20px',
+        margin: '0',
       }}
     >
       <div
