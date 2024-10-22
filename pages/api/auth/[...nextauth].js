@@ -12,17 +12,23 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       const authorizedDomains = process.env.AUTHORIZED_DOMAINS?.split(",") || [];
-      
-      // Logando o domínio do usuário e os domínios permitidos para depuração
-      console.log("Domínio do usuário:", user.email.split("@")[1]);
-      console.log("Domínios permitidos:", authorizedDomains);
 
-      if (authorizedDomains.length > 0) {
-        if (!authorizedDomains.includes(user.email.split("@")[1])) {
-          console.log("Usuário não autorizado devido ao domínio.");
-          return false; // Bloqueia caso o domínio não esteja na lista permitida
-        }
+      // Remover "@" dos domínios permitidos, caso haja algum
+      const cleanAuthorizedDomains = authorizedDomains.map(domain => domain.trim().replace(/^@/, ''));
+
+      // Extrair o domínio do email do usuário
+      const userDomain = user.email.split("@")[1];
+
+      // Log para depuração
+      console.log("Domínio do usuário:", userDomain);
+      console.log("Domínios permitidos:", cleanAuthorizedDomains);
+
+      // Verificar se o domínio do usuário está na lista de domínios autorizados
+      if (cleanAuthorizedDomains.length > 0 && !cleanAuthorizedDomains.includes(userDomain)) {
+        console.log("Usuário não autorizado devido ao domínio.");
+        return false; // Bloqueia caso o domínio não esteja na lista permitida
       }
+
       return true;
     },
     async session({ session, token }) {
