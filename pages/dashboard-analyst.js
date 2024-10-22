@@ -113,10 +113,12 @@ export default function DashboardAnalyst({ session }) {
 
         console.log(`Linha ${index + 1}: Data Processada - ${recordDate}`);
 
-        // Verifica se o registro é do mês atual e do ano atual
-        if (recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear) {
+        // Verifica se o registro é do mês e ano atuais
+        if (recordDate.getFullYear() === currentYear && recordDate.getMonth() === currentMonth) {
           acc[userName] = (acc[userName] || 0) + 1;
           console.log(`Linha ${index + 1}: Usuário "${userName}" registrado com contagem atual - ${acc[userName]}`);
+        } else {
+          console.log(`Linha ${index + 1}: Registro fora do mês/ano atual.`);
         }
       }
 
