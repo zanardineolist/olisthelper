@@ -98,13 +98,15 @@ export default function DashboardAnalyst({ session }) {
     const currentYear = currentDate.getFullYear();
 
     const userHelpCounts = data.rows.reduce((acc, row) => {
-      const [dateStr, , userName] = row;
+      const dateStr = row[0]; // Data está na coluna A (índice 0)
+      const userName = row[2]; // Nome está na coluna C (índice 2)
 
       if (dateStr && userName) {
+        // Parse da data no formato dd/mm/yyyy
         const [day, month, year] = dateStr.split('/').map(Number);
         const recordDate = new Date(year, month - 1, day);
 
-        // Verifica se o registro é do mês e ano atual
+        // Verifica se o registro é do mês e ano atuais
         if (recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear) {
           acc[userName] = (acc[userName] || 0) + 1;
         }
