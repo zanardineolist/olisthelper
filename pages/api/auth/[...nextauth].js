@@ -1,5 +1,28 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { google } from 'googleapis';
+
+async function getUserRole(email) {
+  const auth = new google.auth.JWT(
+    process.env.GOOGLE_CLIENT_EMAIL,
+    null,
+    process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    ['https://www.googleapis.com/auth/spreadsheets']
+  );
+
+  const sheets = google.sheets({ version: 'v4', auth });
+  const sheetId = process.env.SHEET_ID;
+
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: sheetId,
+    range: 'Usuários!A:D',
+  });
+
+  const rows = response.data.values;
+  const userRow = rows.find((row) => row[2] === email); // Coluna C contém o e-mail
+
+  return userRow ? userRow[3] : 'user'; // Retorna o papel do usuário, se encontrado
+}
 
 export default NextAuth({
   providers: [
@@ -42,9 +65,8 @@ export default NextAuth({
       if (user) {
         token.id = user.id;
 
-        // Definir o papel do usuário (supondo uma lógica para definir o papel)
-        const analystEmails = process.env.ANALYST_EMAILS?.split(",") || [];
-        token.role = analystEmails.includes(user.email) ? "analyst" : "user";
+        // Definir o papel do usuário a partir da planilha
+        token.role = await getUserRole(user.email);
       }
       return token;
     },
