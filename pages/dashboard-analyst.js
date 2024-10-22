@@ -95,7 +95,7 @@ export default function DashboardAnalyst({ session }) {
 
     console.log('fetchLeaderboard: Processando registros...');
     console.log(`Total de linhas recebidas: ${data.rows.length}`);
-    
+
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
