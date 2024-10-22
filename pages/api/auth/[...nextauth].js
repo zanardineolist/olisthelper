@@ -32,14 +32,19 @@ export default NextAuth({
       return true;
     },
     async session({ session, token }) {
-      if (token?.id) {
-        session.id = token.id; // Corrigido para evitar atribuição de `undefined`
+      if (token) {
+        session.id = token.id;
+        session.role = token.role; // Adiciona o papel à sessão
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+
+        // Definir o papel do usuário (supondo uma lógica para definir o papel)
+        const analystEmails = process.env.ANALYST_EMAILS?.split(",") || [];
+        token.role = analystEmails.includes(user.email) ? "analyst" : "user";
       }
       return token;
     },

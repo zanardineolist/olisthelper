@@ -67,6 +67,14 @@ export default function MyPage({ user }) {
           >
             Registrar Dúvida
           </button>
+          {user.role === 'analyst' && (
+            <button
+              onClick={() => handleNavigation('/dashboard-analyst')}
+              style={menuButtonStyle}
+            >
+              Dashboard do Analista
+            </button>
+          )}
           <button
             onClick={() => signOut()}
             style={menuButtonStyle}
@@ -108,7 +116,10 @@ export async function getServerSideProps(context) {
   }
   return {
     props: {
-      user: session.user,
+      user: {
+        ...session.user,
+        role: session.role,
+      },
     },
   };
 }
