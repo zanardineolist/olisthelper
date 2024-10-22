@@ -97,8 +97,8 @@ export default function DashboardAnalyst({ session }) {
     console.log(`Total de linhas recebidas: ${data.rows.length}`);
 
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // Mês atual (de 0 a 11)
+    const currentYear = currentDate.getFullYear(); // Ano atual
 
     const userHelpCounts = data.rows.reduce((acc, row, index) => {
       const dateStr = row[0]; // Data está na coluna A (índice 0)
@@ -113,7 +113,7 @@ export default function DashboardAnalyst({ session }) {
 
         console.log(`Linha ${index + 1}: Data Processada - ${recordDate}`);
 
-        // Verifica se o registro é do mês e ano atuais
+        // Verifica se o registro é do mês atual e do ano atual
         if (recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear) {
           acc[userName] = (acc[userName] || 0) + 1;
           console.log(`Linha ${index + 1}: Usuário "${userName}" registrado com contagem atual - ${acc[userName]}`);
