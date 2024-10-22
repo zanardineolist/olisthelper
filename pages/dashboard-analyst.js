@@ -8,7 +8,7 @@ const AnalystDashboardPage = dynamic(() => import('../components/AnalystDashboar
 export async function getServerSideProps(context) {
   const session = await getSession(context);
 
-  // Se o usuário não está autenticado ou não é "analyst", redireciona para a página inicial
+  // Verifica se o usuário não está autenticado ou se não é um "analyst"
   if (!session || session.role !== 'analyst') {
     return {
       redirect: {
