@@ -86,56 +86,53 @@ export default function DashboardAnalyst({ session }) {
   };
 
   // Função para buscar o leaderboard (ranking)
-  const fetchLeaderboard = async (data) => {
-    if (!data || !data.rows || !Array.isArray(data.rows) || data.count === 0) {
-      console.log('fetchLeaderboard: Nenhum dado disponível para processar.');
-      setLeaderboard([]);
+  const fetchLeaderboard = async () => {
+    if (!session?.id) {
+      console.error("ID do analista não encontrado.");
       return;
     }
 
-    console.log('fetchLeaderboard: Processando registros...');
-    console.log(`Total de linhas recebidas: ${data.rows.length}`);
-
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth(); // Mês atual (de 0 a 11)
-    const currentYear = currentDate.getFullYear(); // Ano atual
-
-    const userHelpCounts = data.rows.reduce((acc, row, index) => {
-      const dateStr = row[0]; // Data está na coluna A (índice 0)
-      const userName = row[2]; // Nome está na coluna C (índice 2)
-
-      console.log(`Linha ${index + 1}: Data - ${dateStr}, Nome - ${userName}`);
-
-      if (dateStr && userName) {
-        // Parse da data no formato dd/mm/yyyy
-        const [day, month, year] = dateStr.split('/').map(Number);
-        const recordDate = new Date(year, month - 1, day);
-
-        console.log(`Linha ${index + 1}: Data Processada - ${recordDate}`);
-
-        // Verifica se o registro é do mês e ano atuais
-        if (recordDate.getFullYear() === currentYear && recordDate.getMonth() === currentMonth) {
-          acc[userName] = (acc[userName] || 0) + 1;
-          console.log(`Linha ${index + 1}: Usuário "${userName}" registrado com contagem atual - ${acc[userName]}`);
-        } else {
-          console.log(`Linha ${index + 1}: Registro fora do mês/ano atual.`);
-        }
+    try {
+      console.log('fetchLeaderboard: Iniciando busca de registros para o ranking...');
+      const res = await fetch(`/api/get-analyst-records?analystId=${session.id}&mode=leaderboard`);
+      if (!res.ok) {
+        throw new Error('Erro ao buscar registros para o leaderboard.');
       }
 
-      return acc;
-    }, {});
+      const data = await res.json();
 
-    console.log('fetchLeaderboard: Contagens de ajuda por usuário:', userHelpCounts);
+      if (!data || !data.rows || data.rows.length === 0) {
+        console.log('fetchLeaderboard: Nenhum dado disponível para processar.');
+        setLeaderboard([]);
+        return;
+      }
 
-    // Ordenar e pegar os top 5 usuários
-    const sortedUsers = Object.entries(userHelpCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([name, count]) => ({ name, count }));
+      console.log('fetchLeaderboard: Processando registros...');
+      const userHelpCounts = data.rows.reduce((acc, row, index) => {
+        const userName = row[2]; // Nome está na coluna C (índice 2)
 
-    console.log('fetchLeaderboard: Usuários no ranking:', sortedUsers);
+        if (userName) {
+          acc[userName] = (acc[userName] || 0) + 1;
+        }
 
-    setLeaderboard(sortedUsers);
+        return acc;
+      }, {});
+
+      console.log('fetchLeaderboard: Contagens de ajuda por usuário:', userHelpCounts);
+
+      // Ordenar e pegar os top 5 usuários
+      const sortedUsers = Object.entries(userHelpCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([name, count]) => ({ name, count }));
+
+      console.log('fetchLeaderboard: Usuários no ranking:', sortedUsers);
+
+      setLeaderboard(sortedUsers);
+    } catch (err) {
+      console.error('Erro ao carregar leaderboard:', err);
+      setLeaderboard([]);
+    }
   };
 
   // Carregar registros quando estiver no lado do cliente e o session estiver disponível
