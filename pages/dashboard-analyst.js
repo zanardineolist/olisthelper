@@ -29,6 +29,7 @@ export default function DashboardAnalyst({ session }) {
   const [loading, setLoading] = useState(true);
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState(null); // Inicializado como null para indicar dados não carregados
+  const [leaderboard, setLeaderboard] = useState([]); // Estado para o ranking dos usuários
   const [filter, setFilter] = useState('7');
 
   // Definir `isClient` como true quando estiver no lado do cliente
@@ -70,6 +71,9 @@ export default function DashboardAnalyst({ session }) {
           ],
         });
       }
+
+      // Buscar leaderboard
+      fetchLeaderboard(data);
     } catch (err) {
       console.error('Erro ao carregar registros:', err);
       setRecordCount(0);
@@ -77,6 +81,31 @@ export default function DashboardAnalyst({ session }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Função para buscar o leaderboard (ranking)
+  const fetchLeaderboard = async (data) => {
+    if (!data || data.count === 0) {
+      setLeaderboard([]);
+      return;
+    }
+
+    // Calcular o ranking dos usuários que mais solicitaram ajuda
+    const userHelpCounts = data.rows.reduce((acc, row) => {
+      const userName = row[2]; // Assume que o nome do usuário está na coluna 3
+      if (userName) {
+        acc[userName] = (acc[userName] || 0) + 1;
+      }
+      return acc;
+    }, {});
+
+    // Ordenar e pegar os top 5 usuários
+    const sortedUsers = Object.entries(userHelpCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([name, count]) => ({ name, count }));
+
+    setLeaderboard(sortedUsers);
   };
 
   // Carregar registros quando estiver no lado do cliente e o session estiver disponível
@@ -115,6 +144,35 @@ export default function DashboardAnalyst({ session }) {
         ) : (
           <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
             Nenhum dado disponível para o período selecionado.
+          </div>
+        )}
+      </div>
+
+      {/* Leaderboard */}
+      <div style={{ marginTop: '40px', padding: '20px', backgroundColor: '#1E1E1E', borderRadius: '10px' }}>
+        <h3>Top 5 Usuários que Mais Pediram Ajuda (Mês Atual)</h3>
+        {leaderboard.length > 0 ? (
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {leaderboard.map((user, index) => (
+              <li key={index} style={{ marginBottom: '15px', display: 'flex', alignItems: 'center' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '1.2em', marginRight: '10px' }}>{index + 1}.</span>
+                <span style={{ flexGrow: 1 }}>{user.name}</span>
+                <div
+                  style={{
+                    flexGrow: 2,
+                    height: '20px',
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderRadius: '5px',
+                    width: `${user.count * 10}px`,
+                  }}
+                />
+                <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>{user.count} pedidos</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div style={{ color: '#fff', textAlign: 'center', padding: '10px' }}>
+            Nenhum usuário solicitou ajuda neste mês.
           </div>
         )}
       </div>
