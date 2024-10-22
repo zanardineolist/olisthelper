@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { google } from 'googleapis';
 
-async function getUserRole(email) {
+async function getUserDetails(email) {
   const auth = new google.auth.JWT(
     process.env.GOOGLE_CLIENT_EMAIL,
     null,
@@ -21,7 +21,14 @@ async function getUserRole(email) {
   const rows = response.data.values;
   const userRow = rows.find((row) => row[2] === email);
 
-  return userRow ? userRow[3] : 'user';
+  if (userRow) {
+    return {
+      id: userRow[0],  // ID de 4 dígitos
+      role: userRow[3] // Papel do usuário (analyst ou user)
+    };
+  }
+
+  return { id: null, role: 'user' };
 }
 
 export default NextAuth({
@@ -46,15 +53,16 @@ export default NextAuth({
     },
     async session({ session, token }) {
       if (token) {
-        session.id = token.id;
-        session.role = token.role || 'user';
+        session.id = token.id; // ID de 4 dígitos da planilha
+        session.role = token.role; // Papel do usuário (analyst ou user)
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = await getUserRole(user.email);
+        const userDetails = await getUserDetails(user.email);
+        token.id = userDetails.id; // Armazena o ID de 4 dígitos da planilha
+        token.role = userDetails.role; // Armazena o papel do usuário
       }
       return token;
     },

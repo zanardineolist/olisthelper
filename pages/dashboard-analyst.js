@@ -38,14 +38,14 @@ export default function DashboardAnalyst({ session }) {
 
   // Função para buscar registros
   const fetchRecords = async () => {
-    if (!session?.user?.id) {
+    if (!session?.id) {
       console.error("ID do analista não encontrado.");
       return;
     }
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/get-analyst-records?analystId=${session.user.id}&filter=${filter}`);
+      const res = await fetch(`/api/get-analyst-records?analystId=${session.id}&filter=${filter}`);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros.');
       }
