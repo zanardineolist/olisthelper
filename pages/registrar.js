@@ -3,31 +3,28 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 
 export default function RegistrarPage() {
+  const [isClient, setIsClient] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
   const [analysts, setAnalysts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(true); // Carregamento dos dados iniciais
-  const [submitting, setSubmitting] = useState(false); // Carregamento do envio do formulário
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     analyst: '',
     category: '',
     description: '',
   });
 
-  // Controla o carregamento da sessão e a autenticação do usuário
   useEffect(() => {
-    if (status === 'loading') {
-      return; // Não faz nada até que o status seja definido.
-    }
+    // Verifica se estamos no lado do cliente
+    setIsClient(typeof window !== 'undefined');
+  }, []);
 
-    if (status === 'unauthenticated') {
-      router.push('/');
-      return;
-    }
-
-    if (session) {
+  useEffect(() => {
+    if (isClient && status === 'authenticated') {
+      // Carregar analistas e categorias apenas após a autenticação
       const loadAnalystsAndCategories = async () => {
         try {
           const res = await fetch('/api/get-analysts-categories');
@@ -37,15 +34,16 @@ export default function RegistrarPage() {
         } catch (err) {
           console.error('Erro ao carregar analistas e categorias:', err);
         } finally {
-          setLoading(false); // Finaliza o carregamento
+          setLoading(false);
         }
       };
 
       loadAnalystsAndCategories();
+    } else if (isClient && status === 'unauthenticated') {
+      router.push('/');
     }
-  }, [session, status, router]);
+  }, [isClient, session, status, router]);
 
-  // Controla as mudanças nos campos do formulário
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -54,7 +52,6 @@ export default function RegistrarPage() {
     }));
   };
 
-  // Controla o envio do formulário
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -96,7 +93,10 @@ export default function RegistrarPage() {
     router.push(path);
   };
 
-  // Carregamento ou redirecionamento
+  if (!isClient) {
+    return null; // Renderiza nada até que o lado do cliente seja confirmado
+  }
+
   if (status === 'loading' || loading) {
     return (
       <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
@@ -258,7 +258,7 @@ export default function RegistrarPage() {
                 width: '100%',
                 transition: 'background-color 0.3s ease',
               }}
-              disabled={submitting} // Desativa o botão durante o envio
+              disabled={submitting}
             >
               {submitting ? 'Enviando...' : 'Enviar Dúvida'}
             </button>
