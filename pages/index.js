@@ -24,16 +24,21 @@ export default function LoginPage() {
           <Image
             src="/images/logos/olist_helper_logo.png"
             alt="Olist Helper Logo"
-            width={150}
-            height={150}
+            width={270}
+            height={75}
             onError={(e) => (e.target.style.display = 'none')}
           />
         </div>
+        <h1 className={styles.welcomeText}>Bem-vindo ao Olist Helper</h1>
+        <p className={styles.description}>
+          O Olist Helper é uma ferramenta para ajudar você a gerenciar dúvidas e acompanhar o progresso do seu time com facilidade.
+        </p>
         <h2 className={styles.loginTitle}>Login</h2>
         <button onClick={() => signIn('google')} className={styles.loginButton}>
           Login com Google
         </button>
       </div>
+      <p className={styles.credits}>Desenvolvido por Rafael Zanardine</p>
     </div>
   );
 }
