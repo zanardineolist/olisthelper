@@ -184,7 +184,7 @@ export default function DashboardAnalyst({ session }) {
                   <li key={index} className={styles.listItem}>
                     <span className={styles.rank}>{index + 1}.</span>
                     <span className={styles.userName}>{user.name}</span>
-                    <div className={styles.progressBar} style={{ width: `${user.count * 10}px` }} />
+                    <div className={styles.progressBarRanking} style={{ width: `${user.count * 10}px` }} />
                     <span className={styles.count}>{user.count} pedidos</span>
                   </li>
                 ))}
