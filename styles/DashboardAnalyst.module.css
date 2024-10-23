@@ -98,15 +98,15 @@
 }
 
 .progressBar {
-  background-color: #779E3D;
+  background-color: rgba(119, 158, 61, 1);
 }
 
 .progressBarRanking {
-  background-color: #8DD7D7;
+  background-color: rgba(141, 215, 215, 1);
 }
 
 .progressBarCategory {
-  background-color: #DF9FC7;
+  background-color: rgba(223, 159, 199, 1);
 }
 
 .count {
