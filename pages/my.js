@@ -63,7 +63,7 @@ export default function MyPage({ user }) {
           {user.role === 'analyst' && (
             <>
               <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
-                Dashboard do Analista
+                Dashboard Analista
               </button>
               <a
                 href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"

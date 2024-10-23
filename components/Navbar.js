@@ -34,7 +34,7 @@ export default function Navbar() {
           {isAnalyst && (
             <>
               <Link href="/dashboard-analyst" className={styles.menuButton}>
-                Dashboard do Analista
+                Dashboard Analista
               </Link>
               <a
                 href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
