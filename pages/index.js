@@ -29,11 +29,10 @@ export default function LoginPage() {
             onError={(e) => (e.target.style.display = 'none')}
           />
         </div>
-        <h1 className={styles.welcomeText}>Bem-vindo ao Olist Helper</h1>
+        <h1 className={styles.welcomeText}>Seja bem vindo(a)</h1>
         <p className={styles.description}>
-          O Olist Helper é uma ferramenta para ajudar você a gerenciar dúvidas e acompanhar o progresso do seu time com facilidade.
+          O Olist Helper é uma ferramenta para ajudar você a registrar e gerenciar suas dúvidas tiradas com os analistas no dia a dia.
         </p>
-        <h2 className={styles.loginTitle}>Login</h2>
         <button onClick={() => signIn('google')} className={styles.loginButton}>
           Login com Google
         </button>
