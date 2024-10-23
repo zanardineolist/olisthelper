@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
       null,
-      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      process.env.GOOGLE_PRIVATE_KEY.split('\n').join('\n'),
       ['https://www.googleapis.com/auth/spreadsheets']
     );
 
@@ -53,6 +53,6 @@ export default async function handler(req, res) {
     res.status(200).json({ message: 'Dúvida registrada com sucesso.' });
   } catch (error) {
     console.error('Erro ao registrar dúvida:', error);
-    res.status(500).json({ error: 'Erro ao registrar a dúvida. Verifique o log do servidor para mais detalhes.' });
+    throw new Error('Erro ao registrar a dúvida. Verifique suas credenciais e a configuração do Google Sheets.');
   }
 }

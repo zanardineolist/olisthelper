@@ -12,7 +12,7 @@ export async function middleware(req) {
   }
 
   if (!token) {
-    console.log("Redirecionando - Token não encontrado.");
+    console.log("Redirecionando - Token não encontrado. Verifique se o token está sendo gerado corretamente.");
     return NextResponse.redirect(new URL('/my', req.url));
   }
 

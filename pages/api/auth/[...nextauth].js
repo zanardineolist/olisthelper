@@ -6,7 +6,7 @@ async function getUserDetails(email) {
   const auth = new google.auth.JWT(
     process.env.GOOGLE_CLIENT_EMAIL,
     null,
-    process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    process.env.GOOGLE_PRIVATE_KEY.split('\n').join('\n'),
     ['https://www.googleapis.com/auth/spreadsheets']
   );
 
@@ -42,10 +42,11 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       const authorizedDomains = process.env.AUTHORIZED_DOMAINS?.split(",") || [];
-      const cleanAuthorizedDomains = authorizedDomains.map(domain => domain.trim().replace(/^@/, ''));
-      const userDomain = user.email.split("@")[1];
+      const cleanAuthorizedDomains = authorizedDomains.map(domain => domain.trim().toLowerCase().replace(/^@/, ''));
+      const userDomain = user.email.split("@")[1].toLowerCase();
 
       if (cleanAuthorizedDomains.length > 0 && !cleanAuthorizedDomains.includes(userDomain)) {
+        console.log('Usuário não autorizado - domínio não permitido:', userDomain);
         return false;
       }
 
