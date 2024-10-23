@@ -70,7 +70,7 @@ export default async function handler(req, res) {
 
     // Contar categorias
     const categoryCounts = currentMonthRows.reduce((acc, row) => {
-      const category = row[3]; // Supondo que a categoria está na coluna D (índice 3)
+      const category = row[4];
 
       if (category) {
         acc[category] = (acc[category] || 0) + 1;
