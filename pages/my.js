@@ -1,12 +1,28 @@
 import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/MyPage.module.css';
 
 export default function MyPage({ user }) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [greeting, setGreeting] = useState('');
+
+  useEffect(() => {
+    const currentHour = new Date().getHours();
+    let greetingMessage = '';
+
+    if (currentHour >= 5 && currentHour < 12) {
+      greetingMessage = 'Bom dia';
+    } else if (currentHour >= 12 && currentHour < 18) {
+      greetingMessage = 'Boa tarde';
+    } else {
+      greetingMessage = 'Boa noite';
+    }
+
+    setGreeting(greetingMessage);
+  }, []);
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -51,6 +67,10 @@ export default function MyPage({ user }) {
         )}
       </div>
       
+      <main className={styles.main}>
+        <h1>Olá, {greeting} {user.name}!</h1>
+      </main>
+
       <div className={styles.profileContainer}>
         <img src={user.image} alt={user.name} className={styles.profileImage} />
         <div className={styles.profileInfo}>
@@ -58,10 +78,6 @@ export default function MyPage({ user }) {
           <p>{user.email}</p>
         </div>
       </div>
-
-      <main className={styles.main}>
-        <h1>Bem-vindo, {user.name}!</h1>
-      </main>
     </>
   );
 }
