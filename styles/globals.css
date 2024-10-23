@@ -7,6 +7,7 @@ body, html {
   background-color: #121212;
   color: #fff;
   font-family: 'Plus Jakarta Sans', sans-serif;
+  height: 100%;
 }
 
 * {
@@ -26,7 +27,7 @@ a {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.7);
-  z-index: 999;
+  z-index: 9999;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -41,7 +42,6 @@ a {
   border-right: 4px solid transparent;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
-  position: relative;
 }
 
 .loader::after {
@@ -60,9 +60,9 @@ a {
 
 @keyframes rotation {
   0% {
-      transform: rotate(0deg);
+    transform: rotate(0deg);
   }
   100% {
-      transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }

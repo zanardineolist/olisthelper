@@ -12,7 +12,7 @@ export default function MyPage({ user }) {
     router.push(path);
   };
 
-  if (!user) {
+  if (loading) {
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
