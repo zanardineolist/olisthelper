@@ -147,6 +147,7 @@ export default function DashboardAnalyst({ session }) {
           </button>
         </div>
       )}
+
       <div className={styles.content}>
         <h2>Dashboard do Analista</h2>
         <div className={styles.summary}>

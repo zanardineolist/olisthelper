@@ -72,9 +72,11 @@ export default function RegistrarPage({ session }) {
   };
 
   if (loading) {
-    return <div className={styles.loaderContainer}>
+    return (
+      <div className={styles.loaderContainer}>
         <div className="loader"></div>
-      </div>;
+      </div>
+    );
   }
 
   return (
