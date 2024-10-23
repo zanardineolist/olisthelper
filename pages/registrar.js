@@ -81,7 +81,7 @@ export default function RegistrarPage({ session }) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={commonStyles.container}>
       <nav className={commonStyles.navbar}>
         <div className={commonStyles.logo}>Olist Helper</div>
         <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>

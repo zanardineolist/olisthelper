@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { useRouter } from 'next/router';
-import styles from '../styles/DashboardAnalyst.module.css';
 import commonStyles from '../styles/commonStyles.module.css';
+import styles from '../styles/DashboardAnalyst.module.css';
 
 export default function DashboardAnalyst({ session }) {
   const router = useRouter();
@@ -125,7 +125,7 @@ export default function DashboardAnalyst({ session }) {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={commonStyles.container}>
       <nav className={commonStyles.navbar}>
         <div className={commonStyles.logo}>Olist Helper</div>
         <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
