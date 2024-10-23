@@ -5,7 +5,7 @@ export async function addUserToSheet(user) {
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
       null,
-      process.env.GOOGLE_PRIVATE_KEY.split('\n').join('\n'),
+      JSON.parse(`"${process.env.GOOGLE_PRIVATE_KEY}"`),
       ['https://www.googleapis.com/auth/spreadsheets']
     );
 
@@ -34,7 +34,7 @@ export async function getUserFromSheet(email) {
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
       null,
-      process.env.GOOGLE_PRIVATE_KEY.split('\n').join('\n'),
+      JSON.parse(`"${process.env.GOOGLE_PRIVATE_KEY}"`),
       ['https://www.googleapis.com/auth/spreadsheets']
     );
 
