@@ -133,17 +133,15 @@ export default function DashboardAnalyst({ session }) {
       </nav>
       {menuOpen && (
         <div className={styles.menu}>
-          <button onClick={() => handleNavigation('/my')} className={styles.menuButton}>
+          <button onClick={() => router.push('/my')} className={styles.menuButton}>
             Página Inicial
           </button>
-          <button onClick={() => handleNavigation('/registrar')} className={styles.menuButton}>
+          <button onClick={() => router.push('/registrar')} className={styles.menuButton}>
             Registrar Dúvida
           </button>
-          {user.role === 'analyst' && (
-            <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
-              Dashboard do Analista
-            </button>
-          )}
+          <button onClick={() => router.push('/dashboard-analyst')} className={styles.menuButton}>
+            Dashboard do Analista
+          </button>
           <button onClick={() => signOut()} className={styles.menuButton}>
             Logout
           </button>
