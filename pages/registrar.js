@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
@@ -82,6 +83,10 @@ export default function RegistrarPage({ session }) {
 
   return (
     <>
+      <Head>
+        <title>Registrar Dúvida</title>
+      </Head>
+
       <div className={commonStyles.container}>
         <nav className={commonStyles.navbar}>
           <div className={commonStyles.logo}>

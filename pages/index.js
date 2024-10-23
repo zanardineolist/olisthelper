@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { getSession, signIn } from 'next-auth/react';
 import Image from 'next/image';
 import { useEffect } from 'react';
@@ -18,27 +19,33 @@ export default function LoginPage() {
   }, [router]);
 
   return (
-    <div className={styles.loginContainer}>
-      <div className={styles.loginBox}>
-        <div className={styles.logoContainer}>
-          <Image
-            src="/images/logos/olist_helper_logo.png"
-            alt="Olist Helper Logo"
-            width={270}
-            height={75}
-            onError={(e) => (e.target.style.display = 'none')}
-          />
+    <>
+      <Head>
+        <title>Olist Helper</title>
+      </Head>
+
+      <div className={styles.loginContainer}>
+        <div className={styles.loginBox}>
+          <div className={styles.logoContainer}>
+            <Image
+              src="/images/logos/olist_helper_logo.png"
+              alt="Olist Helper Logo"
+              width={270}
+              height={75}
+              onError={(e) => (e.target.style.display = 'none')}
+            />
+          </div>
+          <h1 className={styles.welcomeText}>Seja bem vindo(a)</h1>
+          <p className={styles.description}>
+            O Olist Helper é uma ferramenta para ajudar você a registrar e gerenciar suas dúvidas tiradas com os analistas no dia a dia.
+          </p>
+          <button onClick={() => signIn('google')} className={styles.loginButton}>
+            Login com Google
+          </button>
         </div>
-        <h1 className={styles.welcomeText}>Seja bem vindo(a)</h1>
-        <p className={styles.description}>
-          O Olist Helper é uma ferramenta para ajudar você a registrar e gerenciar suas dúvidas tiradas com os analistas no dia a dia.
-        </p>
-        <button onClick={() => signIn('google')} className={styles.loginButton}>
-          Login com Google
-        </button>
+        <p className={styles.credits}>Desenvolvido por Rafael Zanardine</p>
       </div>
-      <p className={styles.credits}>Desenvolvido por Rafael Zanardine</p>
-    </div>
+    </>
   );
 }
 

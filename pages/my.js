@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
@@ -38,6 +39,10 @@ export default function MyPage({ user }) {
 
   return (
     <>
+      <Head>
+        <title>Meus Dados</title>
+      </Head>
+
       <div className={styles.container}>
         <nav className={commonStyles.navbar}>
           <div className={styles.logo}>

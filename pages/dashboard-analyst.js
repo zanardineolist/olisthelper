@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
@@ -126,6 +127,10 @@ export default function DashboardAnalyst({ session }) {
 
   return (
     <>
+      <Head>
+        <title>Dashboard Analista</title>
+      </Head>
+
       <div className={commonStyles.container}>
         <nav className={commonStyles.navbar}>
           <div className={commonStyles.logo}>
