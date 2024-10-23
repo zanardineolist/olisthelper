@@ -28,8 +28,8 @@ export default function DashboardAnalyst({ session }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [recordCount, setRecordCount] = useState(0);
-  const [chartData, setChartData] = useState(null); // Inicializado como null para indicar dados não carregados
-  const [leaderboard, setLeaderboard] = useState([]); // Estado para o ranking dos usuários
+  const [chartData, setChartData] = useState(null);
+  const [leaderboard, setLeaderboard] = useState([]);
   const [filter, setFilter] = useState('7');
 
   // Definir `isClient` como true quando estiver no lado do cliente
@@ -56,7 +56,6 @@ export default function DashboardAnalyst({ session }) {
       if (data.count === 0) {
         setRecordCount(0);
         setChartData(null);
-        setLeaderboard([]); // Garantir que o leaderboard seja limpo quando não houver registros
       } else {
         setRecordCount(data.count);
         setChartData({
@@ -71,15 +70,11 @@ export default function DashboardAnalyst({ session }) {
             },
           ],
         });
-
-        // Passar as linhas de registro para o leaderboard
-        fetchLeaderboard({ ...data, rows: data.rows });
       }
     } catch (err) {
       console.error('Erro ao carregar registros:', err);
       setRecordCount(0);
       setChartData(null);
-      setLeaderboard([]);
     } finally {
       setLoading(false);
     }
@@ -139,6 +134,7 @@ export default function DashboardAnalyst({ session }) {
   useEffect(() => {
     if (isClient && session) {
       fetchRecords();
+      fetchLeaderboard(); // Busca sempre o leaderboard do mês atual
     }
   }, [isClient, filter, session]);
 
