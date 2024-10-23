@@ -154,9 +154,9 @@ export default function DashboardAnalyst({ session }) {
       </div>
   
       <div className={styles.dashboardContainer}>
-        <h2>Dashboard do Analista</h2>
+        <h2>Seu Dashboard</h2>
         <div className={styles.summary}>
-          <p>Total de Dúvidas Auxiliadas: {recordCount}</p>
+          <p>Total de auxilios: {recordCount}</p>
         </div>
         <div className={styles.filter}>
           <label htmlFor="filter">Filtrar por:</label>
@@ -185,16 +185,16 @@ export default function DashboardAnalyst({ session }) {
                     <span className={styles.rank}>{index + 1}.</span>
                     <span className={styles.userName}>{user.name}</span>
                     <div className={styles.progressBarRanking} style={{ width: `${user.count * 10}px` }} />
-                    <span className={styles.count}>{user.count} pedidos</span>
+                    <span className={styles.count}>{user.count} auxilios</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <div className={styles.noData}>Nenhum usuário solicitou ajuda neste mês.</div>
+              <div className={styles.noData}>Nenhum assistente solicitou ajuda neste mês.</div>
             )}
           </div>
           <div className={styles.categoryRanking}>
-            <h3>Top 10 Categorias Mais Solicitadas (Mês Atual)</h3>
+            <h3>Top 10 Temas de Dúvidas (Mês Atual)</h3>
             {categoryRanking.length > 0 ? (
               <ul className={styles.list}>
                 {categoryRanking.map((category, index) => (
@@ -202,12 +202,12 @@ export default function DashboardAnalyst({ session }) {
                     <span className={styles.rank}>{index + 1}.</span>
                     <span className={styles.categoryName}>{category.name}</span>
                     <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
-                    <span className={styles.count}>{category.count} pedidos</span>
+                    <span className={styles.count}>{category.count} auxilios</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <div className={styles.noData}>Nenhuma categoria solicitada neste mês.</div>
+              <div className={styles.noData}>Nenhum tema selecionado neste mês.</div>
             )}
           </div>
         </div>
