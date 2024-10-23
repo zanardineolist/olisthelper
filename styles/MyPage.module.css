@@ -1,10 +1,28 @@
 /* styles/MyPage.module.css */
-.container {
-    background-color: #121212;
-    min-height: 100vh;
-    color: #fff;
+
+  .container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1E1E1E;
+    padding: 10px 20px;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   }
-  
+
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+
+  .logo img {
+    height: 40px;
+  }
+
   .navbar {
     display: flex;
     justify-content: space-between;
