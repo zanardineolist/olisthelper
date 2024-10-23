@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { google } from 'googleapis';
-import { addUserToSheet } from '../../googleSheets'; // Importando a função addUserToSheet
+import { addUserToSheet } from '../../../utils/googleSheets'; // Corrigido o caminho da importação para a pasta utils
 
 async function getUserDetails(email) {
   const auth = new google.auth.JWT(
