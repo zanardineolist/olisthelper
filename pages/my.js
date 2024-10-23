@@ -66,10 +66,6 @@ export default function MyPage({ user }) {
           </div>
         )}
       </div>
-      
-      <main className={styles.main}>
-        <h1>Olá, {greeting} {user.name}!</h1>
-      </main>
 
       <div className={styles.profileContainer}>
         <img src={user.image} alt={user.name} className={styles.profileImage} />
@@ -78,6 +74,10 @@ export default function MyPage({ user }) {
           <p>{user.email}</p>
         </div>
       </div>
+
+      <main className={styles.main}>
+        <h1>Olá, {greeting} {user.name}!</h1>
+      </main>
     </>
   );
 }

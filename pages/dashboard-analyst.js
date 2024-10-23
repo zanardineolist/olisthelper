@@ -37,8 +37,8 @@ export default function DashboardAnalyst({ session }) {
           {
             label: 'Dúvidas Auxiliadas',
             data: data.counts,
-            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(119, 158, 61, 1)',
+            borderColor: 'rgba(84, 109, 47, 1)',
             borderWidth: 1,
           },
         ],

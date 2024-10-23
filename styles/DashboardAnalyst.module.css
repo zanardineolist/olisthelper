@@ -102,7 +102,7 @@
 }
 
 .progressBarRanking {
-  background-color: rgba(141, 215, 215, 1);
+  background-color: rgba(141, 215, 215, 1) !important;
 }
 
 .progressBarCategory {
