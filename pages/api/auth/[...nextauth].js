@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { google } from 'googleapis';
+import { addUserToSheet } from '../../googleSheets'; // Importando a função addUserToSheet
 
 async function getUserDetails(email) {
   const auth = new google.auth.JWT(
@@ -61,7 +62,16 @@ export default NextAuth({
     },
     async jwt({ token, user }) {
       if (user) {
-        const userDetails = await getUserDetails(user.email);
+        // Obter detalhes do usuário da planilha
+        let userDetails = await getUserDetails(user.email);
+
+        // Se o usuário não existir na planilha, registrá-lo
+        if (!userDetails.id) {
+          console.log('Usuário não encontrado na planilha. Registrando novo usuário:', user.email);
+          await addUserToSheet({ name: user.name, email: user.email });
+          userDetails = await getUserDetails(user.email);
+        }
+
         token.id = userDetails.id; // Armazena o ID de 4 dígitos da planilha
         token.role = userDetails.role; // Armazena o papel do usuário
       }
