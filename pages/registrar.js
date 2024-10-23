@@ -90,14 +90,14 @@ export default function RegistrarPage({ session }) {
       </nav>
       {menuOpen && (
         <div className={commonStyles.menu}>
-          <button onClick={() => handleNavigation('/my')} className={commonStyles.menuButton}>
+          <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
             Página Inicial
           </button>
-          <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
+          <button onClick={() => router.push('/registrar')} className={commonStyles.menuButton}>
             Registrar Dúvida
           </button>
-          {user.role === 'analyst' && (
-            <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
+          {session.role === 'analyst' && (
+            <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
               Dashboard do Analista
             </button>
           )}
