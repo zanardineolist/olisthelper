@@ -30,6 +30,7 @@ export default function DashboardAnalyst({ session }) {
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [categoryRanking, setCategoryRanking] = useState([]); // Estado para o ranking das categorias
   const [filter, setFilter] = useState('7');
 
   // Definir `isClient` como true quando estiver no lado do cliente
@@ -80,7 +81,7 @@ export default function DashboardAnalyst({ session }) {
     }
   };
 
-  // Função para buscar o leaderboard (ranking)
+  // Função para buscar o leaderboard (ranking de usuários)
   const fetchLeaderboard = async () => {
     if (!session?.id) {
       console.error("ID do analista não encontrado.");
@@ -88,7 +89,6 @@ export default function DashboardAnalyst({ session }) {
     }
 
     try {
-      console.log('fetchLeaderboard: Iniciando busca de registros para o ranking...');
       const res = await fetch(`/api/get-analyst-leaderboard?analystId=${session.id}`);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros para o leaderboard.');
@@ -97,14 +97,12 @@ export default function DashboardAnalyst({ session }) {
       const data = await res.json();
 
       if (!data || !data.rows || data.rows.length === 0) {
-        console.log('fetchLeaderboard: Nenhum dado disponível para processar.');
         setLeaderboard([]);
         return;
       }
 
-      console.log('fetchLeaderboard: Processando registros...');
-      const userHelpCounts = data.rows.reduce((acc, row, index) => {
-        const userName = row[2]; // Nome está na coluna C (índice 2)
+      const userHelpCounts = data.rows.reduce((acc, row) => {
+        const userName = row[2]; // Nome do usuário está na coluna C (índice 2)
 
         if (userName) {
           acc[userName] = (acc[userName] || 0) + 1;
@@ -113,15 +111,10 @@ export default function DashboardAnalyst({ session }) {
         return acc;
       }, {});
 
-      console.log('fetchLeaderboard: Contagens de ajuda por usuário:', userHelpCounts);
-
-      // Ordenar e pegar os top 5 usuários
       const sortedUsers = Object.entries(userHelpCounts)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5)
         .map(([name, count]) => ({ name, count }));
-
-      console.log('fetchLeaderboard: Usuários no ranking:', sortedUsers);
 
       setLeaderboard(sortedUsers);
     } catch (err) {
@@ -130,11 +123,39 @@ export default function DashboardAnalyst({ session }) {
     }
   };
 
+  // Função para buscar o ranking das categorias
+  const fetchCategoryRanking = async () => {
+    if (!session?.id) {
+      console.error("ID do analista não encontrado.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/get-category-ranking?analystId=${session.id}`);
+      if (!res.ok) {
+        throw new Error('Erro ao buscar registros das categorias.');
+      }
+
+      const data = await res.json();
+
+      if (!data || !data.categories || data.categories.length === 0) {
+        setCategoryRanking([]);
+        return;
+      }
+
+      setCategoryRanking(data.categories);
+    } catch (err) {
+      console.error('Erro ao carregar ranking das categorias:', err);
+      setCategoryRanking([]);
+    }
+  };
+
   // Carregar registros quando estiver no lado do cliente e o session estiver disponível
   useEffect(() => {
     if (isClient && session) {
       fetchRecords();
       fetchLeaderboard(); // Busca sempre o leaderboard do mês atual
+      fetchCategoryRanking(); // Busca o ranking das categorias
     }
   }, [isClient, filter, session]);
 
@@ -171,33 +192,65 @@ export default function DashboardAnalyst({ session }) {
         )}
       </div>
 
-      {/* Leaderboard */}
-      <div style={{ marginTop: '40px', padding: '20px', backgroundColor: '#1E1E1E', borderRadius: '10px' }}>
-        <h3>Top 5 Usuários que Mais Pediram Ajuda (Mês Atual)</h3>
-        {leaderboard.length > 0 ? (
-          <ul style={{ listStyle: 'none', padding: 0 }}>
-            {leaderboard.map((user, index) => (
-              <li key={index} style={{ marginBottom: '15px', display: 'flex', alignItems: 'center' }}>
-                <span style={{ fontWeight: 'bold', fontSize: '1.2em', marginRight: '10px' }}>{index + 1}.</span>
-                <span style={{ flexGrow: 1 }}>{user.name}</span>
-                <div
-                  style={{
-                    flexGrow: 2,
-                    height: '20px',
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderRadius: '5px',
-                    width: `${user.count * 10}px`,
-                  }}
-                />
-                <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>{user.count} pedidos</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div style={{ color: '#fff', textAlign: 'center', padding: '10px' }}>
-            Nenhum usuário solicitou ajuda neste mês.
-          </div>
-        )}
+      {/* Leaderboard e Ranking das Categorias */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px' }}>
+        {/* Leaderboard */}
+        <div style={{ width: '48%', padding: '20px', backgroundColor: '#1E1E1E', borderRadius: '10px' }}>
+          <h3>Top 5 Usuários que Mais Pediram Ajuda (Mês Atual)</h3>
+          {leaderboard.length > 0 ? (
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              {leaderboard.map((user, index) => (
+                <li key={index} style={{ marginBottom: '15px', display: 'flex', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '1.2em', marginRight: '10px' }}>{index + 1}.</span>
+                  <span style={{ flexGrow: 1 }}>{user.name}</span>
+                  <div
+                    style={{
+                      flexGrow: 2,
+                      height: '20px',
+                      backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                      borderRadius: '5px',
+                      width: `${user.count * 10}px`,
+                    }}
+                  />
+                  <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>{user.count} pedidos</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div style={{ color: '#fff', textAlign: 'center', padding: '10px' }}>
+              Nenhum usuário solicitou ajuda neste mês.
+            </div>
+          )}
+        </div>
+
+        {/* Ranking das Categorias */}
+        <div style={{ width: '48%', padding: '20px', backgroundColor: '#1E1E1E', borderRadius: '10px' }}>
+          <h3>Top 10 Categorias Mais Solicitadas (Mês Atual)</h3>
+          {categoryRanking.length > 0 ? (
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              {categoryRanking.map((category, index) => (
+                <li key={index} style={{ marginBottom: '15px', display: 'flex', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '1.2em', marginRight: '10px' }}>{index + 1}.</span>
+                  <span style={{ flexGrow: 1 }}>{category.name}</span>
+                  <div
+                    style={{
+                      flexGrow: 2,
+                      height: '20px',
+                      backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                      borderRadius: '5px',
+                      width: `${category.count * 10}px`,
+                    }}
+                  />
+                  <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>{category.count} pedidos</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div style={{ color: '#fff', textAlign: 'center', padding: '10px' }}>
+              Nenhuma categoria solicitada neste mês.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
