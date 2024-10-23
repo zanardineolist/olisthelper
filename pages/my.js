@@ -14,44 +14,55 @@ export default function MyPage({ user }) {
 
   if (!user) {
     return (
-      <div className={styles.loaderContainer}>
+      <div className="loaderOverlay">
         <div className="loader"></div>
       </div>
     );
-  }
+  }  
 
   return (
-    <div className={styles.container}>
-      <nav className={commonStyles.navbar}>
-        <div className={styles.logo}>
-          <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
-        </div>
-        <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
-          ☰
-        </button>
-      </nav>
-      {menuOpen && (
-        <div className={commonStyles.menu}>
-          <button onClick={() => handleNavigation('/my')} className={commonStyles.menuButton}>
-            Página Inicial
+    <>
+      <div className={styles.container}>
+        <nav className={commonStyles.navbar}>
+          <div className={styles.logo}>
+            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
+          </div>
+          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
+            ☰
           </button>
-          <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
-            Registrar Dúvida
-          </button>
-          {user.role === 'analyst' && (
-            <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
-              Dashboard do Analista
+        </nav>
+        {menuOpen && (
+          <div className={commonStyles.menu}>
+            <button onClick={() => handleNavigation('/my')} className={commonStyles.menuButton}>
+              Página Inicial
             </button>
-          )}
-          <button onClick={() => signOut()} className={commonStyles.menuButton}>
-            Logout
-          </button>
+            <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
+              Registrar Dúvida
+            </button>
+            {user.role === 'analyst' && (
+              <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
+                Dashboard do Analista
+              </button>
+            )}
+            <button onClick={() => signOut()} className={commonStyles.menuButton}>
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
+      
+      <div className={styles.profileContainer}>
+        <img src={user.image} alt={user.name} className={styles.profileImage} />
+        <div className={styles.profileInfo}>
+          <h2>{user.name}</h2>
+          <p>{user.email}</p>
         </div>
-      )}
+      </div>
+
       <main className={styles.main}>
         <h1>Bem-vindo, {user.name}!</h1>
       </main>
-    </div>
+    </>
   );
 }
 
