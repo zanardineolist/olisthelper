@@ -91,7 +91,7 @@ export default function MyPage({ user }) {
       </div>
 
       <main className={styles.main}>
-        <h1>Olá, {greeting}, {user.name}!</h1>
+        <h1>Olá, {greeting} {user.name}!</h1>
       </main>
     </>
   );
