@@ -68,6 +68,8 @@
   transition: background-color 0.3s ease;
   text-align: center;
   text-decoration: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
 }
 
 .menuButton:hover,
