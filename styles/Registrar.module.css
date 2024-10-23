@@ -1,0 +1,45 @@
+/* styles/Registrar.module.css */
+.container {
+    background-color: #121212;
+    min-height: 100vh;
+    color: #fff;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1E1E1E;
+    padding: 10px 20px;
+  }
+  
+  .formContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 60px);
+    padding: 20px;
+    margin: 0;
+  }
+  
+  .formTitle {
+    color: #F0A028;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .formGroup {
+    margin-bottom: 15px;
+  }
+  
+  .submitButton {
+    background-color: #E64E36;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+  }
+  

@@ -1,9 +1,66 @@
 import { getSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { Bar } from 'react-chartjs-2';
+import 'chart.js/auto';
+import styles from '../styles/DashboardAnalyst.module.css';
+
+export default function DashboardAnalyst({ session }) {
+  const [loading, setLoading] = useState(true);
+  const [recordCount, setRecordCount] = useState(0);
+  const [chartData, setChartData] = useState(null);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [categoryRanking, setCategoryRanking] = useState([]);
+  const [filter, setFilter] = useState('7');
+
+  useEffect(() => {
+    const fetchRecords = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/get-analyst-records?analystId=${session.id}&filter=${filter}`);
+        const data = await res.json();
+        setRecordCount(data.count);
+        setChartData(data.count > 0 ? {
+          labels: data.dates,
+          datasets: [{ label: 'Dúvidas Auxiliadas', data: data.counts, backgroundColor: 'rgba(75, 192, 192, 0.6)', borderColor: 'rgba(75, 192, 192, 1)' }]
+        } : null);
+      } catch {
+        setRecordCount(0);
+        setChartData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecords();
+  }, [filter, session.id]);
+
+  if (loading) {
+    return <div className={styles.loading}>Carregando...</div>;
+  }
+
+  return (
+    <div className={styles.container}>
+      <h2>Dashboard do Analista</h2>
+      <div>
+        <p>Total de Dúvidas Auxiliadas: {recordCount}</p>
+      </div>
+      <div className={styles.filter}>
+        <label htmlFor="filter">Filtrar por:</label>
+        <select id="filter" value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <option value="1">Hoje</option>
+          <option value="7">Últimos 7 dias</option>
+          <option value="30">Últimos 30 dias</option>
+        </select>
+      </div>
+      <div className={styles.chartContainer}>
+        {chartData ? <Bar data={chartData} /> : <div className={styles.noData}>Nenhum dado disponível para o período selecionado.</div>}
+      </div>
+    </div>
+  );
+}
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-
-  // Redireciona se o usuário não estiver autenticado ou não for um analista
   if (!session || session.role !== 'analyst') {
     return {
       redirect: {
@@ -12,246 +69,7 @@ export async function getServerSideProps(context) {
       },
     };
   }
-
   return {
     props: { session },
   };
-}
-
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { Bar } from 'react-chartjs-2';
-import 'chart.js/auto';
-
-export default function DashboardAnalyst({ session }) {
-  const [isClient, setIsClient] = useState(false);
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [recordCount, setRecordCount] = useState(0);
-  const [chartData, setChartData] = useState(null);
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [categoryRanking, setCategoryRanking] = useState([]); // Estado para o ranking das categorias
-  const [filter, setFilter] = useState('7');
-
-  // Definir `isClient` como true quando estiver no lado do cliente
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Função para buscar registros
-  const fetchRecords = async () => {
-    if (!session?.id) {
-      console.error("ID do analista não encontrado.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const res = await fetch(`/api/get-analyst-records?analystId=${session.id}&filter=${filter}`);
-      if (!res.ok) {
-        throw new Error('Erro ao buscar registros.');
-      }
-
-      const data = await res.json();
-
-      if (data.count === 0) {
-        setRecordCount(0);
-        setChartData(null);
-      } else {
-        setRecordCount(data.count);
-        setChartData({
-          labels: data.dates,
-          datasets: [
-            {
-              label: 'Dúvidas Auxiliadas',
-              data: data.counts,
-              backgroundColor: 'rgba(75, 192, 192, 0.6)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1,
-            },
-          ],
-        });
-      }
-    } catch (err) {
-      console.error('Erro ao carregar registros:', err);
-      setRecordCount(0);
-      setChartData(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Função para buscar o leaderboard (ranking de usuários)
-  const fetchLeaderboard = async () => {
-    if (!session?.id) {
-      console.error("ID do analista não encontrado.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/get-analyst-leaderboard?analystId=${session.id}`);
-      if (!res.ok) {
-        throw new Error('Erro ao buscar registros para o leaderboard.');
-      }
-
-      const data = await res.json();
-
-      if (!data || !data.rows || data.rows.length === 0) {
-        setLeaderboard([]);
-        return;
-      }
-
-      const userHelpCounts = data.rows.reduce((acc, row) => {
-        const userName = row[2]; // Nome do usuário está na coluna C (índice 2)
-
-        if (userName) {
-          acc[userName] = (acc[userName] || 0) + 1;
-        }
-
-        return acc;
-      }, {});
-
-      const sortedUsers = Object.entries(userHelpCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([name, count]) => ({ name, count }));
-
-      setLeaderboard(sortedUsers);
-    } catch (err) {
-      console.error('Erro ao carregar leaderboard:', err);
-      setLeaderboard([]);
-    }
-  };
-
-  // Função para buscar o ranking das categorias
-  const fetchCategoryRanking = async () => {
-    if (!session?.id) {
-      console.error("ID do analista não encontrado.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/get-category-ranking?analystId=${session.id}`);
-      if (!res.ok) {
-        throw new Error('Erro ao buscar registros das categorias.');
-      }
-
-      const data = await res.json();
-
-      if (!data || !data.categories || data.categories.length === 0) {
-        setCategoryRanking([]);
-        return;
-      }
-
-      setCategoryRanking(data.categories);
-    } catch (err) {
-      console.error('Erro ao carregar ranking das categorias:', err);
-      setCategoryRanking([]);
-    }
-  };
-
-  // Carregar registros quando estiver no lado do cliente e o session estiver disponível
-  useEffect(() => {
-    if (isClient && session) {
-      fetchRecords();
-      fetchLeaderboard(); // Busca sempre o leaderboard do mês atual
-      fetchCategoryRanking(); // Busca o ranking das categorias
-    }
-  }, [isClient, filter, session]);
-
-  // Mostrar um indicador de carregamento enquanto os dados não estão prontos
-  if (!isClient || loading) {
-    return (
-      <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
-        Carregando...
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ padding: '20px', color: '#fff', backgroundColor: '#121212', minHeight: '100vh' }}>
-      <h2>Dashboard do Analista</h2>
-      <div>
-        <p>Total de Dúvidas Auxiliadas: {recordCount}</p>
-      </div>
-      <div>
-        <label htmlFor="filter">Filtrar por:</label>
-        <select id="filter" value={filter} onChange={(e) => setFilter(e.target.value)}>
-          <option value="1">Hoje</option>
-          <option value="7">Últimos 7 dias</option>
-          <option value="30">Últimos 30 dias</option>
-        </select>
-      </div>
-      <div style={{ marginTop: '20px' }}>
-        {chartData ? (
-          <Bar data={chartData} />
-        ) : (
-          <div style={{ color: '#fff', textAlign: 'center', padding: '20px' }}>
-            Nenhum dado disponível para o período selecionado.
-          </div>
-        )}
-      </div>
-
-      {/* Leaderboard e Ranking das Categorias */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px' }}>
-        {/* Leaderboard */}
-        <div style={{ width: '48%', padding: '20px', backgroundColor: '#1E1E1E', borderRadius: '10px' }}>
-          <h3>Top 5 Usuários que Mais Pediram Ajuda (Mês Atual)</h3>
-          {leaderboard.length > 0 ? (
-            <ul style={{ listStyle: 'none', padding: 0 }}>
-              {leaderboard.map((user, index) => (
-                <li key={index} style={{ marginBottom: '15px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', fontSize: '1.2em', marginRight: '10px' }}>{index + 1}.</span>
-                  <span style={{ flexGrow: 1 }}>{user.name}</span>
-                  <div
-                    style={{
-                      flexGrow: 2,
-                      height: '20px',
-                      backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                      borderRadius: '5px',
-                      width: `${user.count * 10}px`,
-                    }}
-                  />
-                  <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>{user.count} pedidos</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div style={{ color: '#fff', textAlign: 'center', padding: '10px' }}>
-              Nenhum usuário solicitou ajuda neste mês.
-            </div>
-          )}
-        </div>
-
-        {/* Ranking das Categorias */}
-        <div style={{ width: '48%', padding: '20px', backgroundColor: '#1E1E1E', borderRadius: '10px' }}>
-          <h3>Top 10 Categorias Mais Solicitadas (Mês Atual)</h3>
-          {categoryRanking.length > 0 ? (
-            <ul style={{ listStyle: 'none', padding: 0 }}>
-              {categoryRanking.map((category, index) => (
-                <li key={index} style={{ marginBottom: '15px', display: 'flex', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', fontSize: '1.2em', marginRight: '10px' }}>{index + 1}.</span>
-                  <span style={{ flexGrow: 1 }}>{category.name}</span>
-                  <div
-                    style={{
-                      flexGrow: 2,
-                      height: '20px',
-                      backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                      borderRadius: '5px',
-                      width: `${category.count * 10}px`,
-                    }}
-                  />
-                  <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>{category.count} pedidos</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div style={{ color: '#fff', textAlign: 'center', padding: '10px' }}>
-              Nenhuma categoria solicitada neste mês.
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
 }

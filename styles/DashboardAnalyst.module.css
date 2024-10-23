@@ -1,0 +1,28 @@
+/* styles/DashboardAnalyst.module.css */
+.container {
+    padding: 20px;
+    color: #fff;
+    background-color: #121212;
+    min-height: 100vh;
+  }
+  
+  .filter {
+    margin-bottom: 20px;
+  }
+  
+  .chartContainer {
+    margin-top: 20px;
+  }
+  
+  .noData {
+    text-align: center;
+    padding: 20px;
+    color: #fff;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #fff;
+  }
+  
