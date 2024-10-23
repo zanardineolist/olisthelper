@@ -94,7 +94,7 @@ export default function DashboardAnalyst({ session }) {
 
     try {
       console.log('fetchLeaderboard: Iniciando busca de registros para o ranking...');
-      const res = await fetch(`/api/get-analyst-records?analystId=${session.id}&mode=leaderboard`);
+      const res = await fetch(`/api/get-analyst-leaderboard?analystId=${session.id}`);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros para o leaderboard.');
       }
