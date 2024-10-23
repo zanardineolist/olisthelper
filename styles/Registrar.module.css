@@ -10,7 +10,7 @@
 }
 
 .formContainerWithSpacing {
-  margin-top: 80px; /* Espaçamento de 20px do topo mais a altura do container fixo */
+  margin: 100px auto 0;
   padding: 20px;
   background-color: #1E1E1E;
   border-radius: 10px;
