@@ -4,6 +4,7 @@ import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { useRouter } from 'next/router';
 import styles from '../styles/DashboardAnalyst.module.css';
+import commonStyles from '../styles/commonStyles.module.css';
 
 export default function DashboardAnalyst({ session }) {
   const router = useRouter();
@@ -125,24 +126,24 @@ export default function DashboardAnalyst({ session }) {
 
   return (
     <div className={styles.container}>
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>Olist Helper</div>
-        <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
+      <nav className={commonStyles.navbar}>
+        <div className={commonStyles.logo}>Olist Helper</div>
+        <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
           ☰
         </button>
       </nav>
       {menuOpen && (
-        <div className={styles.menu}>
-          <button onClick={() => router.push('/my')} className={styles.menuButton}>
+        <div className={commonStyles.menu}>
+          <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
             Página Inicial
           </button>
-          <button onClick={() => router.push('/registrar')} className={styles.menuButton}>
+          <button onClick={() => router.push('/registrar')} className={commonStyles.menuButton}>
             Registrar Dúvida
           </button>
-          <button onClick={() => router.push('/dashboard-analyst')} className={styles.menuButton}>
+          <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
             Dashboard do Analista
           </button>
-          <button onClick={() => signOut()} className={styles.menuButton}>
+          <button onClick={() => signOut()} className={commonStyles.menuButton}>
             Logout
           </button>
         </div>

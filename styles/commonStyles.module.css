@@ -1,0 +1,54 @@
+/* commonStyles.module.css */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #1e1e1e;
+  }
+  
+  .menuToggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10;
+  }
+  
+  .logo {
+    font-size: 1.5em;
+    color: #fff;
+  }
+  
+  .menu {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    background: #333;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .menuButton {
+    margin: 5px 0;
+    padding: 10px 20px;
+    background-color: #e64e36;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .menuButton:hover {
+    background-color: #f57c00;
+  }
+  

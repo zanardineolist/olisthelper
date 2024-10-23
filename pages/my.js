@@ -1,6 +1,7 @@
 import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/MyPage.module.css';
 
 export default function MyPage({ user }) {
@@ -21,26 +22,26 @@ export default function MyPage({ user }) {
 
   return (
     <div className={styles.container}>
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>Olist Helper</div>
-        <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
+      <nav className={commonStyles.navbar}>
+        <div className={commonStyles.logo}>Olist Helper</div>
+        <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
           ☰
         </button>
       </nav>
       {menuOpen && (
-        <div className={styles.menu}>
-          <button onClick={() => handleNavigation('/my')} className={styles.menuButton}>
+        <div className={commonStyles.menu}>
+          <button onClick={() => handleNavigation('/my')} className={commonStyles.menuButton}>
             Página Inicial
           </button>
-          <button onClick={() => handleNavigation('/registrar')} className={styles.menuButton}>
+          <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
             Registrar Dúvida
           </button>
           {user.role === 'analyst' && (
-            <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
+            <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
               Dashboard do Analista
             </button>
           )}
-          <button onClick={() => signOut()} className={styles.menuButton}>
+          <button onClick={() => signOut()} className={commonStyles.menuButton}>
             Logout
           </button>
         </div>
