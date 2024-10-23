@@ -1,16 +1,9 @@
 /* styles/DashboardAnalyst.module.css */
 .container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #1E1E1E;
-  padding: 10px 20px;
-  z-index: 1000;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  padding: 40px;  /* Ajustar padding para dar mais espaço entre o conteúdo e as bordas */
+  color: #fff;
+  background-color: #121212;
+  min-height: 100vh;
 }
 
 .summary {
