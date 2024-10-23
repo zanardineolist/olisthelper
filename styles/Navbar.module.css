@@ -29,7 +29,8 @@
     padding: 10px 0;
   }
   
-  .menuButton {
+  .menuButton,
+  .menuButton a {
     background-color: #E64E36;
     color: #fff;
     padding: 10px 20px;
@@ -40,5 +41,10 @@
     transition: background-color 0.3s ease;
     width: 80%;
     text-align: center;
+    text-decoration: none;
   }
   
+  .menuButton:hover,
+  .menuButton a:hover {
+    background-color: #f57c00;
+  }

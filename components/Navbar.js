@@ -1,11 +1,19 @@
 // components/Navbar.js
 import Link from 'next/link';
 import styles from '../styles/Navbar.module.css';
-import { useState } from 'react';
-import { signOut } from 'next-auth/react';
+import { useState, useEffect } from 'react';
+import { signOut, useSession } from 'next-auth/react';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { data: session } = useSession();
+  const [isAnalyst, setIsAnalyst] = useState(false);
+
+  useEffect(() => {
+    if (session?.user?.role === 'analyst') {
+      setIsAnalyst(true);
+    }
+  }, [session]);
 
   return (
     <nav className={styles.navbar}>
@@ -23,9 +31,21 @@ export default function Navbar() {
           <Link href="/registrar" className={styles.menuButton}>
             Registrar Dúvida
           </Link>
-          <Link href="/dashboard-analyst" className={styles.menuButton}>
-            Dashboard do Analista
-          </Link>
+          {isAnalyst && (
+            <>
+              <Link href="/dashboard-analyst" className={styles.menuButton}>
+                Dashboard do Analista
+              </Link>
+              <a
+                href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.menuButton}
+              >
+                Database
+              </a>
+            </>
+          )}
           <button onClick={() => signOut()} className={styles.menuButton}>
             Logout
           </button>
