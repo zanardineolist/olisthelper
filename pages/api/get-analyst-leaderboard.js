@@ -1,7 +1,11 @@
 import { google } from 'googleapis';
 
 export default async function handler(req, res) {
+<<<<<<< HEAD
   const { analystId, mode } = req.query;
+=======
+  const { analystId } = req.query;
+>>>>>>> 20aec0b6f9a55bfdea7f5c706fb226f606ea1508
 
   if (!analystId || analystId === 'undefined') {
     console.log('Erro: ID do analista não fornecido ou inválido.');
@@ -53,6 +57,7 @@ export default async function handler(req, res) {
 
     console.log(`Total de registros encontrados: ${rows.length}`);
 
+<<<<<<< HEAD
     if (mode === 'leaderboard') {
       // Filtrar todos os registros do mês atual para o leaderboard
       const currentDate = new Date();
@@ -111,8 +116,32 @@ export default async function handler(req, res) {
       counts: Object.values(countsObj),
       rows: filteredRows,
     });
+=======
+    // Filtrar todos os registros do mês atual para o leaderboard
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    const leaderboardRows = rows.filter((row, index) => {
+      if (index === 0) return false; // Pular cabeçalho
+
+      const [dateStr] = row;
+      const [day, month, year] = dateStr.split('/').map(Number);
+      const date = new Date(year, month - 1, day);
+
+      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    });
+
+    console.log(`Total de registros para o leaderboard: ${leaderboardRows.length}`);
+
+    return res.status(200).json({ rows: leaderboardRows });
+>>>>>>> 20aec0b6f9a55bfdea7f5c706fb226f606ea1508
   } catch (error) {
     console.error('Erro ao obter registros do analista:', error);
     res.status(500).json({ error: 'Erro ao obter registros.' });
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 20aec0b6f9a55bfdea7f5c706fb226f606ea1508
