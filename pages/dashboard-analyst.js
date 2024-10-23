@@ -127,7 +127,7 @@ export default function DashboardAnalyst({ session }) {
   return (
     <div className={commonStyles.container}>
       <nav className={commonStyles.navbar}>
-        <div className={commonStyles.logo}>Olist Helper</div>
+        <div className={commonStyles.logo}><img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" /></div>
         <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
           ☰
         </button>
