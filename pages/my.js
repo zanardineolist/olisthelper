@@ -44,32 +44,42 @@ export default function MyPage({ user }) {
       </Head>
 
       <div className={styles.container}>
-        <nav className={commonStyles.navbar}>
-          <div className={styles.logo}>
-            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
-          </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
-            ☰
+      <nav className={commonStyles.navbar}>
+        <div className={commonStyles.logo}>
+          <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
+        </div>
+        <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
+          ☰
+        </button>
+      </nav>
+      {menuOpen && (
+        <div className={commonStyles.menu}>
+          <button onClick={() => handleNavigation('/my')} className={commonStyles.menuButton}>
+            Página Inicial
           </button>
-        </nav>
-        {menuOpen && (
-          <div className={commonStyles.menu}>
-            <button onClick={() => handleNavigation('/my')} className={commonStyles.menuButton}>
-              Página Inicial
-            </button>
-            <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
-              Registrar Dúvida
-            </button>
-            {user.role === 'analyst' && (
+          <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
+            Registrar Dúvida
+          </button>
+          {user.role === 'analyst' && (
+            <>
               <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
                 Dashboard do Analista
               </button>
-            )}
-            <button onClick={() => signOut()} className={commonStyles.menuButton}>
-              Logout
-            </button>
-          </div>
-        )}
+              <a
+                href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={commonStyles.menuButton}
+              >
+                Database
+              </a>
+            </>
+          )}
+          <button onClick={() => signOut()} className={commonStyles.menuButton}>
+            Logout
+          </button>
+        </div>
+      )}
       </div>
 
       <div className={styles.profileContainer}>
