@@ -81,32 +81,37 @@ export default function RegistrarPage({ session }) {
   }
 
   return (
-    <div className={commonStyles.container}>
-      <nav className={commonStyles.navbar}>
-        <div className={commonStyles.logo}><img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" /></div>
-        <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
-          ☰
-        </button>
-      </nav>
-      {menuOpen && (
-        <div className={commonStyles.menu}>
-          <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
-            Página Inicial
+    <>
+      <div className={commonStyles.container}>
+        <nav className={commonStyles.navbar}>
+          <div className={commonStyles.logo}>
+            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
+          </div>
+          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
+            ☰
           </button>
-          <button onClick={() => router.push('/registrar')} className={commonStyles.menuButton}>
-            Registrar Dúvida
-          </button>
-          {session.role === 'analyst' && (
-            <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
-              Dashboard do Analista
+        </nav>
+        {menuOpen && (
+          <div className={commonStyles.menu}>
+            <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
+              Página Inicial
             </button>
-          )}
-          <button onClick={() => signOut()} className={commonStyles.menuButton}>
-            Logout
-          </button>
-        </div>
-      )}
-      <div className={styles.formContainer}>
+            <button onClick={() => router.push('/registrar')} className={commonStyles.menuButton}>
+              Registrar Dúvida
+            </button>
+            {session.role === 'analyst' && (
+              <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
+                Dashboard do Analista
+              </button>
+            )}
+            <button onClick={() => signOut()} className={commonStyles.menuButton}>
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
+  
+      <div className={styles.formContainerWithSpacing}>
         <h2 className={styles.formTitle}>Registrar Dúvida</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
@@ -147,8 +152,8 @@ export default function RegistrarPage({ session }) {
           </button>
         </form>
       </div>
-    </div>
-  );
+    </>
+  );  
 }
 
 export async function getServerSideProps(context) {

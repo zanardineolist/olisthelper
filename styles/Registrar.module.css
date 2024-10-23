@@ -9,6 +9,17 @@
   padding: 20px;
 }
 
+.formContainerWithSpacing {
+  margin-top: 80px; /* Espaçamento de 20px do topo mais a altura do container fixo */
+  padding: 20px;
+  background-color: #1E1E1E;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  width: 100%;
+  max-width: 600px;
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;

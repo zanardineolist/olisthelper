@@ -125,31 +125,35 @@ export default function DashboardAnalyst({ session }) {
   }
 
   return (
-    <div className={commonStyles.container}>
-      <nav className={commonStyles.navbar}>
-        <div className={commonStyles.logo}><img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" /></div>
-        <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
-          ☰
-        </button>
-      </nav>
-      {menuOpen && (
-        <div className={commonStyles.menu}>
-          <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
-            Página Inicial
+    <>
+      <div className={commonStyles.container}>
+        <nav className={commonStyles.navbar}>
+          <div className={commonStyles.logo}>
+            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
+          </div>
+          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
+            ☰
           </button>
-          <button onClick={() => router.push('/registrar')} className={commonStyles.menuButton}>
-            Registrar Dúvida
-          </button>
-          <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
-            Dashboard do Analista
-          </button>
-          <button onClick={() => signOut()} className={commonStyles.menuButton}>
-            Logout
-          </button>
-        </div>
-      )}
-
-      <div className={styles.content}>
+        </nav>
+        {menuOpen && (
+          <div className={commonStyles.menu}>
+            <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
+              Página Inicial
+            </button>
+            <button onClick={() => router.push('/registrar')} className={commonStyles.menuButton}>
+              Registrar Dúvida
+            </button>
+            <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
+              Dashboard do Analista
+            </button>
+            <button onClick={() => signOut()} className={commonStyles.menuButton}>
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
+  
+      <div className={styles.dashboardContainer}>
         <h2>Dashboard do Analista</h2>
         <div className={styles.summary}>
           <p>Total de Dúvidas Auxiliadas: {recordCount}</p>
@@ -208,8 +212,8 @@ export default function DashboardAnalyst({ session }) {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </>
+  );  
 }
 
 export async function getServerSideProps(context) {
