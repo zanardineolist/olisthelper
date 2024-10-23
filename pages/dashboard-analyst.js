@@ -35,7 +35,7 @@ export default function DashboardAnalyst({ session }) {
         labels: data.dates,
         datasets: [
           {
-            label: 'Dúvidas Auxiliadas',
+            label: 'Auxilios',
             data: data.counts,
             backgroundColor: 'rgba(119, 158, 61, 1)',
             borderColor: 'rgba(84, 109, 47, 1)',
@@ -177,7 +177,7 @@ export default function DashboardAnalyst({ session }) {
         </div>
         <div className={styles.rankingContainer}>
           <div className={styles.leaderboard}>
-            <h3>Top 5 Usuários que Mais Pediram Ajuda (Mês Atual)</h3>
+            <h3>Top 5 - Usuários que Mais Pediram Ajuda (Mês Atual)</h3>
             {leaderboard.length > 0 ? (
               <ul className={styles.list}>
                 {leaderboard.map((user, index) => (
@@ -194,7 +194,7 @@ export default function DashboardAnalyst({ session }) {
             )}
           </div>
           <div className={styles.categoryRanking}>
-            <h3>Top 10 Temas de Dúvidas (Mês Atual)</h3>
+            <h3>Top 10 - Temas de Dúvidas (Mês Atual)</h3>
             {categoryRanking.length > 0 ? (
               <ul className={styles.list}>
                 {categoryRanking.map((category, index) => (
