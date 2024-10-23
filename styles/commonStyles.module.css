@@ -37,9 +37,10 @@
 .logo {
   display: flex;
   align-items: center;
-  margin-right: auto;
-  font-size: 1.5em;
-  color: #fff;
+}
+
+.logo img {
+  height: 40px;
 }
 
 .menu {
