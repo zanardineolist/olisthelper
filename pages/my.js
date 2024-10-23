@@ -7,9 +7,13 @@ export default function MyPage({ user }) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleNavigation = (path) => {
-    router.push(path);
-  };
+  if (!user) {
+    return (
+      <div className={styles.loaderContainer}>
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -21,14 +25,14 @@ export default function MyPage({ user }) {
       </nav>
       {menuOpen && (
         <div className={styles.menu}>
-          <button onClick={() => handleNavigation('/my')} className={styles.menuButton}>
+          <button onClick={() => router.push('/my')} className={styles.menuButton}>
             Página Inicial
           </button>
-          <button onClick={() => handleNavigation('/registrar')} className={styles.menuButton}>
+          <button onClick={() => router.push('/registrar')} className={styles.menuButton}>
             Registrar Dúvida
           </button>
           {user.role === 'analyst' && (
-            <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
+            <button onClick={() => router.push('/dashboard-analyst')} className={styles.menuButton}>
               Dashboard do Analista
             </button>
           )}
@@ -38,7 +42,7 @@ export default function MyPage({ user }) {
         </div>
       )}
       <main className={styles.main}>
-        <h1>Bem-vindo, {user.name}!</h1>
+        <h1>Olá, {user.name}!</h1>
       </main>
     </div>
   );

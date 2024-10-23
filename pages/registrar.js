@@ -1,4 +1,4 @@
-import { getSession } from 'next-auth/react';
+import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import styles from '../styles/Registrar.module.css';
@@ -72,7 +72,9 @@ export default function RegistrarPage({ session }) {
   };
 
   if (loading) {
-    return <div className={styles.loading}>Carregando...</div>;
+    return <div className={styles.loaderContainer}>
+        <div className="loader"></div>
+      </div>;
   }
 
   return (
@@ -90,6 +92,9 @@ export default function RegistrarPage({ session }) {
           </button>
           <button onClick={() => router.push('/registrar')} className={styles.menuButton}>
             Registrar Dúvida
+          </button>
+          <button onClick={() => router.push('/dashboard-analyst')} className={styles.menuButton}>
+            Dashboard do Analista
           </button>
           <button onClick={() => signOut()} className={styles.menuButton}>
             Logout

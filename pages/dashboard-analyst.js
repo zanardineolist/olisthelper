@@ -1,19 +1,20 @@
-import { getSession } from 'next-auth/react';
+import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
-import Layout from '../components/Layout';  // Importa o Layout padrão
-import styles from '../styles/DashboardAnalyst.module.css';  // Estilos específicos para o dashboard
+import { useRouter } from 'next/router';
+import styles from '../styles/DashboardAnalyst.module.css';
 
 export default function DashboardAnalyst({ session }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [filter, setFilter] = useState('7');
 
-  // Função para buscar registros
   const fetchRecords = async () => {
     if (!session?.id) {
       console.error("ID do analista não encontrado.");
@@ -28,25 +29,19 @@ export default function DashboardAnalyst({ session }) {
       }
 
       const data = await res.json();
-
-      if (data.count === 0) {
-        setRecordCount(0);
-        setChartData(null);
-      } else {
-        setRecordCount(data.count);
-        setChartData({
-          labels: data.dates,
-          datasets: [
-            {
-              label: 'Dúvidas Auxiliadas',
-              data: data.counts,
-              backgroundColor: 'rgba(75, 192, 192, 0.6)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1,
-            },
-          ],
-        });
-      }
+      setRecordCount(data.count);
+      setChartData(data.count > 0 ? {
+        labels: data.dates,
+        datasets: [
+          {
+            label: 'Dúvidas Auxiliadas',
+            data: data.counts,
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+          },
+        ],
+      } : null);
     } catch (err) {
       console.error('Erro ao carregar registros:', err);
       setRecordCount(0);
@@ -56,7 +51,6 @@ export default function DashboardAnalyst({ session }) {
     }
   };
 
-  // Função para buscar o leaderboard (ranking de usuários)
   const fetchLeaderboard = async () => {
     if (!session?.id) {
       console.error("ID do analista não encontrado.");
@@ -70,19 +64,16 @@ export default function DashboardAnalyst({ session }) {
       }
 
       const data = await res.json();
-
       if (!data || !data.rows || data.rows.length === 0) {
         setLeaderboard([]);
         return;
       }
 
       const userHelpCounts = data.rows.reduce((acc, row) => {
-        const userName = row[2]; // Nome do usuário está na coluna C (índice 2)
-
+        const userName = row[2];
         if (userName) {
           acc[userName] = (acc[userName] || 0) + 1;
         }
-
         return acc;
       }, {});
 
@@ -98,7 +89,6 @@ export default function DashboardAnalyst({ session }) {
     }
   };
 
-  // Função para buscar o ranking das categorias
   const fetchCategoryRanking = async () => {
     if (!session?.id) {
       console.error("ID do analista não encontrado.");
@@ -112,40 +102,52 @@ export default function DashboardAnalyst({ session }) {
       }
 
       const data = await res.json();
-
-      if (!data || !data.categories || data.categories.length === 0) {
-        setCategoryRanking([]);
-        return;
-      }
-
-      setCategoryRanking(data.categories);
+      setCategoryRanking(data.categories || []);
     } catch (err) {
       console.error('Erro ao carregar ranking das categorias:', err);
       setCategoryRanking([]);
     }
   };
 
-  // Carregar registros quando o componente for montado
   useEffect(() => {
     fetchRecords();
     fetchLeaderboard();
     fetchCategoryRanking();
   }, [filter, session]);
 
-  // Mostrar um indicador de carregamento enquanto os dados não estão prontos
   if (loading) {
     return (
-      <Layout>
-        <div className={styles.loading}>
-          Carregando...
-        </div>
-      </Layout>
+      <div className={styles.loaderContainer}>
+        <div className="loader"></div>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className={styles.container}>
+    <div className={styles.container}>
+      <nav className={styles.navbar}>
+        <div className={styles.logo}>Olist Helper</div>
+        <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
+          ☰
+        </button>
+      </nav>
+      {menuOpen && (
+        <div className={styles.menu}>
+          <button onClick={() => router.push('/my')} className={styles.menuButton}>
+            Página Inicial
+          </button>
+          <button onClick={() => router.push('/registrar')} className={styles.menuButton}>
+            Registrar Dúvida
+          </button>
+          <button onClick={() => router.push('/dashboard-analyst')} className={styles.menuButton}>
+            Dashboard do Analista
+          </button>
+          <button onClick={() => signOut()} className={styles.menuButton}>
+            Logout
+          </button>
+        </div>
+      )}
+      <div className={styles.content}>
         <h2>Dashboard do Analista</h2>
         <div className={styles.summary}>
           <p>Total de Dúvidas Auxiliadas: {recordCount}</p>
@@ -167,10 +169,7 @@ export default function DashboardAnalyst({ session }) {
             </div>
           )}
         </div>
-
-        {/* Leaderboard e Ranking das Categorias */}
         <div className={styles.rankingContainer}>
-          {/* Leaderboard */}
           <div className={styles.leaderboard}>
             <h3>Top 5 Usuários que Mais Pediram Ajuda (Mês Atual)</h3>
             {leaderboard.length > 0 ? (
@@ -185,13 +184,9 @@ export default function DashboardAnalyst({ session }) {
                 ))}
               </ul>
             ) : (
-              <div className={styles.noData}>
-                Nenhum usuário solicitou ajuda neste mês.
-              </div>
+              <div className={styles.noData}>Nenhum usuário solicitou ajuda neste mês.</div>
             )}
           </div>
-
-          {/* Ranking das Categorias */}
           <div className={styles.categoryRanking}>
             <h3>Top 10 Categorias Mais Solicitadas (Mês Atual)</h3>
             {categoryRanking.length > 0 ? (
@@ -206,20 +201,17 @@ export default function DashboardAnalyst({ session }) {
                 ))}
               </ul>
             ) : (
-              <div className={styles.noData}>
-                Nenhuma categoria solicitada neste mês.
-              </div>
+              <div className={styles.noData}>Nenhuma categoria solicitada neste mês.</div>
             )}
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 }
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-
   if (!session || session.role !== 'analyst') {
     return {
       redirect: {
@@ -228,7 +220,6 @@ export async function getServerSideProps(context) {
       },
     };
   }
-
   return {
     props: { session },
   };
