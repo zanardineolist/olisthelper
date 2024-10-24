@@ -121,7 +121,7 @@ export default function RegistroPage({ session }) {
         <title>Registrar Ajuda</title>
       </Head>
 
-      <div className={commonStyles.container}>
+      <div className={styles.container}>
         <nav className={commonStyles.navbar}>
           <div className={commonStyles.logo}>
             <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
@@ -130,6 +130,7 @@ export default function RegistroPage({ session }) {
             ☰
           </button>
         </nav>
+
         {menuOpen && (
           <div className={commonStyles.menu}>
             <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
@@ -163,50 +164,54 @@ export default function RegistroPage({ session }) {
             </button>
           </div>
         )}
-      </div>
 
-      <div className={styles.formContainerWithSpacing}>
-        <h2 className={styles.formTitle}>Registrar Ajuda</h2>
-        <form onSubmit={handleSubmit}>
-          <div className={styles.formGroup}>
-            <label htmlFor="user">Selecione o usuário</label>
-            <select id="user" name="user" value={formData.user} onChange={handleChange} required>
-              <option value="">Selecione um usuário</option>
-              {users.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name}
-                </option>
-              ))}
-            </select>
+        <div className={styles.mainContent}>
+          <div className={styles.formContainerWithSpacing}>
+            <h2 className={styles.formTitle}>Registrar Ajuda</h2>
+            <form onSubmit={handleSubmit}>
+              <div className={styles.formGroup}>
+                <label htmlFor="user">Selecione o usuário</label>
+                <select id="user" name="user" value={formData.user} onChange={handleChange} required>
+                  <option value="">Selecione um usuário</option>
+                  {users.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="category">Categoria da ajuda</label>
+                <select id="category" name="category" value={formData.category} onChange={handleChange} required>
+                  <option value="">Selecione uma categoria</option>
+                  {categories.map((category, index) => (
+                    <option key={index} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="description">Descrição da ajuda</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
+                  rows="4"
+                  className={styles.formTextarea} // Adicionando a classe para estilização
+                />
+              </div>
+              <button type="submit" className={styles.submitButton} disabled={submitting}>
+                {submitting ? 'Enviando...' : 'Enviar Ajuda'}
+              </button>
+            </form>
           </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="category">Categoria da ajuda</label>
-            <select id="category" name="category" value={formData.category} onChange={handleChange} required>
-              <option value="">Selecione uma categoria</option>
-              {categories.map((category, index) => (
-                <option key={index} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="description">Descrição da ajuda</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              required
-              rows="4"
-            />
-          </div>
-          <button type="submit" className={styles.submitButton} disabled={submitting}>
-            {submitting ? 'Enviando...' : 'Enviar Ajuda'}
-          </button>
-        </form>
+        </div>
+
+        <Footer /> {/* Adicionando o rodapé no final da página */}
       </div>
-      <Footer />
     </>
   );
 }
