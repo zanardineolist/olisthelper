@@ -1,3 +1,4 @@
+// pages/api/register-doubt.js
 import { google } from 'googleapis';
 
 export default async function handler(req, res) {
@@ -15,16 +16,18 @@ export default async function handler(req, res) {
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
       null,
-      JSON.parse(`"${process.env.GOOGLE_PRIVATE_KEY}"`),
+      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
       ['https://www.googleapis.com/auth/spreadsheets']
     );
 
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
+    // Formatar a data e hora atuais para o horário de Brasília (UTC-3)
     const date = new Date();
-    const formattedDate = date.toLocaleDateString('pt-BR');
-    const formattedTime = date.toLocaleTimeString('pt-BR');
+    const brtDate = new Date(date.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const formattedDate = brtDate.toLocaleDateString('pt-BR');
+    const formattedTime = brtDate.toLocaleTimeString('pt-BR');
 
     // Obter as informações da planilha (metadados)
     const sheetMeta = await sheets.spreadsheets.get({
@@ -53,6 +56,6 @@ export default async function handler(req, res) {
     res.status(200).json({ message: 'Dúvida registrada com sucesso.' });
   } catch (error) {
     console.error('Erro ao registrar dúvida:', error);
-    throw new Error('Erro ao registrar a dúvida. Verifique suas credenciais e a configuração do Google Sheets.');
+    res.status(500).json({ error: 'Erro ao registrar a dúvida. Verifique suas credenciais e a configuração do Google Sheets.' });
   }
 }

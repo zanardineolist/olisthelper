@@ -37,6 +37,8 @@ export default function MyPage({ user }) {
     );
   }  
 
+  const firstName = user.name.split(' ')[0];
+
   return (
     <>
       <Head>
@@ -96,7 +98,7 @@ export default function MyPage({ user }) {
       </div>
 
       <main className={styles.main}>
-        <h1>Olá, {greeting} {user.name}!</h1>
+        <h1>Olá, {greeting} {firstName}!</h1>
       </main>
     </>
   );
