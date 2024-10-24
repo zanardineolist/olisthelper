@@ -9,9 +9,12 @@ export default function MyPage({ user }) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [greeting, setGreeting] = useState('');
+  const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
 
   useEffect(() => {
-    const currentHour = new Date().getHours();
+    // Obter a hora atual no fuso horário de Brasília (UTC-3)
+    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+    const currentHour = new Date(brtDate).getHours();
     let greetingMessage = '';
 
     if (currentHour >= 5 && currentHour < 12) {
@@ -25,6 +28,24 @@ export default function MyPage({ user }) {
     setGreeting(greetingMessage);
   }, []);
 
+  useEffect(() => {
+    // Buscar os dados de ajuda solicitada do usuário para o mês atual e o anterior
+    const fetchHelpRequests = async () => {
+      try {
+        const response = await fetch(`/api/get-user-help-requests?userEmail=${user.email}`);
+        const data = await response.json();
+        setHelpRequests({
+          currentMonth: data.currentMonth,
+          lastMonth: data.lastMonth,
+        });
+      } catch (error) {
+        console.error('Erro ao buscar dados de ajudas solicitadas:', error);
+      }
+    };
+
+    fetchHelpRequests();
+  }, [user.email]);
+
   const handleNavigation = (path) => {
     router.push(path);
   };
@@ -35,9 +56,14 @@ export default function MyPage({ user }) {
         <div className="loader"></div>
       </div>
     );
-  }  
+  }
 
+  // Extrair o primeiro nome do usuário
   const firstName = user.name.split(' ')[0];
+
+  // Comparar ajudas solicitadas no mês atual e anterior
+  const arrow = helpRequests.currentMonth < helpRequests.lastMonth ? '⬇️' : '⬆️';
+  const color = helpRequests.currentMonth < helpRequests.lastMonth ? 'green' : 'red';
 
   return (
     <>
@@ -89,16 +115,32 @@ export default function MyPage({ user }) {
         )}
       </div>
 
-      <div className={styles.profileContainer}>
-        <img src={user.image} alt={user.name} className={styles.profileImage} />
-        <div className={styles.profileInfo}>
-          <h2>{user.name}</h2>
-          <p>{user.email}</p>
-        </div>
-      </div>
-
       <main className={styles.main}>
         <h1>Olá, {greeting} {firstName}!</h1>
+
+        <div className={styles.profileContainer}>
+          <img src={user.image} alt={user.name} className={styles.profileImage} />
+          <div className={styles.profileInfo}>
+            <h2>{user.name}</h2>
+            <p>{user.email}</p>
+          </div>
+        </div>
+
+        {/* Nova Caixa: Ajudas Solicitadas */}
+        <div className={styles.profileContainer}>
+          <div className={styles.profileInfo}>
+            <h2>Ajudas Solicitadas</h2>
+            <p>
+              Mês Atual: {helpRequests.currentMonth}
+            </p>
+            <p>
+              Mês Anterior: {helpRequests.lastMonth}
+            </p>
+            <p style={{ color }}>
+              Comparativo: {arrow} {helpRequests.currentMonth - helpRequests.lastMonth} solicitações
+            </p>
+          </div>
+        </div>
       </main>
     </>
   );
