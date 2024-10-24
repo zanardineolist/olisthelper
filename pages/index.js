@@ -37,7 +37,7 @@ export default function LoginPage() {
           </div>
           <h1 className={styles.welcomeText}>Seja bem vindo(a)</h1>
           <p className={styles.description}>
-            O Olist Helper é uma ferramenta para ajudar você a registrar e gerenciar suas dúvidas tiradas com os analistas no dia a dia.
+            O Olist Helper é uma ferramenta para ajudar você a registrar e gerenciar suas dúvidas tiradas com os analistas no dia a dia.<p><strong></strong>Acesse com seu e-mail @tiny.com.br ou @olist.com.</p>
           </p>
           <button onClick={() => signIn('google')} className={styles.loginButton}>
             Login com Google
