@@ -14,7 +14,8 @@
     "react-dom": "^18.0.0",
     "googleapis": "^100.0.0",
     "react-chartjs-2": "^5.2.0",
-    "chart.js": "^4.1.1"
+    "chart.js": "^4.1.1",
+    "sweetalert2": "^11.7.1"
   },
   "devDependencies": {
     "eslint": "8.0.1",
