@@ -23,7 +23,7 @@ export default function LoginPage() {
       <Head>
         <title>Olist Helper</title>
       </Head>
-
+  
       <div className={styles.loginContainer}>
         <div className={styles.loginBox}>
           <div className={styles.logoContainer}>
@@ -32,22 +32,24 @@ export default function LoginPage() {
               alt="Olist Helper Logo"
               width={270}
               height={75}
-              onError={(e) => (e.target.style.display = 'none')}
             />
           </div>
-          <h1 className={styles.welcomeText}>Seja bem vindo(a)</h1>
+          <h1 className={styles.welcomeText}>Seja bem-vindo(a)</h1>
           <p className={styles.description}>
-            O Olist Helper é uma ferramenta para ajudar você a registrar e gerenciar suas dúvidas tiradas com os analistas no dia a dia.<p><strong></strong>Acesse com seu e-mail @tiny.com.br ou @olist.com.</p>
+            O Olist Helper é uma ferramenta para ajudar você a registrar e gerenciar suas dúvidas tiradas com os analistas no dia a dia.
           </p>
           <button onClick={() => signIn('google')} className={styles.loginButton}>
             Login com Google
           </button>
+          <p className={styles.description}>
+            Acesse com seu e-mail @tiny.com.br ou @olist.com.
+          </p>
         </div>
         <p className={styles.credits}>Desenvolvido por Rafael Zanardine</p>
       </div>
     </>
   );
-}
+}  
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
