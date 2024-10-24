@@ -1,3 +1,4 @@
+// pages/my.js
 import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -10,6 +11,7 @@ export default function MyPage({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
+  const [categoryRanking, setCategoryRanking] = useState([]);
 
   useEffect(() => {
     // Obter a hora atual no fuso horário de Brasília (UTC-3)
@@ -44,6 +46,21 @@ export default function MyPage({ user }) {
     };
 
     fetchHelpRequests();
+  }, [user.email]);
+
+  useEffect(() => {
+    // Buscar as categorias mais solicitadas pelo usuário no mês atual
+    const fetchCategoryRanking = async () => {
+      try {
+        const response = await fetch(`/api/get-user-category-ranking?userEmail=${user.email}`);
+        const data = await response.json();
+        setCategoryRanking(data.categories || []);
+      } catch (error) {
+        console.error('Erro ao buscar ranking das categorias:', error);
+      }
+    };
+
+    fetchCategoryRanking();
   }, [user.email]);
 
   const handleNavigation = (path) => {
@@ -149,6 +166,25 @@ export default function MyPage({ user }) {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Nova Seção: Top 10 Categorias */}
+        <div className={styles.categoryRanking}>
+          <h3>Top 10 Categorias - Dúvidas Solicitadas</h3>
+          {categoryRanking.length > 0 ? (
+            <ul className={styles.list}>
+              {categoryRanking.map((category, index) => (
+                <li key={index} className={styles.listItem}>
+                  <span className={styles.rank}>{index + 1}.</span>
+                  <span className={styles.categoryName}>{category.name}</span>
+                  <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
+                  <span className={styles.count}>{category.count} pedidos de ajuda</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className={styles.noData}>Nenhum tema selecionado neste mês.</div>
+          )}
         </div>
       </main>
     </>
