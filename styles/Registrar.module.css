@@ -83,6 +83,13 @@
   outline: none;
 }
 
+.formTextarea {
+  width: 100%;
+  max-width: 600px;
+  min-width: 600px;
+  resize: vertical;
+}
+
 .submitButton {
   background-color: #E64E36;
   color: #fff;

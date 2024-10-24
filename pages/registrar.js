@@ -186,6 +186,7 @@ export default function RegistrarPage({ session }) {
                   onChange={handleChange}
                   required
                   rows="4"
+                  className={styles.formTextarea}
                 />
               </div>
               <button type="submit" className={styles.submitButton} disabled={submitting}>
