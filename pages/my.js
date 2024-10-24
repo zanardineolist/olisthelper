@@ -67,7 +67,8 @@ export default function MyPage({ user }) {
   if (lastMonth > 0) {
     percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
   }
-  const color = percentageChange < 0 ? 'green' : 'red';
+  const arrowClass = percentageChange < 0 ? 'fa-circle-down' : 'fa-circle-up';
+  const arrowColor = percentageChange < 0 ? 'green' : 'red';
   const formattedPercentage = Math.abs(percentageChange).toFixed(1);
 
   return (
@@ -141,17 +142,9 @@ export default function MyPage({ user }) {
                   <p>Mês Atual: <strong>{currentMonth}</strong></p>
                   <p>Mês Anterior: <strong>{lastMonth}</strong></p>
                 </div>
-                <div className={styles.percentageChange} style={{ color }}>
-                  {percentageChange < 0 ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className={styles.arrowIcon} viewBox="0 0 16 16">
-                      <path fillRule="evenodd" d="M8 12a.5.5 0 0 1-.5-.5V4.707L3.854 9.854a.5.5 0 0 1-.708-.708l5-5a.5.5 0 0 1 .708 0l5 5a.5.5 0 0 1-.708.708L8.5 4.707V11.5a.5.5 0 0 1-.5.5z"/>
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className={styles.arrowIcon} viewBox="0 0 16 16">
-                      <path fillRule="evenodd" d="M8 4a.5.5 0 0 1 .5.5v6.793l4.646-4.647a.5.5 0 1 1 .708.708l-5 5a.5.5 0 0 1-.708 0l-5-5a.5.5 0 1 1 .708-.708L7.5 11.293V4.5A.5.5 0 0 1 8 4z"/>
-                    </svg>
-                  )}
-                  {formattedPercentage}%
+                <div className={styles.percentageChange} style={{ color: arrowColor }}>
+                  <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
+                  <span>{formattedPercentage}%</span>
                 </div>
               </div>
             </div>

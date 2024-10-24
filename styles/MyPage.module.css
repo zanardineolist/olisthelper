@@ -80,12 +80,9 @@
 .percentageChange {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   font-size: 1.5em;
   font-weight: bold;
-  gap: 5px;
-}
-
-.arrowIcon {
-  width: 20px;
-  height: 20px;
+  gap: 10px;
+  width: 100%; 
 }
