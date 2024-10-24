@@ -6,6 +6,7 @@ import 'chart.js/auto';
 import { useRouter } from 'next/router';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/DashboardAnalyst.module.css';
+import Footer from '../components/Footer';
 
 export default function DashboardAnalyst({ session }) {
   const router = useRouter();
@@ -234,6 +235,7 @@ export default function DashboardAnalyst({ session }) {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );  
 }

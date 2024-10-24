@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
+import Footer from '../components/Footer';
 
 export default function RegistroPage({ session }) {
   const router = useRouter();
@@ -205,6 +206,7 @@ export default function RegistroPage({ session }) {
           </button>
         </form>
       </div>
+      <Footer />
     </>
   );
 }
