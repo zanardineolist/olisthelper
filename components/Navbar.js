@@ -1,4 +1,3 @@
-// components/Navbar.js
 import Link from 'next/link';
 import styles from '../styles/Navbar.module.css';
 import { useState, useEffect } from 'react';
@@ -33,6 +32,9 @@ export default function Navbar() {
           </Link>
           {isAnalyst && (
             <>
+              <Link href="/registro" className={styles.menuButton}>
+                Registrar Ajuda
+              </Link>
               <Link href="/dashboard-analyst" className={styles.menuButton}>
                 Dashboard Analista
               </Link>

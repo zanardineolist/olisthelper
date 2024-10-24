@@ -12,7 +12,7 @@ export async function middleware(req) {
   }
 
   if (!token) {
-    console.log("Redirecionando - Token não encontrado. Verifique se o token está sendo gerado corretamente.");
+    console.log("Redirecionando - Token não encontrado.");
     return NextResponse.redirect(new URL('/my', req.url));
   }
 
@@ -21,9 +21,19 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/my', req.url));
   }
 
+  if (req.nextUrl.pathname.startsWith('/registro') && token.role !== 'analyst') {
+    console.log("Redirecionando - Página de registro exclusiva para analistas.");
+    return NextResponse.redirect(new URL('/my', req.url));
+  }
+
+  if (req.nextUrl.pathname.startsWith('/registrar') && token.role !== 'user') {
+    console.log("Redirecionando - Página de registrar exclusiva para usuários.");
+    return NextResponse.redirect(new URL('/my', req.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/registrar', '/my', '/dashboard-analyst'],
+  matcher: ['/registrar', '/registro', '/my', '/dashboard-analyst'],
 };

@@ -1,3 +1,4 @@
+// pages/registro.js
 import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
@@ -5,35 +6,33 @@ import { useRouter } from 'next/router';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
 
-export default function RegistrarPage({ session }) {
+export default function RegistroPage({ session }) {
   const router = useRouter();
-  const [analysts, setAnalysts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [users, setUsers] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    analyst: '',
+    user: '',
     category: '',
     description: '',
   });
 
   useEffect(() => {
-    const loadAnalystsAndCategories = async () => {
+    const loadUsers = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/get-analysts-categories');
+        const res = await fetch('/api/get-users');
         const data = await res.json();
-        setAnalysts(data.analysts);
-        setCategories(data.categories);
+        setUsers(data.users);
       } catch (err) {
-        console.error('Erro ao carregar analistas e categorias:', err);
+        console.error('Erro ao carregar usuários:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadAnalystsAndCategories();
+    loadUsers();
   }, []);
 
   const handleChange = (e) => {
@@ -48,26 +47,26 @@ export default function RegistrarPage({ session }) {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const response = await fetch('/api/register-doubt', {
+      const response = await fetch('/api/register-analyst-note', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           ...formData,
-          userName: session.user.name,
-          userEmail: session.user.email,
+          analystId: session.id,
+          analystName: session.user.name,
         }),
       });
       if (response.ok) {
-        alert('Dúvida registrada com sucesso!');
-        setFormData({ analyst: '', category: '', description: '' });
+        alert('Nota registrada com sucesso!');
+        setFormData({ user: '', category: '', description: '' });
       } else {
-        alert('Erro ao registrar a dúvida, tente novamente.');
+        alert('Erro ao registrar a nota, tente novamente.');
       }
     } catch (error) {
       console.error('Erro ao enviar o formulário:', error);
-      alert('Erro ao registrar a dúvida, tente novamente.');
+      alert('Erro ao registrar a nota, tente novamente.');
     } finally {
       setSubmitting(false);
     }
@@ -84,7 +83,7 @@ export default function RegistrarPage({ session }) {
   return (
     <>
       <Head>
-        <title>Registrar Dúvida</title>
+        <title>Registrar Nota</title>
       </Head>
 
       <div className={commonStyles.container}>
@@ -132,32 +131,30 @@ export default function RegistrarPage({ session }) {
       </div>
 
       <div className={styles.formContainerWithSpacing}>
-        <h2 className={styles.formTitle}>Registrar Dúvida</h2>
+        <h2 className={styles.formTitle}>Registrar Nota</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="analyst">Selecione o analista</label>
-            <select id="analyst" name="analyst" value={formData.analyst} onChange={handleChange} required>
-              <option value="">Selecione um analista</option>
-              {analysts.map((analyst) => (
-                <option key={analyst.id} value={analyst.id}>
-                  {analyst.name}
+            <label htmlFor="user">Selecione o usuário</label>
+            <select id="user" name="user" value={formData.user} onChange={handleChange} required>
+              <option value="">Selecione um usuário</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name}
                 </option>
               ))}
             </select>
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="category">Categoria da dúvida</label>
+            <label htmlFor="category">Categoria da nota</label>
             <select id="category" name="category" value={formData.category} onChange={handleChange} required>
               <option value="">Selecione uma categoria</option>
-              {categories.map((category, index) => (
-                <option key={index} value={category}>
-                  {category}
-                </option>
-              ))}
+              <option value="Feedback">Feedback</option>
+              <option value="Reclamação">Reclamação</option>
+              <option value="Melhoria">Melhoria</option>
             </select>
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="description">Descrição da dúvida</label>
+            <label htmlFor="description">Descrição da nota</label>
             <textarea
               id="description"
               name="description"
@@ -168,7 +165,7 @@ export default function RegistrarPage({ session }) {
             />
           </div>
           <button type="submit" className={styles.submitButton} disabled={submitting}>
-            {submitting ? 'Enviando...' : 'Enviar Dúvida'}
+            {submitting ? 'Enviando...' : 'Enviar Nota'}
           </button>
         </form>
       </div>
@@ -178,7 +175,7 @@ export default function RegistrarPage({ session }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  if (!session || session.role !== 'user') {
+  if (!session || session.role !== 'analyst') {
     return {
       redirect: {
         destination: '/',
