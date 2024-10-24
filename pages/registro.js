@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Swal from 'sweetalert2';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
 
@@ -75,14 +76,31 @@ export default function RegistroPage({ session }) {
         }),
       });
       if (response.ok) {
-        alert('Ajuda registrada com sucesso!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Ajuda registrada com sucesso!',
+          showConfirmButton: false,
+          timer: 1500,
+        });
         setFormData({ user: '', category: '', description: '' });
       } else {
-        alert('Erro ao registrar a ajuda, tente novamente.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao registrar a ajuda',
+          text: 'Por favor, tente novamente.',
+          showConfirmButton: false,
+          timer: 1500,
+        });
       }
     } catch (error) {
       console.error('Erro ao enviar o formulário:', error);
-      alert('Erro ao registrar a ajuda, tente novamente.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao registrar a ajuda',
+        text: 'Por favor, tente novamente.',
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } finally {
       setSubmitting(false);
     }
