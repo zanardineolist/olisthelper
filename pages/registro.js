@@ -203,9 +203,11 @@ export default function RegistroPage({ session }) {
                   className={styles.formTextarea} // Adicionando a classe para estilização
                 />
               </div>
-              <button type="submit" className={styles.submitButton} disabled={submitting}>
-                {submitting ? 'Enviando...' : 'Enviar Ajuda'}
-              </button>
+              <div className={styles.formButtonContainer}>
+                <button type="submit" className={styles.submitButton} disabled={submitting}>
+                  {submitting ? 'Enviando...' : 'Enviar Ajuda'}
+                </button>
+              </div>
             </form>
           </div>
         </div>

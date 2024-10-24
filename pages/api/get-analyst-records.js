@@ -76,6 +76,8 @@ export default async function handler(req, res) {
 
     // Lógica padrão (com filtro)
     const currentDate = new Date();
+    const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+
     const filteredRows = rows.filter((row, index) => {
       if (index === 0) return false;
 
@@ -83,7 +85,7 @@ export default async function handler(req, res) {
       const [day, month, year] = dateStr.split('/');
       const date = new Date(`${year}-${month}-${day}`);
 
-      const diffTime = currentDate - date;
+      const diffTime = brtDate - date;
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
       return diffDays <= req.query.filter;

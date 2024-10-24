@@ -189,9 +189,11 @@ export default function RegistrarPage({ session }) {
                   className={styles.formTextarea}
                 />
               </div>
-              <button type="submit" className={styles.submitButton} disabled={submitting}>
-                {submitting ? 'Enviando...' : 'Enviar Dúvida'}
-              </button>
+              <div className={styles.formButtonContainer}>
+                <button type="submit" className={styles.submitButton} disabled={submitting}>
+                  {submitting ? 'Enviando...' : 'Enviar Ajuda'}
+                </button>
+              </div>
             </form>
           </div>
         </div>

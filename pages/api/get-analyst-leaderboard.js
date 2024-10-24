@@ -55,8 +55,9 @@ export default async function handler(req, res) {
 
     // Filtrar todos os registros do mês atual para o leaderboard
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
+    const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const currentMonth = brtDate.getMonth();
+    const currentYear = brtDate.getFullYear();
 
     const leaderboardRows = rows.filter((row, index) => {
       if (index === 0) return false; // Pular cabeçalho

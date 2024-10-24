@@ -39,8 +39,9 @@ export default async function handler(req, res) {
 
     // Data atual
     const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
+    const brtDate = new Date(today.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const currentMonth = brtDate.getMonth();
+    const currentYear = brtDate.getFullYear();
 
     // Iterar sobre todas as abas de analistas para obter os registros de ajuda
     for (const sheetName of analystSheetNames) {

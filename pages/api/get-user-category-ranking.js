@@ -47,8 +47,9 @@ export default async function handler(req, res) {
 
     // Filtrar registros do mês atual e do usuário especificado
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
+    const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const currentMonth = brtDate.getMonth();
+    const currentYear = brtDate.getFullYear();
 
     const currentMonthRows = rows.filter((row, index) => {
       if (index === 0) return false; // Pular cabeçalho
