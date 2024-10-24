@@ -65,7 +65,7 @@ export default function MyPage({ user }) {
             {user.role === 'analyst' && (
               <>
                 <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
-                  Registrar Nota
+                  Registrar Ajuda
                 </button>
                 <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
                   Dashboard Analista

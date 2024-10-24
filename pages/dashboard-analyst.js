@@ -153,7 +153,7 @@ export default function DashboardAnalyst({ session }) {
             {session.role === 'analyst' && (
               <>
                 <button onClick={() => router.push('/registro')} className={commonStyles.menuButton}>
-                  Registrar Nota
+                  Registrar Ajuda
                 </button>
                 <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
                   Dashboard Analista
