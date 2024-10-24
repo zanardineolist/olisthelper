@@ -61,9 +61,15 @@ export default function MyPage({ user }) {
   // Extrair o primeiro nome do usuário
   const firstName = user.name.split(' ')[0];
 
-  // Comparar ajudas solicitadas no mês atual e anterior
-  const arrow = helpRequests.currentMonth < helpRequests.lastMonth ? '⬇️' : '⬆️';
-  const color = helpRequests.currentMonth < helpRequests.lastMonth ? 'green' : 'red';
+  // Calcular a porcentagem de aumento/queda
+  const { currentMonth, lastMonth } = helpRequests;
+  let percentageChange = 0;
+  if (lastMonth > 0) {
+    percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
+  }
+  const arrow = percentageChange < 0 ? '⬇️' : '⬆️';
+  const color = percentageChange < 0 ? 'green' : 'red';
+  const formattedPercentage = Math.abs(percentageChange).toFixed(1);
 
   return (
     <>
@@ -131,15 +137,15 @@ export default function MyPage({ user }) {
           <div className={styles.profileContainer}>
             <div className={styles.profileInfo}>
               <h2>Ajudas Solicitadas</h2>
-              <p>
-                Mês Atual: {helpRequests.currentMonth}
-              </p>
-              <p>
-                Mês Anterior: {helpRequests.lastMonth}
-              </p>
-              <p style={{ color }}>
-                Comparativo: {arrow} {helpRequests.currentMonth - helpRequests.lastMonth} solicitações
-              </p>
+              <div className={styles.helpRequestsInfo}>
+                <div>
+                  <p>Mês Atual: <strong>{currentMonth}</strong></p>
+                  <p>Mês Anterior: <strong>{lastMonth}</strong></p>
+                </div>
+                <div className={styles.percentageChange} style={{ color }}>
+                  {arrow} {formattedPercentage}%
+                </div>
+              </div>
             </div>
           </div>
         </div>
