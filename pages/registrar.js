@@ -107,7 +107,7 @@ export default function RegistrarPage({ session }) {
         <title>Registrar Dúvida</title>
       </Head>
 
-      <div className={commonStyles.container}>
+      <div className={styles.container}>
         <nav className={commonStyles.navbar}>
           <div className={commonStyles.logo}>
             <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
@@ -116,6 +116,7 @@ export default function RegistrarPage({ session }) {
             ☰
           </button>
         </nav>
+
         {menuOpen && (
           <div className={commonStyles.menu}>
             <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
@@ -129,7 +130,7 @@ export default function RegistrarPage({ session }) {
             {session.role === 'analyst' && (
               <>
                 <button onClick={() => router.push('/registro')} className={commonStyles.menuButton}>
-                  Registrar Nota
+                  Registrar Ajuda
                 </button>
                 <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
                   Dashboard Analista
@@ -149,50 +150,53 @@ export default function RegistrarPage({ session }) {
             </button>
           </div>
         )}
-      </div>
 
-      <div className={styles.formContainerWithSpacing}>
-        <h2 className={styles.formTitle}>Registrar Dúvida</h2>
-        <form onSubmit={handleSubmit}>
-          <div className={styles.formGroup}>
-            <label htmlFor="analyst">Selecione o analista</label>
-            <select id="analyst" name="analyst" value={formData.analyst} onChange={handleChange} required>
-              <option value="">Selecione um analista</option>
-              {analysts.map((analyst) => (
-                <option key={analyst.id} value={analyst.id}>
-                  {analyst.name}
-                </option>
-              ))}
-            </select>
+        <div className={styles.mainContent}>
+          <div className={styles.formContainerWithSpacing}>
+            <h2 className={styles.formTitle}>Registrar Dúvida</h2>
+            <form onSubmit={handleSubmit}>
+              <div className={styles.formGroup}>
+                <label htmlFor="analyst">Selecione o analista</label>
+                <select id="analyst" name="analyst" value={formData.analyst} onChange={handleChange} required>
+                  <option value="">Selecione um analista</option>
+                  {analysts.map((analyst) => (
+                    <option key={analyst.id} value={analyst.id}>
+                      {analyst.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="category">Categoria da dúvida</label>
+                <select id="category" name="category" value={formData.category} onChange={handleChange} required>
+                  <option value="">Selecione uma categoria</option>
+                  {categories.map((category, index) => (
+                    <option key={index} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="description">Descrição da dúvida</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
+                  rows="4"
+                />
+              </div>
+              <button type="submit" className={styles.submitButton} disabled={submitting}>
+                {submitting ? 'Enviando...' : 'Enviar Dúvida'}
+              </button>
+            </form>
           </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="category">Categoria da dúvida</label>
-            <select id="category" name="category" value={formData.category} onChange={handleChange} required>
-              <option value="">Selecione uma categoria</option>
-              {categories.map((category, index) => (
-                <option key={index} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.formGroup}>
-            <label htmlFor="description">Descrição da dúvida</label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              required
-              rows="4"
-            />
-          </div>
-          <button type="submit" className={styles.submitButton} disabled={submitting}>
-            {submitting ? 'Enviando...' : 'Enviar Dúvida'}
-          </button>
-        </form>
+        </div>
+
+        <Footer /> {/* Adicionando o rodapé no final da página */}
       </div>
-      <Footer />
     </>
   );
 }
