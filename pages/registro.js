@@ -9,6 +9,7 @@ import styles from '../styles/Registrar.module.css';
 export default function RegistroPage({ session }) {
   const router = useRouter();
   const [users, setUsers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -19,20 +20,28 @@ export default function RegistroPage({ session }) {
   });
 
   useEffect(() => {
-    const loadUsers = async () => {
+    const loadUsersAndCategories = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/get-users');
-        const data = await res.json();
-        setUsers(data.users);
+
+        // Carregar usuários
+        const usersRes = await fetch('/api/get-users');
+        const usersData = await usersRes.json();
+        setUsers(usersData.users);
+
+        // Carregar categorias
+        const categoriesRes = await fetch('/api/get-analysts-categories');
+        const categoriesData = await categoriesRes.json();
+        setCategories(categoriesData.categories);
+
       } catch (err) {
-        console.error('Erro ao carregar usuários:', err);
+        console.error('Erro ao carregar usuários e categorias:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadUsers();
+    loadUsersAndCategories();
   }, []);
 
   const handleChange = (e) => {
@@ -83,7 +92,7 @@ export default function RegistroPage({ session }) {
   return (
     <>
       <Head>
-        <title>Registrar Nota</title>
+        <title>Registrar Ajuda</title>
       </Head>
 
       <div className={commonStyles.container}>
@@ -131,12 +140,12 @@ export default function RegistroPage({ session }) {
       </div>
 
       <div className={styles.formContainerWithSpacing}>
-        <h2 className={styles.formTitle}>Registrar Nota</h2>
+        <h2 className={styles.formTitle}>Registrar Ajuda</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="user">Selecione o usuário</label>
+            <label htmlFor="user">Selecione o assistente</label>
             <select id="user" name="user" value={formData.user} onChange={handleChange} required>
-              <option value="">Selecione um usuário</option>
+              <option value="">Selecione um assistente</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.name}
@@ -145,16 +154,18 @@ export default function RegistroPage({ session }) {
             </select>
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="category">Categoria da nota</label>
+            <label htmlFor="category">Categoria da ajuda</label>
             <select id="category" name="category" value={formData.category} onChange={handleChange} required>
               <option value="">Selecione uma categoria</option>
-              <option value="Feedback">Feedback</option>
-              <option value="Reclamação">Reclamação</option>
-              <option value="Melhoria">Melhoria</option>
+              {categories.map((category, index) => (
+                <option key={index} value={category}>
+                  {category}
+                </option>
+              ))}
             </select>
           </div>
           <div className={styles.formGroup}>
-            <label htmlFor="description">Descrição da nota</label>
+            <label htmlFor="description">Descrição da ajuda</label>
             <textarea
               id="description"
               name="description"
