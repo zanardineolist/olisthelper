@@ -56,15 +56,22 @@ export default function RegistroPage({ session }) {
     e.preventDefault();
     setSubmitting(true);
     try {
+      // Buscar o nome e email do usuário selecionado a partir do estado `users`
+      const selectedUser = users.find((user) => user.id === formData.user);
+      const userName = selectedUser ? selectedUser.name : '';
+      const userEmail = selectedUser ? selectedUser.email : '';
+  
       const response = await fetch('/api/register-analyst-help', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
+          userName,
+          userEmail,
+          category: formData.category,
+          description: formData.description,
           analystId: session.id,
-          analystName: session.user.name,
         }),
       });
       if (response.ok) {
@@ -79,7 +86,7 @@ export default function RegistroPage({ session }) {
     } finally {
       setSubmitting(false);
     }
-  };
+  };  
 
   if (loading) {
     return (

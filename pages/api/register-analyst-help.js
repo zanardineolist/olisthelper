@@ -6,9 +6,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { user, category, description, analystId, analystName } = req.body;
+  const { userName, userEmail, category, description, analystId } = req.body;
 
-  if (!user || !category || !description || !analystId || !analystName) {
+  if (!userName || !userEmail || !category || !description || !analystId) {
     return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
   }
 
@@ -23,10 +23,11 @@ export default async function handler(req, res) {
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
-    // Formatar a data e hora atuais
+    // Formatar a data e hora atuais para o horário de Brasília (UTC-3)
     const date = new Date();
-    const formattedDate = date.toLocaleDateString('pt-BR');
-    const formattedTime = date.toLocaleTimeString('pt-BR');
+    const brtDate = new Date(date.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const formattedDate = brtDate.toLocaleDateString('pt-BR');
+    const formattedTime = brtDate.toLocaleTimeString('pt-BR');
 
     // Buscar a aba correspondente ao analista (a aba deve começar com o ID do analista)
     const sheetMeta = await sheets.spreadsheets.get({
@@ -47,7 +48,7 @@ export default async function handler(req, res) {
       range: `${sheetName}!A:F`,
       valueInputOption: 'USER_ENTERED',
       resource: {
-        values: [[formattedDate, formattedTime, analystName, user, category, description]],
+        values: [[formattedDate, formattedTime, userName, userEmail, category, description]],
       },
     });
 
