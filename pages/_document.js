@@ -13,8 +13,6 @@ class MyDocument extends Document {
           <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-            integrity="sha384-k6RqeWeci5ZR/Lv4MR0z4W/e7rIUW+ojij2J3P1dxkK5a/4LUHtP9VvvY6k1GkY/"
-            crossorigin="anonymous"
           />
         </Head>
         <body>

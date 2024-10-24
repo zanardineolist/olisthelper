@@ -75,14 +75,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+}
+
+.monthsInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .percentageChange {
+  position: absolute;
+  right: 10px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   font-size: 1.5em;
   font-weight: bold;
-  gap: 10px;
-  width: 100%; 
+  gap: 5px;
 }

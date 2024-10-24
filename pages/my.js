@@ -138,9 +138,9 @@ export default function MyPage({ user }) {
             <div className={styles.profileInfo}>
               <h2>Ajudas Solicitadas</h2>
               <div className={styles.helpRequestsInfo}>
-                <div>
-                  <p>Mês Atual: <strong>{currentMonth}</strong></p>
-                  <p>Mês Anterior: <strong>{lastMonth}</strong></p>
+                <div className={styles.monthsInfo}>
+                  <p><strong>Mês Atual:</strong> {currentMonth}</p>
+                  <p><strong>Mês Anterior:</strong> {lastMonth}</p>
                 </div>
                 <div className={styles.percentageChange} style={{ color: arrowColor }}>
                   <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
