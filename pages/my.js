@@ -116,29 +116,31 @@ export default function MyPage({ user }) {
       </div>
 
       <main className={styles.main}>
-        <h1>Olá, {greeting} {firstName}!</h1>
+        <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
 
-        <div className={styles.profileContainer}>
-          <img src={user.image} alt={user.name} className={styles.profileImage} />
-          <div className={styles.profileInfo}>
-            <h2>{user.name}</h2>
-            <p>{user.email}</p>
+        <div className={styles.profileContainerWrapper}>
+          <div className={styles.profileContainer}>
+            <img src={user.image} alt={user.name} className={styles.profileImage} />
+            <div className={styles.profileInfo}>
+              <h2>{user.name}</h2>
+              <p>{user.email}</p>
+            </div>
           </div>
-        </div>
 
-        {/* Nova Caixa: Ajudas Solicitadas */}
-        <div className={styles.profileContainer}>
-          <div className={styles.profileInfo}>
-            <h2>Ajudas Solicitadas</h2>
-            <p>
-              Mês Atual: {helpRequests.currentMonth}
-            </p>
-            <p>
-              Mês Anterior: {helpRequests.lastMonth}
-            </p>
-            <p style={{ color }}>
-              Comparativo: {arrow} {helpRequests.currentMonth - helpRequests.lastMonth} solicitações
-            </p>
+          {/* Nova Caixa: Ajudas Solicitadas */}
+          <div className={styles.profileContainer}>
+            <div className={styles.profileInfo}>
+              <h2>Ajudas Solicitadas</h2>
+              <p>
+                Mês Atual: {helpRequests.currentMonth}
+              </p>
+              <p>
+                Mês Anterior: {helpRequests.lastMonth}
+              </p>
+              <p style={{ color }}>
+                Comparativo: {arrow} {helpRequests.currentMonth - helpRequests.lastMonth} solicitações
+              </p>
+            </div>
           </div>
         </div>
       </main>
