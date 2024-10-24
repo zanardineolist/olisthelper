@@ -42,7 +42,7 @@ export default function LoginPage() {
             Login com Google
           </button>
           <p className={styles.description}>
-            Acesse com seu e-mail @tiny.com.br ou @olist.com.
+            Acesse com seu e-mail @tiny.com.br ou @olist.com
           </p>
         </div>
         <p className={styles.credits}>Desenvolvido por Rafael Zanardine</p>
