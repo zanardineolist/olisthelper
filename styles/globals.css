@@ -1,14 +1,25 @@
 /* styles/globals.css */
 
-body, html {
-  margin: 0 !important;
+html, body {
+  margin: 0;
   padding: 0;
   box-sizing: border-box;
   background-color: #121212;
   color: #fff;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  position: relative;
-  padding-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+}
+
+#__next {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+  padding: 20px;
 }
 
 .footer {
@@ -16,9 +27,6 @@ body, html {
   color: #fff;
   text-align: center;
   padding: 15px 0;
-  position: relative;
-  bottom: 0;
-  width: 100%;
   font-size: 0.9rem;
   border-top: 1px solid #444;
 }
