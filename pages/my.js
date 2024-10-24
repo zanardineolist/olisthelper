@@ -44,42 +44,47 @@ export default function MyPage({ user }) {
       </Head>
 
       <div className={styles.container}>
-      <nav className={commonStyles.navbar}>
-        <div className={commonStyles.logo}>
-          <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
-        </div>
-        <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
-          ☰
-        </button>
-      </nav>
-      {menuOpen && (
-        <div className={commonStyles.menu}>
-          <button onClick={() => handleNavigation('/my')} className={commonStyles.menuButton}>
-            Página Inicial
+        <nav className={commonStyles.navbar}>
+          <div className={commonStyles.logo}>
+            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
+          </div>
+          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
+            ☰
           </button>
-          <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
-            Registrar Dúvida
-          </button>
-          {user.role === 'analyst' && (
-            <>
-              <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
-                Dashboard Analista
+        </nav>
+        {menuOpen && (
+          <div className={commonStyles.menu}>
+            <button onClick={() => handleNavigation('/my')} className={commonStyles.menuButton}>
+              Página Inicial
+            </button>
+            {user.role === 'user' && (
+              <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
+                Registrar Dúvida
               </button>
-              <a
-                href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={commonStyles.menuButton}
-              >
-                Database
-              </a>
-            </>
-          )}
-          <button onClick={() => signOut()} className={commonStyles.menuButton}>
-            Logout
-          </button>
-        </div>
-      )}
+            )}
+            {user.role === 'analyst' && (
+              <>
+                <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
+                  Registrar Nota
+                </button>
+                <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
+                  Dashboard Analista
+                </button>
+                <a
+                  href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={commonStyles.menuButton}
+                >
+                  Database
+                </a>
+              </>
+            )}
+            <button onClick={() => signOut()} className={commonStyles.menuButton}>
+              Logout
+            </button>
+          </div>
+        )}
       </div>
 
       <div className={styles.profileContainer}>
