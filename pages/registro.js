@@ -56,7 +56,7 @@ export default function RegistroPage({ session }) {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const response = await fetch('/api/register-analyst-note', {
+      const response = await fetch('/api/register-analyst-help', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,14 +68,14 @@ export default function RegistroPage({ session }) {
         }),
       });
       if (response.ok) {
-        alert('Nota registrada com sucesso!');
+        alert('Ajuda registrada com sucesso!');
         setFormData({ user: '', category: '', description: '' });
       } else {
-        alert('Erro ao registrar a nota, tente novamente.');
+        alert('Erro ao registrar a ajuda, tente novamente.');
       }
     } catch (error) {
       console.error('Erro ao enviar o formulário:', error);
-      alert('Erro ao registrar a nota, tente novamente.');
+      alert('Erro ao registrar a ajuda, tente novamente.');
     } finally {
       setSubmitting(false);
     }
@@ -143,9 +143,9 @@ export default function RegistroPage({ session }) {
         <h2 className={styles.formTitle}>Registrar Ajuda</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
-            <label htmlFor="user">Selecione o assistente</label>
+            <label htmlFor="user">Selecione o usuário</label>
             <select id="user" name="user" value={formData.user} onChange={handleChange} required>
-              <option value="">Selecione um assistente</option>
+              <option value="">Selecione um usuário</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.name}
@@ -176,7 +176,7 @@ export default function RegistroPage({ session }) {
             />
           </div>
           <button type="submit" className={styles.submitButton} disabled={submitting}>
-            {submitting ? 'Enviando...' : 'Enviar Nota'}
+            {submitting ? 'Enviando...' : 'Enviar Ajuda'}
           </button>
         </form>
       </div>
