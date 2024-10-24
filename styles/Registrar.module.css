@@ -68,7 +68,8 @@
   font-weight: bold;
 }
 
-.formGroup select, .formGroup textarea {
+.formGroup select,
+.formGroup textarea {
   padding: 10px;
   border-radius: 5px;
   border: 1px solid #444;
@@ -78,16 +79,23 @@
   transition: border-color 0.3s ease;
 }
 
-.formGroup select:focus, .formGroup textarea:focus {
+.formGroup select:focus,
+.formGroup textarea:focus {
   border-color: #F0A028;
   outline: none;
 }
 
 .formTextarea {
   width: 100%;
-  max-width: 400px;
-  min-width: 400px;
+  max-width: 500px;
+  min-width: 500px;
   resize: vertical;
+}
+
+.formButtonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 .submitButton {
