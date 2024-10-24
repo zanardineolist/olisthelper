@@ -170,7 +170,7 @@ export default function MyPage({ user }) {
 
         {/* Nova Seção: Top 10 Categorias */}
         <div className={styles.categoryRanking}>
-          <h3>Top 10 Categorias - Dúvidas Solicitadas</h3>
+          <h3>Top 10 - Temas de maior dúvida</h3>
           {categoryRanking.length > 0 ? (
             <ul className={styles.list}>
               {categoryRanking.map((category, index) => (
@@ -183,7 +183,7 @@ export default function MyPage({ user }) {
               ))}
             </ul>
           ) : (
-            <div className={styles.noData}>Nenhum tema selecionado neste mês.</div>
+            <div className={styles.noData}>Nenhuma ajuda solicitada este mês.</div>
           )}
         </div>
       </main>
