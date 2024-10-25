@@ -1,5 +1,5 @@
-// pages/api/get-user-performance.js
 import { google } from 'googleapis';
+import { findBestMatch } from 'string-similarity';
 
 export default async function handler(req, res) {
   const { userEmail } = req.query;
@@ -50,14 +50,20 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado.' });
     }
 
-    // Normalizar os nomes e buscar a linha correspondente
-    const performanceData = performanceRows.find(row => {
-      return row[3] && row[3].trim().toLowerCase() === userName; // Coluna D na planilha de desempenho
-    });
+    // Normalizar os nomes da planilha de desempenho para fazer a correspondência
+    const performanceNames = performanceRows.map(row => row[3] ? row[3].trim().toLowerCase() : '');
 
-    if (!performanceData) {
-      return res.status(404).json({ error: 'Dados de desempenho não encontrados para o usuário.' });
+    // Usar correspondência fuzzy para encontrar o melhor nome correspondente
+    const matchResult = findBestMatch(userName, performanceNames);
+    const bestMatchIndex = matchResult.bestMatchIndex;
+    const bestMatchRating = matchResult.bestMatch.rating;
+
+    // Considerar uma correspondência válida se o índice de similaridade for maior que 0.7
+    if (bestMatchRating < 0.7) {
+      return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado com correspondência suficiente.' });
     }
+
+    const performanceData = performanceRows[bestMatchIndex];
 
     // Estrutura de retorno dos dados de desempenho
     const responsePayload = {
