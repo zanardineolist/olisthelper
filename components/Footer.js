@@ -1,6 +1,6 @@
 // components/Footer.js
 import styles from '../styles/Footer.module.css';
-import openAILogo from '../public/images/logos/OpenAI_logo.png'; // Importando o logo
+import openAILogo from '../../public/images/logos/OpenAI_logo.png';
 
 export default function Footer() {
   return (
