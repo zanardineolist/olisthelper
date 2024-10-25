@@ -51,7 +51,7 @@
   color: #fff;
   width: 100%;
   max-width: 500px;
-  height: 150px;
+  height: 180px;
   position: relative;
 }
 
@@ -168,42 +168,36 @@
   color: #ccc;
 }
 
-/* Estilo para a data de atualização */
-.lastUpdated {
-  font-size: 0.9em;
-  color: rgba(255, 255, 255, 0.6); /* Cor opaca */
-  text-align: center; /* Centralizar o texto */
-  margin-bottom: 15px;
-}
-
 /* Ajuste na seção de desempenho */
 .performanceContainer {
-  padding: 10px; /* Reduzi para ocupar menos espaço */
+  padding: 15px;
   display: flex;
-  align-items: center;
+  flex-direction: column; /* Alinhamento em coluna para um layout mais limpo */
+  justify-content: start;
   background-color: #1e1e1e;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   color: #fff;
   width: 100%;
   max-width: 500px;
-  height: 150px;
+  height: 180px; /* Altura ajustada */
   position: relative;
 }
 
 .performanceInfo {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px; /* Reduzir o espaçamento entre os itens */
+  gap: 5px; /* Reduzir o espaçamento entre os itens */
   justify-items: center;
-  align-items: center;
+  align-items: start;
+  margin-top: 10px; /* Distância do título e da data */
 }
 
 .performanceItem {
-  font-size: 0.9em; /* Reduzir o tamanho da fonte */
+  font-size: 0.85em; /* Fonte menor para economizar espaço */
   font-weight: bold;
   background-color: #1e1e1e;
-  padding: 10px; /* Reduzi para minimizar o espaço */
+  padding: 5px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   display: flex;
@@ -211,5 +205,13 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  min-width: 100px; /* Garantir que os itens ocupem menos espaço */
+  min-width: 80px;
+}
+
+.lastUpdated {
+  font-size: 0.75em; /* Fonte menor para se diferenciar do título */
+  color: rgba(255, 255, 255, 0.6); /* Cor mais clara e opaca */
+  margin-top: 5px;
+  margin-bottom: 10px; /* Espaçamento menor antes da informação de desempenho */
+  text-align: left;
 }

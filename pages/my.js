@@ -189,6 +189,7 @@ export default function MyPage({ user }) {
               <div className={styles.performanceContainer}>
                 <div className={styles.profileInfo}>
                   <h2>Desempenho</h2>
+                  <p className={styles.lastUpdated}>Atualizado até: {performanceData.atualizadoAte}</p>
                   <div className={styles.performanceInfo}>
                     <div className={styles.performanceItem}>
                       <span>Total:</span>
