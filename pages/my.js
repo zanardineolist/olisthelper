@@ -13,6 +13,7 @@ export default function MyPage({ user }) {
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
+  const [performanceData, setPerformanceData] = useState(null);
 
   useEffect(() => {
     // Obter a hora atual no fuso horário de Brasília (UTC-3)
@@ -62,6 +63,21 @@ export default function MyPage({ user }) {
     };
 
     fetchCategoryRanking();
+  }, [user.email]);
+
+  useEffect(() => {
+    // Buscar dados de desempenho do usuário
+    const fetchPerformanceData = async () => {
+      try {
+        const response = await fetch(`/api/get-user-performance?userEmail=${user.email}`);
+        const data = await response.json();
+        setPerformanceData(data);
+      } catch (error) {
+        console.error('Erro ao buscar dados de desempenho do usuário:', error);
+      }
+    };
+
+    fetchPerformanceData();
   }, [user.email]);
 
   const handleNavigation = (path) => {
@@ -151,7 +167,7 @@ export default function MyPage({ user }) {
             </div>
           </div>
 
-          {/* Nova Caixa: Ajudas Solicitadas */}
+          {/* Caixa de Ajudas Solicitadas */}
           <div className={styles.profileContainer}>
             <div className={styles.profileInfo}>
               <h2>Ajudas Solicitadas</h2>
@@ -167,9 +183,22 @@ export default function MyPage({ user }) {
               </div>
             </div>
           </div>
+
+          {/* Nova Caixa: Desempenho do Usuário */}
+          {performanceData && (
+            <div className={styles.profileContainer}>
+              <div className={styles.profileInfo}>
+                <h2>Desempenho</h2>
+                <p><strong>Total Chamados:</strong> {performanceData.totalChamados}</p>
+                <p><strong>Média por Dia:</strong> {performanceData.mediaPorDia}</p>
+                <p><strong>TMA:</strong> {performanceData.tma}</p>
+                <p><strong>CSAT:</strong> {performanceData.csat}</p>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Nova Seção: Top 10 Categorias */}
+        {/* Seção de Ranking de Categorias */}
         <div className={styles.categoryRanking}>
           <h3>Top 10 - Temas de maior dúvida</h3>
           {categoryRanking.length > 0 ? (
