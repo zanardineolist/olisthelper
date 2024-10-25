@@ -86,6 +86,10 @@ export default function MyPage({ user }) {
   const arrowColor = percentageChange < 0 ? 'green' : 'red';
   const formattedPercentage = Math.abs(percentageChange).toFixed(1);
 
+  const getIndicatorColor = (value, threshold, isGreaterBetter = true) => {
+    return (isGreaterBetter ? value >= threshold : value <= threshold) ? '#00FF00' : '#FF0000';
+  };
+
   return (
     <>
       <Head>
@@ -207,19 +211,15 @@ export default function MyPage({ user }) {
               <h2>Indicadores Chamados</h2>
               <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
               <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: getIndicatorColor(performanceData.chamados.totalChamados, 25) }}>
                   <span>Total Chamados:</span>
                   <span>{performanceData.chamados.totalChamados}</span>
                 </div>
-                <div className={styles.performanceItem}>
-                  <span>Média/Dia:</span>
-                  <span>{performanceData.chamados.mediaPorDia}</span>
-                </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: getIndicatorColor(performanceData.chamados.tma, 30, false) }}>
                   <span>TMA:</span>
                   <span>{performanceData.chamados.tma}</span>
                 </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: getIndicatorColor(performanceData.chamados.csat, 95) }}>
                   <span>CSAT:</span>
                   <span>{performanceData.chamados.csat}</span>
                 </div>
@@ -231,25 +231,13 @@ export default function MyPage({ user }) {
               <h2>Indicadores Telefone</h2>
               <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
               <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Telefone:</span>
-                  <span>{performanceData.telefone.totalTelefone}</span>
-                </div>
-                <div className={styles.performanceItem}>
-                  <span>Média/Dia:</span>
-                  <span>{performanceData.telefone.mediaPorDia}</span>
-                </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: getIndicatorColor(performanceData.telefone.tma, 15, false) }}>
                   <span>TMA:</span>
                   <span>{performanceData.telefone.tma}</span>
                 </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: getIndicatorColor(performanceData.telefone.csat, 3.7) }}>
                   <span>CSAT:</span>
                   <span>{performanceData.telefone.csat}</span>
-                </div>
-                <div className={styles.performanceItem}>
-                  <span>Perdidas:</span>
-                  <span>{performanceData.telefone.perdidas}</span>
                 </div>
               </div>
             </div>
@@ -259,19 +247,11 @@ export default function MyPage({ user }) {
               <h2>Indicadores Chat</h2>
               <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
               <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Chats:</span>
-                  <span>{performanceData.chat.totalChats}</span>
-                </div>
-                <div className={styles.performanceItem}>
-                  <span>Média/Dia:</span>
-                  <span>{performanceData.chat.mediaPorDia}</span>
-                </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: getIndicatorColor(performanceData.chat.tma, 20, false) }}>
                   <span>TMA:</span>
                   <span>{performanceData.chat.tma}</span>
                 </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: getIndicatorColor(performanceData.chat.csat, 95) }}>
                   <span>CSAT:</span>
                   <span>{performanceData.chat.csat}</span>
                 </div>
