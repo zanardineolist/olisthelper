@@ -1,4 +1,4 @@
-import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../../utils/googleSheets';
+import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   const { analystId } = req.query;

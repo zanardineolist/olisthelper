@@ -1,4 +1,4 @@
-import { getAuthenticatedGoogleSheets, getSheetValues } from '../../../utils/googleSheets';
+import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
