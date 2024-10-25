@@ -33,11 +33,11 @@ export default async function handler(req, res) {
     }
 
     // Encontrar o nome do usuário usando o e-mail
-    const userRow = usersRows.find(row => row[2] === userEmail);
+    const userRow = usersRows.find(row => row[2].toLowerCase() === userEmail.toLowerCase());
     if (!userRow) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
-    const userName = userRow[1].toLowerCase(); // Coluna B da aba "Usuários" (nome do usuário)
+    const userName = userRow[1].trim().toLowerCase(); // Coluna B da aba "Usuários" (nome do usuário)
 
     // Buscar dados de desempenho usando o nome
     const performanceResponse = await sheets.spreadsheets.values.get({
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
 
     // Normalizar os nomes e buscar a linha correspondente
     const performanceData = performanceRows.find(row => {
-      return row[3] && row[3].toLowerCase() === userName; // Coluna D na planilha de desempenho
+      return row[3] && row[3].trim().toLowerCase() === userName; // Coluna D na planilha de desempenho
     });
 
     if (!performanceData) {
