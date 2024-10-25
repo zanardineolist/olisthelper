@@ -113,11 +113,8 @@
   color: #fff;
   width: 100%;
   max-width: 1020px;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 200px;
+  position: relative;
 }
 
 .categoryRanking h3 {
@@ -129,6 +126,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
+  width: 100%;
 }
 
 .listItem {
@@ -163,10 +161,9 @@
 }
 
 .noData {
-  text-align: center;
-  color: #ccc;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 200px;
+  height: 100%; /* Utilizar todo o espaço do container */
+  color: #ccc;
 }
