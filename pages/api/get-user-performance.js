@@ -156,7 +156,7 @@ export default async function handler(req, res) {
       responsePayload.telefone = {
         totalTelefone: performanceData[11], // Coluna L
         mediaPorDia: parseValue(performanceData[12]), // Coluna M
-        tma: parseValue(performanceData[13]), // Coluna N
+        tma: parseValue(performanceData[13]), // Coluna N (hh:mm:ss)
         csat: parseValue(performanceData[14]), // Coluna O
         perdidas: parseValue(performanceData[15]), // Coluna P
       };
@@ -166,7 +166,7 @@ export default async function handler(req, res) {
       responsePayload.chat = {
         totalChats: performanceData[16], // Coluna Q
         mediaPorDia: parseValue(performanceData[17]), // Coluna R
-        tma: parseValue(performanceData[18]), // Coluna S
+        tma: parseValue(performanceData[18]), // Coluna S (hh:mm:ss)
         csat: parseValue(performanceData[19]), // Coluna T
       };
     }
