@@ -24,43 +24,6 @@ async function getSheetValues(sheets, spreadsheetId, sheetName, range) {
   }
 }
 
-async function updateCellColors(sheets, spreadsheetId, sheetName, ranges) {
-  try {
-    const requests = ranges.map(({ range, color }) => ({
-      updateCells: {
-        range: {
-          sheetId: sheetName,
-          startRowIndex: range.startRowIndex,
-          endRowIndex: range.endRowIndex,
-          startColumnIndex: range.startColumnIndex,
-          endColumnIndex: range.endColumnIndex,
-        },
-        rows: [
-          {
-            values: [
-              {
-                userEnteredFormat: {
-                  backgroundColor: color,
-                },
-              },
-            ],
-          },
-        ],
-        fields: 'userEnteredFormat.backgroundColor',
-      },
-    }));
-
-    await sheets.spreadsheets.batchUpdate({
-      spreadsheetId,
-      resource: {
-        requests,
-      },
-    });
-  } catch (error) {
-    console.error(`Erro ao atualizar cores das células:`, error);
-  }
-}
-
 const parseValue = (value) => {
   if (typeof value === 'string') {
     if (value.includes('%')) {
@@ -69,10 +32,19 @@ const parseValue = (value) => {
       // Convert time in hh:mm:ss format to minutes
       const parts = value.split(':');
       return parseInt(parts[0]) * 60 + parseInt(parts[1]) + parseInt(parts[2]) / 60;
+    } else if (value === "-") {
+      return null;
     }
     return parseFloat(value.replace(',', '.'));
   }
   return value;
+};
+
+const getColorForValue = (value, threshold, isGreaterBetter = true) => {
+  if (value === null) {
+    return null; // Sem cor se o valor for nulo
+  }
+  return (isGreaterBetter ? value >= threshold : value <= threshold) ? '#779E3D' : '#E64E36';
 };
 
 export default async function handler(req, res) {
@@ -88,9 +60,8 @@ export default async function handler(req, res) {
     const sheetIdUsuarios = "1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34"; // ID da planilha de usuários
     const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
 
-    // Passo 1: Buscar Nome do Usuário e Preferências Usando o E-mail
+    // Buscar Nome do Usuário e Preferências Usando o E-mail
     const usersRows = await getSheetValues(sheets, sheetIdUsuarios, 'Usuários', 'A:H');
-    
     if (!usersRows || usersRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
     }
@@ -100,131 +71,96 @@ export default async function handler(req, res) {
     if (!userRow) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
-    const userName = userRow[1].trim().toLowerCase(); // Coluna B da aba "Usuários" (nome do usuário)
-    const userProfile = userRow[3]?.toLowerCase(); // Coluna D da aba "Usuários" (perfil do usuário)
+    const userName = userRow[1].trim().toLowerCase();
+    const userProfile = userRow[3]?.toLowerCase();
 
     // Verificar se o perfil do usuário é "user"
     if (userProfile !== 'user') {
       return res.status(403).json({ error: 'Usuário não autorizado a visualizar os dados de desempenho.' });
     }
 
-    const squad = userRow[4]; // Coluna E - Squad
-    const hasChamado = userRow[5] === 'TRUE'; // Coluna F - Chamado
-    const hasTelefone = userRow[6] === 'TRUE'; // Coluna G - Telefone
-    const hasChat = userRow[7] === 'TRUE'; // Coluna H - Chat
+    const squad = userRow[4];
+    const hasChamado = userRow[5] === 'TRUE';
+    const hasTelefone = userRow[6] === 'TRUE';
+    const hasChat = userRow[7] === 'TRUE';
 
-    // Passo 2: Buscar Dados de Desempenho Usando o Nome do Usuário
+    // Buscar Dados de Desempenho Usando o Nome do Usuário
     const performanceRows = await getSheetValues(sheets, sheetIdDesempenho, 'Principal', 'A:U');
-
     if (!performanceRows || performanceRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado.' });
     }
 
-    // Normalizar os nomes da planilha de desempenho para fazer a correspondência
     const performanceNames = performanceRows.map(row => row[3] ? row[3].trim().toLowerCase() : '');
-
-    // Usar correspondência fuzzy para encontrar o melhor nome correspondente
     const matchResult = findBestMatch(userName, performanceNames);
     const bestMatchIndex = matchResult.bestMatchIndex;
     const bestMatchRating = matchResult.bestMatch.rating;
 
-    // Considerar uma correspondência válida se o índice de similaridade for maior que 0.7
     if (bestMatchRating < 0.7) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado com correspondência suficiente.' });
     }
 
     const performanceData = performanceRows[bestMatchIndex];
 
-    // Estrutura de retorno dos dados de desempenho com base nas preferências
+    // Estrutura de retorno dos dados de desempenho
     const responsePayload = {
-      squad, // Adicionando squad ao payload
+      squad,
       chamado: hasChamado,
       telefone: hasTelefone,
       chat: hasChat,
     };
 
     if (hasChamado) {
+      const mediaPorDia = parseValue(performanceData[8]);
+      const tma = parseValue(performanceData[9]);
+      const csat = parseValue(performanceData[10]);
+
       responsePayload.chamados = {
-        totalChamados: performanceData[7], // Coluna H
-        mediaPorDia: parseValue(performanceData[8]), // Coluna I
-        tma: parseValue(performanceData[9]), // Coluna J
-        csat: parseValue(performanceData[10]), // Coluna K
+        totalChamados: performanceData[7],
+        mediaPorDia,
+        tma,
+        csat,
+        colors: {
+          mediaPorDia: getColorForValue(mediaPorDia, 25),
+          tma: getColorForValue(tma, 30, false),
+          csat: getColorForValue(csat, 95),
+        }
       };
     }
 
     if (hasTelefone) {
+      const tma = parseValue(performanceData[13]);
+      const csat = parseValue(performanceData[14]);
+
       responsePayload.telefone = {
-        totalTelefone: performanceData[11], // Coluna L
-        mediaPorDia: parseValue(performanceData[12]), // Coluna M
-        tma: parseValue(performanceData[13]), // Coluna N (hh:mm:ss)
-        csat: parseValue(performanceData[14]), // Coluna O
-        perdidas: parseValue(performanceData[15]), // Coluna P
+        totalTelefone: performanceData[11],
+        mediaPorDia: parseValue(performanceData[12]),
+        tma,
+        csat,
+        perdidas: parseValue(performanceData[15]),
+        colors: {
+          tma: getColorForValue(tma, 15, false),
+          csat: getColorForValue(csat, 3.7),
+        }
       };
     }
 
     if (hasChat) {
+      const tma = parseValue(performanceData[18]);
+      const csat = parseValue(performanceData[19]);
+
       responsePayload.chat = {
-        totalChats: performanceData[16], // Coluna Q
-        mediaPorDia: parseValue(performanceData[17]), // Coluna R
-        tma: parseValue(performanceData[18]), // Coluna S (hh:mm:ss)
-        csat: parseValue(performanceData[19]), // Coluna T
+        totalChats: performanceData[16],
+        mediaPorDia: parseValue(performanceData[17]),
+        tma,
+        csat,
+        colors: {
+          tma: getColorForValue(tma, 20, false),
+          csat: getColorForValue(csat, 95),
+        }
       };
     }
 
-    responsePayload.atualizadoAte = performanceData[20] || "Data não disponível"; // Coluna U
-
-    // Lógica de Coloração
-    const colorGreen = { red: 0.466, green: 0.620, blue: 0.239 }; // #779E3D
-    const colorRed = { red: 0.902, green: 0.306, blue: 0.212 }; // #E64E36
-
-    const ranges = [];
-
-    // Condições para coloração de Chamados
-    if (hasChamado) {
-      ranges.push({
-        range: { startRowIndex: bestMatchIndex, startColumnIndex: 8, endColumnIndex: 9 },
-        color: parseValue(performanceData[8]) >= 25 ? colorGreen : colorRed
-      });
-
-      ranges.push({
-        range: { startRowIndex: bestMatchIndex, startColumnIndex: 9, endColumnIndex: 10 },
-        color: parseValue(performanceData[9]) <= 30 ? colorGreen : colorRed
-      });
-
-      ranges.push({
-        range: { startRowIndex: bestMatchIndex, startColumnIndex: 10, endColumnIndex: 11 },
-        color: parseValue(performanceData[10]) >= 95 ? colorGreen : colorRed
-      });
-    }
-
-    // Condições para coloração de Telefone
-    if (hasTelefone) {
-      ranges.push({
-        range: { startRowIndex: bestMatchIndex, startColumnIndex: 13, endColumnIndex: 14 },
-        color: parseValue(performanceData[13]) <= 15 ? colorGreen : colorRed
-      });
-
-      ranges.push({
-        range: { startRowIndex: bestMatchIndex, startColumnIndex: 14, endColumnIndex: 15 },
-        color: parseValue(performanceData[14]) >= 3.7 ? colorGreen : colorRed
-      });
-    }
-
-    // Condições para coloração de Chat
-    if (hasChat) {
-      ranges.push({
-        range: { startRowIndex: bestMatchIndex, startColumnIndex: 18, endColumnIndex: 19 },
-        color: parseValue(performanceData[18]) <= 20 ? colorGreen : colorRed
-      });
-
-      ranges.push({
-        range: { startRowIndex: bestMatchIndex, startColumnIndex: 19, endColumnIndex: 20 },
-        color: parseValue(performanceData[19]) >= 95 ? colorGreen : colorRed
-      });
-    }
-
-    // Aplicar as colorações
-    await updateCellColors(sheets, sheetIdDesempenho, 'Principal', ranges);
+    responsePayload.atualizadoAte = performanceData[20] || "Data não disponível";
 
     return res.status(200).json(responsePayload);
   } catch (error) {
