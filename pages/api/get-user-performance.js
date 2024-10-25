@@ -21,10 +21,10 @@ export default async function handler(req, res) {
     const sheetIdUsuarios = "1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34"; // ID da planilha de usuários
     const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
 
-    // Buscar todos os usuários para vincular o e-mail ao nome
+    // Passo 1: Buscar Nome do Usuário Usando o E-mail
     const usersResponse = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetIdUsuarios,
-      range: 'Usuários!A:D',
+      range: 'Usuários!A:D', // Colunas A a D da aba "Usuários"
     });
     const usersRows = usersResponse.data.values;
 
@@ -39,10 +39,10 @@ export default async function handler(req, res) {
     }
     const userName = userRow[1].trim().toLowerCase(); // Coluna B da aba "Usuários" (nome do usuário)
 
-    // Buscar dados de desempenho usando o nome
+    // Passo 2: Buscar Dados de Desempenho Usando o Nome do Usuário
     const performanceResponse = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetIdDesempenho,
-      range: 'Principal!A:K', // Ajustar o nome da aba e intervalo conforme necessário
+      range: 'Principal!A:K', // Colunas A a K da aba "Principal"
     });
     const performanceRows = performanceResponse.data.values;
 
