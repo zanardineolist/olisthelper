@@ -186,17 +186,16 @@ export default function MyPage({ user }) {
 
           {/* Nova Caixa: Desempenho do Usuário */}
             {performanceData && (
-              <div className={styles.profileContainer}>
+              <div className={styles.performanceContainer}>
                 <div className={styles.profileInfo}>
                   <h2>Desempenho</h2>
-                  <p className={styles.lastUpdated}>Atualizado até: {performanceData.atualizadoAte}</p>
                   <div className={styles.performanceInfo}>
                     <div className={styles.performanceItem}>
-                      <span>Total Chamados:</span>
+                      <span>Total:</span>
                       <span>{performanceData.totalChamados}</span>
                     </div>
                     <div className={styles.performanceItem}>
-                      <span>Média por Dia:</span>
+                      <span>Média/Dia:</span>
                       <span>{performanceData.mediaPorDia}</span>
                     </div>
                     <div className={styles.performanceItem}>

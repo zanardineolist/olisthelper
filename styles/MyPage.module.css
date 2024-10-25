@@ -176,20 +176,34 @@
   margin-bottom: 15px;
 }
 
-/* Atualização no estilo do desempenho */
+/* Ajuste na seção de desempenho */
+.performanceContainer {
+  padding: 10px; /* Reduzi para ocupar menos espaço */
+  display: flex;
+  align-items: center;
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  width: 100%;
+  max-width: 500px;
+  height: 150px;
+  position: relative;
+}
+
 .performanceInfo {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  justify-items: center; /* Centralizar itens na grid */
+  gap: 10px; /* Reduzir o espaçamento entre os itens */
+  justify-items: center;
   align-items: center;
 }
 
 .performanceItem {
-  font-size: 1em;
+  font-size: 0.9em; /* Reduzir o tamanho da fonte */
   font-weight: bold;
   background-color: #1e1e1e;
-  padding: 15px;
+  padding: 10px; /* Reduzi para minimizar o espaço */
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   display: flex;
@@ -197,5 +211,5 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  min-width: 120px; /* Garantir tamanho consistente */
+  min-width: 100px; /* Garantir que os itens ocupem menos espaço */
 }
