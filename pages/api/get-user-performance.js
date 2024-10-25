@@ -160,8 +160,8 @@ export default async function handler(req, res) {
     responsePayload.atualizadoAte = performanceData[20] || "Data não disponível"; // Coluna U
 
     // Lógica de Coloração
-    const colorGreen = { red: 0.0, green: 0.7, blue: 0.0 };
-    const colorRed = { red: 0.8, green: 0.0, blue: 0.0 };
+    const colorGreen = { red: 0.466, green: 0.620, blue: 0.239 }; // #779E3D
+    const colorRed = { red: 0.902, green: 0.306, blue: 0.212 }; // #E64E36
 
     const ranges = [];
 
