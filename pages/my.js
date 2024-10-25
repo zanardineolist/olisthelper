@@ -14,9 +14,11 @@ export default function MyPage({ user }) {
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
+  const [loadingHelpRequests, setLoadingHelpRequests] = useState(true);
+  const [loadingCategoryRanking, setLoadingCategoryRanking] = useState(true);
+  const [loadingPerformanceData, setLoadingPerformanceData] = useState(true);
 
   useEffect(() => {
-    // Obter a hora atual no fuso horário de Brasília (UTC-3)
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentHour = new Date(brtDate).getHours();
     let greetingMessage = '';
@@ -33,7 +35,6 @@ export default function MyPage({ user }) {
   }, []);
 
   useEffect(() => {
-    // Buscar os dados de ajuda solicitada do usuário para o mês atual e o anterior
     const fetchHelpRequests = async () => {
       try {
         const response = await fetch(`/api/get-user-help-requests?userEmail=${user.email}`);
@@ -44,6 +45,8 @@ export default function MyPage({ user }) {
         });
       } catch (error) {
         console.error('Erro ao buscar dados de ajudas solicitadas:', error);
+      } finally {
+        setLoadingHelpRequests(false);
       }
     };
 
@@ -51,7 +54,6 @@ export default function MyPage({ user }) {
   }, [user.email]);
 
   useEffect(() => {
-    // Buscar as categorias mais solicitadas pelo usuário no mês atual
     const fetchCategoryRanking = async () => {
       try {
         const response = await fetch(`/api/get-user-category-ranking?userEmail=${user.email}`);
@@ -59,6 +61,8 @@ export default function MyPage({ user }) {
         setCategoryRanking(data.categories || []);
       } catch (error) {
         console.error('Erro ao buscar ranking das categorias:', error);
+      } finally {
+        setLoadingCategoryRanking(false);
       }
     };
 
@@ -66,19 +70,24 @@ export default function MyPage({ user }) {
   }, [user.email]);
 
   useEffect(() => {
-    // Buscar dados de desempenho do usuário
-    const fetchPerformanceData = async () => {
-      try {
-        const response = await fetch(`/api/get-user-performance?userEmail=${user.email}`);
-        const data = await response.json();
-        setPerformanceData(data);
-      } catch (error) {
-        console.error('Erro ao buscar dados de desempenho do usuário:', error);
-      }
-    };
+    if (user.role === 'user') {
+      const fetchPerformanceData = async () => {
+        try {
+          const response = await fetch(`/api/get-user-performance?userEmail=${user.email}`);
+          const data = await response.json();
+          setPerformanceData(data);
+        } catch (error) {
+          console.error('Erro ao buscar dados de desempenho do usuário:', error);
+        } finally {
+          setLoadingPerformanceData(false);
+        }
+      };
 
-    fetchPerformanceData();
-  }, [user.email]);
+      fetchPerformanceData();
+    } else {
+      setLoadingPerformanceData(false);
+    }
+  }, [user.email, user.role]);
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -92,12 +101,10 @@ export default function MyPage({ user }) {
     );
   }
 
-  // Extrair o primeiro nome do usuário
   const firstName = user.name.split(' ')[0];
-
-  // Calcular a porcentagem de aumento/queda
   const { currentMonth, lastMonth } = helpRequests;
   let percentageChange = 0;
+
   if (lastMonth > 0) {
     percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
   }
@@ -138,14 +145,6 @@ export default function MyPage({ user }) {
                 <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
                   Dashboard Analista
                 </button>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={commonStyles.menuButton}
-                >
-                  Database
-                </a>
               </>
             )}
             <button onClick={() => signOut()} className={commonStyles.menuButton}>
@@ -159,6 +158,7 @@ export default function MyPage({ user }) {
         <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
 
         <div className={styles.profileContainerWrapper}>
+          {/* Caixa de Perfil */}
           <div className={styles.profileContainer}>
             <img src={user.image} alt={user.name} className={styles.profileImage} />
             <div className={styles.profileInfo}>
@@ -169,52 +169,64 @@ export default function MyPage({ user }) {
 
           {/* Caixa de Ajudas Solicitadas */}
           <div className={styles.profileContainer}>
-            <div className={styles.profileInfo}>
-              <h2>Ajudas Solicitadas</h2>
-              <div className={styles.helpRequestsInfo}>
-                <div className={styles.monthsInfo}>
-                  <p><strong>Mês Atual:</strong> {currentMonth}</p>
-                  <p><strong>Mês Anterior:</strong> {lastMonth}</p>
-                </div>
-                <div className={styles.percentageChange} style={{ color: arrowColor }}>
-                  <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
-                  <span>{formattedPercentage}%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Nova Caixa: Desempenho do Usuário */}
-            {performanceData && (
-              <div className={styles.performanceContainer}>
-                <h2>Desempenho</h2>
-                <p className={styles.lastUpdated}>Atualizado até: {performanceData.atualizadoAte}</p>
-                <div className={styles.performanceInfo}>
-                  <div className={styles.performanceItem}>
-                    <span>Chamados:</span>
-                    <span>{performanceData.totalChamados}</span>
+            {loadingHelpRequests ? (
+              <div className="loader"></div>
+            ) : (
+              <div className={styles.profileInfo}>
+                <h2>Ajudas Solicitadas</h2>
+                <div className={styles.helpRequestsInfo}>
+                  <div className={styles.monthsInfo}>
+                    <p><strong>Mês Atual:</strong> {currentMonth}</p>
+                    <p><strong>Mês Anterior:</strong> {lastMonth}</p>
                   </div>
-                  <div className={styles.performanceItem}>
-                    <span>Média/Dia:</span>
-                    <span>{performanceData.mediaPorDia}</span>
-                  </div>
-                  <div className={styles.performanceItem}>
-                    <span>TMA:</span>
-                    <span>{performanceData.tma}</span>
-                  </div>
-                  <div className={styles.performanceItem}>
-                    <span>CSAT:</span>
-                    <span>{performanceData.csat}</span>
+                  <div className={styles.percentageChange} style={{ color: arrowColor }}>
+                    <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
+                    <span>{formattedPercentage}%</span>
                   </div>
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Caixa de Desempenho */}
+          {user.role === 'user' && (
+            <div className={styles.performanceContainer}>
+              {loadingPerformanceData ? (
+                <div className="loader"></div>
+              ) : (
+                <>
+                  <h2>Desempenho</h2>
+                  <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte}</p>
+                  <div className={styles.performanceInfo}>
+                    <div className={styles.performanceItem}>
+                      <span>Chamados:</span>
+                      <span>{performanceData?.totalChamados}</span>
+                    </div>
+                    <div className={styles.performanceItem}>
+                      <span>Média/Dia:</span>
+                      <span>{performanceData?.mediaPorDia}</span>
+                    </div>
+                    <div className={styles.performanceItem}>
+                      <span>TMA:</span>
+                      <span>{performanceData?.tma}</span>
+                    </div>
+                    <div className={styles.performanceItem}>
+                      <span>CSAT:</span>
+                      <span>{performanceData?.csat}</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Seção de Ranking de Categorias */}
         <div className={styles.categoryRanking}>
           <h3>Top 10 - Temas de maior dúvida</h3>
-          {categoryRanking.length > 0 ? (
+          {loadingCategoryRanking ? (
+            <div className="loader"></div>
+          ) : categoryRanking.length > 0 ? (
             <ul className={styles.list}>
               {categoryRanking.map((category, index) => (
                 <li key={index} className={styles.listItem}>
@@ -227,27 +239,13 @@ export default function MyPage({ user }) {
                       backgroundColor: category.count > 10 ? 'orange' : '',
                     }}
                   />
-                  <span className={styles.count}>
-                    {category.count} pedidos de ajuda
-                    {category.count > 10 && (
-                      <div className="tooltip">
-                        <i
-                          className="fa-solid fa-circle-exclamation"
-                          style={{ color: 'orange', cursor: 'pointer' }}
-                          onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
-                        ></i>
-                        <span className="tooltipText">
-                          Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone abaixo.
-                        </span>
-                      </div>
-                    )}
-                  </span>
+                  <span className={styles.count}>{category.count} pedidos de ajuda</span>
                 </li>
               ))}
             </ul>
           ) : (
             <div className={styles.noData}>
-              <div className="categoryLoader"></div>
+              Nenhum dado disponível no momento.
             </div>
           )}
         </div>
