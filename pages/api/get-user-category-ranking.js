@@ -47,11 +47,16 @@ export default async function handler(req, res) {
 
     // Executar as requisições de forma paralela para obter os dados de todas as abas
     const requests = sheetNames.map(async (sheetName) => {
-      const response = await sheets.spreadsheets.values.get({
-        spreadsheetId: sheetId,
-        range: `${sheetName}!A:F`,
-      });
-      return response.data.values || [];
+      try {
+        const response = await sheets.spreadsheets.values.get({
+          spreadsheetId: sheetId,
+          range: `${sheetName}!A:F`,
+        });
+        return response.data.values || [];
+      } catch (error) {
+        console.error(`Erro ao buscar dados da aba ${sheetName}:`, error);
+        return []; // Retornar array vazio caso haja erro na requisição da aba
+      }
     });
 
     // Aguardar todas as requisições completarem
@@ -73,23 +78,28 @@ export default async function handler(req, res) {
 
     const currentMonthRows = rows.filter((row, index) => {
       if (index === 0) return false; // Pular cabeçalho
+
+      // Garantir que o formato da linha está correto
+      if (!row || row.length < 5) return false;
+
       const [dateStr, , , email, category] = row;
-      if (email !== userEmail) return false;
+      if (!dateStr || !email || !category) return false; // Validar se todos os campos necessários estão presentes
+
+      if (email.toLowerCase() !== userEmail.toLowerCase()) return false;
 
       const [day, month, year] = dateStr.split('/').map(Number);
-      const date = new Date(year, month - 1, day);
+      if (isNaN(day) || isNaN(month) || isNaN(year)) return false; // Validar se a data é válida
 
+      const date = new Date(year, month - 1, day);
       return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
     });
 
     // Contar categorias
     const categoryCounts = currentMonthRows.reduce((acc, row) => {
       const category = row[4];
-
       if (category) {
         acc[category] = (acc[category] || 0) + 1;
       }
-
       return acc;
     }, {});
 
@@ -101,13 +111,15 @@ export default async function handler(req, res) {
 
     console.log('Categorias no ranking:', sortedCategories);
 
-    // Atualizar o cache
-    cache = {
-      timestamp: Date.now(),
-      data: { categories: sortedCategories },
-    };
+    // Atualizar o cache apenas se tivermos dados válidos
+    if (sortedCategories.length > 0) {
+      cache = {
+        timestamp: Date.now(),
+        data: { categories: sortedCategories },
+      };
+    }
 
-    return res.status(200).json(cache.data);
+    return res.status(200).json({ categories: sortedCategories });
   } catch (error) {
     console.error('Erro ao obter registros das categorias:', error);
     res.status(500).json({ error: 'Erro ao obter registros das categorias.' });
