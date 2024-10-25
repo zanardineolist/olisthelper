@@ -1,4 +1,4 @@
-import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
+import { google } from 'googleapis';
 import { findBestMatch } from 'string-similarity';
 
 export default async function handler(req, res) {
@@ -9,30 +9,44 @@ export default async function handler(req, res) {
   }
 
   try {
-    const sheets = await getAuthenticatedGoogleSheets();
+    // Autenticação com o Google Sheets API
+    const auth = new google.auth.JWT(
+      process.env.GOOGLE_CLIENT_EMAIL,
+      null,
+      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      ['https://www.googleapis.com/auth/spreadsheets']
+    );
+
+    const sheets = google.sheets({ version: 'v4', auth });
     const sheetIdUsuarios = "1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34"; // ID da planilha de usuários
     const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
 
     // Passo 1: Buscar Nome do Usuário Usando o E-mail
-    const usersRows = await getSheetValues('Usuários', 'A2:D', sheetIdUsuarios);
-    
-    if (!usersRows || usersRows.length === 0) {
+    const usersResponse = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetIdUsuarios,
+      range: 'Usuários!A:D', // Colunas A a D da aba "Usuários"
+    });
+    const usersRows = usersResponse.data.values;
+
+    if (!usersRows) {
       return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
     }
 
-    // Encontrar o nome do usuário usando o e-mail (Coluna C = Email, Coluna B = Nome)
+    // Encontrar o nome do usuário usando o e-mail
     const userRow = usersRows.find(row => row[2]?.toLowerCase() === userEmail.toLowerCase());
     if (!userRow) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
-
     const userName = userRow[1].trim().toLowerCase(); // Coluna B da aba "Usuários" (nome do usuário)
 
     // Passo 2: Buscar Dados de Desempenho Usando o Nome do Usuário
-    // Tentar ajustar o range de acordo com o que realmente existe na planilha de desempenho
-    const performanceRows = await getSheetValues('Principal', 'A2:U', sheetIdDesempenho);
+    const performanceResponse = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetIdDesempenho,
+      range: 'Principal!A:V', // Colunas A a V da aba "Principal"
+    });
+    const performanceRows = performanceResponse.data.values;
 
-    if (!performanceRows || performanceRows.length === 0) {
+    if (!performanceRows) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado.' });
     }
 
