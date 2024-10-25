@@ -146,6 +146,35 @@ export default function MyPage({ user }) {
             <div className={styles.profileInfo}>
               <h2>{user.name}</h2>
               <p>{user.email}</p>
+              <div className={styles.tagsContainer}>
+                {/* Tag para Squad, usando o valor da coluna E */}
+                {user.squad && (
+                  <div className={styles.tag} style={{ backgroundColor: '#8DD7D7' }}>
+                    #{user.squad}
+                  </div>
+                )}
+
+                {/* Tag para Chamados, usando o valor da coluna F */}
+                {user.chamado && (
+                  <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
+                    #Chamado
+                  </div>
+                )}
+
+                {/* Tag para Telefone, usando o valor da coluna G */}
+                {user.telefone && (
+                  <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
+                    #Telefone
+                  </div>
+                )}
+
+                {/* Tag para Chat, usando o valor da coluna H */}
+                {user.chat && (
+                  <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
+                    #Chat
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <div className={styles.profileContainer}>

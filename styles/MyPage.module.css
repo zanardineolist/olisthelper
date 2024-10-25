@@ -281,3 +281,22 @@
   align-items: center;
   height: 100px;
 }
+
+/* Container para as tags na caixa de perfil */
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Estilo para cada tag individual */
+.tag {
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 15px;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
