@@ -109,33 +109,35 @@ html::-webkit-scrollbar-thumb {
   }
 }
 
-/* Spinner Loader for Category Ranking */
-.categoryLoader, .categoryLoader:before, .categoryLoader:after {
+/* Standard Box Loader */
+.standardBoxLoader, .standardBoxLoader:before, .standardBoxLoader:after {
   border-radius: 50%;
   width: 2.5em;
   height: 2.5em;
   animation-fill-mode: both;
   animation: bblFadInOut 1.8s infinite ease-in-out;
 }
-.categoryLoader {
+.standardBoxLoader {
   color: #FFF;
   font-size: 7px;
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-indent: -9999em;
-  transform: translateZ(0);
   animation-delay: -0.16s;
 }
-.categoryLoader:before,
-.categoryLoader:after {
+.standardBoxLoader:before,
+.standardBoxLoader:after {
   content: '';
   position: absolute;
   top: 0;
 }
-.categoryLoader:before {
+.standardBoxLoader:before {
   left: -3.5em;
   animation-delay: -0.32s;
 }
-.categoryLoader:after {
+.standardBoxLoader:after {
   left: 3.5em;
 }
 
@@ -143,6 +145,7 @@ html::-webkit-scrollbar-thumb {
   0%, 80%, 100% { box-shadow: 0 2.5em 0 -1.3em }
   40% { box-shadow: 0 2.5em 0 0 }
 }
+
 
 /* Tooltip Styles */
 .tooltip {

@@ -177,7 +177,9 @@ export default function MyPage({ user }) {
           {/* Caixa de Ajudas Solicitadas */}
           <div className={styles.profileContainer}>
             {loadingHelpRequests ? (
-              <div className="categoryLoader"></div>
+              <div className={styles.loadingContainer}>
+                <div className="standardBoxLoader"></div>
+              </div>
             ) : (
               <div className={styles.profileInfo}>
                 <h2>Ajudas Solicitadas</h2>
@@ -199,7 +201,9 @@ export default function MyPage({ user }) {
           {user.role === 'user' && (
             <div className={styles.performanceContainer}>
               {loadingPerformanceData ? (
-                <div className="categoryLoader"></div>
+                <div className={styles.loadingContainer}>
+                  <div className="standardBoxLoader"></div>
+                </div>
               ) : (
                 <>
                   <h2>Desempenho</h2>
@@ -232,7 +236,9 @@ export default function MyPage({ user }) {
         <div className={styles.categoryRanking}>
           <h3>Top 10 - Temas de maior dúvida</h3>
           {loadingCategoryRanking ? (
-            <div className="categoryLoader"></div>
+            <div className={styles.loadingContainer}>
+              <div className="standardBoxLoader"></div>
+            </div>
           ) : categoryRanking.length > 0 ? (
             <ul className={styles.list}>
               {categoryRanking.map((category, index) => (
@@ -266,7 +272,7 @@ export default function MyPage({ user }) {
             </ul>
           ) : (
             <div className={styles.noData}>
-              <div className="categoryLoader"></div>
+              Nenhum dado disponível no momento.
             </div>
           )}
         </div>
