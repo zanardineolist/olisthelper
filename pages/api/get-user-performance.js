@@ -14,8 +14,13 @@ export default async function handler(req, res) {
     const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
 
     // Passo 1: Buscar Nome do Usuário Usando o E-mail
-    // Modificando o range para pegar a partir da linha 2
-    const usersRows = await getSheetValues('Principal', 'A2:C', sheetIdUsuarios);
+    let usersRows;
+    try {
+      usersRows = await getSheetValues('Principal', 'A2:C', sheetIdUsuarios);
+    } catch (error) {
+      console.error('Erro ao obter valores da aba Principal da planilha de usuários:', error);
+      return res.status(500).json({ error: 'Erro ao obter valores da planilha de usuários.' });
+    }
     
     if (!usersRows || usersRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
@@ -30,8 +35,14 @@ export default async function handler(req, res) {
     const userName = userRow[1].trim().toLowerCase(); // Coluna B da aba "Principal" (nome do usuário)
 
     // Passo 2: Buscar Dados de Desempenho Usando o Nome do Usuário
-    // Alterando o intervalo para começar a partir da linha 2
-    const performanceRows = await getSheetValues('Principal', 'A2:V', sheetIdDesempenho);
+    let performanceRows;
+    try {
+      // Reduzindo o intervalo para evitar problemas devido à falta de dados em colunas distantes
+      performanceRows = await getSheetValues('Principal', 'A2:D', sheetIdDesempenho);
+    } catch (error) {
+      console.error('Erro ao obter valores da aba Principal da planilha de desempenho:', error);
+      return res.status(500).json({ error: 'Erro ao obter valores da planilha de desempenho.' });
+    }
 
     if (!performanceRows || performanceRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado.' });
@@ -54,11 +65,11 @@ export default async function handler(req, res) {
 
     // Estrutura de retorno dos dados de desempenho
     const responsePayload = {
-      totalChamados: performanceData[7], // Coluna H
-      mediaPorDia: performanceData[8], // Coluna I
-      tma: performanceData[9], // Coluna J
-      csat: performanceData[10], // Coluna K
-      atualizadoAte: performanceData[20], // Coluna U
+      totalChamados: performanceData[7] || 0, // Coluna H
+      mediaPorDia: performanceData[8] || 0, // Coluna I
+      tma: performanceData[9] || 0, // Coluna J
+      csat: performanceData[10] || 0, // Coluna K
+      atualizadoAte: performanceData[20] || 'N/A', // Coluna U
     };
 
     return res.status(200).json(responsePayload);
