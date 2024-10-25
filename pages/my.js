@@ -82,8 +82,9 @@ export default function MyPage({ user }) {
   if (lastMonth > 0) {
     percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
   }
-  const arrowClass = percentageChange < 0 ? 'fa-circle-down' : 'fa-circle-up';
-  const arrowColor = percentageChange < 0 ? 'red' : 'green';
+
+  const arrowClass = percentageChange > 0 ? 'fa-circle-up' : 'fa-circle-down';
+  const arrowColor = percentageChange > 0 ? 'red' : 'green';
   const formattedPercentage = Math.abs(percentageChange).toFixed(1);
 
   return (
