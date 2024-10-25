@@ -1,9 +1,5 @@
+// pages/api/get-user-help-requests.js
 import { google } from 'googleapis';
-
-let cache = {
-  timestamp: null,
-  data: {},
-};
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -14,15 +10,6 @@ export default async function handler(req, res) {
 
   if (!userEmail) {
     return res.status(400).json({ error: 'E-mail do usuário é obrigatório' });
-  }
-
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos de cache
-
-  // Verificar se os dados do usuário em cache ainda são válidos
-  const currentTime = Date.now();
-  if (cache.timestamp && currentTime - cache.timestamp < CACHE_DURATION && cache.data[userEmail]) {
-    console.log('Servindo dados do cache para o usuário:', userEmail);
-    return res.status(200).json(cache.data[userEmail]);
   }
 
   try {
@@ -37,7 +24,6 @@ export default async function handler(req, res) {
     const sheetId = process.env.SHEET_ID;
 
     // Obter metadados da planilha
-    console.log(`Buscando metadados da planilha com ID: ${sheetId}`);
     const sheetMeta = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
     });
@@ -57,19 +43,15 @@ export default async function handler(req, res) {
     const currentMonth = brtDate.getMonth();
     const currentYear = brtDate.getFullYear();
 
-    // Executar as requisições de forma paralela para obter os registros de ajuda de todas as abas de analistas
-    const requests = analystSheetNames.map(async (sheetName) => {
+    // Iterar sobre todas as abas de analistas para obter os registros de ajuda
+    for (const sheetName of analystSheetNames) {
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: sheetId,
         range: `${sheetName}!A:F`,
       });
-      return response.data.values || [];
-    });
 
-    // Aguardar todas as requisições completarem
-    const results = await Promise.all(requests);
+      const rows = response.data.values || [];
 
-    results.forEach(rows => {
       // Ignorar o cabeçalho
       rows.shift();
 
@@ -80,7 +62,7 @@ export default async function handler(req, res) {
           const [day, month, year] = dateString.split('/').map(Number);
           const recordDate = new Date(year, month - 1, day);
 
-          // Verificar se o registro pertence ao mês atual ou ao mês anterior
+          // Verificar se o registro pertence ao mês atual ou anterior
           if (recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear) {
             currentMonthCount++;
           } else if (
@@ -93,18 +75,12 @@ export default async function handler(req, res) {
           }
         }
       }
-    });
+    }
 
-    const responsePayload = {
+    res.status(200).json({
       currentMonth: currentMonthCount,
       lastMonth: lastMonthCount,
-    };
-
-    // Atualizar o cache
-    cache.timestamp = Date.now();
-    cache.data[userEmail] = responsePayload;
-
-    return res.status(200).json(responsePayload);
+    });
   } catch (error) {
     console.error('Erro ao obter ajudas solicitadas:', error);
     res.status(500).json({ error: 'Erro ao obter as ajudas solicitadas. Verifique suas credenciais e a configuração do Google Sheets.' });

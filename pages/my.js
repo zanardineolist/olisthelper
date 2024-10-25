@@ -6,16 +6,16 @@ import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
 
-export default function MyPage({ user, initialHelpRequests, initialCategoryRanking, initialPerformanceData }) {
+export default function MyPage({ user }) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [greeting, setGreeting] = useState('');
-  const [helpRequests, setHelpRequests] = useState(initialHelpRequests);
-  const [categoryRanking, setCategoryRanking] = useState(initialCategoryRanking);
-  const [performanceData, setPerformanceData] = useState(initialPerformanceData);
-  const [loadingHelpRequests, setLoadingHelpRequests] = useState(!initialHelpRequests);
-  const [loadingCategoryRanking, setLoadingCategoryRanking] = useState(!initialCategoryRanking);
-  const [loadingPerformanceData, setLoadingPerformanceData] = useState(user.role === 'user' && !initialPerformanceData);
+  const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
+  const [categoryRanking, setCategoryRanking] = useState([]);
+  const [performanceData, setPerformanceData] = useState(null);
+  const [loadingHelpRequests, setLoadingHelpRequests] = useState(true);
+  const [loadingCategoryRanking, setLoadingCategoryRanking] = useState(true);
+  const [loadingPerformanceData, setLoadingPerformanceData] = useState(true);
 
   useEffect(() => {
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
@@ -34,46 +34,42 @@ export default function MyPage({ user, initialHelpRequests, initialCategoryRanki
   }, []);
 
   useEffect(() => {
-    if (!initialHelpRequests) {
-      const fetchHelpRequests = async () => {
-        try {
-          const response = await fetch(`/api/get-user-help-requests?userEmail=${user.email}`);
-          const data = await response.json();
-          setHelpRequests({
-            currentMonth: data.currentMonth,
-            lastMonth: data.lastMonth,
-          });
-        } catch (error) {
-          console.error('Erro ao buscar dados de ajudas solicitadas:', error);
-        } finally {
-          setLoadingHelpRequests(false);
-        }
-      };
+    const fetchHelpRequests = async () => {
+      try {
+        const response = await fetch(`/api/get-user-help-requests?userEmail=${user.email}`);
+        const data = await response.json();
+        setHelpRequests({
+          currentMonth: data.currentMonth,
+          lastMonth: data.lastMonth,
+        });
+      } catch (error) {
+        console.error('Erro ao buscar dados de ajudas solicitadas:', error);
+      } finally {
+        setLoadingHelpRequests(false);
+      }
+    };
 
-      fetchHelpRequests();
-    }
-  }, [user.email, initialHelpRequests]);
+    fetchHelpRequests();
+  }, [user.email]);
 
   useEffect(() => {
-    if (!initialCategoryRanking) {
-      const fetchCategoryRanking = async () => {
-        try {
-          const response = await fetch(`/api/get-user-category-ranking?userEmail=${user.email}`);
-          const data = await response.json();
-          setCategoryRanking(data.categories || []);
-        } catch (error) {
-          console.error('Erro ao buscar ranking das categorias:', error);
-        } finally {
-          setLoadingCategoryRanking(false);
-        }
-      };
+    const fetchCategoryRanking = async () => {
+      try {
+        const response = await fetch(`/api/get-user-category-ranking?userEmail=${user.email}`);
+        const data = await response.json();
+        setCategoryRanking(data.categories || []);
+      } catch (error) {
+        console.error('Erro ao buscar ranking das categorias:', error);
+      } finally {
+        setLoadingCategoryRanking(false);
+      }
+    };
 
-      fetchCategoryRanking();
-    }
-  }, [user.email, initialCategoryRanking]);
+    fetchCategoryRanking();
+  }, [user.email]);
 
   useEffect(() => {
-    if (user.role === 'user' && !initialPerformanceData) {
+    if (user.role === 'user') {
       const fetchPerformanceData = async () => {
         try {
           const response = await fetch(`/api/get-user-performance?userEmail=${user.email}`);
@@ -87,10 +83,10 @@ export default function MyPage({ user, initialHelpRequests, initialCategoryRanki
       };
 
       fetchPerformanceData();
-    } else if (user.role !== 'user') {
+    } else {
       setLoadingPerformanceData(false);
     }
-  }, [user.email, user.role, initialPerformanceData]);
+  }, [user.email, user.role]);
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -296,36 +292,12 @@ export async function getServerSideProps(context) {
       },
     };
   }
-
-  let initialHelpRequests = null;
-  let initialCategoryRanking = null;
-  let initialPerformanceData = null;
-
-  try {
-    const [helpRequestsRes, categoryRankingRes, performanceDataRes] = await Promise.all([
-      fetch(`https://olisthelper.vercel.app/api/get-user-help-requests?userEmail=${session.user.email}`),
-      fetch(`https://olisthelper.vercel.app/api/get-user-category-ranking?userEmail=${session.user.email}`),
-      session.role === 'user'
-        ? fetch(`https://olisthelper.vercel.app/api/get-user-performance?userEmail=${session.user.email}`)
-        : Promise.resolve(null),
-    ]);
-
-    initialHelpRequests = await helpRequestsRes.json();
-    initialCategoryRanking = await categoryRankingRes.json();
-    initialPerformanceData = session.role === 'user' ? await performanceDataRes.json() : null;
-  } catch (error) {
-    console.error('Erro ao obter dados iniciais:', error);
-  }
-
   return {
     props: {
       user: {
         ...session.user,
         role: session.role,
       },
-      initialHelpRequests,
-      initialCategoryRanking,
-      initialPerformanceData,
     },
   };
 }

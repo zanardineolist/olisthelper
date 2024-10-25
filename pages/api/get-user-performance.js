@@ -1,25 +1,11 @@
 import { google } from 'googleapis';
 import { findBestMatch } from 'string-similarity';
 
-let cache = {
-  timestamp: null,
-  data: {},
-};
-
 export default async function handler(req, res) {
   const { userEmail } = req.query;
 
   if (!userEmail) {
     return res.status(400).json({ error: 'E-mail do usuário é obrigatório' });
-  }
-
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos de cache
-
-  // Verificar se os dados do usuário em cache ainda são válidos
-  const currentTime = Date.now();
-  if (cache.timestamp && currentTime - cache.timestamp < CACHE_DURATION && cache.data[userEmail]) {
-    console.log('Servindo dados do cache para o usuário:', userEmail);
-    return res.status(200).json(cache.data[userEmail]);
   }
 
   try {
@@ -35,8 +21,7 @@ export default async function handler(req, res) {
     const sheetIdUsuarios = "1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34"; // ID da planilha de usuários
     const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
 
-    // Buscar Nome do Usuário Usando o E-mail
-    console.log(`Buscando informações do usuário para o e-mail: ${userEmail}`);
+    // Passo 1: Buscar Nome do Usuário Usando o E-mail
     const usersResponse = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetIdUsuarios,
       range: 'Usuários!A:D', // Colunas A a D da aba "Usuários"
@@ -54,8 +39,7 @@ export default async function handler(req, res) {
     }
     const userName = userRow[1].trim().toLowerCase(); // Coluna B da aba "Usuários" (nome do usuário)
 
-    // Buscar Dados de Desempenho Usando o Nome do Usuário
-    console.log(`Buscando dados de desempenho para o usuário: ${userName}`);
+    // Passo 2: Buscar Dados de Desempenho Usando o Nome do Usuário
     const performanceResponse = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetIdDesempenho,
       range: 'Principal!A:V', // Colunas A a V da aba "Principal"
@@ -89,10 +73,6 @@ export default async function handler(req, res) {
       csat: performanceData[10], // Coluna K
       atualizadoAte: performanceData[20], // Coluna U
     };
-
-    // Atualizar o cache
-    cache.timestamp = Date.now();
-    cache.data[userEmail] = responsePayload;
 
     return res.status(200).json(responsePayload);
   } catch (error) {

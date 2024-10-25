@@ -1,9 +1,5 @@
+// pages/api/get-user-category-ranking.js
 import { google } from 'googleapis';
-
-let cache = {
-  timestamp: null,
-  data: null,
-};
 
 export default async function handler(req, res) {
   const { userEmail } = req.query;
@@ -11,15 +7,6 @@ export default async function handler(req, res) {
   if (!userEmail || userEmail === 'undefined') {
     console.log('Erro: E-mail do usuário não fornecido ou inválido.');
     return res.status(400).json({ error: 'E-mail do usuário é obrigatório e deve ser válido.' });
-  }
-
-  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos de cache
-
-  // Verificar se os dados em cache ainda são válidos
-  const currentTime = Date.now();
-  if (cache.timestamp && currentTime - cache.timestamp < CACHE_DURATION && cache.data) {
-    console.log('Servindo dados do cache.');
-    return res.status(200).json(cache.data);
   }
 
   try {
@@ -45,25 +32,13 @@ export default async function handler(req, res) {
 
     let rows = [];
 
-    // Executar as requisições de forma paralela para obter os dados de todas as abas
-    const requests = sheetNames.map(async (sheetName) => {
-      try {
-        const response = await sheets.spreadsheets.values.get({
-          spreadsheetId: sheetId,
-          range: `${sheetName}!A:F`,
-        });
-        return response.data.values || [];
-      } catch (error) {
-        console.error(`Erro ao buscar dados da aba ${sheetName}:`, error);
-        return []; // Retornar array vazio caso haja erro na requisição da aba
-      }
-    });
-
-    // Aguardar todas as requisições completarem
-    const results = await Promise.all(requests);
-    results.forEach(sheetRows => {
-      rows = rows.concat(sheetRows);
-    });
+    for (const sheetName of sheetNames) {
+      const response = await sheets.spreadsheets.values.get({
+        spreadsheetId: sheetId,
+        range: `${sheetName}!A:F`,
+      });
+      rows = rows.concat(response.data.values || []);
+    }
 
     if (!rows || rows.length === 0) {
       console.log('Nenhum registro encontrado.');
@@ -78,28 +53,23 @@ export default async function handler(req, res) {
 
     const currentMonthRows = rows.filter((row, index) => {
       if (index === 0) return false; // Pular cabeçalho
-
-      // Garantir que o formato da linha está correto
-      if (!row || row.length < 5) return false;
-
       const [dateStr, , , email, category] = row;
-      if (!dateStr || !email || !category) return false; // Validar se todos os campos necessários estão presentes
-
-      if (email.toLowerCase() !== userEmail.toLowerCase()) return false;
+      if (email !== userEmail) return false;
 
       const [day, month, year] = dateStr.split('/').map(Number);
-      if (isNaN(day) || isNaN(month) || isNaN(year)) return false; // Validar se a data é válida
-
       const date = new Date(year, month - 1, day);
+
       return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
     });
 
     // Contar categorias
     const categoryCounts = currentMonthRows.reduce((acc, row) => {
       const category = row[4];
+
       if (category) {
         acc[category] = (acc[category] || 0) + 1;
       }
+
       return acc;
     }, {});
 
@@ -110,14 +80,6 @@ export default async function handler(req, res) {
       .map(([name, count]) => ({ name, count }));
 
     console.log('Categorias no ranking:', sortedCategories);
-
-    // Atualizar o cache apenas se tivermos dados válidos
-    if (sortedCategories.length > 0) {
-      cache = {
-        timestamp: Date.now(),
-        data: { categories: sortedCategories },
-      };
-    }
 
     return res.status(200).json({ categories: sortedCategories });
   } catch (error) {

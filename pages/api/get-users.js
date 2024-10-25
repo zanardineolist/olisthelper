@@ -1,22 +1,8 @@
 import { google } from 'googleapis';
 
-let cache = {
-  timestamp: null,
-  data: null,
-};
-
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
-
-  const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos de cache
-
-  // Verificar se os dados em cache ainda são válidos
-  const currentTime = Date.now();
-  if (cache.timestamp && currentTime - cache.timestamp < CACHE_DURATION && cache.data) {
-    console.log('Servindo dados do cache.');
-    return res.status(200).json(cache.data);
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
@@ -30,9 +16,6 @@ export default async function handler(req, res) {
     const sheets = google.sheets({ version: 'v4', auth });
     const sheetId = process.env.SHEET_ID;
 
-    console.log(`Buscando lista de usuários da planilha com ID: ${sheetId}`);
-
-    // Buscar a lista de usuários na planilha
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
       range: 'Usuários!A:D',
@@ -40,18 +23,11 @@ export default async function handler(req, res) {
 
     const rows = response.data.values;
     if (rows) {
-      const users = rows
-        .filter(row => row[3] === 'user')
-        .map(row => ({
-          id: row[0],
-          name: row[1],
-          email: row[2],
-        }));
-
-      // Atualizar o cache
-      cache.timestamp = Date.now();
-      cache.data = { users };
-
+      const users = rows.filter(row => row[3] === 'user').map(row => ({
+        id: row[0],
+        name: row[1],
+        email: row[2],
+      }));
       return res.status(200).json({ users });
     }
 
