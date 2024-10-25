@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     // Passo 2: Buscar Dados de Desempenho Usando o Nome do Usuário
     const performanceResponse = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetIdDesempenho,
-      range: 'Principal!A:K', // Colunas A a K da aba "Principal"
+      range: 'Principal!A:V', // Colunas A a V da aba "Principal"
     });
     const performanceRows = performanceResponse.data.values;
 

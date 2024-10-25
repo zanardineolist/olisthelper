@@ -185,32 +185,32 @@ export default function MyPage({ user }) {
           </div>
 
           {/* Nova Caixa: Desempenho do Usuário */}
-          {performanceData && (
-            <div className={styles.profileContainer}>
-              <div className={styles.profileInfo}>
-                <h2>Desempenho</h2>
-                <p className={styles.lastUpdated}>Atualizado até: {performanceData.atualizadoAte}</p>
-                <div className={styles.performanceInfo}>
-                  <div className={styles.performanceItem}>
-                    <span>Total Chamados:</span>
-                    <span>{performanceData.totalChamados}</span>
-                  </div>
-                  <div className={styles.performanceItem}>
-                    <span>Média por Dia:</span>
-                    <span>{performanceData.mediaPorDia}</span>
-                  </div>
-                  <div className={styles.performanceItem}>
-                    <span>TMA:</span>
-                    <span>{performanceData.tma}</span>
-                  </div>
-                  <div className={styles.performanceItem}>
-                    <span>CSAT:</span>
-                    <span>{performanceData.csat}</span>
+            {performanceData && (
+              <div className={styles.profileContainer}>
+                <div className={styles.profileInfo}>
+                  <h2>Desempenho</h2>
+                  <p className={styles.lastUpdated}>Atualizado até: {performanceData.atualizadoAte}</p>
+                  <div className={styles.performanceInfo}>
+                    <div className={styles.performanceItem}>
+                      <span>Total Chamados:</span>
+                      <span>{performanceData.totalChamados}</span>
+                    </div>
+                    <div className={styles.performanceItem}>
+                      <span>Média por Dia:</span>
+                      <span>{performanceData.mediaPorDia}</span>
+                    </div>
+                    <div className={styles.performanceItem}>
+                      <span>TMA:</span>
+                      <span>{performanceData.tma}</span>
+                    </div>
+                    <div className={styles.performanceItem}>
+                      <span>CSAT:</span>
+                      <span>{performanceData.csat}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         {/* Seção de Ranking de Categorias */}

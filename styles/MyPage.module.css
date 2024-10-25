@@ -171,26 +171,31 @@
 /* Estilo para a data de atualização */
 .lastUpdated {
   font-size: 0.9em;
-  color: rgba(255, 255, 255, 0.6); /* Cor mais opaca para dar destaque menor */
-  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.6); /* Cor opaca */
+  text-align: center; /* Centralizar o texto */
+  margin-bottom: 15px;
 }
 
 /* Atualização no estilo do desempenho */
 .performanceInfo {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 15px;
+  justify-items: center; /* Centralizar itens na grid */
+  align-items: center;
 }
 
 .performanceItem {
   font-size: 1em;
   font-weight: bold;
   background-color: #1e1e1e;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 15px;
+  border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  text-align: center;
+  min-width: 120px; /* Garantir tamanho consistente */
 }
