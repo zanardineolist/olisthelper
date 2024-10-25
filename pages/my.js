@@ -204,7 +204,7 @@ export default function MyPage({ user }) {
               ))}
             </ul>
           ) : (
-            <div className={styles.loaderContainer}>
+            <div className={styles.noData}>
               <div className="categoryLoader"></div>
             </div>
           )}

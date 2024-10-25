@@ -113,6 +113,11 @@
   color: #fff;
   width: 100%;
   max-width: 1020px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
 }
 
 .categoryRanking h3 {
@@ -160,5 +165,8 @@
 .noData {
   text-align: center;
   color: #ccc;
-  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
 }
