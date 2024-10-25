@@ -170,7 +170,7 @@ export default function MyPage({ user }) {
           {/* Caixa de Ajudas Solicitadas */}
           <div className={styles.profileContainer}>
             {loadingHelpRequests ? (
-              <div className="loader"></div>
+              <div className="categoryLoader"></div>
             ) : (
               <div className={styles.profileInfo}>
                 <h2>Ajudas Solicitadas</h2>
@@ -192,7 +192,7 @@ export default function MyPage({ user }) {
           {user.role === 'user' && (
             <div className={styles.performanceContainer}>
               {loadingPerformanceData ? (
-                <div className="loader"></div>
+                <div className="categoryLoader"></div>
               ) : (
                 <>
                   <h2>Desempenho</h2>
@@ -225,7 +225,7 @@ export default function MyPage({ user }) {
         <div className={styles.categoryRanking}>
           <h3>Top 10 - Temas de maior dúvida</h3>
           {loadingCategoryRanking ? (
-            <div className="loader"></div>
+            <div className="categoryLoader"></div>
           ) : categoryRanking.length > 0 ? (
             <ul className={styles.list}>
               {categoryRanking.map((category, index) => (
