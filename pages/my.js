@@ -147,31 +147,31 @@ export default function MyPage({ user }) {
               <h2>{user.name}</h2>
               <p>{user.email}</p>
               <div className={styles.tagsContainer}>
-                {/* Tag para Squad, usando o valor da coluna E */}
-                {user.squad && (
+                {/* Tag para Squad */}
+                {performanceData?.squad && (
                   <div className={styles.tag} style={{ backgroundColor: '#8DD7D7' }}>
-                    #{user.squad}
+                    🌍 #{performanceData.squad}
                   </div>
                 )}
 
-                {/* Tag para Chamados, usando o valor da coluna F */}
-                {user.chamado && (
+                {/* Tag para Chamado */}
+                {performanceData?.chamado && (
                   <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
-                    #Chamado
+                    📞 #Chamado
                   </div>
                 )}
 
-                {/* Tag para Telefone, usando o valor da coluna G */}
-                {user.telefone && (
+                {/* Tag para Telefone */}
+                {performanceData?.telefone && (
                   <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
-                    #Telefone
+                    📱 #Telefone
                   </div>
                 )}
 
-                {/* Tag para Chat, usando o valor da coluna H */}
-                {user.chat && (
+                {/* Tag para Chat */}
+                {performanceData?.chat && (
                   <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
-                    #Chat
+                    💬 #Chat
                   </div>
                 )}
               </div>

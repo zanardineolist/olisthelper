@@ -57,6 +57,7 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Usuário não autorizado a visualizar os dados de desempenho.' });
     }
 
+    const squad = userRow[4]; // Coluna E - Squad
     const hasChamado = userRow[5] === 'TRUE'; // Coluna F - Chamado
     const hasTelefone = userRow[6] === 'TRUE'; // Coluna G - Telefone
     const hasChat = userRow[7] === 'TRUE'; // Coluna H - Chat
@@ -84,7 +85,12 @@ export default async function handler(req, res) {
     const performanceData = performanceRows[bestMatchIndex];
 
     // Estrutura de retorno dos dados de desempenho com base nas preferências
-    const responsePayload = {};
+    const responsePayload = {
+      squad, // Adicionando squad ao payload
+      chamado: hasChamado,
+      telefone: hasTelefone,
+      chat: hasChat,
+    };
 
     if (hasChamado) {
       responsePayload.chamados = {
