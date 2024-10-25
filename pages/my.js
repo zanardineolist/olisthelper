@@ -139,7 +139,8 @@ export default function MyPage({ user }) {
       <main className={styles.main}>
         <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
 
-        <div className={styles.profileContainerWrapper}>
+        {/* Container para Perfil e Ajudas Solicitadas */}
+        <div className={styles.profileAndHelpContainer}>
           {/* Caixa de Perfil */}
           <div className={styles.profileContainer}>
             <img src={user.image} alt={user.name} className={styles.profileImage} />
@@ -171,11 +172,14 @@ export default function MyPage({ user }) {
               </div>
             )}
           </div>
+        </div>
 
-          {/* Caixa de Desempenho Chamados */}
+        {/* Container para Indicadores de Desempenho */}
+        <div className={styles.performanceWrapper}>
           {performanceData?.chamados && (
             <div className={styles.performanceContainer}>
               <h2>Desempenho Chamados</h2>
+              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte}</p>
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Chamados:</span>
@@ -196,11 +200,11 @@ export default function MyPage({ user }) {
               </div>
             </div>
           )}
-
-          {/* Caixa de Desempenho Telefone */}
+          {/* Repetir o mesmo padrão para Telefone e Chat */}
           {performanceData?.telefone && (
             <div className={styles.performanceContainer}>
               <h2>Desempenho Telefone</h2>
+              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte}</p>
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Telefone:</span>
@@ -225,11 +229,10 @@ export default function MyPage({ user }) {
               </div>
             </div>
           )}
-
-          {/* Caixa de Desempenho Chat */}
           {performanceData?.chat && (
             <div className={styles.performanceContainer}>
               <h2>Desempenho Chat</h2>
+              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte}</p>
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Chats:</span>
@@ -252,7 +255,7 @@ export default function MyPage({ user }) {
           )}
         </div>
 
-        {/* Seção de Ranking de Categorias */}
+        {/* Container para Ranking de Categorias */}
         <div className={styles.categoryRanking}>
           <h3>Top 10 - Temas de maior dúvida</h3>
           {loading ? (
