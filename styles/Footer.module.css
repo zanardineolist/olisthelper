@@ -7,5 +7,18 @@
   padding: 15px 0;
   font-size: 0.9rem;
   border-top: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
-  
+
+.logoContainer {
+  position: absolute;
+  left: 15px;
+}
+
+.logo {
+  width: 100px; /* Ajuste o valor para obter um dimensionamento agradável */
+  height: auto;
+}
