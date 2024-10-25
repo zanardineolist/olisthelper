@@ -18,11 +18,12 @@ export default async function handler(req, res) {
     );
 
     const sheets = google.sheets({ version: 'v4', auth });
-    const sheetId = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
+    const sheetIdUsuarios = "1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34"; // ID da planilha de usuários
+    const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
 
     // Buscar todos os usuários para vincular o e-mail ao nome
     const usersResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.SHEET_ID, // ID da planilha de usuários
+      spreadsheetId: sheetIdUsuarios,
       range: 'Usuários!A:D',
     });
     const usersRows = usersResponse.data.values;
@@ -36,11 +37,11 @@ export default async function handler(req, res) {
     if (!userRow) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
-    const userName = userRow[1].toLowerCase();
+    const userName = userRow[1].toLowerCase(); // Coluna B da aba "Usuários" (nome do usuário)
 
     // Buscar dados de desempenho usando o nome
     const performanceResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
+      spreadsheetId: sheetIdDesempenho,
       range: 'Principal!A:K', // Ajustar o nome da aba e intervalo conforme necessário
     });
     const performanceRows = performanceResponse.data.values;
