@@ -139,9 +139,8 @@ export default function MyPage({ user }) {
       <main className={styles.main}>
         <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
 
-        {/* Container para Perfil e Ajudas Solicitadas */}
+        {/* Container para Dados de Perfil e Ajudas Solicitadas */}
         <div className={styles.profileAndHelpContainer}>
-          {/* Caixa de Perfil */}
           <div className={styles.profileContainer}>
             <img src={user.image} alt={user.name} className={styles.profileImage} />
             <div className={styles.profileInfo}>
@@ -149,8 +148,6 @@ export default function MyPage({ user }) {
               <p>{user.email}</p>
             </div>
           </div>
-
-          {/* Caixa de Ajudas Solicitadas */}
           <div className={styles.profileContainer}>
             {loading ? (
               <div className={styles.loadingContainer}>
@@ -200,7 +197,6 @@ export default function MyPage({ user }) {
               </div>
             </div>
           )}
-          {/* Repetir o mesmo padrão para Telefone e Chat */}
           {performanceData?.telefone && (
             <div className={styles.performanceContainer}>
               <h2>Desempenho Telefone</h2>
