@@ -86,23 +86,8 @@ export default function MyPage({ user }) {
   const arrowColor = percentageChange < 0 ? 'red' : 'green';
   const formattedPercentage = Math.abs(percentageChange).toFixed(1);
 
-  const parseValue = (value) => {
-    if (typeof value === 'string') {
-      if (value.includes('%')) {
-        return parseFloat(value.replace('%', '').replace(',', '.'));
-      } else if (value.includes(':')) {
-        // Convert time in hh:mm:ss format to minutes
-        const parts = value.split(':');
-        return parseInt(parts[0]) * 60 + parseInt(parts[1]) + parseInt(parts[2]) / 60;
-      }
-      return parseFloat(value.replace(',', '.'));
-    }
-    return value;
-  };
-
   const getIndicatorColor = (value, threshold, isGreaterBetter = true) => {
-    const parsedValue = parseValue(value);
-    return (isGreaterBetter ? parsedValue >= threshold : parsedValue <= threshold) ? '#779E3D' : '#E64E36';
+    return (isGreaterBetter ? value >= threshold : value <= threshold) ? '#779E3D' : '#E64E36';
   };
 
   return (
