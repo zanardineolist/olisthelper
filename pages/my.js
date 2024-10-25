@@ -190,9 +190,9 @@ export default function MyPage({ user }) {
                     {category.count > 10 && (
                       <i
                         className="fa-solid fa-circle-exclamation"
-                        style={{ color: 'yellow', cursor: 'pointer', marginLeft: '8px' }}
-                        title="Esta categoria ultrapassou 10 pedidos no mês atual"
-                        onClick={() => window.open('/new-category-info', '_blank')}
+                        style={{ color: 'orange', cursor: 'pointer', marginLeft: '8px' }}
+                        title="Você já solicitou mais de 10 ajudas para este tema, recomendamos agendar um Tiny Class com nossos analistas."
+                        onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
                       ></i>
                     )}
                   </span>
