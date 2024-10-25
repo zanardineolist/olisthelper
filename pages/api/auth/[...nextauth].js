@@ -1,6 +1,6 @@
 // pages/api/auth/[...nextauth].js
 import NextAuth from 'next-auth';
-import Providers from 'next-auth/providers';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import { google } from 'googleapis';
 import Redis from 'ioredis';
 
@@ -9,7 +9,7 @@ const redis = new Redis(process.env.REDIS_URL);
 
 export default NextAuth({
   providers: [
-    Providers.Credentials({
+    CredentialsProvider({
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'text' },
@@ -81,9 +81,15 @@ export default NextAuth({
     }),
   ],
   callbacks: {
-    async session(session, user) {
-      session.user = user;
+    async session({ session, token }) {
+      session.user = token.user;
       return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.user = user;
+      }
+      return token;
     },
   },
   pages: {
