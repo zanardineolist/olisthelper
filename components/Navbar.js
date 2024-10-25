@@ -17,15 +17,15 @@ export default function Navbar() {
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
-        <Link href="/my">Olist Helper</Link>
+        <Link href="/profile">Olist Helper</Link>
       </div>
       <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
         ☰
       </button>
       {menuOpen && (
         <div className={styles.menu}>
-          <Link href="/my" className={styles.menuButton}>
-            Página Inicial
+          <Link href="/profile" className={styles.menuButton}>
+            Meu Perfil
           </Link>
           <Link href="/registrar" className={styles.menuButton}>
             Registrar Dúvida

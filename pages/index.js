@@ -12,7 +12,7 @@ export default function LoginPage() {
     const checkSession = async () => {
       const session = await getSession();
       if (session) {
-        router.push('/my');
+        router.push('/profile');
       }
     };
     checkSession();
@@ -56,7 +56,7 @@ export async function getServerSideProps(context) {
   if (session) {
     return {
       redirect: {
-        destination: '/my',
+        destination: '/profile',
         permanent: false,
       },
     };

@@ -133,8 +133,8 @@ export default function RegistroPage({ session }) {
 
         {menuOpen && (
           <div className={commonStyles.menu}>
-            <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
-              Página Inicial
+            <button onClick={() => router.push('/profile')} className={commonStyles.menuButton}>
+              Meu Perfil
             </button>
             {session.role === 'user' && (
               <button onClick={() => router.push('/registrar')} className={commonStyles.menuButton}>

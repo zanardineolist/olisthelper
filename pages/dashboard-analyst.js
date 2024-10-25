@@ -143,8 +143,8 @@ export default function DashboardAnalyst({ session }) {
         </nav>
         {menuOpen && (
           <div className={commonStyles.menu}>
-            <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
-              Página Inicial
+            <button onClick={() => router.push('/profile')} className={commonStyles.menuButton}>
+              Meu Perfil
             </button>
             {session.role === 'user' && (
               <button onClick={() => router.push('/registrar')} className={commonStyles.menuButton}>
@@ -245,7 +245,7 @@ export async function getServerSideProps(context) {
   if (!session || session.role !== 'analyst') {
     return {
       redirect: {
-        destination: '/my',
+        destination: '/profile',
         permanent: false,
       },
     };

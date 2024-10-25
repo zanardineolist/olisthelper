@@ -104,8 +104,8 @@ export default function MyPage({ user }) {
         </nav>
         {menuOpen && (
           <div className={commonStyles.menu}>
-            <button onClick={() => handleNavigation('/my')} className={commonStyles.menuButton}>
-              Página Inicial
+            <button onClick={() => handleNavigation('/profile')} className={commonStyles.menuButton}>
+              Meu Perfil
             </button>
             {user.role === 'user' && (
               <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
