@@ -1,5 +1,9 @@
-// pages/api/get-user-category-ranking.js
 import { google } from 'googleapis';
+
+let cache = {
+  timestamp: null,
+  data: null,
+};
 
 export default async function handler(req, res) {
   const { userEmail } = req.query;
@@ -7,6 +11,15 @@ export default async function handler(req, res) {
   if (!userEmail || userEmail === 'undefined') {
     console.log('Erro: E-mail do usuário não fornecido ou inválido.');
     return res.status(400).json({ error: 'E-mail do usuário é obrigatório e deve ser válido.' });
+  }
+
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos de cache
+
+  // Verificar se os dados em cache ainda são válidos
+  const currentTime = Date.now();
+  if (cache.timestamp && currentTime - cache.timestamp < CACHE_DURATION && cache.data) {
+    console.log('Servindo dados do cache.');
+    return res.status(200).json(cache.data);
   }
 
   try {
@@ -32,13 +45,20 @@ export default async function handler(req, res) {
 
     let rows = [];
 
-    for (const sheetName of sheetNames) {
+    // Executar as requisições de forma paralela para obter os dados de todas as abas
+    const requests = sheetNames.map(async (sheetName) => {
       const response = await sheets.spreadsheets.values.get({
         spreadsheetId: sheetId,
         range: `${sheetName}!A:F`,
       });
-      rows = rows.concat(response.data.values || []);
-    }
+      return response.data.values || [];
+    });
+
+    // Aguardar todas as requisições completarem
+    const results = await Promise.all(requests);
+    results.forEach(sheetRows => {
+      rows = rows.concat(sheetRows);
+    });
 
     if (!rows || rows.length === 0) {
       console.log('Nenhum registro encontrado.');
@@ -81,7 +101,13 @@ export default async function handler(req, res) {
 
     console.log('Categorias no ranking:', sortedCategories);
 
-    return res.status(200).json({ categories: sortedCategories });
+    // Atualizar o cache
+    cache = {
+      timestamp: Date.now(),
+      data: { categories: sortedCategories },
+    };
+
+    return res.status(200).json(cache.data);
   } catch (error) {
     console.error('Erro ao obter registros das categorias:', error);
     res.status(500).json({ error: 'Erro ao obter registros das categorias.' });

@@ -6,16 +6,10 @@ import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
 
-export default function MyPage({ user }) {
+export default function MyPage({ user, helpRequests, categoryRanking, performanceData }) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [greeting, setGreeting] = useState('');
-  const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
-  const [categoryRanking, setCategoryRanking] = useState([]);
-  const [performanceData, setPerformanceData] = useState(null);
-  const [loadingHelpRequests, setLoadingHelpRequests] = useState(true);
-  const [loadingCategoryRanking, setLoadingCategoryRanking] = useState(true);
-  const [loadingPerformanceData, setLoadingPerformanceData] = useState(true);
 
   useEffect(() => {
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
@@ -32,61 +26,6 @@ export default function MyPage({ user }) {
 
     setGreeting(greetingMessage);
   }, []);
-
-  useEffect(() => {
-    const fetchHelpRequests = async () => {
-      try {
-        const response = await fetch(`/api/get-user-help-requests?userEmail=${user.email}`);
-        const data = await response.json();
-        setHelpRequests({
-          currentMonth: data.currentMonth,
-          lastMonth: data.lastMonth,
-        });
-      } catch (error) {
-        console.error('Erro ao buscar dados de ajudas solicitadas:', error);
-      } finally {
-        setLoadingHelpRequests(false);
-      }
-    };
-
-    fetchHelpRequests();
-  }, [user.email]);
-
-  useEffect(() => {
-    const fetchCategoryRanking = async () => {
-      try {
-        const response = await fetch(`/api/get-user-category-ranking?userEmail=${user.email}`);
-        const data = await response.json();
-        setCategoryRanking(data.categories || []);
-      } catch (error) {
-        console.error('Erro ao buscar ranking das categorias:', error);
-      } finally {
-        setLoadingCategoryRanking(false);
-      }
-    };
-
-    fetchCategoryRanking();
-  }, [user.email]);
-
-  useEffect(() => {
-    if (user.role === 'user') {
-      const fetchPerformanceData = async () => {
-        try {
-          const response = await fetch(`/api/get-user-performance?userEmail=${user.email}`);
-          const data = await response.json();
-          setPerformanceData(data);
-        } catch (error) {
-          console.error('Erro ao buscar dados de desempenho do usuário:', error);
-        } finally {
-          setLoadingPerformanceData(false);
-        }
-      };
-
-      fetchPerformanceData();
-    } else {
-      setLoadingPerformanceData(false);
-    }
-  }, [user.email, user.role]);
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -176,58 +115,46 @@ export default function MyPage({ user }) {
 
           {/* Caixa de Ajudas Solicitadas */}
           <div className={styles.profileContainer}>
-            {loadingHelpRequests ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-              </div>
-            ) : (
-              <div className={styles.profileInfo}>
-                <h2>Ajudas Solicitadas</h2>
-                <div className={styles.helpRequestsInfo}>
-                  <div className={styles.monthsInfo}>
-                    <p><strong>Mês Atual:</strong> {currentMonth}</p>
-                    <p><strong>Mês Anterior:</strong> {lastMonth}</p>
-                  </div>
-                  <div className={styles.percentageChange} style={{ color: arrowColor }}>
-                    <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
-                    <span>{formattedPercentage}%</span>
-                  </div>
+            <div className={styles.profileInfo}>
+              <h2>Ajudas Solicitadas</h2>
+              <div className={styles.helpRequestsInfo}>
+                <div className={styles.monthsInfo}>
+                  <p><strong>Mês Atual:</strong> {currentMonth}</p>
+                  <p><strong>Mês Anterior:</strong> {lastMonth}</p>
+                </div>
+                <div className={styles.percentageChange} style={{ color: arrowColor }}>
+                  <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
+                  <span>{formattedPercentage}%</span>
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Caixa de Desempenho */}
           {user.role === 'user' && (
             <div className={styles.performanceContainer}>
-              {loadingPerformanceData ? (
-                <div className={styles.loadingContainer}>
-                  <div className="standardBoxLoader"></div>
-                </div>
-              ) : (
-                <>
-                  <h2>Desempenho</h2>
-                  <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte}</p>
-                  <div className={styles.performanceInfo}>
-                    <div className={styles.performanceItem}>
-                      <span>Chamados:</span>
-                      <span>{performanceData?.totalChamados}</span>
-                    </div>
-                    <div className={styles.performanceItem}>
-                      <span>Média/Dia:</span>
-                      <span>{performanceData?.mediaPorDia}</span>
-                    </div>
-                    <div className={styles.performanceItem}>
-                      <span>TMA:</span>
-                      <span>{performanceData?.tma}</span>
-                    </div>
-                    <div className={styles.performanceItem}>
-                      <span>CSAT:</span>
-                      <span>{performanceData?.csat}</span>
-                    </div>
+              <>
+                <h2>Desempenho</h2>
+                <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte}</p>
+                <div className={styles.performanceInfo}>
+                  <div className={styles.performanceItem}>
+                    <span>Chamados:</span>
+                    <span>{performanceData?.totalChamados}</span>
                   </div>
-                </>
-              )}
+                  <div className={styles.performanceItem}>
+                    <span>Média/Dia:</span>
+                    <span>{performanceData?.mediaPorDia}</span>
+                  </div>
+                  <div className={styles.performanceItem}>
+                    <span>TMA:</span>
+                    <span>{performanceData?.tma}</span>
+                  </div>
+                  <div className={styles.performanceItem}>
+                    <span>CSAT:</span>
+                    <span>{performanceData?.csat}</span>
+                  </div>
+                </div>
+              </>
             </div>
           )}
         </div>
@@ -235,11 +162,7 @@ export default function MyPage({ user }) {
         {/* Seção de Ranking de Categorias */}
         <div className={styles.categoryRanking}>
           <h3>Top 10 - Temas de maior dúvida</h3>
-          {loadingCategoryRanking ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
-          ) : categoryRanking.length > 0 ? (
+          {categoryRanking.length > 0 ? (
             <ul className={styles.list}>
               {categoryRanking.map((category, index) => (
                 <li key={index} className={styles.listItem}>
@@ -292,12 +215,24 @@ export async function getServerSideProps(context) {
       },
     };
   }
+
+  const [helpRequests, categoryRanking, performanceData] = await Promise.all([
+    fetch(`https://olisthelper.vercel.app/api/get-user-help-requests?userEmail=${session.user.email}`).then(res => res.json()),
+    fetch(`https://olisthelper.vercel.app/api/get-user-category-ranking?userEmail=${session.user.email}`).then(res => res.json()),
+    session.role === 'user'
+      ? fetch(`https://olisthelper.vercel.app/api/get-user-performance?userEmail=${session.user.email}`).then(res => res.json())
+      : Promise.resolve(null),
+  ]);
+
   return {
     props: {
       user: {
         ...session.user,
         role: session.role,
       },
+      helpRequests,
+      categoryRanking,
+      performanceData,
     },
   };
 }
