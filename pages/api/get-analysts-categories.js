@@ -1,29 +1,16 @@
-import { google } from 'googleapis';
+import { getAuthenticatedGoogleSheets, getSheetValues } from '../../../utils/googleSheets';
 
 export default async function handler(req, res) {
   try {
-    const auth = new google.auth.JWT(
-      process.env.GOOGLE_CLIENT_EMAIL,
-      null,
-      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      ['https://www.googleapis.com/auth/spreadsheets']
-    );
-
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    const categoriesResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: 'Categorias!A2:A',
-    });
-    const categories = categoriesResponse.data.values.flat();
-    
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: 'Usuários!A:D',
-    });
+    // Obter categorias
+    const categoriesResponse = await getSheetValues('Categorias', 'A2:A');
+    const categories = categoriesResponse.flat();
 
-    const rows = response.data.values;
+    // Obter analistas
+    const rows = await getSheetValues('Usuários', 'A:D');
     const analysts = rows
       .filter((row) => row[3] === 'analyst')
       .map((row) => ({

@@ -13,9 +13,7 @@ export default function MyPage({ user }) {
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
-  const [loadingHelpRequests, setLoadingHelpRequests] = useState(true);
-  const [loadingCategoryRanking, setLoadingCategoryRanking] = useState(true);
-  const [loadingPerformanceData, setLoadingPerformanceData] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
@@ -34,58 +32,35 @@ export default function MyPage({ user }) {
   }, []);
 
   useEffect(() => {
-    const fetchHelpRequests = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`/api/get-user-help-requests?userEmail=${user.email}`);
-        const data = await response.json();
+        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
+          fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
+          fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),
+          user.role === 'user' ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
+        ]);
+
+        const helpData = await helpResponse.json();
         setHelpRequests({
-          currentMonth: data.currentMonth,
-          lastMonth: data.lastMonth,
+          currentMonth: helpData.currentMonth,
+          lastMonth: helpData.lastMonth,
         });
-      } catch (error) {
-        console.error('Erro ao buscar dados de ajudas solicitadas:', error);
-      } finally {
-        setLoadingHelpRequests(false);
-      }
-    };
 
-    fetchHelpRequests();
-  }, [user.email]);
+        const categoryData = await categoryResponse.json();
+        setCategoryRanking(categoryData.categories || []);
 
-  useEffect(() => {
-    const fetchCategoryRanking = async () => {
-      try {
-        const response = await fetch(`/api/get-user-category-ranking?userEmail=${user.email}`);
-        const data = await response.json();
-        setCategoryRanking(data.categories || []);
-      } catch (error) {
-        console.error('Erro ao buscar ranking das categorias:', error);
-      } finally {
-        setLoadingCategoryRanking(false);
-      }
-    };
-
-    fetchCategoryRanking();
-  }, [user.email]);
-
-  useEffect(() => {
-    if (user.role === 'user') {
-      const fetchPerformanceData = async () => {
-        try {
-          const response = await fetch(`/api/get-user-performance?userEmail=${user.email}`);
-          const data = await response.json();
-          setPerformanceData(data);
-        } catch (error) {
-          console.error('Erro ao buscar dados de desempenho do usuário:', error);
-        } finally {
-          setLoadingPerformanceData(false);
+        if (user.role === 'user') {
+          const performanceData = await performanceResponse.json();
+          setPerformanceData(performanceData);
         }
-      };
+      } catch (error) {
+        console.error('Erro ao buscar dados:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      fetchPerformanceData();
-    } else {
-      setLoadingPerformanceData(false);
-    }
+    fetchData();
   }, [user.email, user.role]);
 
   const handleNavigation = (path) => {
@@ -176,7 +151,7 @@ export default function MyPage({ user }) {
 
           {/* Caixa de Ajudas Solicitadas */}
           <div className={styles.profileContainer}>
-            {loadingHelpRequests ? (
+            {loading ? (
               <div className={styles.loadingContainer}>
                 <div className="standardBoxLoader"></div>
               </div>
@@ -200,7 +175,7 @@ export default function MyPage({ user }) {
           {/* Caixa de Desempenho */}
           {user.role === 'user' && (
             <div className={styles.performanceContainer}>
-              {loadingPerformanceData ? (
+              {loading ? (
                 <div className={styles.loadingContainer}>
                   <div className="standardBoxLoader"></div>
                 </div>
@@ -235,7 +210,7 @@ export default function MyPage({ user }) {
         {/* Seção de Ranking de Categorias */}
         <div className={styles.categoryRanking}>
           <h3>Top 10 - Temas de maior dúvida</h3>
-          {loadingCategoryRanking ? (
+          {loading ? (
             <div className={styles.loadingContainer}>
               <div className="standardBoxLoader"></div>
             </div>

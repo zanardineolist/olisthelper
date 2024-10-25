@@ -1,4 +1,4 @@
-import { google } from 'googleapis';
+import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../../utils/googleSheets';
 
 export default async function handler(req, res) {
   const { analystId } = req.query;
@@ -9,23 +9,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const auth = new google.auth.JWT(
-      process.env.GOOGLE_CLIENT_EMAIL,
-      null,
-      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      ['https://www.googleapis.com/auth/spreadsheets']
-    );
-
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
     console.log(`Buscando metadados da planilha com ID: ${sheetId} para o analista: ${analystId}`);
 
     // Obter as informações da planilha (metadados)
-    const sheetMeta = await sheets.spreadsheets.get({
-      spreadsheetId: sheetId,
-    });
-
+    const sheetMeta = await getSheetMetaData();
+    
     // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
     const sheetName = sheetMeta.data.sheets.find((sheet) => {
       return sheet.properties.title.startsWith(`#${analystId}`);
@@ -39,12 +30,7 @@ export default async function handler(req, res) {
     console.log(`Aba localizada: ${sheetName}`);
 
     // Caso a aba seja encontrada, prosseguir para obter os valores
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: `${sheetName}!A:F`,
-    });
-
-    const rows = response.data.values;
+    const rows = await getSheetValues(sheetName, 'A:F');
 
     if (!rows || rows.length === 0) {
       console.log('Nenhum registro encontrado na aba especificada.');

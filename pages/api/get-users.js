@@ -1,4 +1,4 @@
-import { google } from 'googleapis';
+import { getAuthenticatedGoogleSheets, getSheetValues } from '../../../utils/googleSheets';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,23 +6,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const auth = new google.auth.JWT(
-      process.env.GOOGLE_CLIENT_EMAIL,
-      null,
-      JSON.parse(`"${process.env.GOOGLE_PRIVATE_KEY}"`),
-      ['https://www.googleapis.com/auth/spreadsheets']
-    );
+    const sheets = await getAuthenticatedGoogleSheets();
+    const rows = await getSheetValues('Usuários', 'A:D');
 
-    const sheets = google.sheets({ version: 'v4', auth });
-    const sheetId = process.env.SHEET_ID;
-
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: 'Usuários!A:D',
-    });
-
-    const rows = response.data.values;
-    if (rows) {
+    if (rows && rows.length > 0) {
       const users = rows.filter(row => row[3] === 'user').map(row => ({
         id: row[0],
         name: row[1],

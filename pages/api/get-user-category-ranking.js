@@ -1,5 +1,4 @@
-// pages/api/get-user-category-ranking.js
-import { google } from 'googleapis';
+import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../../utils/googleSheets';
 
 export default async function handler(req, res) {
   const { userEmail } = req.query;
@@ -10,22 +9,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const auth = new google.auth.JWT(
-      process.env.GOOGLE_CLIENT_EMAIL,
-      null,
-      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      ['https://www.googleapis.com/auth/spreadsheets']
-    );
-
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
     console.log(`Buscando metadados da planilha com ID: ${sheetId} para o usuário: ${userEmail}`);
 
     // Obter as informações da planilha (metadados)
-    const sheetMeta = await sheets.spreadsheets.get({
-      spreadsheetId: sheetId,
-    });
+    const sheetMeta = await getSheetMetaData();
 
     // Iterar sobre todas as abas da planilha, pois queremos buscar os dados para todos os analistas
     const sheetNames = sheetMeta.data.sheets.map(sheet => sheet.properties.title);
@@ -33,11 +23,8 @@ export default async function handler(req, res) {
     let rows = [];
 
     for (const sheetName of sheetNames) {
-      const response = await sheets.spreadsheets.values.get({
-        spreadsheetId: sheetId,
-        range: `${sheetName}!A:F`,
-      });
-      rows = rows.concat(response.data.values || []);
+      const response = await getSheetValues(sheetName, 'A:F');
+      rows = rows.concat(response);
     }
 
     if (!rows || rows.length === 0) {

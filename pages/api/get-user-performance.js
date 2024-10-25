@@ -1,4 +1,4 @@
-import { google } from 'googleapis';
+import { getAuthenticatedGoogleSheets, getSheetValues } from '../../../utils/googleSheets';
 import { findBestMatch } from 'string-similarity';
 
 export default async function handler(req, res) {
@@ -9,24 +9,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Autenticação com o Google Sheets API
-    const auth = new google.auth.JWT(
-      process.env.GOOGLE_CLIENT_EMAIL,
-      null,
-      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      ['https://www.googleapis.com/auth/spreadsheets']
-    );
-
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheets = await getAuthenticatedGoogleSheets();
     const sheetIdUsuarios = "1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34"; // ID da planilha de usuários
     const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
 
     // Passo 1: Buscar Nome do Usuário Usando o E-mail
-    const usersResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetIdUsuarios,
-      range: 'Usuários!A:D', // Colunas A a D da aba "Usuários"
-    });
-    const usersRows = usersResponse.data.values;
+    const usersRows = await getSheetValues('Usuários', 'A:D', sheetIdUsuarios);
 
     if (!usersRows) {
       return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
@@ -40,11 +28,7 @@ export default async function handler(req, res) {
     const userName = userRow[1].trim().toLowerCase(); // Coluna B da aba "Usuários" (nome do usuário)
 
     // Passo 2: Buscar Dados de Desempenho Usando o Nome do Usuário
-    const performanceResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetIdDesempenho,
-      range: 'Principal!A:V', // Colunas A a V da aba "Principal"
-    });
-    const performanceRows = performanceResponse.data.values;
+    const performanceRows = await getSheetValues('Principal', 'A:V', sheetIdDesempenho);
 
     if (!performanceRows) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado.' });
