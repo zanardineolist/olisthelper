@@ -1,5 +1,8 @@
-// pages/api/get-user-help-requests.js
 import { google } from 'googleapis';
+import Redis from 'ioredis';
+
+// Configuração do Redis
+const redis = new Redis(process.env.REDIS_URL);
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -13,6 +16,16 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Verificar no cache se já temos os dados de ajuda solicitada
+    const cachedHelpRequests = await redis.get(`userHelpRequests:${userEmail}`);
+    if (cachedHelpRequests) {
+      console.log('Cache hit for user help requests data');
+      return res.status(200).json(JSON.parse(cachedHelpRequests));
+    }
+
+    console.log('Cache miss for user help requests data, fetching from Google Sheets');
+
+    // Autenticação com o Google Sheets API
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
       null,
@@ -31,7 +44,7 @@ export default async function handler(req, res) {
     // Obter todas as abas da planilha
     const sheetNames = sheetMeta.data.sheets.map(sheet => sheet.properties.title);
 
-    // Filtrar apenas as abas que representam analistas (pode ser necessário ajustar a lógica de nomes)
+    // Filtrar apenas as abas que representam analistas
     const analystSheetNames = sheetNames.filter(name => name.startsWith('#'));
 
     let currentMonthCount = 0;
@@ -77,10 +90,15 @@ export default async function handler(req, res) {
       }
     }
 
-    res.status(200).json({
+    const responsePayload = {
       currentMonth: currentMonthCount,
       lastMonth: lastMonthCount,
-    });
+    };
+
+    // Armazenar no cache por 10 minutos
+    await redis.set(`userHelpRequests:${userEmail}`, JSON.stringify(responsePayload), 'EX', 600);
+
+    res.status(200).json(responsePayload);
   } catch (error) {
     console.error('Erro ao obter ajudas solicitadas:', error);
     res.status(500).json({ error: 'Erro ao obter as ajudas solicitadas. Verifique suas credenciais e a configuração do Google Sheets.' });

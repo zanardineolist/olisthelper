@@ -1,5 +1,8 @@
-// pages/api/register-doubt.js
 import { google } from 'googleapis';
+import Redis from 'ioredis';
+
+// Configuração do Redis
+const redis = new Redis(process.env.REDIS_URL);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,6 +16,43 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Verificar no cache se a aba do analista já foi encontrada
+    const cachedSheetName = await redis.get(`analystSheet:${analyst}`);
+    let sheetName;
+
+    if (cachedSheetName) {
+      console.log('Cache hit for analyst sheet name');
+      sheetName = cachedSheetName;
+    } else {
+      console.log('Cache miss for analyst sheet name, fetching from Google Sheets');
+
+      const auth = new google.auth.JWT(
+        process.env.GOOGLE_CLIENT_EMAIL,
+        null,
+        process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        ['https://www.googleapis.com/auth/spreadsheets']
+      );
+
+      const sheets = google.sheets({ version: 'v4', auth });
+      const sheetId = process.env.SHEET_ID;
+
+      // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
+      const sheetMeta = await sheets.spreadsheets.get({
+        spreadsheetId: sheetId,
+      });
+
+      sheetName = sheetMeta.data.sheets.find((sheet) =>
+        sheet.properties.title.startsWith(`#${analyst}`)
+      )?.properties.title;
+
+      if (!sheetName) {
+        return res.status(400).json({ error: `A aba correspondente ao ID '${analyst}' não existe na planilha.` });
+      }
+
+      // Armazenar o nome da aba no cache por 10 minutos
+      await redis.set(`analystSheet:${analyst}`, sheetName, 'EX', 600);
+    }
+
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
       null,
@@ -28,20 +68,6 @@ export default async function handler(req, res) {
     const brtDate = new Date(date.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
     const formattedDate = brtDate.toLocaleDateString('pt-BR');
     const formattedTime = brtDate.toLocaleTimeString('pt-BR');
-
-    // Obter as informações da planilha (metadados)
-    const sheetMeta = await sheets.spreadsheets.get({
-      spreadsheetId: sheetId,
-    });
-
-    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
-    const sheetName = sheetMeta.data.sheets.find((sheet) => {
-      return sheet.properties.title.startsWith(`#${analyst}`);
-    })?.properties.title;
-
-    if (!sheetName) {
-      return res.status(400).json({ error: `A aba correspondente ao ID '${analyst}' não existe na planilha.` });
-    }
 
     // Caso a aba exista, prosseguir com o append
     await sheets.spreadsheets.values.append({

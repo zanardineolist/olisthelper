@@ -1,4 +1,8 @@
 import { google } from 'googleapis';
+import Redis from 'ioredis';
+
+// Configuração do Redis
+const redis = new Redis(process.env.REDIS_URL);
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,6 +10,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Verificar no cache se já temos os dados dos usuários
+    const cachedUsers = await redis.get('usersList');
+    if (cachedUsers) {
+      console.log('Cache hit for users list');
+      return res.status(200).json(JSON.parse(cachedUsers));
+    }
+
+    console.log('Cache miss for users list, fetching from Google Sheets');
+
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
       null,
@@ -28,6 +41,10 @@ export default async function handler(req, res) {
         name: row[1],
         email: row[2],
       }));
+
+      // Armazenar os dados no cache por 10 minutos
+      await redis.set('usersList', JSON.stringify({ users }), 'EX', 600);
+
       return res.status(200).json({ users });
     }
 

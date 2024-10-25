@@ -1,98 +1,67 @@
+// pages/my.js
 import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import Redis from 'ioredis';
 import commonStyles from '../styles/commonStyles.module.css';
-import styles from '../styles/MyPage.module.css';
+import styles from '../styles/My.module.css';
 import Footer from '../components/Footer';
 
-export default function MyPage({ user }) {
+// Configuração do Redis
+const redis = new Redis(process.env.REDIS_URL);
+
+export default function MyPage({ session }) {
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [greeting, setGreeting] = useState('');
-  const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
+  const [helpRequests, setHelpRequests] = useState(null);
   const [categoryRanking, setCategoryRanking] = useState([]);
-  const [performanceData, setPerformanceData] = useState(null);
-  const [loadingHelpRequests, setLoadingHelpRequests] = useState(true);
-  const [loadingCategoryRanking, setLoadingCategoryRanking] = useState(true);
-  const [loadingPerformanceData, setLoadingPerformanceData] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-    const currentHour = new Date(brtDate).getHours();
-    let greetingMessage = '';
-
-    if (currentHour >= 5 && currentHour < 12) {
-      greetingMessage = 'Bom dia';
-    } else if (currentHour >= 12 && currentHour < 18) {
-      greetingMessage = 'Boa tarde';
-    } else {
-      greetingMessage = 'Boa noite';
-    }
-
-    setGreeting(greetingMessage);
-  }, []);
-
-  useEffect(() => {
-    const fetchHelpRequests = async () => {
+    const loadMyData = async () => {
       try {
-        const response = await fetch(`/api/get-user-help-requests?userEmail=${user.email}`);
-        const data = await response.json();
-        setHelpRequests({
-          currentMonth: data.currentMonth,
-          lastMonth: data.lastMonth,
-        });
-      } catch (error) {
-        console.error('Erro ao buscar dados de ajudas solicitadas:', error);
-      } finally {
-        setLoadingHelpRequests(false);
-      }
-    };
+        setLoading(true);
 
-    fetchHelpRequests();
-  }, [user.email]);
-
-  useEffect(() => {
-    const fetchCategoryRanking = async () => {
-      try {
-        const response = await fetch(`/api/get-user-category-ranking?userEmail=${user.email}`);
-        const data = await response.json();
-        setCategoryRanking(data.categories || []);
-      } catch (error) {
-        console.error('Erro ao buscar ranking das categorias:', error);
-      } finally {
-        setLoadingCategoryRanking(false);
-      }
-    };
-
-    fetchCategoryRanking();
-  }, [user.email]);
-
-  useEffect(() => {
-    if (user.role === 'user') {
-      const fetchPerformanceData = async () => {
-        try {
-          const response = await fetch(`/api/get-user-performance?userEmail=${user.email}`);
-          const data = await response.json();
-          setPerformanceData(data);
-        } catch (error) {
-          console.error('Erro ao buscar dados de desempenho do usuário:', error);
-        } finally {
-          setLoadingPerformanceData(false);
+        // Verificar no cache se já temos os dados de solicitações de ajuda
+        let cachedHelpRequests = await redis.get(`helpRequests:${session.user.email}`);
+        if (cachedHelpRequests) {
+          console.log('Cache hit for help requests');
+          setHelpRequests(JSON.parse(cachedHelpRequests));
+        } else {
+          console.log('Cache miss for help requests, fetching from API');
+          const helpRequestsRes = await fetch(`/api/get-user-help-requests?userEmail=${session.user.email}`);
+          cachedHelpRequests = await helpRequestsRes.json();
+          // Armazenar os dados de solicitações de ajuda no cache por 10 minutos
+          await redis.set(`helpRequests:${session.user.email}`, JSON.stringify(cachedHelpRequests), 'EX', 600);
+          setHelpRequests(cachedHelpRequests);
         }
-      };
 
-      fetchPerformanceData();
-    } else {
-      setLoadingPerformanceData(false);
-    }
-  }, [user.email, user.role]);
+        // Verificar no cache se já temos o ranking de categorias
+        let cachedCategoryRanking = await redis.get(`categoryRanking:${session.id}`);
+        if (cachedCategoryRanking) {
+          console.log('Cache hit for category ranking');
+          setCategoryRanking(JSON.parse(cachedCategoryRanking).categories);
+        } else {
+          console.log('Cache miss for category ranking, fetching from API');
+          const categoryRankingRes = await fetch(`/api/get-user-category-ranking?userEmail=${session.user.email}`);
+          cachedCategoryRanking = await categoryRankingRes.json();
+          // Armazenar o ranking de categorias no cache por 10 minutos
+          await redis.set(`categoryRanking:${session.id}`, JSON.stringify(cachedCategoryRanking), 'EX', 600);
+          setCategoryRanking(cachedCategoryRanking.categories);
+        }
 
-  const handleNavigation = (path) => {
-    router.push(path);
-  };
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!user) {
+    loadMyData();
+  }, [session.id, session.user.email]);
+
+  if (loading) {
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
@@ -100,21 +69,10 @@ export default function MyPage({ user }) {
     );
   }
 
-  const firstName = user.name.split(' ')[0];
-  const { currentMonth, lastMonth } = helpRequests;
-  let percentageChange = 0;
-
-  if (lastMonth > 0) {
-    percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
-  }
-  const arrowClass = percentageChange < 0 ? 'fa-circle-down' : 'fa-circle-up';
-  const arrowColor = percentageChange < 0 ? 'green' : 'red';
-  const formattedPercentage = Math.abs(percentageChange).toFixed(1);
-
   return (
     <>
       <Head>
-        <title>Meus Dados</title>
+        <title>Minha Página</title>
       </Head>
 
       <div className={styles.container}>
@@ -126,22 +84,23 @@ export default function MyPage({ user }) {
             ☰
           </button>
         </nav>
+
         {menuOpen && (
           <div className={commonStyles.menu}>
-            <button onClick={() => handleNavigation('/my')} className={commonStyles.menuButton}>
+            <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
               Página Inicial
             </button>
-            {user.role === 'user' && (
-              <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
+            {session.role === 'user' && (
+              <button onClick={() => router.push('/registrar')} className={commonStyles.menuButton}>
                 Registrar Dúvida
               </button>
             )}
-            {user.role === 'analyst' && (
+            {session.role === 'analyst' && (
               <>
-                <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
+                <button onClick={() => router.push('/registro')} className={commonStyles.menuButton}>
                   Registrar Ajuda
                 </button>
-                <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
+                <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
                   Dashboard Analista
                 </button>
                 <a
@@ -159,125 +118,40 @@ export default function MyPage({ user }) {
             </button>
           </div>
         )}
-      </div>
 
-      <main className={styles.main}>
-        <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
+        <div className={styles.mainContent}>
+          <h2 className={styles.pageTitle}>Bem-vindo, {session.user.name}</h2>
 
-        <div className={styles.profileContainerWrapper}>
-          {/* Caixa de Perfil */}
-          <div className={styles.profileContainer}>
-            <img src={user.image} alt={user.name} className={styles.profileImage} />
-            <div className={styles.profileInfo}>
-              <h2>{user.name}</h2>
-              <p>{user.email}</p>
-            </div>
-          </div>
-
-          {/* Caixa de Ajudas Solicitadas */}
-          <div className={styles.profileContainer}>
-            {loadingHelpRequests ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
+          <div className={styles.section}>
+            <h3>Suas Solicitações de Ajuda</h3>
+            {helpRequests ? (
+              <div className={styles.helpRequests}>
+                <p>Ajuda Solicitada este mês: {helpRequests.currentMonth}</p>
+                <p>Ajuda Solicitada no mês passado: {helpRequests.lastMonth}</p>
               </div>
             ) : (
-              <div className={styles.profileInfo}>
-                <h2>Ajudas Solicitadas</h2>
-                <div className={styles.helpRequestsInfo}>
-                  <div className={styles.monthsInfo}>
-                    <p><strong>Mês Atual:</strong> {currentMonth}</p>
-                    <p><strong>Mês Anterior:</strong> {lastMonth}</p>
-                  </div>
-                  <div className={styles.percentageChange} style={{ color: arrowColor }}>
-                    <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
-                    <span>{formattedPercentage}%</span>
-                  </div>
-                </div>
-              </div>
+              <p>Nenhuma solicitação de ajuda encontrada.</p>
             )}
           </div>
 
-          {/* Caixa de Desempenho */}
-          {user.role === 'user' && (
-            <div className={styles.performanceContainer}>
-              {loadingPerformanceData ? (
-                <div className={styles.loadingContainer}>
-                  <div className="standardBoxLoader"></div>
-                </div>
+          <div className={styles.section}>
+            <h3>Ranking de Categorias</h3>
+            <ul>
+              {categoryRanking.length > 0 ? (
+                categoryRanking.map((category, index) => (
+                  <li key={index}>
+                    Categoria: {category.name}, Chamados: {category.count}
+                  </li>
+                ))
               ) : (
-                <>
-                  <h2>Desempenho</h2>
-                  <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte}</p>
-                  <div className={styles.performanceInfo}>
-                    <div className={styles.performanceItem}>
-                      <span>Chamados:</span>
-                      <span>{performanceData?.totalChamados}</span>
-                    </div>
-                    <div className={styles.performanceItem}>
-                      <span>Média/Dia:</span>
-                      <span>{performanceData?.mediaPorDia}</span>
-                    </div>
-                    <div className={styles.performanceItem}>
-                      <span>TMA:</span>
-                      <span>{performanceData?.tma}</span>
-                    </div>
-                    <div className={styles.performanceItem}>
-                      <span>CSAT:</span>
-                      <span>{performanceData?.csat}</span>
-                    </div>
-                  </div>
-                </>
+                <p>Nenhum dado de ranking de categorias encontrado.</p>
               )}
-            </div>
-          )}
+            </ul>
+          </div>
         </div>
 
-        {/* Seção de Ranking de Categorias */}
-        <div className={styles.categoryRanking}>
-          <h3>Top 10 - Temas de maior dúvida</h3>
-          {loadingCategoryRanking ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
-          ) : categoryRanking.length > 0 ? (
-            <ul className={styles.list}>
-              {categoryRanking.map((category, index) => (
-                <li key={index} className={styles.listItem}>
-                  <span className={styles.rank}>{index + 1}.</span>
-                  <span className={styles.categoryName}>{category.name}</span>
-                  <div
-                    className={styles.progressBarCategory}
-                    style={{
-                      width: `${category.count * 10}px`,
-                      backgroundColor: category.count > 10 ? 'orange' : '',
-                    }}
-                  />
-                  <span className={styles.count}>
-                    {category.count} pedidos de ajuda
-                    {category.count > 10 && (
-                      <div className="tooltip">
-                        <i
-                          className="fa-solid fa-circle-exclamation"
-                          style={{ color: 'orange', cursor: 'pointer' }}
-                          onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
-                        ></i>
-                        <span className="tooltipText">
-                          Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone abaixo.
-                        </span>
-                      </div>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className={styles.noData}>
-              Nenhum dado disponível no momento.
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
+        <Footer />
+      </div>
     </>
   );
 }
@@ -293,11 +167,6 @@ export async function getServerSideProps(context) {
     };
   }
   return {
-    props: {
-      user: {
-        ...session.user,
-        role: session.role,
-      },
-    },
+    props: { session },
   };
 }

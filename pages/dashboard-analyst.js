@@ -1,122 +1,80 @@
+// pages/dashboard-analyst.js
 import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { Bar } from 'react-chartjs-2';
-import 'chart.js/auto';
 import { useRouter } from 'next/router';
+import Redis from 'ioredis';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/DashboardAnalyst.module.css';
 import Footer from '../components/Footer';
 
-export default function DashboardAnalyst({ session }) {
+// Configuração do Redis
+const redis = new Redis(process.env.REDIS_URL);
+
+export default function DashboardAnalystPage({ session }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [performanceData, setPerformanceData] = useState(null);
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [categoryRankingData, setCategoryRankingData] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [recordCount, setRecordCount] = useState(0);
-  const [chartData, setChartData] = useState(null);
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [categoryRanking, setCategoryRanking] = useState([]);
-  const [filter, setFilter] = useState('7');
-
-  const fetchRecords = async () => {
-    if (!session?.id) {
-      console.error("ID do analista não encontrado.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const res = await fetch(`/api/get-analyst-records?analystId=${session.id}&filter=${filter}`);
-      if (!res.ok) {
-        throw new Error('Erro ao buscar registros.');
-      }
-
-      const data = await res.json();
-      setRecordCount(data.count);
-      setChartData(data.count > 0 ? {
-        labels: data.dates,
-        datasets: [
-          {
-            label: 'Auxilios',
-            data: data.counts,
-            backgroundColor: 'rgba(119, 158, 61, 1)',
-            borderColor: 'rgba(84, 109, 47, 1)',
-            borderWidth: 1,
-          },
-        ],
-      } : null);
-    } catch (err) {
-      console.error('Erro ao carregar registros:', err);
-      setRecordCount(0);
-      setChartData(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchLeaderboard = async () => {
-    if (!session?.id) {
-      console.error("ID do analista não encontrado.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/get-analyst-leaderboard?analystId=${session.id}`);
-      if (!res.ok) {
-        throw new Error('Erro ao buscar registros para o leaderboard.');
-      }
-
-      const data = await res.json();
-      if (!data || !data.rows || data.rows.length === 0) {
-        setLeaderboard([]);
-        return;
-      }
-
-      const userHelpCounts = data.rows.reduce((acc, row) => {
-        const userName = row[2];
-        if (userName) {
-          acc[userName] = (acc[userName] || 0) + 1;
-        }
-        return acc;
-      }, {});
-
-      const sortedUsers = Object.entries(userHelpCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([name, count]) => ({ name, count }));
-
-      setLeaderboard(sortedUsers);
-    } catch (err) {
-      console.error('Erro ao carregar leaderboard:', err);
-      setLeaderboard([]);
-    }
-  };
-
-  const fetchCategoryRanking = async () => {
-    if (!session?.id) {
-      console.error("ID do analista não encontrado.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/get-category-ranking?analystId=${session.id}`);
-      if (!res.ok) {
-        throw new Error('Erro ao buscar registros das categorias.');
-      }
-
-      const data = await res.json();
-      setCategoryRanking(data.categories || []);
-    } catch (err) {
-      console.error('Erro ao carregar ranking das categorias:', err);
-      setCategoryRanking([]);
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchRecords();
-    fetchLeaderboard();
-    fetchCategoryRanking();
-  }, [filter, session]);
+    const loadDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        // Verificar no cache se já temos os dados de desempenho do analista
+        let cachedPerformanceData = await redis.get(`analystPerformance:${session.id}`);
+        if (cachedPerformanceData) {
+          console.log('Cache hit for analyst performance data');
+          setPerformanceData(JSON.parse(cachedPerformanceData));
+        } else {
+          console.log('Cache miss for analyst performance data, fetching from API');
+          const performanceRes = await fetch(`/api/get-user-performance?userEmail=${session.user.email}`);
+          cachedPerformanceData = await performanceRes.json();
+          // Armazenar os dados de desempenho no cache por 10 minutos
+          await redis.set(`analystPerformance:${session.id}`, JSON.stringify(cachedPerformanceData), 'EX', 600);
+          setPerformanceData(cachedPerformanceData);
+        }
+
+        // Verificar no cache se já temos os dados do leaderboard
+        let cachedLeaderboardData = await redis.get(`analystLeaderboard:${session.id}`);
+        if (cachedLeaderboardData) {
+          console.log('Cache hit for analyst leaderboard data');
+          setLeaderboardData(JSON.parse(cachedLeaderboardData).rows);
+        } else {
+          console.log('Cache miss for analyst leaderboard data, fetching from API');
+          const leaderboardRes = await fetch(`/api/get-analyst-leaderboard?analystId=${session.id}`);
+          cachedLeaderboardData = await leaderboardRes.json();
+          // Armazenar os dados do leaderboard no cache por 10 minutos
+          await redis.set(`analystLeaderboard:${session.id}`, JSON.stringify(cachedLeaderboardData), 'EX', 600);
+          setLeaderboardData(cachedLeaderboardData.rows);
+        }
+
+        // Verificar no cache se já temos o ranking de categorias
+        let cachedCategoryRankingData = await redis.get(`categoryRanking:${session.id}`);
+        if (cachedCategoryRankingData) {
+          console.log('Cache hit for category ranking data');
+          setCategoryRankingData(JSON.parse(cachedCategoryRankingData).categories);
+        } else {
+          console.log('Cache miss for category ranking data, fetching from API');
+          const categoryRankingRes = await fetch(`/api/get-category-ranking?analystId=${session.id}`);
+          cachedCategoryRankingData = await categoryRankingRes.json();
+          // Armazenar o ranking de categorias no cache por 10 minutos
+          await redis.set(`categoryRanking:${session.id}`, JSON.stringify(cachedCategoryRankingData), 'EX', 600);
+          setCategoryRankingData(cachedCategoryRankingData.categories);
+        }
+
+      } catch (err) {
+        console.error('Erro ao carregar dados do dashboard:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, [session.id, session.user.email]);
 
   if (loading) {
     return (
@@ -124,7 +82,7 @@ export default function DashboardAnalyst({ session }) {
         <div className="loader"></div>
       </div>
     );
-  }  
+  }
 
   return (
     <>
@@ -132,7 +90,7 @@ export default function DashboardAnalyst({ session }) {
         <title>Dashboard Analista</title>
       </Head>
 
-      <div className={commonStyles.container}>
+      <div className={styles.container}>
         <nav className={commonStyles.navbar}>
           <div className={commonStyles.logo}>
             <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
@@ -141,6 +99,7 @@ export default function DashboardAnalyst({ session }) {
             ☰
           </button>
         </nav>
+
         {menuOpen && (
           <div className={commonStyles.menu}>
             <button onClick={() => router.push('/my')} className={commonStyles.menuButton}>
@@ -174,70 +133,58 @@ export default function DashboardAnalyst({ session }) {
             </button>
           </div>
         )}
-      </div>
-  
-      <div className={styles.dashboardContainer}>
-        <h2>Seu Dashboard</h2>
-        <div className={styles.summary}>
-          <p>Total de auxilios: {recordCount}</p>
-        </div>
-        <div className={styles.filter}>
-          <label htmlFor="filter">Filtrar por:</label>
-          <select id="filter" value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="1">Hoje</option>
-            <option value="7">Últimos 7 dias</option>
-            <option value="30">Últimos 30 dias</option>
-          </select>
-        </div>
-        <div className={styles.chartContainer}>
-          {chartData ? (
-            <Bar data={chartData} />
-          ) : (
-            <div className={styles.noData}>
-              Nenhum dado disponível para o período selecionado.
-            </div>
-          )}
-        </div>
-        <div className={styles.rankingContainer}>
-          <div className={styles.leaderboard}>
-            <h3>Top 5 - Usuários que Mais Pediram Ajuda (Mês Atual)</h3>
-            {leaderboard.length > 0 ? (
-              <ul className={styles.list}>
-                {leaderboard.map((user, index) => (
-                  <li key={index} className={styles.listItem}>
-                    <span className={styles.rank}>{index + 1}.</span>
-                    <span className={styles.userName}>{user.name}</span>
-                    <div className={styles.progressBarRanking} style={{ width: `${user.count * 10}px` }} />
-                    <span className={styles.count}>{user.count} auxilios</span>
-                  </li>
-                ))}
-              </ul>
+
+        <div className={styles.mainContent}>
+          <h2 className={styles.pageTitle}>Dashboard do Analista</h2>
+
+          <div className={styles.section}>
+            <h3>Desempenho Atual</h3>
+            {performanceData ? (
+              <div className={styles.performance}>
+                <p>Total de Chamados: {performanceData.totalChamados}</p>
+                <p>Média por Dia: {performanceData.mediaPorDia}</p>
+                <p>TMA: {performanceData.tma}</p>
+                <p>CSAT: {performanceData.csat}</p>
+                <p>Atualizado Até: {performanceData.atualizadoAte}</p>
+              </div>
             ) : (
-              <div className={styles.noData}>Nenhum assistente solicitou ajuda neste mês.</div>
+              <p>Nenhum dado de desempenho encontrado.</p>
             )}
           </div>
-          <div className={styles.categoryRanking}>
-            <h3>Top 10 - Temas de Dúvidas (Mês Atual)</h3>
-            {categoryRanking.length > 0 ? (
-              <ul className={styles.list}>
-                {categoryRanking.map((category, index) => (
-                  <li key={index} className={styles.listItem}>
-                    <span className={styles.rank}>{index + 1}.</span>
-                    <span className={styles.categoryName}>{category.name}</span>
-                    <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
-                    <span className={styles.count}>{category.count} auxilios</span>
+
+          <div className={styles.section}>
+            <h3>Leaderboard</h3>
+            <ul>
+              {leaderboardData.length > 0 ? (
+                leaderboardData.map((row, index) => (
+                  <li key={index}>Analista: {row[3]}, Total de Chamados: {row[4]}</li>
+                ))
+              ) : (
+                <p>Nenhum dado de leaderboard encontrado.</p>
+              )}
+            </ul>
+          </div>
+
+          <div className={styles.section}>
+            <h3>Ranking de Categorias</h3>
+            <ul>
+              {categoryRankingData.length > 0 ? (
+                categoryRankingData.map((category, index) => (
+                  <li key={index}>
+                    Categoria: {category.name}, Chamados: {category.count}
                   </li>
-                ))}
-              </ul>
-            ) : (
-              <div className={styles.noData}>Nenhum tema selecionado neste mês.</div>
-            )}
+                ))
+              ) : (
+                <p>Nenhum dado de ranking de categorias encontrado.</p>
+              )}
+            </ul>
           </div>
         </div>
+
+        <Footer />
       </div>
-      <Footer />
     </>
-  );  
+  );
 }
 
 export async function getServerSideProps(context) {
@@ -245,7 +192,7 @@ export async function getServerSideProps(context) {
   if (!session || session.role !== 'analyst') {
     return {
       redirect: {
-        destination: '/my',
+        destination: '/',
         permanent: false,
       },
     };

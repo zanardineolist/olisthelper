@@ -1,4 +1,8 @@
 import { google } from 'googleapis';
+import Redis from 'ioredis';
+
+// Configuração do Redis
+const redis = new Redis(process.env.REDIS_URL);
 
 export default async function handler(req, res) {
   const { analystId } = req.query;
@@ -9,6 +13,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Verificar no cache se já temos o ranking de categorias do analista
+    const cachedCategoryRanking = await redis.get(`categoryRanking:${analystId}`);
+    if (cachedCategoryRanking) {
+      console.log('Cache hit for category ranking data');
+      return res.status(200).json(JSON.parse(cachedCategoryRanking));
+    }
+
+    console.log('Cache miss for category ranking data, fetching from Google Sheets');
+
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
       null,
@@ -21,12 +34,11 @@ export default async function handler(req, res) {
 
     console.log(`Buscando metadados da planilha com ID: ${sheetId} para o analista: ${analystId}`);
 
-    // Obter as informações da planilha (metadados)
+    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
     const sheetMeta = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
     });
 
-    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
     const sheetName = sheetMeta.data.sheets.find((sheet) => {
       return sheet.properties.title.startsWith(`#${analystId}`);
     })?.properties.title;
@@ -48,7 +60,7 @@ export default async function handler(req, res) {
 
     if (!rows || rows.length === 0) {
       console.log('Nenhum registro encontrado na aba especificada.');
-      return res.status(200).json({ rows: [] });
+      return res.status(200).json({ categories: [] });
     }
 
     console.log(`Total de registros encontrados: ${rows.length}`);
@@ -87,6 +99,9 @@ export default async function handler(req, res) {
       .map(([name, count]) => ({ name, count }));
 
     console.log('Categorias no ranking:', sortedCategories);
+
+    // Armazenar o ranking de categorias no cache por 10 minutos
+    await redis.set(`categoryRanking:${analystId}`, JSON.stringify({ categories: sortedCategories }), 'EX', 600);
 
     return res.status(200).json({ categories: sortedCategories });
   } catch (error) {

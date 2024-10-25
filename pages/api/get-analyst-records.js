@@ -1,7 +1,11 @@
 import { google } from 'googleapis';
+import Redis from 'ioredis';
+
+// Configuração do Redis
+const redis = new Redis(process.env.REDIS_URL);
 
 export default async function handler(req, res) {
-  const { analystId, mode } = req.query;
+  const { analystId, mode, filter } = req.query;
 
   if (!analystId || analystId === 'undefined') {
     console.log('Erro: ID do analista não fornecido ou inválido.');
@@ -9,6 +13,17 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Verificar no cache se já temos os registros do analista
+    const cacheKey = `analystRecords:${analystId}:${mode || 'default'}:${filter || 'none'}`;
+    const cachedRecords = await redis.get(cacheKey);
+
+    if (cachedRecords) {
+      console.log('Cache hit for analyst records data');
+      return res.status(200).json(JSON.parse(cachedRecords));
+    }
+
+    console.log('Cache miss for analyst records data, fetching from Google Sheets');
+
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
       null,
@@ -21,12 +36,11 @@ export default async function handler(req, res) {
 
     console.log(`Buscando metadados da planilha com ID: ${sheetId} para o analista: ${analystId}`);
 
-    // Obter as informações da planilha (metadados)
+    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
     const sheetMeta = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
     });
 
-    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
     const sheetName = sheetMeta.data.sheets.find((sheet) => {
       return sheet.properties.title.startsWith(`#${analystId}`);
     })?.properties.title;
@@ -53,50 +67,45 @@ export default async function handler(req, res) {
 
     console.log(`Total de registros encontrados: ${rows.length}`);
 
+    let filteredRows = [];
+
     if (mode === 'leaderboard') {
       // Filtrar todos os registros do mês atual para o leaderboard
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth();
       const currentYear = currentDate.getFullYear();
 
-      const leaderboardRows = rows.filter((row, index) => {
+      filteredRows = rows.filter((row, index) => {
         if (index === 0) return false; // Pular cabeçalho
 
         const [dateStr] = row;
-        const [day, month, year] = dateStr.split('/');
-        const date = new Date(`${year}-${month}-${day}`);
+        const [day, month, year] = dateStr.split('/').map(Number);
+        const date = new Date(year, month - 1, day);
 
         return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
       });
 
-      console.log(`Total de registros para o leaderboard: ${leaderboardRows.length}`);
+      console.log(`Total de registros para o leaderboard: ${filteredRows.length}`);
+    } else {
+      // Lógica padrão (com filtro)
+      const currentDate = new Date();
+      const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
 
-      return res.status(200).json({ rows: leaderboardRows });
+      filteredRows = rows.filter((row, index) => {
+        if (index === 0) return false; // Pular cabeçalho
+
+        const [dateStr] = row;
+        const [day, month, year] = dateStr.split('/').map(Number);
+        const date = new Date(year, month - 1, day);
+
+        const diffTime = brtDate - date;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+        return diffDays <= (filter ? parseInt(filter) : 30);
+      });
+
+      console.log(`Total de registros após o filtro aplicado: ${filteredRows.length}`);
     }
-
-    // Lógica padrão (com filtro)
-    const currentDate = new Date();
-    const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
-
-    const filteredRows = rows.filter((row, index) => {
-      if (index === 0) return false;
-
-      const [dateStr] = row;
-      const [day, month, year] = dateStr.split('/');
-      const date = new Date(`${year}-${month}-${day}`);
-
-      const diffTime = brtDate - date;
-      const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-      return diffDays <= req.query.filter;
-    });
-
-    if (!filteredRows || filteredRows.length === 0) {
-      console.log('Nenhum registro encontrado após o filtro aplicado.');
-      return res.status(200).json({ count: 0, dates: [], counts: [], rows: [] });
-    }
-
-    console.log(`Total de registros após o filtro: ${filteredRows.length}`);
 
     const count = filteredRows.length;
     const dates = filteredRows.map((row) => row[0]);
@@ -107,12 +116,17 @@ export default async function handler(req, res) {
 
     console.log('Contagem de registros por data:', countsObj);
 
-    res.status(200).json({
+    const responsePayload = {
       count,
       dates: Object.keys(countsObj),
       counts: Object.values(countsObj),
       rows: filteredRows,
-    });
+    };
+
+    // Armazenar os registros no cache por 10 minutos
+    await redis.set(cacheKey, JSON.stringify(responsePayload), 'EX', 600);
+
+    res.status(200).json(responsePayload);
   } catch (error) {
     console.error('Erro ao obter registros do analista:', error);
     res.status(500).json({ error: 'Erro ao obter registros.' });

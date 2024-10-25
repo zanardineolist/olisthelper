@@ -1,5 +1,9 @@
 import { google } from 'googleapis';
 import { findBestMatch } from 'string-similarity';
+import Redis from 'ioredis';
+
+// Configuração do Redis
+const redis = new Redis(process.env.REDIS_URL);
 
 export default async function handler(req, res) {
   const { userEmail } = req.query;
@@ -9,6 +13,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Verificar no cache se já temos os dados do usuário
+    const cachedPerformanceData = await redis.get(`userPerformance:${userEmail}`);
+    if (cachedPerformanceData) {
+      console.log('Cache hit for user performance data');
+      return res.status(200).json(JSON.parse(cachedPerformanceData));
+    }
+
+    console.log('Cache miss for user performance data, fetching from Google Sheets');
+
     // Autenticação com o Google Sheets API
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
@@ -18,8 +31,8 @@ export default async function handler(req, res) {
     );
 
     const sheets = google.sheets({ version: 'v4', auth });
-    const sheetIdUsuarios = "1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34"; // ID da planilha de usuários
-    const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
+    const sheetIdUsuarios = '1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34'; // ID da planilha de usuários
+    const sheetIdDesempenho = '1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI'; // ID da planilha de desempenho
 
     // Passo 1: Buscar Nome do Usuário Usando o E-mail
     const usersResponse = await sheets.spreadsheets.values.get({
@@ -33,7 +46,7 @@ export default async function handler(req, res) {
     }
 
     // Encontrar o nome do usuário usando o e-mail
-    const userRow = usersRows.find(row => row[2].toLowerCase() === userEmail.toLowerCase());
+    const userRow = usersRows.find((row) => row[2].toLowerCase() === userEmail.toLowerCase());
     if (!userRow) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
@@ -51,7 +64,7 @@ export default async function handler(req, res) {
     }
 
     // Normalizar os nomes da planilha de desempenho para fazer a correspondência
-    const performanceNames = performanceRows.map(row => row[3] ? row[3].trim().toLowerCase() : '');
+    const performanceNames = performanceRows.map((row) => (row[3] ? row[3].trim().toLowerCase() : ''));
 
     // Usar correspondência fuzzy para encontrar o melhor nome correspondente
     const matchResult = findBestMatch(userName, performanceNames);
@@ -73,6 +86,9 @@ export default async function handler(req, res) {
       csat: performanceData[10], // Coluna K
       atualizadoAte: performanceData[20], // Coluna U
     };
+
+    // Armazenar no cache por 10 minutos
+    await redis.set(`userPerformance:${userEmail}`, JSON.stringify(responsePayload), 'EX', 600);
 
     return res.status(200).json(responsePayload);
   } catch (error) {
