@@ -185,14 +185,15 @@
 }
 
 .performanceContainer h2 {
-  margin: 0 0 10px 0;
+  margin: -10px 0 -5px 0;
   font-size: 1.5em;
 }
 
 .lastUpdated {
   font-size: 0.75em;
   color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 5px;
+  margin-top: 10px;
+  margin-bottom: 7px;
   text-align: left;
 }
 

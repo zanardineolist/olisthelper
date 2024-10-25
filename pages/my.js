@@ -191,7 +191,7 @@ export default function MyPage({ user }) {
                 <p className={styles.lastUpdated}>Atualizado até: {performanceData.atualizadoAte}</p>
                 <div className={styles.performanceInfo}>
                   <div className={styles.performanceItem}>
-                    <span>Total:</span>
+                    <span>Chamados:</span>
                     <span>{performanceData.totalChamados}</span>
                   </div>
                   <div className={styles.performanceItem}>
