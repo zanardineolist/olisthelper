@@ -29,7 +29,7 @@ const parseValue = (value) => {
     if (value.includes('%')) {
       return parseFloat(value.replace('%', '').replace(',', '.'));
     } else if (value.includes(':')) {
-      // Convert time in hh:mm:ss format to minutes
+      // Convert time in hh:mm:ss format to total minutes
       const parts = value.split(':');
       return parseInt(parts[0]) * 60 + parseInt(parts[1]) + parseInt(parts[2]) / 60;
     } else if (value === "-") {
@@ -38,6 +38,16 @@ const parseValue = (value) => {
     return parseFloat(value.replace(',', '.'));
   }
   return value;
+};
+
+const formatTime = (minutes) => {
+  if (minutes === null) {
+    return "-";
+  }
+  const hours = Math.floor(minutes / 60);
+  const mins = Math.floor(minutes % 60);
+  const secs = Math.round((minutes % 1) * 60);
+  return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
 const getColorForValue = (value, threshold, isGreaterBetter = true) => {
@@ -117,7 +127,7 @@ export default async function handler(req, res) {
       responsePayload.chamados = {
         totalChamados: performanceData[7],
         mediaPorDia,
-        tma,
+        tma: formatTime(tma),
         csat,
         colors: {
           mediaPorDia: getColorForValue(mediaPorDia, 25),
@@ -134,7 +144,7 @@ export default async function handler(req, res) {
       responsePayload.telefone = {
         totalTelefone: performanceData[11],
         mediaPorDia: parseValue(performanceData[12]),
-        tma,
+        tma: formatTime(tma),
         csat,
         perdidas: parseValue(performanceData[15]),
         colors: {
@@ -151,7 +161,7 @@ export default async function handler(req, res) {
       responsePayload.chat = {
         totalChats: performanceData[16],
         mediaPorDia: parseValue(performanceData[17]),
-        tma,
+        tma: formatTime(tma),
         csat,
         colors: {
           tma: getColorForValue(tma, 20, false),
