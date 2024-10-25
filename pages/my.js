@@ -172,37 +172,82 @@ export default function MyPage({ user }) {
             )}
           </div>
 
-          {/* Caixa de Desempenho */}
-          {user.role === 'user' && (
+          {/* Caixa de Desempenho Chamados */}
+          {performanceData?.chamados && (
             <div className={styles.performanceContainer}>
-              {loading ? (
-                <div className={styles.loadingContainer}>
-                  <div className="standardBoxLoader"></div>
+              <h2>Desempenho Chamados</h2>
+              <div className={styles.performanceInfo}>
+                <div className={styles.performanceItem}>
+                  <span>Total Chamados:</span>
+                  <span>{performanceData.chamados.totalChamados}</span>
                 </div>
-              ) : (
-                <>
-                  <h2>Desempenho</h2>
-                  <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte}</p>
-                  <div className={styles.performanceInfo}>
-                    <div className={styles.performanceItem}>
-                      <span>Chamados:</span>
-                      <span>{performanceData?.totalChamados}</span>
-                    </div>
-                    <div className={styles.performanceItem}>
-                      <span>Média/Dia:</span>
-                      <span>{performanceData?.mediaPorDia}</span>
-                    </div>
-                    <div className={styles.performanceItem}>
-                      <span>TMA:</span>
-                      <span>{performanceData?.tma}</span>
-                    </div>
-                    <div className={styles.performanceItem}>
-                      <span>CSAT:</span>
-                      <span>{performanceData?.csat}</span>
-                    </div>
-                  </div>
-                </>
-              )}
+                <div className={styles.performanceItem}>
+                  <span>Média/Dia:</span>
+                  <span>{performanceData.chamados.mediaPorDia}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>TMA:</span>
+                  <span>{performanceData.chamados.tma}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>CSAT:</span>
+                  <span>{performanceData.chamados.csat}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Caixa de Desempenho Telefone */}
+          {performanceData?.telefone && (
+            <div className={styles.performanceContainer}>
+              <h2>Desempenho Telefone</h2>
+              <div className={styles.performanceInfo}>
+                <div className={styles.performanceItem}>
+                  <span>Total Telefone:</span>
+                  <span>{performanceData.telefone.totalTelefone}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>Média/Dia:</span>
+                  <span>{performanceData.telefone.mediaPorDia}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>TMA:</span>
+                  <span>{performanceData.telefone.tma}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>CSAT:</span>
+                  <span>{performanceData.telefone.csat}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>Perdidas:</span>
+                  <span>{performanceData.telefone.perdidas}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Caixa de Desempenho Chat */}
+          {performanceData?.chat && (
+            <div className={styles.performanceContainer}>
+              <h2>Desempenho Chat</h2>
+              <div className={styles.performanceInfo}>
+                <div className={styles.performanceItem}>
+                  <span>Total Chats:</span>
+                  <span>{performanceData.chat.totalChats}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>Média/Dia:</span>
+                  <span>{performanceData.chat.mediaPorDia}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>TMA:</span>
+                  <span>{performanceData.chat.tma}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>CSAT:</span>
+                  <span>{performanceData.chat.csat}</span>
+                </div>
+              </div>
             </div>
           )}
         </div>
