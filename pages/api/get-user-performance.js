@@ -1,4 +1,4 @@
-import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
+import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
 import { findBestMatch } from 'string-similarity';
 
 export default async function handler(req, res) {
@@ -14,21 +14,24 @@ export default async function handler(req, res) {
     const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
 
     // Passo 1: Buscar Nome do Usuário Usando o E-mail
-    const usersRows = await getSheetValues('Usuários', 'A:D', sheetIdUsuarios);
-
-    if (!usersRows) {
+    // Modificando o range para pegar a partir da linha 2
+    const usersRows = await getSheetValues('Principal', 'A2:C', sheetIdUsuarios);
+    
+    if (!usersRows || usersRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
     }
 
-    // Encontrar o nome do usuário usando o e-mail
+    // Encontrar o nome do usuário usando o e-mail (Coluna C = Email, Coluna B = Nome)
     const userRow = usersRows.find(row => row[2]?.toLowerCase() === userEmail.toLowerCase());
     if (!userRow) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
-    const userName = userRow[1].trim().toLowerCase(); // Coluna B da aba "Usuários" (nome do usuário)
+
+    const userName = userRow[1].trim().toLowerCase(); // Coluna B da aba "Principal" (nome do usuário)
 
     // Passo 2: Buscar Dados de Desempenho Usando o Nome do Usuário
-    const performanceRows = await getSheetValues('Principal', 'A:V', sheetIdDesempenho);
+    // Alterando o intervalo para começar a partir da linha 2
+    const performanceRows = await getSheetValues('Principal', 'A2:V', sheetIdDesempenho);
 
     if (!performanceRows || performanceRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado.' });
