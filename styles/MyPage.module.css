@@ -187,10 +187,10 @@
 .performanceInfo {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 5px; /* Reduzir o espaçamento entre os itens */
-  justify-items: center;
+  gap: 5px;
+  justify-items: stretch;
   align-items: start;
-  margin-top: 10px; /* Distância do título e da data */
+  margin-top: 10px;
 }
 
 .performanceItem {
@@ -209,9 +209,9 @@
 }
 
 .lastUpdated {
-  font-size: 0.75em; /* Fonte menor para se diferenciar do título */
-  color: rgba(255, 255, 255, 0.6); /* Cor mais clara e opaca */
-  margin-top: 5px;
-  margin-bottom: 10px; /* Espaçamento menor antes da informação de desempenho */
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 0px;
+  margin-bottom: 10px;
   text-align: left;
 }
