@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Redis from 'ioredis';
 import commonStyles from '../styles/commonStyles.module.css';
-import styles from '../styles/My.module.css';
+import styles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
 
 // Configuração do Redis
