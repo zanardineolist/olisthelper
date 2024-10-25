@@ -24,6 +24,43 @@ async function getSheetValues(sheets, spreadsheetId, sheetName, range) {
   }
 }
 
+async function updateCellColors(sheets, spreadsheetId, sheetName, ranges) {
+  try {
+    const requests = ranges.map(({ range, color }) => ({
+      updateCells: {
+        range: {
+          sheetId: sheetName,
+          startRowIndex: range.startRowIndex,
+          endRowIndex: range.endRowIndex,
+          startColumnIndex: range.startColumnIndex,
+          endColumnIndex: range.endColumnIndex,
+        },
+        rows: [
+          {
+            values: [
+              {
+                userEnteredFormat: {
+                  backgroundColor: color,
+                },
+              },
+            ],
+          },
+        ],
+        fields: 'userEnteredFormat.backgroundColor',
+      },
+    }));
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      resource: {
+        requests,
+      },
+    });
+  } catch (error) {
+    console.error(`Erro ao atualizar cores das células:`, error);
+  }
+}
+
 export default async function handler(req, res) {
   const { userEmail } = req.query;
 
@@ -121,6 +158,59 @@ export default async function handler(req, res) {
     }
 
     responsePayload.atualizadoAte = performanceData[20] || "Data não disponível"; // Coluna U
+
+    // Lógica de Coloração
+    const colorGreen = { red: 0.0, green: 0.7, blue: 0.0 };
+    const colorRed = { red: 0.8, green: 0.0, blue: 0.0 };
+
+    const ranges = [];
+
+    // Condições para coloração de Chamados
+    if (hasChamado) {
+      ranges.push({
+        range: { startRowIndex: bestMatchIndex, startColumnIndex: 7, endColumnIndex: 8 },
+        color: performanceData[7] >= 25 ? colorGreen : colorRed
+      });
+
+      ranges.push({
+        range: { startRowIndex: bestMatchIndex, startColumnIndex: 9, endColumnIndex: 10 },
+        color: performanceData[9] <= 30 ? colorGreen : colorRed
+      });
+
+      ranges.push({
+        range: { startRowIndex: bestMatchIndex, startColumnIndex: 10, endColumnIndex: 11 },
+        color: performanceData[10] >= 95 ? colorGreen : colorRed
+      });
+    }
+
+    // Condições para coloração de Telefone
+    if (hasTelefone) {
+      ranges.push({
+        range: { startRowIndex: bestMatchIndex, startColumnIndex: 13, endColumnIndex: 14 },
+        color: performanceData[13] <= 15 ? colorGreen : colorRed
+      });
+
+      ranges.push({
+        range: { startRowIndex: bestMatchIndex, startColumnIndex: 14, endColumnIndex: 15 },
+        color: performanceData[14] >= 3.7 ? colorGreen : colorRed
+      });
+    }
+
+    // Condições para coloração de Chat
+    if (hasChat) {
+      ranges.push({
+        range: { startRowIndex: bestMatchIndex, startColumnIndex: 18, endColumnIndex: 19 },
+        color: performanceData[18] <= 20 ? colorGreen : colorRed
+      });
+
+      ranges.push({
+        range: { startRowIndex: bestMatchIndex, startColumnIndex: 19, endColumnIndex: 20 },
+        color: performanceData[19] >= 95 ? colorGreen : colorRed
+      });
+    }
+
+    // Aplicar as colorações
+    await updateCellColors(sheets, sheetIdDesempenho, 'Principal', ranges);
 
     return res.status(200).json(responsePayload);
   } catch (error) {
