@@ -71,6 +71,7 @@ export default async function handler(req, res) {
       mediaPorDia: performanceData[8], // Coluna I
       tma: performanceData[9], // Coluna J
       csat: performanceData[10], // Coluna K
+      atualizadoAte: performanceData[20], // Coluna U
     };
 
     return res.status(200).json(responsePayload);

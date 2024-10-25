@@ -168,6 +168,13 @@
   color: #ccc;
 }
 
+/* Estilo para a data de atualização */
+.lastUpdated {
+  font-size: 0.9em;
+  color: rgba(255, 255, 255, 0.6); /* Cor mais opaca para dar destaque menor */
+  margin-bottom: 10px;
+}
+
 /* Atualização no estilo do desempenho */
 .performanceInfo {
   display: grid;
@@ -187,4 +194,3 @@
   justify-content: center;
   align-items: center;
 }
-
