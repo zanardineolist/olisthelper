@@ -188,12 +188,16 @@ export default function MyPage({ user }) {
                   <span className={styles.count}>
                     {category.count} pedidos de ajuda
                     {category.count > 10 && (
-                      <i
-                        className="fa-solid fa-circle-exclamation"
-                        style={{ color: 'orange', cursor: 'pointer', marginLeft: '8px' }}
-                        title="Você já solicitou mais de 10 ajudas para este tema, recomendamos agendar um Tiny Class com nossos analistas."
-                        onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
-                      ></i>
+                      <div className="tooltip">
+                        <i
+                          className="fa-solid fa-circle-exclamation"
+                          style={{ color: 'orange', cursor: 'pointer' }}
+                          onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
+                        ></i>
+                        <span className="tooltipText">
+                          Você já solicitou mais de 10 ajudas para este tema, recomendamos agendar um Tiny Class com nossos analistas.
+                        </span>
+                      </div>
                     )}
                   </span>
                 </li>

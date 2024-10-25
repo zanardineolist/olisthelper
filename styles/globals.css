@@ -108,3 +108,43 @@ html::-webkit-scrollbar-thumb {
     transform: rotate(360deg);
   }
 }
+
+/* Tooltip Styles */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltipText {
+  visibility: hidden;
+  width: 220px;
+  background-color: #fff;
+  color: #333;
+  text-align: center;
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%; /* Ajuste para posicionamento acima do ícone */
+  left: 50%;
+  margin-left: -110px; /* Ajuste de largura para centralizar */
+  opacity: 0;
+  transition: opacity 0.2s; /* Tooltip exibido rapidamente */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip .tooltipText::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -10px;
+  border-width: 10px;
+  border-style: solid;
+  border-color: #fff transparent transparent transparent;
+}
+
+.tooltip:hover .tooltipText {
+  visibility: visible;
+  opacity: 1;
+}
