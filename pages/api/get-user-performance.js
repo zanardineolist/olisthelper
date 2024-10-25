@@ -1,6 +1,29 @@
 import { google } from 'googleapis';
 import { findBestMatch } from 'string-similarity';
 
+async function getAuthenticatedGoogleSheets() {
+  const auth = new google.auth.JWT(
+    process.env.GOOGLE_CLIENT_EMAIL,
+    null,
+    process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    ['https://www.googleapis.com/auth/spreadsheets']
+  );
+  return google.sheets({ version: 'v4', auth });
+}
+
+async function getSheetValues(sheets, spreadsheetId, sheetName, range) {
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: `${sheetName}!${range}`,
+    });
+    return response.data.values || [];
+  } catch (error) {
+    console.error(`Erro ao obter valores da aba ${sheetName}:`, error);
+    throw new Error(`Erro ao obter valores da aba ${sheetName}.`);
+  }
+}
+
 export default async function handler(req, res) {
   const { userEmail } = req.query;
 
@@ -10,25 +33,14 @@ export default async function handler(req, res) {
 
   try {
     // Autenticação com o Google Sheets API
-    const auth = new google.auth.JWT(
-      process.env.GOOGLE_CLIENT_EMAIL,
-      null,
-      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-      ['https://www.googleapis.com/auth/spreadsheets']
-    );
-
-    const sheets = google.sheets({ version: 'v4', auth });
+    const sheets = await getAuthenticatedGoogleSheets();
     const sheetIdUsuarios = "1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34"; // ID da planilha de usuários
     const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
 
     // Passo 1: Buscar Nome do Usuário Usando o E-mail
-    const usersResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetIdUsuarios,
-      range: 'Usuários!A:D', // Colunas A a D da aba "Usuários"
-    });
-    const usersRows = usersResponse.data.values;
-
-    if (!usersRows) {
+    const usersRows = await getSheetValues(sheets, sheetIdUsuarios, 'Usuários', 'A:D');
+    
+    if (!usersRows || usersRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
     }
 
@@ -40,13 +52,9 @@ export default async function handler(req, res) {
     const userName = userRow[1].trim().toLowerCase(); // Coluna B da aba "Usuários" (nome do usuário)
 
     // Passo 2: Buscar Dados de Desempenho Usando o Nome do Usuário
-    const performanceResponse = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetIdDesempenho,
-      range: 'Principal!A:V', // Colunas A a V da aba "Principal"
-    });
-    const performanceRows = performanceResponse.data.values;
+    const performanceRows = await getSheetValues(sheets, sheetIdDesempenho, 'Principal', 'A:V');
 
-    if (!performanceRows) {
+    if (!performanceRows || performanceRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado.' });
     }
 
