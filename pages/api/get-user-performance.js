@@ -50,6 +50,13 @@ const formatTime = (minutes) => {
   return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
+const formatHours = (value) => {
+  if (value === null) {
+    return "-";
+  }
+  return `${value}h`;
+};
+
 const getColorForValue = (value, threshold, isGreaterBetter = true) => {
   if (value === null) {
     return null; // Sem cor se o valor for nulo
@@ -127,7 +134,7 @@ export default async function handler(req, res) {
       responsePayload.chamados = {
         totalChamados: performanceData[7],
         mediaPorDia,
-        tma: formatTime(tma),
+        tma: formatHours(tma),
         csat,
         colors: {
           mediaPorDia: getColorForValue(mediaPorDia, 25),
@@ -161,8 +168,8 @@ export default async function handler(req, res) {
       responsePayload.chat = {
         totalChats: performanceData[16],
         mediaPorDia: parseValue(performanceData[17]),
-        tma: formatTime(tma),
-        csat,
+        tma: tma !== null ? formatTime(tma) : "-",
+        csat: csat !== null ? csat : "-",
         colors: {
           tma: getColorForValue(tma, 20, false),
           csat: getColorForValue(csat, 95),
