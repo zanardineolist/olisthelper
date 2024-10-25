@@ -204,7 +204,9 @@ export default function MyPage({ user }) {
               ))}
             </ul>
           ) : (
-            <div className={styles.noData}>Nenhuma ajuda solicitada este mês.</div>
+            <div className={styles.loaderContainer}>
+              <div className="categoryLoader"></div>
+            </div>
           )}
         </div>
       </main>
