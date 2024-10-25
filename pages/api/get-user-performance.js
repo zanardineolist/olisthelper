@@ -169,7 +169,7 @@ export default async function handler(req, res) {
     if (hasChamado) {
       ranges.push({
         range: { startRowIndex: bestMatchIndex, startColumnIndex: 7, endColumnIndex: 8 },
-        color: performanceData[7] >= 25 ? colorGreen : colorRed
+        color: performanceData[8] >= 25 ? colorGreen : colorRed
       });
 
       ranges.push({
