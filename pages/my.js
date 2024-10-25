@@ -178,8 +178,24 @@ export default function MyPage({ user }) {
                 <li key={index} className={styles.listItem}>
                   <span className={styles.rank}>{index + 1}.</span>
                   <span className={styles.categoryName}>{category.name}</span>
-                  <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
-                  <span className={styles.count}>{category.count} pedidos de ajuda</span>
+                  <div
+                    className={styles.progressBarCategory}
+                    style={{
+                      width: `${category.count * 10}px`,
+                      backgroundColor: category.count > 10 ? 'orange' : '',
+                    }}
+                  />
+                  <span className={styles.count}>
+                    {category.count} pedidos de ajuda
+                    {category.count > 10 && (
+                      <i
+                        className="fa-solid fa-circle-exclamation"
+                        style={{ color: 'yellow', cursor: 'pointer', marginLeft: '8px' }}
+                        title="Esta categoria ultrapassou 10 pedidos no mês atual"
+                        onClick={() => window.open('/new-category-info', '_blank')}
+                      ></i>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>
