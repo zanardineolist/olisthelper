@@ -14,7 +14,6 @@ export default async function handler(req, res) {
     const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
 
     // Passo 1: Buscar Nome do Usuário Usando o E-mail
-    // Corrigir para buscar na aba "Usuários" da planilha de usuários
     const usersRows = await getSheetValues('Usuários', 'A2:D', sheetIdUsuarios);
     
     if (!usersRows || usersRows.length === 0) {
@@ -30,8 +29,8 @@ export default async function handler(req, res) {
     const userName = userRow[1].trim().toLowerCase(); // Coluna B da aba "Usuários" (nome do usuário)
 
     // Passo 2: Buscar Dados de Desempenho Usando o Nome do Usuário
-    // Buscar na aba "Principal" da planilha de desempenho
-    const performanceRows = await getSheetValues('Principal', 'A2:V', sheetIdDesempenho);
+    // Tentar ajustar o range de acordo com o que realmente existe na planilha de desempenho
+    const performanceRows = await getSheetValues('Principal', 'A2:U', sheetIdDesempenho);
 
     if (!performanceRows || performanceRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado.' });
