@@ -170,34 +170,34 @@
 
 /* Ajuste na seção de desempenho */
 .performanceContainer {
-  padding: 15px;
+  padding: 10px; /* Reduzi o padding para liberar mais espaço para os elementos */
   display: flex;
   flex-direction: column;
-  justify-content: start;
+  justify-content: flex-start;
   background-color: #1e1e1e;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   color: #fff;
   width: 100%;
   max-width: 500px;
-  height: 180px;
+  height: 180px; 
   position: relative;
 }
 
 .performanceInfo {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 5px;
+  gap: 5px; /* Aumentei o gap para melhor organização dos elementos */
   justify-items: stretch;
-  align-items: start;
+  align-items: center;
   margin-top: 10px;
 }
 
 .performanceItem {
-  font-size: 0.85em; /* Fonte menor para economizar espaço */
+  font-size: 0.9em; /* Fonte um pouco maior para facilitar a leitura */
   font-weight: bold;
   background-color: #1e1e1e;
-  padding: 5px;
+  padding: 8px; /* Aumentei o padding para tornar o conteúdo mais espaçado e legível */
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   display: flex;
@@ -205,12 +205,12 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  min-width: 80px;
+  min-width: 100px; /* Ajustado para garantir uniformidade */
 }
 
 .lastUpdated {
-  font-size: 12px;
+  font-size: 0.75em; /* Mantendo a fonte pequena para menos destaque */
   color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 5px;
+  margin-bottom: 10px; /* Um pequeno espaçamento abaixo do texto */
   text-align: left;
 }
