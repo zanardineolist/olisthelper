@@ -1,4 +1,3 @@
-// pages/my.js
 import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -145,6 +144,14 @@ export default function MyPage({ user }) {
                 <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
                   Dashboard Analista
                 </button>
+                <a
+                  href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={commonStyles.menuButton}
+                >
+                  Database
+                </a>
               </>
             )}
             <button onClick={() => signOut()} className={commonStyles.menuButton}>
@@ -239,13 +246,27 @@ export default function MyPage({ user }) {
                       backgroundColor: category.count > 10 ? 'orange' : '',
                     }}
                   />
-                  <span className={styles.count}>{category.count} pedidos de ajuda</span>
+                  <span className={styles.count}>
+                    {category.count} pedidos de ajuda
+                    {category.count > 10 && (
+                      <div className="tooltip">
+                        <i
+                          className="fa-solid fa-circle-exclamation"
+                          style={{ color: 'orange', cursor: 'pointer' }}
+                          onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
+                        ></i>
+                        <span className="tooltipText">
+                          Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone abaixo.
+                        </span>
+                      </div>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>
           ) : (
             <div className={styles.noData}>
-              Nenhum dado disponível no momento.
+              <div className="categoryLoader"></div>
             </div>
           )}
         </div>
