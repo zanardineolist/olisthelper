@@ -166,7 +166,7 @@
   font-size: 0.9em;
   font-weight: bold;
   background-color: #1e1e1e;
-  padding: 10px; /* Aumentado padding para melhor espaçamento */
+  padding: 10px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   display: flex;
@@ -185,8 +185,8 @@
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   color: #fff;
-  width: 100%;
-  max-width: 1020px;
+  width: 90%;
+  max-width: 1200px;
   min-height: 200px;
   position: relative;
 }
