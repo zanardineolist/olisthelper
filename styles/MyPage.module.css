@@ -54,7 +54,7 @@
   color: #fff;
   width: 100%;
   max-width: 500px;
-  height: 180px;
+  height: auto; /* Removido valor fixo de altura */
   position: relative;
 }
 
@@ -125,7 +125,7 @@
 
 /* Caixa de desempenho individual */
 .performanceContainer {
-  padding: 15px;
+  padding: 20px; /* Ajustado para dar espaçamento interno consistente */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -135,7 +135,7 @@
   color: #fff;
   width: 100%;
   max-width: 500px;
-  height: 220px;
+  height: auto; /* Removido valor fixo de altura */
   position: relative;
 }
 
@@ -166,7 +166,7 @@
   font-size: 0.9em;
   font-weight: bold;
   background-color: #1e1e1e;
-  padding: 8px;
+  padding: 10px; /* Aumentado padding para melhor espaçamento */
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   display: flex;
