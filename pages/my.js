@@ -195,7 +195,7 @@ export default function MyPage({ user }) {
                           onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
                         ></i>
                         <span className="tooltipText">
-                          Você já solicitou mais de 10 ajudas para este tema, recomendamos agendar um Tiny Class com nossos analistas.
+                          Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone abaixo.
                         </span>
                       </div>
                     )}
