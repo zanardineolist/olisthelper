@@ -61,6 +61,20 @@ async function updateCellColors(sheets, spreadsheetId, sheetName, ranges) {
   }
 }
 
+const parseValue = (value) => {
+  if (typeof value === 'string') {
+    if (value.includes('%')) {
+      return parseFloat(value.replace('%', '').replace(',', '.'));
+    } else if (value.includes(':')) {
+      // Convert time in hh:mm:ss format to minutes
+      const parts = value.split(':');
+      return parseInt(parts[0]) * 60 + parseInt(parts[1]) + parseInt(parts[2]) / 60;
+    }
+    return parseFloat(value.replace(',', '.'));
+  }
+  return value;
+};
+
 export default async function handler(req, res) {
   const { userEmail } = req.query;
 
@@ -132,28 +146,28 @@ export default async function handler(req, res) {
     if (hasChamado) {
       responsePayload.chamados = {
         totalChamados: performanceData[7], // Coluna H
-        mediaPorDia: performanceData[8], // Coluna I
-        tma: performanceData[9], // Coluna J
-        csat: performanceData[10], // Coluna K
+        mediaPorDia: parseValue(performanceData[8]), // Coluna I
+        tma: parseValue(performanceData[9]), // Coluna J
+        csat: parseValue(performanceData[10]), // Coluna K
       };
     }
 
     if (hasTelefone) {
       responsePayload.telefone = {
         totalTelefone: performanceData[11], // Coluna L
-        mediaPorDia: performanceData[12], // Coluna M
-        tma: performanceData[13], // Coluna N
-        csat: performanceData[14], // Coluna O
-        perdidas: performanceData[15], // Coluna P
+        mediaPorDia: parseValue(performanceData[12]), // Coluna M
+        tma: parseValue(performanceData[13]), // Coluna N
+        csat: parseValue(performanceData[14]), // Coluna O
+        perdidas: parseValue(performanceData[15]), // Coluna P
       };
     }
 
     if (hasChat) {
       responsePayload.chat = {
         totalChats: performanceData[16], // Coluna Q
-        mediaPorDia: performanceData[17], // Coluna R
-        tma: performanceData[18], // Coluna S
-        csat: performanceData[19], // Coluna T
+        mediaPorDia: parseValue(performanceData[17]), // Coluna R
+        tma: parseValue(performanceData[18]), // Coluna S
+        csat: parseValue(performanceData[19]), // Coluna T
       };
     }
 
@@ -169,17 +183,17 @@ export default async function handler(req, res) {
     if (hasChamado) {
       ranges.push({
         range: { startRowIndex: bestMatchIndex, startColumnIndex: 8, endColumnIndex: 9 },
-        color: performanceData[8] >= 25 ? colorGreen : colorRed
+        color: parseValue(performanceData[8]) >= 25 ? colorGreen : colorRed
       });
 
       ranges.push({
         range: { startRowIndex: bestMatchIndex, startColumnIndex: 9, endColumnIndex: 10 },
-        color: performanceData[9] <= 30 ? colorGreen : colorRed
+        color: parseValue(performanceData[9]) <= 30 ? colorGreen : colorRed
       });
 
       ranges.push({
         range: { startRowIndex: bestMatchIndex, startColumnIndex: 10, endColumnIndex: 11 },
-        color: performanceData[10] >= 95 ? colorGreen : colorRed
+        color: parseValue(performanceData[10]) >= 95 ? colorGreen : colorRed
       });
     }
 
@@ -187,12 +201,12 @@ export default async function handler(req, res) {
     if (hasTelefone) {
       ranges.push({
         range: { startRowIndex: bestMatchIndex, startColumnIndex: 13, endColumnIndex: 14 },
-        color: performanceData[13] <= 15 ? colorGreen : colorRed
+        color: parseValue(performanceData[13]) <= 15 ? colorGreen : colorRed
       });
 
       ranges.push({
         range: { startRowIndex: bestMatchIndex, startColumnIndex: 14, endColumnIndex: 15 },
-        color: performanceData[14] >= 3.7 ? colorGreen : colorRed
+        color: parseValue(performanceData[14]) >= 3.7 ? colorGreen : colorRed
       });
     }
 
@@ -200,12 +214,12 @@ export default async function handler(req, res) {
     if (hasChat) {
       ranges.push({
         range: { startRowIndex: bestMatchIndex, startColumnIndex: 18, endColumnIndex: 19 },
-        color: performanceData[18] <= 20 ? colorGreen : colorRed
+        color: parseValue(performanceData[18]) <= 20 ? colorGreen : colorRed
       });
 
       ranges.push({
         range: { startRowIndex: bestMatchIndex, startColumnIndex: 19, endColumnIndex: 20 },
-        color: performanceData[19] >= 95 ? colorGreen : colorRed
+        color: parseValue(performanceData[19]) >= 95 ? colorGreen : colorRed
       });
     }
 
