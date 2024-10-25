@@ -114,7 +114,7 @@ export default async function handler(req, res) {
       };
     }
 
-    responsePayload.atualizadoAte = performanceData[20]; // Coluna U
+    responsePayload.atualizadoAte = performanceData[20] || "Data não disponível"; // Coluna U
 
     return res.status(200).json(responsePayload);
   } catch (error) {
