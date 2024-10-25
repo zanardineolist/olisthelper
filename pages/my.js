@@ -211,6 +211,10 @@ export default function MyPage({ user }) {
               <h2>Indicadores Chamados</h2>
               <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
               <div className={styles.performanceInfo}>
+                <div className={styles.performanceItem}>
+                  <span>Total Chamados:</span>
+                  <span>{performanceData.chamados.totalChamados}</span>
+                </div>
                 <div className={styles.performanceItem} style={{ backgroundColor: getIndicatorColor(performanceData.chamados.mediaPorDia, 25) }}>
                   <span>Média/Dia:</span>
                   <span>{performanceData.chamados.mediaPorDia}</span>
@@ -231,6 +235,10 @@ export default function MyPage({ user }) {
               <h2>Indicadores Telefone</h2>
               <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
               <div className={styles.performanceInfo}>
+                <div className={styles.performanceItem}>
+                  <span>Total Telefone:</span>
+                  <span>{performanceData.telefone.totalTelefone}</span>
+                </div>
                 <div className={styles.performanceItem} style={{ backgroundColor: getIndicatorColor(performanceData.telefone.tma, 15, false) }}>
                   <span>TMA:</span>
                   <span>{performanceData.telefone.tma}</span>
@@ -251,6 +259,10 @@ export default function MyPage({ user }) {
               <h2>Indicadores Chat</h2>
               <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
               <div className={styles.performanceInfo}>
+                <div className={styles.performanceItem}>
+                  <span>Total Chats:</span>
+                  <span>{performanceData.chat.totalChats}</span>
+                </div>
                 <div className={styles.performanceItem} style={{ backgroundColor: getIndicatorColor(performanceData.chat.tma, 20, false) }}>
                   <span>TMA:</span>
                   <span>{performanceData.chat.tma}</span>

@@ -168,7 +168,7 @@ export default async function handler(req, res) {
     // Condições para coloração de Chamados
     if (hasChamado) {
       ranges.push({
-        range: { startRowIndex: bestMatchIndex, startColumnIndex: 7, endColumnIndex: 8 },
+        range: { startRowIndex: bestMatchIndex, startColumnIndex: 8, endColumnIndex: 9 },
         color: performanceData[8] >= 25 ? colorGreen : colorRed
       });
 
