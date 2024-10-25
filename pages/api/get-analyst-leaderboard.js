@@ -1,8 +1,4 @@
 import { google } from 'googleapis';
-import Redis from 'ioredis';
-
-// Configuração do Redis
-const redis = new Redis(process.env.REDIS_URL);
 
 export default async function handler(req, res) {
   const { analystId } = req.query;
@@ -13,15 +9,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Verificar no cache se já temos os registros do analista
-    const cachedLeaderboard = await redis.get(`analystLeaderboard:${analystId}`);
-    if (cachedLeaderboard) {
-      console.log('Cache hit for analyst leaderboard data');
-      return res.status(200).json(JSON.parse(cachedLeaderboard));
-    }
-
-    console.log('Cache miss for analyst leaderboard data, fetching from Google Sheets');
-
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
       null,
@@ -34,11 +21,12 @@ export default async function handler(req, res) {
 
     console.log(`Buscando metadados da planilha com ID: ${sheetId} para o analista: ${analystId}`);
 
-    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
+    // Obter as informações da planilha (metadados)
     const sheetMeta = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
     });
 
+    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
     const sheetName = sheetMeta.data.sheets.find((sheet) => {
       return sheet.properties.title.startsWith(`#${analystId}`);
     })?.properties.title;
@@ -82,9 +70,6 @@ export default async function handler(req, res) {
     });
 
     console.log(`Total de registros para o leaderboard: ${leaderboardRows.length}`);
-
-    // Armazenar os registros no cache por 10 minutos
-    await redis.set(`analystLeaderboard:${analystId}`, JSON.stringify({ rows: leaderboardRows }), 'EX', 600);
 
     return res.status(200).json({ rows: leaderboardRows });
   } catch (error) {

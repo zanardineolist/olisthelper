@@ -4,13 +4,9 @@ import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
-import Redis from 'ioredis';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
 import Footer from '../components/Footer';
-
-// Configuração do Redis
-const redis = new Redis(process.env.REDIS_URL);
 
 export default function RegistroPage({ session }) {
   const router = useRouter();
@@ -30,32 +26,14 @@ export default function RegistroPage({ session }) {
       try {
         setLoading(true);
 
-        // Verificar se já temos os usuários no cache
-        let usersData = await redis.get('usersList');
-        if (usersData) {
-          console.log('Cache hit for users list');
-          usersData = JSON.parse(usersData);
-        } else {
-          console.log('Cache miss for users list, fetching from API');
-          const usersRes = await fetch('/api/get-users');
-          usersData = await usersRes.json();
-          // Armazenar os usuários no cache por 10 minutos
-          await redis.set('usersList', JSON.stringify(usersData), 'EX', 600);
-        }
+        // Carregar usuários
+        const usersRes = await fetch('/api/get-users');
+        const usersData = await usersRes.json();
         setUsers(usersData.users);
 
-        // Verificar se já temos as categorias no cache
-        let categoriesData = await redis.get('analystsCategories');
-        if (categoriesData) {
-          console.log('Cache hit for categories list');
-          categoriesData = JSON.parse(categoriesData);
-        } else {
-          console.log('Cache miss for categories list, fetching from API');
-          const categoriesRes = await fetch('/api/get-analysts-categories');
-          categoriesData = await categoriesRes.json();
-          // Armazenar as categorias no cache por 10 minutos
-          await redis.set('analystsCategories', JSON.stringify(categoriesData), 'EX', 600);
-        }
+        // Carregar categorias
+        const categoriesRes = await fetch('/api/get-analysts-categories');
+        const categoriesData = await categoriesRes.json();
         setCategories(categoriesData.categories);
 
       } catch (err) {
@@ -222,7 +200,7 @@ export default function RegistroPage({ session }) {
                   onChange={handleChange}
                   required
                   rows="4"
-                  className={styles.formTextarea}
+                  className={styles.formTextarea} // Adicionando a classe para estilização
                 />
               </div>
               <div className={styles.formButtonContainer}>
@@ -234,7 +212,7 @@ export default function RegistroPage({ session }) {
           </div>
         </div>
 
-        <Footer />
+        <Footer /> {/* Adicionando o rodapé no final da página */}
       </div>
     </>
   );

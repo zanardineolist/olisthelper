@@ -4,13 +4,9 @@ import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
-import Redis from 'ioredis';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
 import Footer from '../components/Footer';
-
-// Configuração do Redis
-const redis = new Redis(process.env.REDIS_URL);
 
 export default function RegistrarPage({ session }) {
   const router = useRouter();
@@ -29,35 +25,10 @@ export default function RegistrarPage({ session }) {
     const loadAnalystsAndCategories = async () => {
       try {
         setLoading(true);
-
-        // Verificar se já temos os analistas no cache
-        let analystsData = await redis.get('analystsList');
-        if (analystsData) {
-          console.log('Cache hit for analysts list');
-          analystsData = JSON.parse(analystsData);
-        } else {
-          console.log('Cache miss for analysts list, fetching from API');
-          const analystsRes = await fetch('/api/get-users');
-          analystsData = await analystsRes.json();
-          // Armazenar os analistas no cache por 10 minutos
-          await redis.set('analystsList', JSON.stringify(analystsData), 'EX', 600);
-        }
-        setAnalysts(analystsData.users.filter(user => user.role === 'analyst'));
-
-        // Verificar se já temos as categorias no cache
-        let categoriesData = await redis.get('analystsCategories');
-        if (categoriesData) {
-          console.log('Cache hit for categories list');
-          categoriesData = JSON.parse(categoriesData);
-        } else {
-          console.log('Cache miss for categories list, fetching from API');
-          const categoriesRes = await fetch('/api/get-analysts-categories');
-          categoriesData = await categoriesRes.json();
-          // Armazenar as categorias no cache por 10 minutos
-          await redis.set('analystsCategories', JSON.stringify(categoriesData), 'EX', 600);
-        }
-        setCategories(categoriesData.categories);
-
+        const res = await fetch('/api/get-analysts-categories');
+        const data = await res.json();
+        setAnalysts(data.analysts);
+        setCategories(data.categories);
       } catch (err) {
         console.error('Erro ao carregar analistas e categorias:', err);
       } finally {
@@ -86,9 +57,7 @@ export default function RegistrarPage({ session }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          analyst: formData.analyst,
-          category: formData.category,
-          description: formData.description,
+          ...formData,
           userName: session.user.name,
           userEmail: session.user.email,
         }),
@@ -222,14 +191,14 @@ export default function RegistrarPage({ session }) {
               </div>
               <div className={styles.formButtonContainer}>
                 <button type="submit" className={styles.submitButton} disabled={submitting}>
-                  {submitting ? 'Enviando...' : 'Enviar Dúvida'}
+                  {submitting ? 'Enviando...' : 'Enviar Ajuda'}
                 </button>
               </div>
             </form>
           </div>
         </div>
 
-        <Footer />
+        <Footer /> {/* Adicionando o rodapé no final da página */}
       </div>
     </>
   );
@@ -237,7 +206,7 @@ export default function RegistrarPage({ session }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  if (!session) {
+  if (!session || session.role !== 'user') {
     return {
       redirect: {
         destination: '/',

@@ -1,8 +1,5 @@
+// pages/api/get-user-category-ranking.js
 import { google } from 'googleapis';
-import Redis from 'ioredis';
-
-// Configuração do Redis
-const redis = new Redis(process.env.REDIS_URL);
 
 export default async function handler(req, res) {
   const { userEmail } = req.query;
@@ -13,16 +10,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Verificar no cache se já temos os dados do ranking de categorias
-    const cachedCategoryRanking = await redis.get(`userCategoryRanking:${userEmail}`);
-    if (cachedCategoryRanking) {
-      console.log('Cache hit for user category ranking data');
-      return res.status(200).json(JSON.parse(cachedCategoryRanking));
-    }
-
-    console.log('Cache miss for user category ranking data, fetching from Google Sheets');
-
-    // Autenticação com o Google Sheets API
     const auth = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
       null,
@@ -93,9 +80,6 @@ export default async function handler(req, res) {
       .map(([name, count]) => ({ name, count }));
 
     console.log('Categorias no ranking:', sortedCategories);
-
-    // Armazenar no cache por 10 minutos
-    await redis.set(`userCategoryRanking:${userEmail}`, JSON.stringify({ categories: sortedCategories }), 'EX', 600);
 
     return res.status(200).json({ categories: sortedCategories });
   } catch (error) {

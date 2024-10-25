@@ -1,99 +1,86 @@
-// pages/api/auth/[...nextauth].js
-import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
+import NextAuth from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
 import { google } from 'googleapis';
-import Redis from 'ioredis';
+import { addUserToSheet, getUserFromSheet } from '../../../utils/googleSheets'; // Importar as funções para lidar com a planilha
 
-// Configuração do Redis
-const redis = new Redis(process.env.REDIS_URL);
+async function getUserDetails(email) {
+  const auth = new google.auth.JWT(
+    process.env.GOOGLE_CLIENT_EMAIL,
+    null,
+    JSON.parse(`"${process.env.GOOGLE_PRIVATE_KEY}"`),
+    ['https://www.googleapis.com/auth/spreadsheets']
+  );
+
+  const sheets = google.sheets({ version: 'v4', auth });
+  const sheetId = process.env.SHEET_ID;
+
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: sheetId,
+    range: 'Usuários!A:D',
+  });
+
+  const rows = response.data.values;
+  const userRow = rows.find((row) => row[2] === email);
+
+  if (userRow) {
+    return {
+      id: userRow[0],  // ID de 4 dígitos
+      role: userRow[3] // Papel do usuário (analyst ou user)
+    };
+  }
+
+  return { id: null, role: 'user' };
+}
 
 export default NextAuth({
   providers: [
-    CredentialsProvider({
-      name: 'Credentials',
-      credentials: {
-        email: { label: 'Email', type: 'text' },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials) {
-        const { email } = credentials;
-
-        if (!email) {
-          throw new Error('E-mail é obrigatório.');
-        }
-
-        try {
-          // Verificar se os dados do usuário já estão no cache
-          let cachedUserData = await redis.get(`userAuth:${email}`);
-          if (cachedUserData) {
-            console.log('Cache hit for user authentication');
-            return JSON.parse(cachedUserData);
-          }
-
-          console.log('Cache miss for user authentication, fetching from Google Sheets');
-
-          // Autenticação com o Google Sheets API
-          const auth = new google.auth.JWT(
-            process.env.GOOGLE_CLIENT_EMAIL,
-            null,
-            process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-            ['https://www.googleapis.com/auth/spreadsheets']
-          );
-
-          const sheets = google.sheets({ version: 'v4', auth });
-          const sheetId = process.env.SHEET_ID;
-
-          // Buscar dados da planilha de usuários
-          const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: sheetId,
-            range: 'Usuários!A:D', // Colunas A a D da aba "Usuários"
-          });
-
-          const rows = response.data.values;
-
-          if (!rows) {
-            throw new Error('Nenhum usuário encontrado.');
-          }
-
-          // Encontrar o usuário pelo e-mail
-          const userRow = rows.find((row) => row[2].toLowerCase() === email.toLowerCase());
-          if (!userRow) {
-            throw new Error('Usuário não encontrado.');
-          }
-
-          // Estruturar os dados do usuário
-          const user = {
-            id: userRow[0], // Coluna A (ID)
-            name: userRow[1], // Coluna B (Nome)
-            email: userRow[2], // Coluna C (Email)
-            role: userRow[3], // Coluna D (Função: user/analyst)
-          };
-
-          // Armazenar os dados do usuário no cache por 10 minutos
-          await redis.set(`userAuth:${email}`, JSON.stringify(user), 'EX', 600);
-
-          return user;
-        } catch (error) {
-          console.error('Erro ao autenticar usuário:', error);
-          throw new Error('Erro ao autenticar usuário.');
-        }
-      },
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
+    async signIn({ user }) {
+      const authorizedDomains = process.env.AUTHORIZED_DOMAINS?.split(",") || [];
+      const cleanAuthorizedDomains = authorizedDomains.map(domain => domain.trim().toLowerCase().replace(/^@/, ''));
+      const userDomain = user.email.split("@")[1].toLowerCase();
+
+      // Verificar se o domínio do usuário é autorizado
+      if (cleanAuthorizedDomains.length > 0 && !cleanAuthorizedDomains.includes(userDomain)) {
+        console.log('Usuário não autorizado - domínio não permitido:', userDomain);
+        return false;
+      }
+
+      // Verificar se o usuário já está registrado na planilha
+      let userDetails = await getUserFromSheet(user.email);
+
+      if (!userDetails) {
+        console.log('Usuário não encontrado na planilha. Registrando novo usuário:', user.email);
+        // Registrar usuário automaticamente na planilha
+        await addUserToSheet({ name: user.name, email: user.email });
+      }
+
+      return true;
+    },
     async session({ session, token }) {
-      session.user = token.user;
+      if (token) {
+        session.id = token.id; // ID de 4 dígitos da planilha
+        session.role = token.role; // Papel do usuário (analyst ou user)
+      }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.user = user;
+        // Obter detalhes do usuário da planilha
+        let userDetails = await getUserFromSheet(user.email);
+
+        if (userDetails) {
+          token.id = userDetails[0]; // Armazena o ID de 4 dígitos da planilha
+          token.role = userDetails[3]; // Armazena o papel do usuário (e.g., 'user')
+        }
       }
       return token;
     },
-  },
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
   },
 });
