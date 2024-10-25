@@ -189,10 +189,24 @@ export default function MyPage({ user }) {
             <div className={styles.profileContainer}>
               <div className={styles.profileInfo}>
                 <h2>Desempenho</h2>
-                <p><strong>Total Chamados:</strong> {performanceData.totalChamados}</p>
-                <p><strong>Média por Dia:</strong> {performanceData.mediaPorDia}</p>
-                <p><strong>TMA:</strong> {performanceData.tma}</p>
-                <p><strong>CSAT:</strong> {performanceData.csat}</p>
+                <div className={styles.performanceInfo}>
+                  <div className={styles.performanceItem}>
+                    <span>Total Chamados:</span>
+                    <span>{performanceData.totalChamados}</span>
+                  </div>
+                  <div className={styles.performanceItem}>
+                    <span>Média por Dia:</span>
+                    <span>{performanceData.mediaPorDia}</span>
+                  </div>
+                  <div className={styles.performanceItem}>
+                    <span>TMA:</span>
+                    <span>{performanceData.tma}</span>
+                  </div>
+                  <div className={styles.performanceItem}>
+                    <span>CSAT:</span>
+                    <span>{performanceData.csat}</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
