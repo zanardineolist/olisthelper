@@ -62,7 +62,7 @@ export default async function handler(req, res) {
     const hasChat = userRow[7] === 'TRUE'; // Coluna H - Chat
 
     // Passo 2: Buscar Dados de Desempenho Usando o Nome do Usuário
-    const performanceRows = await getSheetValues(sheets, sheetIdDesempenho, 'Principal', 'A:T');
+    const performanceRows = await getSheetValues(sheets, sheetIdDesempenho, 'Principal', 'A:U');
 
     if (!performanceRows || performanceRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado.' });
