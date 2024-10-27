@@ -93,6 +93,69 @@ export default function RegistrarPage({ session }) {
     }
   };
 
+  // Estilos personalizados para o React-Select
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: '#222',
+      borderColor: state.isFocused ? '#F57C00' : '#444',
+      color: '#fff',
+      borderRadius: '5px',
+      padding: '5px',
+      boxShadow: state.isFocused ? '0 0 0 2px rgba(245, 124, 0, 0.5)' : 'none',
+      '&:hover': {
+        borderColor: '#F0A028',
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: '#1e1e1e',
+      maxHeight: '150px',
+      overflowY: 'auto',
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      padding: 0,
+      maxHeight: '150px',
+      '&::-webkit-scrollbar': {
+        width: '8px',
+      },
+      '&::-webkit-scrollbar-track': {
+        background: '#121212',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: '#555',
+        borderRadius: '10px',
+        border: '2px solid #121212',
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused
+        ? '#333'
+        : state.isSelected
+        ? '#F57C00'
+        : '#1e1e1e',
+      color: '#fff',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: '#333',
+      },
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: '#fff',
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: '#fff',
+    }),
+    indicatorSeparator: (provided) => ({
+      ...provided,
+      backgroundColor: '#444',
+    }),
+  };
+
   if (loading) {
     return (
       <div className="loaderOverlay">
@@ -167,6 +230,7 @@ export default function RegistrarPage({ session }) {
                   value={analysts.find((option) => option.value === formData.analyst)}
                   onChange={handleChange}
                   isClearable
+                  styles={customSelectStyles}
                   classNamePrefix="react-select"
                   required
                 />
@@ -184,6 +248,7 @@ export default function RegistrarPage({ session }) {
                   value={categories.find((option) => option.value === formData.category)}
                   onChange={handleChange}
                   isClearable
+                  styles={customSelectStyles}
                   classNamePrefix="react-select"
                   required
                 />
@@ -220,19 +285,4 @@ export default function RegistrarPage({ session }) {
       </div>
     </>
   );
-}
-
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  if (!session || session.role !== 'user') {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: { session },
-  };
 }
