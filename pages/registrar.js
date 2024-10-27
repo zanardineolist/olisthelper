@@ -93,6 +93,74 @@ export default function RegistrarPage({ session }) {
     }
   };
 
+  // Estilos personalizados para o React-Select
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: '#222',
+      borderColor: state.isFocused ? '#F0A028' : '#444',
+      color: '#fff',
+      borderRadius: '5px',
+      padding: '5px',
+      boxShadow: 'none', // Removendo qualquer sombra ao focar
+      '&:hover': {
+        borderColor: '#F0A028',
+      },
+      outline: 'none', // Removendo a outline padrão do navegador
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: '#1e1e1e',
+      maxHeight: '220px',
+      overflowY: 'auto',
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      padding: 0,
+      maxHeight: '220px',
+      '&::-webkit-scrollbar': {
+        width: '8px',
+      },
+      '&::-webkit-scrollbar-track': {
+        background: '#121212',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: '#555',
+        borderRadius: '10px',
+        border: '2px solid #121212',
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused
+        ? '#333'
+        : state.isSelected
+        ? '#F0A028'
+        : '#1e1e1e',
+      color: '#fff',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: '#333',
+      },
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: '#fff',
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: '#aaa',
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: '#fff',
+    }),
+    indicatorSeparator: (provided) => ({
+      ...provided,
+      backgroundColor: '#444',
+    }),
+  };
+
   if (loading) {
     return (
       <div className="loaderOverlay">
@@ -171,72 +239,7 @@ export default function RegistrarPage({ session }) {
                   onChange={handleChange}
                   isClearable
                   placeholder="Selecione o analista"
-                  styles={{
-                    control: (provided, state) => ({
-                      ...provided,
-                      backgroundColor: '#222',
-                      borderColor: state.isFocused ? '#F57C00' : '#444',
-                      color: '#fff',
-                      borderRadius: '5px',
-                      padding: '5px',
-                      boxShadow: 'none', // Removendo qualquer sombra ao focar
-                      '&:hover': {
-                        borderColor: '#F0A028',
-                      },
-                      outline: 'none', // Removendo a outline padrão do navegador
-                    }),
-                    menu: (provided) => ({
-                      ...provided,
-                      backgroundColor: '#1e1e1e',
-                      maxHeight: '150px',
-                      overflowY: 'auto',
-                    }),
-                    menuList: (provided) => ({
-                      ...provided,
-                      padding: 0,
-                      maxHeight: '150px',
-                      '&::-webkit-scrollbar': {
-                        width: '8px',
-                      },
-                      '&::-webkit-scrollbar-track': {
-                        background: '#121212',
-                      },
-                      '&::-webkit-scrollbar-thumb': {
-                        backgroundColor: '#555',
-                        borderRadius: '10px',
-                        border: '2px solid #121212',
-                      },
-                    }),
-                    option: (provided, state) => ({
-                      ...provided,
-                      backgroundColor: state.isFocused
-                        ? '#333'
-                        : state.isSelected
-                        ? '#F57C00'
-                        : '#1e1e1e',
-                      color: '#fff',
-                      cursor: 'pointer',
-                      '&:hover': {
-                        backgroundColor: '#333',
-                      },
-                    }),
-                    singleValue: (provided) => ({
-                      ...provided,
-                      color: '#fff',
-                    }),
-                    placeholder: (provided) => ({
-                      ...provided,
-                      color: '#aaa',
-                    }),
-                    dropdownIndicator: (provided) => ({
-                      ...provided,
-                      color: '#fff',
-                    }),
-                    indicatorSeparator: (provided) => ({
-                      ...provided,
-                      backgroundColor: '#444',
-                    }),
-                  }}
+                  styles={customSelectStyles}
                   classNamePrefix="react-select"
                   required
                 />
@@ -255,6 +258,7 @@ export default function RegistrarPage({ session }) {
                   onChange={handleChange}
                   isClearable
                   placeholder="Selecione um tema"
+                  styles={customSelectStyles}
                   classNamePrefix="react-select"
                   required
                 />
