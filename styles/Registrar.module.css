@@ -54,40 +54,55 @@
   font-weight: bold;
 }
 
-/* Estilo para os elementos de seleção do React-Select */
+/* Estilo do componente React-Select */
 .react-select__control {
-  background-color: #222 !important;
-  border-color: #444 !important;
-  color: #fff !important;
-  border-radius: 5px !important;
-  padding: 5px !important;
-  box-shadow: none !important;
+  background-color: #222;
+  border: 1px solid #444;
+  color: #fff;
+  border-radius: 5px;
+  padding: 2px;
+  box-shadow: none;
+}
+
+.react-select__control:hover {
+  border-color: #F0A028;
 }
 
 .react-select__menu {
-  background-color: #1e1e1e !important;
-  max-height: 150px !important;
-  overflow-y: auto !important;
-  scrollbar-width: thin !important;
+  background-color: #1e1e1e;
+  max-height: 150px;
+  overflow-y: auto;
 }
 
+/* Estilo dos itens do menu */
 .react-select__option {
-  background-color: #1e1e1e !important;
-  color: #fff !important;
-  cursor: pointer !important;
+  background-color: #1e1e1e;
+  color: #fff;
+  cursor: pointer;
 }
 
 .react-select__option--is-focused {
-  background-color: #333 !important;
+  background-color: #333;
 }
 
-/* Limite de altura e rolagem customizada para o dropdown */
+.react-select__single-value {
+  color: #fff;
+}
+
+.react-select__dropdown-indicator {
+  color: #fff;
+}
+
+.react-select__indicator-separator {
+  background-color: #444;
+}
+
+/* Barra de rolagem personalizada para a lista do React-Select */
 .react-select__menu-list {
-  max-height: 150px !important;
-  overflow-y: auto !important;
+  max-height: 150px;
+  overflow-y: auto;
 }
 
-/* Barra de rolagem customizada */
 .react-select__menu-list::-webkit-scrollbar {
   width: 8px;
 }

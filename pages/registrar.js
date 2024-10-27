@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import Select from 'react-select'; // Importando React-Select
+import Select from 'react-select';
 import Swal from 'sweetalert2';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
@@ -167,42 +167,7 @@ export default function RegistrarPage({ session }) {
                   value={analysts.find((option) => option.value === formData.analyst)}
                   onChange={handleChange}
                   isClearable
-                  styles={{
-                    control: (provided) => ({
-                      ...provided,
-                      backgroundColor: '#222',
-                      borderColor: '#444',
-                      color: '#fff',
-                      borderRadius: '5px',
-                      padding: '5px',
-                      boxShadow: 'none',
-                    }),
-                    menu: (provided) => ({
-                      ...provided,
-                      backgroundColor: '#1e1e1e',
-                      maxHeight: '150px',
-                      overflowY: 'auto',
-                      scrollbarWidth: 'thin',
-                    }),
-                    option: (provided, state) => ({
-                      ...provided,
-                      backgroundColor: state.isFocused ? '#333' : '#1e1e1e',
-                      color: '#fff',
-                      cursor: 'pointer',
-                    }),
-                    singleValue: (provided) => ({
-                      ...provided,
-                      color: '#fff',
-                    }),
-                    dropdownIndicator: (provided) => ({
-                      ...provided,
-                      color: '#fff',
-                    }),
-                    indicatorSeparator: (provided) => ({
-                      ...provided,
-                      backgroundColor: '#444',
-                    }),
-                  }}
+                  classNamePrefix="react-select"
                   required
                 />
               </div>
@@ -219,42 +184,7 @@ export default function RegistrarPage({ session }) {
                   value={categories.find((option) => option.value === formData.category)}
                   onChange={handleChange}
                   isClearable
-                  styles={{
-                    control: (provided) => ({
-                      ...provided,
-                      backgroundColor: '#222',
-                      borderColor: '#444',
-                      color: '#fff',
-                      borderRadius: '5px',
-                      padding: '5px',
-                      boxShadow: 'none',
-                    }),
-                    menu: (provided) => ({
-                      ...provided,
-                      backgroundColor: '#1e1e1e',
-                      maxHeight: '150px',
-                      overflowY: 'auto',
-                      scrollbarWidth: 'thin',
-                    }),
-                    option: (provided, state) => ({
-                      ...provided,
-                      backgroundColor: state.isFocused ? '#333' : '#1e1e1e',
-                      color: '#fff',
-                      cursor: 'pointer',
-                    }),
-                    singleValue: (provided) => ({
-                      ...provided,
-                      color: '#fff',
-                    }),
-                    dropdownIndicator: (provided) => ({
-                      ...provided,
-                      color: '#fff',
-                    }),
-                    indicatorSeparator: (provided) => ({
-                      ...provided,
-                      backgroundColor: '#444',
-                    }),
-                  }}
+                  classNamePrefix="react-select"
                   required
                 />
               </div>
@@ -290,4 +220,19 @@ export default function RegistrarPage({ session }) {
       </div>
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  if (!session || session.role !== 'user') {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
 }
