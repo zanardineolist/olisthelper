@@ -171,7 +171,14 @@ export default function RegistroPage({ session }) {
             <form onSubmit={handleSubmit}>
               <div className={styles.formGroup}>
                 <label htmlFor="user">Selecione o usuário</label>
-                <select id="user" name="user" value={formData.user} onChange={handleChange} required>
+                <select
+                  id="user"
+                  name="user"
+                  value={formData.user}
+                  onChange={handleChange}
+                  required
+                  className={styles.select}
+                >
                   <option value="">Selecione um usuário</option>
                   {users.map((user) => (
                     <option key={user.id} value={user.id}>
@@ -180,10 +187,18 @@ export default function RegistroPage({ session }) {
                   ))}
                 </select>
               </div>
+
               <div className={styles.formGroup}>
-                <label htmlFor="category">Categoria da ajuda</label>
-                <select id="category" name="category" value={formData.category} onChange={handleChange} required>
-                  <option value="">Selecione uma categoria</option>
+                <label htmlFor="category">Tema da ajuda</label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                  className={styles.select}
+                >
+                  <option value="">Selecione um tema</option>
                   {categories.map((category, index) => (
                     <option key={index} value={category}>
                       {category}
@@ -200,7 +215,7 @@ export default function RegistroPage({ session }) {
                   onChange={handleChange}
                   required
                   rows="4"
-                  className={styles.formTextarea} // Adicionando a classe para estilização
+                  className={styles.formTextarea}
                 />
               </div>
               <div className={styles.formButtonContainer}>

@@ -60,11 +60,30 @@
   font-size: 1.5rem;
 }
 
-.formGroup {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+.formGroup select {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background-color: #222;
+  color: #fff;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.formGroup select::-webkit-scrollbar {
+  width: 8px;
+}
+
+.formGroup select::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+.formGroup select::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 10px;
+  border: 2px solid #121212;
 }
 
 .formGroup label {

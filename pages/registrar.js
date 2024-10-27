@@ -157,7 +157,14 @@ export default function RegistrarPage({ session }) {
             <form onSubmit={handleSubmit}>
               <div className={styles.formGroup}>
                 <label htmlFor="analyst">Selecione o analista</label>
-                <select id="analyst" name="analyst" value={formData.analyst} onChange={handleChange} required>
+                <select
+                  id="analyst"
+                  name="analyst"
+                  value={formData.analyst}
+                  onChange={handleChange}
+                  required
+                  className={styles.select}
+                >
                   <option value="">Selecione um analista</option>
                   {analysts.map((analyst) => (
                     <option key={analyst.id} value={analyst.id}>
@@ -166,10 +173,18 @@ export default function RegistrarPage({ session }) {
                   ))}
                 </select>
               </div>
+
               <div className={styles.formGroup}>
-                <label htmlFor="category">Categoria da dúvida</label>
-                <select id="category" name="category" value={formData.category} onChange={handleChange} required>
-                  <option value="">Selecione uma categoria</option>
+                <label htmlFor="category">Tema da dúvida</label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                  className={styles.select}
+                >
+                  <option value="">Selecione um tema</option>
                   {categories.map((category, index) => (
                     <option key={index} value={category}>
                       {category}
