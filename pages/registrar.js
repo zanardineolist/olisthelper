@@ -102,20 +102,22 @@ export default function RegistrarPage({ session }) {
       color: '#fff',
       borderRadius: '5px',
       padding: '5px',
+      boxShadow: state.isFocused ? 'none' : 'none', // Removendo qualquer sombra ao focar
       '&:hover': {
         borderColor: '#F0A028',
       },
+      outline: 'none', // Removendo a outline padrão do navegador
     }),
     menu: (provided) => ({
       ...provided,
       backgroundColor: '#1e1e1e',
-      maxHeight: '200px',
+      maxHeight: '150px',
       overflowY: 'auto',
     }),
     menuList: (provided) => ({
       ...provided,
       padding: 0,
-      maxHeight: '200px',
+      maxHeight: '150px',
       '&::-webkit-scrollbar': {
         width: '8px',
       },

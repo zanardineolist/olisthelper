@@ -61,6 +61,12 @@
   outline: none;
 }
 
+/* Remover o box-shadow padrão azul ao focar no React-Select */
+.react-select__control:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
 /* Estilo para a caixa de texto de descrição */
 .formTextarea {
   width: 100%;
