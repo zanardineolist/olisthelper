@@ -70,7 +70,7 @@
 
 /* Limitação de altura e rolagem customizada para caixas de seleção */
 .formGroup select {
-  max-height: 150px; /* Limite de altura para a caixa de seleção */
+  max-height: 100px; /* Limite de altura para a caixa de seleção */
   overflow-y: auto; /* Adiciona barra de rolagem vertical quando necessário */
 }
 
