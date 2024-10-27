@@ -98,7 +98,7 @@ export default function RegistrarPage({ session }) {
     control: (provided, state) => ({
       ...provided,
       backgroundColor: '#222',
-      borderColor: state.isFocused ? '#F57C00' : '#444',
+      borderColor: state.isFocused ? '#F0A028' : '#444',
       color: '#fff',
       borderRadius: '5px',
       padding: '5px',
@@ -111,13 +111,13 @@ export default function RegistrarPage({ session }) {
     menu: (provided) => ({
       ...provided,
       backgroundColor: '#1e1e1e',
-      maxHeight: '150px',
+      maxHeight: '220px',
       overflowY: 'auto',
     }),
     menuList: (provided) => ({
       ...provided,
       padding: 0,
-      maxHeight: '150px',
+      maxHeight: '220px',
       '&::-webkit-scrollbar': {
         width: '8px',
       },
@@ -135,7 +135,7 @@ export default function RegistrarPage({ session }) {
       backgroundColor: state.isFocused
         ? '#333'
         : state.isSelected
-        ? '#F57C00'
+        ? '#F0A028'
         : '#1e1e1e',
       color: '#fff',
       cursor: 'pointer',
