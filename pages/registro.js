@@ -111,11 +111,11 @@ export default function RegistroPage({ session }) {
       color: '#fff',
       borderRadius: '5px',
       padding: '5px',
-      boxShadow: 'none',
+      boxShadow: 'none', // Removendo qualquer sombra ao focar
       '&:hover': {
         borderColor: '#F0A028',
       },
-      outline: 'none',
+      outline: 'none', // Removendo a outline padrão do navegador
     }),
     input: (provided) => ({
       ...provided,
@@ -167,7 +167,7 @@ export default function RegistroPage({ session }) {
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: '#fff',
+      color: '#fff', // Alterando a cor do indicador de digitação para branco
     }),
     indicatorSeparator: (provided) => ({
       ...provided,
@@ -296,7 +296,7 @@ export default function RegistroPage({ session }) {
                       description: e.target.value,
                     }))
                   }
-                  placeholder="Descreva brevemente a ajuda..."
+                  placeholder="Descreva brevemente sua dúvida..."
                   required
                   rows="4"
                   className={`${styles.formTextarea} ${styles.formFieldHover}`}

@@ -158,7 +158,7 @@ export default function RegistrarPage({ session }) {
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: '#aaa',
+      color: '#fff', // Alterando a cor do indicador de digitação para branco
     }),
     indicatorSeparator: (provided) => ({
       ...provided,
