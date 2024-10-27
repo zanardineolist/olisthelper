@@ -43,10 +43,11 @@ export default function RegistroPage({ session }) {
     loadUsersAndCategories();
   }, []);
 
-  const handleChange = (selectedOption, { name }) => {
+  const handleChange = (selectedOption, actionMeta) => {
+    const { name } = actionMeta;
     setFormData((prev) => ({
       ...prev,
-      [name]: selectedOption ? selectedOption.value : null,
+      [name]: selectedOption,
     }));
   };
 
@@ -54,8 +55,8 @@ export default function RegistroPage({ session }) {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const selectedUser = users.find((user) => user.id === formData.user);
-      const userName = selectedUser ? selectedUser.name : '';
+      const selectedUser = formData.user;
+      const userName = selectedUser ? selectedUser.label : '';
       const userEmail = selectedUser ? selectedUser.email : '';
 
       const response = await fetch('/api/register-analyst-help', {
@@ -66,7 +67,7 @@ export default function RegistroPage({ session }) {
         body: JSON.stringify({
           userName,
           userEmail,
-          category: formData.category,
+          category: formData.category ? formData.category.value : '',
           description: formData.description,
           analystId: session.id,
         }),
@@ -252,8 +253,9 @@ export default function RegistroPage({ session }) {
                   options={users.map((user) => ({
                     value: user.id,
                     label: user.name,
+                    email: user.email, // Incluindo email para ser usado na submissão
                   }))}
-                  value={users.find((option) => option.value === formData.user) || null}
+                  value={formData.user}
                   onChange={handleChange}
                   isClearable
                   placeholder="Selecione um usuário"
@@ -273,7 +275,7 @@ export default function RegistroPage({ session }) {
                     value: category,
                     label: category,
                   }))}
-                  value={categories.find((option) => option.value === formData.category) || null}
+                  value={formData.category}
                   onChange={handleChange}
                   isClearable
                   placeholder="Selecione um tema"
