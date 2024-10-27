@@ -88,7 +88,7 @@ export default function AnalystProfilePage({ user }) {
   return (
     <>
       <Head>
-        <title>Perfil do Analista</title>
+        <title>Meus Dados</title>
       </Head>
 
       <div className={styles.container}>
