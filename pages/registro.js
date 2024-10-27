@@ -220,7 +220,7 @@ export default function RegistroPage({ session }) {
               </div>
               <div className={styles.formButtonContainer}>
                 <button type="submit" className={styles.submitButton} disabled={submitting}>
-                  {submitting ? 'Enviando...' : 'Enviar Ajuda'}
+                  {submitting ? 'Registrando...' : 'Registrar'}
                 </button>
               </div>
             </form>
