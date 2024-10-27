@@ -108,6 +108,11 @@ export default function RegistrarPage({ session }) {
       },
       outline: 'none', // Removendo a outline padrão do navegador
     }),
+    input: (provided) => ({
+      ...provided,
+      color: '#fff',
+      caretColor: '#fff',
+    }),
     menu: (provided) => ({
       ...provided,
       backgroundColor: '#1e1e1e',
@@ -153,7 +158,7 @@ export default function RegistrarPage({ session }) {
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: '#fff', // Alterando a cor do indicador de digitação para branco
+      color: '#fff',
     }),
     indicatorSeparator: (provided) => ({
       ...provided,
@@ -245,7 +250,7 @@ export default function RegistrarPage({ session }) {
                   placeholder="Selecione o analista"
                   styles={customSelectStyles}
                   classNamePrefix="react-select"
-                  noOptionsMessage={() => "Sem resultados"} // Alterando "No options" para "Sem resultados"
+                  noOptionsMessage={() => "Sem resultados"}
                   required
                 />
               </div>
@@ -265,7 +270,7 @@ export default function RegistrarPage({ session }) {
                   placeholder="Selecione um tema"
                   styles={customSelectStyles}
                   classNamePrefix="react-select"
-                  noOptionsMessage={() => "Sem resultados"} // Alterando "No options" para "Sem resultados"
+                  noOptionsMessage={() => "Sem resultados"}
                   required
                 />
               </div>
@@ -282,7 +287,7 @@ export default function RegistrarPage({ session }) {
                       description: e.target.value,
                     }))
                   }
-                  placeholder="Descreva brevemente sua dúvida..." // Placeholder adicionado
+                  placeholder="Descreva brevemente sua dúvida..."
                   required
                   rows="4"
                   className={`${styles.formTextarea} ${styles.formFieldHover}`}
