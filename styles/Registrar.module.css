@@ -54,45 +54,52 @@
   font-weight: bold;
 }
 
-/* Estilo para os elementos de seleção e caixas de texto */
-.formGroup select,
-.formGroup textarea {
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #444;
-  background-color: #222;
-  color: #fff;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-  width: 100%; /* Garantir que ocupe a mesma largura */
-  max-width: 500px; /* Limitação da largura */
+/* Estilo para os elementos de seleção do React-Select */
+.react-select__control {
+  background-color: #222 !important;
+  border-color: #444 !important;
+  color: #fff !important;
+  border-radius: 5px !important;
+  padding: 5px !important;
+  box-shadow: none !important;
 }
 
-/* Limitação de altura e rolagem customizada para caixas de seleção */
-.formGroup select {
-  max-height: 100px; /* Limite de altura para a caixa de seleção */
-  overflow-y: auto; /* Adiciona barra de rolagem vertical quando necessário */
+.react-select__menu {
+  background-color: #1e1e1e !important;
+  max-height: 150px !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin !important;
 }
 
-.formGroup select::-webkit-scrollbar {
-  width: 8px; /* Largura da barra de rolagem */
+.react-select__option {
+  background-color: #1e1e1e !important;
+  color: #fff !important;
+  cursor: pointer !important;
 }
 
-.formGroup select::-webkit-scrollbar-track {
-  background: #121212; /* Fundo da barra de rolagem */
+.react-select__option--is-focused {
+  background-color: #333 !important;
 }
 
-.formGroup select::-webkit-scrollbar-thumb {
-  background-color: #555; /* Cor da barra de rolagem */
+/* Limite de altura e rolagem customizada para o dropdown */
+.react-select__menu-list {
+  max-height: 150px !important;
+  overflow-y: auto !important;
+}
+
+/* Barra de rolagem customizada */
+.react-select__menu-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.react-select__menu-list::-webkit-scrollbar-track {
+  background: #121212;
+}
+
+.react-select__menu-list::-webkit-scrollbar-thumb {
+  background-color: #555;
   border-radius: 10px;
-  border: 2px solid #121212; /* Borda para combinar com o fundo */
-}
-
-/* Efeito de foco para caixas de seleção e texto */
-.formGroup select:focus,
-.formGroup textarea:focus {
-  border-color: #F0A028;
-  outline: none;
+  border: 2px solid #121212;
 }
 
 /* Estilo para a caixa de texto de descrição */
@@ -102,6 +109,12 @@
   min-width: 500px;
   max-height: 200px;
   resize: vertical;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background-color: #222;
+  color: #fff;
+  font-size: 1rem;
 }
 
 /* Container para o botão do formulário */

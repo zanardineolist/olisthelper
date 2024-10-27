@@ -175,18 +175,32 @@ export default function RegistrarPage({ session }) {
                       color: '#fff',
                       borderRadius: '5px',
                       padding: '5px',
+                      boxShadow: 'none',
                     }),
                     menu: (provided) => ({
                       ...provided,
                       backgroundColor: '#1e1e1e',
-                      maxHeight: '100px',
+                      maxHeight: '150px',
                       overflowY: 'auto',
+                      scrollbarWidth: 'thin',
                     }),
                     option: (provided, state) => ({
                       ...provided,
                       backgroundColor: state.isFocused ? '#333' : '#1e1e1e',
                       color: '#fff',
                       cursor: 'pointer',
+                    }),
+                    singleValue: (provided) => ({
+                      ...provided,
+                      color: '#fff',
+                    }),
+                    dropdownIndicator: (provided) => ({
+                      ...provided,
+                      color: '#fff',
+                    }),
+                    indicatorSeparator: (provided) => ({
+                      ...provided,
+                      backgroundColor: '#444',
                     }),
                   }}
                   required
@@ -213,18 +227,32 @@ export default function RegistrarPage({ session }) {
                       color: '#fff',
                       borderRadius: '5px',
                       padding: '5px',
+                      boxShadow: 'none',
                     }),
                     menu: (provided) => ({
                       ...provided,
                       backgroundColor: '#1e1e1e',
-                      maxHeight: '100px',
+                      maxHeight: '150px',
                       overflowY: 'auto',
+                      scrollbarWidth: 'thin',
                     }),
                     option: (provided, state) => ({
                       ...provided,
                       backgroundColor: state.isFocused ? '#333' : '#1e1e1e',
                       color: '#fff',
                       cursor: 'pointer',
+                    }),
+                    singleValue: (provided) => ({
+                      ...provided,
+                      color: '#fff',
+                    }),
+                    dropdownIndicator: (provided) => ({
+                      ...provided,
+                      color: '#fff',
+                    }),
+                    indicatorSeparator: (provided) => ({
+                      ...provided,
+                      backgroundColor: '#444',
                     }),
                   }}
                   required
@@ -262,19 +290,4 @@ export default function RegistrarPage({ session }) {
       </div>
     </>
   );
-}
-
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  if (!session || session.role !== 'user') {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: { session },
-  };
 }
