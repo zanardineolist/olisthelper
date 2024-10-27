@@ -62,10 +62,15 @@
   border-radius: 5px;
   padding: 2px;
   box-shadow: none;
+  transition: border-color 0.3s ease;
 }
 
 .react-select__control:hover {
   border-color: #F0A028;
+}
+
+.react-select__control--is-focused {
+  border-color: #F57C00 !important; /* Cor de foco */
 }
 
 .react-select__menu {
@@ -79,10 +84,20 @@
   background-color: #1e1e1e;
   color: #fff;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .react-select__option--is-focused {
   background-color: #333;
+}
+
+.react-select__option--is-selected {
+  background-color: #F57C00; /* Cor para o item selecionado */
+  color: #fff;
+}
+
+.react-select__option:hover {
+  background-color: #333; /* Cor de hover para os itens da listagem */
 }
 
 .react-select__single-value {
