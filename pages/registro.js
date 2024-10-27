@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Select from 'react-select';
 import Swal from 'sweetalert2';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
@@ -25,17 +26,13 @@ export default function RegistroPage({ session }) {
     const loadUsersAndCategories = async () => {
       try {
         setLoading(true);
-
-        // Carregar usuários
         const usersRes = await fetch('/api/get-users');
         const usersData = await usersRes.json();
         setUsers(usersData.users);
 
-        // Carregar categorias
         const categoriesRes = await fetch('/api/get-analysts-categories');
         const categoriesData = await categoriesRes.json();
         setCategories(categoriesData.categories);
-
       } catch (err) {
         console.error('Erro ao carregar usuários e categorias:', err);
       } finally {
@@ -46,11 +43,10 @@ export default function RegistroPage({ session }) {
     loadUsersAndCategories();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (selectedOption, { name }) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: selectedOption ? selectedOption.value : '',
     }));
   };
 
@@ -58,11 +54,10 @@ export default function RegistroPage({ session }) {
     e.preventDefault();
     setSubmitting(true);
     try {
-      // Buscar o nome e email do usuário selecionado a partir do estado `users`
       const selectedUser = users.find((user) => user.id === formData.user);
       const userName = selectedUser ? selectedUser.name : '';
       const userEmail = selectedUser ? selectedUser.email : '';
-  
+
       const response = await fetch('/api/register-analyst-help', {
         method: 'POST',
         headers: {
@@ -105,7 +100,84 @@ export default function RegistroPage({ session }) {
     } finally {
       setSubmitting(false);
     }
-  };  
+  };
+
+  // Estilos personalizados para o React-Select
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: '#222',
+      borderColor: state.isFocused ? '#F0A028' : '#444',
+      color: '#fff',
+      borderRadius: '5px',
+      padding: '5px',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: '#F0A028',
+      },
+      outline: 'none',
+    }),
+    input: (provided) => ({
+      ...provided,
+      color: '#fff',
+      caretColor: '#fff',
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: '#1e1e1e',
+      maxHeight: '220px',
+      overflowY: 'auto',
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      padding: 0,
+      maxHeight: '220px',
+      '&::-webkit-scrollbar': {
+        width: '8px',
+      },
+      '&::-webkit-scrollbar-track': {
+        background: '#121212',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: '#555',
+        borderRadius: '10px',
+        border: '2px solid #121212',
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused
+        ? '#333'
+        : state.isSelected
+        ? '#F0A028'
+        : '#1e1e1e',
+      color: '#fff',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: '#333',
+      },
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: '#fff',
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: '#aaa',
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: '#fff',
+    }),
+    indicatorSeparator: (provided) => ({
+      ...provided,
+      backgroundColor: '#444',
+    }),
+    noOptionsMessage: (provided) => ({
+      ...provided,
+      color: '#fff',
+    }),
+  };
 
   if (loading) {
     return (
@@ -126,7 +198,10 @@ export default function RegistroPage({ session }) {
           <div className={commonStyles.logo}>
             <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
           </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
+          <button
+            onClick={() => setMenuOpen((prevMenuOpen) => !prevMenuOpen)}
+            className={commonStyles.menuToggle}
+          >
             ☰
           </button>
         </nav>
@@ -171,53 +246,63 @@ export default function RegistroPage({ session }) {
             <form onSubmit={handleSubmit}>
               <div className={styles.formGroup}>
                 <label htmlFor="user">Selecione o usuário</label>
-                <select
+                <Select
                   id="user"
                   name="user"
-                  value={formData.user}
+                  options={users.map((user) => ({
+                    value: user.id,
+                    label: user.name,
+                  }))}
+                  value={users.find((option) => option.value === formData.user)}
                   onChange={handleChange}
+                  isClearable
+                  placeholder="Selecione um usuário"
+                  styles={customSelectStyles}
+                  classNamePrefix="react-select"
+                  noOptionsMessage={() => "Sem resultados"}
                   required
-                  className={styles.select}
-                >
-                  <option value="">Selecione um usuário</option>
-                  {users.map((user) => (
-                    <option key={user.id} value={user.id}>
-                      {user.name}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
 
               <div className={styles.formGroup}>
                 <label htmlFor="category">Tema da ajuda</label>
-                <select
+                <Select
                   id="category"
                   name="category"
-                  value={formData.category}
+                  options={categories.map((category) => ({
+                    value: category,
+                    label: category,
+                  }))}
+                  value={categories.find((option) => option.value === formData.category)}
                   onChange={handleChange}
+                  isClearable
+                  placeholder="Selecione um tema"
+                  styles={customSelectStyles}
+                  classNamePrefix="react-select"
+                  noOptionsMessage={() => "Sem resultados"}
                   required
-                  className={styles.select}
-                >
-                  <option value="">Selecione um tema</option>
-                  {categories.map((category, index) => (
-                    <option key={index} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
+
               <div className={styles.formGroup}>
                 <label htmlFor="description">Descrição da ajuda</label>
                 <textarea
                   id="description"
                   name="description"
                   value={formData.description}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  placeholder="Descreva brevemente a ajuda..."
                   required
                   rows="4"
-                  className={styles.formTextarea}
+                  className={`${styles.formTextarea} ${styles.formFieldHover}`}
                 />
               </div>
+
               <div className={styles.formButtonContainer}>
                 <button type="submit" className={styles.submitButton} disabled={submitting}>
                   {submitting ? 'Registrando...' : 'Registrar'}
@@ -227,7 +312,7 @@ export default function RegistroPage({ session }) {
           </div>
         </div>
 
-        <Footer /> {/* Adicionando o rodapé no final da página */}
+        <Footer />
       </div>
     </>
   );
