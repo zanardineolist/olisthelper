@@ -153,11 +153,15 @@ export default function RegistrarPage({ session }) {
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: '#fff',
+      color: '#fff', // Alterando a cor do indicador de digitação para branco
     }),
     indicatorSeparator: (provided) => ({
       ...provided,
       backgroundColor: '#444',
+    }),
+    noOptionsMessage: (provided) => ({
+      ...provided,
+      color: '#fff',
     }),
   };
 
@@ -241,6 +245,7 @@ export default function RegistrarPage({ session }) {
                   placeholder="Selecione o analista"
                   styles={customSelectStyles}
                   classNamePrefix="react-select"
+                  noOptionsMessage={() => "Sem resultados"} // Alterando "No options" para "Sem resultados"
                   required
                 />
               </div>
@@ -260,6 +265,7 @@ export default function RegistrarPage({ session }) {
                   placeholder="Selecione um tema"
                   styles={customSelectStyles}
                   classNamePrefix="react-select"
+                  noOptionsMessage={() => "Sem resultados"} // Alterando "No options" para "Sem resultados"
                   required
                 />
               </div>
@@ -276,7 +282,7 @@ export default function RegistrarPage({ session }) {
                       description: e.target.value,
                     }))
                   }
-                  placeholder="Descreva brevemente sua dúvida..."
+                  placeholder="Descreva brevemente sua dúvida..." // Placeholder adicionado
                   required
                   rows="4"
                   className={`${styles.formTextarea} ${styles.formFieldHover}`}
