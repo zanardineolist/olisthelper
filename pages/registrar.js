@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Select from 'react-select'; // Importando React-Select
 import Swal from 'sweetalert2';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
@@ -39,11 +40,10 @@ export default function RegistrarPage({ session }) {
     loadAnalystsAndCategories();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (selectedOption, { name }) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: selectedOption ? selectedOption.value : '',
     }));
   };
 
@@ -157,53 +157,98 @@ export default function RegistrarPage({ session }) {
             <form onSubmit={handleSubmit}>
               <div className={styles.formGroup}>
                 <label htmlFor="analyst">Selecione o analista</label>
-                <select
+                <Select
                   id="analyst"
                   name="analyst"
-                  value={formData.analyst}
+                  options={analysts.map((analyst) => ({
+                    value: analyst.id,
+                    label: analyst.name,
+                  }))}
+                  value={analysts.find((option) => option.value === formData.analyst)}
                   onChange={handleChange}
+                  isClearable
+                  styles={{
+                    control: (provided) => ({
+                      ...provided,
+                      backgroundColor: '#222',
+                      borderColor: '#444',
+                      color: '#fff',
+                      borderRadius: '5px',
+                      padding: '5px',
+                    }),
+                    menu: (provided) => ({
+                      ...provided,
+                      backgroundColor: '#1e1e1e',
+                      maxHeight: '100px',
+                      overflowY: 'auto',
+                    }),
+                    option: (provided, state) => ({
+                      ...provided,
+                      backgroundColor: state.isFocused ? '#333' : '#1e1e1e',
+                      color: '#fff',
+                      cursor: 'pointer',
+                    }),
+                  }}
                   required
-                  className={styles.select}
-                >
-                  <option value="">Selecione um analista</option>
-                  {analysts.map((analyst) => (
-                    <option key={analyst.id} value={analyst.id}>
-                      {analyst.name}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
 
               <div className={styles.formGroup}>
                 <label htmlFor="category">Tema da dúvida</label>
-                <select
+                <Select
                   id="category"
                   name="category"
-                  value={formData.category}
+                  options={categories.map((category) => ({
+                    value: category,
+                    label: category,
+                  }))}
+                  value={categories.find((option) => option.value === formData.category)}
                   onChange={handleChange}
+                  isClearable
+                  styles={{
+                    control: (provided) => ({
+                      ...provided,
+                      backgroundColor: '#222',
+                      borderColor: '#444',
+                      color: '#fff',
+                      borderRadius: '5px',
+                      padding: '5px',
+                    }),
+                    menu: (provided) => ({
+                      ...provided,
+                      backgroundColor: '#1e1e1e',
+                      maxHeight: '100px',
+                      overflowY: 'auto',
+                    }),
+                    option: (provided, state) => ({
+                      ...provided,
+                      backgroundColor: state.isFocused ? '#333' : '#1e1e1e',
+                      color: '#fff',
+                      cursor: 'pointer',
+                    }),
+                  }}
                   required
-                  className={styles.select}
-                >
-                  <option value="">Selecione um tema</option>
-                  {categories.map((category, index) => (
-                    <option key={index} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
+
               <div className={styles.formGroup}>
                 <label htmlFor="description">Descrição da dúvida</label>
                 <textarea
                   id="description"
                   name="description"
                   value={formData.description}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   required
                   rows="4"
                   className={styles.formTextarea}
                 />
               </div>
+
               <div className={styles.formButtonContainer}>
                 <button type="submit" className={styles.submitButton} disabled={submitting}>
                   {submitting ? 'Registrando...' : 'Registrar'}
@@ -213,7 +258,7 @@ export default function RegistrarPage({ session }) {
           </div>
         </div>
 
-        <Footer /> {/* Adicionando o rodapé no final da página */}
+        <Footer />
       </div>
     </>
   );
