@@ -17,8 +17,8 @@ export default function RegistroPage({ session }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    user: '',
-    category: '',
+    user: null,
+    category: null,
     description: '',
   });
 
@@ -46,7 +46,7 @@ export default function RegistroPage({ session }) {
   const handleChange = (selectedOption, { name }) => {
     setFormData((prev) => ({
       ...prev,
-      [name]: selectedOption ? selectedOption.value : '',
+      [name]: selectedOption ? selectedOption.value : null,
     }));
   };
 
@@ -78,7 +78,7 @@ export default function RegistroPage({ session }) {
           showConfirmButton: false,
           timer: 1500,
         });
-        setFormData({ user: '', category: '', description: '' });
+        setFormData({ user: null, category: null, description: '' });
       } else {
         Swal.fire({
           icon: 'error',
@@ -253,7 +253,7 @@ export default function RegistroPage({ session }) {
                     value: user.id,
                     label: user.name,
                   }))}
-                  value={users.find((option) => option.value === formData.user)}
+                  value={users.find((option) => option.value === formData.user) || null}
                   onChange={handleChange}
                   isClearable
                   placeholder="Selecione um usuário"
@@ -273,7 +273,7 @@ export default function RegistroPage({ session }) {
                     value: category,
                     label: category,
                   }))}
-                  value={categories.find((option) => option.value === formData.category)}
+                  value={categories.find((option) => option.value === formData.category) || null}
                   onChange={handleChange}
                   isClearable
                   placeholder="Selecione um tema"
