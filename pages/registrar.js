@@ -158,7 +158,7 @@ export default function RegistrarPage({ session }) {
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: '#fff',
+      color: '#aaa',
     }),
     indicatorSeparator: (provided) => ({
       ...provided,
