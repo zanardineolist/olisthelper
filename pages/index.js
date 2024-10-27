@@ -1,3 +1,4 @@
+// pages/index.js
 import Head from 'next/head';
 import { getSession, signIn } from 'next-auth/react';
 import Image from 'next/image';
@@ -12,7 +13,11 @@ export default function LoginPage() {
     const checkSession = async () => {
       const session = await getSession();
       if (session) {
-        router.push('/profile');
+        if (session.role === 'analyst') {
+          router.push('/analyst-profile');
+        } else {
+          router.push('/profile');
+        }
       }
     };
     checkSession();
@@ -23,7 +28,7 @@ export default function LoginPage() {
       <Head>
         <title>Olist Helper</title>
       </Head>
-  
+
       <div className={styles.loginContainer}>
         <div className={styles.loginBox}>
           <div className={styles.logoContainer}>
@@ -49,14 +54,14 @@ export default function LoginPage() {
       </div>
     </>
   );
-}  
+}
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
   if (session) {
     return {
       redirect: {
-        destination: '/profile',
+        destination: session.role === 'analyst' ? '/analyst-profile' : '/profile',
         permanent: false,
       },
     };

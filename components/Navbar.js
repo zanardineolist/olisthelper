@@ -1,3 +1,4 @@
+// components/Navbar.js
 import Link from 'next/link';
 import styles from '../styles/Navbar.module.css';
 import { useState, useEffect } from 'react';
@@ -17,7 +18,7 @@ export default function Navbar() {
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
-        <Link href="/profile">Olist Helper</Link>
+        <Link href={isAnalyst ? "/analyst-profile" : "/profile"}>Olist Helper</Link>
       </div>
       <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
         ☰
@@ -27,6 +28,11 @@ export default function Navbar() {
           <Link href="/profile" className={styles.menuButton}>
             Meu Perfil
           </Link>
+          {isAnalyst && (
+            <Link href="/analyst-profile" className={styles.menuButton}>
+              Meu Perfil
+            </Link>
+          )}
           <Link href="/registrar" className={styles.menuButton}>
             Registrar Dúvida
           </Link>

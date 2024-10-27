@@ -1,3 +1,4 @@
+// pages/api/auth/[...nextauth].js
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { addUserToSheet, getUserFromSheet } from '../../../utils/googleSheets';
@@ -30,6 +31,7 @@ export default NextAuth({
           console.log('Usuário não encontrado na planilha. Registrando novo usuário:', user.email);
           // Registrar usuário automaticamente na planilha
           await addUserToSheet({ name: user.name, email: user.email });
+          userDetails = await getUserFromSheet(user.email);
         }
 
         return true;
@@ -52,7 +54,7 @@ export default NextAuth({
 
         if (userDetails) {
           token.id = userDetails[0]; // Armazena o ID de 4 dígitos da planilha
-          token.role = userDetails[3]; // Armazena o papel do usuário (e.g., 'user')
+          token.role = userDetails[3]; // Armazena o papel do usuário (e.g., 'user' ou 'analyst')
         }
       }
       return token;
