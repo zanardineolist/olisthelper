@@ -17,8 +17,8 @@ export default function RegistrarPage({ session }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    analyst: '',
-    category: '',
+    analyst: null,
+    category: null,
     description: '',
   });
 
@@ -40,10 +40,11 @@ export default function RegistrarPage({ session }) {
     loadAnalystsAndCategories();
   }, []);
 
-  const handleChange = (selectedOption, { name }) => {
+  const handleChange = (selectedOption, actionMeta) => {
+    const { name } = actionMeta;
     setFormData((prev) => ({
       ...prev,
-      [name]: selectedOption ? selectedOption.value : '',
+      [name]: selectedOption,
     }));
   };
 
@@ -57,7 +58,9 @@ export default function RegistrarPage({ session }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
+          analyst: formData.analyst ? formData.analyst.value : '',
+          category: formData.category ? formData.category.value : '',
+          description: formData.description,
           userName: session.user.name,
           userEmail: session.user.email,
         }),
@@ -69,7 +72,7 @@ export default function RegistrarPage({ session }) {
           showConfirmButton: false,
           timer: 1500,
         });
-        setFormData({ analyst: '', category: '', description: '' });
+        setFormData({ analyst: null, category: null, description: '' });
       } else {
         Swal.fire({
           icon: 'error',
@@ -102,11 +105,11 @@ export default function RegistrarPage({ session }) {
       color: '#fff',
       borderRadius: '5px',
       padding: '5px',
-      boxShadow: 'none', // Removendo qualquer sombra ao focar
+      boxShadow: 'none',
       '&:hover': {
         borderColor: '#F0A028',
       },
-      outline: 'none', // Removendo a outline padrão do navegador
+      outline: 'none',
     }),
     input: (provided) => ({
       ...provided,
@@ -158,7 +161,7 @@ export default function RegistrarPage({ session }) {
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: '#fff', // Alterando a cor do indicador de digitação para branco
+      color: '#fff',
     }),
     indicatorSeparator: (provided) => ({
       ...provided,
@@ -244,7 +247,7 @@ export default function RegistrarPage({ session }) {
                     value: analyst.id,
                     label: analyst.name,
                   }))}
-                  value={analysts.find((option) => option.value === formData.analyst)}
+                  value={formData.analyst}
                   onChange={handleChange}
                   isClearable
                   placeholder="Selecione o analista"
@@ -264,7 +267,7 @@ export default function RegistrarPage({ session }) {
                     value: category,
                     label: category,
                   }))}
-                  value={categories.find((option) => option.value === formData.category)}
+                  value={formData.category}
                   onChange={handleChange}
                   isClearable
                   placeholder="Selecione um tema"
