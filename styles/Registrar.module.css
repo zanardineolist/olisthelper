@@ -54,43 +54,9 @@
   font-weight: bold;
 }
 
-/* Estilo para os elementos de seleção e caixas de texto */
-.formGroup select,
-.formGroup textarea {
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #444;
-  background-color: #222;
-  color: #fff;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-  width: 100%; /* Garantir que ocupe a mesma largura */
-  max-width: 500px; /* Limitação da largura */
-}
-
-/* Limitação de altura e rolagem customizada para caixas de seleção */
-.formGroup select {
-  max-height: 0px; /* Limite de altura para a caixa de seleção */
-  overflow-y: auto; /* Adiciona barra de rolagem vertical quando necessário */
-}
-
-.formGroup select::-webkit-scrollbar {
-  width: 8px; /* Largura da barra de rolagem */
-}
-
-.formGroup select::-webkit-scrollbar-track {
-  background: #121212; /* Fundo da barra de rolagem */
-}
-
-.formGroup select::-webkit-scrollbar-thumb {
-  background-color: #555; /* Cor da barra de rolagem */
-  border-radius: 10px;
-  border: 2px solid #121212; /* Borda para combinar com o fundo */
-}
-
-/* Efeito de foco para caixas de seleção e texto */
-.formGroup select:focus,
-.formGroup textarea:focus {
+/* Efeito de foco e hover para caixas de texto */
+.formFieldHover:focus,
+.formFieldHover:hover {
   border-color: #F0A028;
   outline: none;
 }
@@ -102,6 +68,13 @@
   min-width: 500px;
   max-height: 200px;
   resize: vertical;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background-color: #222;
+  color: #fff;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
 }
 
 /* Container para o botão do formulário */

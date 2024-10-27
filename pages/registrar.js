@@ -102,7 +102,6 @@ export default function RegistrarPage({ session }) {
       color: '#fff',
       borderRadius: '5px',
       padding: '5px',
-      boxShadow: state.isFocused ? '0 0 0 2px rgba(245, 124, 0, 0.5)' : 'none',
       '&:hover': {
         borderColor: '#F0A028',
       },
@@ -110,13 +109,13 @@ export default function RegistrarPage({ session }) {
     menu: (provided) => ({
       ...provided,
       backgroundColor: '#1e1e1e',
-      maxHeight: '150px',
+      maxHeight: '200px',
       overflowY: 'auto',
     }),
     menuList: (provided) => ({
       ...provided,
       padding: 0,
-      maxHeight: '150px',
+      maxHeight: '200px',
       '&::-webkit-scrollbar': {
         width: '8px',
       },
@@ -145,6 +144,10 @@ export default function RegistrarPage({ session }) {
     singleValue: (provided) => ({
       ...provided,
       color: '#fff',
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: '#aaa',
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
@@ -230,6 +233,7 @@ export default function RegistrarPage({ session }) {
                   value={analysts.find((option) => option.value === formData.analyst)}
                   onChange={handleChange}
                   isClearable
+                  placeholder="Selecione o analista"
                   styles={customSelectStyles}
                   classNamePrefix="react-select"
                   required
@@ -248,6 +252,7 @@ export default function RegistrarPage({ session }) {
                   value={categories.find((option) => option.value === formData.category)}
                   onChange={handleChange}
                   isClearable
+                  placeholder="Selecione um tema"
                   styles={customSelectStyles}
                   classNamePrefix="react-select"
                   required
@@ -268,7 +273,7 @@ export default function RegistrarPage({ session }) {
                   }
                   required
                   rows="4"
-                  className={styles.formTextarea}
+                  className={`${styles.formTextarea} ${styles.formFieldHover}`}
                 />
               </div>
 
