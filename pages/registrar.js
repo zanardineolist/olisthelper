@@ -276,6 +276,7 @@ export default function RegistrarPage({ session }) {
                       description: e.target.value,
                     }))
                   }
+                  placeholder="Descreva brevemente sua dúvida..."
                   required
                   rows="4"
                   className={`${styles.formTextarea} ${styles.formFieldHover}`}
