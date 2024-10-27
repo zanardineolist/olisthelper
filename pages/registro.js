@@ -35,7 +35,6 @@ export default function RegistroPage({ session }) {
         const categoriesRes = await fetch('/api/get-analysts-categories');
         const categoriesData = await categoriesRes.json();
         setCategories(categoriesData.categories);
-
       } catch (err) {
         console.error('Erro ao carregar usuários e categorias:', err);
       } finally {
@@ -45,6 +44,22 @@ export default function RegistroPage({ session }) {
 
     loadUsersAndCategories();
   }, []);
+
+  // UseEffect para aplicar o estilo específico após a montagem do componente
+  useEffect(() => {
+    const selects = document.querySelectorAll('select');
+    selects.forEach((select) => {
+      select.addEventListener('click', () => {
+        // Forçar o estilo máximo da lista suspensa
+        select.size = Math.min(5, select.options.length);
+      });
+
+      select.addEventListener('blur', () => {
+        // Reverter o comportamento para manter o padrão
+        select.size = 0;
+      });
+    });
+  }, [loading]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,7 +77,7 @@ export default function RegistroPage({ session }) {
       const selectedUser = users.find((user) => user.id === formData.user);
       const userName = selectedUser ? selectedUser.name : '';
       const userEmail = selectedUser ? selectedUser.email : '';
-  
+
       const response = await fetch('/api/register-analyst-help', {
         method: 'POST',
         headers: {
@@ -105,7 +120,7 @@ export default function RegistroPage({ session }) {
     } finally {
       setSubmitting(false);
     }
-  };  
+  };
 
   if (loading) {
     return (

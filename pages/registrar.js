@@ -39,6 +39,22 @@ export default function RegistrarPage({ session }) {
     loadAnalystsAndCategories();
   }, []);
 
+  // UseEffect para aplicar o estilo específico após a montagem do componente
+  useEffect(() => {
+    const selects = document.querySelectorAll('select');
+    selects.forEach((select) => {
+      select.addEventListener('click', () => {
+        // Forçar o estilo máximo da lista suspensa
+        select.size = Math.min(5, select.options.length);
+      });
+
+      select.addEventListener('blur', () => {
+        // Reverter o comportamento para manter o padrão
+        select.size = 0;
+      });
+    });
+  }, [loading]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
