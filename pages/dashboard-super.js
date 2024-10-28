@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import styles from '../styles/DashboardSuper.module.css';
-import Navbar from '../components/Navbar';
+import commonStyles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
 
 export default function DashboardSuperPage({ session }) {
@@ -13,6 +13,7 @@ export default function DashboardSuperPage({ session }) {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
@@ -87,6 +88,11 @@ export default function DashboardSuperPage({ session }) {
 
   const handleUserSelect = (selectedOption) => {
     setSelectedUser(selectedOption ? selectedOption.value : null);
+  };
+
+  const handleNavigation = (path) => {
+    router.push(path);
+    setMenuOpen(false);
   };
 
   // Estilos personalizados para o React-Select, ajustando para centralizar e diminuir a largura
@@ -173,7 +179,35 @@ export default function DashboardSuperPage({ session }) {
         <title>Dashboard Supervisor</title>
       </Head>
 
-      <Navbar />
+      {/* Navbar personalizada */}
+      <div className={styles.container}>
+        <nav className={commonStyles.navbar}>
+          <div className={commonStyles.logo}>
+            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
+          </div>
+          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
+            ☰
+          </button>
+        </nav>
+        {menuOpen && (
+          <div className={commonStyles.menu}>
+            <button onClick={() => handleNavigation('/dashboard-super')} className={commonStyles.menuButton}>
+              Dashboard Super
+            </button>
+            <a
+              href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={commonStyles.menuButton}
+            >
+              Database
+            </a>
+            <button onClick={() => signOut()} className={commonStyles.menuButton}>
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
 
       <main className={styles.mainContent}>
         <h1 className={styles.title}>{greeting}, {session.user.name.split(' ')[0]}!</h1>
@@ -190,7 +224,7 @@ export default function DashboardSuperPage({ session }) {
         </div>
 
         {/* Campo de Seleção do Colaborador */}
-        <div className={styles.selectUserContainer}>
+        <div className={styles.profileAndHelpContainer}>
           <Select
             options={users.map((user) => ({ value: user, label: user.name }))}
             onChange={handleUserSelect}
@@ -298,59 +332,59 @@ export default function DashboardSuperPage({ session }) {
                     </div>
                   )}
 
-                {performanceData?.telefone && (
+                  {performanceData?.telefone && (
                     <div className={styles.performanceContainer}>
-                    <h2>Indicadores Telefone</h2>
-                    <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-                    <div className={styles.performanceInfo}>
+                      <h2>Indicadores Telefone</h2>
+                      <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+                      <div className={styles.performanceInfo}>
                         <div className={styles.performanceItem}>
-                        <span>Total Ligações:</span>
-                        <span>{performanceData.telefone.totalTelefone}</span>
+                          <span>Total Ligações:</span>
+                          <span>{performanceData.telefone.totalTelefone}</span>
                         </div>
                         <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.mediaPorDia || 'transparent' }}>
-                        <span>Média/Dia:</span>
-                        <span>{performanceData.telefone.mediaPorDia}</span>
+                          <span>Média/Dia:</span>
+                          <span>{performanceData.telefone.mediaPorDia}</span>
                         </div>
                         <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
-                        <span>TMA:</span>
-                        <span>{performanceData.telefone.tma}</span>
+                          <span>TMA:</span>
+                          <span>{performanceData.telefone.tma}</span>
                         </div>
                         <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
-                        <span>CSAT:</span>
-                        <span>{performanceData.telefone.csat}</span>
+                          <span>CSAT:</span>
+                          <span>{performanceData.telefone.csat}</span>
                         </div>
                         <div className={styles.performanceItem}>
-                        <span>Perdidas:</span>
-                        <span>{performanceData.telefone.perdidas}</span>
+                          <span>Perdidas:</span>
+                          <span>{performanceData.telefone.perdidas}</span>
                         </div>
+                      </div>
                     </div>
-                    </div>
-                )}
+                  )}
 
-                {performanceData?.chat && (
+                  {performanceData?.chat && (
                     <div className={styles.performanceContainer}>
-                    <h2>Indicadores Chat</h2>
-                    <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-                    <div className={styles.performanceInfo}>
+                      <h2>Indicadores Chat</h2>
+                      <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+                      <div className={styles.performanceInfo}>
                         <div className={styles.performanceItem}>
-                        <span>Total Chats:</span>
-                        <span>{performanceData.chat.totalChats}</span>
+                          <span>Total Chats:</span>
+                          <span>{performanceData.chat.totalChats}</span>
                         </div>
                         <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.mediaPorDia || 'transparent' }}>
-                        <span>Média/Dia:</span>
-                        <span>{performanceData.chat.mediaPorDia}</span>
+                          <span>Média/Dia:</span>
+                          <span>{performanceData.chat.mediaPorDia}</span>
                         </div>
                         <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
-                        <span>TMA:</span>
-                        <span>{performanceData.chat.tma}</span>
+                          <span>TMA:</span>
+                          <span>{performanceData.chat.tma}</span>
                         </div>
                         <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
-                        <span>CSAT:</span>
-                        <span>{performanceData.chat.csat}</span>
+                          <span>CSAT:</span>
+                          <span>{performanceData.chat.csat}</span>
                         </div>
+                      </div>
                     </div>
-                    </div>
-                )}
+                  )}
                 </>
               )}
             </div>
@@ -376,7 +410,7 @@ export default function DashboardSuperPage({ session }) {
                       ))}
                     </ul>
                   ) : (
-                    <div className={styles.noData}>Nenhum dado disponível no momento.</div>
+                    <div className={styles.noData}>Nenhum registro de tema localizado.</div>
                   )}
                 </>
               )}
@@ -391,16 +425,16 @@ export default function DashboardSuperPage({ session }) {
 }
 
 export async function getServerSideProps(context) {
-    const session = await getSession(context);
-    if (!session || session.role !== 'super') {
-      return {
-        redirect: {
-          destination: '/',
-          permanent: false,
-        },
-      };
-    }
+  const session = await getSession(context);
+  if (!session || session.role !== 'super') {
     return {
-      props: { session },
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
     };
   }
+  return {
+    props: { session },
+  };
+}
