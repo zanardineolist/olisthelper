@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import commonStyles from '../styles/commonStyles.module.css'; // Importando commonStyles para padronizar o menu
 import styles from '../styles/DashboardSuper.module.css';
+import styles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
 
 export default function DashboardSuperPage({ session }) {
@@ -210,7 +211,7 @@ export default function DashboardSuperPage({ session }) {
       </div>
 
       <main className={styles.main}>
-        <h1 className={styles.greeting}>Olá {greeting}, {session.user.name.split(' ')[0]}!</h1>
+        <h1 className={styles.greeting}>Olá, {greeting} {session.user.name.split(' ')[0]}!</h1>
 
         {/* Container com informações do perfil do supervisor */}
         <div className={styles.profileContainer}>
@@ -423,16 +424,16 @@ export default function DashboardSuperPage({ session }) {
 }
 
 export async function getServerSideProps(context) {
-    const session = await getSession(context);
-    if (!session || session.role !== 'super') {
-      return {
-        redirect: {
-          destination: '/',
-          permanent: false,
-        },
-      };
-    }
+  const session = await getSession(context);
+  if (!session || session.role !== 'super') {
     return {
-      props: { session },
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
     };
   }
+  return {
+    props: { session },
+  };
+}
