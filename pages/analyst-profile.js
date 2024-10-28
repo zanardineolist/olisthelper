@@ -47,22 +47,22 @@ export default function AnalystProfilePage({ user }) {
 
         // Ajudas Solicitadas
         const helpData = await helpResponse.json();
-        const currentMonth = new Date().getMonth() + 1; // Mês atual (1-12)
-        const currentYear = new Date().getFullYear();
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+        const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
         let currentMonthCount = 0;
         let lastMonthCount = 0;
 
         helpData.rows.forEach((record) => {
-          const [day, month, year] = record.date.split('/').map(Number); // Supondo formato DD/MM/YYYY
+          const [dateStr] = record;
+          const [day, month, year] = dateStr.split('/').map(Number);
           
-          if (year === currentYear) {
-            if (month === currentMonth) {
-              currentMonthCount++;
-            } else if (month === currentMonth - 1 || (currentMonth === 1 && month === 12)) {
-              lastMonthCount++;
-            }
-          } else if (currentMonth === 1 && year === currentYear - 1 && month === 12) {
+          if (year === currentYear && (month - 1) === currentMonth) {
+            currentMonthCount++;
+          } else if (year === lastMonthYear && (month - 1) === lastMonth) {
             lastMonthCount++;
           }
         });
@@ -114,7 +114,7 @@ export default function AnalystProfilePage({ user }) {
   return (
     <>
       <Head>
-        <title>Meu Perfil - Analista</title>
+        <title>Perfil do Analista</title>
       </Head>
 
       <div className={styles.container}>
