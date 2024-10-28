@@ -1,5 +1,4 @@
 import { google } from 'googleapis';
-import { findBestMatch } from 'string-similarity';
 
 async function getAuthenticatedGoogleSheets() {
   const auth = new google.auth.JWT(
@@ -88,7 +87,6 @@ export default async function handler(req, res) {
     if (!userRow) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
-    const userName = userRow[1].trim().toLowerCase();
     const userProfile = userRow[3]?.toLowerCase();
 
     // Verificar se o perfil do usuário é "user"
@@ -101,22 +99,17 @@ export default async function handler(req, res) {
     const hasTelefone = userRow[6] === 'TRUE';
     const hasChat = userRow[7] === 'TRUE';
 
-    // Buscar Dados de Desempenho Usando o Nome do Usuário
-    const performanceRows = await getSheetValues(sheets, sheetIdDesempenho, 'Principal', 'A:U');
+    // Buscar Dados de Desempenho Usando o E-mail do Usuário
+    const performanceRows = await getSheetValues(sheets, sheetIdDesempenho, 'Principal', 'A:V');
     if (!performanceRows || performanceRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado.' });
     }
 
-    const performanceNames = performanceRows.map(row => row[3] ? row[3].trim().toLowerCase() : '');
-    const matchResult = findBestMatch(userName, performanceNames);
-    const bestMatchIndex = matchResult.bestMatchIndex;
-    const bestMatchRating = matchResult.bestMatch.rating;
-
-    if (bestMatchRating < 0.7) {
-      return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado com correspondência suficiente.' });
+    // Encontrar a linha do desempenho usando o e-mail
+    const performanceRow = performanceRows.find(row => row[0]?.toLowerCase() === userEmail.toLowerCase());
+    if (!performanceRow) {
+      return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado para o e-mail fornecido.' });
     }
-
-    const performanceData = performanceRows[bestMatchIndex];
 
     // Estrutura de retorno dos dados de desempenho
     const responsePayload = {
@@ -127,12 +120,12 @@ export default async function handler(req, res) {
     };
 
     if (hasChamado) {
-      const mediaPorDia = parseValue(performanceData[8]);
-      const tma = parseValue(performanceData[9]);
-      const csat = parseValue(performanceData[10]);
+      const mediaPorDia = parseValue(performanceRow[9]);
+      const tma = parseValue(performanceRow[10]);
+      const csat = parseValue(performanceRow[11]);
 
       responsePayload.chamados = {
-        totalChamados: performanceData[7],
+        totalChamados: performanceRow[8],
         mediaPorDia,
         tma: formatHours(tma),
         csat,
@@ -145,15 +138,15 @@ export default async function handler(req, res) {
     }
 
     if (hasTelefone) {
-      const tma = parseValue(performanceData[13]);
-      const csat = parseValue(performanceData[14]);
+      const tma = parseValue(performanceRow[14]);
+      const csat = parseValue(performanceRow[15]);
 
       responsePayload.telefone = {
-        totalTelefone: performanceData[11],
-        mediaPorDia: parseValue(performanceData[12]),
+        totalTelefone: performanceRow[12],
+        mediaPorDia: parseValue(performanceRow[13]),
         tma: formatTime(tma),
         csat,
-        perdidas: parseValue(performanceData[15]),
+        perdidas: parseValue(performanceRow[16]),
         colors: {
           tma: getColorForValue(tma, 15, false),
           csat: getColorForValue(csat, 3.7),
@@ -162,12 +155,12 @@ export default async function handler(req, res) {
     }
 
     if (hasChat) {
-      const tma = parseValue(performanceData[18]);
-      const csat = parseValue(performanceData[19]);
+      const tma = parseValue(performanceRow[19]);
+      const csat = parseValue(performanceRow[20]);
 
       responsePayload.chat = {
-        totalChats: performanceData[16],
-        mediaPorDia: parseValue(performanceData[17]),
+        totalChats: performanceRow[17],
+        mediaPorDia: parseValue(performanceRow[18]),
         tma: tma !== null ? formatTime(tma) : "-",
         csat: csat !== null ? csat : "-",
         colors: {
@@ -177,7 +170,7 @@ export default async function handler(req, res) {
       };
     }
 
-    responsePayload.atualizadoAte = performanceData[20] || "Data não disponível";
+    responsePayload.atualizadoAte = performanceRow[21] || "Data não disponível";
 
     return res.status(200).json(responsePayload);
   } catch (error) {
