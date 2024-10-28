@@ -126,6 +126,10 @@ export default function DashboardAnalyst({ session }) {
     );
   }  
 
+  const handleNavigation = (path) => {
+    router.push(path);
+  };
+
   return (
     <>
       <Head>
@@ -163,7 +167,7 @@ export default function DashboardAnalyst({ session }) {
           <button onClick={() => signOut()} className={commonStyles.menuButton}>
             Logout
           </button>
-        </div>        
+        </div>
         )}
       </div>
   
