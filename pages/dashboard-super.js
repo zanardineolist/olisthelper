@@ -60,7 +60,7 @@ export default function DashboardSuperPage({ session }) {
           const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
             fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
             fetch(`/api/get-user-category-ranking?userEmail=${selectedUser.email}`),
-            selectedUser.role === 'support' ? fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`) : Promise.resolve({ json: () => null })
+            fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
           ]);
 
           const helpData = await helpResponse.json();
@@ -72,10 +72,8 @@ export default function DashboardSuperPage({ session }) {
           const categoryData = await categoryResponse.json();
           setCategoryRanking(categoryData.categories || []);
 
-          if (selectedUser.role === 'support') {
-            const performanceData = await performanceResponse.json();
-            setPerformanceData(performanceData);
-          }
+          const performanceData = await performanceResponse.json();
+          setPerformanceData(performanceData);
         } catch (error) {
           console.error('Erro ao buscar dados do usuário:', error);
         } finally {
@@ -91,8 +89,13 @@ export default function DashboardSuperPage({ session }) {
     setSelectedUser(selectedOption.value);
   };
 
-  // Estilos personalizados para o React-Select
+  // Estilos personalizados para o React-Select, ajustando para centralizar e diminuir a largura
   const customSelectStyles = {
+    container: (provided) => ({
+      ...provided,
+      width: '300px',
+      margin: '0 auto',
+    }),
     control: (provided, state) => ({
       ...provided,
       backgroundColor: '#222',
@@ -192,8 +195,18 @@ export default function DashboardSuperPage({ session }) {
       </div>
 
       <main className={styles.main}>
-        <h1 className={styles.greeting}>{greeting}, Supervisor!</h1>
+        <h1 className={styles.greeting}>{greeting}, {session.user.name.split(' ')[0]}!</h1>
 
+        {/* Container com informações do perfil do supervisor */}
+        <div className={styles.profileContainer}>
+          <img src={session.user.image} alt={session.user.name} className={styles.profileImage} />
+          <div className={styles.profileInfo}>
+            <h2>{session.user.name}</h2>
+            <p>{session.user.email}</p>
+          </div>
+        </div>
+
+        {/* Campo de Seleção do Colaborador */}
         <div className={styles.selectUserContainer}>
           <Select
             options={users.map((user) => ({ value: user, label: user.name }))}
@@ -238,6 +251,8 @@ export default function DashboardSuperPage({ session }) {
                   </div>
                 </div>
               </div>
+
+              {/* Exibir ajudas solicitadas */}
               <div className={styles.profileContainer}>
                 {loading ? (
                   <div className={styles.loadingContainer}>
@@ -250,19 +265,6 @@ export default function DashboardSuperPage({ session }) {
                       <div className={styles.monthsInfo}>
                         <p><strong>Mês Atual:</strong> {helpRequests.currentMonth}</p>
                         <p><strong>Mês Anterior:</strong> {helpRequests.lastMonth}</p>
-                      </div>
-                      <div className={styles.percentageChange}>
-                        {/* Calcula a variação percentual */}
-                        {helpRequests.lastMonth > 0 && (
-                          <span>
-                            {Math.abs(
-                              ((helpRequests.currentMonth - helpRequests.lastMonth) /
-                                helpRequests.lastMonth) *
-                                100
-                            ).toFixed(1)}
-                            %
-                          </span>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -296,6 +298,7 @@ export default function DashboardSuperPage({ session }) {
                   </div>
                 </div>
               )}
+
               {/* Exibir ranking de categorias */}
               <div className={styles.categoryRanking}>
                 <h3>Top 10 - Temas de maior dúvida</h3>

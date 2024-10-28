@@ -15,6 +15,7 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Obter os dados de desempenho, solicitações de ajuda e ranking de categorias do usuário selecionado
     const [performanceData, helpRequests, categoryRanking] = await Promise.all([
       getUserPerformance(userEmail),
       getUserHelpRequests(userEmail),
