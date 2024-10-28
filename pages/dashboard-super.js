@@ -18,6 +18,7 @@ export default function DashboardSuperPage({ session }) {
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
+  const [loadingData, setLoadingData] = useState(false); // Estado de carregamento dos dados
 
   useEffect(() => {
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
@@ -56,7 +57,7 @@ export default function DashboardSuperPage({ session }) {
     if (selectedUser) {
       const fetchData = async () => {
         try {
-          setLoading(true);
+          setLoadingData(true); // Iniciar carregamento dos dados
           const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
             fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
             fetch(`/api/get-user-category-ranking?userEmail=${selectedUser.email}`),
@@ -77,7 +78,7 @@ export default function DashboardSuperPage({ session }) {
         } catch (error) {
           console.error('Erro ao buscar dados do usuário:', error);
         } finally {
-          setLoading(false);
+          setLoadingData(false); // Finalizar carregamento dos dados
         }
       };
 
@@ -86,14 +87,14 @@ export default function DashboardSuperPage({ session }) {
   }, [selectedUser]);
 
   const handleUserSelect = (selectedOption) => {
-    setSelectedUser(selectedOption.value);
+    setSelectedUser(selectedOption ? selectedOption.value : null);
   };
 
   // Estilos personalizados para o React-Select, ajustando para centralizar e diminuir a largura
   const customSelectStyles = {
     container: (provided) => ({
       ...provided,
-      width: '500px',
+      width: '300px',
       margin: '0 auto',
     }),
     control: (provided, state) => ({
@@ -117,13 +118,13 @@ export default function DashboardSuperPage({ session }) {
     menu: (provided) => ({
       ...provided,
       backgroundColor: '#1e1e1e',
-      maxHeight: '250px',
+      maxHeight: '220px',
       overflowY: 'auto',
     }),
     menuList: (provided) => ({
       ...provided,
       padding: 0,
-      maxHeight: '250px',
+      maxHeight: '220px',
       '&::-webkit-scrollbar': {
         width: '8px',
       },
@@ -223,39 +224,44 @@ export default function DashboardSuperPage({ session }) {
           <>
             {/* Container para Indicadores de Desempenho e Ajudas Solicitadas */}
             <div className={styles.profileAndHelpContainer}>
-              <div className={styles.profileContainer}>
-                <img src={selectedUser.image} alt={selectedUser.name} className={styles.profileImage} />
-                <div className={styles.profileInfo}>
-                  <h2>{selectedUser.name}</h2>
-                  <p>{selectedUser.email}</p>
-                  <div className={styles.tagsContainer}>
-                    {/* Exibir tags com base nos indicadores */}
-                    {performanceData?.chamado && (
-                      <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
-                        #Chamado
-                      </div>
-                    )}
-                    {performanceData?.telefone && (
-                      <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
-                        #Telefone
-                      </div>
-                    )}
-                    {performanceData?.chat && (
-                      <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
-                        #Chat
-                      </div>
-                    )}
+              {loadingData ? (
+                <div className={styles.loadingContainer}>
+                  <div className="standardBoxLoader"></div>
+                </div>
+              ) : (
+                <div className={styles.profileContainer}>
+                  <img src={selectedUser.image} alt={selectedUser.name} className={styles.profileImage} />
+                  <div className={styles.profileInfo}>
+                    <h2>{selectedUser.name}</h2>
+                    <p>{selectedUser.email}</p>
+                    <div className={styles.tagsContainer}>
+                      {performanceData?.chamado && (
+                        <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
+                          #Chamado
+                        </div>
+                      )}
+                      {performanceData?.telefone && (
+                        <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
+                          #Telefone
+                        </div>
+                      )}
+                      {performanceData?.chat && (
+                        <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
+                          #Chat
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Ajudas Solicitadas */}
-              <div className={styles.profileContainer}>
-                {loading ? (
-                  <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
-                  </div>
-                ) : (
+              {loadingData ? (
+                <div className={styles.loadingContainer}>
+                  <div className="standardBoxLoader"></div>
+                </div>
+              ) : (
+                <div className={styles.profileContainer}>
                   <div className={styles.profileInfo}>
                     <h2>Ajudas Solicitadas</h2>
                     <div className={styles.helpRequestsInfo}>
@@ -265,102 +271,124 @@ export default function DashboardSuperPage({ session }) {
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Container para Indicadores de Desempenho */}
             <div className={styles.performanceWrapper}>
-              {performanceData?.chamados && (
-                <div className={styles.performanceContainer}>
-                  <h2>Indicadores Chamados</h2>
-                  <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-                  <div className={styles.performanceInfo}>
-                    <div className={styles.performanceItem}>
-                      <span>Total Chamados:</span>
-                      <span>{performanceData.chamados.totalChamados}</span>
-                    </div>
-                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
-                      <span>Média/Dia:</span>
-                      <span>{performanceData.chamados.mediaPorDia}</span>
-                    </div>
-                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
-                      <span>TMA:</span>
-                      <span>{performanceData.chamados.tma}</span>
-                    </div>
-                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
-                      <span>CSAT:</span>
-                      <span>{performanceData.chamados.csat}</span>
-                    </div>
-                  </div>
+            {loadingData ? (
+                <div className={styles.loadingContainer}>
+                <div className="standardBoxLoader"></div>
                 </div>
-              )}
-              {performanceData?.telefone && (
-                <div className={styles.performanceContainer}>
-                  <h2>Indicadores Telefone</h2>
-                  <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-                  <div className={styles.performanceInfo}>
-                    <div className={styles.performanceItem}>
-                      <span>Total Ligações:</span>
-                      <span>{performanceData.telefone.totalTelefone}</span>
+            ) : (
+                <>
+                {performanceData?.chamados && (
+                    <div className={styles.performanceContainer}>
+                    <h2>Indicadores Chamados</h2>
+                    <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+                    <div className={styles.performanceInfo}>
+                        <div className={styles.performanceItem}>
+                        <span>Total Chamados:</span>
+                        <span>{performanceData.chamados.totalChamados}</span>
+                        </div>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
+                        <span>Média/Dia:</span>
+                        <span>{performanceData.chamados.mediaPorDia}</span>
+                        </div>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
+                        <span>TMA:</span>
+                        <span>{performanceData.chamados.tma}</span>
+                        </div>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
+                        <span>CSAT:</span>
+                        <span>{performanceData.chamados.csat}</span>
+                        </div>
                     </div>
-                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
-                      <span>TMA:</span>
-                      <span>{performanceData.telefone.tma}</span>
                     </div>
-                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
-                      <span>CSAT:</span>
-                      <span>{performanceData.telefone.csat}</span>
+                )}
+
+                {performanceData?.telefone && (
+                    <div className={styles.performanceContainer}>
+                    <h2>Indicadores Telefone</h2>
+                    <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+                    <div className={styles.performanceInfo}>
+                        <div className={styles.performanceItem}>
+                        <span>Total Ligações:</span>
+                        <span>{performanceData.telefone.totalTelefone}</span>
+                        </div>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.mediaPorDia || 'transparent' }}>
+                        <span>Média/Dia:</span>
+                        <span>{performanceData.telefone.mediaPorDia}</span>
+                        </div>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
+                        <span>TMA:</span>
+                        <span>{performanceData.telefone.tma}</span>
+                        </div>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
+                        <span>CSAT:</span>
+                        <span>{performanceData.telefone.csat}</span>
+                        </div>
+                        <div className={styles.performanceItem}>
+                        <span>Perdidas:</span>
+                        <span>{performanceData.telefone.perdidas}</span>
+                        </div>
                     </div>
-                    <div className={styles.performanceItem}>
-                      <span>Perdidas:</span>
-                      <span>{performanceData.telefone.perdidas}</span>
                     </div>
-                  </div>
-                </div>
-              )}
-              {performanceData?.chat && (
-                <div className={styles.performanceContainer}>
-                  <h2>Indicadores Chat</h2>
-                  <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-                  <div className={styles.performanceInfo}>
-                    <div className={styles.performanceItem}>
-                      <span>Total Chats:</span>
-                      <span>{performanceData.chat.totalChats}</span>
+                )}
+
+                {performanceData?.chat && (
+                    <div className={styles.performanceContainer}>
+                    <h2>Indicadores Chat</h2>
+                    <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+                    <div className={styles.performanceInfo}>
+                        <div className={styles.performanceItem}>
+                        <span>Total Chats:</span>
+                        <span>{performanceData.chat.totalChats}</span>
+                        </div>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.mediaPorDia || 'transparent' }}>
+                        <span>Média/Dia:</span>
+                        <span>{performanceData.chat.mediaPorDia}</span>
+                        </div>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
+                        <span>TMA:</span>
+                        <span>{performanceData.chat.tma}</span>
+                        </div>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
+                        <span>CSAT:</span>
+                        <span>{performanceData.chat.csat}</span>
+                        </div>
                     </div>
-                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
-                      <span>TMA:</span>
-                      <span>{performanceData.chat.tma}</span>
                     </div>
-                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
-                      <span>CSAT:</span>
-                      <span>{performanceData.chat.csat}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+                )}
+                </>
+            )}
             </div>
 
             {/* Container para Ranking de Categorias */}
             <div className={styles.categoryRanking}>
-              <h3>Top 10 - Temas de maior dúvida</h3>
-              {loading ? (
+              {loadingData ? (
                 <div className={styles.loadingContainer}>
                   <div className="standardBoxLoader"></div>
                 </div>
-              ) : categoryRanking.length > 0 ? (
-                <ul className={styles.list}>
-                  {categoryRanking.map((category, index) => (
-                    <li key={index} className={styles.listItem}>
-                      <span className={styles.rank}>{index + 1}.</span>
-                      <span className={styles.categoryName}>{category.name}</span>
-                      <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
-                      <span className={styles.count}>{category.count} pedidos de ajuda</span>
-                    </li>
-                  ))}
-                </ul>
               ) : (
-                <div className={styles.noData}>Nenhum dado disponível no momento.</div>
+                <>
+                  <h3>Top 10 - Temas de maior dúvida</h3>
+                  {categoryRanking.length > 0 ? (
+                    <ul className={styles.list}>
+                      {categoryRanking.map((category, index) => (
+                        <li key={index} className={styles.listItem}>
+                          <span className={styles.rank}>{index + 1}.</span>
+                          <span className={styles.categoryName}>{category.name}</span>
+                          <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
+                          <span className={styles.count}>{category.count} pedidos de ajuda</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className={styles.noData}>Nenhum dado disponível no momento.</div>
+                  )}
+                </>
               )}
             </div>
           </>
