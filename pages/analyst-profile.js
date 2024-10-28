@@ -41,11 +41,15 @@ export default function AnalystProfilePage({ user }) {
           fetch(`/api/get-category-ranking?analystId=${user.id}`)
         ]);
 
+        if (!helpResponse.ok || !categoryResponse.ok) {
+          throw new Error('Erro ao buscar dados do analista.');
+        }
+
         // Ajudas Solicitadas
         const helpData = await helpResponse.json();
         setHelpRequests({
-          currentMonth: helpData.currentMonth,
-          lastMonth: helpData.lastMonth,
+          currentMonth: helpData.rows.length,
+          lastMonth: helpData.lastMonth ?? 0,
         });
 
         // Ranking de Categorias
@@ -58,7 +62,9 @@ export default function AnalystProfilePage({ user }) {
       }
     };
 
-    fetchData();
+    if (user?.id) {
+      fetchData();
+    }
   }, [user.id]);
 
   const handleNavigation = (path) => {
@@ -88,7 +94,7 @@ export default function AnalystProfilePage({ user }) {
   return (
     <>
       <Head>
-        <title>Meus Dados</title>
+        <title>Perfil do Analista</title>
       </Head>
 
       <div className={styles.container}>
@@ -226,6 +232,7 @@ export async function getServerSideProps(context) {
       user: {
         ...session.user,
         role: session.role,
+        id: session.id,
       },
     },
   };
