@@ -47,9 +47,29 @@ export default function AnalystProfilePage({ user }) {
 
         // Ajudas Solicitadas
         const helpData = await helpResponse.json();
+        const currentMonth = new Date().getMonth() + 1; // Mês atual (1-12)
+        const currentYear = new Date().getFullYear();
+
+        let currentMonthCount = 0;
+        let lastMonthCount = 0;
+
+        helpData.rows.forEach((record) => {
+          const [day, month, year] = record.date.split('/').map(Number); // Supondo formato DD/MM/YYYY
+          
+          if (year === currentYear) {
+            if (month === currentMonth) {
+              currentMonthCount++;
+            } else if (month === currentMonth - 1 || (currentMonth === 1 && month === 12)) {
+              lastMonthCount++;
+            }
+          } else if (currentMonth === 1 && year === currentYear - 1 && month === 12) {
+            lastMonthCount++;
+          }
+        });
+
         setHelpRequests({
-          currentMonth: helpData.rows.length,
-          lastMonth: helpData.lastMonth ?? 0,
+          currentMonth: currentMonthCount,
+          lastMonth: lastMonthCount,
         });
 
         // Ranking de Categorias
@@ -151,7 +171,7 @@ export default function AnalystProfilePage({ user }) {
               </div>
             ) : (
               <div className={styles.profileInfo}>
-                <h2>Ajudas Solicitadas</h2>
+                <h2>Ajudas prestadas</h2>
                 <div className={styles.helpRequestsInfo}>
                   <div className={styles.monthsInfo}>
                     <p><strong>Mês Atual:</strong> {currentMonth}</p>
@@ -197,7 +217,7 @@ export default function AnalystProfilePage({ user }) {
                           onClick={() => window.open('https://olisterp.wixsite.com/knowledge/inicio', '_blank')}
                         ></i>
                         <span className="tooltipText">
-                          Você já ajudou neste tema mais de 20 vezes. Que tal criar um material sobre, para nosso knowledge? Clique no ícone abaixo.
+                          Você já ajudou neste tema mais de 20 vezes. Que tal criar um material sobre, e publicar em nosso knowledge?
                         </span>
                       </div>
                     )}
