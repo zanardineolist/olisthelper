@@ -7,18 +7,18 @@ import { signOut, useSession } from 'next-auth/react';
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { data: session } = useSession();
-  const [isAnalyst, setIsAnalyst] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    if (session?.user?.role === 'analyst') {
-      setIsAnalyst(true);
+    if (session?.user?.role) {
+      setUserRole(session.user.role);
     }
   }, [session]);
 
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
-        <Link href={isAnalyst ? "/profile-analyst" : "/profile"}>Olist Helper</Link>
+        <Link href={userRole === 'analyst' ? "/profile-analyst" : "/profile"}>Olist Helper</Link>
       </div>
       <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
         ☰
@@ -28,21 +28,23 @@ export default function Navbar() {
           <Link href="/profile" className={styles.menuButton}>
             Meu Perfil
           </Link>
-          {isAnalyst && (
-            <Link href="/profile-analyst" className={styles.menuButton}>
-              Meu Perfil
-            </Link>
-          )}
-          <Link href="/registrar" className={styles.menuButton}>
-            Registrar Dúvida
-          </Link>
-          {isAnalyst && (
+          {userRole === 'analyst' && (
             <>
+              <Link href="/profile-analyst" className={styles.menuButton}>
+                Meu Perfil Analista
+              </Link>
               <Link href="/registro" className={styles.menuButton}>
                 Registrar Ajuda
               </Link>
               <Link href="/dashboard-analyst" className={styles.menuButton}>
                 Dashboard Analista
+              </Link>
+            </>
+          )}
+          {userRole === 'super' && (
+            <>
+              <Link href="/dashboard-super" className={styles.menuButton}>
+                Dashboard Super
               </Link>
               <a
                 href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"

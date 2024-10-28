@@ -22,6 +22,11 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
+  if (req.nextUrl.pathname.startsWith('/dashboard-super') && token.role !== 'super') {
+    console.log("Redirecionando - Usuário não tem permissão para acessar o dashboard do supervisor.");
+    return NextResponse.redirect(new URL('/profile', req.url));
+  }
+
   if (req.nextUrl.pathname.startsWith('/registro') && token.role !== 'analyst') {
     console.log("Redirecionando - Página de registro exclusiva para analistas.");
     return NextResponse.redirect(new URL('/profile', req.url));
@@ -41,5 +46,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ['/registrar', '/registro', '/profile', '/dashboard-analyst', '/profile-analyst'],
+  matcher: ['/registrar', '/registro', '/profile', '/dashboard-analyst', '/dashboard-super', '/profile-analyst'],
 };
