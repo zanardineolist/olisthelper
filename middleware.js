@@ -42,9 +42,14 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
+  if (req.nextUrl.pathname.startsWith('/manage-users') && !['analyst', 'super'].includes(token.role)) {
+    console.log("Redirecionando - Página de gerenciamento de usuários exclusiva para analistas e supervisores.");
+    return NextResponse.redirect(new URL('/profile', req.url));
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/registrar', '/registro', '/profile', '/dashboard-analyst', '/dashboard-super', '/profile-analyst'],
+  matcher: ['/registrar', '/registro', '/profile', '/dashboard-analyst', '/dashboard-super', '/profile-analyst', '/manage-users'],
 };
