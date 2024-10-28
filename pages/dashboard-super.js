@@ -251,7 +251,7 @@ export default function DashboardSuperPage({ session }) {
                   {performanceData?.telefone && (
                     <div className={styles.indicatorBox} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
                       <h3>Telefone</h3>
-                      <p>Total Telefonemas: {performanceData.telefone.totalTelefone}</p>
+                      <p>Total Ligações: {performanceData.telefone.totalTelefone}</p>
                       <p>Média/Dia: {performanceData.telefone.mediaPorDia}</p>
                       <p style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>TMA: {performanceData.telefone.tma}</p>
                       <p style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>CSAT: {performanceData.telefone.csat}</p>
