@@ -191,7 +191,7 @@ export default function AnalystProfilePage({ user }) {
                           onClick={() => window.open('https://olisterp.wixsite.com/knowledge/inicio', '_blank')}
                         ></i>
                         <span className="tooltipText">
-                          Você já atendeu ajudou neste tema mais de 20 vezes. Que tal criar um material sobre, para nosso knowledge? Clique no ícone abaixo.
+                          Você já ajudou neste tema mais de 20 vezes. Que tal criar um material sobre, para nosso knowledge? Clique no ícone abaixo.
                         </span>
                       </div>
                     )}
