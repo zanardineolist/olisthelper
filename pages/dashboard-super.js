@@ -209,17 +209,15 @@ export default function DashboardSuperPage({ session }) {
         )}
       </div>
 
-      <main className={styles.mainContent}>
+      <main className={styles.main}>
         <h1 className={styles.greeting}>{greeting}, {session.user.name.split(' ')[0]}!</h1>
 
         {/* Container com informações do perfil do supervisor */}
-        <div className={styles.userInfoContainer}>
-          <div className={styles.profileContainer}>
-            <img src={session.user.image} alt={session.user.name} className={styles.profileImage} />
-            <div className={styles.profileInfo}>
-              <h2>{session.user.name}</h2>
-              <p>{session.user.email}</p>
-            </div>
+        <div className={styles.profileContainer}>
+          <img src={session.user.image} alt={session.user.name} className={styles.profileImage} />
+          <div className={styles.profileInfo}>
+            <h2>{session.user.name}</h2>
+            <p>{session.user.email}</p>
           </div>
         </div>
 
