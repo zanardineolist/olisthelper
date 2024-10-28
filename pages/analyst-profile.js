@@ -37,7 +37,7 @@ export default function AnalystProfilePage({ user }) {
       try {
         // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
         const [helpResponse, categoryResponse] = await Promise.all([
-          fetch(`/api/get-analyst-records?analystId=${user.id}`),
+          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
           fetch(`/api/get-category-ranking?analystId=${user.id}`)
         ]);
 
@@ -47,29 +47,9 @@ export default function AnalystProfilePage({ user }) {
 
         // Ajudas Solicitadas
         const helpData = await helpResponse.json();
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth();
-        const currentYear = currentDate.getFullYear();
-        const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-        const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-
-        let currentMonthCount = 0;
-        let lastMonthCount = 0;
-
-        helpData.rows.forEach((record) => {
-          const [dateStr] = record;
-          const [day, month, year] = dateStr.split('/').map(Number);
-          
-          if (year === currentYear && (month - 1) === currentMonth) {
-            currentMonthCount++;
-          } else if (year === lastMonthYear && (month - 1) === lastMonth) {
-            lastMonthCount++;
-          }
-        });
-
         setHelpRequests({
-          currentMonth: currentMonthCount,
-          lastMonth: lastMonthCount,
+          currentMonth: helpData.currentMonth,
+          lastMonth: helpData.lastMonth,
         });
 
         // Ranking de Categorias

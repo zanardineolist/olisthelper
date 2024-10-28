@@ -1,7 +1,8 @@
+// pages/api/get-analyst-records.js
 import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
-  const { analystId, mode } = req.query;
+  const { analystId, mode, filter } = req.query;
 
   if (!analystId || analystId === 'undefined') {
     console.log('Erro: ID do analista não fornecido ou inválido.');
@@ -39,28 +40,38 @@ export default async function handler(req, res) {
 
     console.log(`Total de registros encontrados: ${rows.length}`);
 
-    if (mode === 'leaderboard') {
-      // Filtrar todos os registros do mês atual para o leaderboard
+    // Filtrar registros para o perfil do analista (current month e last month)
+    if (mode === 'profile') {
       const currentDate = new Date();
-      const currentMonth = currentDate.getMonth();
+      const currentMonth = currentDate.getMonth(); // Mês atual (0-11)
       const currentYear = currentDate.getFullYear();
+      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1; // Mês anterior
+      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
-      const leaderboardRows = rows.filter((row, index) => {
-        if (index === 0) return false; // Pular cabeçalho
+      let currentMonthCount = 0;
+      let lastMonthCount = 0;
+
+      rows.forEach((row, index) => {
+        if (index === 0) return; // Pular cabeçalho
 
         const [dateStr] = row;
         const [day, month, year] = dateStr.split('/').map(Number);
-        const date = new Date(year, month - 1, day);
-
-        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+        
+        if (year === currentYear && (month - 1) === currentMonth) {
+          currentMonthCount++;
+        } else if (year === lastMonthYear && (month - 1) === lastMonth) {
+          lastMonthCount++;
+        }
       });
 
-      console.log(`Total de registros para o leaderboard: ${leaderboardRows.length}`);
-      return res.status(200).json({ rows: leaderboardRows });
+      return res.status(200).json({
+        currentMonth: currentMonthCount,
+        lastMonth: lastMonthCount,
+        rows,
+      });
     }
 
-    // Lógica padrão (com filtro)
-    const currentDate = new Date();
+    // Lógica padrão (com filtro para leaderboard e registros gerais)
     const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
 
     const filteredRows = rows.filter((row, index) => {
@@ -73,7 +84,7 @@ export default async function handler(req, res) {
       const diffTime = brtDate - date;
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
-      return diffDays <= req.query.filter;
+      return diffDays <= (filter ? parseInt(filter, 10) : 30);
     });
 
     if (!filteredRows || filteredRows.length === 0) {
@@ -89,8 +100,6 @@ export default async function handler(req, res) {
       acc[date] = (acc[date] || 0) + 1;
       return acc;
     }, {});
-
-    console.log('Contagem de registros por data:', countsObj);
 
     res.status(200).json({
       count,
