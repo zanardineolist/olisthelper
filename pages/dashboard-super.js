@@ -244,6 +244,11 @@ export default function DashboardSuperPage({ session }) {
                   <h2>{selectedUser.name}</h2>
                   <p>{selectedUser.email}</p>
                   <div className={styles.tagsContainer}>
+                    {performanceData?.squad && (
+                    <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
+                        #{performanceData.squad}
+                    </div>
+                    )}
                     {performanceData?.chamado && (
                       <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
                         #Chamado
