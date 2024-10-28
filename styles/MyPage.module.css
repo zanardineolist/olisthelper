@@ -237,6 +237,16 @@
   gap: 8px;
 }
 
+.listItem {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #2A2A2A;
+  padding: 10px;
+  border-radius: 5px;
+}
+
 /* Mensagem de ausência de dados */
 .noData {
   display: flex;
