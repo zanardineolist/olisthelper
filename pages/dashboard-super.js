@@ -5,13 +5,13 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import styles from '../styles/DashboardSuper.module.css';
+import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export default function DashboardSuperPage({ session }) {
   const router = useRouter();
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
@@ -173,26 +173,7 @@ export default function DashboardSuperPage({ session }) {
         <title>Dashboard Supervisor</title>
       </Head>
 
-      <div className={styles.container}>
-        <nav className={styles.navbar}>
-          <div className={styles.logo}>
-            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
-          </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
-            ☰
-          </button>
-        </nav>
-        {menuOpen && (
-          <div className={styles.menu}>
-            <button onClick={() => router.push('/profile')} className={styles.menuButton}>
-              Meu Perfil
-            </button>
-            <button onClick={() => signOut()} className={styles.menuButton}>
-              Logout
-            </button>
-          </div>
-        )}
-      </div>
+      <Navbar />
 
       <main className={styles.mainContent}>
         <h1 className={styles.title}>{greeting}, {session.user.name.split(' ')[0]}!</h1>
@@ -209,7 +190,7 @@ export default function DashboardSuperPage({ session }) {
         </div>
 
         {/* Campo de Seleção do Colaborador */}
-        <div className={styles.profileAndHelpContainer}>
+        <div className={styles.selectUserContainer}>
           <Select
             options={users.map((user) => ({ value: user, label: user.name }))}
             onChange={handleUserSelect}
@@ -410,16 +391,16 @@ export default function DashboardSuperPage({ session }) {
 }
 
 export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  if (!session || session.role !== 'super') {
+    const session = await getSession(context);
+    if (!session || session.role !== 'super') {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
     return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
+      props: { session },
     };
   }
-  return {
-    props: { session },
-  };
-}
