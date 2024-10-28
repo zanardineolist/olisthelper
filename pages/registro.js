@@ -209,7 +209,7 @@ export default function RegistroPage({ session }) {
 
         {menuOpen && (
           <div className={commonStyles.menu}>
-            <button onClick={() => router.push('/analyst-profile')} className={commonStyles.menuButton}>
+            <button onClick={() => router.push('/profile-analyst')} className={commonStyles.menuButton}>
               Meu Perfil
             </button>
             <button onClick={() => router.push('/registro')} className={commonStyles.menuButton}>

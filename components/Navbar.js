@@ -18,7 +18,7 @@ export default function Navbar() {
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
-        <Link href={isAnalyst ? "/analyst-profile" : "/profile"}>Olist Helper</Link>
+        <Link href={isAnalyst ? "/profile-analyst" : "/profile"}>Olist Helper</Link>
       </div>
       <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
         ☰
@@ -29,7 +29,7 @@ export default function Navbar() {
             Meu Perfil
           </Link>
           {isAnalyst && (
-            <Link href="/analyst-profile" className={styles.menuButton}>
+            <Link href="/profile-analyst" className={styles.menuButton}>
               Meu Perfil
             </Link>
           )}

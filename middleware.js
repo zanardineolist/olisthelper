@@ -32,7 +32,7 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-  if (req.nextUrl.pathname.startsWith('/analyst-profile') && token.role !== 'analyst') {
+  if (req.nextUrl.pathname.startsWith('/profile-analyst') && token.role !== 'analyst') {
     console.log("Redirecionando - Página de perfil do analista exclusiva para analistas.");
     return NextResponse.redirect(new URL('/profile', req.url));
   }
@@ -41,5 +41,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ['/registrar', '/registro', '/profile', '/dashboard-analyst', '/analyst-profile'],
+  matcher: ['/registrar', '/registro', '/profile', '/dashboard-analyst', '/profile-analyst'],
 };

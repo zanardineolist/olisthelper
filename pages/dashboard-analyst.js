@@ -147,7 +147,7 @@ export default function DashboardAnalyst({ session }) {
         </nav>
         {menuOpen && (
           <div className={commonStyles.menu}>
-          <button onClick={() => handleNavigation('/analyst-profile')} className={commonStyles.menuButton}>
+          <button onClick={() => handleNavigation('/profile-analyst')} className={commonStyles.menuButton}>
             Meu Perfil
           </button>
           <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>

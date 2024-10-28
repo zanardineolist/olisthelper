@@ -14,7 +14,7 @@ export default function LoginPage() {
       const session = await getSession();
       if (session) {
         if (session.role === 'analyst') {
-          router.push('/analyst-profile');
+          router.push('/profile-analyst');
         } else {
           router.push('/profile');
         }
@@ -61,7 +61,7 @@ export async function getServerSideProps(context) {
   if (session) {
     return {
       redirect: {
-        destination: session.role === 'analyst' ? '/analyst-profile' : '/profile',
+        destination: session.role === 'analyst' ? '/profile-analyst' : '/profile',
         permanent: false,
       },
     };

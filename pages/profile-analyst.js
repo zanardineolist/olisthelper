@@ -1,4 +1,4 @@
-// pages/analyst-profile.js
+// pages/profile-analyst.js
 import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -108,7 +108,7 @@ export default function AnalystProfilePage({ user }) {
         </nav>
         {menuOpen && (
           <div className={commonStyles.menu}>
-            <button onClick={() => handleNavigation('/analyst-profile')} className={commonStyles.menuButton}>
+            <button onClick={() => handleNavigation('/profile-analyst')} className={commonStyles.menuButton}>
               Meu Perfil
             </button>
             <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
