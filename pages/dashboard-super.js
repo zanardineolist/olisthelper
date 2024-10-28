@@ -239,33 +239,33 @@ export default function DashboardSuperPage({ session }) {
                   </div>
                   {/* Indicadores Chamados */}
                   {performanceData?.chamados && (
-                    <div className={styles.indicatorBox} style={{ backgroundColor: performanceData.chamados.colors?.csat }}>
+                    <div className={styles.indicatorBox} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
                       <h3>Chamados</h3>
                       <p>Total Chamados: {performanceData.chamados.totalChamados}</p>
                       <p>Média/Dia: {performanceData.chamados.mediaPorDia}</p>
-                      <p>TMA: {performanceData.chamados.tma}</p>
-                      <p>CSAT: {performanceData.chamados.csat}</p>
+                      <p style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>TMA: {performanceData.chamados.tma}</p>
+                      <p style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>CSAT: {performanceData.chamados.csat}</p>
                     </div>
                   )}
                   {/* Indicadores Telefone */}
                   {performanceData?.telefone && (
-                    <div className={styles.indicatorBox} style={{ backgroundColor: performanceData.telefone.colors?.csat }}>
+                    <div className={styles.indicatorBox} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
                       <h3>Telefone</h3>
                       <p>Total Telefonemas: {performanceData.telefone.totalTelefone}</p>
                       <p>Média/Dia: {performanceData.telefone.mediaPorDia}</p>
-                      <p>TMA: {performanceData.telefone.tma}</p>
-                      <p>CSAT: {performanceData.telefone.csat}</p>
+                      <p style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>TMA: {performanceData.telefone.tma}</p>
+                      <p style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>CSAT: {performanceData.telefone.csat}</p>
                       <p>Perdidas: {performanceData.telefone.perdidas}</p>
                     </div>
                   )}
                   {/* Indicadores Chat */}
                   {performanceData?.chat && (
-                    <div className={styles.indicatorBox} style={{ backgroundColor: performanceData.chat.colors?.csat }}>
+                    <div className={styles.indicatorBox} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
                       <h3>Chat</h3>
                       <p>Total Chats: {performanceData.chat.totalChats}</p>
                       <p>Média/Dia: {performanceData.chat.mediaPorDia}</p>
-                      <p>TMA: {performanceData.chat.tma}</p>
-                      <p>CSAT: {performanceData.chat.csat}</p>
+                      <p style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>TMA: {performanceData.chat.tma}</p>
+                      <p style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>CSAT: {performanceData.chat.csat}</p>
                     </div>
                   )}
                 </div>
