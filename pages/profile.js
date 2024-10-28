@@ -37,7 +37,7 @@ export default function MyPage({ user }) {
         const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
           fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
           fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),
-          user.role === 'user' ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
+          user.role === 'support' ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
         ]);
 
         const helpData = await helpResponse.json();
@@ -49,7 +49,7 @@ export default function MyPage({ user }) {
         const categoryData = await categoryResponse.json();
         setCategoryRanking(categoryData.categories || []);
 
-        if (user.role === 'user') {
+        if (user.role === 'support') {
           const performanceData = await performanceResponse.json();
           setPerformanceData(performanceData);
         }
@@ -107,7 +107,7 @@ export default function MyPage({ user }) {
             <button onClick={() => handleNavigation('/profile')} className={commonStyles.menuButton}>
               Meu Perfil
             </button>
-            {user.role === 'user' && (
+            {user.role === 'support' && (
               <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
                 Registrar Dúvida
               </button>

@@ -25,7 +25,7 @@ export async function addUserToSheet(user) {
       range: 'Usuários!A:D',
       valueInputOption: 'USER_ENTERED',
       resource: {
-        values: [[userId, user.name, user.email, 'user']],
+        values: [[userId, user.name, user.email, 'support']],
       },
     });
   } catch (error) {

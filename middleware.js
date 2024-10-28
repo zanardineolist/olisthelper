@@ -27,7 +27,7 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-  if (req.nextUrl.pathname.startsWith('/registrar') && token.role !== 'user') {
+  if (req.nextUrl.pathname.startsWith('/registrar') && token.role !== 'support') {
     console.log("Redirecionando - Página de registrar exclusiva para usuários.");
     return NextResponse.redirect(new URL('/profile', req.url));
   }

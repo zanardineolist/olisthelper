@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     const rows = await getSheetValues('Usuários', 'A:D');
 
     if (rows && rows.length > 0) {
-      const users = rows.filter(row => row[3] === 'user').map(row => ({
+      const users = rows.filter(row => row[3] === 'support').map(row => ({
         id: row[0],
         name: row[1],
         email: row[2],

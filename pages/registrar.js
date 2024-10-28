@@ -205,7 +205,7 @@ export default function RegistrarPage({ session }) {
             <button onClick={() => router.push('/profile')} className={commonStyles.menuButton}>
               Meu Perfil
             </button>
-            {session.role === 'user' && (
+            {session.role === 'support' && (
               <button onClick={() => router.push('/registrar')} className={commonStyles.menuButton}>
                 Registrar Dúvida
               </button>
@@ -314,7 +314,7 @@ export default function RegistrarPage({ session }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  if (!session || session.role !== 'user') {
+  if (!session || session.role !== 'support') {
     return {
       redirect: {
         destination: '/',
