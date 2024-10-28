@@ -4,8 +4,8 @@ import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
+import commonStyles from '../styles/commonStyles.module.css'; // Importando commonStyles para padronizar o menu
 import styles from '../styles/DashboardSuper.module.css';
-import commonStyles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
 
 export default function DashboardSuperPage({ session }) {
@@ -179,7 +179,7 @@ export default function DashboardSuperPage({ session }) {
         <title>Dashboard Supervisor</title>
       </Head>
 
-      {/* Navbar ajustada para ficar igual ao profile.js */}
+      {/* Navbar ajustada para utilizar commonStyles */}
       <div className={styles.container}>
         <nav className={commonStyles.navbar}>
           <div className={commonStyles.logo}>
@@ -425,16 +425,16 @@ export default function DashboardSuperPage({ session }) {
 }
 
 export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  if (!session || session.role !== 'super') {
+    const session = await getSession(context);
+    if (!session || session.role !== 'super') {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
     return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
+      props: { session },
     };
   }
-  return {
-    props: { session },
-  };
-}
