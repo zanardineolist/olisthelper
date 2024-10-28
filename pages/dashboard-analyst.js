@@ -143,36 +143,27 @@ export default function DashboardAnalyst({ session }) {
         </nav>
         {menuOpen && (
           <div className={commonStyles.menu}>
-            <button onClick={() => router.push('/profile')} className={commonStyles.menuButton}>
-              Meu Perfil
-            </button>
-            {session.role === 'user' && (
-              <button onClick={() => router.push('/registrar')} className={commonStyles.menuButton}>
-                Registrar Dúvida
-              </button>
-            )}
-            {session.role === 'analyst' && (
-              <>
-                <button onClick={() => router.push('/registro')} className={commonStyles.menuButton}>
-                  Registrar Ajuda
-                </button>
-                <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
-                  Dashboard Analista
-                </button>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={commonStyles.menuButton}
-                >
-                  Database
-                </a>
-              </>
-            )}
-            <button onClick={() => signOut()} className={commonStyles.menuButton}>
-              Logout
-            </button>
-          </div>
+          <button onClick={() => handleNavigation('/analyst-profile')} className={commonStyles.menuButton}>
+            Meu Perfil
+          </button>
+          <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
+            Registrar Ajuda
+          </button>
+          <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
+            Dashboard Analista
+          </button>
+          <a
+            href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={commonStyles.menuButton}
+          >
+            Database
+          </a>
+          <button onClick={() => signOut()} className={commonStyles.menuButton}>
+            Logout
+          </button>
+        </div>        
         )}
       </div>
   

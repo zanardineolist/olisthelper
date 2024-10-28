@@ -43,10 +43,10 @@ export default async function handler(req, res) {
     // Filtrar registros para o perfil do analista (current month e last month)
     if (mode === 'profile') {
       const currentDate = new Date();
-      const currentMonth = currentDate.getMonth(); // Mês atual (0-11)
+      const currentMonth = currentDate.getMonth() + 1; // Mês atual (1-12)
       const currentYear = currentDate.getFullYear();
-      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1; // Mês anterior
-      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1; // Mês anterior
+      const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
       let currentMonthCount = 0;
       let lastMonthCount = 0;
@@ -57,9 +57,9 @@ export default async function handler(req, res) {
         const [dateStr] = row;
         const [day, month, year] = dateStr.split('/').map(Number);
         
-        if (year === currentYear && (month - 1) === currentMonth) {
+        if (year === currentYear && month === currentMonth) {
           currentMonthCount++;
-        } else if (year === lastMonthYear && (month - 1) === lastMonth) {
+        } else if (year === lastMonthYear && month === lastMonth) {
           lastMonthCount++;
         }
       });
@@ -72,7 +72,8 @@ export default async function handler(req, res) {
     }
 
     // Lógica padrão (com filtro para leaderboard e registros gerais)
-    const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+    const currentDate = new Date(brtDate);
 
     const filteredRows = rows.filter((row, index) => {
       if (index === 0) return false;
@@ -81,7 +82,7 @@ export default async function handler(req, res) {
       const [day, month, year] = dateStr.split('/').map(Number);
       const date = new Date(year, month - 1, day);
 
-      const diffTime = brtDate - date;
+      const diffTime = currentDate - date;
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
       return diffDays <= (filter ? parseInt(filter, 10) : 30);
