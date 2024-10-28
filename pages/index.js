@@ -1,58 +1,50 @@
 // pages/index.js
 import Head from 'next/head';
-import { getSession, signIn } from 'next-auth/react';
-import Image from 'next/image';
-import { useEffect } from 'react';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Login.module.css';
+import Footer from '../components/Footer';
 
-export default function LoginPage() {
+export default function IndexPage({ session }) {
   const router = useRouter();
 
-  useEffect(() => {
-    const checkSession = async () => {
-      const session = await getSession();
-      if (session) {
-        if (session.role === 'analyst') {
-          router.push('/profile-analyst');
-        } else if (session.role === 'super') {
-          router.push('/dashboard-super');
-        } else {
-          router.push('/profile');
-        }
-      }
-    };
-    checkSession();
-  }, [router]);
+  // Se o usuário já está autenticado, redireciona para a página apropriada
+  if (session) {
+    if (session.role === 'analyst') {
+      router.push('/dashboard-analyst');
+    } else if (session.role === 'supervisor') {
+      router.push('/dashboard-super');
+    } else if (session.role === 'support') {
+      router.push('/profile');
+    }
+  }
 
   return (
     <>
       <Head>
-        <title>Olist Helper</title>
+        <title>Olist Helper - Login</title>
       </Head>
 
-      <div className={styles.loginContainer}>
-        <div className={styles.loginBox}>
-          <div className={styles.logoContainer}>
-            <Image
-              src="/images/logos/olist_helper_logo.png"
-              alt="Olist Helper Logo"
-              width={270}
-              height={75}
-            />
+      <div className={styles.container}>
+        <div className={commonStyles.navbar}>
+          <div className={commonStyles.logo}>
+            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
           </div>
-          <h1 className={styles.welcomeText}>Seja bem-vindo(a)</h1>
-          <p className={styles.description}>
-            O Olist Helper é uma ferramenta para ajudar você a registrar e gerenciar suas dúvidas tiradas com os analistas no dia a dia.
-          </p>
-          <button onClick={() => signIn('google')} className={styles.loginButton}>
-            Login com Google
-          </button>
-          <p className={styles.description}>
-            Acesse com seu e-mail @tiny.com.br ou @olist.com
-          </p>
         </div>
-        <p className={styles.credits}>Desenvolvido por Rafael Zanardine</p>
+
+        <div className={styles.mainContent}>
+          <h1>Bem-vindo ao Olist Helper</h1>
+          <p>Por favor, faça login para acessar suas informações.</p>
+          <button
+            className={styles.loginButton}
+            onClick={() => signIn('auth0')}
+          >
+            Entrar com Auth0
+          </button>
+        </div>
+
+        <Footer />
       </div>
     </>
   );
@@ -61,14 +53,32 @@ export default function LoginPage() {
 export async function getServerSideProps(context) {
   const session = await getSession(context);
   if (session) {
-    return {
-      redirect: {
-        destination: session.role === 'analyst' ? '/profile-analyst' : session.role === 'super' ? '/dashboard-super' : '/profile',
-        permanent: false,
-      },
-    };
+    // Se o usuário já está autenticado, redirecionar diretamente
+    if (session.role === 'analyst') {
+      return {
+        redirect: {
+          destination: '/dashboard-analyst',
+          permanent: false,
+        },
+      };
+    } else if (session.role === 'supervisor') {
+      return {
+        redirect: {
+          destination: '/dashboard-super',
+          permanent: false,
+        },
+      };
+    } else if (session.role === 'support') {
+      return {
+        redirect: {
+          destination: '/profile',
+          permanent: false,
+        },
+      };
+    }
   }
+
   return {
-    props: {},
+    props: { session },
   };
 }

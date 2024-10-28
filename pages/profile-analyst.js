@@ -1,77 +1,45 @@
 // pages/profile-analyst.js
 import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
 import commonStyles from '../styles/commonStyles.module.css';
-import styles from '../styles/MyPage.module.css';
+import styles from '../styles/ProfileAnalyst.module.css';
 import Footer from '../components/Footer';
 
-export default function AnalystProfilePage({ user }) {
+export default function ProfileAnalystPage({ session }) {
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [greeting, setGreeting] = useState('');
-  const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
+  const [analystData, setAnalystData] = useState(null);
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Definir saudação com base na hora do dia
-    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-    const currentHour = new Date(brtDate).getHours();
-    let greetingMessage = '';
-
-    if (currentHour >= 5 && currentHour < 12) {
-      greetingMessage = 'Bom dia';
-    } else if (currentHour >= 12 && currentHour < 18) {
-      greetingMessage = 'Boa tarde';
-    } else {
-      greetingMessage = 'Boa noite';
-    }
-
-    setGreeting(greetingMessage);
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
+    const loadAnalystData = async () => {
       try {
-        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
-        const [helpResponse, categoryResponse] = await Promise.all([
-          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
-          fetch(`/api/get-category-ranking?analystId=${user.id}`)
-        ]);
+        setLoading(true);
+        const analystId = session.id;
 
-        if (!helpResponse.ok || !categoryResponse.ok) {
-          throw new Error('Erro ao buscar dados do analista.');
-        }
+        // Obter registros do analista
+        const recordsRes = await fetch(`/api/data/get-analyst-records-data?analystId=${analystId}&mode=profile`);
+        const recordsData = await recordsRes.json();
+        setAnalystData(recordsData);
 
-        // Ajudas Solicitadas
-        const helpData = await helpResponse.json();
-        setHelpRequests({
-          currentMonth: helpData.currentMonth,
-          lastMonth: helpData.lastMonth,
-        });
-
-        // Ranking de Categorias
-        const categoryData = await categoryResponse.json();
-        setCategoryRanking(categoryData.categories || []);
-      } catch (error) {
-        console.error('Erro ao buscar dados:', error);
+        // Obter ranking de categorias do analista
+        const categoryRankingRes = await fetch(`/api/data/get-category-ranking-data?analystId=${analystId}`);
+        const categoryRankingData = await categoryRankingRes.json();
+        setCategoryRanking(categoryRankingData.categories);
+      } catch (err) {
+        console.error('Erro ao carregar dados do perfil do analista:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    if (user?.id) {
-      fetchData();
-    }
-  }, [user.id]);
+    loadAnalystData();
+  }, [session]);
 
-  const handleNavigation = (path) => {
-    router.push(path);
-  };
-
-  if (!user) {
+  if (loading) {
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
@@ -79,22 +47,10 @@ export default function AnalystProfilePage({ user }) {
     );
   }
 
-  const firstName = user.name.split(' ')[0];
-  const { currentMonth, lastMonth } = helpRequests;
-  let percentageChange = 0;
-
-  if (lastMonth > 0) {
-    percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
-  }
-
-  const arrowClass = percentageChange > 0 ? 'fa-circle-up' : 'fa-circle-down';
-  const arrowColor = percentageChange > 0 ? 'red' : 'green';
-  const formattedPercentage = Math.abs(percentageChange).toFixed(1);
-
   return (
     <>
       <Head>
-        <title>Meu Perfil - Analista</title>
+        <title>Perfil do Analista</title>
       </Head>
 
       <div className={styles.container}>
@@ -102,19 +58,23 @@ export default function AnalystProfilePage({ user }) {
           <div className={commonStyles.logo}>
             <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
           </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
+          <button
+            onClick={() => setMenuOpen((prevMenuOpen) => !prevMenuOpen)}
+            className={commonStyles.menuToggle}
+          >
             ☰
           </button>
         </nav>
+
         {menuOpen && (
           <div className={commonStyles.menu}>
-            <button onClick={() => handleNavigation('/profile-analyst')} className={commonStyles.menuButton}>
+            <button onClick={() => router.push('/profile-analyst')} className={commonStyles.menuButton}>
               Meu Perfil
             </button>
-            <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
+            <button onClick={() => router.push('/registro')} className={commonStyles.menuButton}>
               Registrar Ajuda
             </button>
-            <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
+            <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
               Dashboard Analista
             </button>
             <a
@@ -130,89 +90,37 @@ export default function AnalystProfilePage({ user }) {
             </button>
           </div>
         )}
-      </div>
 
-      <main className={styles.main}>
-        <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
+        <div className={styles.mainContent}>
+          <h2>Perfil do Analista</h2>
 
-        {/* Container para Dados de Perfil e Ajudas Solicitadas */}
-        <div className={styles.profileAndHelpContainer}>
-          <div className={styles.profileContainer}>
-            <img src={user.image} alt={user.name} className={styles.profileImage} />
-            <div className={styles.profileInfo}>
-              <h2>{user.name}</h2>
-              <p>{user.email}</p>
+          {analystData && (
+            <div className={styles.performanceSection}>
+              <h3>Desempenho</h3>
+              <p><strong>Nome:</strong> {session.user.name}</p>
+              <p><strong>Registros do Mês Atual:</strong> {analystData.currentMonthCount}</p>
+              <p><strong>Registros do Mês Anterior:</strong> {analystData.lastMonthCount}</p>
             </div>
-          </div>
-          <div className={styles.profileContainer}>
-            {loading ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-              </div>
+          )}
+
+          <div className={styles.categoryRankingSection}>
+            <h3>Ranking de Categorias</h3>
+            {categoryRanking.length > 0 ? (
+              <ul>
+                {categoryRanking.map((category, index) => (
+                  <li key={index}>
+                    <strong>Categoria:</strong> {category.name} - <strong>Ocorrências:</strong> {category.count}
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <div className={styles.profileInfo}>
-                <h2>Ajudas prestadas</h2>
-                <div className={styles.helpRequestsInfo}>
-                  <div className={styles.monthsInfo}>
-                    <p><strong>Mês Atual:</strong> {currentMonth}</p>
-                    <p><strong>Mês Anterior:</strong> {lastMonth}</p>
-                  </div>
-                  <div className={styles.percentageChange} style={{ color: arrowColor }}>
-                    <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
-                    <span>{formattedPercentage}%</span>
-                  </div>
-                </div>
-              </div>
+              <p>Nenhuma categoria encontrada.</p>
             )}
           </div>
         </div>
 
-        {/* Container para Ranking de Categorias */}
-        <div className={styles.categoryRanking}>
-          <h3>Top 10 - Temas de maior dúvida</h3>
-          {loading ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
-          ) : categoryRanking.length > 0 ? (
-            <ul className={styles.list}>
-              {categoryRanking.map((category, index) => (
-                <li key={index} className={styles.listItem}>
-                  <span className={styles.rank}>{index + 1}.</span>
-                  <span className={styles.categoryName}>{category.name}</span>
-                  <div
-                    className={styles.progressBarCategory}
-                    style={{
-                      width: `${category.count * 10}px`,
-                      backgroundColor: category.count > 20 ? 'orange' : '',
-                    }}
-                  />
-                  <span className={styles.count}>
-                    {category.count} pedidos de ajuda
-                    {category.count > 20 && (
-                      <div className="tooltip">
-                        <i
-                          className="fa-solid fa-circle-exclamation"
-                          style={{ color: 'orange', cursor: 'pointer' }}
-                          onClick={() => window.open('https://olisterp.wixsite.com/knowledge/inicio', '_blank')}
-                        ></i>
-                        <span className="tooltipText">
-                          Você já ajudou neste tema mais de 20 vezes. Que tal criar um material sobre, e publicar em nosso knowledge?
-                        </span>
-                      </div>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className={styles.noData}>
-              Nenhum dado disponível no momento.
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
+        <Footer />
+      </div>
     </>
   );
 }
@@ -228,12 +136,6 @@ export async function getServerSideProps(context) {
     };
   }
   return {
-    props: {
-      user: {
-        ...session.user,
-        role: session.role,
-        id: session.id,
-      },
-    },
+    props: { session },
   };
 }

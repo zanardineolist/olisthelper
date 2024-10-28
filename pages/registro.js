@@ -26,11 +26,11 @@ export default function RegistroPage({ session }) {
     const loadUsersAndCategories = async () => {
       try {
         setLoading(true);
-        const usersRes = await fetch('/api/get-users');
+        const usersRes = await fetch('/api/data/get-support-users-data');
         const usersData = await usersRes.json();
         setUsers(usersData.users);
 
-        const categoriesRes = await fetch('/api/get-analysts-categories');
+        const categoriesRes = await fetch('/api/data/get-analyst-categories-data');
         const categoriesData = await categoriesRes.json();
         setCategories(categoriesData.categories);
       } catch (err) {
@@ -59,7 +59,7 @@ export default function RegistroPage({ session }) {
       const userName = selectedUser ? selectedUser.label : '';
       const userEmail = selectedUser ? selectedUser.email : '';
 
-      const response = await fetch('/api/register-analyst-help', {
+      const response = await fetch('/api/data/register-user-request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -112,11 +112,11 @@ export default function RegistroPage({ session }) {
       color: '#fff',
       borderRadius: '5px',
       padding: '5px',
-      boxShadow: 'none', // Removendo qualquer sombra ao focar
+      boxShadow: 'none',
       '&:hover': {
         borderColor: '#F0A028',
       },
-      outline: 'none', // Removendo a outline padrão do navegador
+      outline: 'none',
     }),
     input: (provided) => ({
       ...provided,
@@ -168,7 +168,7 @@ export default function RegistroPage({ session }) {
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: '#fff', // Alterando a cor do indicador de digitação para branco
+      color: '#fff',
     }),
     indicatorSeparator: (provided) => ({
       ...provided,
@@ -244,7 +244,7 @@ export default function RegistroPage({ session }) {
                   options={users.map((user) => ({
                     value: user.id,
                     label: user.name,
-                    email: user.email, // Incluindo email para ser usado na submissão
+                    email: user.email,
                   }))}
                   value={formData.user}
                   onChange={handleChange}

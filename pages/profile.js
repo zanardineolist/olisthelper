@@ -1,73 +1,56 @@
+// pages/profile.js
 import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
 import commonStyles from '../styles/commonStyles.module.css';
-import styles from '../styles/MyPage.module.css';
+import styles from '../styles/Profile.module.css';
 import Footer from '../components/Footer';
 
-export default function MyPage({ user }) {
+export default function ProfilePage({ session }) {
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [greeting, setGreeting] = useState('');
-  const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
-  const [categoryRanking, setCategoryRanking] = useState([]);
-  const [performanceData, setPerformanceData] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [helpRequests, setHelpRequests] = useState([]);
+  const [categoryRanking, setCategoryRanking] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-    const currentHour = new Date(brtDate).getHours();
-    let greetingMessage = '';
-
-    if (currentHour >= 5 && currentHour < 12) {
-      greetingMessage = 'Bom dia';
-    } else if (currentHour >= 12 && currentHour < 18) {
-      greetingMessage = 'Boa tarde';
-    } else {
-      greetingMessage = 'Boa noite';
-    }
-
-    setGreeting(greetingMessage);
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
+    const loadUserData = async () => {
       try {
-        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-          fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
-          fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),
-          user.role === 'support' ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
-        ]);
+        setLoading(true);
 
-        const helpData = await helpResponse.json();
-        setHelpRequests({
-          currentMonth: helpData.currentMonth,
-          lastMonth: helpData.lastMonth,
-        });
+        // Obter dados do perfil do usuário
+        const userEmail = session.user.email;
 
-        const categoryData = await categoryResponse.json();
-        setCategoryRanking(categoryData.categories || []);
-
-        if (user.role === 'support') {
-          const performanceData = await performanceResponse.json();
-          setPerformanceData(performanceData);
+        // Obter dados de desempenho do usuário (se for um usuário de suporte)
+        if (session.role === 'support') {
+          const performanceRes = await fetch(`/api/data/get-user-performance-data?userEmail=${userEmail}`);
+          const performanceData = await performanceRes.json();
+          setUserData(performanceData);
         }
-      } catch (error) {
-        console.error('Erro ao buscar dados:', error);
+
+        // Obter solicitações de ajuda do usuário
+        const helpRequestsRes = await fetch(`/api/data/get-user-help-requests-data?userEmail=${userEmail}`);
+        const helpRequestsData = await helpRequestsRes.json();
+        setHelpRequests(helpRequestsData.helpRequests);
+
+        // Obter ranking de categorias do usuário
+        const categoryRankingRes = await fetch(`/api/data/get-user-category-ranking-data?userEmail=${userEmail}`);
+        const categoryRankingData = await categoryRankingRes.json();
+        setCategoryRanking(categoryRankingData.categories);
+
+      } catch (err) {
+        console.error('Erro ao carregar dados do perfil:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [user.email, user.role]);
+    loadUserData();
+  }, [session]);
 
-  const handleNavigation = (path) => {
-    router.push(path);
-  };
-
-  if (!user) {
+  if (loading) {
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
@@ -75,22 +58,10 @@ export default function MyPage({ user }) {
     );
   }
 
-  const firstName = user.name.split(' ')[0];
-  const { currentMonth, lastMonth } = helpRequests;
-  let percentageChange = 0;
-
-  if (lastMonth > 0) {
-    percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
-  }
-
-  const arrowClass = percentageChange > 0 ? 'fa-circle-up' : 'fa-circle-down';
-  const arrowColor = percentageChange > 0 ? 'red' : 'green';
-  const formattedPercentage = Math.abs(percentageChange).toFixed(1);
-
   return (
     <>
       <Head>
-        <title>Meus Dados</title>
+        <title>Perfil do Usuário</title>
       </Head>
 
       <div className={styles.container}>
@@ -98,227 +69,98 @@ export default function MyPage({ user }) {
           <div className={commonStyles.logo}>
             <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
           </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
+          <button
+            onClick={() => setMenuOpen((prevMenuOpen) => !prevMenuOpen)}
+            className={commonStyles.menuToggle}
+          >
             ☰
           </button>
         </nav>
+
         {menuOpen && (
           <div className={commonStyles.menu}>
-            <button onClick={() => handleNavigation('/profile')} className={commonStyles.menuButton}>
+            <button onClick={() => router.push('/profile')} className={commonStyles.menuButton}>
               Meu Perfil
             </button>
-            {user.role === 'support' && (
-              <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
-                Registrar Dúvida
-              </button>
-            )}
-            {user.role === 'analyst' && (
-              <>
-                <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
-                  Registrar Ajuda
-                </button>
-                <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
-                  Dashboard Analista
-                </button>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={commonStyles.menuButton}
-                >
-                  Database
-                </a>
-              </>
-            )}
+            <button onClick={() => router.push('/registro')} className={commonStyles.menuButton}>
+              Registrar Ajuda
+            </button>
+            <button onClick={() => router.push('/dashboard-super')} className={commonStyles.menuButton}>
+              Dashboard Supervisor
+            </button>
+            <a
+              href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={commonStyles.menuButton}
+            >
+              Database
+            </a>
             <button onClick={() => signOut()} className={commonStyles.menuButton}>
               Logout
             </button>
           </div>
         )}
-      </div>
 
-      <main className={styles.main}>
-        <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
+        <div className={styles.mainContent}>
+          <h2>Perfil do Usuário</h2>
 
-        {/* Container para Dados de Perfil e Ajudas Solicitadas */}
-        <div className={styles.profileAndHelpContainer}>
-          <div className={styles.profileContainer}>
-            <img src={user.image} alt={user.name} className={styles.profileImage} />
-            <div className={styles.profileInfo}>
-              <h2>{user.name}</h2>
-              <p>{user.email}</p>
-              <div className={styles.tagsContainer}>
-                {/* Tag para Squad */}
-                {performanceData?.squad && (
-                  <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
-                    #{performanceData.squad}
-                  </div>
-                )}
+          {userData && session.role === 'support' && (
+            <div className={styles.performanceSection}>
+              <h3>Desempenho</h3>
+              <p><strong>Nome:</strong> {userData.desempenho.nome}</p>
+              <p><strong>Squad:</strong> {userData.desempenho.squad}</p>
 
-                {/* Tag para Chamado */}
-                {performanceData?.chamado && (
-                  <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
-                    #Chamado
-                  </div>
-                )}
+              <h4>Chamados</h4>
+              <p><strong>Total:</strong> {userData.desempenho.chamados.total}</p>
+              <p><strong>Média por Dia:</strong> {userData.desempenho.chamados.mediaPorDia}</p>
 
-                {/* Tag para Telefone */}
-                {performanceData?.telefone && (
-                  <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
-                    #Telefone
-                  </div>
-                )}
+              <h4>Telefone</h4>
+              <p><strong>Total de Chamadas:</strong> {userData.desempenho.telefone.total}</p>
+              <p><strong>TMA:</strong> {userData.desempenho.telefone.tma}</p>
+              <p><strong>CSAT:</strong> {userData.desempenho.telefone.csat}</p>
+              <p><strong>Chamadas Perdidas:</strong> {userData.desempenho.telefone.perdidas}</p>
 
-                {/* Tag para Chat */}
-                {performanceData?.chat && (
-                  <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
-                    #Chat
-                  </div>
-                )}
-              </div>
+              <h4>Chat</h4>
+              <p><strong>Total de Chats:</strong> {userData.desempenho.chat.total}</p>
+              <p><strong>TMA:</strong> {userData.desempenho.chat.tma}</p>
+              <p><strong>CSAT:</strong> {userData.desempenho.chat.csat}</p>
             </div>
-          </div>
-          <div className={styles.profileContainer}>
-            {loading ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-              </div>
+          )}
+
+          <div className={styles.helpRequestsSection}>
+            <h3>Solicitações de Ajuda</h3>
+            {helpRequests.length > 0 ? (
+              <ul>
+                {helpRequests.map((request, index) => (
+                  <li key={index}>
+                    <strong>Data:</strong> {request.dateString} - <strong>Categoria:</strong> {request.category} - <strong>Descrição:</strong> {request.description}
+                  </li>
+                ))}
+              </ul>
             ) : (
-              <div className={styles.profileInfo}>
-                <h2>Ajudas Solicitadas</h2>
-                <div className={styles.helpRequestsInfo}>
-                  <div className={styles.monthsInfo}>
-                    <p><strong>Mês Atual:</strong> {currentMonth}</p>
-                    <p><strong>Mês Anterior:</strong> {lastMonth}</p>
-                  </div>
-                  <div className={styles.percentageChange} style={{ color: arrowColor }}>
-                    <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
-                    <span>{formattedPercentage}%</span>
-                  </div>
-                </div>
-              </div>
+              <p>Nenhuma solicitação de ajuda encontrada.</p>
+            )}
+          </div>
+
+          <div className={styles.categoryRankingSection}>
+            <h3>Ranking de Categorias</h3>
+            {categoryRanking.length > 0 ? (
+              <ul>
+                {categoryRanking.map((category, index) => (
+                  <li key={index}>
+                    <strong>Categoria:</strong> {category.name} - <strong>Ocorrências:</strong> {category.count}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Nenhuma categoria encontrada.</p>
             )}
           </div>
         </div>
 
-        {/* Container para Indicadores de Desempenho */}
-        <div className={styles.performanceWrapper}>
-          {performanceData?.chamados && (
-            <div className={styles.performanceContainer}>
-              <h2>Indicadores Chamados</h2>
-              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-              <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Chamados:</span>
-                  <span>{performanceData.chamados.totalChamados}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
-                  <span>Média/Dia:</span>
-                  <span>{performanceData.chamados.mediaPorDia}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
-                  <span>TMA:</span>
-                  <span>{performanceData.chamados.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
-                  <span>CSAT:</span>
-                  <span>{performanceData.chamados.csat}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          {performanceData?.telefone && (
-            <div className={styles.performanceContainer}>
-              <h2>Indicadores Telefone</h2>
-              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-              <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Telefone:</span>
-                  <span>{performanceData.telefone.totalTelefone}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
-                  <span>TMA:</span>
-                  <span>{performanceData.telefone.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
-                  <span>CSAT:</span>
-                  <span>{performanceData.telefone.csat}</span>
-                </div>
-                <div className={styles.performanceItem}>
-                  <span>Perdidas:</span>
-                  <span>{performanceData.telefone.perdidas}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          {performanceData?.chat && (
-            <div className={styles.performanceContainer}>
-              <h2>Indicadores Chat</h2>
-              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-              <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Chats:</span>
-                  <span>{performanceData.chat.totalChats}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
-                  <span>TMA:</span>
-                  <span>{performanceData.chat.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
-                  <span>CSAT:</span>
-                  <span>{performanceData.chat.csat}</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Container para Ranking de Categorias */}
-        <div className={styles.categoryRanking}>
-          <h3>Top 10 - Temas de maior dúvida</h3>
-          {loading ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
-          ) : categoryRanking.length > 0 ? (
-            <ul className={styles.list}>
-              {categoryRanking.map((category, index) => (
-                <li key={index} className={styles.listItem}>
-                  <span className={styles.rank}>{index + 1}.</span>
-                  <span className={styles.categoryName}>{category.name}</span>
-                  <div
-                    className={styles.progressBarCategory}
-                    style={{
-                      width: `${category.count * 10}px`,
-                      backgroundColor: category.count > 10 ? 'orange' : '',
-                    }}
-                  />
-                  <span className={styles.count}>
-                    {category.count} pedidos de ajuda
-                    {category.count > 10 && (
-                      <div className="tooltip">
-                        <i
-                          className="fa-solid fa-circle-exclamation"
-                          style={{ color: 'orange', cursor: 'pointer' }}
-                          onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
-                        ></i>
-                        <span className="tooltipText">
-                          Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone abaixo.
-                        </span>
-                      </div>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className={styles.noData}>
-              Nenhum dado disponível no momento.
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
+        <Footer />
+      </div>
     </>
   );
 }
@@ -334,11 +176,6 @@ export async function getServerSideProps(context) {
     };
   }
   return {
-    props: {
-      user: {
-        ...session.user,
-        role: session.role,
-      },
-    },
+    props: { session },
   };
 }
