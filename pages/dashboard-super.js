@@ -136,38 +136,17 @@ export default function DashboardSuperPage({ session }) {
               {performanceData && (
                 <div className={styles.performanceSection}>
                   <h3>Desempenho</h3>
-                  <div className={styles.performanceCard}>
-                    <h4>Geral</h4>
-                    <p><strong>Nome:</strong> {performanceData.desempenho.nome}</p>
-                    <p><strong>Squad:</strong> {performanceData.desempenho.squad}</p>
-                  </div>
-
-                  <div className={styles.performanceCard}>
-                    <h4>Chamados</h4>
-                    <p><strong>Total:</strong> {performanceData.desempenho.chamados.total}</p>
-                    <p><strong>Média por Dia:</strong> {performanceData.desempenho.chamados.mediaPorDia}</p>
-                    <p>
-                      <strong>Cor Média por Dia:</strong>
-                      <span style={{ color: performanceData.desempenho.chamados.corMediaPorDia }}>
-                        {performanceData.desempenho.chamados.mediaPorDia}
-                      </span>
-                    </p>
-                  </div>
-
-                  <div className={styles.performanceCard}>
-                    <h4>Telefone</h4>
-                    <p><strong>Total de Chamadas:</strong> {performanceData.desempenho.telefone.total}</p>
-                    <p><strong>TMA:</strong> {performanceData.desempenho.telefone.tma}</p>
-                    <p><strong>CSAT:</strong> {performanceData.desempenho.telefone.csat}</p>
-                    <p><strong>Chamadas Perdidas:</strong> {performanceData.desempenho.telefone.perdidas}</p>
-                  </div>
-
-                  <div className={styles.performanceCard}>
-                    <h4>Chat</h4>
-                    <p><strong>Total de Chats:</strong> {performanceData.desempenho.chat.total}</p>
-                    <p><strong>TMA:</strong> {performanceData.desempenho.chat.tma}</p>
-                    <p><strong>CSAT:</strong> {performanceData.desempenho.chat.csat}</p>
-                  </div>
+                  <p>Nome: {performanceData.desempenho.nome}</p>
+                  <p>Squad: {performanceData.desempenho.squad}</p>
+                  <p>Chamados Totais: {performanceData.desempenho.chamados.total}</p>
+                  <p>TMA (Chamados): {performanceData.desempenho.tma}</p>
+                  <p>CSAT (Chamados): {performanceData.desempenho.csat}</p>
+                  <p>Telefone (Total): {performanceData.desempenho.telefone.total}</p>
+                  <p>Telefone (TMA): {performanceData.desempenho.telefone.tma}</p>
+                  <p>Telefone (CSAT): {performanceData.desempenho.telefone.csat}</p>
+                  <p>Chat (Total): {performanceData.desempenho.chat.total}</p>
+                  <p>Chat (TMA): {performanceData.desempenho.chat.tma}</p>
+                  <p>Chat (CSAT): {performanceData.desempenho.chat.csat}</p>
                 </div>
               )}
 
