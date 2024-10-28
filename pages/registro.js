@@ -10,7 +10,7 @@ import styles from '../styles/Registrar.module.css';
 import Footer from '../components/Footer';
 
 export default function RegistroPage({ session }) {
-  const router = useRouter();
+  const router = useRouter(); // Certifique-se de que o router está definido corretamente
   const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -22,15 +22,31 @@ export default function RegistroPage({ session }) {
     description: '',
   });
 
+  // Definir estilos básicos para customSelectStyles caso esteja faltando
+  const customSelectStyles = {
+    control: (provided) => ({
+      ...provided,
+      borderRadius: '4px',
+      borderColor: '#ccc',
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused ? '#f0f0f0' : 'white',
+      color: 'black',
+    }),
+  };
+
   useEffect(() => {
     const loadUsersAndCategories = async () => {
       try {
         setLoading(true);
         const usersRes = await fetch('/api/get-users');
+        if (!usersRes.ok) throw new Error('Erro ao buscar usuários');
         const usersData = await usersRes.json();
         setUsers(usersData.users);
 
         const categoriesRes = await fetch('/api/get-analysts-categories');
+        if (!categoriesRes.ok) throw new Error('Erro ao buscar categorias');
         const categoriesData = await categoriesRes.json();
         setCategories(categoriesData.categories);
       } catch (err) {
@@ -72,6 +88,7 @@ export default function RegistroPage({ session }) {
           analystId: session.id,
         }),
       });
+
       if (response.ok) {
         Swal.fire({
           icon: 'success',
