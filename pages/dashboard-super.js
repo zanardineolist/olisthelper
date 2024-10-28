@@ -221,78 +221,147 @@ export default function DashboardSuperPage({ session }) {
 
         {selectedUser && (
           <>
-            {/* Container principal com indicadores do usuário selecionado */}
-            <div className={styles.performanceWrapper}>
-              <div className={styles.profileInfoWrapper}>
-                <div className={styles.profileContainer}>
-                  <div className={styles.profileInfo}>
-                    <h2>{selectedUser.name}</h2>
-                    <p>{selectedUser.email}</p>
+            {/* Container para Indicadores de Desempenho e Ajudas Solicitadas */}
+            <div className={styles.profileAndHelpContainer}>
+              <div className={styles.profileContainer}>
+                <img src={selectedUser.image} alt={selectedUser.name} className={styles.profileImage} />
+                <div className={styles.profileInfo}>
+                  <h2>{selectedUser.name}</h2>
+                  <p>{selectedUser.email}</p>
+                  <div className={styles.tagsContainer}>
+                    {/* Exibir tags com base nos indicadores */}
+                    {performanceData?.chamado && (
+                      <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
+                        #Chamado
+                      </div>
+                    )}
+                    {performanceData?.telefone && (
+                      <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
+                        #Telefone
+                      </div>
+                    )}
+                    {performanceData?.chat && (
+                      <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
+                        #Chat
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className={styles.indicatorsContainer}>
-                  {/* Ajudas Solicitadas */}
-                  <div className={styles.indicatorBox}>
-                    <h3>Ajudas Solicitadas</h3>
-                    <p>Mês Atual: {helpRequests.currentMonth}</p>
-                    <p>Mês Anterior: {helpRequests.lastMonth}</p>
-                  </div>
-                  {/* Indicadores Chamados */}
-                  {performanceData?.chamados && (
-                    <div className={styles.indicatorBox} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
-                      <h3>Chamados</h3>
-                      <p>Total Chamados: {performanceData.chamados.totalChamados}</p>
-                      <p>Média/Dia: {performanceData.chamados.mediaPorDia}</p>
-                      <p style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>TMA: {performanceData.chamados.tma}</p>
-                      <p style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>CSAT: {performanceData.chamados.csat}</p>
-                    </div>
-                  )}
-                  {/* Indicadores Telefone */}
-                  {performanceData?.telefone && (
-                    <div className={styles.indicatorBox} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
-                      <h3>Telefone</h3>
-                      <p>Total Ligações: {performanceData.telefone.totalTelefone}</p>
-                      <p>Média/Dia: {performanceData.telefone.mediaPorDia}</p>
-                      <p style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>TMA: {performanceData.telefone.tma}</p>
-                      <p style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>CSAT: {performanceData.telefone.csat}</p>
-                      <p>Perdidas: {performanceData.telefone.perdidas}</p>
-                    </div>
-                  )}
-                  {/* Indicadores Chat */}
-                  {performanceData?.chat && (
-                    <div className={styles.indicatorBox} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
-                      <h3>Chat</h3>
-                      <p>Total Chats: {performanceData.chat.totalChats}</p>
-                      <p>Média/Dia: {performanceData.chat.mediaPorDia}</p>
-                      <p style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>TMA: {performanceData.chat.tma}</p>
-                      <p style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>CSAT: {performanceData.chat.csat}</p>
-                    </div>
-                  )}
                 </div>
               </div>
 
-              {/* Exibir ranking de categorias */}
-              <div className={styles.categoryRanking}>
-                <h3>Top 10 - Temas de maior dúvida</h3>
+              {/* Ajudas Solicitadas */}
+              <div className={styles.profileContainer}>
                 {loading ? (
                   <div className={styles.loadingContainer}>
                     <div className="standardBoxLoader"></div>
                   </div>
-                ) : categoryRanking.length > 0 ? (
-                  <ul className={styles.list}>
-                    {categoryRanking.map((category, index) => (
-                      <li key={index} className={styles.listItem}>
-                        <span className={styles.rank}>{index + 1}.</span>
-                        <span className={styles.categoryName}>{category.name}</span>
-                        <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
-                        <span className={styles.count}>{category.count} pedidos de ajuda</span>
-                      </li>
-                    ))}
-                  </ul>
                 ) : (
-                  <div className={styles.noData}>Nenhum dado disponível no momento.</div>
+                  <div className={styles.profileInfo}>
+                    <h2>Ajudas Solicitadas</h2>
+                    <div className={styles.helpRequestsInfo}>
+                      <div className={styles.monthsInfo}>
+                        <p><strong>Mês Atual:</strong> {helpRequests.currentMonth}</p>
+                        <p><strong>Mês Anterior:</strong> {helpRequests.lastMonth}</p>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
+            </div>
+
+            {/* Container para Indicadores de Desempenho */}
+            <div className={styles.performanceWrapper}>
+              {performanceData?.chamados && (
+                <div className={styles.performanceContainer}>
+                  <h2>Indicadores Chamados</h2>
+                  <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+                  <div className={styles.performanceInfo}>
+                    <div className={styles.performanceItem}>
+                      <span>Total Chamados:</span>
+                      <span>{performanceData.chamados.totalChamados}</span>
+                    </div>
+                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
+                      <span>Média/Dia:</span>
+                      <span>{performanceData.chamados.mediaPorDia}</span>
+                    </div>
+                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
+                      <span>TMA:</span>
+                      <span>{performanceData.chamados.tma}</span>
+                    </div>
+                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
+                      <span>CSAT:</span>
+                      <span>{performanceData.chamados.csat}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {performanceData?.telefone && (
+                <div className={styles.performanceContainer}>
+                  <h2>Indicadores Telefone</h2>
+                  <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+                  <div className={styles.performanceInfo}>
+                    <div className={styles.performanceItem}>
+                      <span>Total Ligações:</span>
+                      <span>{performanceData.telefone.totalTelefone}</span>
+                    </div>
+                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
+                      <span>TMA:</span>
+                      <span>{performanceData.telefone.tma}</span>
+                    </div>
+                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
+                      <span>CSAT:</span>
+                      <span>{performanceData.telefone.csat}</span>
+                    </div>
+                    <div className={styles.performanceItem}>
+                      <span>Perdidas:</span>
+                      <span>{performanceData.telefone.perdidas}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {performanceData?.chat && (
+                <div className={styles.performanceContainer}>
+                  <h2>Indicadores Chat</h2>
+                  <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+                  <div className={styles.performanceInfo}>
+                    <div className={styles.performanceItem}>
+                      <span>Total Chats:</span>
+                      <span>{performanceData.chat.totalChats}</span>
+                    </div>
+                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
+                      <span>TMA:</span>
+                      <span>{performanceData.chat.tma}</span>
+                    </div>
+                    <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
+                      <span>CSAT:</span>
+                      <span>{performanceData.chat.csat}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Container para Ranking de Categorias */}
+            <div className={styles.categoryRanking}>
+              <h3>Top 10 - Temas de maior dúvida</h3>
+              {loading ? (
+                <div className={styles.loadingContainer}>
+                  <div className="standardBoxLoader"></div>
+                </div>
+              ) : categoryRanking.length > 0 ? (
+                <ul className={styles.list}>
+                  {categoryRanking.map((category, index) => (
+                    <li key={index} className={styles.listItem}>
+                      <span className={styles.rank}>{index + 1}.</span>
+                      <span className={styles.categoryName}>{category.name}</span>
+                      <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
+                      <span className={styles.count}>{category.count} pedidos de ajuda</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className={styles.noData}>Nenhum dado disponível no momento.</div>
+              )}
             </div>
           </>
         )}
