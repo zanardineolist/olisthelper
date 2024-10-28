@@ -24,13 +24,15 @@
 }
 
 /* Área principal da página */
-.mainContent {
+.main {
     padding: 20px;
     margin-top: 80px;
-    width: 90%;
-    max-width: 1200px;
-    margin: auto;
-}
+  }
+  
+  /* Saudação do usuário */
+  .greeting {
+    margin-bottom: 20px;
+  }
 
 /* Título da página */
 .title {
