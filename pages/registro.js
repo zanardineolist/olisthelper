@@ -10,7 +10,7 @@ import styles from '../styles/Registrar.module.css';
 import Footer from '../components/Footer';
 
 export default function RegistroPage({ session }) {
-  const router = useRouter(); // Certifique-se de que o router está definido corretamente
+  const router = useRouter();
   const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -22,31 +22,15 @@ export default function RegistroPage({ session }) {
     description: '',
   });
 
-  // Definir estilos básicos para customSelectStyles caso esteja faltando
-  const customSelectStyles = {
-    control: (provided) => ({
-      ...provided,
-      borderRadius: '4px',
-      borderColor: '#ccc',
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      backgroundColor: state.isFocused ? '#f0f0f0' : 'white',
-      color: 'black',
-    }),
-  };
-
   useEffect(() => {
     const loadUsersAndCategories = async () => {
       try {
         setLoading(true);
         const usersRes = await fetch('/api/get-users');
-        if (!usersRes.ok) throw new Error('Erro ao buscar usuários');
         const usersData = await usersRes.json();
         setUsers(usersData.users);
 
         const categoriesRes = await fetch('/api/get-analysts-categories');
-        if (!categoriesRes.ok) throw new Error('Erro ao buscar categorias');
         const categoriesData = await categoriesRes.json();
         setCategories(categoriesData.categories);
       } catch (err) {
@@ -88,7 +72,6 @@ export default function RegistroPage({ session }) {
           analystId: session.id,
         }),
       });
-
       if (response.ok) {
         Swal.fire({
           icon: 'success',
@@ -120,8 +103,81 @@ export default function RegistroPage({ session }) {
     }
   };
 
-  const handleNavigation = (path) => {
-    router.push(path);
+  // Estilos personalizados para o React-Select
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: '#222',
+      borderColor: state.isFocused ? '#F0A028' : '#444',
+      color: '#fff',
+      borderRadius: '5px',
+      padding: '5px',
+      boxShadow: 'none', // Removendo qualquer sombra ao focar
+      '&:hover': {
+        borderColor: '#F0A028',
+      },
+      outline: 'none', // Removendo a outline padrão do navegador
+    }),
+    input: (provided) => ({
+      ...provided,
+      color: '#fff',
+      caretColor: '#fff',
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: '#1e1e1e',
+      maxHeight: '220px',
+      overflowY: 'auto',
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      padding: 0,
+      maxHeight: '220px',
+      '&::-webkit-scrollbar': {
+        width: '8px',
+      },
+      '&::-webkit-scrollbar-track': {
+        background: '#121212',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: '#555',
+        borderRadius: '10px',
+        border: '2px solid #121212',
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused
+        ? '#333'
+        : state.isSelected
+        ? '#F0A028'
+        : '#1e1e1e',
+      color: '#fff',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: '#333',
+      },
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: '#fff',
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: '#aaa',
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: '#fff', // Alterando a cor do indicador de digitação para branco
+    }),
+    indicatorSeparator: (provided) => ({
+      ...provided,
+      backgroundColor: '#444',
+    }),
+    noOptionsMessage: (provided) => ({
+      ...provided,
+      color: '#fff',
+    }),
   };
 
   if (loading) {
@@ -153,13 +209,13 @@ export default function RegistroPage({ session }) {
 
         {menuOpen && (
           <div className={commonStyles.menu}>
-            <button onClick={() => handleNavigation('/analyst-profile')} className={commonStyles.menuButton}>
+            <button onClick={() => router.push('/analyst-profile')} className={commonStyles.menuButton}>
               Meu Perfil
             </button>
-            <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
+            <button onClick={() => router.push('/registro')} className={commonStyles.menuButton}>
               Registrar Ajuda
             </button>
-            <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
+            <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
               Dashboard Analista
             </button>
             <a
@@ -188,7 +244,7 @@ export default function RegistroPage({ session }) {
                   options={users.map((user) => ({
                     value: user.id,
                     label: user.name,
-                    email: user.email,
+                    email: user.email, // Incluindo email para ser usado na submissão
                   }))}
                   value={formData.user}
                   onChange={handleChange}
