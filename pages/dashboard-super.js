@@ -210,7 +210,7 @@ export default function DashboardSuperPage({ session }) {
       </div>
 
       <main className={styles.main}>
-        <h1 className={styles.greeting}>{greeting}, {session.user.name.split(' ')[0]}!</h1>
+        <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
 
         {/* Container com informações do perfil do supervisor */}
         <div className={styles.profileContainer}>
