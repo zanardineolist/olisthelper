@@ -93,7 +93,7 @@ export default function DashboardSuperPage({ session }) {
   const customSelectStyles = {
     container: (provided) => ({
       ...provided,
-      width: '300px',
+      width: '500px',
       margin: '0 auto',
     }),
     control: (provided, state) => ({
@@ -117,13 +117,13 @@ export default function DashboardSuperPage({ session }) {
     menu: (provided) => ({
       ...provided,
       backgroundColor: '#1e1e1e',
-      maxHeight: '220px',
+      maxHeight: '250px',
       overflowY: 'auto',
     }),
     menuList: (provided) => ({
       ...provided,
       padding: 0,
-      maxHeight: '220px',
+      maxHeight: '250px',
       '&::-webkit-scrollbar': {
         width: '8px',
       },
