@@ -48,6 +48,14 @@
     margin-bottom: 40px;
   }
   
+  .profileAndHelpContainer {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0px auto 20px auto;
+  }
+
   /* Container de desempenho */
   .performanceContainer {
     padding: 20px;
@@ -62,6 +70,16 @@
     height: auto;
     position: relative;
   }
+
+  .performanceWrapper {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0px auto;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 20px;
+  }
   
   .performanceDetails {
     margin-top: 10px;
@@ -71,7 +89,7 @@
   
   /* Container para ranking de categorias */
   .categoryRankingContainer {
-    margin-top: 20px;
+    margin: 20px auto 0px auto;
     background-color: #1e1e1e;
     padding: 20px;
     border-radius: 10px;
