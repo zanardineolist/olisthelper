@@ -179,7 +179,7 @@ export default function DashboardSuperPage({ session }) {
         <title>Dashboard Supervisor</title>
       </Head>
 
-      {/* Navbar personalizada */}
+      {/* Navbar ajustada para ficar igual ao profile.js */}
       <div className={styles.container}>
         <nav className={commonStyles.navbar}>
           <div className={commonStyles.logo}>
