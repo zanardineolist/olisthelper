@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import commonStyles from '../styles/commonStyles.module.css';
-import styles from '../styles/DashboardSuper.module.css';
+import styles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
 
 export default function DashboardSuperPage({ session }) {
@@ -13,9 +13,27 @@ export default function DashboardSuperPage({ session }) {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [greeting, setGreeting] = useState('');
+  const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
+  const [performanceData, setPerformanceData] = useState(null);
+
+  useEffect(() => {
+    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+    const currentHour = new Date(brtDate).getHours();
+    let greetingMessage = '';
+
+    if (currentHour >= 5 && currentHour < 12) {
+      greetingMessage = 'Bom dia';
+    } else if (currentHour >= 12 && currentHour < 18) {
+      greetingMessage = 'Boa tarde';
+    } else {
+      greetingMessage = 'Boa noite';
+    }
+
+    setGreeting(greetingMessage);
+  }, []);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -36,21 +54,28 @@ export default function DashboardSuperPage({ session }) {
 
   useEffect(() => {
     if (selectedUser) {
-      const loadUserData = async () => {
+      const fetchData = async () => {
         try {
           setLoading(true);
-          const [performanceRes, helpRes, categoryRes] = await Promise.all([
-            fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`),
+          const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
             fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
             fetch(`/api/get-user-category-ranking?userEmail=${selectedUser.email}`),
+            selectedUser.role === 'support' ? fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`) : Promise.resolve({ json: () => null })
           ]);
 
-          const performanceData = await performanceRes.json();
-          const helpData = await helpRes.json();
-          const categoryData = await categoryRes.json();
+          const helpData = await helpResponse.json();
+          setHelpRequests({
+            currentMonth: helpData.currentMonth,
+            lastMonth: helpData.lastMonth,
+          });
 
-          setUserData({ ...performanceData, helpRequests: helpData });
+          const categoryData = await categoryResponse.json();
           setCategoryRanking(categoryData.categories || []);
+
+          if (selectedUser.role === 'support') {
+            const performanceData = await performanceResponse.json();
+            setPerformanceData(performanceData);
+          }
         } catch (error) {
           console.error('Erro ao buscar dados do usuário:', error);
         } finally {
@@ -58,12 +83,12 @@ export default function DashboardSuperPage({ session }) {
         }
       };
 
-      loadUserData();
+      fetchData();
     }
   }, [selectedUser]);
 
   const handleUserSelect = (selectedOption) => {
-    setSelectedUser(selectedOption);
+    setSelectedUser(selectedOption.value);
   };
 
   // Estilos personalizados para o React-Select
@@ -110,11 +135,7 @@ export default function DashboardSuperPage({ session }) {
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isFocused
-        ? '#333'
-        : state.isSelected
-        ? '#F0A028'
-        : '#1e1e1e',
+      backgroundColor: state.isFocused ? '#333' : state.isSelected ? '#F0A028' : '#1e1e1e',
       color: '#fff',
       cursor: 'pointer',
       '&:hover': {
@@ -143,14 +164,6 @@ export default function DashboardSuperPage({ session }) {
     }),
   };
 
-  if (loading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
-
   return (
     <>
       <Head>
@@ -162,14 +175,10 @@ export default function DashboardSuperPage({ session }) {
           <div className={commonStyles.logo}>
             <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
           </div>
-          <button
-            onClick={() => setMenuOpen((prevMenuOpen) => !prevMenuOpen)}
-            className={commonStyles.menuToggle}
-          >
+          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
             ☰
           </button>
         </nav>
-
         {menuOpen && (
           <div className={commonStyles.menu}>
             <button onClick={() => router.push('/profile')} className={commonStyles.menuButton}>
@@ -180,12 +189,14 @@ export default function DashboardSuperPage({ session }) {
             </button>
           </div>
         )}
+      </div>
 
-        <div className={styles.mainContent}>
-          <h2 className={styles.title}>Dashboard Supervisor</h2>
+      <main className={styles.main}>
+        <h1 className={styles.greeting}>{greeting}, Supervisor!</h1>
+
+        <div className={styles.selectUserContainer}>
           <Select
             options={users.map((user) => ({ value: user, label: user.name }))}
-            value={selectedUser}
             onChange={handleUserSelect}
             isClearable
             placeholder="Selecione um colaborador"
@@ -193,47 +204,126 @@ export default function DashboardSuperPage({ session }) {
             classNamePrefix="react-select"
             noOptionsMessage={() => "Sem resultados"}
           />
+        </div>
 
-          {selectedUser && userData && (
-            <div className={styles.userInfoContainer}>
-              {/* Container para Desempenho */}
-              <div className={styles.performanceContainer}>
-                <h3>Indicadores de Desempenho - {selectedUser.label}</h3>
-                <div className={styles.performanceDetails}>
-                  <p><strong>Squad:</strong> {userData.squad || '-'}</p>
-                  <p><strong>Chamados:</strong> {userData.chamado ? 'Sim' : 'Não'}</p>
-                  <p><strong>Telefone:</strong> {userData.telefone ? 'Sim' : 'Não'}</p>
-                  <p><strong>Chat:</strong> {userData.chat ? 'Sim' : 'Não'}</p>
-                  <p><strong>Ajudas Solicitadas - Mês Atual:</strong> {userData.helpRequests.currentMonth}</p>
-                  <p><strong>Ajudas Solicitadas - Mês Anterior:</strong> {userData.helpRequests.lastMonth}</p>
+        {selectedUser && (
+          <>
+            <div className={styles.profileAndHelpContainer}>
+              <div className={styles.profileContainer}>
+                <img src={selectedUser.image} alt={selectedUser.name} className={styles.profileImage} />
+                <div className={styles.profileInfo}>
+                  <h2>{selectedUser.name}</h2>
+                  <p>{selectedUser.email}</p>
+                  <div className={styles.tagsContainer}>
+                    {performanceData?.squad && (
+                      <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
+                        #{performanceData.squad}
+                      </div>
+                    )}
+                    {performanceData?.chamado && (
+                      <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
+                        #Chamado
+                      </div>
+                    )}
+                    {performanceData?.telefone && (
+                      <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
+                        #Telefone
+                      </div>
+                    )}
+                    {performanceData?.chat && (
+                      <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
+                        #Chat
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
+              <div className={styles.profileContainer}>
+                {loading ? (
+                  <div className={styles.loadingContainer}>
+                    <div className="standardBoxLoader"></div>
+                  </div>
+                ) : (
+                  <div className={styles.profileInfo}>
+                    <h2>Ajudas Solicitadas</h2>
+                    <div className={styles.helpRequestsInfo}>
+                      <div className={styles.monthsInfo}>
+                        <p><strong>Mês Atual:</strong> {helpRequests.currentMonth}</p>
+                        <p><strong>Mês Anterior:</strong> {helpRequests.lastMonth}</p>
+                      </div>
+                      <div className={styles.percentageChange}>
+                        {/* Calcula a variação percentual */}
+                        {helpRequests.lastMonth > 0 && (
+                          <span>
+                            {Math.abs(
+                              ((helpRequests.currentMonth - helpRequests.lastMonth) /
+                                helpRequests.lastMonth) *
+                                100
+                            ).toFixed(1)}
+                            %
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
 
-              {/* Container para Ranking de Categorias */}
-              <div className={styles.categoryRankingContainer}>
-                <h3>Top 5 e 10 - Temas de Maior Dúvida</h3>
-                {categoryRanking.length > 0 ? (
+            <div className={styles.performanceWrapper}>
+              {/* Exibir indicadores de desempenho */}
+              {performanceData?.chamados && (
+                <div className={styles.performanceContainer}>
+                  <h2>Indicadores Chamados</h2>
+                  <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+                  <div className={styles.performanceInfo}>
+                    <div className={styles.performanceItem}>
+                      <span>Total Chamados:</span>
+                      <span>{performanceData.chamados.totalChamados}</span>
+                    </div>
+                    <div className={styles.performanceItem}>
+                      <span>Média/Dia:</span>
+                      <span>{performanceData.chamados.mediaPorDia}</span>
+                    </div>
+                    <div className={styles.performanceItem}>
+                      <span>TMA:</span>
+                      <span>{performanceData.chamados.tma}</span>
+                    </div>
+                    <div className={styles.performanceItem}>
+                      <span>CSAT:</span>
+                      <span>{performanceData.chamados.csat}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Exibir ranking de categorias */}
+              <div className={styles.categoryRanking}>
+                <h3>Top 10 - Temas de maior dúvida</h3>
+                {loading ? (
+                  <div className={styles.loadingContainer}>
+                    <div className="standardBoxLoader"></div>
+                  </div>
+                ) : categoryRanking.length > 0 ? (
                   <ul className={styles.list}>
-                    {categoryRanking.slice(0, 10).map((category, index) => (
+                    {categoryRanking.map((category, index) => (
                       <li key={index} className={styles.listItem}>
                         <span className={styles.rank}>{index + 1}.</span>
                         <span className={styles.categoryName}>{category.name}</span>
+                        <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
                         <span className={styles.count}>{category.count} pedidos de ajuda</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <div className={styles.noData}>
-                    Nenhum dado disponível no momento.
-                  </div>
+                  <div className={styles.noData}>Nenhum dado disponível no momento.</div>
                 )}
               </div>
             </div>
-          )}
-        </div>
+          </>
+        )}
+      </main>
 
-        <Footer />
-      </div>
+      <Footer />
     </>
   );
 }

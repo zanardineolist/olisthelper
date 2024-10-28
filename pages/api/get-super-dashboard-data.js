@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const [performanceData, helpData, categoryData] = await Promise.all([
+    const [performanceData, helpRequests, categoryRanking] = await Promise.all([
       getUserPerformance(userEmail),
       getUserHelpRequests(userEmail),
       getUserCategoryRanking(userEmail),
@@ -23,8 +23,8 @@ export default async function handler(req, res) {
 
     const responsePayload = {
       performance: performanceData,
-      helpRequests: helpData,
-      categories: categoryData,
+      helpRequests,
+      categoryRanking,
     };
 
     return res.status(200).json(responsePayload);
