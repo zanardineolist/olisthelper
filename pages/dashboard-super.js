@@ -4,8 +4,7 @@ import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
-import commonStyles from '../styles/commonStyles.module.css';
-import styles from '../styles/MyPage.module.css';
+import styles from '../styles/DashboardSuper.module.css';
 import Footer from '../components/Footer';
 
 export default function DashboardSuperPage({ session }) {
@@ -18,7 +17,7 @@ export default function DashboardSuperPage({ session }) {
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
-  const [loadingData, setLoadingData] = useState(false); // Estado de carregamento dos dados
+  const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
@@ -57,7 +56,7 @@ export default function DashboardSuperPage({ session }) {
     if (selectedUser) {
       const fetchData = async () => {
         try {
-          setLoadingData(true); // Iniciar carregamento dos dados
+          setLoadingData(true);
           const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
             fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
             fetch(`/api/get-user-category-ranking?userEmail=${selectedUser.email}`),
@@ -78,7 +77,7 @@ export default function DashboardSuperPage({ session }) {
         } catch (error) {
           console.error('Erro ao buscar dados do usuário:', error);
         } finally {
-          setLoadingData(false); // Finalizar carregamento dos dados
+          setLoadingData(false);
         }
       };
 
@@ -175,41 +174,43 @@ export default function DashboardSuperPage({ session }) {
       </Head>
 
       <div className={styles.container}>
-        <nav className={commonStyles.navbar}>
-          <div className={commonStyles.logo}>
+        <nav className={styles.navbar}>
+          <div className={styles.logo}>
             <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
           </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
+          <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
             ☰
           </button>
         </nav>
         {menuOpen && (
-          <div className={commonStyles.menu}>
-            <button onClick={() => router.push('/profile')} className={commonStyles.menuButton}>
+          <div className={styles.menu}>
+            <button onClick={() => router.push('/profile')} className={styles.menuButton}>
               Meu Perfil
             </button>
-            <button onClick={() => signOut()} className={commonStyles.menuButton}>
+            <button onClick={() => signOut()} className={styles.menuButton}>
               Logout
             </button>
           </div>
         )}
       </div>
 
-      <main className={styles.main}>
-        <h1 className={styles.greeting}>{greeting}, {session.user.name.split(' ')[0]}!</h1>
+      <main className={styles.mainContent}>
+        <h1 className={styles.title}>{greeting}, {session.user.name.split(' ')[0]}!</h1>
 
         {/* Container com informações do perfil do supervisor */}
-        <div className={styles.profileContainer}>
+        <div className={styles.userInfoContainer}>
+          <div className={styles.profileContainer}>
             <img src={session.user.image} alt={session.user.name} className={styles.profileImage} />
             <div className={styles.profileInfo}>
-            <h2>{session.user.name}</h2>
-            <p>{session.user.email}</p>
+              <h2>{session.user.name}</h2>
+              <p>{session.user.email}</p>
             </div>
+          </div>
         </div>
 
         {/* Campo de Seleção do Colaborador */}
-        <div className={`${styles.selectUserContainer} ${styles.centeredContainer}`}>
-            <Select
+        <div className={styles.profileAndHelpContainer}>
+          <Select
             options={users.map((user) => ({ value: user, label: user.name }))}
             onChange={handleUserSelect}
             isClearable
@@ -217,106 +218,104 @@ export default function DashboardSuperPage({ session }) {
             styles={customSelectStyles}
             classNamePrefix="react-select"
             noOptionsMessage={() => "Sem resultados"}
-            />
+          />
         </div>
 
         {selectedUser && (
-            <>
+          <>
             {/* Container para Indicadores de Desempenho e Ajudas Solicitadas */}
             <div className={styles.profileAndHelpContainer}>
-                {/* Perfil do Usuário Selecionado */}
-                <div className={styles.profileContainer}>
+              {/* Perfil do Usuário Selecionado */}
+              <div className={styles.profileContainer}>
                 <div className={styles.profileInfo}>
-                    <h2>{selectedUser.name}</h2>
-                    <p>{selectedUser.email}</p>
-                    <div className={styles.tagsContainer}>
+                  <h2>{selectedUser.name}</h2>
+                  <p>{selectedUser.email}</p>
+                  <div className={styles.tagsContainer}>
                     {performanceData?.chamado && (
-                        <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
+                      <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
                         #Chamado
-                        </div>
+                      </div>
                     )}
                     {performanceData?.telefone && (
-                        <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
+                      <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
                         #Telefone
-                        </div>
+                      </div>
                     )}
                     {performanceData?.chat && (
-                        <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
+                      <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
                         #Chat
-                        </div>
+                      </div>
                     )}
-                    </div>
+                  </div>
                 </div>
-                </div>
+              </div>
 
-                {/* Ajudas Solicitadas */}
-                <div className={styles.profileContainer}>
+              {/* Ajudas Solicitadas */}
+              <div className={styles.profileContainer}>
                 {loadingData ? (
-                    <div className={styles.loadingContainer}>
+                  <div className={styles.loadingContainer}>
                     <div className="standardBoxLoader"></div>
-                    </div>
+                  </div>
                 ) : (
-                    <>
-                    <div className={styles.profileInfo}>
-                        <h2>Ajudas Solicitadas</h2>
-                        <div className={styles.helpRequestsInfo}>
-                        <div className={styles.monthsInfo}>
-                            <p><strong>Mês Atual:</strong> {helpRequests.currentMonth}</p>
-                            <p><strong>Mês Anterior:</strong> {helpRequests.lastMonth}</p>
-                        </div>
-                        </div>
+                  <div className={styles.profileInfo}>
+                    <h2>Ajudas Solicitadas</h2>
+                    <div className={styles.helpRequestsInfo}>
+                      <div className={styles.monthsInfo}>
+                        <p><strong>Mês Atual:</strong> {helpRequests.currentMonth}</p>
+                        <p><strong>Mês Anterior:</strong> {helpRequests.lastMonth}</p>
+                      </div>
                     </div>
-                    </>
+                  </div>
                 )}
-                </div>
+              </div>
             </div>
 
             {/* Container para Indicadores de Desempenho */}
             <div className={styles.performanceWrapper}>
-            {loadingData ? (
+              {loadingData ? (
                 <>
-                <div className={styles.performanceContainer}>
+                  <div className={styles.performanceContainer}>
                     <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
+                      <div className="standardBoxLoader"></div>
                     </div>
-                </div>
-                <div className={styles.performanceContainer}>
+                  </div>
+                  <div className={styles.performanceContainer}>
                     <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
+                      <div className="standardBoxLoader"></div>
                     </div>
-                </div>
-                <div className={styles.performanceContainer}>
+                  </div>
+                  <div className={styles.performanceContainer}>
                     <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
+                      <div className="standardBoxLoader"></div>
                     </div>
-                </div>
+                  </div>
                 </>
-            ) : (
+              ) : (
                 <>
-                {performanceData?.chamados && (
+                  {performanceData?.chamados && (
                     <div className={styles.performanceContainer}>
-                    <h2>Indicadores Chamados</h2>
-                    <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-                    <div className={styles.performanceInfo}>
+                      <h2>Indicadores Chamados</h2>
+                      <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+                      <div className={styles.performanceInfo}>
                         <div className={styles.performanceItem}>
-                        <span>Total Chamados:</span>
-                        <span>{performanceData.chamados.totalChamados}</span>
+                          <span>Total Chamados:</span>
+                          <span>{performanceData.chamados.totalChamados}</span>
                         </div>
                         <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
-                        <span>Média/Dia:</span>
-                        <span>{performanceData.chamados.mediaPorDia}</span>
+                          <span>Média/Dia:</span>
+                          <span>{performanceData.chamados.mediaPorDia}</span>
                         </div>
                         <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
-                        <span>TMA:</span>
-                        <span>{performanceData.chamados.tma}</span>
+                          <span>TMA:</span>
+                          <span>{performanceData.chamados.tma}</span>
                         </div>
                         <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
-                        <span>CSAT:</span>
-                        <span>{performanceData.chamados.csat}</span>
+                          <span>CSAT:</span>
+                          <span>{performanceData.chamados.csat}</span>
                         </div>
+                      </div>
                     </div>
-                    </div>
-                )}
+                  )}
 
                 {performanceData?.telefone && (
                     <div className={styles.performanceContainer}>
@@ -372,38 +371,38 @@ export default function DashboardSuperPage({ session }) {
                     </div>
                 )}
                 </>
-            )}
+              )}
             </div>
 
             {/* Container para Ranking de Categorias */}
-            <div className={styles.categoryRanking}>
-                {loadingData ? (
+            <div className={styles.categoryRankingContainer}>
+              {loadingData ? (
                 <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
+                  <div className="standardBoxLoader"></div>
                 </div>
-                ) : (
+              ) : (
                 <>
-                    <h3>Top 10 - Temas de maior dúvida</h3>
-                    {categoryRanking.length > 0 ? (
+                  <h3>Top 10 - Temas de maior dúvida</h3>
+                  {categoryRanking.length > 0 ? (
                     <ul className={styles.list}>
-                        {categoryRanking.map((category, index) => (
+                      {categoryRanking.map((category, index) => (
                         <li key={index} className={styles.listItem}>
-                            <span className={styles.rank}>{index + 1}.</span>
-                            <span className={styles.categoryName}>{category.name}</span>
-                            <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
-                            <span className={styles.count}>{category.count} pedidos de ajuda</span>
+                          <span className={styles.rank}>{index + 1}.</span>
+                          <span className={styles.categoryName}>{category.name}</span>
+                          <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
+                          <span className={styles.count}>{category.count} pedidos de ajuda</span>
                         </li>
-                        ))}
+                      ))}
                     </ul>
-                    ) : (
+                  ) : (
                     <div className={styles.noData}>Nenhum dado disponível no momento.</div>
-                    )}
+                  )}
                 </>
-                )}
+              )}
             </div>
-            </>
+          </>
         )}
-        </main>
+      </main>
 
       <Footer />
     </>
