@@ -94,7 +94,7 @@ export default function AnalystProfilePage({ user }) {
   return (
     <>
       <Head>
-        <title>Perfil do Analista</title>
+        <title>Meu Perfil - Analista</title>
       </Head>
 
       <div className={styles.container}>
