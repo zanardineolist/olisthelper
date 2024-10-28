@@ -230,7 +230,6 @@ export default function DashboardSuperPage({ session }) {
                 </div>
               ) : (
                 <div className={styles.profileContainer}>
-                  <img src={selectedUser.image} alt={selectedUser.name} className={styles.profileImage} />
                   <div className={styles.profileInfo}>
                     <h2>{selectedUser.name}</h2>
                     <p>{selectedUser.email}</p>
