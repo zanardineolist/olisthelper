@@ -42,7 +42,7 @@ export default function ManageUsers() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('/api/get-users');
+      const response = await axios.get('/api/manage-user');
       setUsers(response.data.users);
     } catch (error) {
       console.error('Erro ao buscar usuários:', error);
@@ -70,10 +70,10 @@ export default function ManageUsers() {
     try {
       if (editingUser) {
         // Editar usuário existente
-        await axios.put(`/api/update-user?id=${editingUser.id}`, data);
+        await axios.put('/api/manage-user', { ...data, id: editingUser.id });
       } else {
         // Adicionar novo usuário
-        await axios.post('/api/add-user', data);
+        await axios.post('/api/manage-user', data);
       }
       fetchUsers();
       handleCloseDialog();
@@ -85,7 +85,7 @@ export default function ManageUsers() {
   const handleDeleteUser = async (id) => {
     if (confirm('Tem certeza que deseja remover este usuário?')) {
       try {
-        await axios.delete(`/api/delete-user?id=${id}`);
+        await axios.delete(`/api/manage-user?id=${id}`);
         fetchUsers();
       } catch (error) {
         console.error('Erro ao remover usuário:', error);
