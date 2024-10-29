@@ -56,6 +56,11 @@ export default function Navbar() {
               </a>
             </>
           )}
+          {(userRole === 'analyst' || userRole === 'super') && (
+            <Link href="/manage-users" className={styles.menuButton}>
+              Gerenciar Usuários
+            </Link>
+          )}
           <button onClick={() => signOut()} className={styles.menuButton}>
             Logout
           </button>
