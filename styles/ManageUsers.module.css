@@ -1,0 +1,127 @@
+/* styles/ManageUsers.module.css */
+
+.main {
+    padding: 20px;
+    margin-top: 80px;
+    background-color: #121212;
+    color: #fff;
+  }
+  
+  /* Form Container */
+  .formContainer {
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .formContainer input,
+  .formContainer button {
+    padding: 10px;
+    font-size: 1em;
+  }
+  
+  .formContainer input {
+    border: 1px solid #333;
+    border-radius: 5px;
+    background-color: #222;
+    color: #fff;
+  }
+  
+  .formContainer input::placeholder {
+    color: #aaa;
+  }
+  
+  .formContainer button {
+    background-color: #e64e36;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+  }
+  
+  .formContainer button:hover {
+    background-color: #f57c00;
+  }
+  
+  .checkboxContainer {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .checkboxContainer label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+  }
+  
+  /* Users Table */
+  .usersTable {
+    width: 100%;
+    max-width: 1000px;
+    margin: 20px auto;
+    border-collapse: collapse;
+    overflow-x: auto;
+  }
+  
+  .usersTable table {
+    width: 100%;
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  }
+  
+  .usersTable th,
+  .usersTable td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #333;
+  }
+  
+  .usersTable th {
+    background-color: #333;
+    color: #f57c00;
+  }
+  
+  .usersTable tr:hover {
+    background-color: #2a2a2a;
+  }
+  
+  .usersTable td {
+    color: #fff;
+  }
+  
+  /* Action Buttons */
+  .usersTable button {
+    padding: 5px 10px;
+    background-color: #0a4ee4;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 0.9em;
+  }
+  
+  .usersTable button:hover {
+    background-color: #0e61f6;
+  }
+  
+  .usersTable .deleteButton {
+    background-color: #e64e36;
+  }
+  
+  .usersTable .deleteButton:hover {
+    background-color: #ff5733;
+  }
+  
