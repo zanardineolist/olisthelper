@@ -225,7 +225,7 @@ export default function ManageUsersPage({ session }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  if (!session || session.role !== 'super') {
+  if (!session || !['analyst', 'super'].includes(session.role)) {
     return {
       redirect: {
         destination: '/',
