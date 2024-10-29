@@ -13,10 +13,17 @@ export default function ManageUsers() {
   const [openDialog, setOpenDialog] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const { control, handleSubmit, reset } = useForm();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [greeting, setGreeting] = useState('');
 
   useEffect(() => {
+    if (status === 'loading') return;
+
+    if (!session) {
+      // Redirecionar ou mostrar mensagem de autenticação
+      return;
+    }
+
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentHour = new Date(brtDate).getHours();
     let greetingMessage = '';
@@ -30,11 +37,8 @@ export default function ManageUsers() {
     }
 
     setGreeting(greetingMessage);
-  }, []);
-
-  useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [session, status]);
 
   const fetchUsers = async () => {
     try {
@@ -57,6 +61,7 @@ export default function ManageUsers() {
   };
 
   const onSubmit = async (data) => {
+    // Validação do e-mail
     if (!/^.+@(olist\.com|tiny\.com\.br)$/.test(data.email)) {
       alert('Por favor, insira um e-mail com domínio @olist.com ou @tiny.com.br.');
       return;
@@ -201,43 +206,43 @@ export default function ManageUsers() {
                 />
               </Box>
               <Box mb={2}>
-                <Controller
-                  name="chamado"
-                  control={control}
-                  defaultValue={false}
-                  render={({ field }) => (
-                    <FormControl>
-                      <InputLabel>Chamado</InputLabel>
+                <FormControl>
+                  <Controller
+                    name="chamado"
+                    control={control}
+                    defaultValue={false}
+                    render={({ field }) => (
                       <Checkbox {...field} checked={field.value} />
-                    </FormControl>
-                  )}
-                />
+                    )}
+                  />
+                  <InputLabel>Chamado</InputLabel>
+                </FormControl>
               </Box>
               <Box mb={2}>
-                <Controller
-                  name="telefone"
-                  control={control}
-                  defaultValue={false}
-                  render={({ field }) => (
-                    <FormControl>
-                      <InputLabel>Telefone</InputLabel>
+                <FormControl>
+                  <Controller
+                    name="telefone"
+                    control={control}
+                    defaultValue={false}
+                    render={({ field }) => (
                       <Checkbox {...field} checked={field.value} />
-                    </FormControl>
-                  )}
-                />
+                    )}
+                  />
+                  <InputLabel>Telefone</InputLabel>
+                </FormControl>
               </Box>
               <Box mb={2}>
-                <Controller
-                  name="chat"
-                  control={control}
-                  defaultValue={false}
-                  render={({ field }) => (
-                    <FormControl>
-                      <InputLabel>Chat</InputLabel>
+                <FormControl>
+                  <Controller
+                    name="chat"
+                    control={control}
+                    defaultValue={false}
+                    render={({ field }) => (
                       <Checkbox {...field} checked={field.value} />
-                    </FormControl>
-                  )}
-                />
+                    )}
+                  />
+                  <InputLabel>Chat</InputLabel>
+                </FormControl>
               </Box>
             </form>
           </DialogContent>
