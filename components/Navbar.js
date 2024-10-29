@@ -28,11 +28,6 @@ export default function Navbar() {
           <Link href="/profile" className={styles.menuButton}>
             Meu Perfil
           </Link>
-          {(userRole === 'analyst' || userRole === 'super') && (
-            <Link href="/manage-users" className={styles.menuButton}>
-              Gerenciar Usuários
-            </Link>
-          )}
           {userRole === 'analyst' && (
             <>
               <Link href="/profile-analyst" className={styles.menuButton}>

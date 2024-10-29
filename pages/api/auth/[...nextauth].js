@@ -2,6 +2,7 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { getUserFromSheet } from '../../../utils/googleSheets';
+import { JWT } from 'next-auth/jwt';
 
 export default NextAuth({
   providers: [
@@ -31,7 +32,7 @@ export default NextAuth({
       // Adicionar ID e papel do usuário à sessão
       if (token) {
         session.id = token.id;
-        session.role = token.role; // Papel do usuário: 'support', 'analyst', 'super', etc.
+        session.role = token.role; // Papel do usuário: 'user', 'analyst', ou 'super'
       }
       return session;
     },
@@ -42,7 +43,7 @@ export default NextAuth({
           let userDetails = await getUserFromSheet(user.email);
           if (userDetails) {
             token.id = userDetails[0];
-            token.role = userDetails[3]; // Papel do usuário: 'support', 'analyst', 'super', etc.
+            token.role = userDetails[3]; // Papel do usuário: 'user', 'analyst', ou 'super'
           }
         } catch (error) {
           console.error("Erro ao obter detalhes do usuário:", error);

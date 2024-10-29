@@ -1,261 +1,239 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import {
-  Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox, MenuItem, Select, FormControl, InputLabel
-} from '@mui/material';
-import { useForm, Controller } from 'react-hook-form';
-import { useSession, signOut } from 'next-auth/react';
+// pages/manage-users.js
+import Head from 'next/head';
+import { useEffect, useState } from 'react';
+import { getSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import Select from 'react-select';
 import commonStyles from '../styles/commonStyles.module.css';
+import styles from '../styles/ManageUsers.module.css';
 import Footer from '../components/Footer';
 
-export default function ManageUsers() {
+export default function ManageUsersPage({ session }) {
+  const router = useRouter();
   const [users, setUsers] = useState([]);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
-  const { control, handleSubmit, reset } = useForm();
-  const { data: session, status } = useSession();
-  const [greeting, setGreeting] = useState('');
+  const [newUser, setNewUser] = useState({
+    id: '',
+    name: '',
+    email: '',
+    profile: '',
+    squad: '',
+    chamado: false,
+    telefone: false,
+    chat: false,
+  });
+  const [loading, setLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const profileOptions = [
+    { value: 'support', label: 'Suporte' },
+    { value: 'analyst', label: 'Analista' },
+    { value: 'super', label: 'Supervisor' },
+    { value: 'tax', label: 'Fiscal' },
+    { value: 'other', label: 'Outro' },
+  ];
 
   useEffect(() => {
-    if (status === 'loading') return;
-
-    if (!session) {
-      // Redirecionar ou mostrar mensagem de autenticação
-      return;
-    }
-
-    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-    const currentHour = new Date(brtDate).getHours();
-    let greetingMessage = '';
-
-    if (currentHour >= 5 && currentHour < 12) {
-      greetingMessage = 'Bom dia';
-    } else if (currentHour >= 12 && currentHour < 18) {
-      greetingMessage = 'Boa tarde';
-    } else {
-      greetingMessage = 'Boa noite';
-    }
-
-    setGreeting(greetingMessage);
-    fetchUsers();
-  }, [session, status]);
-
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get('/api/manage-user');
-      setUsers(response.data.users);
-    } catch (error) {
-      console.error('Erro ao buscar usuários:', error);
-    }
-  };
-
-  const handleOpenDialog = (user) => {
-    setEditingUser(user);
-    reset(user ? { ...user } : {});
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setEditingUser(null);
-    setOpenDialog(false);
-  };
-
-  const onSubmit = async (data) => {
-    // Validação do e-mail
-    if (!/^.+@(olist\.com|tiny\.com\.br)$/.test(data.email)) {
-      alert('Por favor, insira um e-mail com domínio @olist.com ou @tiny.com.br.');
-      return;
-    }
-
-    try {
-      if (editingUser) {
-        // Editar usuário existente
-        await axios.put('/api/manage-user', { ...data, id: editingUser.id });
-      } else {
-        // Adicionar novo usuário
-        await axios.post('/api/manage-user', data);
-      }
-      fetchUsers();
-      handleCloseDialog();
-    } catch (error) {
-      console.error('Erro ao salvar usuário:', error);
-    }
-  };
-
-  const handleDeleteUser = async (id) => {
-    if (confirm('Tem certeza que deseja remover este usuário?')) {
+    const loadUsers = async () => {
       try {
-        await axios.delete(`/api/manage-user?id=${id}`);
-        fetchUsers();
-      } catch (error) {
-        console.error('Erro ao remover usuário:', error);
+        setLoading(true);
+        const res = await fetch('/api/get-users');
+        const data = await res.json();
+        setUsers(data.users);
+      } catch (err) {
+        console.error('Erro ao carregar usuários:', err);
+      } finally {
+        setLoading(false);
       }
+    };
+    loadUsers();
+  }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setNewUser((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleSelectChange = (selectedOption) => {
+    setNewUser((prev) => ({ ...prev, profile: selectedOption.value }));
+  };
+
+  const handleEditUser = (user) => {
+    setNewUser(user);
+    setIsEditing(true);
+  };
+
+  const handleSaveUser = async () => {
+    try {
+      setLoading(true);
+      const method = isEditing ? 'PUT' : 'POST';
+      const res = await fetch('/api/manage-user', {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
+      });
+      if (!res.ok) throw new Error('Erro ao salvar usuário');
+
+      const updatedUsers = await res.json();
+      setUsers(updatedUsers);
+      setNewUser({ id: '', name: '', email: '', profile: '', squad: '', chamado: false, telefone: false, chat: false });
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Erro ao salvar usuário:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/manage-user?id=${userId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Erro ao deletar usuário');
+
+      const updatedUsers = await res.json();
+      setUsers(updatedUsers);
+    } catch (err) {
+      console.error('Erro ao deletar usuário:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <>
-      <div className={commonStyles.navbar}>
-        <nav className={commonStyles.navbar}>
-          <div className={commonStyles.logo}>
-            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
+      <Head>
+        <title>Gerenciamento de Usuários</title>
+      </Head>
+
+      <main className={styles.main}>
+        <h1>Gerenciamento de Usuários</h1>
+
+        {/* Formulário para adicionar/editar usuário */}
+        <div className={styles.formContainer}>
+          <input
+            type="text"
+            name="name"
+            value={newUser.name}
+            placeholder="Nome"
+            onChange={handleInputChange}
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            value={newUser.email}
+            placeholder="E-mail"
+            onChange={handleInputChange}
+            required
+          />
+          <Select
+            options={profileOptions}
+            value={profileOptions.find((opt) => opt.value === newUser.profile)}
+            onChange={handleSelectChange}
+            placeholder="Perfil"
+          />
+          <input
+            type="text"
+            name="squad"
+            value={newUser.squad}
+            placeholder="Squad"
+            onChange={handleInputChange}
+          />
+          <div className={styles.checkboxContainer}>
+            <label>
+              <input
+                type="checkbox"
+                name="chamado"
+                checked={newUser.chamado}
+                onChange={handleInputChange}
+              />
+              Chamado
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                name="telefone"
+                checked={newUser.telefone}
+                onChange={handleInputChange}
+              />
+              Telefone
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                name="chat"
+                checked={newUser.chat}
+                onChange={handleInputChange}
+              />
+              Chat
+            </label>
           </div>
-          <button onClick={() => signOut()} className={commonStyles.menuButton}>
-            Logout
+          <button onClick={handleSaveUser} disabled={loading} className={styles.saveButton}>
+            {isEditing ? 'Atualizar' : 'Adicionar'} Usuário
           </button>
-        </nav>
-      </div>
+        </div>
 
-      <Box p={3} maxWidth="1280px" margin="0 auto">
-        <Typography variant="h4" mb={3}>
-          Olá, {greeting} {session?.user?.name.split(' ')[0]}! Gerenciamento de Usuários
-        </Typography>
-        <Button variant="contained" color="primary" onClick={() => handleOpenDialog(null)}>
-          Adicionar Novo Usuário
-        </Button>
-
-        <TableContainer component={Paper} sx={{ mt: 3 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Nome</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Perfil</TableCell>
-                <TableCell>Squad</TableCell>
-                <TableCell>Chamado</TableCell>
-                <TableCell>Telefone</TableCell>
-                <TableCell>Chat</TableCell>
-                <TableCell>Ações</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
+        {/* Tabela de usuários */}
+        <div className={styles.usersTable}>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Perfil</th>
+                <th>Squad</th>
+                <th>Chamado</th>
+                <th>Telefone</th>
+                <th>Chat</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
               {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>{user.id}</TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.role}</TableCell>
-                  <TableCell>{user.squad}</TableCell>
-                  <TableCell><Checkbox checked={user.chamado} disabled /></TableCell>
-                  <TableCell><Checkbox checked={user.telefone} disabled /></TableCell>
-                  <TableCell><Checkbox checked={user.chat} disabled /></TableCell>
-                  <TableCell>
-                    <Button color="primary" onClick={() => handleOpenDialog(user)}>Editar</Button>
-                    <Button color="secondary" onClick={() => handleDeleteUser(user.id)}>Remover</Button>
-                  </TableCell>
-                </TableRow>
+                <tr key={user.id}>
+                  <td>{user.id}</td>
+                  <td>{user.name}</td>
+                  <td>{user.email}</td>
+                  <td>{user.profile}</td>
+                  <td>{user.squad}</td>
+                  <td>{user.chamado ? '✔' : '✘'}</td>
+                  <td>{user.telefone ? '✔' : '✘'}</td>
+                  <td>{user.chat ? '✔' : '✘'}</td>
+                  <td>
+                    <button onClick={() => handleEditUser(user)}>Editar</button>
+                    <button onClick={() => handleDeleteUser(user.id)}>Excluir</button>
+                  </td>
+                </tr>
               ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Dialog open={openDialog} onClose={handleCloseDialog}>
-          <DialogTitle>{editingUser ? 'Editar Usuário' : 'Adicionar Novo Usuário'}</DialogTitle>
-          <DialogContent sx={{ maxWidth: "700px", height: "700px" }}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Box mb={2}>
-                <Controller
-                  name="name"
-                  control={control}
-                  defaultValue=""
-                  rules={{ required: 'Nome é obrigatório' }}
-                  render={({ field }) => (
-                    <TextField {...field} label="Nome" fullWidth margin="dense" />
-                  )}
-                />
-              </Box>
-              <Box mb={2}>
-                <Controller
-                  name="email"
-                  control={control}
-                  defaultValue=""
-                  rules={{ required: 'Email é obrigatório' }}
-                  render={({ field }) => (
-                    <TextField {...field} label="Email" type="email" fullWidth margin="dense" />
-                  )}
-                />
-              </Box>
-              <Box mb={2}>
-                <FormControl fullWidth margin="dense">
-                  <InputLabel>Perfil</InputLabel>
-                  <Controller
-                    name="role"
-                    control={control}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <Select {...field} label="Perfil">
-                        <MenuItem value="support">Suporte</MenuItem>
-                        <MenuItem value="analyst">Analista</MenuItem>
-                        <MenuItem value="super">Supervisor</MenuItem>
-                        <MenuItem value="tax">Fiscal</MenuItem>
-                        <MenuItem value="other">Outro</MenuItem>
-                      </Select>
-                    )}
-                  />
-                </FormControl>
-              </Box>
-              <Box mb={2}>
-                <Controller
-                  name="squad"
-                  control={control}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <TextField {...field} label="Squad" fullWidth margin="dense" />
-                  )}
-                />
-              </Box>
-              <Box mb={2}>
-                <FormControl>
-                  <Controller
-                    name="chamado"
-                    control={control}
-                    defaultValue={false}
-                    render={({ field }) => (
-                      <Checkbox {...field} checked={field.value} />
-                    )}
-                  />
-                  <InputLabel>Chamado</InputLabel>
-                </FormControl>
-              </Box>
-              <Box mb={2}>
-                <FormControl>
-                  <Controller
-                    name="telefone"
-                    control={control}
-                    defaultValue={false}
-                    render={({ field }) => (
-                      <Checkbox {...field} checked={field.value} />
-                    )}
-                  />
-                  <InputLabel>Telefone</InputLabel>
-                </FormControl>
-              </Box>
-              <Box mb={2}>
-                <FormControl>
-                  <Controller
-                    name="chat"
-                    control={control}
-                    defaultValue={false}
-                    render={({ field }) => (
-                      <Checkbox {...field} checked={field.value} />
-                    )}
-                  />
-                  <InputLabel>Chat</InputLabel>
-                </FormControl>
-              </Box>
-            </form>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancelar</Button>
-            <Button onClick={handleSubmit(onSubmit)} variant="contained" color="primary">
-              Salvar
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Box>
+            </tbody>
+          </table>
+        </div>
+      </main>
 
       <Footer />
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  if (!session || session.role !== 'super') {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
 }
