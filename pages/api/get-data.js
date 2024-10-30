@@ -1,4 +1,4 @@
-import { getSheetValues } from '../../utils/googleSheets';
+import { getSheetValues, getSheetMetaData } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   const { analystId, infoType } = req.query;
@@ -8,9 +8,17 @@ export default async function handler(req, res) {
   }
 
   const sheetId = process.env.SHEET_ID;
-  const range = `Analista-${analystId}!A:Z`;
+  const sheetTab = `#${analystId}`;  // Usando o numeral do analista conforme estrutura da planilha
 
   try {
+    const metaData = await getSheetMetaData(sheetId);
+    const sheetExists = metaData.sheets.some(sheet => sheet.properties.title === sheetTab);
+
+    if (!sheetExists) {
+      return res.status(404).json({ error: `Aba para o analista com ID ${analystId} não encontrada.` });
+    }
+
+    const range = `'${sheetTab}'!A:Z`;  // Ajustar o range conforme necessário
     const data = await getSheetValues(sheetId, range);
 
     if (!data || data.length === 0) {

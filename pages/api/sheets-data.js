@@ -7,19 +7,16 @@ export default async function handler(req, res) {
 
   const { sheetType, sheetTab, infoType } = req.query;
 
-  // Mapear os IDs das planilhas
   const SHEET_IDS = {
     database: '1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34',
     indicators: '1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI',
   };
 
-  // Verificar se os parâmetros necessários foram fornecidos
   if (!sheetType || !sheetTab || !infoType) {
     console.error(`Erro: Parâmetros ausentes. Recebido sheetType: ${sheetType}, sheetTab: ${sheetTab}, infoType: ${infoType}`);
     return res.status(400).json({ error: 'sheetType, sheetTab e infoType são obrigatórios.' });
   }
 
-  // Verificar se o tipo de planilha é válido
   const sheetId = SHEET_IDS[sheetType];
   if (!sheetId) {
     console.error(`Erro: Tipo de planilha inválido: ${sheetType}`);
@@ -28,20 +25,12 @@ export default async function handler(req, res) {
 
   try {
     const sheets = await getAuthenticatedGoogleSheets();
-    let actualSheetTab = sheetTab;
+    let actualSheetTab = `#${sheetTab}`;  // Utilizando o numeral da aba
 
-    if (sheetType === 'database' && sheetTab.startsWith('Analista-')) {
-      const analystId = sheetTab.replace('Analista-', '').trim();
-      const metaData = await getSheetMetaData(sheetId);
-      if (!metaData || !metaData.sheets) {
-        return res.status(500).json({ error: 'Falha ao obter metadados da planilha.' });
-      }
-
-      const matchingSheet = metaData.sheets.find(sheet => sheet.properties.title.includes(analystId));
-      if (!matchingSheet) {
-        return res.status(404).json({ error: `Aba para o analista ${analystId} não encontrada.` });
-      }
-      actualSheetTab = matchingSheet.properties.title;
+    const metaData = await getSheetMetaData(sheetId);
+    const sheetExists = metaData.sheets.some(sheet => sheet.properties.title === actualSheetTab);
+    if (!sheetExists) {
+      return res.status(404).json({ error: `Aba para o tipo ${sheetType} com ID ${sheetTab} não encontrada.` });
     }
 
     const range = `'${actualSheetTab}'!A:Z`;
