@@ -29,6 +29,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
         }
 
+        // Buscar os valores da aba correta
         rows = await getSheetValues('1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34', sheetName, 'A:F');
 
         if (type === 'analyst-records') {
