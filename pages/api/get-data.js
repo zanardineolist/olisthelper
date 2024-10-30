@@ -7,8 +7,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Parâmetros analystId e infoType são obrigatórios.' });
   }
 
-  const sheetId = process.env.SHEET_ID; // Certifique-se de que o valor de SHEET_ID está definido corretamente no arquivo de ambiente.
-  const sheetTab = `#${analystId}`; // Usando o numeral do analista conforme estrutura da planilha
+  const sheetId = process.env.SHEET_ID;
 
   try {
     // Buscar metadados da planilha para confirmar se a aba existe
@@ -18,12 +17,15 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Metadados da planilha não encontrados.' });
     }
 
-    const sheetExists = metaData.sheets.some(sheet => sheet.properties.title === sheetTab);
-    if (!sheetExists) {
-      return res.status(404).json({ error: `Aba para o analista com ID ${analystId} não encontrada.` });
+    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
+    const sheetName = metaData.sheets.find(sheet => sheet.properties.title.startsWith(`#${analystId}`))?.properties.title;
+
+    if (!sheetName) {
+      console.error(`Erro: A aba correspondente ao ID '${analystId}' não existe na planilha.`);
+      return res.status(404).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
     }
 
-    const range = `'${sheetTab}'!A:Z`; // Ajustar o range conforme necessário
+    const range = `'${sheetName}'!A:Z`;
     const data = await getSheetValues(sheetId, range);
 
     if (!data || data.length === 0) {
