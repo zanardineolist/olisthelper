@@ -131,7 +131,7 @@ export default function ManageUsersPage({ session }) {
 
       <main className={styles.main}>
         <h1>Gerenciamento de Usuários</h1>
-        <button onClick={handleOpenModal} className={styles.addButton}>Adicionar Usuário</button>
+        <button onClick={handleOpenModal} className={`${styles.addButton} ${commonStyles.button}`}>Adicionar Novo Usuário</button>
 
         {/* Modal para adicionar/editar usuário */}
         <Modal
@@ -140,6 +140,7 @@ export default function ManageUsersPage({ session }) {
           contentLabel="Adicionar/Editar Usuário"
           className={styles.modal}
           overlayClassName={styles.overlay}
+          ariaHideApp={false}
         >
           <h2 className={styles.modalTitle}>{isEditing ? 'Editar Usuário' : 'Adicionar Usuário'}</h2>
           <div className={styles.formContainer}>
@@ -164,6 +165,27 @@ export default function ManageUsersPage({ session }) {
               value={profileOptions.find((opt) => opt.value === newUser.profile)}
               onChange={handleSelectChange}
               placeholder="Perfil"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  backgroundColor: '#222',
+                  borderColor: '#333',
+                  color: '#fff',
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  color: '#fff',
+                }),
+                menu: (base) => ({
+                  ...base,
+                  backgroundColor: '#333',
+                }),
+                option: (provided, state) => ({
+                  ...provided,
+                  color: state.isSelected ? '#f57c00' : '#fff',
+                  backgroundColor: state.isFocused ? '#444' : '#333',
+                }),
+              }}
             />
             <input
               type="text"
@@ -201,10 +223,12 @@ export default function ManageUsersPage({ session }) {
                 Chat
               </label>
             </div>
-            <button onClick={handleSaveUser} disabled={loading} className={styles.saveButton}>
-              {isEditing ? 'Atualizar' : 'Adicionar'} Usuário
+            <button onClick={handleSaveUser} disabled={loading} className={`${styles.saveButton} ${commonStyles.button}`}>
+              {isEditing ? 'Atualizar Usuário' : 'Adicionar Usuário'}
             </button>
-            <button onClick={handleCloseModal} className={styles.cancelButton}>Cancelar</button>
+            <button onClick={handleCloseModal} className={`${styles.cancelButton} ${commonStyles.button}`}>
+              Cancelar
+            </button>
           </div>
         </Modal>
 
@@ -224,7 +248,7 @@ export default function ManageUsersPage({ session }) {
                 <th style={{ width: '10%' }}>Ações</th>
               </tr>
             </thead>
-            <tbody style={{ maxHeight: '800px', overflowY: 'auto' }}>
+            <tbody>
               {users.map((user) => (
                 <tr key={user.id}>
                   <td>{user.id}</td>
