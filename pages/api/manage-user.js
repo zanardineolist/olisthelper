@@ -6,11 +6,12 @@ export default async function handler(req, res) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
+    const sheetName = 'Usuários';  // Certifique-se de usar o nome correto da aba
 
     switch (method) {
       case 'GET':
         // Obter todos os usuários
-        const rows = await getSheetValues(sheets, sheetId, 'Usuários', 'A:H');
+        const rows = await getSheetValues(sheets, sheetId, sheetName, 'A:H');
         if (rows && rows.length > 1) {
           const users = rows.slice(1).map((row) => ({
             id: row[0],
@@ -29,7 +30,7 @@ export default async function handler(req, res) {
       case 'POST':
         // Adicionar novo usuário
         const newUser = req.body;
-        await addSheetRow(sheets, sheetId, 'Usuários', [
+        await addSheetRow(sheets, sheetId, sheetName, [
           newUser.id,
           newUser.name,
           newUser.email,
@@ -44,14 +45,14 @@ export default async function handler(req, res) {
       case 'PUT':
         // Editar um usuário existente
         const updatedUser = req.body;
-        const allRows = await getSheetValues(sheets, sheetId, 'Usuários', 'A:H');
+        const allRows = await getSheetValues(sheets, sheetId, sheetName, 'A:H');
 
         const rowIndex = allRows.findIndex((row) => row[0] === updatedUser.id);
         if (rowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
 
-        await updateSheetRow(sheets, sheetId, 'Usuários', rowIndex + 1, [
+        await updateSheetRow(sheets, sheetId, sheetName, rowIndex + 1, [
           updatedUser.id,
           updatedUser.name,
           updatedUser.email,
@@ -67,13 +68,13 @@ export default async function handler(req, res) {
         // Excluir um usuário
         const { userId } = req.query;
 
-        const userRows = await getSheetValues(sheets, sheetId, 'Usuários', 'A:H');
+        const userRows = await getSheetValues(sheets, sheetId, sheetName, 'A:H');
         const deleteRowIndex = userRows.findIndex((row) => row[0] === userId);
         if (deleteRowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
 
-        await deleteSheetRow(sheets, sheetId, 'Usuários', deleteRowIndex + 1);
+        await deleteSheetRow(sheets, sheetId, sheetName, deleteRowIndex + 1);
         return res.status(200).json({ message: 'Usuário excluído com sucesso.' });
 
       default:

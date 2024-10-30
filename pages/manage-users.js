@@ -38,6 +38,7 @@ export default function ManageUsersPage({ session }) {
       try {
         setLoading(true);
         const res = await fetch('/api/manage-user');
+        if (!res.ok) throw new Error('Erro ao carregar usuários');
         const data = await res.json();
         setUsers(data.users);
       } catch (err) {
@@ -74,7 +75,6 @@ export default function ManageUsersPage({ session }) {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Erro ao deletar usuário');
-
       setUsers(users.filter((user) => user.id !== userId));
     } catch (err) {
       console.error('Erro ao deletar usuário:', err);
