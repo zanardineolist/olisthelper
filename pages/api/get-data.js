@@ -26,10 +26,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Tipo de informação inválido.' });
     }
 
+    // Criar URL absoluta para o fetch
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const sheetsDataUrl = `${baseUrl}/api/sheets-data?sheetType=${sheetType}&sheetTab=${encodeURIComponent(sheetTab)}&infoType=${infoType}`;
+
     // Fazer a requisição ao endpoint sheets-data para obter os dados corretos
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/sheets-data?sheetType=${sheetType}&sheetTab=${encodeURIComponent(sheetTab)}&infoType=${infoType}`
-    );
+    const response = await fetch(sheetsDataUrl);
 
     if (!response.ok) {
       throw new Error('Erro ao buscar dados da planilha.');
