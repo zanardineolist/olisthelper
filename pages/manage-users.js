@@ -1,4 +1,3 @@
-// pages/manage-users.js
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { getSession } from 'next-auth/react';
@@ -7,6 +6,7 @@ import Select from 'react-select';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/ManageUsers.module.css';
 import Footer from '../components/Footer';
+import Modal from 'react-modal';
 
 export default function ManageUsersPage({ session }) {
   const router = useRouter();
@@ -23,6 +23,7 @@ export default function ManageUsersPage({ session }) {
   });
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const profileOptions = [
     { value: 'support', label: 'Suporte' },
@@ -36,7 +37,7 @@ export default function ManageUsersPage({ session }) {
     const loadUsers = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/get-users');
+        const res = await fetch('/api/manage-user');
         const data = await res.json();
         setUsers(data.users);
       } catch (err) {
@@ -63,6 +64,23 @@ export default function ManageUsersPage({ session }) {
   const handleEditUser = (user) => {
     setNewUser(user);
     setIsEditing(true);
+    setModalIsOpen(true);
+  };
+
+  const handleDeleteUser = async (userId) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/manage-user?id=${userId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Erro ao deletar usuário');
+
+      setUsers(users.filter((user) => user.id !== userId));
+    } catch (err) {
+      console.error('Erro ao deletar usuário:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSaveUser = async () => {
@@ -78,10 +96,16 @@ export default function ManageUsersPage({ session }) {
       });
       if (!res.ok) throw new Error('Erro ao salvar usuário');
 
-      const updatedUsers = await res.json();
-      setUsers(updatedUsers);
+      const updatedUser = await res.json();
+      if (isEditing) {
+        setUsers(users.map((user) => (user.id === updatedUser.id ? updatedUser : user)));
+      } else {
+        setUsers([...users, updatedUser]);
+      }
+
       setNewUser({ id: '', name: '', email: '', profile: '', squad: '', chamado: false, telefone: false, chat: false });
       setIsEditing(false);
+      setModalIsOpen(false);
     } catch (err) {
       console.error('Erro ao salvar usuário:', err);
     } finally {
@@ -89,21 +113,14 @@ export default function ManageUsersPage({ session }) {
     }
   };
 
-  const handleDeleteUser = async (userId) => {
-    try {
-      setLoading(true);
-      const res = await fetch(`/api/manage-user?id=${userId}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Erro ao deletar usuário');
+  const handleOpenModal = () => {
+    setNewUser({ id: '', name: '', email: '', profile: '', squad: '', chamado: false, telefone: false, chat: false });
+    setIsEditing(false);
+    setModalIsOpen(true);
+  };
 
-      const updatedUsers = await res.json();
-      setUsers(updatedUsers);
-    } catch (err) {
-      console.error('Erro ao deletar usuário:', err);
-    } finally {
-      setLoading(false);
-    }
+  const handleCloseModal = () => {
+    setModalIsOpen(false);
   };
 
   return (
@@ -114,71 +131,82 @@ export default function ManageUsersPage({ session }) {
 
       <main className={styles.main}>
         <h1>Gerenciamento de Usuários</h1>
+        <button onClick={handleOpenModal} className={styles.addButton}>Adicionar Usuário</button>
 
-        {/* Formulário para adicionar/editar usuário */}
-        <div className={styles.formContainer}>
-          <input
-            type="text"
-            name="name"
-            value={newUser.name}
-            placeholder="Nome"
-            onChange={handleInputChange}
-            required
-          />
-          <input
-            type="email"
-            name="email"
-            value={newUser.email}
-            placeholder="E-mail"
-            onChange={handleInputChange}
-            required
-          />
-          <Select
-            options={profileOptions}
-            value={profileOptions.find((opt) => opt.value === newUser.profile)}
-            onChange={handleSelectChange}
-            placeholder="Perfil"
-          />
-          <input
-            type="text"
-            name="squad"
-            value={newUser.squad}
-            placeholder="Squad"
-            onChange={handleInputChange}
-          />
-          <div className={styles.checkboxContainer}>
-            <label>
-              <input
-                type="checkbox"
-                name="chamado"
-                checked={newUser.chamado}
-                onChange={handleInputChange}
-              />
-              Chamado
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                name="telefone"
-                checked={newUser.telefone}
-                onChange={handleInputChange}
-              />
-              Telefone
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                name="chat"
-                checked={newUser.chat}
-                onChange={handleInputChange}
-              />
-              Chat
-            </label>
+        {/* Modal para adicionar/editar usuário */}
+        <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={handleCloseModal}
+          contentLabel="Adicionar/Editar Usuário"
+          className={styles.modal}
+          overlayClassName={styles.overlay}
+        >
+          <h2>{isEditing ? 'Editar Usuário' : 'Adicionar Usuário'}</h2>
+          <div className={styles.formContainer}>
+            <input
+              type="text"
+              name="name"
+              value={newUser.name}
+              placeholder="Nome"
+              onChange={handleInputChange}
+              required
+            />
+            <input
+              type="email"
+              name="email"
+              value={newUser.email}
+              placeholder="E-mail"
+              onChange={handleInputChange}
+              required
+            />
+            <Select
+              options={profileOptions}
+              value={profileOptions.find((opt) => opt.value === newUser.profile)}
+              onChange={handleSelectChange}
+              placeholder="Perfil"
+            />
+            <input
+              type="text"
+              name="squad"
+              value={newUser.squad}
+              placeholder="Squad"
+              onChange={handleInputChange}
+            />
+            <div className={styles.checkboxContainer}>
+              <label>
+                <input
+                  type="checkbox"
+                  name="chamado"
+                  checked={newUser.chamado}
+                  onChange={handleInputChange}
+                />
+                Chamado
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="telefone"
+                  checked={newUser.telefone}
+                  onChange={handleInputChange}
+                />
+                Telefone
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="chat"
+                  checked={newUser.chat}
+                  onChange={handleInputChange}
+                />
+                Chat
+              </label>
+            </div>
+            <button onClick={handleSaveUser} disabled={loading} className={styles.saveButton}>
+              {isEditing ? 'Atualizar' : 'Adicionar'} Usuário
+            </button>
+            <button onClick={handleCloseModal} className={styles.cancelButton}>Cancelar</button>
           </div>
-          <button onClick={handleSaveUser} disabled={loading} className={styles.saveButton}>
-            {isEditing ? 'Atualizar' : 'Adicionar'} Usuário
-          </button>
-        </div>
+        </Modal>
 
         {/* Tabela de usuários */}
         <div className={styles.usersTable}>
@@ -208,8 +236,8 @@ export default function ManageUsersPage({ session }) {
                   <td>{user.telefone ? '✔' : '✘'}</td>
                   <td>{user.chat ? '✔' : '✘'}</td>
                   <td>
-                    <button onClick={() => handleEditUser(user)}>Editar</button>
-                    <button onClick={() => handleDeleteUser(user.id)}>Excluir</button>
+                    <button onClick={() => handleEditUser(user)} className={styles.editButton}>Editar</button>
+                    <button onClick={() => handleDeleteUser(user.id)} className={styles.deleteButton}>Excluir</button>
                   </td>
                 </tr>
               ))}
