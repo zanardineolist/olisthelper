@@ -18,7 +18,8 @@ export default async function handler(req, res) {
 
     if (infoType === 'helpRequests' || infoType === 'categoryRanking') {
       sheetType = 'database';
-      sheetTab = analystId ? `#${analystId}` : 'Usuários';
+      // Remover caracteres especiais (#) do analystId para formar o sheetTab
+      sheetTab = analystId ? analystId.replace(/[^a-zA-Z0-9 ]/g, '') : 'Usuários';
     } else if (infoType === 'performance') {
       sheetType = 'indicators';
       sheetTab = 'Principal';
