@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Parâmetros analystId e infoType são obrigatórios.' });
   }
 
-  const sheetId = process.env.SHEET_ID; // Certifique-se que o valor de SHEET_ID está definido corretamente no arquivo de ambiente.
+  const sheetId = process.env.SHEET_ID; // Certifique-se de que o valor de SHEET_ID está definido corretamente no arquivo de ambiente.
   const sheetTab = `#${analystId}`; // Usando o numeral do analista conforme estrutura da planilha
 
   try {
@@ -121,51 +121,25 @@ function processPerformanceData(data, userEmail) {
     return { error: 'Dados de desempenho não encontrados para o usuário.' };
   }
 
+  // Implementação simplificada para representar dados de desempenho do usuário
   let totalChamados = 0;
   let totalTelefone = 0;
   let totalChats = 0;
-  let tmaTotalChamados = 0;
-  let tmaTotalTelefone = 0;
-  let tmaTotalChat = 0;
-  let csatTotalChamados = 0;
-  let csatTotalTelefone = 0;
-  let csatTotalChat = 0;
-  let csatCountChamados = 0;
-  let csatCountTelefone = 0;
-  let csatCountChat = 0;
 
   userRows.forEach((row) => {
-    const [dateStr, tipo, email, tmaStr, csatStr] = row;
-
-    const tma = parseFloat(tmaStr);
-    const csat = parseFloat(csatStr);
+    const [dateStr, tipo] = row;
 
     switch (tipo) {
       case 'Chamado':
         totalChamados++;
-        tmaTotalChamados += tma;
-        if (!isNaN(csat)) {
-          csatTotalChamados += csat;
-          csatCountChamados++;
-        }
         break;
 
       case 'Telefone':
         totalTelefone++;
-        tmaTotalTelefone += tma;
-        if (!isNaN(csat)) {
-          csatTotalTelefone += csat;
-          csatCountTelefone++;
-        }
         break;
 
       case 'Chat':
         totalChats++;
-        tmaTotalChat += tma;
-        if (!isNaN(csat)) {
-          csatTotalChat += csat;
-          csatCountChat++;
-        }
         break;
 
       default:
@@ -173,39 +147,9 @@ function processPerformanceData(data, userEmail) {
     }
   });
 
-  const tmaChamados = totalChamados > 0 ? (tmaTotalChamados / totalChamados).toFixed(2) : 'N/A';
-  const tmaTelefone = totalTelefone > 0 ? (tmaTotalTelefone / totalTelefone).toFixed(2) : 'N/A';
-  const tmaChat = totalChats > 0 ? (tmaTotalChat / totalChats).toFixed(2) : 'N/A';
-
-  const csatChamados = csatCountChamados > 0 ? (csatTotalChamados / csatCountChamados).toFixed(2) + '%' : 'N/A';
-  const csatTelefone = csatCountTelefone > 0 ? (csatTotalTelefone / csatCountTelefone).toFixed(2) + '%' : 'N/A';
-  const csatChat = csatCountChat > 0 ? (csatTotalChat / csatCountChat).toFixed(2) + '%' : 'N/A';
-
   return {
-    tma: {
-      chamados: tmaChamados,
-      telefone: tmaTelefone,
-      chat: tmaChat,
-    },
-    csat: {
-      chamados: csatChamados,
-      telefone: csatTelefone,
-      chat: csatChat,
-    },
-    chamados: {
-      totalChamados,
-      tma: tmaChamados,
-      csat: csatChamados,
-    },
-    telefone: {
-      totalTelefone,
-      tma: tmaTelefone,
-      csat: csatTelefone,
-    },
-    chat: {
-      totalChats,
-      tma: tmaChat,
-      csat: csatChat,
-    },
+    chamados: totalChamados,
+    telefone: totalTelefone,
+    chat: totalChats,
   };
 }
