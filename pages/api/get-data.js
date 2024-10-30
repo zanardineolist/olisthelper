@@ -1,65 +1,41 @@
-// utils/googleSheets.js
-import { google } from 'googleapis';
+import { getSheetValues } from '../../utils/googleSheets';
 
-export async function getAuthenticatedGoogleSheets() {
-  try {
-    const auth = new google.auth.GoogleAuth({
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-    });
-    const authClient = await auth.getClient();
-    return google.sheets({ version: 'v4', auth: authClient });
-  } catch (error) {
-    console.error('Erro ao autenticar com o Google Sheets:', error);
-    return null;
+export default async function handler(req, res) {
+  const { analystId, infoType } = req.query;
+
+  if (!analystId || !infoType) {
+    return res.status(400).json({ error: 'Parâmetros analystId e infoType são obrigatórios.' });
   }
-}
 
-export async function getSheetMetaData(sheetId) {
+  const sheetId = process.env.SHEET_ID;
+  const range = `Analista-${analystId}!A:Z`;
+
   try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    if (!sheets) {
-      console.error('Erro ao autenticar Google Sheets API para obter metadados.');
-      return null;
+    const data = await getSheetValues(sheetId, range);
+
+    if (!data || data.length === 0) {
+      return res.status(200).json({ data: [] });
     }
 
-    const response = await sheets.spreadsheets.get({
-      spreadsheetId: sheetId,
-    });
-
-    if (!response || !response.data) {
-      console.error('Erro ao obter resposta válida da API do Google Sheets para metadados.');
-      return null;
+    let result;
+    switch (infoType) {
+      case 'helpRequests':
+        result = processHelpRequests(data);
+        break;
+      case 'categoryRanking':
+        result = processCategoryRanking(data);
+        break;
+      case 'performance':
+        result = processPerformanceData(data, req.query.userEmail);
+        break;
+      default:
+        return res.status(400).json({ error: 'Tipo de informação inválido.' });
     }
 
-    return response.data;
+    return res.status(200).json({ data: result });
   } catch (error) {
-    console.error('Erro ao obter metadados da planilha:', error);
-    return null;
-  }
-}
-
-export async function getSheetValues(sheetId, range) {
-  try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    if (!sheets) {
-      console.error('Erro ao autenticar Google Sheets API para obter valores.');
-      return null;
-    }
-
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: range,
-    });
-
-    if (!response || !response.data || !response.data.values) {
-      console.warn(`Nenhum valor encontrado para o range: ${range} na planilha: ${sheetId}`);
-      return [];
-    }
-
-    return response.data.values;
-  } catch (error) {
-    console.error(`Erro ao obter valores da aba com range: ${range} da planilha: ${sheetId}`, error);
-    return null;
+    console.error('Erro ao processar a requisição:', error);
+    return res.status(500).json({ error: 'Erro ao buscar dados da planilha.' });
   }
 }
 

@@ -1,4 +1,3 @@
-// pages/api/sheets-data.js
 import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
@@ -16,57 +15,43 @@ export default async function handler(req, res) {
 
   // Verificar se os parâmetros necessários foram fornecidos
   if (!sheetType || !sheetTab || !infoType) {
+    console.error(`Erro: Parâmetros ausentes. Recebido sheetType: ${sheetType}, sheetTab: ${sheetTab}, infoType: ${infoType}`);
     return res.status(400).json({ error: 'sheetType, sheetTab e infoType são obrigatórios.' });
   }
 
   // Verificar se o tipo de planilha é válido
   const sheetId = SHEET_IDS[sheetType];
   if (!sheetId) {
+    console.error(`Erro: Tipo de planilha inválido: ${sheetType}`);
     return res.status(400).json({ error: 'Tipo de planilha inválido.' });
   }
 
   try {
     const sheets = await getAuthenticatedGoogleSheets();
-    if (!sheets) {
-      console.error('Erro ao autenticar com o Google Sheets API');
-      return res.status(500).json({ error: 'Erro ao autenticar com o Google Sheets API.' });
-    }
-
     let actualSheetTab = sheetTab;
 
-    // Se o tipo for 'database' e estamos lidando com um analista, buscar a aba correta
     if (sheetType === 'database' && sheetTab.startsWith('Analista-')) {
       const analystId = sheetTab.replace('Analista-', '').trim();
-
-      // Obter metadados para encontrar a aba correspondente ao analista
       const metaData = await getSheetMetaData(sheetId);
       if (!metaData || !metaData.sheets) {
-        console.error(`Erro ao obter metadados da planilha ${sheetId}`);
         return res.status(500).json({ error: 'Falha ao obter metadados da planilha.' });
       }
 
       const matchingSheet = metaData.sheets.find(sheet => sheet.properties.title.includes(analystId));
       if (!matchingSheet) {
-        console.error(`Aba para o analista ${analystId} não encontrada na planilha ${sheetId}`);
         return res.status(404).json({ error: `Aba para o analista ${analystId} não encontrada.` });
       }
-
       actualSheetTab = matchingSheet.properties.title;
     }
 
-    const range = `'${actualSheetTab}'!A:Z`; // Definindo o intervalo da aba de maneira consistente
-    console.log(`Buscando valores na aba: ${actualSheetTab}, com range: ${range}`);
-
+    const range = `'${actualSheetTab}'!A:Z`;
     const rows = await getSheetValues(sheetId, range);
 
     if (!rows || rows.length === 0) {
-      console.warn(`Nenhum dado encontrado na aba: ${actualSheetTab}, com range: ${range}`);
       return res.status(200).json({ data: [] });
     }
 
     let result;
-
-    // Escolha da operação com base no tipo de informação solicitada
     switch (infoType) {
       case 'userInfo':
         result = handleUserInfo(rows);
@@ -86,4 +71,43 @@ export default async function handler(req, res) {
     console.error('Erro ao buscar dados da planilha:', error);
     return res.status(500).json({ error: 'Erro ao buscar dados da planilha.' });
   }
+}
+
+function handleUserInfo(rows) {
+  return rows.map((row, index) => {
+    if (index === 0) return null;
+    const [id, name, email, role] = row;
+    return { id, name, email, role };
+  }).filter(Boolean);
+}
+
+function handleCategoryRanking(rows) {
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+
+  const currentMonthRows = rows.filter((row, index) => {
+    if (index === 0) return false;
+    const [dateStr] = row;
+    const [day, month, year] = dateStr.split('/').map(Number);
+    const date = new Date(year, month - 1, day);
+
+    return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+  });
+
+  return currentMonthRows.reduce((acc, row) => {
+    const category = row[4];
+    if (category) {
+      acc[category] = (acc[category] || 0) + 1;
+    }
+    return acc;
+  }, {});
+}
+
+function handlePerformance(rows) {
+  return rows.map((row, index) => {
+    if (index === 0) return null;
+    const [date, tipo, email, tma, csat, perdido] = row;
+    return { date, tipo, email, tma, csat, perdido };
+  }).filter(Boolean);
 }
