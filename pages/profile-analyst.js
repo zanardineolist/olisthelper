@@ -37,8 +37,8 @@ export default function AnalystProfilePage({ user }) {
       try {
         // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
         const [helpResponse, categoryResponse] = await Promise.all([
-          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
-          fetch(`/api/get-category-ranking?analystId=${user.id}`)
+          fetch(`/api/get-data?analystId=${user.id}&infoType=helpRequests`),
+          fetch(`/api/get-data?analystId=${user.id}&infoType=categoryRanking`)
         ]);
 
         if (!helpResponse.ok || !categoryResponse.ok) {
