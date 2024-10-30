@@ -1,5 +1,5 @@
 // pages/api/sheets-data.js
-import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
+import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -27,7 +27,26 @@ export default async function handler(req, res) {
 
   try {
     const sheets = await getAuthenticatedGoogleSheets();
-    const rows = await getSheetValues(sheetId, sheetTab, 'A:Z');
+
+    let actualSheetTab = sheetTab;
+
+    // Se o tipo for 'database' e estamos lidando com um analista, buscar a aba correta
+    if (sheetType === 'database' && sheetTab.startsWith('Analista-')) {
+      const analystId = sheetTab.replace('Analista-', '').trim();
+
+      // Obter metadados para encontrar a aba correspondente ao analista
+      const metaData = await getSheetMetaData(sheetId);
+      const matchingSheet = metaData.sheets.find(sheet => sheet.properties.title.includes(analystId));
+
+      if (!matchingSheet) {
+        return res.status(404).json({ error: `Aba para o analista ${analystId} não encontrada.` });
+      }
+
+      actualSheetTab = matchingSheet.properties.title;
+    }
+
+    const range = `'${actualSheetTab}'!A:Z`; // Definindo o intervalo da aba de maneira consistente
+    const rows = await getSheetValues(sheetId, range);
 
     if (!rows || rows.length === 0) {
       return res.status(200).json({ data: [] });
@@ -59,7 +78,6 @@ export default async function handler(req, res) {
 
 // Função para tratar informações de usuário
 function handleUserInfo(rows) {
-  // Supor que os dados dos usuários estejam em colunas específicas
   return rows.map((row, index) => {
     if (index === 0) return null; // Ignorar o cabeçalho
     const [id, name, email, role] = row;
@@ -83,7 +101,6 @@ function handleCategoryRanking(rows) {
     return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
   });
 
-  // Contar categorias
   return currentMonthRows.reduce((acc, row) => {
     const category = row[4];
     if (category) {

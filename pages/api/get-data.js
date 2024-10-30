@@ -18,8 +18,7 @@ export default async function handler(req, res) {
 
     if (infoType === 'helpRequests' || infoType === 'categoryRanking') {
       sheetType = 'database';
-      // Remover caracteres especiais (#) do analystId para formar o sheetTab
-      sheetTab = analystId ? analystId.replace(/[^a-zA-Z0-9 ]/g, '') : 'Usuários';
+      sheetTab = analystId ? `Analista-${analystId}` : 'Usuários'; // Prefixo consistente para aba de analistas
     } else if (infoType === 'performance') {
       sheetType = 'indicators';
       sheetTab = 'Principal';
@@ -40,7 +39,6 @@ export default async function handler(req, res) {
 
     const { data } = await response.json();
     
-    // Processar os dados obtidos de acordo com o tipo de informação solicitado
     let result;
     switch (infoType) {
       case 'helpRequests':
@@ -62,6 +60,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Erro ao processar a requisição. Verifique suas credenciais e a configuração do Google Sheets.' });
   }
 }
+
 
 // Função para processar dados de ajudas solicitadas
 function processHelpRequests(data) {
