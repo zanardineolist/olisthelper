@@ -36,8 +36,11 @@ export default async function handler(req, res) {
 
       // Obter metadados para encontrar a aba correspondente ao analista
       const metaData = await getSheetMetaData(sheetId);
-      const matchingSheet = metaData.sheets.find(sheet => sheet.properties.title.includes(analystId));
+      if (!metaData || !metaData.sheets) {
+        return res.status(500).json({ error: 'Falha ao obter metadados da planilha.' });
+      }
 
+      const matchingSheet = metaData.sheets.find(sheet => sheet.properties.title.includes(analystId));
       if (!matchingSheet) {
         return res.status(404).json({ error: `Aba para o analista ${analystId} não encontrada.` });
       }
