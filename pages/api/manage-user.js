@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     switch (method) {
       case 'GET':
         // Obter todos os usuários
-        const rows = await getSheetValues(sheets, sheetId, 'Usuários', 'A:H'); // Corrigido o parâmetro para obter os valores corretamente
+        const rows = await getSheetValues(sheets, sheetId, 'Usuários', 'A:H');
         if (rows && rows.length > 1) {
           const users = rows.slice(1).map((row) => ({
             id: row[0],
