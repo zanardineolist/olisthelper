@@ -1,6 +1,6 @@
 {
   "name": "olist-helper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,7 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "next": "^13.0.0",
+    "next": "^13.1.0",
     "next-auth": "^4.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
@@ -22,7 +22,9 @@
     "@mui/material": "^5.11.0",
     "react-hook-form": "^7.39.0",
     "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5"
+    "@emotion/styled": "^11.10.5",
+    "react-modal": "^3.16.1",
+    "react-icons": "^4.3.1"
   },
   "devDependencies": {
     "eslint": "8.0.1",
