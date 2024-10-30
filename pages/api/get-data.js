@@ -132,8 +132,11 @@ export default async function handler(req, res) {
         }
 
         // Buscar o desempenho do usuário específico
-        const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
-        rows = await getSheetValues('Principal', 'A:V');
+        try {
+          rows = await getSheetValues('Principal', 'A:V');
+        } catch (error) {
+          return res.status(400).json({ error: `Erro ao obter valores da aba 'Principal'. Detalhes: ${error.message}` });
+        }
 
         const userRow = rows.find(row => row[0]?.toLowerCase() === userEmail.toLowerCase());
         if (!userRow) {
