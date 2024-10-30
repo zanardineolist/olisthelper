@@ -1,12 +1,30 @@
 /* styles/ManageUsers.module.css */
 
 .main {
-    padding: 20px;
-    margin-top: 80px;
-    background-color: #121212;
-    color: #fff;
-  }
-  
+  padding: 20px;
+  margin-top: 80px;
+  background-color: #121212;
+  color: #fff;
+}
+
+.modal {
+  background-color: #1e1e1e !important;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  color: #fff;
+  max-width: 500px;
+  margin: auto;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modalTitle {
+  color: #f57c00;
+}
+
   /* Form Container */
   .formContainer {
     background-color: #1e1e1e;
@@ -72,6 +90,8 @@
     margin: 20px auto;
     border-collapse: collapse;
     overflow-x: auto;
+    max-height: 800px;
+    overflow-y: auto;
   }
   
   .usersTable table {

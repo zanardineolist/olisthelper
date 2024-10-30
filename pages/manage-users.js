@@ -141,7 +141,7 @@ export default function ManageUsersPage({ session }) {
           className={styles.modal}
           overlayClassName={styles.overlay}
         >
-          <h2>{isEditing ? 'Editar Usuário' : 'Adicionar Usuário'}</h2>
+          <h2 className={styles.modalTitle}>{isEditing ? 'Editar Usuário' : 'Adicionar Usuário'}</h2>
           <div className={styles.formContainer}>
             <input
               type="text"
@@ -213,18 +213,18 @@ export default function ManageUsersPage({ session }) {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Perfil</th>
-                <th>Squad</th>
-                <th>Chamado</th>
-                <th>Telefone</th>
-                <th>Chat</th>
-                <th>Ações</th>
+                <th style={{ width: '5%' }}>ID</th>
+                <th style={{ width: '15%' }}>Nome</th>
+                <th style={{ width: '20%' }}>E-mail</th>
+                <th style={{ width: '10%' }}>Perfil</th>
+                <th style={{ width: '10%' }}>Squad</th>
+                <th style={{ width: '10%' }}>Chamado</th>
+                <th style={{ width: '10%' }}>Telefone</th>
+                <th style={{ width: '10%' }}>Chat</th>
+                <th style={{ width: '10%' }}>Ações</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody style={{ maxHeight: '800px', overflowY: 'auto' }}>
               {users.map((user) => (
                 <tr key={user.id}>
                   <td>{user.id}</td>
