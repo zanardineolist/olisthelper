@@ -48,13 +48,13 @@ export default function AnalystProfilePage({ user }) {
         // Ajudas Solicitadas
         const helpData = await helpResponse.json();
         setHelpRequests({
-          currentMonth: helpData.currentMonth,
-          lastMonth: helpData.lastMonth,
+          currentMonth: helpData.data.currentMonth,
+          lastMonth: helpData.data.lastMonth,
         });
 
         // Ranking de Categorias
         const categoryData = await categoryResponse.json();
-        setCategoryRanking(categoryData.categories || []);
+        setCategoryRanking(categoryData.data.categories || []);
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
       } finally {
