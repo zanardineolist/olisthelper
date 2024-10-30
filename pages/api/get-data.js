@@ -7,14 +7,18 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Parâmetros analystId e infoType são obrigatórios.' });
   }
 
-  const sheetId = process.env.SHEET_ID;
-  const sheetTab = `#${analystId}`;
+  const sheetId = process.env.SHEET_ID; // Certifique-se que o valor de SHEET_ID está definido corretamente no arquivo de ambiente.
+  const sheetTab = `#${analystId}`; // Usando o numeral do analista conforme estrutura da planilha
 
   try {
     // Buscar metadados da planilha para confirmar se a aba existe
     const metaData = await getSheetMetaData(sheetId);
-    const sheetExists = metaData.sheets.some(sheet => sheet.properties.title === sheetTab);
+    if (!metaData.sheets) {
+      console.error('Erro ao buscar metadados: sheets não encontrado.');
+      return res.status(404).json({ error: 'Metadados da planilha não encontrados.' });
+    }
 
+    const sheetExists = metaData.sheets.some(sheet => sheet.properties.title === sheetTab);
     if (!sheetExists) {
       return res.status(404).json({ error: `Aba para o analista com ID ${analystId} não encontrada.` });
     }
@@ -117,7 +121,6 @@ function processPerformanceData(data, userEmail) {
     return { error: 'Dados de desempenho não encontrados para o usuário.' };
   }
 
-  // Inicializar variáveis para armazenar dados de desempenho
   let totalChamados = 0;
   let totalTelefone = 0;
   let totalChats = 0;
@@ -134,7 +137,6 @@ function processPerformanceData(data, userEmail) {
   userRows.forEach((row) => {
     const [dateStr, tipo, email, tmaStr, csatStr] = row;
 
-    // Conversão de TMA e CSAT para números
     const tma = parseFloat(tmaStr);
     const csat = parseFloat(csatStr);
 
