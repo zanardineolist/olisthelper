@@ -8,9 +8,10 @@ export default async function handler(req, res) {
   }
 
   const sheetId = process.env.SHEET_ID;
-  const sheetTab = `#${analystId}`;  // Usando o numeral do analista conforme estrutura da planilha
+  const sheetTab = `#${analystId}`;
 
   try {
+    // Buscar metadados da planilha para confirmar se a aba existe
     const metaData = await getSheetMetaData(sheetId);
     const sheetExists = metaData.sheets.some(sheet => sheet.properties.title === sheetTab);
 
@@ -18,7 +19,7 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: `Aba para o analista com ID ${analystId} não encontrada.` });
     }
 
-    const range = `'${sheetTab}'!A:Z`;  // Ajustar o range conforme necessário
+    const range = `'${sheetTab}'!A:Z`; // Ajustar o range conforme necessário
     const data = await getSheetValues(sheetId, range);
 
     if (!data || data.length === 0) {

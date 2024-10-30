@@ -27,8 +27,10 @@ export default async function handler(req, res) {
     const sheets = await getAuthenticatedGoogleSheets();
     let actualSheetTab = `#${sheetTab}`;  // Utilizando o numeral da aba
 
+    // Buscar metadados da planilha para verificar a existência da aba
     const metaData = await getSheetMetaData(sheetId);
     const sheetExists = metaData.sheets.some(sheet => sheet.properties.title === actualSheetTab);
+
     if (!sheetExists) {
       return res.status(404).json({ error: `Aba para o tipo ${sheetType} com ID ${sheetTab} não encontrada.` });
     }
