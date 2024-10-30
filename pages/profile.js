@@ -35,9 +35,9 @@ export default function MyPage({ user }) {
     const fetchData = async () => {
       try {
         const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-          fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
-          fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),
-          user.role === 'support' ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
+          fetch(`/api/get-data?type=user-help-requests&userEmail=${user.email}`),
+          fetch(`/api/get-data?type=category-ranking&userEmail=${user.email}`),
+          user.role === 'support' ? fetch(`/api/get-data?type=user-performance&userEmail=${user.email}`) : Promise.resolve({ json: () => null })
         ]);
 
         const helpData = await helpResponse.json();
@@ -203,6 +203,7 @@ export default function MyPage({ user }) {
 
         {/* Container para Indicadores de Desempenho */}
         <div className={styles.performanceWrapper}>
+          {/* Indicadores de Chamados */}
           {performanceData?.chamados && (
             <div className={styles.performanceContainer}>
               <h2>Indicadores Chamados</h2>
@@ -212,65 +213,10 @@ export default function MyPage({ user }) {
                   <span>Total Chamados:</span>
                   <span>{performanceData.chamados.totalChamados}</span>
                 </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
-                  <span>Média/Dia:</span>
-                  <span>{performanceData.chamados.mediaPorDia}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
-                  <span>TMA:</span>
-                  <span>{performanceData.chamados.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
-                  <span>CSAT:</span>
-                  <span>{performanceData.chamados.csat}</span>
-                </div>
               </div>
             </div>
           )}
-          {performanceData?.telefone && (
-            <div className={styles.performanceContainer}>
-              <h2>Indicadores Telefone</h2>
-              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-              <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Telefone:</span>
-                  <span>{performanceData.telefone.totalTelefone}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
-                  <span>TMA:</span>
-                  <span>{performanceData.telefone.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
-                  <span>CSAT:</span>
-                  <span>{performanceData.telefone.csat}</span>
-                </div>
-                <div className={styles.performanceItem}>
-                  <span>Perdidas:</span>
-                  <span>{performanceData.telefone.perdidas}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          {performanceData?.chat && (
-            <div className={styles.performanceContainer}>
-              <h2>Indicadores Chat</h2>
-              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-              <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Chats:</span>
-                  <span>{performanceData.chat.totalChats}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
-                  <span>TMA:</span>
-                  <span>{performanceData.chat.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
-                  <span>CSAT:</span>
-                  <span>{performanceData.chat.csat}</span>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Outros indicadores podem ser adicionados aqui da mesma maneira */}
         </div>
 
         {/* Container para Ranking de Categorias */}
