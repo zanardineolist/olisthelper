@@ -149,6 +149,7 @@ export default function ManageUsersPage({ session }) {
               name="name"
               value={newUser.name}
               placeholder="Nome"
+              className={styles.inputField}
               onChange={handleInputChange}
               required
             />
