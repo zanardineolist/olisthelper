@@ -1,66 +1,67 @@
-// pages/api/get-data.js
-import fetch from 'node-fetch';
+// utils/googleSheets.js
+import { google } from 'googleapis';
 
-export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const { userEmail, analystId, infoType } = req.query;
-
-  if (!userEmail && !analystId) {
-    return res.status(400).json({ error: 'userEmail ou analystId é obrigatório.' });
-  }
-
+export async function getAuthenticatedGoogleSheets() {
   try {
-    // Determina qual planilha e aba acessar com base no tipo de informação solicitada
-    let sheetType, sheetTab;
-
-    if (infoType === 'helpRequests' || infoType === 'categoryRanking') {
-      sheetType = 'database';
-      sheetTab = analystId ? `Analista-${analystId}` : 'Usuários'; // Prefixo consistente para aba de analistas
-    } else if (infoType === 'performance') {
-      sheetType = 'indicators';
-      sheetTab = 'Principal';
-    } else {
-      return res.status(400).json({ error: 'Tipo de informação inválido.' });
-    }
-
-    // URL absoluta para fazer a requisição ao endpoint sheets-data
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://olisthelper.vercel.app';
-    const sheetsDataUrl = `${baseUrl}/api/sheets-data?sheetType=${sheetType}&sheetTab=${encodeURIComponent(sheetTab)}&infoType=${infoType}`;
-
-    // Fazer a requisição ao endpoint sheets-data para obter os dados corretos
-    const response = await fetch(sheetsDataUrl);
-
-    if (!response.ok) {
-      throw new Error('Erro ao buscar dados da planilha.');
-    }
-
-    const { data } = await response.json();
-    
-    let result;
-    switch (infoType) {
-      case 'helpRequests':
-        result = processHelpRequests(data);
-        break;
-      case 'categoryRanking':
-        result = processCategoryRanking(data);
-        break;
-      case 'performance':
-        result = processPerformanceData(data, userEmail);
-        break;
-      default:
-        return res.status(400).json({ error: 'Tipo de informação inválido.' });
-    }
-
-    return res.status(200).json(result);
+    const auth = new google.auth.GoogleAuth({
+      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+    });
+    const authClient = await auth.getClient();
+    return google.sheets({ version: 'v4', auth: authClient });
   } catch (error) {
-    console.error('Erro ao processar a requisição:', error);
-    return res.status(500).json({ error: 'Erro ao processar a requisição. Verifique suas credenciais e a configuração do Google Sheets.' });
+    console.error('Erro ao autenticar com o Google Sheets:', error);
+    return null;
   }
 }
 
+export async function getSheetMetaData(sheetId) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    if (!sheets) {
+      console.error('Erro ao autenticar Google Sheets API para obter metadados.');
+      return null;
+    }
+
+    const response = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+
+    if (!response || !response.data) {
+      console.error('Erro ao obter resposta válida da API do Google Sheets para metadados.');
+      return null;
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao obter metadados da planilha:', error);
+    return null;
+  }
+}
+
+export async function getSheetValues(sheetId, range) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    if (!sheets) {
+      console.error('Erro ao autenticar Google Sheets API para obter valores.');
+      return null;
+    }
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: range,
+    });
+
+    if (!response || !response.data || !response.data.values) {
+      console.warn(`Nenhum valor encontrado para o range: ${range} na planilha: ${sheetId}`);
+      return [];
+    }
+
+    return response.data.values;
+  } catch (error) {
+    console.error(`Erro ao obter valores da aba com range: ${range} da planilha: ${sheetId}`, error);
+    return null;
+  }
+}
 
 // Função para processar dados de ajudas solicitadas
 function processHelpRequests(data) {
