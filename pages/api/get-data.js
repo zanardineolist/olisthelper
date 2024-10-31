@@ -7,7 +7,10 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Parâmetro infoType é obrigatório.' });
   }
 
-  const sheetId = process.env.SHEET_ID;
+  const SHEET_IDS = {
+    database: '1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34',  // Planilha de banco de dados (help requests, category ranking)
+    indicators: '1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI',  // Planilha de indicadores de desempenho
+  };
 
   try {
     const sheets = await getAuthenticatedGoogleSheets();
@@ -15,13 +18,13 @@ export default async function handler(req, res) {
 
     switch (infoType) {
       case 'helpRequests':
-        data = await processHelpRequests(sheets, sheetId, userEmail, analystId);
+        data = await processHelpRequests(sheets, SHEET_IDS.database, userEmail, analystId);
         break;
       case 'categoryRanking':
-        data = await processCategoryRanking(sheets, sheetId, userEmail, analystId);
+        data = await processCategoryRanking(sheets, SHEET_IDS.database, userEmail, analystId);
         break;
       case 'performance':
-        data = await processPerformanceData(sheets, sheetId, userEmail);
+        data = await processPerformanceData(sheets, SHEET_IDS.indicators, userEmail);
         break;
       default:
         return res.status(400).json({ error: 'Tipo de informação inválido.' });
@@ -77,7 +80,7 @@ async function processHelpRequests(sheets, sheetId, userEmail, analystId) {
   };
 }
 
-// Função para processar o ranking de categorias (ajustado)
+// Função para processar o ranking de categorias
 async function processCategoryRanking(sheets, sheetId, userEmail, analystId) {
   const metaData = await getSheetMetaData(sheetId);
 
@@ -142,101 +145,101 @@ async function processCategoryRanking(sheets, sheetId, userEmail, analystId) {
 
 // Função para processar dados de desempenho
 async function processPerformanceData(sheets, sheetId, userEmail) {
-    if (!userEmail) {
-      throw new Error('O e-mail do usuário é obrigatório para processar os dados de desempenho.');
+  if (!userEmail) {
+    throw new Error('O e-mail do usuário é obrigatório para processar os dados de desempenho.');
+  }
+
+  const data = await getSheetValues(sheetId, `'Principal'!A:V`);
+  const userRows = data.filter((row) => row[2]?.toLowerCase() === userEmail.toLowerCase());
+
+  if (userRows.length === 0) {
+    return { error: 'Dados de desempenho não encontrados para o usuário.' };
+  }
+
+  // Inicializar variáveis para armazenar dados de desempenho
+  let totalChamados = 0;
+  let totalTelefone = 0;
+  let totalChats = 0;
+  let tmaTotalChamados = 0;
+  let tmaTotalTelefone = 0;
+  let tmaTotalChat = 0;
+  let csatTotalChamados = 0;
+  let csatTotalTelefone = 0;
+  let csatTotalChat = 0;
+  let csatCountChamados = 0;
+  let csatCountTelefone = 0;
+  let csatCountChat = 0;
+
+  userRows.forEach((row) => {
+    const [dateStr, tipo, , , tmaStr, csatStr] = row;
+
+    // Conversão de TMA e CSAT para números
+    const tma = parseFloat(tmaStr);
+    const csat = parseFloat(csatStr);
+
+    switch (tipo) {
+      case 'Chamado':
+        totalChamados++;
+        tmaTotalChamados += isNaN(tma) ? 0 : tma;
+        if (!isNaN(csat)) {
+          csatTotalChamados += csat;
+          csatCountChamados++;
+        }
+        break;
+
+      case 'Telefone':
+        totalTelefone++;
+        tmaTotalTelefone += isNaN(tma) ? 0 : tma;
+        if (!isNaN(csat)) {
+          csatTotalTelefone += csat;
+          csatCountTelefone++;
+        }
+        break;
+
+      case 'Chat':
+        totalChats++;
+        tmaTotalChat += isNaN(tma) ? 0 : tma;
+        if (!isNaN(csat)) {
+          csatTotalChat += csat;
+          csatCountChat++;
+        }
+        break;
+
+      default:
+        break;
     }
-  
-    const data = await getSheetValues(sheetId, `'Principal'!A:V`);
-    const userRows = data.filter((row) => row[2]?.toLowerCase() === userEmail.toLowerCase());
-  
-    if (userRows.length === 0) {
-      return { error: 'Dados de desempenho não encontrados para o usuário.' };
-    }
-  
-    // Inicializar variáveis para armazenar dados de desempenho
-    let totalChamados = 0;
-    let totalTelefone = 0;
-    let totalChats = 0;
-    let tmaTotalChamados = 0;
-    let tmaTotalTelefone = 0;
-    let tmaTotalChat = 0;
-    let csatTotalChamados = 0;
-    let csatTotalTelefone = 0;
-    let csatTotalChat = 0;
-    let csatCountChamados = 0;
-    let csatCountTelefone = 0;
-    let csatCountChat = 0;
-  
-    userRows.forEach((row) => {
-      const [dateStr, tipo, , , tmaStr, csatStr] = row;
-  
-      // Conversão de TMA e CSAT para números
-      const tma = parseFloat(tmaStr);
-      const csat = parseFloat(csatStr);
-  
-      switch (tipo) {
-        case 'Chamado':
-          totalChamados++;
-          tmaTotalChamados += isNaN(tma) ? 0 : tma;
-          if (!isNaN(csat)) {
-            csatTotalChamados += csat;
-            csatCountChamados++;
-          }
-          break;
-  
-        case 'Telefone':
-          totalTelefone++;
-          tmaTotalTelefone += isNaN(tma) ? 0 : tma;
-          if (!isNaN(csat)) {
-            csatTotalTelefone += csat;
-            csatCountTelefone++;
-          }
-          break;
-  
-        case 'Chat':
-          totalChats++;
-          tmaTotalChat += isNaN(tma) ? 0 : tma;
-          if (!isNaN(csat)) {
-            csatTotalChat += csat;
-            csatCountChat++;
-          }
-          break;
-  
-        default:
-          break;
-      }
-    });
-  
-    // Calcular TMA e CSAT
-    const tmaChamados = totalChamados > 0 ? (tmaTotalChamados / totalChamados).toFixed(2) : 'N/A';
-    const tmaTelefone = totalTelefone > 0 ? (tmaTotalTelefone / totalTelefone).toFixed(2) : 'N/A';
-    const tmaChat = totalChats > 0 ? (tmaTotalChat / totalChats).toFixed(2) : 'N/A';
-  
-    const csatChamados = csatCountChamados > 0 ? (csatTotalChamados / csatCountChamados).toFixed(2) + '%' : 'N/A';
-    const csatTelefone = csatCountTelefone > 0 ? (csatTotalTelefone / csatCountTelefone).toFixed(2) + '%' : 'N/A';
-    const csatChat = csatCountChat > 0 ? (csatTotalChat / csatCountChat).toFixed(2) + '%' : 'N/A';
-  
-    // Montar a resposta completa de desempenho
-    return {
-      chamados: {
-        total: totalChamados,
-        tma: tmaChamados,
-        csat: csatChamados,
-      },
-      telefone: {
-        total: totalTelefone,
-        tma: tmaTelefone,
-        csat: csatTelefone,
-      },
-      chat: {
-        total: totalChats,
-        tma: tmaChat,
-        csat: csatChat,
-      },
-      squad: userRows[0][4] || 'N/A', // Campo adicional que pode estar na planilha
-      atualizadoAte: userRows[0][21] || 'Data não disponível', // Data de atualização
-    };
-  }  
+  });
+
+  // Calcular TMA e CSAT
+  const tmaChamados = totalChamados > 0 ? (tmaTotalChamados / totalChamados).toFixed(2) : 'N/A';
+  const tmaTelefone = totalTelefone > 0 ? (tmaTotalTelefone / totalTelefone).toFixed(2) : 'N/A';
+  const tmaChat = totalChats > 0 ? (tmaTotalChat / totalChats).toFixed(2) : 'N/A';
+
+  const csatChamados = csatCountChamados > 0 ? (csatTotalChamados / csatCountChamados).toFixed(2) + '%' : 'N/A';
+  const csatTelefone = csatCountTelefone > 0 ? (csatTotalTelefone / csatCountTelefone).toFixed(2) + '%' : 'N/A';
+  const csatChat = csatCountChat > 0 ? (csatTotalChat / csatCountChat).toFixed(2) + '%' : 'N/A';
+
+  // Montar a resposta completa de desempenho
+  return {
+    chamados: {
+      total: totalChamados,
+      tma: tmaChamados,
+      csat: csatChamados,
+    },
+    telefone: {
+      total: totalTelefone,
+      tma: tmaTelefone,
+      csat: csatTelefone,
+    },
+    chat: {
+      total: totalChats,
+      tma: tmaChat,
+      csat: csatChat,
+    },
+    squad: userRows[0][4] || 'N/A', // Campo adicional que pode estar na planilha
+    atualizadoAte: userRows[0][21] || 'Data não disponível', // Data de atualização
+  };
+}
 
 // Funções auxiliares de formatação e parsing
 function parseValue(value) {
