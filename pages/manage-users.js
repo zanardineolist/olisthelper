@@ -6,6 +6,7 @@ import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/ManageUsers.module.css';
 import Footer from '../components/Footer';
 import Modal from 'react-modal';
+import Select from 'react-select';
 
 export default function ManageUsersPage({ session }) {
   const router = useRouter();
@@ -23,6 +24,14 @@ export default function ManageUsersPage({ session }) {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+
+  const profileOptions = [
+    { value: 'support', label: 'Suporte' },
+    { value: 'analyst', label: 'Analista' },
+    { value: 'super', label: 'Supervisor' },
+    { value: 'tax', label: 'Fiscal' },
+    { value: 'other', label: 'Outro' },
+  ];
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -42,11 +51,15 @@ export default function ManageUsersPage({ session }) {
   }, []);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setNewUser((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
+  };
+
+  const handleSelectChange = (selectedOption) => {
+    setNewUser((prev) => ({ ...prev, profile: selectedOption.value }));
   };
 
   const handleEditUser = (user) => {
@@ -133,6 +146,16 @@ export default function ManageUsersPage({ session }) {
           <div className={styles.formContainer}>
             <input
               type="text"
+              name="id"
+              value={newUser.id}
+              placeholder="ID"
+              className={styles.inputField}
+              onChange={handleInputChange}
+              disabled={isEditing} // ID não deve ser editado
+              required
+            />
+            <input
+              type="text"
               name="name"
               value={newUser.name}
               placeholder="Nome"
@@ -149,6 +172,71 @@ export default function ManageUsersPage({ session }) {
               onChange={handleInputChange}
               required
             />
+            <Select
+              options={profileOptions}
+              value={profileOptions.find((opt) => opt.value === newUser.profile)}
+              onChange={handleSelectChange}
+              placeholder="Perfil"
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  backgroundColor: '#222',
+                  borderColor: '#333',
+                  color: '#fff',
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  color: '#fff',
+                }),
+                menu: (base) => ({
+                  ...base,
+                  backgroundColor: '#333',
+                }),
+                option: (provided, state) => ({
+                  ...provided,
+                  color: state.isSelected ? '#f57c00' : '#fff',
+                  backgroundColor: state.isFocused ? '#444' : '#333',
+                }),
+              }}
+              required
+            />
+            <input
+              type="text"
+              name="squad"
+              value={newUser.squad}
+              placeholder="Squad"
+              className={styles.inputField}
+              onChange={handleInputChange}
+            />
+            <div className={styles.checkboxContainer}>
+              <label>
+                <input
+                  type="checkbox"
+                  name="chamado"
+                  checked={newUser.chamado}
+                  onChange={handleInputChange}
+                />
+                Chamado
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="telefone"
+                  checked={newUser.telefone}
+                  onChange={handleInputChange}
+                />
+                Telefone
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="chat"
+                  checked={newUser.chat}
+                  onChange={handleInputChange}
+                />
+                Chat
+              </label>
+            </div>
             <button onClick={handleSaveUser} disabled={loading} className={`${styles.saveButton} ${commonStyles.button}`}>
               {isEditing ? 'Atualizar Usuário' : 'Adicionar Usuário'}
             </button>
