@@ -37,13 +37,13 @@ export async function addUserToSheetIfNotExists(user) {
     } while (rows.some(row => row[0] === userId));
 
     // Determinar o índice da nova linha a ser adicionada
-    const newRowIndex = rows.length;
+    const newRowIndex = rows.length + 1; // Aumentar índice para a próxima linha correta
 
     // Adicionar novo usuário com perfil padrão 'support'
     const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE'];
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
-      range: `Usuários!A${newRowIndex + 2}:H${newRowIndex + 2}`, // Ajustar para a linha correta
+      range: `Usuários!A${newRowIndex}:H${newRowIndex}`, // Ajustar para a linha correta
       valueInputOption: 'USER_ENTERED',
       resource: {
         values: [newUser],
@@ -59,8 +59,8 @@ export async function addUserToSheetIfNotExists(user) {
             repeatCell: {
               range: {
                 sheetId: 0, // ID da aba, ajuste conforme necessário
-                startRowIndex: newRowIndex + 1,
-                endRowIndex: newRowIndex + 2,
+                startRowIndex: newRowIndex - 1, // startRowIndex é baseado em zero
+                endRowIndex: newRowIndex,
                 startColumnIndex: 5, // Coluna F
                 endColumnIndex: 8,  // Coluna H
               },
