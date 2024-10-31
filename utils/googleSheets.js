@@ -36,20 +36,19 @@ export async function addUserToSheetIfNotExists(user) {
       userId = Math.floor(1000 + Math.random() * 9000).toString();
     } while (rows.some(row => row[0] === userId));
 
+    // Determinar o índice da nova linha a ser adicionada
+    const newRowIndex = rows.length;
+
     // Adicionar novo usuário com perfil padrão 'support'
     const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE'];
-    const appendResponse = await sheets.spreadsheets.values.append({
+    await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
-      range: 'Usuários!A:H',
+      range: `Usuários!A${newRowIndex + 2}:H${newRowIndex + 2}`, // Ajustar para a linha correta
       valueInputOption: 'USER_ENTERED',
       resource: {
         values: [newUser],
       },
     });
-
-    // Obter o índice da linha recém-adicionada
-    const updatedRows = appendResponse.updates.updatedRange.match(/(\d+):\d+$/);
-    const newRowIndex = updatedRows ? parseInt(updatedRows[1], 10) - 1 : rows.length;
 
     // Configurar as células F, G e H como checkboxes na linha correta
     await sheets.spreadsheets.batchUpdate({
@@ -60,8 +59,8 @@ export async function addUserToSheetIfNotExists(user) {
             repeatCell: {
               range: {
                 sheetId: 0, // ID da aba, ajuste conforme necessário
-                startRowIndex: newRowIndex,
-                endRowIndex: newRowIndex + 1,
+                startRowIndex: newRowIndex + 1,
+                endRowIndex: newRowIndex + 2,
                 startColumnIndex: 5, // Coluna F
                 endColumnIndex: 8,  // Coluna H
               },
