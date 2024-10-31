@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/ManageUsers.module.css';
 import Footer from '../components/Footer';
+import Navbar from '../components/Navbar';
 import Modal from 'react-modal';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
