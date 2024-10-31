@@ -35,37 +35,41 @@ export default function MyPage({ user }) {
     const fetchData = async () => {
       try {
         if (user.role === 'support') {
-          // Usuário de suporte: usar userEmail para buscar informações
+          // Usuário de suporte: usar userEmail para buscar informações específicas
           const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-            fetch(`/api/get-data?infoType=helpRequests&userEmail=${user.email}`),
-            fetch(`/api/get-data?infoType=categoryRanking&userEmail=${user.email}`),
-            fetch(`/api/get-data?infoType=performance&userEmail=${user.email}`)
+            fetch(`/api/get-user-help-requests?userEmail=${user.email}`),  // Ajuste usando get-user-help-requests
+            fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),  // Ajuste usando get-user-category-ranking
+            fetch(`/api/get-user-performance?userEmail=${user.email}`)  // Ajuste usando get-user-performance
           ]);
 
           const helpData = await helpResponse.json();
-          setHelpRequests({
-            currentMonth: helpData.data.currentMonth,
-            lastMonth: helpData.data.lastMonth,
-          });
+          if (helpData && helpData.data) {
+            setHelpRequests({
+              currentMonth: helpData.currentMonth,
+              lastMonth: helpData.lastMonth,
+            });
+          }
 
           const categoryData = await categoryResponse.json();
-          setCategoryRanking(categoryData.data.categories || []);
+          setCategoryRanking(categoryData.categories || []);
 
           const performanceData = await performanceResponse.json();
-          setPerformanceData(performanceData.data);
+          setPerformanceData(performanceData);
         } else if (user.role === 'analyst') {
-          // Usuário analista: usar analystId para buscar informações
+          // Usuário analista: usar analystId para buscar informações específicas
           const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-            fetch(`/api/get-data?analystId=${user.analystId}&infoType=helpRequests`),
-            fetch(`/api/get-data?analystId=${user.analystId}&infoType=categoryRanking`),
-            fetch(`/api/get-data?analystId=${user.analystId}&infoType=performance&userEmail=${user.email}`)
+            fetch(`/api/get-data?analystId=${user.analystId}&infoType=helpRequests`),  // Ajuste usando get-data
+            fetch(`/api/get-data?analystId=${user.analystId}&infoType=categoryRanking`),  // Ajuste usando get-data
+            fetch(`/api/get-data?analystId=${user.analystId}&infoType=performance&userEmail=${user.email}`)  // Ajuste usando get-data
           ]);
 
           const helpData = await helpResponse.json();
-          setHelpRequests({
-            currentMonth: helpData.data.currentMonth,
-            lastMonth: helpData.data.lastMonth,
-          });
+          if (helpData && helpData.data) {
+            setHelpRequests({
+              currentMonth: helpData.data.currentMonth,
+              lastMonth: helpData.data.lastMonth,
+            });
+          }
 
           const categoryData = await categoryResponse.json();
           setCategoryRanking(categoryData.data.categories || []);
