@@ -53,8 +53,9 @@ export default NextAuth({
     },
   },
   pages: {
-    signIn: '/profile', // Redireciona para a página de perfil se não estiver autenticado
-    error: '/auth/error', // Página de erro personalizada
+    signIn: '/',
+    signOut: '/',
+    error: '/auth/error',
   },
   jwt: {
     secret: process.env.NEXTAUTH_SECRET,

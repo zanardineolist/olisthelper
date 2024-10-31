@@ -244,7 +244,7 @@ export default function RegistroPage({ session }) {
                 </a>
               </>
             )}
-            <button onClick={() => signOut()} className={commonStyles.menuButton}>
+            <button onClick={() => signOut({ callbackUrl: '/' })} className={styles.menuButton}>
               Logout
             </button>
           </div>

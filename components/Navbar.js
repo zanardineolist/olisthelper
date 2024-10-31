@@ -72,7 +72,7 @@ export default function Navbar() {
               Gerenciar Usuários
             </Link>
           )}
-          <button onClick={() => signOut()} className={styles.menuButton}>
+          <button onClick={() => signOut({ callbackUrl: '/' })} className={styles.menuButton}>
             Logout
           </button>
         </div>
