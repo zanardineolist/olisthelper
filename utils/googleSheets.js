@@ -276,3 +276,44 @@ export async function addSheetRow(sheetName, values) {
     throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
   }
 }
+
+// Função para excluir uma linha específica da planilha
+export async function deleteSheetRow(sheetName, rowIndex) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+
+    // Obter o ID da aba específica pelo nome (sheetName)
+    const sheetInfo = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+    const sheet = sheetInfo.data.sheets.find(
+      (sheet) => sheet.properties.title === sheetName
+    );
+
+    if (!sheet) {
+      throw new Error(`Aba ${sheetName} não encontrada.`);
+    }
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: sheetId,
+      resource: {
+        requests: [
+          {
+            deleteDimension: {
+              range: {
+                sheetId: sheet.properties.sheetId,
+                dimension: 'ROWS',
+                startIndex: rowIndex - 1, // Precisa subtrair 1, pois o índice começa do zero
+                endIndex: rowIndex, // Exclusão de uma única linha
+              },
+            },
+          },
+        ],
+      },
+    });
+  } catch (error) {
+    console.error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}:`, error);
+    throw new Error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}.`);
+  }
+}

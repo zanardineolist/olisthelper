@@ -68,6 +68,11 @@ export default function ManageUsersPage({ session }) {
   };
 
   const handleDeleteUser = async (userId) => {
+    const isConfirmed = window.confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.');
+    if (!isConfirmed) {
+      return;
+    }
+
     try {
       setLoading(true);
       const res = await fetch(`/api/manage-user?id=${userId}`, {

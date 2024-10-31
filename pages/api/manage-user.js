@@ -71,17 +71,17 @@ export default async function handler(req, res) {
         return res.status(200).json({ message: 'Usuário atualizado com sucesso.' });
 
       case 'DELETE':
-        // Excluir um usuário
-        const { userId: deleteUserId } = req.query;
-
-        const userRows = await getSheetValues(sheetName, 'A:H');
-        const deleteRowIndex = userRows.findIndex((row) => row[0] === deleteUserId);
-        if (deleteRowIndex === -1) {
-          return res.status(404).json({ error: 'Usuário não encontrado.' });
-        }
-
-        await deleteSheetRow(sheetName, deleteRowIndex + 1);
-        return res.status(200).json({ message: 'Usuário excluído com sucesso.' });
+          // Excluir um usuário
+          const { userId: deleteUserId } = req.query;
+        
+          const userRows = await getSheetValues(sheetName, 'A:H');
+          const deleteRowIndex = userRows.findIndex((row) => row[0] === deleteUserId);
+          if (deleteRowIndex === -1) {
+            return res.status(404).json({ error: 'Usuário não encontrado.' });
+          }
+        
+          await deleteSheetRow(sheetName, deleteRowIndex + 1);
+          return res.status(200).json({ message: 'Usuário excluído com sucesso.' });                
 
       default:
         res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
