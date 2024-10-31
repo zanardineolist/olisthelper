@@ -190,23 +190,34 @@ export default function DashboardSuperPage({ session }) {
           </button>
         </nav>
         {menuOpen && (
-          <div className={commonStyles.menu}>
-            <button onClick={() => handleNavigation('/dashboard-super')} className={commonStyles.menuButton}>
-              Dashboard Super
-            </button>
-            <a
-              href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={commonStyles.menuButton}
-            >
-              Database
-            </a>
-            <button onClick={() => signOut()} className={commonStyles.menuButton}>
-              Logout
-            </button>
-          </div>
-        )}
+        <div className={commonStyles.menu}>
+          {session.role === 'super' && (
+            <>
+              <button onClick={() => handleNavigation('/dashboard-super')} className={commonStyles.menuButton}>
+                Dashboard Super
+              </button>
+            </>
+          )}
+          {(session.role === 'analyst' || session.role === 'super' || session.role === 'tax') && (
+            <>
+              <button onClick={() => handleNavigation('/manage-users')} className={commonStyles.menuButton}>
+                Gerenciar Usuários
+              </button>
+              <a
+                href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={commonStyles.menuButton}
+              >
+                Database
+              </a>
+            </>
+          )}
+          <button onClick={() => signOut()} className={commonStyles.menuButton}>
+            Logout
+          </button>
+        </div>
+      )}
       </div>
 
       <main className={styles.main}>

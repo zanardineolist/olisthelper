@@ -209,23 +209,41 @@ export default function RegistroPage({ session }) {
 
         {menuOpen && (
           <div className={commonStyles.menu}>
-            <button onClick={() => router.push('/profile-analyst')} className={commonStyles.menuButton}>
-              Meu Perfil
-            </button>
-            <button onClick={() => router.push('/registro')} className={commonStyles.menuButton}>
-              Registrar Ajuda
-            </button>
-            <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
-              Dashboard Analista
-            </button>
-            <a
-              href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={commonStyles.menuButton}
-            >
-              Database
-            </a>
+            {(session.role === 'analyst' || session.role === 'tax') && (
+              <>
+                <button onClick={() => router.push('/profile-analyst')} className={commonStyles.menuButton}>
+                  Meu Perfil
+                </button>
+                <button onClick={() => router.push('/registro')} className={commonStyles.menuButton}>
+                  Registrar Ajuda
+                </button>
+                <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
+                  Dashboard
+                </button>
+              </>
+            )}
+            {session.role === 'super' && (
+              <>
+                <button onClick={() => router.push('/dashboard-super')} className={commonStyles.menuButton}>
+                  Dashboard Super
+                </button>
+              </>
+            )}
+            {(session.role === 'analyst' || session.role === 'super' || session.role === 'tax') && (
+              <>
+                <button onClick={() => router.push('/manage-users')} className={commonStyles.menuButton}>
+                  Gerenciar Usuários
+                </button>
+                <a
+                  href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={commonStyles.menuButton}
+                >
+                  Database
+                </a>
+              </>
+            )}
             <button onClick={() => signOut()} className={commonStyles.menuButton}>
               Logout
             </button>
