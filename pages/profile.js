@@ -35,23 +35,23 @@ export default function MyPage({ user }) {
     const fetchData = async () => {
       try {
         const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-          fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
-          fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),
-          user.role === 'support' ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
+          fetch(`/api/get-data?analystId=${user.analystId}&infoType=helpRequests`),
+          fetch(`/api/get-data?analystId=${user.analystId}&infoType=categoryRanking`),
+          user.role === 'support' ? fetch(`/api/get-data?analystId=${user.analystId}&infoType=performance&userEmail=${user.email}`) : Promise.resolve({ json: () => null })
         ]);
 
         const helpData = await helpResponse.json();
         setHelpRequests({
-          currentMonth: helpData.currentMonth,
-          lastMonth: helpData.lastMonth,
+          currentMonth: helpData.data.currentMonth,
+          lastMonth: helpData.data.lastMonth,
         });
 
         const categoryData = await categoryResponse.json();
-        setCategoryRanking(categoryData.categories || []);
+        setCategoryRanking(categoryData.data.categories || []);
 
         if (user.role === 'support') {
           const performanceData = await performanceResponse.json();
-          setPerformanceData(performanceData);
+          setPerformanceData(performanceData.data);
         }
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
@@ -61,7 +61,7 @@ export default function MyPage({ user }) {
     };
 
     fetchData();
-  }, [user.email, user.role]);
+  }, [user.analystId, user.email, user.role]);
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -203,6 +203,7 @@ export default function MyPage({ user }) {
 
         {/* Container para Indicadores de Desempenho */}
         <div className={styles.performanceWrapper}>
+          {/* Indicadores para Chamados */}
           {performanceData?.chamados && (
             <div className={styles.performanceContainer}>
               <h2>Indicadores Chamados</h2>
@@ -210,7 +211,7 @@ export default function MyPage({ user }) {
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Chamados:</span>
-                  <span>{performanceData.chamados.totalChamados}</span>
+                  <span>{performanceData.chamados.total}</span>
                 </div>
                 <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
                   <span>Média/Dia:</span>
@@ -227,6 +228,7 @@ export default function MyPage({ user }) {
               </div>
             </div>
           )}
+          {/* Indicadores para Telefone */}
           {performanceData?.telefone && (
             <div className={styles.performanceContainer}>
               <h2>Indicadores Telefone</h2>
@@ -234,7 +236,7 @@ export default function MyPage({ user }) {
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Telefone:</span>
-                  <span>{performanceData.telefone.totalTelefone}</span>
+                  <span>{performanceData.telefone.total}</span>
                 </div>
                 <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
                   <span>TMA:</span>
@@ -251,6 +253,7 @@ export default function MyPage({ user }) {
               </div>
             </div>
           )}
+          {/* Indicadores para Chat */}
           {performanceData?.chat && (
             <div className={styles.performanceContainer}>
               <h2>Indicadores Chat</h2>
@@ -258,7 +261,7 @@ export default function MyPage({ user }) {
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Chats:</span>
-                  <span>{performanceData.chat.totalChats}</span>
+                  <span>{performanceData.chat.total}</span>
                 </div>
                 <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
                   <span>TMA:</span>
@@ -338,6 +341,7 @@ export async function getServerSideProps(context) {
       user: {
         ...session.user,
         role: session.role,
+        analystId: session.analystId,
       },
     },
   };
