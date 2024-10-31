@@ -7,7 +7,9 @@ import styles from '../styles/ManageUsers.module.css';
 import Footer from '../components/Footer';
 import Modal from 'react-modal';
 import Select from 'react-select';
-import Swal from 'sweetalert2'; // Importando SweetAlert2
+import Swal from 'sweetalert2';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPencilAlt, faTrash } from '@fortawesome/free-solid-svg-icons'; // Importando os ícones de lápis e lixeira
 
 export default function ManageUsersPage({ session }) {
   const router = useRouter();
@@ -153,7 +155,9 @@ export default function ManageUsersPage({ session }) {
 
       <main className={styles.main}>
         <h1>Gerenciamento de Usuários</h1>
-        <button onClick={handleOpenModal} className={`${styles.addButton} ${commonStyles.button}`}>Adicionar Novo Usuário</button>
+        <div className={styles.addUserContainer}>
+          <button onClick={handleOpenModal} className={`${styles.addButton} ${commonStyles.button}`}>Adicionar Novo Usuário</button>
+        </div>
 
         {/* Modal para adicionar/editar usuário */}
         <Modal
@@ -274,8 +278,12 @@ export default function ManageUsersPage({ session }) {
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td>
-                    <button onClick={() => handleEditUser(user)} className={styles.editButton}>Editar</button>
-                    <button onClick={() => handleDeleteUser(user.id)} className={styles.deleteButton}>Excluir</button>
+                    <button onClick={() => handleEditUser(user)} className={styles.iconButton}>
+                      <FontAwesomeIcon icon={faPencilAlt} />
+                    </button>
+                    <button onClick={() => handleDeleteUser(user.id)} className={styles.iconButton}>
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
                   </td>
                 </tr>
               ))}
