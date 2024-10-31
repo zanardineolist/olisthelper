@@ -9,7 +9,7 @@ import Modal from 'react-modal';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPencilAlt, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export default function ManageUsersPage({ session }) {
   const router = useRouter();
