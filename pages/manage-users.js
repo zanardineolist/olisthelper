@@ -9,7 +9,7 @@ import Modal from 'react-modal';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt, faTrash } from '@fortawesome/free-solid-svg-icons'; // Importando os ícones de lápis e lixeira
+import { faPencilAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function ManageUsersPage({ session }) {
   const router = useRouter();
@@ -263,32 +263,35 @@ export default function ManageUsersPage({ session }) {
         </Modal>
 
         {/* Tabela simplificada de usuários */}
-        <div className={styles.usersTable}>
-          <table>
-            <thead>
-              <tr>
-                <th style={{ width: '30%' }}>Nome</th>
-                <th style={{ width: '40%' }}>E-mail</th>
-                <th style={{ width: '30%' }}>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>
-                    <button onClick={() => handleEditUser(user)} className={styles.iconButton}>
-                      <FontAwesomeIcon icon={faPencilAlt} />
-                    </button>
-                    <button onClick={() => handleDeleteUser(user.id)} className={styles.iconButton}>
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </td>
+        <div className={styles.cardContainer}>
+          <h2 className={styles.cardTitle}>Lista de Usuários</h2>
+          <div className={styles.usersTable}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Ações</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>
+                      <button onClick={() => handleEditUser(user)} className={styles.iconButton}>
+                        <FontAwesomeIcon icon={faPencilAlt} /> Editar
+                      </button>
+                      <button onClick={() => handleDeleteUser(user.id)} className={styles.iconButton}>
+                        <FontAwesomeIcon icon={faTrash} /> Excluir
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
 
