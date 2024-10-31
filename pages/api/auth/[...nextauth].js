@@ -1,7 +1,7 @@
 // pages/api/auth/[...nextauth].js
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { getUserFromSheet } from '../../../utils/googleSheets';
+import { getUserFromSheet, addUserToSheetIfNotExists } from '../../../utils/googleSheets';
 import { JWT } from 'next-auth/jwt';
 
 export default NextAuth({
@@ -15,11 +15,11 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       try {
-        // Verifica se o usuário está autorizado
-        const userDetails = await getUserFromSheet(user.email);
+        // Verifica se o usuário está autorizado ou cria um novo
+        const userDetails = await addUserToSheetIfNotExists(user);
         if (!userDetails) {
           console.log("Usuário não autorizado:", user.email);
-          return false; // Rejeitar o login se o usuário não estiver autorizado
+          return false; // Rejeitar o login se o usuário não puder ser criado
         }
         console.log("Usuário autorizado:", userDetails);
         return true; // Permitir o login

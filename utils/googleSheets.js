@@ -1,3 +1,4 @@
+// utils/googleSheets.js
 import { google } from 'googleapis';
 
 // Função para autenticação do Google Sheets
@@ -11,26 +12,45 @@ export async function getAuthenticatedGoogleSheets() {
   return google.sheets({ version: 'v4', auth });
 }
 
-// Função para adicionar usuário à planilha
-export async function addUserToSheet(user) {
+// Função para obter usuário da planilha ou adicioná-lo se não existir
+export async function addUserToSheetIfNotExists(user) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    // Gerar ID aleatório de 4 dígitos
-    const userId = Math.floor(1000 + Math.random() * 9000);
+    // Verificar se o usuário já existe
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Usuários!A:H',
+    });
 
+    const rows = response.data.values || [];
+    const existingUser = rows.find((row) => row[2] === user.email);
+    if (existingUser) {
+      return existingUser;
+    }
+
+    // Gerar ID aleatório único de 4 dígitos que não repita
+    let userId;
+    do {
+      userId = Math.floor(1000 + Math.random() * 9000).toString();
+    } while (rows.some(row => row[0] === userId));
+
+    // Adicionar novo usuário com perfil padrão 'support'
+    const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE'];
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      range: 'Usuários!A:D',
+      range: 'Usuários!A:H',
       valueInputOption: 'USER_ENTERED',
       resource: {
-        values: [[userId, user.name, user.email, 'support']],
+        values: [newUser],
       },
     });
+
+    return newUser;
   } catch (error) {
-    console.error('Erro ao adicionar usuário à planilha:', error);
-    throw new Error('Erro ao adicionar usuário à planilha. Verifique suas credenciais e a configuração do Google Sheets.');
+    console.error('Erro ao adicionar ou verificar usuário na planilha:', error);
+    return null;
   }
 }
 
@@ -42,7 +62,7 @@ export async function getUserFromSheet(email) {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Usuários!A:D',
+      range: 'Usuários!A:H',
     });
 
     const rows = response.data.values;
