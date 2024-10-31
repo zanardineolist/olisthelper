@@ -37,8 +37,8 @@ export default function AnalystProfilePage({ user }) {
       try {
         // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
         const [helpResponse, categoryResponse] = await Promise.all([
-          fetch(`/api/get-data?analystId=${user.id}&infoType=helpRequests`),
-          fetch(`/api/get-data?analystId=${user.id}&infoType=categoryRanking`)
+          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
+          fetch(`/api/get-category-ranking?analystId=${user.id}`)
         ]);
 
         if (!helpResponse.ok || !categoryResponse.ok) {
@@ -48,13 +48,13 @@ export default function AnalystProfilePage({ user }) {
         // Ajudas Solicitadas
         const helpData = await helpResponse.json();
         setHelpRequests({
-          currentMonth: helpData.data.currentMonth,
-          lastMonth: helpData.data.lastMonth,
+          currentMonth: helpData.currentMonth,
+          lastMonth: helpData.lastMonth,
         });
 
         // Ranking de Categorias
         const categoryData = await categoryResponse.json();
-        setCategoryRanking(categoryData.data.categories || []);
+        setCategoryRanking(categoryData.categories || []);
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
       } finally {

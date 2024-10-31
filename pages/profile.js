@@ -16,7 +16,6 @@ export default function MyPage({ user }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Atualiza a saudação com base no horário
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentHour = new Date(brtDate).getHours();
     let greetingMessage = '';
@@ -35,27 +34,25 @@ export default function MyPage({ user }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Chamando o endpoint unificado `get-data` para obter todas as informações
         const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-          fetch(`/api/get-data?userEmail=${user.email}&infoType=helpRequests`),
-          fetch(`/api/get-data?userEmail=${user.email}&infoType=categoryRanking`),
-          fetch(`/api/get-data?userEmail=${user.email}&infoType=performance`)
+          fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
+          fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),
+          user.role === 'support' ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
         ]);
 
-        // Atualizando as informações de ajuda solicitada
         const helpData = await helpResponse.json();
         setHelpRequests({
-          currentMonth: helpData.data.currentMonth,
-          lastMonth: helpData.data.lastMonth,
+          currentMonth: helpData.currentMonth,
+          lastMonth: helpData.lastMonth,
         });
 
-        // Atualizando o ranking de categorias
         const categoryData = await categoryResponse.json();
-        setCategoryRanking(categoryData.data.categories || []);
+        setCategoryRanking(categoryData.categories || []);
 
-        // Atualizando os dados de desempenho
-        const performanceData = await performanceResponse.json();
-        setPerformanceData(performanceData.data);
+        if (user.role === 'support') {
+          const performanceData = await performanceResponse.json();
+          setPerformanceData(performanceData);
+        }
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
       } finally {
@@ -64,7 +61,7 @@ export default function MyPage({ user }) {
     };
 
     fetchData();
-  }, [user.email]);
+  }, [user.email, user.role]);
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -151,21 +148,28 @@ export default function MyPage({ user }) {
               <h2>{user.name}</h2>
               <p>{user.email}</p>
               <div className={styles.tagsContainer}>
+                {/* Tag para Squad */}
                 {performanceData?.squad && (
                   <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
                     #{performanceData.squad}
                   </div>
                 )}
+
+                {/* Tag para Chamado */}
                 {performanceData?.chamado && (
                   <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
                     #Chamado
                   </div>
                 )}
+
+                {/* Tag para Telefone */}
                 {performanceData?.telefone && (
                   <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
                     #Telefone
                   </div>
                 )}
+
+                {/* Tag para Chat */}
                 {performanceData?.chat && (
                   <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
                     #Chat
@@ -206,17 +210,17 @@ export default function MyPage({ user }) {
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Chamados:</span>
-                  <span>{performanceData.chamados.total}</span>
+                  <span>{performanceData.chamados.totalChamados}</span>
                 </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
                   <span>Média/Dia:</span>
                   <span>{performanceData.chamados.mediaPorDia}</span>
                 </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
                   <span>TMA:</span>
                   <span>{performanceData.chamados.tma}</span>
                 </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
                   <span>CSAT:</span>
                   <span>{performanceData.chamados.csat}</span>
                 </div>
@@ -230,17 +234,13 @@ export default function MyPage({ user }) {
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Telefone:</span>
-                  <span>{performanceData.telefone.total}</span>
+                  <span>{performanceData.telefone.totalTelefone}</span>
                 </div>
-                <div className={styles.performanceItem}>
-                  <span>Média/Dia:</span>
-                  <span>{performanceData.telefone.mediaPorDia}</span>
-                </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
                   <span>TMA:</span>
                   <span>{performanceData.telefone.tma}</span>
                 </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
                   <span>CSAT:</span>
                   <span>{performanceData.telefone.csat}</span>
                 </div>
@@ -258,17 +258,13 @@ export default function MyPage({ user }) {
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Chats:</span>
-                  <span>{performanceData.chat.total}</span>
+                  <span>{performanceData.chat.totalChats}</span>
                 </div>
-                <div className={styles.performanceItem}>
-                  <span>Média/Dia:</span>
-                  <span>{performanceData.chat.mediaPorDia}</span>
-                </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
                   <span>TMA:</span>
                   <span>{performanceData.chat.tma}</span>
                 </div>
-                <div className={styles.performanceItem}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
                   <span>CSAT:</span>
                   <span>{performanceData.chat.csat}</span>
                 </div>
