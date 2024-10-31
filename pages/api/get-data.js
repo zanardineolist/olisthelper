@@ -84,12 +84,13 @@ function processHelpRequests(data) {
   };
 }
 
-// Função para processar o ranking de categorias
+// Função para processar o ranking de categorias (ajustado)
 function processCategoryRanking(data) {
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1; // Janeiro = 1
   const currentYear = currentDate.getFullYear();
 
+  // Filtrar registros do mês atual
   const currentMonthRows = data.filter((row, index) => {
     if (index === 0) return false; // Ignorar o cabeçalho
 
@@ -102,46 +103,84 @@ function processCategoryRanking(data) {
 
   // Contar categorias
   const categoryCounts = currentMonthRows.reduce((acc, row) => {
-    const category = row[4];
+    const category = row[4]; // Coluna 5 contém o nome da categoria
     if (category) {
       acc[category] = (acc[category] || 0) + 1;
     }
     return acc;
   }, {});
 
-  // Transformar em array de objetos para exibição
+  // Ordenar categorias por contagem e pegar as top 10
+  const sortedCategories = Object.entries(categoryCounts)
+    .sort((a, b) => b[1] - a[1]) // Ordenar em ordem decrescente pela contagem
+    .slice(0, 10) // Pegar apenas os 10 primeiros
+    .map(([name, count]) => ({ name, count }));
+
   return {
-    categories: Object.entries(categoryCounts).map(([name, count]) => ({ name, count })),
+    categories: sortedCategories,
   };
 }
 
-// Função para processar os dados de desempenho
+// Função expandida para processar dados de desempenho
 function processPerformanceData(data, userEmail) {
+  if (!userEmail) {
+    throw new Error("O e-mail do usuário é obrigatório para processar os dados de desempenho.");
+  }
+
+  // Filtrar registros do usuário especificado pelo e-mail
   const userRows = data.filter((row) => row[2] === userEmail);
 
   if (userRows.length === 0) {
     return { error: 'Dados de desempenho não encontrados para o usuário.' };
   }
 
-  // Implementação simplificada para representar dados de desempenho do usuário
+  // Inicializar variáveis para armazenar dados de desempenho
   let totalChamados = 0;
   let totalTelefone = 0;
   let totalChats = 0;
+  let tmaTotalChamados = 0;
+  let tmaTotalTelefone = 0;
+  let tmaTotalChat = 0;
+  let csatTotalChamados = 0;
+  let csatTotalTelefone = 0;
+  let csatTotalChat = 0;
+  let csatCountChamados = 0;
+  let csatCountTelefone = 0;
+  let csatCountChat = 0;
 
   userRows.forEach((row) => {
-    const [dateStr, tipo] = row;
+    const [dateStr, tipo, , , tmaStr, csatStr] = row;
+
+    // Conversão de TMA e CSAT para números
+    const tma = parseFloat(tmaStr);
+    const csat = parseFloat(csatStr);
 
     switch (tipo) {
       case 'Chamado':
         totalChamados++;
+        tmaTotalChamados += tma;
+        if (!isNaN(csat)) {
+          csatTotalChamados += csat;
+          csatCountChamados++;
+        }
         break;
 
       case 'Telefone':
         totalTelefone++;
+        tmaTotalTelefone += tma;
+        if (!isNaN(csat)) {
+          csatTotalTelefone += csat;
+          csatCountTelefone++;
+        }
         break;
 
       case 'Chat':
         totalChats++;
+        tmaTotalChat += tma;
+        if (!isNaN(csat)) {
+          csatTotalChat += csat;
+          csatCountChat++;
+        }
         break;
 
       default:
@@ -149,9 +188,30 @@ function processPerformanceData(data, userEmail) {
     }
   });
 
+  // Calcular TMA e CSAT
+  const tmaChamados = totalChamados > 0 ? (tmaTotalChamados / totalChamados).toFixed(2) : 'N/A';
+  const tmaTelefone = totalTelefone > 0 ? (tmaTotalTelefone / totalTelefone).toFixed(2) : 'N/A';
+  const tmaChat = totalChats > 0 ? (tmaTotalChat / totalChats).toFixed(2) : 'N/A';
+
+  const csatChamados = csatCountChamados > 0 ? (csatTotalChamados / csatCountChamados).toFixed(2) + '%' : 'N/A';
+  const csatTelefone = csatCountTelefone > 0 ? (csatTotalTelefone / csatCountTelefone).toFixed(2) + '%' : 'N/A';
+  const csatChat = csatCountChat > 0 ? (csatTotalChat / csatCountChat).toFixed(2) + '%' : 'N/A';
+
   return {
-    chamados: totalChamados,
-    telefone: totalTelefone,
-    chat: totalChats,
+    chamados: {
+      total: totalChamados,
+      tma: tmaChamados,
+      csat: csatChamados,
+    },
+    telefone: {
+      total: totalTelefone,
+      tma: tmaTelefone,
+      csat: csatTelefone,
+    },
+    chat: {
+      total: totalChats,
+      tma: tmaChat,
+      csat: csatChat,
+    },
   };
 }
