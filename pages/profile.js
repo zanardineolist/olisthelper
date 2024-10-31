@@ -107,11 +107,6 @@ export default function MyPage({ user }) {
             <button onClick={() => handleNavigation('/profile')} className={commonStyles.menuButton}>
               Meu Perfil
             </button>
-            {user.role === 'support' && (
-              <button onClick={() => handleNavigation('/registrar')} className={commonStyles.menuButton}>
-                Registrar Dúvida
-              </button>
-            )}
             {user.role === 'analyst' && (
               <>
                 <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
