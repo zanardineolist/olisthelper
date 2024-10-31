@@ -1,11 +1,10 @@
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import { getSession } from 'next-auth/react';
+import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/ManageUsers.module.css';
 import Footer from '../components/Footer';
-import Navbar from '../components/Navbar';
 import Modal from 'react-modal';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
@@ -15,6 +14,7 @@ import { faPencilAlt, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons'
 export default function ManageUsersPage() {
   const router = useRouter();
   const [session, setSession] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({
     name: '',
@@ -165,9 +165,15 @@ export default function ManageUsersPage() {
     setModalIsOpen(false);
   };
 
+  const handleNavigation = (path) => {
+    router.push(path);
+  };
+
   if (!session) {
     return null; // Não renderizar nada até que a sessão seja verificada
   }
+
+  const userRole = session.role;
 
   return (
     <>
@@ -175,7 +181,59 @@ export default function ManageUsersPage() {
         <title>Gerenciamento de Usuários</title>
       </Head>
 
-      <Navbar /> {/* Incluindo a Navbar */}
+      <div className={styles.container}>
+        <nav className={commonStyles.navbar}>
+          <div className={commonStyles.logo}>
+            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
+          </div>
+          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
+            ☰
+          </button>
+        </nav>
+        {menuOpen && (
+          <div className={commonStyles.menu}>
+            <button onClick={() => handleNavigation('/profile')} className={commonStyles.menuButton}>
+              Meu Perfil
+            </button>
+            {(userRole === 'analyst' || userRole === 'tax') && (
+              <>
+                <button onClick={() => handleNavigation('/profile-analyst')} className={commonStyles.menuButton}>
+                  Meu Perfil Analista
+                </button>
+                <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
+                  Registrar Ajuda
+                </button>
+                <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
+                  Dashboard Analista
+                </button>
+              </>
+            )}
+            {userRole === 'super' && (
+              <>
+                <button onClick={() => handleNavigation('/dashboard-super')} className={commonStyles.menuButton}>
+                  Dashboard Super
+                </button>
+                <a
+                  href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={commonStyles.menuButton}
+                >
+                  Database
+                </a>
+              </>
+            )}
+            {(userRole === 'analyst' || userRole === 'super' || userRole === 'tax') && (
+              <button onClick={() => handleNavigation('/manage-users')} className={commonStyles.menuButton}>
+                Gerenciar Usuários
+              </button>
+            )}
+            <button onClick={() => signOut()} className={commonStyles.menuButton}>
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
 
       <main className={styles.main}>
         <h1>Gerenciamento de Usuários</h1>

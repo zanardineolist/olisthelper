@@ -244,7 +244,7 @@ export default function RegistroPage({ session }) {
                   options={users.map((user) => ({
                     value: user.id,
                     label: user.name,
-                    email: user.email, // Incluindo email para ser usado na submissão
+                    email: user.email,
                   }))}
                   value={formData.user}
                   onChange={handleChange}
