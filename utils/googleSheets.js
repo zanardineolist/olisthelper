@@ -184,7 +184,8 @@ export async function addSheetRow(sheetName, values) {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    await sheets.spreadsheets.values.append({
+    // Adicionando os valores na planilha
+    const appendResponse = await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
       range: `${sheetName}!A:H`, // Ajuste para adicionar na aba correta
       valueInputOption: 'USER_ENTERED',
@@ -192,6 +193,42 @@ export async function addSheetRow(sheetName, values) {
         values: [values],
       },
     });
+
+    // Pegar o índice da linha adicionada
+    const updatedRange = appendResponse.data.updates.updatedRange;
+    const match = updatedRange.match(/(\d+):\w+/);
+    if (match) {
+      const newRowIndex = parseInt(match[1], 10) - 1; // Corrigir índice (começa do zero)
+
+      // Configurar as células F, G e H como checkboxes
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: sheetId,
+        resource: {
+          requests: [
+            {
+              repeatCell: {
+                range: {
+                  sheetId: 0, // ID da aba, ajuste conforme necessário
+                  startRowIndex: newRowIndex,
+                  endRowIndex: newRowIndex + 1,
+                  startColumnIndex: 5, // Coluna F
+                  endColumnIndex: 8,  // Coluna H
+                },
+                cell: {
+                  dataValidation: {
+                    condition: {
+                      type: 'BOOLEAN',
+                    },
+                  },
+                  userEnteredValue: { boolValue: false },
+                },
+                fields: 'dataValidation,userEnteredValue',
+              },
+            },
+          ],
+        },
+      });
+    }
   } catch (error) {
     console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
     throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
