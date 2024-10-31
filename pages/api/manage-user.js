@@ -72,7 +72,7 @@ export default async function handler(req, res) {
 
       case 'DELETE':
         // Excluir um usuário
-        const { userId: deleteUserId } = req.query;
+        const deleteUserId = req.query.userId;
 
         if (!deleteUserId) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
