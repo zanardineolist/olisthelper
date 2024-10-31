@@ -2,7 +2,6 @@ import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import Select from 'react-select';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/ManageUsers.module.css';
 import Footer from '../components/Footer';
@@ -25,14 +24,6 @@ export default function ManageUsersPage({ session }) {
   const [isEditing, setIsEditing] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  const profileOptions = [
-    { value: 'support', label: 'Suporte' },
-    { value: 'analyst', label: 'Analista' },
-    { value: 'super', label: 'Supervisor' },
-    { value: 'tax', label: 'Fiscal' },
-    { value: 'other', label: 'Outro' },
-  ];
-
   useEffect(() => {
     const loadUsers = async () => {
       try {
@@ -51,15 +42,11 @@ export default function ManageUsersPage({ session }) {
   }, []);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setNewUser((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value,
     }));
-  };
-
-  const handleSelectChange = (selectedOption) => {
-    setNewUser((prev) => ({ ...prev, profile: selectedOption.value }));
   };
 
   const handleEditUser = (user) => {
@@ -158,72 +145,10 @@ export default function ManageUsersPage({ session }) {
               name="email"
               value={newUser.email}
               placeholder="E-mail"
+              className={styles.inputField}
               onChange={handleInputChange}
               required
             />
-            <Select
-              options={profileOptions}
-              value={profileOptions.find((opt) => opt.value === newUser.profile)}
-              onChange={handleSelectChange}
-              placeholder="Perfil"
-              styles={{
-                control: (base) => ({
-                  ...base,
-                  backgroundColor: '#222',
-                  borderColor: '#333',
-                  color: '#fff',
-                }),
-                singleValue: (base) => ({
-                  ...base,
-                  color: '#fff',
-                }),
-                menu: (base) => ({
-                  ...base,
-                  backgroundColor: '#333',
-                }),
-                option: (provided, state) => ({
-                  ...provided,
-                  color: state.isSelected ? '#f57c00' : '#fff',
-                  backgroundColor: state.isFocused ? '#444' : '#333',
-                }),
-              }}
-            />
-            <input
-              type="text"
-              name="squad"
-              value={newUser.squad}
-              placeholder="Squad"
-              onChange={handleInputChange}
-            />
-            <div className={styles.checkboxContainer}>
-              <label>
-                <input
-                  type="checkbox"
-                  name="chamado"
-                  checked={newUser.chamado}
-                  onChange={handleInputChange}
-                />
-                Chamado
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  name="telefone"
-                  checked={newUser.telefone}
-                  onChange={handleInputChange}
-                />
-                Telefone
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  name="chat"
-                  checked={newUser.chat}
-                  onChange={handleInputChange}
-                />
-                Chat
-              </label>
-            </div>
             <button onClick={handleSaveUser} disabled={loading} className={`${styles.saveButton} ${commonStyles.button}`}>
               {isEditing ? 'Atualizar Usuário' : 'Adicionar Usuário'}
             </button>
@@ -233,33 +158,21 @@ export default function ManageUsersPage({ session }) {
           </div>
         </Modal>
 
-        {/* Tabela de usuários */}
+        {/* Tabela simplificada de usuários */}
         <div className={styles.usersTable}>
           <table>
             <thead>
               <tr>
-                <th style={{ width: '5%' }}>ID</th>
-                <th style={{ width: '15%' }}>Nome</th>
-                <th style={{ width: '20%' }}>E-mail</th>
-                <th style={{ width: '10%' }}>Perfil</th>
-                <th style={{ width: '10%' }}>Squad</th>
-                <th style={{ width: '10%' }}>Chamado</th>
-                <th style={{ width: '10%' }}>Telefone</th>
-                <th style={{ width: '10%' }}>Chat</th>
-                <th style={{ width: '10%' }}>Ações</th>
+                <th style={{ width: '30%' }}>Nome</th>
+                <th style={{ width: '40%' }}>E-mail</th>
+                <th style={{ width: '30%' }}>Ações</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
                 <tr key={user.id}>
-                  <td>{user.id}</td>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
-                  <td>{user.profile}</td>
-                  <td>{user.squad}</td>
-                  <td>{user.chamado ? '✔' : '✘'}</td>
-                  <td>{user.telefone ? '✔' : '✘'}</td>
-                  <td>{user.chat ? '✔' : '✘'}</td>
                   <td>
                     <button onClick={() => handleEditUser(user)} className={styles.editButton}>Editar</button>
                     <button onClick={() => handleDeleteUser(user.id)} className={styles.deleteButton}>Excluir</button>
