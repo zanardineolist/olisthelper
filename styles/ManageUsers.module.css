@@ -164,7 +164,7 @@
   border-radius: 3px;
   transition: background-color 0.3s ease;
   margin-right: 5px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
 }
 
@@ -181,12 +181,17 @@
   cursor: pointer;
   border-radius: 3px;
   transition: background-color 0.3s ease;
-  display: flex;
+  display: inline-flex;
   align-items: center;
 }
 
 .deleteButton:hover {
   background-color: #c62828;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
 }
 
 /* ================== Ajuste para Modal ================== */

@@ -155,9 +155,6 @@ export default function ManageUsersPage({ session }) {
 
       <main className={styles.main}>
         <h1>Gerenciamento de Usuários</h1>
-        <div className={styles.addUserContainer}>
-          <button onClick={handleOpenModal} className={`${styles.addButton} ${commonStyles.button}`}>Adicionar Novo Usuário</button>
-        </div>
 
         {/* Modal para adicionar/editar usuário */}
         <Modal
@@ -284,7 +281,7 @@ export default function ManageUsersPage({ session }) {
                   <tr key={user.id}>
                     <td>{user.name}</td>
                     <td>{user.email}</td>
-                    <td>
+                    <td className={styles.actionButtons}>
                       <button onClick={() => handleEditUser(user)} className={styles.editButton}>
                         <FontAwesomeIcon icon={faPencilAlt} /> Editar
                       </button>
