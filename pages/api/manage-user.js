@@ -28,8 +28,16 @@ export default async function handler(req, res) {
       case 'POST':
         // Adicionar novo usuário
         const newUser = req.body;
+
+        // Gerar um ID único de 4 dígitos que não repita
+        const allRows = await getSheetValues(sheetName, 'A:H');
+        let userId;
+        do {
+          userId = Math.floor(1000 + Math.random() * 9000).toString();
+        } while (allRows.some(row => row[0] === userId));
+
         await addSheetRow(sheetName, [
-          newUser.id,
+          userId,
           newUser.name,
           newUser.email,
           newUser.profile,
@@ -38,14 +46,14 @@ export default async function handler(req, res) {
           newUser.telefone ? 'TRUE' : 'FALSE',
           newUser.chat ? 'TRUE' : 'FALSE',
         ]);
-        return res.status(201).json({ message: 'Usuário adicionado com sucesso.' });
+        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: userId });
 
       case 'PUT':
         // Editar um usuário existente
         const updatedUser = req.body;
-        const allRows = await getSheetValues(sheetName, 'A:H');
+        const allRowsUpdate = await getSheetValues(sheetName, 'A:H');
 
-        const rowIndex = allRows.findIndex((row) => row[0] === updatedUser.id);
+        const rowIndex = allRowsUpdate.findIndex((row) => row[0] === updatedUser.id);
         if (rowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
@@ -64,10 +72,10 @@ export default async function handler(req, res) {
 
       case 'DELETE':
         // Excluir um usuário
-        const { userId } = req.query;
+        const { userId: deleteUserId } = req.query;
 
         const userRows = await getSheetValues(sheetName, 'A:H');
-        const deleteRowIndex = userRows.findIndex((row) => row[0] === userId);
+        const deleteRowIndex = userRows.findIndex((row) => row[0] === deleteUserId);
         if (deleteRowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }

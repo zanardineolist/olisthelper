@@ -12,7 +12,6 @@ export default function ManageUsersPage({ session }) {
   const router = useRouter();
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({
-    id: '',
     name: '',
     email: '',
     profile: '',
@@ -100,10 +99,10 @@ export default function ManageUsersPage({ session }) {
       if (isEditing) {
         setUsers(users.map((user) => (user.id === updatedUser.id ? updatedUser : user)));
       } else {
-        setUsers([...users, updatedUser]);
+        setUsers([...users, { ...newUser, id: updatedUser.id }]);
       }
 
-      setNewUser({ id: '', name: '', email: '', profile: '', squad: '', chamado: false, telefone: false, chat: false });
+      setNewUser({ name: '', email: '', profile: '', squad: '', chamado: false, telefone: false, chat: false });
       setIsEditing(false);
       setModalIsOpen(false);
     } catch (err) {
@@ -114,7 +113,7 @@ export default function ManageUsersPage({ session }) {
   };
 
   const handleOpenModal = () => {
-    setNewUser({ id: '', name: '', email: '', profile: '', squad: '', chamado: false, telefone: false, chat: false });
+    setNewUser({ name: '', email: '', profile: '', squad: '', chamado: false, telefone: false, chat: false });
     setIsEditing(false);
     setModalIsOpen(true);
   };
@@ -144,16 +143,6 @@ export default function ManageUsersPage({ session }) {
         >
           <h2 className={styles.modalTitle}>{isEditing ? 'Editar Usuário' : 'Adicionar Usuário'}</h2>
           <div className={styles.formContainer}>
-            <input
-              type="text"
-              name="id"
-              value={newUser.id}
-              placeholder="ID"
-              className={styles.inputField}
-              onChange={handleInputChange}
-              disabled={isEditing} // ID não deve ser editado
-              required
-            />
             <input
               type="text"
               name="name"

@@ -157,3 +157,23 @@ export async function appendValuesToSheet(sheetName, values) {
     throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
   }
 }
+
+// Função para atualizar uma linha específica da planilha
+export async function updateSheetRow(sheetName, rowIndex, values) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: sheetId,
+      range: `${sheetName}!A${rowIndex}:H${rowIndex}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: [values],
+      },
+    });
+  } catch (error) {
+    console.error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}:`, error);
+    throw new Error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}.`);
+  }
+}
