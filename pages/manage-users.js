@@ -264,7 +264,12 @@ export default function ManageUsersPage({ session }) {
 
         {/* Tabela simplificada de usuários */}
         <div className={styles.cardContainer}>
-          <h2 className={styles.cardTitle}>Lista de Usuários</h2>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Lista de Usuários</h2>
+            <button onClick={handleOpenModal} className={`${styles.addButton} ${commonStyles.button}`}>
+              <FontAwesomeIcon icon={faPlus} /> Adicionar Novo Usuário
+            </button>
+          </div>
           <div className={styles.usersTable}>
             <table>
               <thead>
@@ -280,10 +285,10 @@ export default function ManageUsersPage({ session }) {
                     <td>{user.name}</td>
                     <td>{user.email}</td>
                     <td>
-                      <button onClick={() => handleEditUser(user)} className={styles.iconButton}>
+                      <button onClick={() => handleEditUser(user)} className={styles.editButton}>
                         <FontAwesomeIcon icon={faPencilAlt} /> Editar
                       </button>
-                      <button onClick={() => handleDeleteUser(user.id)} className={styles.iconButton}>
+                      <button onClick={() => handleDeleteUser(user.id)} className={styles.deleteButton}>
                         <FontAwesomeIcon icon={faTrash} /> Excluir
                       </button>
                     </td>

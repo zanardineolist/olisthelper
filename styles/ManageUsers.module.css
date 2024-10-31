@@ -1,5 +1,4 @@
-/* styles/ManageUsers.module.css */
-
+/* ================== Estilo Geral da Página ================== */
 .main {
   padding: 20px;
   margin-top: 80px;
@@ -7,7 +6,7 @@
   color: #fff;
 }
 
-/* Botão Adicionar Usuário */
+/* ================== Botão Adicionar Usuário ================== */
 .addButton {
   background-color: #f57c00;
   color: #fff;
@@ -17,14 +16,13 @@
   cursor: pointer;
   border-radius: 5px;
   transition: background-color 0.3s ease;
-  margin-bottom: 20px;
 }
 
 .addButton:hover {
   background-color: #ff9800;
 }
 
-/* Modal */
+/* ================== Modal ================== */
 .modal {
   background-color: #1e1e1e !important;
   padding: 30px;
@@ -55,7 +53,7 @@
   text-align: center;
 }
 
-/* Form Container */
+/* ================== Formulário no Modal ================== */
 .formContainer {
   display: flex;
   flex-direction: column;
@@ -76,7 +74,7 @@
   margin: 10px 0;
 }
 
-/* Botões do Modal */
+/* ================== Botões do Modal ================== */
 .saveButton {
   background-color: #4caf50;
   color: #fff;
@@ -108,7 +106,7 @@
   background-color: #c62828;
 }
 
-/* Users Table */
+/* ================== Tabela de Usuários ================== */
 .usersTable {
   width: 100%;
   max-width: 1200px;
@@ -141,38 +139,6 @@
   background-color: #444;
 }
 
-/* Botões de Ação na Tabela */
-.editButton {
-  background-color: #1976d2;
-  color: #fff;
-  border: none;
-  padding: 5px 10px;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 3px;
-  transition: background-color 0.3s ease;
-  margin-right: 5px;
-}
-
-.editButton:hover {
-  background-color: #1565c0;
-}
-
-.deleteButton {
-  background-color: #d32f2f;
-  color: #fff;
-  border: none;
-  padding: 5px 10px;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 3px;
-  transition: background-color 0.3s ease;
-}
-
-.deleteButton:hover {
-  background-color: #c62828;
-}
-
 /* Scrollbar para Tabela */
 .usersTable tbody {
   display: block;
@@ -187,7 +153,43 @@
   table-layout: fixed;
 }
 
-/* Ajuste para Modal */
+/* ================== Botões de Ação na Tabela ================== */
+.editButton {
+  background-color: #779E3D;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.3s ease;
+  margin-right: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.editButton:hover {
+  background-color: #688c34;
+}
+
+.deleteButton {
+  background-color: #d32f2f;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.deleteButton:hover {
+  background-color: #c62828;
+}
+
+/* ================== Ajuste para Modal ================== */
 .ReactModal__Overlay {
   z-index: 1000;
   backdrop-filter: blur(5px);
@@ -197,7 +199,7 @@
   overflow: visible;
 }
 
-/* Estilo para o Card da Tabela */
+/* ================== Estilo para o Card da Tabela ================== */
 .cardContainer {
   background-color: #1e1e1e;
   padding: 20px;
@@ -208,13 +210,19 @@
   max-width: 1200px;
 }
 
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .cardTitle {
   color: #f57c00;
   font-size: 1.5rem;
-  margin-bottom: 15px;
 }
 
-/* Atualizações dos Botões */
+/* ================== Botões com Ícones ================== */
 .iconButton {
   background-color: #1976d2;
   color: #fff;
