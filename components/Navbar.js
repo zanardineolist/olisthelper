@@ -5,23 +5,28 @@ import { signOut, useSession } from 'next-auth/react';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const sessionData = useSession(); // Recebe o objeto completo para evitar erro de desestruturação
-  const [userRole, setUserRole] = useState(null);
+  const sessionData = useSession(); // Recebe o objeto completo do useSession
 
   useEffect(() => {
-    if (sessionData.status === 'authenticated' && sessionData.data?.user?.role) {
-      setUserRole(sessionData.data.user.role);
+    if (sessionData.status === 'loading') {
+      // Se a sessão estiver carregando, não fazer nada
+      return;
+    }
+
+    if (sessionData.status === 'authenticated') {
+      // Se a sessão está autenticada, definir o papel do usuário
+      setUserRole(sessionData.data?.user?.role || null);
     }
   }, [sessionData]);
 
   // Caso o status seja "loading", não renderizar o menu até que a sessão seja conhecida
   if (sessionData.status === 'loading') {
-    return null;
+    return null; // Exibir um estado de carregamento ou nada enquanto carrega
   }
 
-  // Renderizar somente se houver uma sessão ativa
+  // Se não estiver autenticado, exibir uma mensagem ou um link para login
   if (sessionData.status !== 'authenticated') {
-    return null;
+    return null; // Ou qualquer outro conteúdo que faça sentido para usuários não autenticados
   }
 
   return (
