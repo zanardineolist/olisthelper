@@ -1,12 +1,15 @@
 /* styles/DashboardAnalyst.module.css */
 .container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   padding: 40px;
   color: #fff;
   background-color: #121212;
-  min-height: 100vh;
 }
 
 .dashboardContainer {
+  flex: 1;
   margin: 100px auto 50px;
   width: 100%;
   max-width: 1600px;

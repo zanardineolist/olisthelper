@@ -39,11 +39,10 @@ export default function ManageUsersPage() {
   ];
 
   useEffect(() => {
-    // Obter a sessão do usuário
     const checkSession = async () => {
       const userSession = await getSession();
       if (!userSession || !['analyst', 'super', 'tax'].includes(userSession.role)) {
-        router.push('/'); // Redirecionar para a página inicial se a sessão não for válida
+        router.push('/');
       } else {
         setSession(userSession);
       }
@@ -111,7 +110,7 @@ export default function ManageUsersPage() {
       });
       if (!res.ok) throw new Error('Erro ao deletar usuário');
 
-      setUsers(users.filter((user) => user.id !== userId));
+      await loadUsers(); // Atualizar lista de usuários após exclusão
 
       Swal.fire('Excluído!', 'O usuário foi excluído com sucesso.', 'success');
     } catch (err) {
@@ -135,12 +134,7 @@ export default function ManageUsersPage() {
       });
       if (!res.ok) throw new Error('Erro ao salvar usuário');
 
-      const updatedUser = await res.json();
-      if (isEditing) {
-        setUsers(users.map((user) => (user.id === updatedUser.id ? updatedUser : user)));
-      } else {
-        setUsers([...users, { ...newUser, id: updatedUser.id }]);
-      }
+      await loadUsers(); // Atualizar lista de usuários após adição/edição
 
       setNewUser({ name: '', email: '', profile: '', squad: '', chamado: false, telefone: false, chat: false });
       setIsEditing(false);
@@ -170,7 +164,7 @@ export default function ManageUsersPage() {
   };
 
   if (!session) {
-    return null; // Não renderizar nada até que a sessão seja verificada
+    return null;
   }
 
   const userRole = session.role;

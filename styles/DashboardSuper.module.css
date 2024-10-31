@@ -25,6 +25,7 @@
 
 /* Área principal da página */
 .main {
+    flex: 1;
     padding: 20px;
     margin-top: 80px;
   }

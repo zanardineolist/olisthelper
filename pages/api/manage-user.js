@@ -1,14 +1,43 @@
-import { getSheetValues, addSheetRow, updateSheetRow, deleteSheetRow } from '../../utils/googleSheets';
+import { getSheetValues, addSheetRow, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
+
+async function sortUsersByName(sheetName) {
+  const sheets = await getAuthenticatedGoogleSheets();
+  const sheetId = process.env.SHEET_ID;
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: sheetId,
+    resource: {
+      requests: [
+        {
+          sortRange: {
+            range: {
+              sheetId: 0, // Atualize conforme necessário
+              startRowIndex: 1, // Ignorar a linha de cabeçalho
+              endRowIndex: null, // Até o final
+              startColumnIndex: 0,
+              endColumnIndex: 8,
+            },
+            sortSpecs: [
+              {
+                dimensionIndex: 1, // Índice da coluna B (nome)
+                sortOrder: 'ASCENDING',
+              },
+            ],
+          },
+        },
+      ],
+    },
+  });
+}
 
 export default async function handler(req, res) {
   const { method } = req;
 
   try {
-    const sheetName = 'Usuários';  // Certifique-se de usar o nome correto da aba
+    const sheetName = 'Usuários';
 
     switch (method) {
       case 'GET':
-        // Obter todos os usuários
         const rows = await getSheetValues(sheetName, 'A:H');
         if (rows && rows.length > 1) {
           const users = rows.slice(1).map((row) => ({
@@ -26,10 +55,7 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
 
       case 'POST':
-        // Adicionar novo usuário
         const newUser = req.body;
-
-        // Gerar um ID único de 4 dígitos que não repita
         const allRows = await getSheetValues(sheetName, 'A:H');
         let userId;
         do {
@@ -46,10 +72,10 @@ export default async function handler(req, res) {
           newUser.telefone ? 'TRUE' : 'FALSE',
           newUser.chat ? 'TRUE' : 'FALSE',
         ]);
+        await sortUsersByName(sheetName);
         return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: userId });
 
       case 'PUT':
-        // Editar um usuário existente
         const updatedUser = req.body;
         const allRowsUpdate = await getSheetValues(sheetName, 'A:H');
 
@@ -68,11 +94,11 @@ export default async function handler(req, res) {
           updatedUser.telefone ? 'TRUE' : 'FALSE',
           updatedUser.chat ? 'TRUE' : 'FALSE',
         ]);
+        await sortUsersByName(sheetName);
         return res.status(200).json({ message: 'Usuário atualizado com sucesso.' });
 
       case 'DELETE':
-        // Excluir um usuário
-        const deleteUserId = req.query.userId;
+        const deleteUserId = req.query.id;
 
         if (!deleteUserId) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
@@ -84,8 +110,8 @@ export default async function handler(req, res) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
 
-        // Excluir a linha completamente
         await deleteSheetRow(sheetName, deleteRowIndex + 1);
+        await sortUsersByName(sheetName);
         return res.status(200).json({ message: 'Usuário excluído com sucesso.' });
 
       default:
