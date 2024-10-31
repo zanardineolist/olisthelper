@@ -12,8 +12,9 @@ import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
-export default function ManageUsersPage({ session }) {
+export default function ManageUsersPage() {
   const router = useRouter();
+  const [session, setSession] = useState(null);
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({
     name: '',
@@ -37,8 +38,23 @@ export default function ManageUsersPage({ session }) {
   ];
 
   useEffect(() => {
-    loadUsers();
-  }, []);
+    // Obter a sessão do usuário
+    const checkSession = async () => {
+      const userSession = await getSession();
+      if (!userSession || !['analyst', 'super', 'tax'].includes(userSession.role)) {
+        router.push('/'); // Redirecionar para a página inicial se a sessão não for válida
+      } else {
+        setSession(userSession);
+      }
+    };
+    checkSession();
+  }, [router]);
+
+  useEffect(() => {
+    if (session) {
+      loadUsers();
+    }
+  }, [session]);
 
   const loadUsers = async () => {
     try {
@@ -147,6 +163,10 @@ export default function ManageUsersPage({ session }) {
   const handleCloseModal = () => {
     setModalIsOpen(false);
   };
+
+  if (!session) {
+    return null; // Não renderizar nada até que a sessão seja verificada
+  }
 
   return (
     <>
@@ -303,19 +323,4 @@ export default function ManageUsersPage({ session }) {
       <Footer />
     </>
   );
-}
-
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  if (!session || !['analyst', 'super', 'tax'].includes(session.role)) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: { session },
-  };
 }
