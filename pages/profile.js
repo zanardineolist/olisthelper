@@ -16,6 +16,7 @@ export default function MyPage({ user }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Atualiza a saudação com base no horário
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentHour = new Date(brtDate).getHours();
     let greetingMessage = '';
@@ -34,49 +35,27 @@ export default function MyPage({ user }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (user.role === 'support') {
-          // Usuário de suporte: usar userEmail para buscar informações específicas
-          const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-            fetch(`/api/get-user-help-requests?userEmail=${user.email}`),  // Ajuste usando get-user-help-requests
-            fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),  // Ajuste usando get-user-category-ranking
-            fetch(`/api/get-user-performance?userEmail=${user.email}`)  // Ajuste usando get-user-performance
-          ]);
+        // Chamando o endpoint unificado `get-data` para obter todas as informações
+        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
+          fetch(`/api/get-data?userEmail=${user.email}&infoType=helpRequests`),
+          fetch(`/api/get-data?userEmail=${user.email}&infoType=categoryRanking`),
+          fetch(`/api/get-data?userEmail=${user.email}&infoType=performance`)
+        ]);
 
-          const helpData = await helpResponse.json();
-          if (helpData && helpData.data) {
-            setHelpRequests({
-              currentMonth: helpData.currentMonth,
-              lastMonth: helpData.lastMonth,
-            });
-          }
+        // Atualizando as informações de ajuda solicitada
+        const helpData = await helpResponse.json();
+        setHelpRequests({
+          currentMonth: helpData.data.currentMonth,
+          lastMonth: helpData.data.lastMonth,
+        });
 
-          const categoryData = await categoryResponse.json();
-          setCategoryRanking(categoryData.categories || []);
+        // Atualizando o ranking de categorias
+        const categoryData = await categoryResponse.json();
+        setCategoryRanking(categoryData.data.categories || []);
 
-          const performanceData = await performanceResponse.json();
-          setPerformanceData(performanceData);
-        } else if (user.role === 'analyst') {
-          // Usuário analista: usar analystId para buscar informações específicas
-          const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-            fetch(`/api/get-data?analystId=${user.analystId}&infoType=helpRequests`),  // Ajuste usando get-data
-            fetch(`/api/get-data?analystId=${user.analystId}&infoType=categoryRanking`),  // Ajuste usando get-data
-            fetch(`/api/get-data?analystId=${user.analystId}&infoType=performance&userEmail=${user.email}`)  // Ajuste usando get-data
-          ]);
-
-          const helpData = await helpResponse.json();
-          if (helpData && helpData.data) {
-            setHelpRequests({
-              currentMonth: helpData.data.currentMonth,
-              lastMonth: helpData.data.lastMonth,
-            });
-          }
-
-          const categoryData = await categoryResponse.json();
-          setCategoryRanking(categoryData.data.categories || []);
-
-          const performanceData = await performanceResponse.json();
-          setPerformanceData(performanceData.data);
-        }
+        // Atualizando os dados de desempenho
+        const performanceData = await performanceResponse.json();
+        setPerformanceData(performanceData.data);
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
       } finally {
@@ -85,7 +64,7 @@ export default function MyPage({ user }) {
     };
 
     fetchData();
-  }, [user.analystId, user.email, user.role]);
+  }, [user.email]);
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -218,10 +197,132 @@ export default function MyPage({ user }) {
           </div>
         </div>
 
-        {/* Containers de Indicadores de Desempenho e Ranking de Categorias continuam inalterados */}
+        {/* Container para Indicadores de Desempenho */}
+        <div className={styles.performanceWrapper}>
+          {performanceData?.chamados && (
+            <div className={styles.performanceContainer}>
+              <h2>Indicadores Chamados</h2>
+              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+              <div className={styles.performanceInfo}>
+                <div className={styles.performanceItem}>
+                  <span>Total Chamados:</span>
+                  <span>{performanceData.chamados.total}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>Média/Dia:</span>
+                  <span>{performanceData.chamados.mediaPorDia}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>TMA:</span>
+                  <span>{performanceData.chamados.tma}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>CSAT:</span>
+                  <span>{performanceData.chamados.csat}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          {performanceData?.telefone && (
+            <div className={styles.performanceContainer}>
+              <h2>Indicadores Telefone</h2>
+              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+              <div className={styles.performanceInfo}>
+                <div className={styles.performanceItem}>
+                  <span>Total Telefone:</span>
+                  <span>{performanceData.telefone.total}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>Média/Dia:</span>
+                  <span>{performanceData.telefone.mediaPorDia}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>TMA:</span>
+                  <span>{performanceData.telefone.tma}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>CSAT:</span>
+                  <span>{performanceData.telefone.csat}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>Perdidas:</span>
+                  <span>{performanceData.telefone.perdidas}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          {performanceData?.chat && (
+            <div className={styles.performanceContainer}>
+              <h2>Indicadores Chat</h2>
+              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+              <div className={styles.performanceInfo}>
+                <div className={styles.performanceItem}>
+                  <span>Total Chats:</span>
+                  <span>{performanceData.chat.total}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>Média/Dia:</span>
+                  <span>{performanceData.chat.mediaPorDia}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>TMA:</span>
+                  <span>{performanceData.chat.tma}</span>
+                </div>
+                <div className={styles.performanceItem}>
+                  <span>CSAT:</span>
+                  <span>{performanceData.chat.csat}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
-        <Footer />
+        {/* Container para Ranking de Categorias */}
+        <div className={styles.categoryRanking}>
+          <h3>Top 10 - Temas de maior dúvida</h3>
+          {loading ? (
+            <div className={styles.loadingContainer}>
+              <div className="standardBoxLoader"></div>
+            </div>
+          ) : categoryRanking.length > 0 ? (
+            <ul className={styles.list}>
+              {categoryRanking.map((category, index) => (
+                <li key={index} className={styles.listItem}>
+                  <span className={styles.rank}>{index + 1}.</span>
+                  <span className={styles.categoryName}>{category.name}</span>
+                  <div
+                    className={styles.progressBarCategory}
+                    style={{
+                      width: `${category.count * 10}px`,
+                      backgroundColor: category.count > 10 ? 'orange' : '',
+                    }}
+                  />
+                  <span className={styles.count}>
+                    {category.count} pedidos de ajuda
+                    {category.count > 10 && (
+                      <div className="tooltip">
+                        <i
+                          className="fa-solid fa-circle-exclamation"
+                          style={{ color: 'orange', cursor: 'pointer' }}
+                          onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
+                        ></i>
+                        <span className="tooltipText">
+                          Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone abaixo.
+                        </span>
+                      </div>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className={styles.noData}>
+              Nenhum dado disponível no momento.
+            </div>
+          )}
+        </div>
       </main>
+      <Footer />
     </>
   );
 }
@@ -241,7 +342,6 @@ export async function getServerSideProps(context) {
       user: {
         ...session.user,
         role: session.role,
-        analystId: session.analystId || null, // Pode ser null se o usuário for support
       },
     },
   };
