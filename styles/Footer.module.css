@@ -11,6 +11,8 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  width: 100%;
+  flex-shrink: 0;
 }
 
 .logoContainer {
@@ -19,6 +21,6 @@
 }
 
 .logo {
-  width: 100px; /* Ajuste o valor para obter um dimensionamento agradável */
+  width: 100px;
   height: auto;
 }
