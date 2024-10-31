@@ -38,7 +38,7 @@ export async function addUserToSheetIfNotExists(user) {
 
     // Adicionar novo usuário com perfil padrão 'support'
     const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE'];
-    await sheets.spreadsheets.values.append({
+    const appendResponse = await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
       range: 'Usuários!A:H',
       valueInputOption: 'USER_ENTERED',
@@ -47,30 +47,33 @@ export async function addUserToSheetIfNotExists(user) {
       },
     });
 
-    // Configurar as células F, G e H como checkboxes
+    // Obter o índice da linha recém-adicionada
+    const updatedRows = appendResponse.updates.updatedRange.match(/(\d+):\d+$/);
+    const newRowIndex = updatedRows ? parseInt(updatedRows[1], 10) - 1 : rows.length;
+
+    // Configurar as células F, G e H como checkboxes na linha correta
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: sheetId,
       resource: {
         requests: [
           {
-            updateCells: {
+            repeatCell: {
               range: {
-                sheetId: 0, // Você pode precisar ajustar isso para o ID correto da aba "Usuários"
-                startRowIndex: rows.length + 1, // Índice da nova linha adicionada
-                endRowIndex: rows.length + 2,
+                sheetId: 0, // ID da aba, ajuste conforme necessário
+                startRowIndex: newRowIndex,
+                endRowIndex: newRowIndex + 1,
                 startColumnIndex: 5, // Coluna F
                 endColumnIndex: 8,  // Coluna H
               },
-              rows: [
-                {
-                  values: [
-                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
-                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
-                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
-                  ],
+              cell: {
+                dataValidation: {
+                  condition: {
+                    type: 'BOOLEAN',
+                  },
                 },
-              ],
-              fields: 'userEnteredValue,dataValidation',
+                userEnteredValue: { boolValue: false },
+              },
+              fields: 'dataValidation,userEnteredValue',
             },
           },
         ],
