@@ -1,33 +1,29 @@
 import Link from 'next/link';
 import styles from '../styles/Navbar.module.css';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { signOut, useSession } from 'next-auth/react';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const sessionData = useSession(); // Recebe o objeto completo do useSession
+  const sessionData = useSession(); // Pega todo o objeto de retorno do useSession()
 
-  useEffect(() => {
-    if (sessionData.status === 'loading') {
-      // Se a sessão estiver carregando, não fazer nada
-      return;
-    }
+  if (!sessionData || typeof sessionData !== 'object' || !sessionData.data) {
+    return null; // Não renderiza nada se sessionData for indefinido ou se não tiver a estrutura esperada
+  }
 
-    if (sessionData.status === 'authenticated') {
-      // Se a sessão está autenticada, definir o papel do usuário
-      setUserRole(sessionData.data?.user?.role || null);
-    }
-  }, [sessionData]);
+  const { data: session, status } = sessionData;
 
   // Caso o status seja "loading", não renderizar o menu até que a sessão seja conhecida
-  if (sessionData.status === 'loading') {
-    return null; // Exibir um estado de carregamento ou nada enquanto carrega
+  if (status === 'loading') {
+    return null; // Ou pode exibir um placeholder de carregamento, dependendo do que desejar
   }
 
-  // Se não estiver autenticado, exibir uma mensagem ou um link para login
-  if (sessionData.status !== 'authenticated') {
-    return null; // Ou qualquer outro conteúdo que faça sentido para usuários não autenticados
+  // Se não estiver autenticado, não renderizar a barra de navegação
+  if (status !== 'authenticated') {
+    return null;
   }
+
+  const userRole = session?.user?.role;
 
   return (
     <nav className={styles.navbar}>

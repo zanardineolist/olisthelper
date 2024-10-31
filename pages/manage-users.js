@@ -34,6 +34,7 @@ export default function ManageUsersPage() {
     { value: 'analyst', label: 'Analista' },
     { value: 'super', label: 'Supervisor' },
     { value: 'tax', label: 'Fiscal' },
+    { value: 'partner', label: 'Parceiro' },
     { value: 'other', label: 'Outro' },
   ];
 
