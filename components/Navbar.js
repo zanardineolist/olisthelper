@@ -19,11 +19,12 @@ export default function Navbar() {
   }
 
   // Se não estiver autenticado, não renderizar a barra de navegação
-  if (status !== 'authenticated') {
+  if (status !== 'authenticated' || !session?.user) {
     return null;
   }
 
-  const userRole = session?.user?.role;
+  // Corrigindo acesso ao role do usuário
+  const userRole = session.role;
 
   return (
     <nav className={styles.navbar}>
