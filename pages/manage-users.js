@@ -7,6 +7,7 @@ import styles from '../styles/ManageUsers.module.css';
 import Footer from '../components/Footer';
 import Modal from 'react-modal';
 import Select from 'react-select';
+import Swal from 'sweetalert2'; // Importando SweetAlert2
 
 export default function ManageUsersPage({ session }) {
   const router = useRouter();
@@ -33,21 +34,23 @@ export default function ManageUsersPage({ session }) {
   ];
 
   useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch('/api/manage-user');
-        if (!res.ok) throw new Error('Erro ao carregar usuários');
-        const data = await res.json();
-        setUsers(data.users);
-      } catch (err) {
-        console.error('Erro ao carregar usuários:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     loadUsers();
   }, []);
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/manage-user');
+      if (!res.ok) throw new Error('Erro ao carregar usuários');
+      const data = await res.json();
+      setUsers(data.users);
+    } catch (err) {
+      console.error('Erro ao carregar usuários:', err);
+      Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -68,8 +71,16 @@ export default function ManageUsersPage({ session }) {
   };
 
   const handleDeleteUser = async (userId) => {
-    const isConfirmed = window.confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.');
-    if (!isConfirmed) {
+    const isConfirmed = await Swal.fire({
+      title: 'Tem certeza?',
+      text: 'Deseja realmente excluir este usuário? Esta ação não pode ser desfeita.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sim, excluir!',
+      cancelButtonText: 'Cancelar',
+    });
+
+    if (!isConfirmed.isConfirmed) {
       return;
     }
 
@@ -79,9 +90,13 @@ export default function ManageUsersPage({ session }) {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Erro ao deletar usuário');
+
       setUsers(users.filter((user) => user.id !== userId));
+
+      Swal.fire('Excluído!', 'O usuário foi excluído com sucesso.', 'success');
     } catch (err) {
       console.error('Erro ao deletar usuário:', err);
+      Swal.fire('Erro', 'Erro ao deletar usuário.', 'error');
     } finally {
       setLoading(false);
     }
@@ -110,8 +125,11 @@ export default function ManageUsersPage({ session }) {
       setNewUser({ name: '', email: '', profile: '', squad: '', chamado: false, telefone: false, chat: false });
       setIsEditing(false);
       setModalIsOpen(false);
+
+      Swal.fire('Sucesso!', isEditing ? 'Usuário atualizado com sucesso.' : 'Usuário adicionado com sucesso.', 'success');
     } catch (err) {
       console.error('Erro ao salvar usuário:', err);
+      Swal.fire('Erro', 'Erro ao salvar usuário.', 'error');
     } finally {
       setLoading(false);
     }
