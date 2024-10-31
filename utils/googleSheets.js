@@ -47,6 +47,36 @@ export async function addUserToSheetIfNotExists(user) {
       },
     });
 
+    // Configurar as células F, G e H como checkboxes
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: sheetId,
+      resource: {
+        requests: [
+          {
+            updateCells: {
+              range: {
+                sheetId: 0, // Você pode precisar ajustar isso para o ID correto da aba "Usuários"
+                startRowIndex: rows.length + 1, // Índice da nova linha adicionada
+                endRowIndex: rows.length + 2,
+                startColumnIndex: 5, // Coluna F
+                endColumnIndex: 8,  // Coluna H
+              },
+              rows: [
+                {
+                  values: [
+                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
+                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
+                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
+                  ],
+                },
+              ],
+              fields: 'userEnteredValue,dataValidation',
+            },
+          },
+        ],
+      },
+    });
+
     return newUser;
   } catch (error) {
     console.error('Erro ao adicionar ou verificar usuário na planilha:', error);
