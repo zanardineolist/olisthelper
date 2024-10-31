@@ -10,11 +10,12 @@ export default async function handler(req, res) {
     const rows = await getSheetValues('Usuários', 'A:D');
 
     if (rows && rows.length > 0) {
-      const users = rows.filter(row => row[3] === 'support').map(row => ({
+      const users = rows.map(row => ({
         id: row[0],
         name: row[1],
         email: row[2],
-      }));
+        role: row[3],
+      }));      
       return res.status(200).json({ users });
     }
 
