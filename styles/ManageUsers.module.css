@@ -8,7 +8,7 @@
 
 /* ================== Botão Adicionar Usuário ================== */
 .addButton {
-  background-color: #f57c00;
+  background-color: #F0A028;
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -19,7 +19,7 @@
 }
 
 .addButton:hover {
-  background-color: #ff9800;
+  background-color: #f7ac3c;
 }
 
 /* ================== Modal ================== */
@@ -48,7 +48,7 @@
 }
 
 .modalTitle {
-  color: #f57c00;
+  color: #F0A028;
   margin-bottom: 20px;
   text-align: center;
 }
@@ -132,7 +132,7 @@
 }
 
 .usersTable th {
-  color: #f57c00;
+  color: #F0A028;
 }
 
 .usersTable tbody tr:hover {
@@ -223,7 +223,7 @@
 }
 
 .cardTitle {
-  color: #f57c00;
+  color: #F0A028;
   font-size: 1.5rem;
 }
 

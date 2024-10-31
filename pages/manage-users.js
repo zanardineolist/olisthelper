@@ -153,6 +153,8 @@ export default function ManageUsersPage({ session }) {
         <title>Gerenciamento de Usuários</title>
       </Head>
 
+      <Navbar /> {/* Incluindo a Navbar */}
+
       <main className={styles.main}>
         <h1>Gerenciamento de Usuários</h1>
 
@@ -304,7 +306,7 @@ export default function ManageUsersPage({ session }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  if (!session || !['analyst', 'super'].includes(session.role)) {
+  if (!session || !['analyst', 'super', 'tax'].includes(session.role)) {
     return {
       redirect: {
         destination: '/',

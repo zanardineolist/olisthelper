@@ -1,4 +1,3 @@
-// components/Navbar.js
 import Link from 'next/link';
 import styles from '../styles/Navbar.module.css';
 import { useState, useEffect } from 'react';
@@ -28,7 +27,7 @@ export default function Navbar() {
           <Link href="/profile" className={styles.menuButton}>
             Meu Perfil
           </Link>
-          {userRole === 'analyst' && (
+          {(userRole === 'analyst' || userRole === 'tax') && (
             <>
               <Link href="/profile-analyst" className={styles.menuButton}>
                 Meu Perfil Analista
@@ -56,7 +55,7 @@ export default function Navbar() {
               </a>
             </>
           )}
-          {(userRole === 'analyst' || userRole === 'super') && (
+          {(userRole === 'analyst' || userRole === 'super' || userRole === 'tax') && (
             <Link href="/manage-users" className={styles.menuButton}>
               Gerenciar Usuários
             </Link>
