@@ -5,14 +5,18 @@ import { signOut, useSession } from 'next-auth/react';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    if (session?.user?.role) {
+    if (status === 'authenticated' && session?.user?.role) {
       setUserRole(session.user.role);
     }
-  }, [session]);
+  }, [session, status]);
+
+  if (status === 'loading') {
+    return null;
+  }
 
   return (
     <nav className={styles.navbar}>
