@@ -178,7 +178,7 @@ export async function updateSheetRow(sheetName, rowIndex, values) {
   }
 }
 
-// Função para adicionar uma nova linha na planilha
+// Função para adicionar uma nova linha na planilha e configurar os checkboxes
 export async function addSheetRow(sheetName, values) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
@@ -200,7 +200,9 @@ export async function addSheetRow(sheetName, values) {
     if (match) {
       const newRowIndex = parseInt(match[1], 10) - 1; // Corrigir índice (começa do zero)
 
-      // Configurar as células F, G e H como checkboxes
+      // Configurar as células F, G e H como checkboxes com os valores corretos
+      const [chamado, telefone, chat] = values.slice(5, 8); // Obter valores de Chamado, Telefone e Chat
+
       await sheets.spreadsheets.batchUpdate({
         spreadsheetId: sheetId,
         resource: {
@@ -212,15 +214,55 @@ export async function addSheetRow(sheetName, values) {
                   startRowIndex: newRowIndex,
                   endRowIndex: newRowIndex + 1,
                   startColumnIndex: 5, // Coluna F
-                  endColumnIndex: 8,  // Coluna H
+                  endColumnIndex: 6,  // Coluna F (Chamado)
                 },
                 cell: {
+                  userEnteredValue: { boolValue: chamado === 'TRUE' },
                   dataValidation: {
                     condition: {
                       type: 'BOOLEAN',
                     },
                   },
-                  userEnteredValue: { boolValue: false },
+                },
+                fields: 'dataValidation,userEnteredValue',
+              },
+            },
+            {
+              repeatCell: {
+                range: {
+                  sheetId: 0, // ID da aba, ajuste conforme necessário
+                  startRowIndex: newRowIndex,
+                  endRowIndex: newRowIndex + 1,
+                  startColumnIndex: 6, // Coluna G (Telefone)
+                  endColumnIndex: 7,
+                },
+                cell: {
+                  userEnteredValue: { boolValue: telefone === 'TRUE' },
+                  dataValidation: {
+                    condition: {
+                      type: 'BOOLEAN',
+                    },
+                  },
+                },
+                fields: 'dataValidation,userEnteredValue',
+              },
+            },
+            {
+              repeatCell: {
+                range: {
+                  sheetId: 0, // ID da aba, ajuste conforme necessário
+                  startRowIndex: newRowIndex,
+                  endRowIndex: newRowIndex + 1,
+                  startColumnIndex: 7, // Coluna H (Chat)
+                  endColumnIndex: 8,
+                },
+                cell: {
+                  userEnteredValue: { boolValue: chat === 'TRUE' },
+                  dataValidation: {
+                    condition: {
+                      type: 'BOOLEAN',
+                    },
+                  },
                 },
                 fields: 'dataValidation,userEnteredValue',
               },
