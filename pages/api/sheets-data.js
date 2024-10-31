@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
   try {
     const sheets = await getAuthenticatedGoogleSheets();
-    let actualSheetTab = `#${sheetTab}`;  // Utilizando o numeral da aba
+    let actualSheetTab = `#${sheetTab}`; // Utilizando o numeral da aba
 
     // Buscar metadados da planilha para verificar a existência da aba
     const metaData = await getSheetMetaData(sheetId);
@@ -64,40 +64,54 @@ export default async function handler(req, res) {
   }
 }
 
+// Função para processar informações de usuários
 function handleUserInfo(rows) {
   return rows.map((row, index) => {
-    if (index === 0) return null;
+    if (index === 0) return null; // Ignorar cabeçalho
     const [id, name, email, role] = row;
     return { id, name, email, role };
   }).filter(Boolean);
 }
 
+// Função para processar ranking de categorias (ajustado para o top 10)
 function handleCategoryRanking(rows) {
   const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
+  const currentMonth = currentDate.getMonth() + 1; // Janeiro = 1
   const currentYear = currentDate.getFullYear();
 
+  // Filtrar registros do mês atual
   const currentMonthRows = rows.filter((row, index) => {
-    if (index === 0) return false;
+    if (index === 0) return false; // Ignorar cabeçalho
     const [dateStr] = row;
     const [day, month, year] = dateStr.split('/').map(Number);
     const date = new Date(year, month - 1, day);
-
-    return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
   });
 
-  return currentMonthRows.reduce((acc, row) => {
-    const category = row[4];
+  // Contar categorias
+  const categoryCounts = currentMonthRows.reduce((acc, row) => {
+    const category = row[4]; // Coluna 5 contém o nome da categoria
     if (category) {
       acc[category] = (acc[category] || 0) + 1;
     }
     return acc;
   }, {});
+
+  // Ordenar categorias por contagem e pegar as top 10
+  const sortedCategories = Object.entries(categoryCounts)
+    .sort((a, b) => b[1] - a[1]) // Ordenar em ordem decrescente pela contagem
+    .slice(0, 10) // Pegar apenas os 10 primeiros
+    .map(([name, count]) => ({ name, count }));
+
+  return {
+    categories: sortedCategories,
+  };
 }
 
+// Função para processar dados de desempenho
 function handlePerformance(rows) {
   return rows.map((row, index) => {
-    if (index === 0) return null;
+    if (index === 0) return null; // Ignorar cabeçalho
     const [date, tipo, email, tma, csat, perdido] = row;
     return { date, tipo, email, tma, csat, perdido };
   }).filter(Boolean);
