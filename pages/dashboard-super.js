@@ -1,7 +1,6 @@
 // pages/dashboard-super.js
 import Head from 'next/head';
 import { getSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import Navbar from '../components/Navbar';
@@ -172,6 +171,14 @@ export default function DashboardSuperPage({ user }) {
       backgroundColor: '#444',
     }),
   };
+
+  if (loading) {
+    return (
+      <div className="loaderOverlay">
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -1,7 +1,7 @@
 // pages/manage-users.js
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
-import { getSession } from 'next-auth/react';
+import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/ManageUsers.module.css';
@@ -25,8 +25,7 @@ export default function ManageUsersPage({ user }) {
     telefone: false,
     chat: false,
   });
-  const [loading, setLoading] = useState(true);
-  const [dataLoading, setDataLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
@@ -45,7 +44,7 @@ export default function ManageUsersPage({ user }) {
 
   const loadUsers = async () => {
     try {
-      setDataLoading(true);
+      setLoading(true);
       const res = await fetch('/api/manage-user');
       if (!res.ok) throw new Error('Erro ao carregar usuários');
       const data = await res.json();
@@ -54,7 +53,6 @@ export default function ManageUsersPage({ user }) {
       console.error('Erro ao carregar usuários:', err);
       Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
     } finally {
-      setDataLoading(false);
       setLoading(false);
     }
   };
@@ -92,7 +90,7 @@ export default function ManageUsersPage({ user }) {
     }
 
     try {
-      setDataLoading(true);
+      setLoading(true);
       const res = await fetch(`/api/manage-user?id=${userId}`, {
         method: 'DELETE',
       });
@@ -105,13 +103,13 @@ export default function ManageUsersPage({ user }) {
       console.error('Erro ao deletar usuário:', err);
       Swal.fire('Erro', 'Erro ao deletar usuário.', 'error');
     } finally {
-      setDataLoading(false);
+      setLoading(false);
     }
   };
 
   const handleSaveUser = async () => {
     try {
-      setDataLoading(true);
+      setLoading(true);
       const method = isEditing ? 'PUT' : 'POST';
       const res = await fetch('/api/manage-user', {
         method,
@@ -133,7 +131,7 @@ export default function ManageUsersPage({ user }) {
       console.error('Erro ao salvar usuário:', err);
       Swal.fire('Erro', 'Erro ao salvar usuário.', 'error');
     } finally {
-      setDataLoading(false);
+      setLoading(false);
     }
   };
 
@@ -146,14 +144,6 @@ export default function ManageUsersPage({ user }) {
   const handleCloseModal = () => {
     setModalIsOpen(false);
   };
-
-  if (loading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -261,7 +251,7 @@ export default function ManageUsersPage({ user }) {
                 Chat
               </label>
             </div>
-            <button onClick={handleSaveUser} disabled={dataLoading} className={`${styles.saveButton} ${commonStyles.button}`}>
+            <button onClick={handleSaveUser} disabled={loading} className={`${styles.saveButton} ${commonStyles.button}`}>
               {isEditing ? 'Atualizar Usuário' : 'Adicionar Usuário'}
             </button>
             <button onClick={handleCloseModal} className={`${styles.cancelButton} ${commonStyles.button}`}>
@@ -278,39 +268,33 @@ export default function ManageUsersPage({ user }) {
               <FontAwesomeIcon icon={faPlus} /> Adicionar Novo Usuário
             </button>
           </div>
-          {dataLoading ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
-          ) : (
-            <div className={styles.usersTable}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>E-mail</th>
-                    <th>Ações</th>
+          <div className={styles.usersTable}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td className={styles.actionButtons}>
+                      <button onClick={() => handleEditUser(user)} className={styles.editButton}>
+                        <FontAwesomeIcon icon={faPencilAlt} /> Editar
+                      </button>
+                      <button onClick={() => handleDeleteUser(user.id)} className={styles.deleteButton}>
+                        <FontAwesomeIcon icon={faTrash} /> Excluir
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user.id}>
-                      <td>{user.name}</td>
-                      <td>{user.email}</td>
-                      <td className={styles.actionButtons}>
-                        <button onClick={() => handleEditUser(user)} className={styles.editButton}>
-                          <FontAwesomeIcon icon={faPencilAlt} /> Editar
-                        </button>
-                        <button onClick={() => handleDeleteUser(user.id)} className={styles.deleteButton}>
-                          <FontAwesomeIcon icon={faTrash} /> Excluir
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
 

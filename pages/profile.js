@@ -68,7 +68,7 @@ export default function MyPage({ user }) {
     fetchData();
   }, [user.email, user.role]);
 
-  if (loading) {
+  if (!user) {
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
@@ -139,19 +139,25 @@ export default function MyPage({ user }) {
             </div>
           </div>
           <div className={styles.profileContainer}>
-            <div className={styles.profileInfo}>
-              <h2>Ajudas Solicitadas</h2>
-              <div className={styles.helpRequestsInfo}>
-                <div className={styles.monthsInfo}>
-                  <p><strong>Mês Atual:</strong> {currentMonth}</p>
-                  <p><strong>Mês Anterior:</strong> {lastMonth}</p>
-                </div>
-                <div className={styles.percentageChange} style={{ color: arrowColor }}>
-                  <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
-                  <span>{formattedPercentage}%</span>
+            {loading ? (
+              <div className={styles.loadingContainer}>
+                <div className="standardBoxLoader"></div>
+              </div>
+            ) : (
+              <div className={styles.profileInfo}>
+                <h2>Ajudas Solicitadas</h2>
+                <div className={styles.helpRequestsInfo}>
+                  <div className={styles.monthsInfo}>
+                    <p><strong>Mês Atual:</strong> {currentMonth}</p>
+                    <p><strong>Mês Anterior:</strong> {lastMonth}</p>
+                  </div>
+                  <div className={styles.percentageChange} style={{ color: arrowColor }}>
+                    <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
+                    <span>{formattedPercentage}%</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 

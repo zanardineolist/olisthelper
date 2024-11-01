@@ -1,6 +1,6 @@
 // pages/profile-analyst.js
 import Head from 'next/head';
-import { getSession } from 'next-auth/react';
+import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
@@ -13,13 +13,9 @@ export default function AnalystProfilePage({ user }) {
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
-  const [performanceData, setPerformanceData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Mostrar o loader ao carregar a página
-    setLoading(true);
-
     // Definir saudação com base na hora do dia
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentHour = new Date(brtDate).getHours();
@@ -39,14 +35,13 @@ export default function AnalystProfilePage({ user }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Buscar dados de ajudas solicitadas, ranking de categorias e desempenho do analista logado
-        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
+        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
+        const [helpResponse, categoryResponse] = await Promise.all([
           fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
-          fetch(`/api/get-category-ranking?analystId=${user.id}`),
-          fetch(`/api/get-user-performance?userEmail=${user.email}`),
+          fetch(`/api/get-category-ranking?analystId=${user.id}`)
         ]);
 
-        if (!helpResponse.ok || !categoryResponse.ok || !performanceResponse.ok) {
+        if (!helpResponse.ok || !categoryResponse.ok) {
           throw new Error('Erro ao buscar dados do analista.');
         }
 
@@ -60,10 +55,6 @@ export default function AnalystProfilePage({ user }) {
         // Ranking de Categorias
         const categoryData = await categoryResponse.json();
         setCategoryRanking(categoryData.categories || []);
-
-        // Desempenho do Usuário
-        const performanceData = await performanceResponse.json();
-        setPerformanceData(performanceData);
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
       } finally {
@@ -75,14 +66,6 @@ export default function AnalystProfilePage({ user }) {
       fetchData();
     }
   }, [user.id]);
-
-  if (loading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
 
   if (!user) {
     return (
@@ -110,7 +93,6 @@ export default function AnalystProfilePage({ user }) {
         <title>Meu Perfil - Analista</title>
       </Head>
 
-      {/* Navbar reutilizável */}
       <Navbar user={user} />
 
       <main className={styles.main}>
