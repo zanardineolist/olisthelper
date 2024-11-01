@@ -70,7 +70,7 @@ html::-webkit-scrollbar-thumb {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(36, 36, 36, 0.7);
   z-index: 9999;
   display: flex;
   justify-content: center;
