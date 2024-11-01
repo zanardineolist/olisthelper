@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
+import { FaSignOutAlt } from 'react-icons/fa';
 
 export default function MyPage({ user }) {
   const router = useRouter();
@@ -125,8 +126,8 @@ export default function MyPage({ user }) {
                 </a>
               </>
             )}
-            <button onClick={() => signOut({ callbackUrl: '/' })} className={styles.menuButton}>
-              Logout
+            <button onClick={() => signOut({ callbackUrl: '/' })} className={commonStyles.menuButton}>
+              <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
             </button>
           </div>
         )}

@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import styles from '../styles/Navbar.module.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signOut, useSession } from 'next-auth/react';
+import { FaSignOutAlt } from 'react-icons/fa';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -25,6 +26,21 @@ export default function Navbar() {
 
   // Corrigindo acesso ao role do usuário
   const userRole = session.role;
+
+  // Fecha o menu quando clicar fora
+  useEffect(() => {
+    if (menuOpen) {
+      const handleClickOutside = (event) => {
+        if (!event.target.closest(`.${styles.navbar}`)) {
+          setMenuOpen(false);
+        }
+      };
+      document.addEventListener('click', handleClickOutside);
+      return () => {
+        document.removeEventListener('click', handleClickOutside);
+      };
+    }
+  }, [menuOpen]);
 
   return (
     <nav className={styles.navbar}>
@@ -72,8 +88,8 @@ export default function Navbar() {
               Gerenciar Usuários
             </Link>
           )}
-          <button onClick={() => signOut({ callbackUrl: '/' })} className={styles.menuButton}>
-            Logout
+          <button onClick={() => signOut({ callbackUrl: '/' })} className={`${styles.menuButton} ${styles.logoutButton}`}>
+            <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
           </button>
         </div>
       )}
