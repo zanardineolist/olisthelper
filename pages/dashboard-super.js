@@ -1,19 +1,18 @@
 // pages/dashboard-super.js
 import Head from 'next/head';
-import { getSession, signOut } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
-import commonStyles from '../styles/commonStyles.module.css';
+import Navbar from '../components/Navbar';
 import styles from '../styles/DashboardSuper.module.css';
 import Footer from '../components/Footer';
+import Swal from 'sweetalert2';
 
-export default function DashboardSuperPage({ session }) {
-  const router = useRouter();
+export default function DashboardSuperPage({ user }) {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
@@ -21,6 +20,7 @@ export default function DashboardSuperPage({ session }) {
   const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
+    // Saudação com base na hora do dia
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentHour = new Date(brtDate).getHours();
     let greetingMessage = '';
@@ -36,15 +36,18 @@ export default function DashboardSuperPage({ session }) {
     setGreeting(greetingMessage);
   }, []);
 
+  // Carregar lista de usuários
   useEffect(() => {
     const loadUsers = async () => {
       try {
         setLoading(true);
         const res = await fetch('/api/get-users');
+        if (!res.ok) throw new Error('Erro ao carregar usuários');
         const data = await res.json();
         setUsers(data.users);
       } catch (err) {
         console.error('Erro ao carregar usuários:', err);
+        Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
       } finally {
         setLoading(false);
       }
@@ -53,6 +56,7 @@ export default function DashboardSuperPage({ session }) {
     loadUsers();
   }, []);
 
+  // Carregar dados do usuário selecionado
   useEffect(() => {
     if (selectedUser) {
       const fetchData = async () => {
@@ -64,19 +68,23 @@ export default function DashboardSuperPage({ session }) {
             fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
           ]);
 
+          // Ajudas Solicitadas
           const helpData = await helpResponse.json();
           setHelpRequests({
             currentMonth: helpData.currentMonth,
             lastMonth: helpData.lastMonth,
           });
 
+          // Ranking de Categorias
           const categoryData = await categoryResponse.json();
           setCategoryRanking(categoryData.categories || []);
 
+          // Desempenho do Usuário
           const performanceData = await performanceResponse.json();
           setPerformanceData(performanceData);
         } catch (error) {
           console.error('Erro ao buscar dados do usuário:', error);
+          Swal.fire('Erro', 'Erro ao buscar dados do usuário.', 'error');
         } finally {
           setLoadingData(false);
         }
@@ -86,21 +94,17 @@ export default function DashboardSuperPage({ session }) {
     }
   }, [selectedUser]);
 
+  // Manipulador de seleção de usuário
   const handleUserSelect = (selectedOption) => {
     setSelectedUser(selectedOption ? selectedOption.value : null);
   };
 
-  const handleNavigation = (path) => {
-    router.push(path);
-    setMenuOpen(false);
-  };
-
-  // Estilos personalizados para o React-Select, ajustando para centralizar e diminuir a largura
+  // Estilos personalizados para o React-Select
   const customSelectStyles = {
     container: (provided) => ({
       ...provided,
       width: '500px',
-      margin: '20px auto 20px auto',
+      margin: '20px auto',
     }),
     control: (provided, state) => ({
       ...provided,
@@ -167,10 +171,6 @@ export default function DashboardSuperPage({ session }) {
       ...provided,
       backgroundColor: '#444',
     }),
-    noOptionsMessage: (provided) => ({
-      ...provided,
-      color: '#fff',
-    }),
   };
 
   return (
@@ -179,56 +179,18 @@ export default function DashboardSuperPage({ session }) {
         <title>Dashboard Supervisor</title>
       </Head>
 
-      {/* Navbar ajustada para utilizar commonStyles */}
-      <div className={styles.container}>
-        <nav className={commonStyles.navbar}>
-          <div className={commonStyles.logo}>
-            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
-          </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
-            ☰
-          </button>
-        </nav>
-        {menuOpen && (
-        <div className={commonStyles.menu}>
-          {session.role === 'super' && (
-            <>
-              <button onClick={() => handleNavigation('/dashboard-super')} className={commonStyles.menuButton}>
-                Dashboard Super
-              </button>
-            </>
-          )}
-          {(session.role === 'analyst' || session.role === 'super' || session.role === 'tax') && (
-            <>
-              <button onClick={() => handleNavigation('/manage-users')} className={commonStyles.menuButton}>
-                Gerenciar Usuários
-              </button>
-              <a
-                href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={commonStyles.menuButton}
-              >
-                Database
-              </a>
-            </>
-          )}
-          <button onClick={() => signOut({ callbackUrl: '/' })} className={styles.menuButton}>
-            Logout
-          </button>
-        </div>
-      )}
-      </div>
+      {/* Navbar reutilizável */}
+      <Navbar user={user} />
 
       <main className={styles.main}>
-        <h1 className={styles.greeting}>Olá, {greeting} {session.user.name.split(' ')[0]}!</h1>
+        <h1 className={styles.greeting}>Olá, {greeting} {user.name.split(' ')[0]}!</h1>
 
         {/* Container com informações do perfil do supervisor */}
         <div className={styles.profileContainer}>
-          <img src={session.user.image} alt={session.user.name} className={styles.profileImage} />
+          <img src={user.image} alt={user.name} className={styles.profileImage} />
           <div className={styles.profileInfo}>
-            <h2>{session.user.name}</h2>
-            <p>{session.user.email}</p>
+            <h2>{user.name}</h2>
+            <p>{user.email}</p>
           </div>
         </div>
 
@@ -256,9 +218,9 @@ export default function DashboardSuperPage({ session }) {
                   <p>{selectedUser.email}</p>
                   <div className={styles.tagsContainer}>
                     {performanceData?.squad && (
-                    <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
+                      <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
                         #{performanceData.squad}
-                    </div>
+                      </div>
                     )}
                     {performanceData?.chamado && (
                       <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
@@ -300,6 +262,7 @@ export default function DashboardSuperPage({ session }) {
             </div>
 
             {/* Container para Indicadores de Desempenho */}
+            {/* Indicadores de Chamados, Telefone e Chat */}
             <div className={styles.performanceWrapper}>
               {loadingData ? (
                 <>
@@ -449,6 +412,12 @@ export async function getServerSideProps(context) {
     };
   }
   return {
-    props: { session },
+    props: {
+      user: {
+        ...session.user,
+        role: session.role,
+        id: session.id,
+      },
+    },
   };
 }

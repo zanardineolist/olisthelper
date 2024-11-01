@@ -8,12 +8,12 @@ import Swal from 'sweetalert2';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
 import Footer from '../components/Footer';
+import Navbar from '../components/Navbar';
 
-export default function RegistroPage({ session }) {
+export default function RegistroPage({ user }) {
   const router = useRouter();
   const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,6 +22,7 @@ export default function RegistroPage({ session }) {
     description: '',
   });
 
+  // Carregar usuários e categorias
   useEffect(() => {
     const loadUsersAndCategories = async () => {
       try {
@@ -43,6 +44,7 @@ export default function RegistroPage({ session }) {
     loadUsersAndCategories();
   }, []);
 
+  // Gerenciar alterações no formulário
   const handleChange = (selectedOption, actionMeta) => {
     const { name } = actionMeta;
     setFormData((prev) => ({
@@ -51,6 +53,15 @@ export default function RegistroPage({ session }) {
     }));
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Submeter o formulário de registro de ajuda
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -69,7 +80,7 @@ export default function RegistroPage({ session }) {
           userEmail,
           category: formData.category ? formData.category.value : '',
           description: formData.description,
-          analystId: session.id,
+          analystId: user.id,
         }),
       });
       if (response.ok) {
@@ -112,11 +123,11 @@ export default function RegistroPage({ session }) {
       color: '#fff',
       borderRadius: '5px',
       padding: '5px',
-      boxShadow: 'none', // Removendo qualquer sombra ao focar
+      boxShadow: 'none',
       '&:hover': {
         borderColor: '#F0A028',
       },
-      outline: 'none', // Removendo a outline padrão do navegador
+      outline: 'none',
     }),
     input: (provided) => ({
       ...provided,
@@ -147,11 +158,7 @@ export default function RegistroPage({ session }) {
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isFocused
-        ? '#333'
-        : state.isSelected
-        ? '#F0A028'
-        : '#1e1e1e',
+      backgroundColor: state.isFocused ? '#333' : state.isSelected ? '#F0A028' : '#1e1e1e',
       color: '#fff',
       cursor: 'pointer',
       '&:hover': {
@@ -168,15 +175,11 @@ export default function RegistroPage({ session }) {
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: '#fff', // Alterando a cor do indicador de digitação para branco
+      color: '#fff',
     }),
     indicatorSeparator: (provided) => ({
       ...provided,
       backgroundColor: '#444',
-    }),
-    noOptionsMessage: (provided) => ({
-      ...provided,
-      color: '#fff',
     }),
   };
 
@@ -194,137 +197,77 @@ export default function RegistroPage({ session }) {
         <title>Registrar Ajuda</title>
       </Head>
 
-      <div className={styles.container}>
-        <nav className={commonStyles.navbar}>
-          <div className={commonStyles.logo}>
-            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
-          </div>
-          <button
-            onClick={() => setMenuOpen((prevMenuOpen) => !prevMenuOpen)}
-            className={commonStyles.menuToggle}
-          >
-            ☰
-          </button>
-        </nav>
+      <Navbar user={user} />
 
-        {menuOpen && (
-          <div className={commonStyles.menu}>
-            {(session.role === 'analyst' || session.role === 'tax') && (
-              <>
-                <button onClick={() => router.push('/profile-analyst')} className={commonStyles.menuButton}>
-                  Meu Perfil
-                </button>
-                <button onClick={() => router.push('/registro')} className={commonStyles.menuButton}>
-                  Registrar Ajuda
-                </button>
-                <button onClick={() => router.push('/dashboard-analyst')} className={commonStyles.menuButton}>
-                  Dashboard
-                </button>
-              </>
-            )}
-            {session.role === 'super' && (
-              <>
-                <button onClick={() => router.push('/dashboard-super')} className={commonStyles.menuButton}>
-                  Dashboard Super
-                </button>
-              </>
-            )}
-            {(session.role === 'analyst' || session.role === 'super' || session.role === 'tax') && (
-              <>
-                <button onClick={() => router.push('/manage-users')} className={commonStyles.menuButton}>
-                  Gerenciar Usuários
-                </button>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={commonStyles.menuButton}
-                >
-                  Database
-                </a>
-              </>
-            )}
-            <button onClick={() => signOut({ callbackUrl: '/' })} className={styles.menuButton}>
-              Logout
-            </button>
-          </div>
-        )}
+      <main className={styles.mainContent}>
+        <div className={styles.formContainerWithSpacing}>
+          <h2 className={styles.formTitle}>Registrar Ajuda</h2>
+          <form onSubmit={handleSubmit}>
+            <div className={styles.formGroup}>
+              <label htmlFor="user">Selecione o usuário</label>
+              <Select
+                id="user"
+                name="user"
+                options={users.map((user) => ({
+                  value: user.id,
+                  label: user.name,
+                  email: user.email,
+                }))}
+                value={formData.user}
+                onChange={handleChange}
+                isClearable
+                placeholder="Selecione um usuário"
+                styles={customSelectStyles}
+                classNamePrefix="react-select"
+                noOptionsMessage={() => "Sem resultados"}
+                required
+              />
+            </div>
 
-        <div className={styles.mainContent}>
-          <div className={styles.formContainerWithSpacing}>
-            <h2 className={styles.formTitle}>Registrar Ajuda</h2>
-            <form onSubmit={handleSubmit}>
-              <div className={styles.formGroup}>
-                <label htmlFor="user">Selecione o usuário</label>
-                <Select
-                  id="user"
-                  name="user"
-                  options={users.map((user) => ({
-                    value: user.id,
-                    label: user.name,
-                    email: user.email,
-                  }))}
-                  value={formData.user}
-                  onChange={handleChange}
-                  isClearable
-                  placeholder="Selecione um usuário"
-                  styles={customSelectStyles}
-                  classNamePrefix="react-select"
-                  noOptionsMessage={() => "Sem resultados"}
-                  required
-                />
-              </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="category">Tema da ajuda</label>
+              <Select
+                id="category"
+                name="category"
+                options={categories.map((category) => ({
+                  value: category,
+                  label: category,
+                }))}
+                value={formData.category}
+                onChange={handleChange}
+                isClearable
+                placeholder="Selecione um tema"
+                styles={customSelectStyles}
+                classNamePrefix="react-select"
+                noOptionsMessage={() => "Sem resultados"}
+                required
+              />
+            </div>
 
-              <div className={styles.formGroup}>
-                <label htmlFor="category">Tema da ajuda</label>
-                <Select
-                  id="category"
-                  name="category"
-                  options={categories.map((category) => ({
-                    value: category,
-                    label: category,
-                  }))}
-                  value={formData.category}
-                  onChange={handleChange}
-                  isClearable
-                  placeholder="Selecione um tema"
-                  styles={customSelectStyles}
-                  classNamePrefix="react-select"
-                  noOptionsMessage={() => "Sem resultados"}
-                  required
-                />
-              </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="description">Descrição da ajuda</label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Descreva brevemente sua dúvida."
+                required
+                rows="4"
+                className={`${styles.formTextarea} ${styles.formFieldHover}`}
+              />
+            </div>
 
-              <div className={styles.formGroup}>
-                <label htmlFor="description">Descrição da ajuda</label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  placeholder="Descreva brevemente sua dúvida..."
-                  required
-                  rows="4"
-                  className={`${styles.formTextarea} ${styles.formFieldHover}`}
-                />
-              </div>
-
-              <div className={styles.formButtonContainer}>
-                <button type="submit" className={styles.submitButton} disabled={submitting}>
-                  {submitting ? 'Registrando...' : 'Registrar'}
-                </button>
-              </div>
-            </form>
-          </div>
+            <div className={styles.formButtonContainer}>
+              <button type="submit" className={styles.submitButton} disabled={submitting}>
+                {submitting ? 'Registrando...' : 'Registrar'}
+              </button>
+            </div>
+          </form>
         </div>
+      </main>
 
-        <Footer />
-      </div>
+      <Footer />
     </>
   );
 }
@@ -340,6 +283,12 @@ export async function getServerSideProps(context) {
     };
   }
   return {
-    props: { session },
+    props: {
+      user: {
+        ...session.user,
+        role: session.role,
+        id: session.id,
+      },
+    },
   };
 }

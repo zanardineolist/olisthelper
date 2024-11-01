@@ -1,3 +1,4 @@
+// pages/manage-users.js
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import { getSession, signOut } from 'next-auth/react';
@@ -10,11 +11,10 @@ import Select from 'react-select';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import Navbar from '../components/Navbar';
 
-export default function ManageUsersPage() {
+export default function ManageUsersPage({ user }) {
   const router = useRouter();
-  const [session, setSession] = useState(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({
     name: '',
@@ -39,22 +39,8 @@ export default function ManageUsersPage() {
   ];
 
   useEffect(() => {
-    const checkSession = async () => {
-      const userSession = await getSession();
-      if (!userSession || !['analyst', 'super', 'tax'].includes(userSession.role)) {
-        router.push('/');
-      } else {
-        setSession(userSession);
-      }
-    };
-    checkSession();
-  }, [router]);
-
-  useEffect(() => {
-    if (session) {
-      loadUsers();
-    }
-  }, [session]);
+    loadUsers();
+  }, []);
 
   const loadUsers = async () => {
     try {
@@ -159,74 +145,14 @@ export default function ManageUsersPage() {
     setModalIsOpen(false);
   };
 
-  const handleNavigation = (path) => {
-    router.push(path);
-  };
-
-  if (!session) {
-    return null;
-  }
-
-  const userRole = session.role;
-
   return (
     <>
       <Head>
         <title>Gerenciamento de Usuários</title>
       </Head>
 
-      <div className={styles.container}>
-        <nav className={commonStyles.navbar}>
-          <div className={commonStyles.logo}>
-            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
-          </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
-            ☰
-          </button>
-        </nav>
-        {menuOpen && (
-          <div className={commonStyles.menu}>
-            {(userRole === 'analyst' || userRole === 'tax') && (
-              <>
-                <button onClick={() => handleNavigation('/profile-analyst')} className={commonStyles.menuButton}>
-                  Meu Perfil
-                </button>
-                <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
-                  Registrar Ajuda
-                </button>
-                <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
-                  Dashboard
-                </button>
-              </>
-            )}
-            {userRole === 'super' && (
-              <>
-                <button onClick={() => handleNavigation('/dashboard-super')} className={commonStyles.menuButton}>
-                  Dashboard Super
-                </button>
-              </>
-            )}
-            {(userRole === 'analyst' || userRole === 'super' || userRole === 'tax') && (
-              <>
-              <button onClick={() => handleNavigation('/manage-users')} className={commonStyles.menuButton}>
-                Gerenciar Usuários
-              </button>
-              <a
-                href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={commonStyles.menuButton}
-              >
-                Database
-              </a>
-            </>
-            )}
-            <button onClick={() => signOut({ callbackUrl: '/' })} className={styles.menuButton}>
-              Logout
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Navbar reutilizável */}
+      <Navbar user={user} />
 
       <main className={styles.main}>
         <h1>Gerenciamento de Usuários</h1>
@@ -334,7 +260,7 @@ export default function ManageUsersPage() {
           </div>
         </Modal>
 
-        {/* Tabela simplificada de usuários */}
+        {/* Tabela de usuários */}
         <div className={styles.cardContainer}>
           <div className={styles.cardHeader}>
             <h2 className={styles.cardTitle}>Lista de Usuários</h2>
@@ -375,4 +301,25 @@ export default function ManageUsersPage() {
       <Footer />
     </>
   );
+}
+
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+  if (!session || !['analyst', 'super', 'tax'].includes(session.role)) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {
+      user: {
+        ...session.user,
+        role: session.role,
+        id: session.id,
+      },
+    },
+  };
 }

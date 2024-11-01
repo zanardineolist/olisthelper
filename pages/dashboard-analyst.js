@@ -1,32 +1,31 @@
+// pages/dashboard-analyst.js
 import Head from 'next/head';
-import { getSession, signOut } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
-import { useRouter } from 'next/router';
-import commonStyles from '../styles/commonStyles.module.css';
+import Navbar from '../components/Navbar';
 import styles from '../styles/DashboardAnalyst.module.css';
 import Footer from '../components/Footer';
 
-export default function DashboardAnalyst({ session }) {
-  const router = useRouter();
+export default function DashboardAnalyst({ user }) {
   const [loading, setLoading] = useState(true);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [filter, setFilter] = useState('7');
 
+  // Fetch registros do analista
   const fetchRecords = async () => {
-    if (!session?.id) {
+    if (!user?.id) {
       console.error("ID do analista não encontrado.");
       return;
     }
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/get-analyst-records?analystId=${session.id}&filter=${filter}`);
+      const res = await fetch(`/api/get-analyst-records?analystId=${user.id}&filter=${filter}`);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros.');
       }
@@ -54,14 +53,15 @@ export default function DashboardAnalyst({ session }) {
     }
   };
 
+  // Fetch leaderboard de usuários
   const fetchLeaderboard = async () => {
-    if (!session?.id) {
+    if (!user?.id) {
       console.error("ID do analista não encontrado.");
       return;
     }
 
     try {
-      const res = await fetch(`/api/get-analyst-leaderboard?analystId=${session.id}`);
+      const res = await fetch(`/api/get-analyst-leaderboard?analystId=${user.id}`);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros para o leaderboard.');
       }
@@ -92,14 +92,15 @@ export default function DashboardAnalyst({ session }) {
     }
   };
 
+  // Fetch ranking de categorias
   const fetchCategoryRanking = async () => {
-    if (!session?.id) {
+    if (!user?.id) {
       console.error("ID do analista não encontrado.");
       return;
     }
 
     try {
-      const res = await fetch(`/api/get-category-ranking?analystId=${session.id}`);
+      const res = await fetch(`/api/get-category-ranking?analystId=${user.id}`);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros das categorias.');
       }
@@ -112,11 +113,12 @@ export default function DashboardAnalyst({ session }) {
     }
   };
 
+  // Carregar dados ao montar o componente e sempre que o filtro mudar
   useEffect(() => {
     fetchRecords();
     fetchLeaderboard();
     fetchCategoryRanking();
-  }, [filter, session]);
+  }, [filter, user]);
 
   if (loading) {
     return (
@@ -124,11 +126,7 @@ export default function DashboardAnalyst({ session }) {
         <div className="loader"></div>
       </div>
     );
-  }  
-
-  const handleNavigation = (path) => {
-    router.push(path);
-  };
+  }
 
   return (
     <>
@@ -136,59 +134,9 @@ export default function DashboardAnalyst({ session }) {
         <title>Dashboard Analista</title>
       </Head>
 
-      <div className={commonStyles.container}>
-        <nav className={commonStyles.navbar}>
-          <div className={commonStyles.logo}>
-            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
-          </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
-            ☰
-          </button>
-        </nav>
-        {menuOpen && (
-          <div className={commonStyles.menu}>
-            {(session.role === 'analyst' || session.role === 'tax') && (
-              <>
-                <button onClick={() => handleNavigation('/profile-analyst')} className={commonStyles.menuButton}>
-                  Meu Perfil
-                </button>
-                <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
-                  Registrar Ajuda
-                </button>
-                <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
-                  Dashboard
-                </button>
-              </>
-            )}
-            {session.role === 'super' && (
-              <>
-                <button onClick={() => handleNavigation('/dashboard-super')} className={commonStyles.menuButton}>
-                  Dashboard Super
-                </button>
-              </>
-            )}
-            {(session.role === 'analyst' || session.role === 'super' || session.role === 'tax') && (
-              <>
-                <button onClick={() => handleNavigation('/manage-users')} className={commonStyles.menuButton}>
-                  Gerenciar Usuários
-                </button>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={commonStyles.menuButton}
-                >
-                  Database
-                </a>
-              </>
-            )}
-            <button onClick={() => signOut({ callbackUrl: '/' })} className={styles.menuButton}>
-              Logout
-            </button>
-          </div>
-        )}
-      </div>
-  
+      {/* Navbar reutilizável */}
+      <Navbar user={user} />
+
       <div className={styles.dashboardContainer}>
         <h2>Seu Dashboard</h2>
         <div className={styles.summary}>
@@ -248,9 +196,10 @@ export default function DashboardAnalyst({ session }) {
           </div>
         </div>
       </div>
+
       <Footer />
     </>
-  );  
+  );
 }
 
 export async function getServerSideProps(context) {
@@ -258,12 +207,18 @@ export async function getServerSideProps(context) {
   if (!session || session.role !== 'analyst') {
     return {
       redirect: {
-        destination: '/profile',
+        destination: '/',
         permanent: false,
       },
     };
   }
   return {
-    props: { session },
+    props: {
+      user: {
+        ...session.user,
+        role: session.role,
+        id: session.id,
+      },
+    },
   };
 }

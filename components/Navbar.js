@@ -48,20 +48,20 @@ export default function Navbar({ user }) {
           {(user.role === 'analyst' || user.role === 'tax') && (
             <>
               <button onClick={() => handleNavigation('/profile-analyst')} className={styles.menuButton}>
-                Meu Perfil Analista
+                Meu Perfil
               </button>
               <button onClick={() => handleNavigation('/registro')} className={styles.menuButton}>
                 Registrar Ajuda
               </button>
               <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
-                Dashboard Analista
+                Dashboard
               </button>
             </>
           )}
           {user.role === 'super' && (
             <>
               <button onClick={() => handleNavigation('/dashboard-super')} className={styles.menuButton}>
-                Dashboard Super
+                Dashboard
               </button>
             </>
           )}
