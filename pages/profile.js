@@ -127,7 +127,7 @@ export default function MyPage({ user }) {
               </>
             )}
             <button onClick={() => signOut({ callbackUrl: '/' })} className={commonStyles.menuButton}>
-              <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
+              <FaSignOutAlt className={styles.logoutIcon} style={{ marginRight: '8px' }} /> Logout
             </button>
           </div>
         )}
