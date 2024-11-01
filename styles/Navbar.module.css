@@ -35,12 +35,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #1E1E1E;
+  background-color: #2a2a2a;
   padding: 10px 0;
   position: absolute;
   top: 90%;
   right: 20px;
-  width: 200px;
+  width: 230px;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
