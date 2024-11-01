@@ -8,7 +8,9 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-  const allowedRoles = ['analyst', 'super', 'tax'];
+  // Ajustar os papéis permitidos
+  const analystRoles = ['analyst', 'tax'];
+  const allowedRoles = [...analystRoles, 'super'];
 
   if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && !allowedRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/profile', req.url));
@@ -22,7 +24,7 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-  if (req.nextUrl.pathname.startsWith('/profile-analyst') && !allowedRoles.includes(token.role)) {
+  if (req.nextUrl.pathname.startsWith('/profile-analyst') && !analystRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
