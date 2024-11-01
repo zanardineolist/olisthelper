@@ -147,12 +147,12 @@ export default function AnalystProfilePage({ user }) {
                     className={styles.progressBarCategory}
                     style={{
                       width: `${category.count * 10}px`,
-                      backgroundColor: category.count > 20 ? 'orange' : '',
+                      backgroundColor: category.count > 50 ? 'orange' : '',
                     }}
                   />
                   <span className={styles.count}>
                     {category.count} pedidos de ajuda
-                    {category.count > 20 && (
+                    {category.count > 50 && (
                       <div className="tooltip">
                         <i
                           className="fa-solid fa-circle-exclamation"
@@ -160,7 +160,7 @@ export default function AnalystProfilePage({ user }) {
                           onClick={() => window.open('https://olisterp.wixsite.com/knowledge/inicio', '_blank')}
                         ></i>
                         <span className="tooltipText">
-                          Você já ajudou neste tema mais de 20 vezes. Que tal criar um material sobre, e publicar em nosso knowledge?
+                          Você já ajudou neste tema mais de 50 vezes. Que tal criar um material sobre, e publicar em nosso knowledge?
                         </span>
                       </div>
                     )}
