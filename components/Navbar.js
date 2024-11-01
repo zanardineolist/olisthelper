@@ -33,7 +33,7 @@ export default function Navbar({ user }) {
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
-        <Link href={user.role === 'analyst' ? '/profile-analyst' : '/profile'}>
+        <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'}>
           <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
         </Link>
       </div>
