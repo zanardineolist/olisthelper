@@ -42,9 +42,11 @@ export default function Navbar({ user }) {
       </button>
       {menuOpen && (
         <div className={styles.menu}>
-          <button onClick={() => handleNavigation('/profile')} className={styles.menuButton}>
-            Meu Perfil
-          </button>
+          {user.role === 'support' && (
+            <button onClick={() => handleNavigation('/profile')} className={styles.menuButton}>
+              Meu Perfil
+            </button>
+          )}
           {(user.role === 'analyst' || user.role === 'tax') && (
             <>
               <button onClick={() => handleNavigation('/profile-analyst')} className={styles.menuButton}>
@@ -59,26 +61,14 @@ export default function Navbar({ user }) {
             </>
           )}
           {user.role === 'super' && (
-            <>
-              <button onClick={() => handleNavigation('/dashboard-super')} className={styles.menuButton}>
-                Dashboard
-              </button>
-            </>
+            <button onClick={() => handleNavigation('/dashboard-super')} className={styles.menuButton}>
+              Dashboard
+            </button>
           )}
-          {(user.role === 'analyst' || user.role === 'super' || user.role === 'tax') && (
-            <>
-              <button onClick={() => handleNavigation('/manage-users')} className={styles.menuButton}>
-                Gerenciar Usuários
-              </button>
-              <a
-                href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.menuButton}
-              >
-                Database
-              </a>
-            </>
+          {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
+            <button onClick={() => handleNavigation('/manage-users')} className={styles.menuButton}>
+              Gerenciar Usuários
+            </button>
           )}
           <button onClick={() => signOut({ callbackUrl: '/' })} className={`${styles.menuButton} ${styles.logoutButton}`}>
             <FaSignOutAlt style={{ marginRight: '8px', fontSize: '20px' }} /> Logout

@@ -38,8 +38,9 @@
   background-color: #1E1E1E;
   padding: 10px 0;
   position: absolute;
-  top: 100%;
+  top: 90%;
   right: 20px;
+  width: 200px;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
