@@ -183,7 +183,7 @@ export default function AnalystProfilePage({ user }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  if (!session || session.role !== 'analyst') {
+  if (!session || (session.role !== 'analyst' && session.role !== 'tax')) {
     return {
       redirect: {
         destination: '/',

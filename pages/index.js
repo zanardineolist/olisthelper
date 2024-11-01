@@ -23,7 +23,7 @@ export default function LoginPage() {
       }
     };
     checkSession();
-  }, [router]);
+  }, [router]);  
 
   return (
     <>

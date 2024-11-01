@@ -12,6 +12,12 @@ export async function middleware(req) {
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super'];
 
+  // Se o usuário tentar acessar '/profile-analyst', e já tiver o papel correto, não redirecionar novamente
+  if (req.nextUrl.pathname.startsWith('/profile-analyst') && analystRoles.includes(token.role)) {
+    return NextResponse.next();
+  }
+
+  // Redirecionar caso o papel do usuário não tenha acesso à rota específica
   if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && !allowedRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
@@ -21,10 +27,6 @@ export async function middleware(req) {
   }
 
   if (req.nextUrl.pathname.startsWith('/registro') && !allowedRoles.includes(token.role)) {
-    return NextResponse.redirect(new URL('/profile', req.url));
-  }
-
-  if (req.nextUrl.pathname.startsWith('/profile-analyst') && !analystRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
