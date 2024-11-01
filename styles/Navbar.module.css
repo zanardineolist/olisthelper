@@ -14,9 +14,12 @@
 }
 
 .logo {
-  font-size: 20px;
-  font-weight: bold;
-  color: #F0A028;
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  height: 40px;
 }
 
 .menuToggle {
