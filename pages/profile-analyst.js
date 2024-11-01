@@ -1,9 +1,10 @@
 // pages/profile-analyst.js
 import Head from 'next/head';
-import { getSession } from 'next-auth/react';
+import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
 
@@ -12,11 +13,10 @@ export default function AnalystProfilePage({ user }) {
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
-  const [performanceData, setPerformanceData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Definir saudação com base na hora do dia
   useEffect(() => {
+    // Definir saudação com base na hora do dia
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentHour = new Date(brtDate).getHours();
     let greetingMessage = '';
@@ -32,15 +32,18 @@ export default function AnalystProfilePage({ user }) {
     setGreeting(greetingMessage);
   }, []);
 
-  // Buscar dados do analista
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-          fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
-          fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),
-          fetch(`/api/get-user-performance?userEmail=${user.email}`)
+        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
+        const [helpResponse, categoryResponse] = await Promise.all([
+          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
+          fetch(`/api/get-category-ranking?analystId=${user.id}`)
         ]);
+
+        if (!helpResponse.ok || !categoryResponse.ok) {
+          throw new Error('Erro ao buscar dados do analista.');
+        }
 
         // Ajudas Solicitadas
         const helpData = await helpResponse.json();
@@ -52,11 +55,6 @@ export default function AnalystProfilePage({ user }) {
         // Ranking de Categorias
         const categoryData = await categoryResponse.json();
         setCategoryRanking(categoryData.categories || []);
-
-        // Desempenho do Usuário
-        const performanceData = await performanceResponse.json();
-        setPerformanceData(performanceData);
-
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
       } finally {
@@ -64,8 +62,10 @@ export default function AnalystProfilePage({ user }) {
       }
     };
 
-    fetchData();
-  }, [user.email]);
+    if (user?.id) {
+      fetchData();
+    }
+  }, [user.id]);
 
   if (!user) {
     return (
@@ -106,35 +106,6 @@ export default function AnalystProfilePage({ user }) {
             <div className={styles.profileInfo}>
               <h2>{user.name}</h2>
               <p>{user.email}</p>
-              <div className={styles.tagsContainer}>
-                {/* Tag para Squad */}
-                {performanceData?.squad && (
-                  <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
-                    #{performanceData.squad}
-                  </div>
-                )}
-
-                {/* Tag para Chamado */}
-                {performanceData?.chamado && (
-                  <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
-                    #Chamado
-                  </div>
-                )}
-
-                {/* Tag para Telefone */}
-                {performanceData?.telefone && (
-                  <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
-                    #Telefone
-                  </div>
-                )}
-
-                {/* Tag para Chat */}
-                {performanceData?.chat && (
-                  <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
-                    #Chat
-                  </div>
-                )}
-              </div>
             </div>
           </div>
           <div className={styles.profileContainer}>
@@ -144,7 +115,7 @@ export default function AnalystProfilePage({ user }) {
               </div>
             ) : (
               <div className={styles.profileInfo}>
-                <h2>Ajudas Solicitadas</h2>
+                <h2>Ajudas prestadas</h2>
                 <div className={styles.helpRequestsInfo}>
                   <div className={styles.monthsInfo}>
                     <p><strong>Mês Atual:</strong> {currentMonth}</p>
@@ -158,78 +129,6 @@ export default function AnalystProfilePage({ user }) {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Container para Indicadores de Desempenho */}
-        <div className={styles.performanceWrapper}>
-          {performanceData?.chamados && (
-            <div className={styles.performanceContainer}>
-              <h2>Indicadores Chamados</h2>
-              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-              <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Chamados:</span>
-                  <span>{performanceData.chamados.totalChamados}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
-                  <span>Média/Dia:</span>
-                  <span>{performanceData.chamados.mediaPorDia}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
-                  <span>TMA:</span>
-                  <span>{performanceData.chamados.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
-                  <span>CSAT:</span>
-                  <span>{performanceData.chamados.csat}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          {performanceData?.telefone && (
-            <div className={styles.performanceContainer}>
-              <h2>Indicadores Telefone</h2>
-              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-              <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Telefone:</span>
-                  <span>{performanceData.telefone.totalTelefone}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
-                  <span>TMA:</span>
-                  <span>{performanceData.telefone.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
-                  <span>CSAT:</span>
-                  <span>{performanceData.telefone.csat}</span>
-                </div>
-                <div className={styles.performanceItem}>
-                  <span>Perdidas:</span>
-                  <span>{performanceData.telefone.perdidas}</span>
-                </div>
-              </div>
-            </div>
-          )}
-          {performanceData?.chat && (
-            <div className={styles.performanceContainer}>
-              <h2>Indicadores Chat</h2>
-              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-              <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Chats:</span>
-                  <span>{performanceData.chat.totalChats}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
-                  <span>TMA:</span>
-                  <span>{performanceData.chat.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
-                  <span>CSAT:</span>
-                  <span>{performanceData.chat.csat}</span>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Container para Ranking de Categorias */}
@@ -249,20 +148,20 @@ export default function AnalystProfilePage({ user }) {
                     className={styles.progressBarCategory}
                     style={{
                       width: `${category.count * 10}px`,
-                      backgroundColor: category.count > 10 ? 'orange' : '',
+                      backgroundColor: category.count > 20 ? 'orange' : '',
                     }}
                   />
                   <span className={styles.count}>
                     {category.count} pedidos de ajuda
-                    {category.count > 10 && (
+                    {category.count > 20 && (
                       <div className="tooltip">
                         <i
                           className="fa-solid fa-circle-exclamation"
                           style={{ color: 'orange', cursor: 'pointer' }}
-                          onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
+                          onClick={() => window.open('https://olisterp.wixsite.com/knowledge/inicio', '_blank')}
                         ></i>
                         <span className="tooltipText">
-                          Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone abaixo.
+                          Você já ajudou neste tema mais de 20 vezes. Que tal criar um material sobre, e publicar em nosso knowledge?
                         </span>
                       </div>
                     )}
@@ -277,6 +176,7 @@ export default function AnalystProfilePage({ user }) {
           )}
         </div>
       </main>
+
       <Footer />
     </>
   );
