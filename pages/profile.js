@@ -1,21 +1,21 @@
+// pages/profile.js
 import Head from 'next/head';
-import { getSession, signOut } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import commonStyles from '../styles/commonStyles.module.css';
+import Navbar from '../components/Navbar';
 import styles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
-import { FaSignOutAlt } from 'react-icons/fa';
 
 export default function MyPage({ user }) {
   const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Definir saudação com base na hora do dia
   useEffect(() => {
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentHour = new Date(brtDate).getHours();
@@ -32,6 +32,7 @@ export default function MyPage({ user }) {
     setGreeting(greetingMessage);
   }, []);
 
+  // Buscar dados do usuário
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -41,15 +42,18 @@ export default function MyPage({ user }) {
           user.role === 'support' ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
         ]);
 
+        // Ajudas Solicitadas
         const helpData = await helpResponse.json();
         setHelpRequests({
           currentMonth: helpData.currentMonth,
           lastMonth: helpData.lastMonth,
         });
 
+        // Ranking de Categorias
         const categoryData = await categoryResponse.json();
         setCategoryRanking(categoryData.categories || []);
 
+        // Desempenho do Usuário (apenas para suporte)
         if (user.role === 'support') {
           const performanceData = await performanceResponse.json();
           setPerformanceData(performanceData);
@@ -63,10 +67,6 @@ export default function MyPage({ user }) {
 
     fetchData();
   }, [user.email, user.role]);
-
-  const handleNavigation = (path) => {
-    router.push(path);
-  };
 
   if (!user) {
     return (
@@ -94,44 +94,8 @@ export default function MyPage({ user }) {
         <title>Meus Dados</title>
       </Head>
 
-      <div className={styles.container}>
-        <nav className={commonStyles.navbar}>
-          <div className={commonStyles.logo}>
-            <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
-          </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className={commonStyles.menuToggle}>
-            ☰
-          </button>
-        </nav>
-        {menuOpen && (
-          <div className={commonStyles.menu}>
-            <button onClick={() => handleNavigation('/profile')} className={commonStyles.menuButton}>
-              Meu Perfil
-            </button>
-            {user.role === 'analyst' && (
-              <>
-                <button onClick={() => handleNavigation('/registro')} className={commonStyles.menuButton}>
-                  Registrar Ajuda
-                </button>
-                <button onClick={() => handleNavigation('/dashboard-analyst')} className={commonStyles.menuButton}>
-                  Dashboard Analista
-                </button>
-                <a
-                  href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={commonStyles.menuButton}
-                >
-                  Database
-                </a>
-              </>
-            )}
-            <button onClick={() => signOut({ callbackUrl: '/' })} className={commonStyles.menuButton}>
-              <FaSignOutAlt className={styles.logoutIcon} style={{ marginRight: '8px' }} /> Logout
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Navbar reutilizável */}
+      <Navbar user={user} />
 
       <main className={styles.main}>
         <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
