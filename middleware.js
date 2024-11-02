@@ -8,12 +8,11 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-  // Adicionando o token ao request para que seja acessível nos handlers
-  req.user = {
-    id: token.id,
-    name: token.name,
-    role: token.role,
-  };
+  // Adicionando informações do token no cabeçalho
+  req.headers.set(
+    'x-user-info',
+    JSON.stringify({ id: token.id, name: token.name, role: token.role })
+  );
 
   // Ajustar os papéis permitidos
   const analystRoles = ['analyst', 'tax'];
