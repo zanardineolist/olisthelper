@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import Modal from 'react-modal';
 import styles from '../styles/ManageCategories.module.css';
-import generalStyles from '../styles/Manager.module.css';
+import generalStyles from '../styles/Manager.module.css'; // Importação do estilo geral
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
-export default function ManageCategories({ user }) {
+export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,13 +40,9 @@ export default function ManageCategories({ user }) {
     }
   };
 
-  const handleInputChange = (e) => {
-    setNewCategory(e.target.value);
-  };
-
   const handleEditCategory = (category) => {
     setNewCategory(category.name);
-    setCurrentCategoryId(category.index); // Corrigido para usar o 'index'
+    setCurrentCategoryId(category.id);
     setIsEditing(true);
     setModalIsOpen(true);
   };
@@ -104,7 +100,7 @@ export default function ManageCategories({ user }) {
       const method = isEditing ? 'PUT' : 'POST';
       const body = { name: newCategory };
       if (isEditing) {
-        body.index = currentCategoryId; // Incluindo o 'index' corretamente
+        body.id = currentCategoryId;
       }
       const res = await fetch('/api/manage-category', {
         method,
@@ -155,7 +151,7 @@ export default function ManageCategories({ user }) {
   };
 
   return (
-    <div className={generalStyles.main}>
+    <div className={`${generalStyles.main}`}>
       {/* Modal para adicionar/editar categoria */}
       <Modal
         isOpen={modalIsOpen}
@@ -172,7 +168,7 @@ export default function ManageCategories({ user }) {
             value={newCategory}
             placeholder="Nome da Categoria"
             className={generalStyles.inputField}
-            onChange={handleInputChange}
+            onChange={(e) => setNewCategory(e.target.value)}
             required
           />
           <button onClick={handleSaveCategory} disabled={loading} className={generalStyles.saveButton}>
@@ -189,7 +185,7 @@ export default function ManageCategories({ user }) {
         <div className={generalStyles.cardHeader}>
           <h2 className={generalStyles.cardTitle}>Lista de Categorias</h2>
           <button onClick={handleOpenModal} className={generalStyles.addButton}>
-            <FontAwesomeIcon icon={faPlus} /> Adicionar Nova Categoria
+            <FontAwesomeIcon icon={faPlus} /> Add Categoria
           </button>
         </div>
         <div className={styles.itemsTable}>
@@ -202,13 +198,13 @@ export default function ManageCategories({ user }) {
             </thead>
             <tbody>
               {categories.map((category) => (
-                <tr key={category.index}>
+                <tr key={category.id}>
                   <td>{category.name}</td>
                   <td className={generalStyles.actionButtons}>
                     <button onClick={() => handleEditCategory(category)} className={generalStyles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
-                    <button onClick={() => handleDeleteCategory(category.index)} className={generalStyles.actionButtonIcon}>
+                    <button onClick={() => handleDeleteCategory(category.id)} className={generalStyles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </td>
