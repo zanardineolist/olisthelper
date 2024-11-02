@@ -69,6 +69,7 @@ export async function getServerSideProps(context) {
         ...session.user,
         role: session.role,
         id: session.id,
+        name: session.user.name,
       },
     },
   };

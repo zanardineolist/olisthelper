@@ -2,23 +2,38 @@ import { getSheetValues, updateSheetRow, deleteSheetRow } from '../../utils/goog
 
 export default async function handler(req, res) {
   const { method } = req;
-  const { userId, index } = req.query;
+  const { userId, name } = req.query;
 
-  if (!userId) {
-    return res.status(400).json({ error: 'User ID não fornecido.' });
+  if (!userId || !name) {
+    return res.status(400).json({ error: 'User ID ou nome não fornecido.' });
   }
 
-  const sheetName = `#${userId} - ${req.query.name}`;
+  const sheetName = `#${userId} - ${name}`;
 
   try {
     switch (method) {
       case 'GET':
         const records = await getSheetValues(sheetName, 'A:F');
-        return res.status(200).json({ records });
+        if (records && records.length > 1) {
+          const formattedRecords = records.slice(1).map((row, index) => ({
+            index,
+            date: row[0],
+            time: row[1],
+            name: row[2],
+            email: row[3],
+            category: row[4],
+            description: row[5],
+          }));
+          return res.status(200).json({ records: formattedRecords });
+        }
+        return res.status(404).json({ error: 'Nenhum registro encontrado.' });
 
       case 'PUT':
         const { record } = req.body;
-        await updateSheetRow(sheetName, index, [
+        if (!record) {
+          return res.status(400).json({ error: 'Dados do registro não fornecidos.' });
+        }
+        await updateSheetRow(sheetName, index + 2, [
           record.date,
           record.time,
           record.name,
@@ -29,7 +44,10 @@ export default async function handler(req, res) {
         return res.status(200).json({ message: 'Registro atualizado com sucesso.' });
 
       case 'DELETE':
-        await deleteSheetRow(sheetName, parseInt(index, 10) + 1);
+        if (!index) {
+          return res.status(400).json({ error: 'Índice do registro não fornecido.' });
+        }
+        await deleteSheetRow(sheetName, parseInt(index, 10) + 2);
         return res.status(200).json({ message: 'Registro excluído com sucesso.' });
 
       default:
