@@ -14,15 +14,12 @@ export default async function handler(req, res) {
   try {
     // Obtém os metadados de todas as abas disponíveis na planilha
     const sheetsMetaData = await getSheetMetaData();
-
-    // Verifica se o retorno contém abas
     if (!Array.isArray(sheetsMetaData) || sheetsMetaData.length === 0) {
       return res.status(500).json({ error: 'Nenhuma aba encontrada nos metadados da planilha.' });
     }
 
     // Busca a aba cujo título começa com o padrão definido
     const matchingSheet = sheetsMetaData.find(sheet => sheet.properties.title.startsWith(sheetNamePattern));
-
     if (!matchingSheet) {
       return res.status(404).json({ error: `Aba correspondente ao padrão "${sheetNamePattern}" não encontrada.` });
     }
@@ -31,43 +28,58 @@ export default async function handler(req, res) {
 
     switch (method) {
       case 'GET':
-        const records = await getSheetValues(sheetName, 'A:F');
-        if (records && records.length > 1) {
-          const formattedRecords = records.slice(1).map((row, index) => ({
-            index,
-            date: row[0],
-            time: row[1],
-            name: row[2],
-            email: row[3],
-            category: row[4],
-            description: row[5],
-          }));
-          return res.status(200).json({ records: formattedRecords });
+        try {
+          const records = await getSheetValues(sheetName, 'A:F');
+          if (records && records.length > 1) {
+            const formattedRecords = records.slice(1).map((row, index) => ({
+              index,
+              date: row[0],
+              time: row[1],
+              name: row[2],
+              email: row[3],
+              category: row[4],
+              description: row[5],
+            }));
+            return res.status(200).json({ records: formattedRecords });
+          }
+          return res.status(404).json({ error: 'Nenhum registro encontrado.' });
+        } catch (error) {
+          console.error('Erro ao buscar registros:', error);
+          return res.status(500).json({ error: 'Erro ao buscar registros.' });
         }
-        return res.status(404).json({ error: 'Nenhum registro encontrado.' });
 
       case 'PUT':
-        const { record } = req.body;
-        if (!record) {
-          return res.status(400).json({ error: 'Dados do registro não fornecidos.' });
+        try {
+          const { record } = req.body;
+          if (!record) {
+            return res.status(400).json({ error: 'Dados do registro não fornecidos.' });
+          }
+          await updateSheetRow(sheetName, parseInt(req.query.index, 10) + 2, [
+            record.date,
+            record.time,
+            record.name,
+            record.email,
+            record.category,
+            record.description,
+          ]);
+          return res.status(200).json({ message: 'Registro atualizado com sucesso.' });
+        } catch (error) {
+          console.error('Erro ao atualizar registro:', error);
+          return res.status(500).json({ error: 'Erro ao atualizar registro.' });
         }
-        await updateSheetRow(sheetName, parseInt(req.query.index, 10) + 2, [
-          record.date,
-          record.time,
-          record.name,
-          record.email,
-          record.category,
-          record.description,
-        ]);
-        return res.status(200).json({ message: 'Registro atualizado com sucesso.' });
 
       case 'DELETE':
-        const index = req.query.index;
-        if (!index) {
-          return res.status(400).json({ error: 'Índice do registro não fornecido.' });
+        try {
+          const index = req.query.index;
+          if (!index) {
+            return res.status(400).json({ error: 'Índice do registro não fornecido.' });
+          }
+          await deleteSheetRow(sheetName, parseInt(index, 10) + 2);
+          return res.status(200).json({ message: 'Registro excluído com sucesso.' });
+        } catch (error) {
+          console.error('Erro ao excluir registro:', error);
+          return res.status(500).json({ error: 'Erro ao excluir registro.' });
         }
-        await deleteSheetRow(sheetName, parseInt(index, 10) + 2);
-        return res.status(200).json({ message: 'Registro excluído com sucesso.' });
 
       default:
         res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);

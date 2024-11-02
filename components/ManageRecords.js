@@ -33,12 +33,15 @@ export default function ManageRecords({ user }) {
     try {
       setLoading(true);
       const res = await fetch(`/api/manage-records?userId=${user.id}`);
-      if (!res.ok) throw new Error('Erro ao carregar registros');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao carregar registros');
+      }
       const data = await res.json();
       setRecords(data.records);
     } catch (err) {
       console.error('Erro ao carregar registros:', err);
-      Swal.fire('Erro', 'Erro ao carregar registros.', 'error');
+      Swal.fire('Erro', err.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -47,22 +50,30 @@ export default function ManageRecords({ user }) {
   const loadCategories = async () => {
     try {
       const res = await fetch('/api/manage-category');
-      if (!res.ok) throw new Error('Erro ao carregar categorias');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao carregar categorias');
+      }
       const data = await res.json();
       setCategories(data.categories.map(cat => ({ value: cat.name, label: cat.name })));
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
+      Swal.fire('Erro', err.message, 'error');
     }
   };
 
   const loadUsers = async () => {
     try {
       const res = await fetch('/api/get-users');
-      if (!res.ok) throw new Error('Erro ao carregar usuários');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao carregar usuários');
+      }
       const data = await res.json();
       setUsers(data.users);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
+      Swal.fire('Erro', err.message, 'error');
     }
   };
 
@@ -92,14 +103,16 @@ export default function ManageRecords({ user }) {
       const res = await fetch(`/api/manage-records?userId=${user.id}&index=${index}`, {
         method: 'DELETE',
       });
-      if (!res.ok) throw new Error('Erro ao deletar registro');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao deletar registro');
+      }
 
       await loadRecords();
-
       Swal.fire('Excluído!', 'O registro foi excluído com sucesso.', 'success');
     } catch (err) {
       console.error('Erro ao deletar registro:', err);
-      Swal.fire('Erro', 'Erro ao deletar registro.', 'error');
+      Swal.fire('Erro', err.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -115,18 +128,19 @@ export default function ManageRecords({ user }) {
         },
         body: JSON.stringify({ userId: user.id, index: editingRecordIndex, record: editedRecord }),
       });
-      if (!res.ok) throw new Error('Erro ao salvar registro');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao salvar registro');
+      }
 
       await loadRecords();
-
       setEditedRecord({ date: '', time: '', name: '', email: '', category: '', description: '' });
       setIsEditing(false);
       setModalIsOpen(false);
-
       Swal.fire('Sucesso!', 'Registro atualizado com sucesso.', 'success');
     } catch (err) {
       console.error('Erro ao salvar registro:', err);
-      Swal.fire('Erro', 'Erro ao salvar registro.', 'error');
+      Swal.fire('Erro', err.message, 'error');
     } finally {
       setLoading(false);
     }
@@ -155,7 +169,6 @@ export default function ManageRecords({ user }) {
 
   return (
     <div className={styles.main}>
-
       {/* Card de Lista de Registros */}
       <div className={styles.cardContainer}>
         <div className={styles.cardHeader}>
