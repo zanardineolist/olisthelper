@@ -41,7 +41,14 @@ export default function ManageRecords({ user }) {
       setRecords(data.records);
     } catch (err) {
       console.error('Erro ao carregar registros:', err);
-      Swal.fire('Erro', err.message, 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: err.message,
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -58,7 +65,14 @@ export default function ManageRecords({ user }) {
       setCategories(data.categories.map(cat => ({ value: cat.name, label: cat.name })));
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
-      Swal.fire('Erro', err.message, 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: err.message,
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     }
   };
 
@@ -73,7 +87,14 @@ export default function ManageRecords({ user }) {
       setUsers(data.users);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
-      Swal.fire('Erro', err.message, 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: err.message,
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     }
   };
 
@@ -92,6 +113,7 @@ export default function ManageRecords({ user }) {
       showCancelButton: true,
       confirmButtonText: 'Sim, excluir!',
       cancelButtonText: 'Cancelar',
+      allowOutsideClick: true,
     });
 
     if (!isConfirmed.isConfirmed) {
@@ -109,10 +131,24 @@ export default function ManageRecords({ user }) {
       }
 
       await loadRecords();
-      Swal.fire('Excluído!', 'O registro foi excluído com sucesso.', 'success');
+      Swal.fire({
+        icon: 'success',
+        title: 'Excluído!',
+        text: 'O registro foi excluído com sucesso.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } catch (err) {
       console.error('Erro ao deletar registro:', err);
-      Swal.fire('Erro', err.message, 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: err.message,
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -137,10 +173,24 @@ export default function ManageRecords({ user }) {
       setEditedRecord({ date: '', time: '', name: '', email: '', category: '', description: '' });
       setIsEditing(false);
       setModalIsOpen(false);
-      Swal.fire('Sucesso!', 'Registro atualizado com sucesso.', 'success');
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: 'Registro atualizado com sucesso.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } catch (err) {
       console.error('Erro ao salvar registro:', err);
-      Swal.fire('Erro', err.message, 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: err.message,
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -238,7 +288,6 @@ export default function ManageRecords({ user }) {
 
   return (
     <div className={styles.main}>
-      {/* Card de Lista de Registros */}
       <div className={styles.cardContainer}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Lista de Registros</h2>
@@ -280,7 +329,6 @@ export default function ManageRecords({ user }) {
         </div>
       </div>
 
-      {/* Modal para editar registro */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={handleCloseModal}

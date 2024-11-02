@@ -17,25 +17,29 @@ export default function ManageCategories() {
     loadCategories();
   }, []);
 
-  // Carrega as categorias da aba "Categorias" e ordena por nome
   const loadCategories = async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/manage-category');
       if (!res.ok) throw new Error('Erro ao carregar categorias');
       const data = await res.json();
-      // Ordena as categorias em ordem alfabética antes de definir o estado
       const sortedCategories = data.categories.sort((a, b) => a.name.localeCompare(b.name));
       setCategories(sortedCategories);
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
-      Swal.fire('Erro', 'Erro ao carregar categorias.', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Erro ao carregar categorias.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Atualiza o estado ao editar campos
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewCategory((prev) => ({
@@ -44,7 +48,6 @@ export default function ManageCategories() {
     }));
   };
 
-  // Edita uma categoria
   const handleEditCategory = (category) => {
     setNewCategory({ name: category.name });
     setIsEditing(true);
@@ -52,7 +55,6 @@ export default function ManageCategories() {
     setModalIsOpen(true);
   };
 
-  // Exclui uma categoria
   const handleDeleteCategory = async (categoryIndex) => {
     const isConfirmed = await Swal.fire({
       title: 'Tem certeza?',
@@ -61,6 +63,7 @@ export default function ManageCategories() {
       showCancelButton: true,
       confirmButtonText: 'Sim, excluir!',
       cancelButtonText: 'Cancelar',
+      allowOutsideClick: true,
     });
 
     if (!isConfirmed.isConfirmed) {
@@ -76,16 +79,29 @@ export default function ManageCategories() {
 
       await loadCategories();
 
-      Swal.fire('Excluído!', 'A categoria foi excluída com sucesso.', 'success');
+      Swal.fire({
+        icon: 'success',
+        title: 'Excluído!',
+        text: 'A categoria foi excluída com sucesso.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } catch (err) {
       console.error('Erro ao deletar categoria:', err);
-      Swal.fire('Erro', 'Erro ao deletar categoria.', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Erro ao deletar categoria.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Salva uma nova categoria ou edita uma existente
   const handleSaveCategory = async () => {
     try {
       setLoading(true);
@@ -106,16 +122,29 @@ export default function ManageCategories() {
       setEditingCategoryIndex(null);
       setModalIsOpen(false);
 
-      Swal.fire('Sucesso!', isEditing ? 'Categoria atualizada com sucesso.' : 'Categoria adicionada com sucesso.', 'success');
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: isEditing ? 'Categoria atualizada com sucesso.' : 'Categoria adicionada com sucesso.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } catch (err) {
       console.error('Erro ao salvar categoria:', err);
-      Swal.fire('Erro', 'Erro ao salvar categoria.', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Erro ao salvar categoria.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Abre o modal para adicionar uma nova categoria
   const handleOpenModal = () => {
     setNewCategory({ name: '' });
     setIsEditing(false);
@@ -123,15 +152,12 @@ export default function ManageCategories() {
     setModalIsOpen(true);
   };
 
-  // Fecha o modal
   const handleCloseModal = () => {
     setModalIsOpen(false);
   };
 
   return (
     <div className={styles.main}>
-
-      {/* Modal para adicionar/editar categoria */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={handleCloseModal}
@@ -160,7 +186,6 @@ export default function ManageCategories() {
         </div>
       </Modal>
 
-      {/* Tabela de categorias */}
       <div className={styles.cardContainer}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Lista de Categorias</h2>

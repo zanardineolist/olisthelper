@@ -43,7 +43,14 @@ export default function ManageUsers({ user }) {
       setUsers(data.users);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
-      Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Erro ao carregar usuários.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -75,6 +82,7 @@ export default function ManageUsers({ user }) {
       showCancelButton: true,
       confirmButtonText: 'Sim, excluir!',
       cancelButtonText: 'Cancelar',
+      allowOutsideClick: true,
     });
 
     if (!isConfirmed.isConfirmed) {
@@ -90,10 +98,24 @@ export default function ManageUsers({ user }) {
 
       await loadUsers();
 
-      Swal.fire('Excluído!', 'O usuário foi excluído com sucesso.', 'success');
+      Swal.fire({
+        icon: 'success',
+        title: 'Excluído!',
+        text: 'O usuário foi excluído com sucesso.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } catch (err) {
       console.error('Erro ao deletar usuário:', err);
-      Swal.fire('Erro', 'Erro ao deletar usuário.', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Erro ao deletar usuário.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -118,10 +140,24 @@ export default function ManageUsers({ user }) {
       setIsEditing(false);
       setModalIsOpen(false);
 
-      Swal.fire('Sucesso!', isEditing ? 'Usuário atualizado com sucesso.' : 'Usuário adicionado com sucesso.', 'success');
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: isEditing ? 'Usuário atualizado com sucesso.' : 'Usuário adicionado com sucesso.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } catch (err) {
       console.error('Erro ao salvar usuário:', err);
-      Swal.fire('Erro', 'Erro ao salvar usuário.', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Erro ao salvar usuário.',
+        timer: 2000,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+      });
     } finally {
       setLoading(false);
     }
