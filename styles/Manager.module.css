@@ -167,45 +167,26 @@
   table-layout: fixed;
 }
 
-/* ================== Botões de Ação na Tabela ================== */
-.editButton {
-  background-color: #779E3D;
-  color: #fff;
+/* ================== Botões de Ação com Ícones ================== */
+.actionButtonIcon {
+  background: none;
   border: none;
-  padding: 5px 10px;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 3px;
-  transition: background-color 0.3s ease;
-  margin-right: 5px;
-  display: inline-flex;
-  align-items: center;
-}
-
-.editButton:hover {
-  background-color: #688c34;
-}
-
-.deleteButton {
-  background-color: #d32f2f;
   color: #fff;
-  border: none;
-  padding: 5px 10px;
-  font-size: 14px;
   cursor: pointer;
-  border-radius: 3px;
-  transition: background-color 0.3s ease;
-  display: inline-flex;
-  align-items: center;
+  font-size: 18px;
+  padding: 8px;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.deleteButton:hover {
-  background-color: #c62828;
+.actionButtonIcon:hover {
+  color: #f57c00;
+  transform: scale(1.1);
 }
 
 .actionButtons {
   display: flex;
   gap: 10px;
+  justify-content: center;
 }
 
 /* ================== Ajuste para Modal ================== */

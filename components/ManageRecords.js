@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 import Modal from 'react-modal';
 import styles from '../styles/Manager.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Select from 'react-select';
 
 export default function ManageRecords({ user }) {
@@ -185,11 +185,11 @@ export default function ManageRecords({ user }) {
                   <td>{record.category}</td>
                   <td>{record.description}</td>
                   <td className={styles.actionButtons}>
-                    <button onClick={() => handleEditRecord(record, index)} className={styles.editButton}>
-                      <FontAwesomeIcon icon={faPencilAlt} /> Editar
+                    <button onClick={() => handleEditRecord(record, index)} className={styles.actionButtonIcon}>
+                      <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
-                    <button onClick={() => handleDeleteRecord(index)} className={styles.deleteButton}>
-                      <FontAwesomeIcon icon={faTrash} /> Excluir
+                    <button onClick={() => handleDeleteRecord(index)} className={styles.actionButtonIcon}>
+                      <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </td>
                 </tr>

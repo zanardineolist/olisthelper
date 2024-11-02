@@ -66,19 +66,9 @@ export default function Navbar({ user }) {
             </button>
           )}
           {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
-            <>
             <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
-              Gerenciar Usuários
+              Gerenciador
             </button>
-            <a
-                href="https://docs.google.com/spreadsheets/d/1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34/edit?usp=sharing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.menuButton}
-              >
-                Database
-              </a>
-            </>
           )}
           <button onClick={() => signOut({ callbackUrl: '/' })} className={`${styles.menuButton} ${styles.logoutButton}`}>
             <FaSignOutAlt style={{ marginRight: '8px', fontSize: '20px' }} /> Logout

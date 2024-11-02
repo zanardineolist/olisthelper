@@ -4,7 +4,7 @@ import Select from 'react-select';
 import Modal from 'react-modal';
 import styles from '../styles/Manager.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export default function ManageUsers({ user }) {
   const [users, setUsers] = useState([]);
@@ -270,11 +270,11 @@ export default function ManageUsers({ user }) {
                   <td>{user.name}</td>
                   <td>{user.email}</td>
                   <td className={styles.actionButtons}>
-                    <button onClick={() => handleEditUser(user)} className={styles.editButton}>
-                      <FontAwesomeIcon icon={faPencilAlt} /> Editar
+                    <button onClick={() => handleEditUser(user)} className={styles.actionButtonIcon}>
+                      <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
-                    <button onClick={() => handleDeleteUser(user.id)} className={styles.deleteButton}>
-                      <FontAwesomeIcon icon={faTrash} /> Excluir
+                    <button onClick={() => handleDeleteUser(user.id)} className={styles.actionButtonIcon}>
+                      <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </td>
                 </tr>
