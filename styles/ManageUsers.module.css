@@ -39,12 +39,12 @@
   /* Largura específica das colunas */
   .itemsTable th:nth-child(1),
   .itemsTable td:nth-child(1) {
-    width: 25%; /* Nome */
+    width: 30%; /* Nome */
   }
   
   .itemsTable th:nth-child(2),
   .itemsTable td:nth-child(2) {
-    width: 40%; /* E-mail */
+    width: 25%; /* E-mail */
   }
   
   .itemsTable th:nth-child(3),
