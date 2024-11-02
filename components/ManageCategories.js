@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import Modal from 'react-modal';
-import styles from '../styles/ManageItems.module.css';
+import styles from '../styles/Manager.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
