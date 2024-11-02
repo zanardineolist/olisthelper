@@ -8,9 +8,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'User ID não fornecido ou inválido.' });
   }
 
-  // Define o padrão para buscar a aba com base no ID do usuário
-  const sheetNamePattern = `#${userId} -`;
-
   try {
     // Obtém os metadados de todas as abas disponíveis na planilha
     const sheetsMetaData = await getSheetMetaData();
@@ -18,10 +15,14 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Nenhuma aba encontrada nos metadados da planilha.' });
     }
 
-    // Busca a aba cujo título começa com o padrão definido
-    const matchingSheet = sheetsMetaData.find(sheet => sheet.properties.title.startsWith(sheetNamePattern));
+    // Busca a aba correspondente ao ID do usuário, usando uma correspondência exata
+    const matchingSheet = sheetsMetaData.find(sheet => {
+      const sheetTitle = sheet.properties.title.trim();
+      return sheetTitle.includes(userId); // Alinhando a lógica para identificar a aba com base no ID do usuário
+    });
+
     if (!matchingSheet) {
-      return res.status(404).json({ error: `Aba correspondente ao padrão "${sheetNamePattern}" não encontrada.` });
+      return res.status(404).json({ error: `Aba correspondente ao ID "${userId}" não encontrada.` });
     }
 
     const sheetName = matchingSheet.properties.title;
