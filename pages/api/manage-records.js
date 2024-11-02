@@ -14,13 +14,20 @@ export default async function handler(req, res) {
   try {
     // Obtém os metadados de todas as abas disponíveis na planilha
     const sheetsMetaData = await getSheetMetaData();
-    const matchingSheet = sheetsMetaData.find(sheet => sheet.title.startsWith(sheetNamePattern));
+    
+    // Verifica se o retorno é um array e se contém abas
+    if (!sheetsMetaData?.sheets || !Array.isArray(sheetsMetaData.sheets)) {
+      throw new Error('Metadados da planilha não retornaram um formato válido.');
+    }
+
+    // Busca a aba cujo título começa com o padrão definido
+    const matchingSheet = sheetsMetaData.sheets.find(sheet => sheet.properties.title.startsWith(sheetNamePattern));
 
     if (!matchingSheet) {
       return res.status(404).json({ error: 'Aba correspondente não encontrada.' });
     }
 
-    const sheetName = matchingSheet.title;
+    const sheetName = matchingSheet.properties.title;
 
     switch (method) {
       case 'GET':
