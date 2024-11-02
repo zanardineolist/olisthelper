@@ -121,12 +121,12 @@ export default function ManageRecords({ user }) {
   const handleSaveRecord = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/manage-records', {
+      const res = await fetch(`/api/manage-records?userId=${user.id}&index=${editingRecordIndex}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId: user.id, index: editingRecordIndex, record: editedRecord }),
+        body: JSON.stringify({ record: editedRecord }),
       });
       if (!res.ok) {
         const errorData = await res.json();
