@@ -155,7 +155,6 @@ export default function ManageRecords({ user }) {
 
   return (
     <div className={styles.main}>
-      <h1>Gerenciamento de Registros</h1>
 
       {/* Card de Lista de Registros */}
       <div className={styles.cardContainer}>

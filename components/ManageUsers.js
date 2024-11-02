@@ -139,7 +139,6 @@ export default function ManageUsers({ user }) {
 
   return (
     <div className={styles.main}>
-      <h1>Gerenciamento de Usuários</h1>
 
       {/* Modal para adicionar/editar usuário */}
       <Modal

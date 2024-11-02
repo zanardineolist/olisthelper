@@ -130,7 +130,6 @@ export default function ManageCategories() {
 
   return (
     <div className={styles.main}>
-      <h1>Gerenciamento de Categorias</h1>
 
       {/* Modal para adicionar/editar categoria */}
       <Modal
