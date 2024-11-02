@@ -175,12 +175,11 @@
   cursor: pointer;
   font-size: 18px;
   padding: 8px;
-  transition: color 0.3s ease, transform 0.3s ease;
+  transition: color 0.3s ease;
 }
 
 .actionButtonIcon:hover {
   color: #f57c00;
-  transform: scale(1.1);
 }
 
 .actionButtons {
