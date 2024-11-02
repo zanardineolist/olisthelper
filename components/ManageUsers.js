@@ -252,7 +252,7 @@ export default function ManageUsers({ user }) {
             <FontAwesomeIcon icon={faPlus} /> Adicionar Novo Usuário
           </button>
         </div>
-        <div className={styles.usersTable}>
+        <div className={styles.itemsTable}>
           <table>
             <thead>
               <tr>
