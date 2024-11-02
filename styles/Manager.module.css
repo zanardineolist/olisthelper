@@ -247,25 +247,25 @@
 
 /* ================== Botões de Tabulação ================== */
 .MuiTabs-root {
-  background-color: #333;
+  background-color: #333; /* Fundo das abas */
   border-radius: 5px;
   margin-bottom: 20px;
 }
 
 .MuiTab-root {
-  color: #fff;
+  color: #8b8b8b; /* Cor dos labels das abas inativas */
   font-size: 16px;
   text-transform: none;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .MuiTab-root.Mui-selected {
-  color: #F0A028;
-  background-color: #444;
+  color: #F0A028; /* Cor dos labels das abas ativas */
+  background-color: #444; /* Fundo da aba ativa */
 }
 
 .MuiTabs-indicator {
-  background-color: #F0A028;
+  background-color: #F0A028; /* Cor do indicador da aba ativa */
   height: 4px;
   border-radius: 5px;
 }

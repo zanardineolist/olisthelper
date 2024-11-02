@@ -25,20 +25,18 @@ export default function ManagerPage({ user }) {
       <Navbar user={user} />
 
       <main className={styles.main}>
-        <Tabs
-          value={currentTab}
-          onChange={handleTabChange}
-          indicatorColor="secondary"
-          textColor="inherit"
-          centered
-          className={styles.tabs}
-        >
-          <Tab label="Gerenciar Usuários" className={currentTab === 0 ? styles.activeTab : ''} />
-          <Tab label="Gerenciar Categorias" className={currentTab === 1 ? styles.activeTab : ''} />
-          {(user.role === 'analyst' || user.role === 'tax') && (
-            <Tab label="Gerenciar Registros" className={currentTab === 2 ? styles.activeTab : ''} />
-          )}
-        </Tabs>
+      <Tabs
+        value={currentTab}
+        onChange={handleTabChange}
+        centered
+        className={styles.tabs}
+      >
+        <Tab label="Gerenciar Usuários" className={currentTab === 0 ? styles.activeTab : ''} />
+        <Tab label="Gerenciar Categorias" className={currentTab === 1 ? styles.activeTab : ''} />
+        {(user.role === 'analyst' || user.role === 'tax') && (
+          <Tab label="Gerenciar Registros" className={currentTab === 2 ? styles.activeTab : ''} />
+        )}
+      </Tabs>
 
         <div className={styles.tabContent}>
           {currentTab === 0 && <ManageUsers user={user} />}
