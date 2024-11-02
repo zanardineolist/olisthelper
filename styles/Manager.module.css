@@ -185,7 +185,7 @@
   background-color: #333; /* Fundo das abas */
   border-radius: 5px;
   margin-bottom: 20px;
-  margin-top: 50px;
+  margin-top: 50px !important;
 }
 
 .MuiTab-root {
