@@ -154,7 +154,7 @@ export default function ManageRecords({ user }) {
   };
 
   return (
-    <div className={styles.main}>
+    <div className={styles.recordsTableContainer}>
       <h1>Gerenciamento de Registros</h1>
 
       {/* Modal para editar registro */}
@@ -228,45 +228,40 @@ export default function ManageRecords({ user }) {
       </Modal>
 
       {/* Tabela de registros */}
-      <div className={styles.cardContainer}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>Lista de Registros</h2>
-        </div>
-          <div className={styles.itemsTable}>
-          <table>
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Hora</th>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Categoria</th>
-                <th>Descrição</th>
-                <th>Ações</th>
+      <div className={styles.itemsTable}>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Hora</th>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Categoria</th>
+              <th>Descrição</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {records.map((record, index) => (
+              <tr key={index}>
+                <td>{record.date}</td>
+                <td>{record.time}</td>
+                <td>{record.name}</td>
+                <td>{record.email}</td>
+                <td>{record.category}</td>
+                <td>{record.description}</td>
+                <td className={styles.actionButtons}>
+                  <button onClick={() => handleEditRecord(record, index)} className={styles.editButton}>
+                    <FontAwesomeIcon icon={faPencilAlt} /> Editar
+                  </button>
+                  <button onClick={() => handleDeleteRecord(index)} className={styles.deleteButton}>
+                    <FontAwesomeIcon icon={faTrash} /> Excluir
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {records.map((record, index) => (
-                <tr key={index}>
-                  <td>{record.date}</td>
-                  <td>{record.time}</td>
-                  <td>{record.name}</td>
-                  <td>{record.email}</td>
-                  <td>{record.category}</td>
-                  <td>{record.description}</td>
-                  <td className={styles.actionButtons}>
-                    <button onClick={() => handleEditRecord(record, index)} className={styles.editButton}>
-                      <FontAwesomeIcon icon={faPencilAlt} /> Editar
-                    </button>
-                    <button onClick={() => handleDeleteRecord(index)} className={styles.deleteButton}>
-                      <FontAwesomeIcon icon={faTrash} /> Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
