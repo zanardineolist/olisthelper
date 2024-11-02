@@ -26,7 +26,7 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-  if (req.nextUrl.pathname.startsWith('/manage-users') && !allowedRoles.includes(token.role)) {
+  if (req.nextUrl.pathname.startsWith('/manager') && !allowedRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
@@ -41,6 +41,6 @@ export const config = {
     '/dashboard-analyst',
     '/dashboard-super',
     '/profile-analyst',
-    '/manage-users'
+    '/manager'
   ],
 };

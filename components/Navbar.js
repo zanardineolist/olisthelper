@@ -67,7 +67,7 @@ export default function Navbar({ user }) {
           )}
           {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
             <>
-            <button onClick={() => handleNavigation('/manage-users')} className={styles.menuButton}>
+            <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
               Gerenciar Usuários
             </button>
             <a

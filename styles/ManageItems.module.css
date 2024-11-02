@@ -14,7 +14,7 @@
   text-align: center;
 }
 
-/* ================== Botão Adicionar Usuário ================== */
+/* ================== Botão Adicionar Item ================== */
 .addButton {
   background-color: #F0A028;
   color: #fff;
@@ -114,8 +114,8 @@
   background-color: #c62828;
 }
 
-/* ================== Tabela de Usuários ================== */
-.usersTable {
+/* ================== Tabela de Itens ================== */
+.itemsTable {
   width: 100%;
   max-width: 1200px;
   margin: 20px auto;
@@ -123,39 +123,39 @@
   overflow-x: auto;
 }
 
-.usersTable table {
+.itemsTable table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.usersTable thead {
+.itemsTable thead {
   background-color: #333;
 }
 
-.usersTable th,
-.usersTable td {
+.itemsTable th,
+.itemsTable td {
   padding: 15px;
   text-align: left;
   border-bottom: 1px solid #444;
 }
 
-.usersTable th {
+.itemsTable th {
   color: #F0A028;
 }
 
-.usersTable tbody tr:hover {
+.itemsTable tbody tr:hover {
   background-color: #444;
 }
 
 /* Scrollbar para Tabela */
-.usersTable tbody {
+.itemsTable tbody {
   display: block;
   max-height: 500px;
   overflow-y: auto;
 }
 
-.usersTable thead,
-.usersTable tbody tr {
+.itemsTable thead,
+.itemsTable tbody tr {
   display: table;
   width: 100%;
   table-layout: fixed;
