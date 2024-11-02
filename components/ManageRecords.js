@@ -232,7 +232,7 @@ export default function ManageRecords({ user }) {
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Lista de Registros</h2>
         </div>
-        <div className={styles.itemsTable}>
+          <div className={styles.itemsTable}>
           <table>
             <thead>
               <tr>
