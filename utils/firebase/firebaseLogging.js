@@ -4,9 +4,16 @@ import { db } from "./firebaseConfig";
 
 export async function logAction(userId, userName, userRole, action, target, previousData, updatedData) {
   try {
+    // Verificar se todos os dados necessários estão presentes
+    if (!userId || !userName || !userRole) {
+      console.error("Dados do usuário faltando ao tentar registrar log:", { userId, userName, userRole });
+      return;
+    }
+
     console.log("Tentando registrar log no Firestore com os seguintes dados:");
     console.log({ userId, userName, userRole, action, target, previousData, updatedData });
 
+    // Tentar registrar o log no Firestore
     const docRef = await addDoc(collection(db, "logs"), {
       userId,
       userName,
