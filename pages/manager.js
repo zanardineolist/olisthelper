@@ -63,13 +63,16 @@ export async function getServerSideProps(context) {
       },
     };
   }
+  
+  const name = session.user?.name ?? 'Unknown';
+
   return {
     props: {
       user: {
         ...session.user,
         role: session.role,
         id: session.id,
-        name: session.user.name,
+        name: name,
       },
     },
   };

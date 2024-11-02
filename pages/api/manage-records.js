@@ -4,8 +4,8 @@ export default async function handler(req, res) {
   const { method } = req;
   const { userId, name } = req.query;
 
-  if (!userId || !name) {
-    return res.status(400).json({ error: 'User ID ou nome não fornecido.' });
+  if (!userId || !name || name === 'undefined') {
+    return res.status(400).json({ error: 'User ID ou nome não fornecido ou inválido.' });
   }
 
   const sheetName = `#${userId} - ${name}`;
