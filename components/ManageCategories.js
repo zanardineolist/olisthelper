@@ -7,11 +7,11 @@ import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icon
 
 export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
-  const [newCategory, setNewCategory] = useState({ name: '' });
+  const [newCategory, setNewCategory] = useState('');
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [currentCategoryId, setCurrentCategoryId] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [editingCategoryIndex, setEditingCategoryIndex] = useState(null);
 
   useEffect(() => {
     loadCategories();
@@ -23,8 +23,7 @@ export default function ManageCategories() {
       const res = await fetch('/api/manage-category');
       if (!res.ok) throw new Error('Erro ao carregar categorias');
       const data = await res.json();
-      const sortedCategories = data.categories.sort((a, b) => a.name.localeCompare(b.name));
-      setCategories(sortedCategories);
+      setCategories(data.categories);
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
       Swal.fire({
@@ -40,22 +39,14 @@ export default function ManageCategories() {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewCategory((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const handleEditCategory = (category) => {
-    setNewCategory({ name: category.name });
+    setNewCategory(category.name);
+    setCurrentCategoryId(category.id);
     setIsEditing(true);
-    setEditingCategoryIndex(category.index);
     setModalIsOpen(true);
   };
 
-  const handleDeleteCategory = async (categoryIndex) => {
+  const handleDeleteCategory = async (categoryId) => {
     const isConfirmed = await Swal.fire({
       title: 'Tem certeza?',
       text: 'Deseja realmente excluir esta categoria? Esta ação não pode ser desfeita.',
@@ -72,7 +63,7 @@ export default function ManageCategories() {
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/manage-category?index=${categoryIndex}`, {
+      const res = await fetch(`/api/manage-category?id=${categoryId}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Erro ao deletar categoria');
@@ -106,20 +97,23 @@ export default function ManageCategories() {
     try {
       setLoading(true);
       const method = isEditing ? 'PUT' : 'POST';
+      const body = { name: newCategory };
+      if (isEditing) {
+        body.id = currentCategoryId;
+      }
       const res = await fetch('/api/manage-category', {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: newCategory.name, index: editingCategoryIndex }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
       await loadCategories();
 
-      setNewCategory({ name: '' });
+      setNewCategory('');
       setIsEditing(false);
-      setEditingCategoryIndex(null);
       setModalIsOpen(false);
 
       Swal.fire({
@@ -146,9 +140,8 @@ export default function ManageCategories() {
   };
 
   const handleOpenModal = () => {
-    setNewCategory({ name: '' });
+    setNewCategory('');
     setIsEditing(false);
-    setEditingCategoryIndex(null);
     setModalIsOpen(true);
   };
 
@@ -158,6 +151,7 @@ export default function ManageCategories() {
 
   return (
     <div className={styles.main}>
+      {/* Modal para adicionar/editar categoria */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={handleCloseModal}
@@ -170,11 +164,10 @@ export default function ManageCategories() {
         <div className={styles.formContainer}>
           <input
             type="text"
-            name="name"
-            value={newCategory.name}
+            value={newCategory}
             placeholder="Nome da Categoria"
             className={styles.inputField}
-            onChange={handleInputChange}
+            onChange={(e) => setNewCategory(e.target.value)}
             required
           />
           <button onClick={handleSaveCategory} disabled={loading} className={styles.saveButton}>
@@ -186,6 +179,7 @@ export default function ManageCategories() {
         </div>
       </Modal>
 
+      {/* Tabela de categorias */}
       <div className={styles.cardContainer}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Lista de Categorias</h2>
@@ -203,13 +197,13 @@ export default function ManageCategories() {
             </thead>
             <tbody>
               {categories.map((category) => (
-                <tr key={category.index}>
+                <tr key={category.id}>
                   <td>{category.name}</td>
                   <td className={styles.actionButtons}>
                     <button onClick={() => handleEditCategory(category)} className={styles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
-                    <button onClick={() => handleDeleteCategory(category.index)} className={styles.actionButtonIcon}>
+                    <button onClick={() => handleDeleteCategory(category.id)} className={styles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </td>
