@@ -61,24 +61,3 @@
   width: 100%;
   table-layout: fixed;
 }
-
-/* ================== Botões de Ação com Ícones ================== */
-.actionButtonIcon {
-  background: none;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  font-size: 18px;
-  padding: 5px;
-  transition: color 0.3s ease;
-}
-
-.actionButtonIcon:hover {
-  color: #f57c00;
-}
-
-.actionButtons {
-  display: flex;
-  gap: 5px;
-  justify-content: center;
-}
