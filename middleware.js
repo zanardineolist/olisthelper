@@ -8,8 +8,16 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-  const allowedRoles = ['analyst', 'super', 'tax'];
+  // Ajustar os papéis permitidos
+  const analystRoles = ['analyst', 'tax'];
+  const allowedRoles = [...analystRoles, 'super'];
 
+  // Se o usuário tentar acessar '/profile-analyst', e já tiver o papel correto, não redirecionar novamente
+  if (req.nextUrl.pathname.startsWith('/profile-analyst') && analystRoles.includes(token.role)) {
+    return NextResponse.next();
+  }
+
+  // Redirecionar caso o papel do usuário não tenha acesso à rota específica
   if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && !allowedRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
@@ -22,11 +30,15 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
+<<<<<<< HEAD
   if (req.nextUrl.pathname.startsWith('/profile-analyst') && !allowedRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
   if (req.nextUrl.pathname.startsWith('/manager') && !allowedRoles.includes(token.role)) {
+=======
+  if (req.nextUrl.pathname.startsWith('/manage-users') && !allowedRoles.includes(token.role)) {
+>>>>>>> ce39b4b8c074b3b8c1078877d85cce9cc23a8ee5
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 

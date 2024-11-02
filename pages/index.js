@@ -13,7 +13,7 @@ export default function LoginPage() {
     const checkSession = async () => {
       const session = await getSession();
       if (session) {
-        if (session.role === 'analyst') {
+        if (session.role === 'analyst' || session.role === 'tax') {
           router.push('/profile-analyst');
         } else if (session.role === 'super') {
           router.push('/dashboard-super');
@@ -23,7 +23,7 @@ export default function LoginPage() {
       }
     };
     checkSession();
-  }, [router]);
+  }, [router]);  
 
   return (
     <>
@@ -63,7 +63,7 @@ export async function getServerSideProps(context) {
   if (session) {
     return {
       redirect: {
-        destination: session.role === 'analyst' ? '/profile-analyst' : session.role === 'super' ? '/dashboard-super' : '/profile',
+        destination: (session.role === 'analyst' || session.role === 'tax') ? '/profile-analyst' : session.role === 'super' ? '/dashboard-super' : '/profile',
         permanent: false,
       },
     };
