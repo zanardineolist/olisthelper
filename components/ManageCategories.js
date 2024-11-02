@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 import Modal from 'react-modal';
 import styles from '../styles/Manager.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
@@ -185,7 +185,7 @@ export default function ManageCategories() {
                     <button onClick={() => handleEditCategory(category)} className={styles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
-                    <button onClick={() => handleDeleteCategory(category, index)} className={styles.actionButtonIcon}>
+                    <button onClick={() => handleDeleteCategory(category.index)} className={styles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </td>
