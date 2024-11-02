@@ -36,6 +36,17 @@ export default async function handler(req, res) {
   const { method } = req;
   const sheetName = 'Categorias';
 
+  // Extraindo informações do usuário dos headers
+  const userId = req.headers['x-user-id'];
+  const userName = req.headers['x-user-name'];
+  const userRole = req.headers['x-user-role'];
+
+  req.user = {
+    id: userId,
+    name: userName,
+    role: userRole,
+  };
+
   try {
     switch (method) {
       case 'GET':

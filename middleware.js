@@ -8,6 +8,13 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
+  // Adicionar o usuário ao request (req)
+  req.user = {
+    id: token.sub,
+    name: token.name,
+    role: token.role,
+  };
+
   // Ajustar os papéis permitidos
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super'];
