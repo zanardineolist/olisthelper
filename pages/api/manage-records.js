@@ -11,15 +11,14 @@ export default async function handler(req, res) {
   try {
     // Obtém os metadados de todas as abas disponíveis na planilha
     const sheetsMetaData = await getSheetMetaData();
-    if (!Array.isArray(sheetsMetaData) || sheetsMetaData.length === 0) {
+    if (!sheetsMetaData || !sheetsMetaData.data || !Array.isArray(sheetsMetaData.data.sheets)) {
       return res.status(500).json({ error: 'Nenhuma aba encontrada nos metadados da planilha.' });
     }
 
-    // Busca a aba correspondente ao ID do usuário, usando uma correspondência exata
-    const matchingSheet = sheetsMetaData.find(sheet => {
-      const sheetTitle = sheet.properties.title.trim();
-      return sheetTitle.includes(userId); // Alinhando a lógica para identificar a aba com base no ID do usuário
-    });
+    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
+    const matchingSheet = sheetsMetaData.data.sheets.find(sheet => 
+      sheet.properties.title.startsWith(`#${userId}`)
+    );
 
     if (!matchingSheet) {
       return res.status(404).json({ error: `Aba correspondente ao ID "${userId}" não encontrada.` });
