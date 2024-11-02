@@ -70,7 +70,7 @@
   
   .itemsTable th:nth-child(7),
   .itemsTable td:nth-child(7) {
-    width: 5%; /* Ações */
+    width: 7%; /* Ações */
   }
   
 /* Scrollbar para Tabela */

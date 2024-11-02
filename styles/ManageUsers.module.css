@@ -49,7 +49,7 @@
   
   .itemsTable th:nth-child(3),
   .itemsTable td:nth-child(3) {
-    width: 5%; /* Ações */
+    width: 7%; /* Ações */
   }
   
 /* Scrollbar para Tabela */
