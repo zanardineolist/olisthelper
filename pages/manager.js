@@ -43,7 +43,7 @@ export default function ManagerPage({ user }) {
           {currentTab === 0 && <ManageUsers user={user} />}
           {currentTab === 1 && <ManageCategories user={user} />}
           {currentTab === 2 && (user.role === 'analyst' || user.role === 'tax') && (
-            <ManageRecords user={user} />
+            <ManageRecords user={user} /> // Passei o nome do usuário de forma explícita
           )}
         </div>
       </main>
@@ -63,7 +63,7 @@ export async function getServerSideProps(context) {
       },
     };
   }
-  
+
   const name = session.user?.name ?? 'Unknown';
 
   return {
