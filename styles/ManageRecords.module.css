@@ -86,3 +86,11 @@
   width: 100%;
   table-layout: fixed;
 }
+
+.itemsTable tbody tr:nth-child(odd) {
+  background-color: #1e1e1e; /* Cor mais escura para linhas ímpares */
+}
+
+.itemsTable tbody tr:nth-child(even) {
+  background-color: #2a2a2a; /* Cor mais clara para linhas pares */
+}
