@@ -117,7 +117,7 @@ export async function getSheetMetaData() {
     // Obtendo as informações de todas as abas (sheets) da planilha
     const response = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
     
-    // Retornar apenas a lista de abas (sheets)
+    // Retornar apenas a lista de abas (sheets), como antes
     return response.data.sheets || [];
   } catch (error) {
     console.error('Erro ao obter metadados da planilha:', error);

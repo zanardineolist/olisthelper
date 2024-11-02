@@ -7,9 +7,6 @@ export default async function handler(req, res) {
 
   try {
     const sheets = await getAuthenticatedGoogleSheets();
-    if (!sheets) {
-      return res.status(500).json({ error: 'Erro ao autenticar com Google Sheets. Verifique as credenciais.' });
-    }
     const rows = await getSheetValues('Usuários', 'A2:D');
 
     if (rows && rows.length > 0) {

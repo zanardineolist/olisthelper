@@ -3,9 +3,6 @@ import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/google
 export default async function handler(req, res) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
-    if (!sheets) {
-      return res.status(500).json({ error: 'Erro ao autenticar com Google Sheets. Verifique as credenciais.' });
-    }
     const sheetId = process.env.SHEET_ID;
 
     // Obter categorias
