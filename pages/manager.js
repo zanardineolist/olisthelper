@@ -28,14 +28,15 @@ export default function ManagerPage({ user }) {
         <Tabs
           value={currentTab}
           onChange={handleTabChange}
-          indicatorColor="primary"
-          textColor="primary"
+          indicatorColor="secondary"
+          textColor="inherit"
           centered
+          className={styles.tabs}
         >
-          <Tab label="Gerenciar Usuários" />
-          <Tab label="Gerenciar Categorias" />
+          <Tab label="Gerenciar Usuários" className={currentTab === 0 ? styles.activeTab : ''} />
+          <Tab label="Gerenciar Categorias" className={currentTab === 1 ? styles.activeTab : ''} />
           {(user.role === 'analyst' || user.role === 'tax') && (
-            <Tab label="Gerenciar Registros" />
+            <Tab label="Gerenciar Registros" className={currentTab === 2 ? styles.activeTab : ''} />
           )}
         </Tabs>
 
