@@ -47,7 +47,7 @@ export default function ManageCategories() {
     setModalIsOpen(true);
   };
 
-  const handleDeleteCategory = async (categoryId) => {
+  const handleDeleteCategory = async (categoryIndex) => {
     const isConfirmed = await Swal.fire({
       title: 'Tem certeza?',
       text: 'Deseja realmente excluir esta categoria? Esta ação não pode ser desfeita.',
@@ -64,7 +64,7 @@ export default function ManageCategories() {
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/manage-category?id=${categoryId}`, {
+      const res = await fetch(`/api/manage-category?index=${categoryIndex}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Erro ao deletar categoria');
@@ -100,7 +100,7 @@ export default function ManageCategories() {
       const method = isEditing ? 'PUT' : 'POST';
       const body = { name: newCategory };
       if (isEditing) {
-        body.id = currentCategoryId;
+        body.index = currentCategoryId;
       }
       const res = await fetch('/api/manage-category', {
         method,
