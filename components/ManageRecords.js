@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import Modal from 'react-modal';
 import styles from '../styles/ManageRecords.module.css';
+import generalStyles from '../styles/Manager.module.css'; // Importando o estilo geral
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Select from 'react-select';
@@ -287,10 +288,10 @@ export default function ManageRecords({ user }) {
   };
 
   return (
-    <div className={styles.main}>
-      <div className={styles.cardContainer}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>Lista de Registros</h2>
+    <div className={generalStyles.main}>
+      <div className={`${generalStyles.cardContainer} ${styles.cardContainer}`}>
+        <div className={generalStyles.cardHeader}>
+          <h2 className={generalStyles.cardTitle}>Lista de Registros</h2>
         </div>
         <div className={styles.itemsTable}>
           <table>
@@ -314,11 +315,11 @@ export default function ManageRecords({ user }) {
                   <td>{record.email}</td>
                   <td>{record.category}</td>
                   <td>{record.description}</td>
-                  <td className={styles.actionButtons}>
-                    <button onClick={() => handleEditRecord(record, index)} className={styles.actionButtonIcon}>
+                  <td className={generalStyles.actionButtons}>
+                    <button onClick={() => handleEditRecord(record, index)} className={generalStyles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
-                    <button onClick={() => handleDeleteRecord(index)} className={styles.actionButtonIcon}>
+                    <button onClick={() => handleDeleteRecord(index)} className={generalStyles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </td>
@@ -333,18 +334,18 @@ export default function ManageRecords({ user }) {
         isOpen={modalIsOpen}
         onRequestClose={handleCloseModal}
         contentLabel="Editar Registro"
-        className={styles.modal}
-        overlayClassName={styles.overlay}
+        className={generalStyles.modal}
+        overlayClassName={generalStyles.overlay}
         ariaHideApp={false}
       >
-        <h2 className={styles.modalTitle}>Editar Registro</h2>
-        <div className={styles.formContainer}>
+        <h2 className={generalStyles.modalTitle}>Editar Registro</h2>
+        <div className={generalStyles.formContainer}>
           <input
             type="text"
             name="date"
             value={editedRecord.date}
             placeholder="Data"
-            className={styles.inputField}
+            className={generalStyles.inputField}
             onChange={handleInputChange}
             required
           />
@@ -353,7 +354,7 @@ export default function ManageRecords({ user }) {
             name="time"
             value={editedRecord.time}
             placeholder="Hora"
-            className={styles.inputField}
+            className={generalStyles.inputField}
             onChange={handleInputChange}
             required
           />
@@ -370,7 +371,7 @@ export default function ManageRecords({ user }) {
             name="email"
             value={editedRecord.email}
             placeholder="E-mail"
-            className={styles.inputField}
+            className={generalStyles.inputField}
             onChange={handleInputChange}
             disabled
           />
@@ -387,14 +388,14 @@ export default function ManageRecords({ user }) {
             name="description"
             value={editedRecord.description}
             placeholder="Descrição"
-            className={styles.inputField}
+            className={generalStyles.inputField}
             onChange={handleInputChange}
             required
           />
-          <button onClick={handleSaveRecord} disabled={loading} className={styles.saveButton}>
+          <button onClick={handleSaveRecord} disabled={loading} className={generalStyles.saveButton}>
             Salvar Registro
           </button>
-          <button onClick={handleCloseModal} className={styles.cancelButton}>
+          <button onClick={handleCloseModal} className={generalStyles.cancelButton}>
             Cancelar
           </button>
         </div>

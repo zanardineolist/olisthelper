@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 import Select from 'react-select';
 import Modal from 'react-modal';
 import styles from '../styles/ManageUsers.module.css';
+import generalStyles from '../styles/Manager.module.css'; // Importando o estilo geral
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -173,7 +174,7 @@ export default function ManageUsers({ user }) {
     setModalIsOpen(false);
   };
 
-  // Estilos personalizados para o React-Select, conforme o registro.js
+  // Estilos personalizados para o React-Select
   const customSelectStyles = {
     control: (provided, state) => ({
       ...provided,
@@ -243,24 +244,24 @@ export default function ManageUsers({ user }) {
   };
 
   return (
-    <div className={styles.main}>
+    <div className={generalStyles.main}>
       {/* Modal para adicionar/editar usuário */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={handleCloseModal}
         contentLabel="Adicionar/Editar Usuário"
-        className={styles.modal}
-        overlayClassName={styles.overlay}
+        className={generalStyles.modal}
+        overlayClassName={generalStyles.overlay}
         ariaHideApp={false}
       >
-        <h2 className={styles.modalTitle}>{isEditing ? 'Editar Usuário' : 'Adicionar Usuário'}</h2>
-        <div className={styles.formContainer}>
+        <h2 className={generalStyles.modalTitle}>{isEditing ? 'Editar Usuário' : 'Adicionar Usuário'}</h2>
+        <div className={generalStyles.formContainer}>
           <input
             type="text"
             name="name"
             value={newUser.name}
             placeholder="Nome"
-            className={styles.inputField}
+            className={generalStyles.inputField}
             onChange={handleInputChange}
             required
           />
@@ -269,7 +270,7 @@ export default function ManageUsers({ user }) {
             name="email"
             value={newUser.email}
             placeholder="E-mail"
-            className={styles.inputField}
+            className={generalStyles.inputField}
             onChange={handleInputChange}
             required
           />
@@ -286,7 +287,7 @@ export default function ManageUsers({ user }) {
             name="squad"
             value={newUser.squad}
             placeholder="Squad"
-            className={styles.inputField}
+            className={generalStyles.inputField}
             onChange={handleInputChange}
           />
           <div className={styles.checkboxContainer}>
@@ -318,20 +319,20 @@ export default function ManageUsers({ user }) {
               Chat
             </label>
           </div>
-          <button onClick={handleSaveUser} disabled={loading} className={styles.saveButton}>
+          <button onClick={handleSaveUser} disabled={loading} className={generalStyles.saveButton}>
             {isEditing ? 'Atualizar Usuário' : 'Adicionar Usuário'}
           </button>
-          <button onClick={handleCloseModal} className={styles.cancelButton}>
+          <button onClick={handleCloseModal} className={generalStyles.cancelButton}>
             Cancelar
           </button>
         </div>
       </Modal>
 
       {/* Tabela de usuários */}
-      <div className={styles.cardContainer}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>Lista de Usuários</h2>
-          <button onClick={handleOpenModal} className={styles.addButton}>
+      <div className={`${generalStyles.cardContainer} ${styles.cardContainer}`}>
+        <div className={generalStyles.cardHeader}>
+          <h2 className={generalStyles.cardTitle}>Lista de Usuários</h2>
+          <button onClick={handleOpenModal} className={generalStyles.addButton}>
             <FontAwesomeIcon icon={faPlus} /> Adicionar Novo Usuário
           </button>
         </div>
@@ -349,11 +350,11 @@ export default function ManageUsers({ user }) {
                 <tr key={user.id}>
                   <td>{user.name}</td>
                   <td>{user.email}</td>
-                  <td className={styles.actionButtons}>
-                    <button onClick={() => handleEditUser(user)} className={styles.actionButtonIcon}>
+                  <td className={generalStyles.actionButtons}>
+                    <button onClick={() => handleEditUser(user)} className={generalStyles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
-                    <button onClick={() => handleDeleteUser(user.id)} className={styles.actionButtonIcon}>
+                    <button onClick={() => handleDeleteUser(user.id)} className={generalStyles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </td>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import Modal from 'react-modal';
 import styles from '../styles/ManageCategories.module.css';
+import generalStyles from '../styles/Manager.module.css'; // Importação do estilo geral
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
@@ -150,40 +151,40 @@ export default function ManageCategories() {
   };
 
   return (
-    <div className={styles.main}>
+    <div className={`${generalStyles.main}`}>
       {/* Modal para adicionar/editar categoria */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={handleCloseModal}
         contentLabel="Adicionar/Editar Categoria"
-        className={styles.modal}
-        overlayClassName={styles.overlay}
+        className={generalStyles.modal}
+        overlayClassName={generalStyles.overlay}
         ariaHideApp={false}
       >
-        <h2 className={styles.modalTitle}>{isEditing ? 'Editar Categoria' : 'Adicionar Categoria'}</h2>
-        <div className={styles.formContainer}>
+        <h2 className={generalStyles.modalTitle}>{isEditing ? 'Editar Categoria' : 'Adicionar Categoria'}</h2>
+        <div className={generalStyles.formContainer}>
           <input
             type="text"
             value={newCategory}
             placeholder="Nome da Categoria"
-            className={styles.inputField}
+            className={generalStyles.inputField}
             onChange={(e) => setNewCategory(e.target.value)}
             required
           />
-          <button onClick={handleSaveCategory} disabled={loading} className={styles.saveButton}>
+          <button onClick={handleSaveCategory} disabled={loading} className={generalStyles.saveButton}>
             {isEditing ? 'Atualizar Categoria' : 'Adicionar Categoria'}
           </button>
-          <button onClick={handleCloseModal} className={styles.cancelButton}>
+          <button onClick={handleCloseModal} className={generalStyles.cancelButton}>
             Cancelar
           </button>
         </div>
       </Modal>
 
       {/* Tabela de categorias */}
-      <div className={styles.cardContainer}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>Lista de Categorias</h2>
-          <button onClick={handleOpenModal} className={styles.addButton}>
+      <div className={`${generalStyles.cardContainer} ${styles.cardContainer}`}>
+        <div className={generalStyles.cardHeader}>
+          <h2 className={generalStyles.cardTitle}>Lista de Categorias</h2>
+          <button onClick={handleOpenModal} className={generalStyles.addButton}>
             <FontAwesomeIcon icon={faPlus} /> Adicionar Nova Categoria
           </button>
         </div>
@@ -199,11 +200,11 @@ export default function ManageCategories() {
               {categories.map((category) => (
                 <tr key={category.id}>
                   <td>{category.name}</td>
-                  <td className={styles.actionButtons}>
-                    <button onClick={() => handleEditCategory(category)} className={styles.actionButtonIcon}>
+                  <td className={generalStyles.actionButtons}>
+                    <button onClick={() => handleEditCategory(category)} className={generalStyles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
-                    <button onClick={() => handleDeleteCategory(category.id)} className={styles.actionButtonIcon}>
+                    <button onClick={() => handleDeleteCategory(category.id)} className={generalStyles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </td>
