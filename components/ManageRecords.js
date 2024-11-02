@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import Modal from 'react-modal';
-import styles from '../styles/Manager.module.css';
+import styles from '../styles/ManageRecords.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Select from 'react-select';
