@@ -18,6 +18,10 @@
     width: 100%;
     border-collapse: collapse;
   }
+
+  .itemsTable thead {
+    background-color: #333;
+  }
   
   .itemsTable th, .itemsTable td {
     padding: 10px;
@@ -66,7 +70,7 @@
   
   .itemsTable th:nth-child(7),
   .itemsTable td:nth-child(7) {
-    width: 10%; /* Ações */
+    width: 5%; /* Ações */
   }
   
 /* Scrollbar para Tabela */
