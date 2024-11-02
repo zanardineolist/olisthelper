@@ -1,16 +1,27 @@
-import { getSheetValues, updateSheetRow, deleteSheetRow } from '../../utils/googleSheets';
+import { getSheetValues, updateSheetRow, deleteSheetRow, getSheetMetaData } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   const { method } = req;
-  const { userId, name } = req.query;
+  const { userId } = req.query;
 
-  if (!userId || !name || name === 'undefined') {
-    return res.status(400).json({ error: 'User ID ou nome não fornecido ou inválido.' });
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID não fornecido ou inválido.' });
   }
 
-  const sheetName = `#${userId} - ${name}`;
+  // Define o padrão para buscar a aba com base no ID do usuário
+  const sheetNamePattern = `#${userId} -`;
 
   try {
+    // Obtém os metadados de todas as abas disponíveis na planilha
+    const sheetsMetaData = await getSheetMetaData();
+    const matchingSheet = sheetsMetaData.find(sheet => sheet.title.startsWith(sheetNamePattern));
+
+    if (!matchingSheet) {
+      return res.status(404).json({ error: 'Aba correspondente não encontrada.' });
+    }
+
+    const sheetName = matchingSheet.title;
+
     switch (method) {
       case 'GET':
         const records = await getSheetValues(sheetName, 'A:F');
@@ -33,7 +44,7 @@ export default async function handler(req, res) {
         if (!record) {
           return res.status(400).json({ error: 'Dados do registro não fornecidos.' });
         }
-        await updateSheetRow(sheetName, index + 2, [
+        await updateSheetRow(sheetName, parseInt(req.query.index, 10) + 2, [
           record.date,
           record.time,
           record.name,
@@ -44,6 +55,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ message: 'Registro atualizado com sucesso.' });
 
       case 'DELETE':
+        const index = req.query.index;
         if (!index) {
           return res.status(400).json({ error: 'Índice do registro não fornecido.' });
         }
