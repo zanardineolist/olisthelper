@@ -333,7 +333,7 @@ export default function ManageUsers({ user }) {
         <div className={generalStyles.cardHeader}>
           <h2 className={generalStyles.cardTitle}>Lista de Usuários</h2>
           <button onClick={handleOpenModal} className={generalStyles.addButton}>
-            <FontAwesomeIcon icon={faPlus} /> Adicionar Novo Usuário
+            <FontAwesomeIcon icon={faPlus} /> Add Usuário
           </button>
         </div>
         <div className={styles.itemsTable}>

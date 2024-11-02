@@ -185,7 +185,7 @@ export default function ManageCategories() {
         <div className={generalStyles.cardHeader}>
           <h2 className={generalStyles.cardTitle}>Lista de Categorias</h2>
           <button onClick={handleOpenModal} className={generalStyles.addButton}>
-            <FontAwesomeIcon icon={faPlus} /> Adicionar Nova Categoria
+            <FontAwesomeIcon icon={faPlus} /> Add Categoria
           </button>
         </div>
         <div className={styles.itemsTable}>
