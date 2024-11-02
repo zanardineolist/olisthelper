@@ -181,10 +181,12 @@ export default function ManageUsers({ user }) {
                 backgroundColor: '#222',
                 borderColor: '#333',
                 color: '#fff',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
               }),
               singleValue: (base) => ({
                 ...base,
                 color: '#fff',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
               }),
               menu: (base) => ({
                 ...base,
@@ -194,6 +196,7 @@ export default function ManageUsers({ user }) {
                 ...provided,
                 color: state.isSelected ? '#f57c00' : '#fff',
                 backgroundColor: state.isFocused ? '#444' : '#333',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
               }),
             }}
             required

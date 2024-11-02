@@ -233,6 +233,30 @@ export default function ManageRecords({ user }) {
             value={{ value: editedRecord.name, label: editedRecord.name }}
             onChange={handleSelectUser}
             placeholder="Nome do Usuário"
+            styles={{
+              control: (base) => ({
+                ...base,
+                backgroundColor: '#222',
+                borderColor: '#333',
+                color: '#fff',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
+              }),
+              singleValue: (base) => ({
+                ...base,
+                color: '#fff',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
+              }),
+              menu: (base) => ({
+                ...base,
+                backgroundColor: '#333',
+              }),
+              option: (provided, state) => ({
+                ...provided,
+                color: state.isSelected ? '#f57c00' : '#fff',
+                backgroundColor: state.isFocused ? '#444' : '#333',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
+              }),
+            }}
             required
           />
           <input
@@ -249,6 +273,30 @@ export default function ManageRecords({ user }) {
             value={{ value: editedRecord.category, label: editedRecord.category }}
             onChange={(option) => setEditedRecord(prev => ({ ...prev, category: option.value }))}
             placeholder="Categoria"
+            styles={{
+              control: (base) => ({
+                ...base,
+                backgroundColor: '#222',
+                borderColor: '#333',
+                color: '#fff',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
+              }),
+              singleValue: (base) => ({
+                ...base,
+                color: '#fff',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
+              }),
+              menu: (base) => ({
+                ...base,
+                backgroundColor: '#333',
+              }),
+              option: (provided, state) => ({
+                ...provided,
+                color: state.isSelected ? '#f57c00' : '#fff',
+                backgroundColor: state.isFocused ? '#444' : '#333',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
+              }),
+            }}
             required
           />
           <input
