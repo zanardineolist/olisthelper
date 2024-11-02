@@ -181,8 +181,8 @@
 }
 
 /* ================== Botões de Tabulação ================== */
-.main .MuiTabs-root {
-  margin-top: 20px;
+div[class*="MuiTabs-root"] {
+  margin-top: 20px !important;
 }
 
 .MuiTabs-root {
