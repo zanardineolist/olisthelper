@@ -17,14 +17,16 @@ export default function ManageCategories() {
     loadCategories();
   }, []);
 
-  // Carrega as categorias da aba "Categorias"
+  // Carrega as categorias da aba "Categorias" e ordena por nome
   const loadCategories = async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/manage-category');
       if (!res.ok) throw new Error('Erro ao carregar categorias');
       const data = await res.json();
-      setCategories(data.categories);
+      // Ordena as categorias em ordem alfabética antes de definir o estado
+      const sortedCategories = data.categories.sort((a, b) => a.name.localeCompare(b.name));
+      setCategories(sortedCategories);
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
       Swal.fire('Erro', 'Erro ao carregar categorias.', 'error');

@@ -4,6 +4,7 @@ import { getSession } from 'next-auth/react';
 import { Tabs, Tab } from '@mui/material';
 import ManageUsers from '../components/ManageUsers';
 import ManageCategories from '../components/ManageCategories';
+import ManageRecords from '../components/ManageRecords';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import styles from '../styles/Manager.module.css';
@@ -33,11 +34,17 @@ export default function ManagerPage({ user }) {
         >
           <Tab label="Gerenciar Usuários" />
           <Tab label="Gerenciar Categorias" />
+          {(user.role === 'analyst' || user.role === 'tax') && (
+            <Tab label="Gerenciar Registros" />
+          )}
         </Tabs>
 
         <div className={styles.tabContent}>
           {currentTab === 0 && <ManageUsers user={user} />}
           {currentTab === 1 && <ManageCategories user={user} />}
+          {currentTab === 2 && (user.role === 'analyst' || user.role === 'tax') && (
+            <ManageRecords user={user} />
+          )}
         </div>
       </main>
 
