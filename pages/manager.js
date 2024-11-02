@@ -15,6 +15,7 @@ const StyledTabs = styled(Tabs)({
   backgroundColor: '#333',
   borderRadius: '5px',
   marginBottom: '20px',
+  marginTop: '20px', // Adicionando o margin-top desejado
   '& .MuiTabs-indicator': {
     backgroundColor: '#F0A028',
     height: '4px',
