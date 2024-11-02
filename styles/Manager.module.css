@@ -125,18 +125,20 @@
 
 .itemsTable table {
   width: 100%;
-  border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .itemsTable thead {
   background-color: #333;
 }
 
-.itemsTable th,
-.itemsTable td {
-  padding: 15px;
+.itemsTable th, .itemsTable td {
+  padding: 10px;
   text-align: left;
   border-bottom: 1px solid #444;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .itemsTable th {
