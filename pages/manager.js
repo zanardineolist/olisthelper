@@ -2,8 +2,8 @@ import Head from 'next/head';
 import { getSession } from 'next-auth/react';
 import { useState } from 'react';
 import { Tabs, Tab } from '@material-ui/core';
-import ManageUsersComponent from '../components/ManageUsersComponent';
-import ManageCategoriesComponent from '../components/ManageCategoriesComponent';
+import ManageUsers from '../components/ManageUsers';
+import ManageCategories from '../components/ManageCategories';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -35,8 +35,8 @@ export default function ManagerPage({ user }) {
         </Tabs>
 
         <div style={{ marginTop: '20px' }}>
-          {currentTab === 0 && <ManageUsersComponent />}
-          {currentTab === 1 && <ManageCategoriesComponent />}
+          {currentTab === 0 && <ManageUsers />}
+          {currentTab === 1 && <ManageCategories />}
         </div>
       </main>
 
