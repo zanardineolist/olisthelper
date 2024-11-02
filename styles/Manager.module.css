@@ -180,12 +180,6 @@
   color: #f57c00;
 }
 
-.actionButtons {
-  display: flex;
-  gap: 5px;
-  justify-content: center;
-}
-
 /* ================== Botões de Tabulação ================== */
 .MuiTabs-root {
   background-color: #333; /* Fundo das abas */
