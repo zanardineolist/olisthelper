@@ -40,12 +40,12 @@
   /* Largura específica para as colunas da tabela de registros */
   .itemsTable th:nth-child(1),
   .itemsTable td:nth-child(1) {
-    width: 10%; /* Data */
+    width: 8%; /* Data */
   }
   
   .itemsTable th:nth-child(2),
   .itemsTable td:nth-child(2) {
-    width: 10%; /* Hora */
+    width: 8%; /* Hora */
   }
   
   .itemsTable th:nth-child(3),
@@ -60,12 +60,12 @@
   
   .itemsTable th:nth-child(5),
   .itemsTable td:nth-child(5) {
-    width: 15%; /* Categoria */
+    width: 10%; /* Categoria */
   }
   
   .itemsTable th:nth-child(6),
   .itemsTable td:nth-child(6) {
-    width: 20%; /* Descrição */
+    width: 15%; /* Descrição */
   }
   
   .itemsTable th:nth-child(7),
