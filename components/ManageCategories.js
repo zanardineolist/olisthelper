@@ -182,11 +182,11 @@ export default function ManageCategories() {
                 <tr key={category.index}>
                   <td>{category.name}</td>
                   <td className={styles.actionButtons}>
-                    <button onClick={() => handleEditCategory(category)} className={styles.editButton}>
-                      <FontAwesomeIcon icon={faPencilAlt} /> Editar
+                    <button onClick={() => handleEditCategory(category)} className={styles.actionButtonIcon}>
+                      <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
-                    <button onClick={() => handleDeleteCategory(category.index)} className={styles.deleteButton}>
-                      <FontAwesomeIcon icon={faTrash} /> Excluir
+                    <button onClick={() => handleDeleteCategory(category, index)} className={styles.actionButtonIcon}>
+                      <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </td>
                 </tr>
