@@ -113,12 +113,7 @@ export async function getSheetMetaData() {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
-
-    // Obtendo as informações de todas as abas (sheets) da planilha
-    const response = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-    
-    // Retornar apenas a lista de abas (sheets), como antes
-    return response.data.sheets || [];
+    return await sheets.spreadsheets.get({ spreadsheetId: sheetId });
   } catch (error) {
     console.error('Erro ao obter metadados da planilha:', error);
     throw new Error('Erro ao obter metadados da planilha.');
