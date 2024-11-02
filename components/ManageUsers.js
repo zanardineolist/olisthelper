@@ -137,9 +137,77 @@ export default function ManageUsers({ user }) {
     setModalIsOpen(false);
   };
 
+  // Estilos personalizados para o React-Select, conforme o registro.js
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: '#222',
+      borderColor: state.isFocused ? '#F0A028' : '#444',
+      color: '#fff',
+      borderRadius: '5px',
+      padding: '5px',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: '#F0A028',
+      },
+      outline: 'none',
+    }),
+    input: (provided) => ({
+      ...provided,
+      color: '#fff',
+      caretColor: '#fff',
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: '#1e1e1e',
+      maxHeight: '220px',
+      overflowY: 'auto',
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      padding: 0,
+      maxHeight: '220px',
+      '&::-webkit-scrollbar': {
+        width: '8px',
+      },
+      '&::-webkit-scrollbar-track': {
+        background: '#121212',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: '#555',
+        borderRadius: '10px',
+        border: '2px solid #121212',
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused ? '#333' : state.isSelected ? '#F0A028' : '#1e1e1e',
+      color: '#fff',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: '#333',
+      },
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: '#fff',
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: '#aaa',
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: '#fff',
+    }),
+    indicatorSeparator: (provided) => ({
+      ...provided,
+      backgroundColor: '#444',
+    }),
+  };
+
   return (
     <div className={styles.main}>
-
       {/* Modal para adicionar/editar usuário */}
       <Modal
         isOpen={modalIsOpen}
@@ -174,30 +242,7 @@ export default function ManageUsers({ user }) {
             value={profileOptions.find((opt) => opt.value === newUser.profile)}
             onChange={handleSelectChange}
             placeholder="Perfil"
-            styles={{
-              control: (base) => ({
-                ...base,
-                backgroundColor: '#222',
-                borderColor: '#333',
-                color: '#fff',
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
-              }),
-              singleValue: (base) => ({
-                ...base,
-                color: '#fff',
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
-              }),
-              menu: (base) => ({
-                ...base,
-                backgroundColor: '#333',
-              }),
-              option: (provided, state) => ({
-                ...provided,
-                color: state.isSelected ? '#f57c00' : '#fff',
-                backgroundColor: state.isFocused ? '#444' : '#333',
-                fontFamily: 'Plus Jakarta Sans, sans-serif',
-              }),
-            }}
+            styles={customSelectStyles}
             required
           />
           <input
