@@ -19,23 +19,23 @@ export async function middleware(req) {
 
   // Redirecionar caso o papel do usuário não tenha acesso à rota específica
   if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && !allowedRoles.includes(token.role)) {
-    return NextResponse.redirect(new URL('/profile', req.url));
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   if (req.nextUrl.pathname.startsWith('/dashboard-super') && token.role !== 'super') {
-    return NextResponse.redirect(new URL('/profile', req.url));
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   if (req.nextUrl.pathname.startsWith('/registro') && !allowedRoles.includes(token.role)) {
-    return NextResponse.redirect(new URL('/profile', req.url));
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   if (req.nextUrl.pathname.startsWith('/profile-analyst') && !allowedRoles.includes(token.role)) {
-    return NextResponse.redirect(new URL('/profile', req.url));
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   if (req.nextUrl.pathname.startsWith('/manager') && !allowedRoles.includes(token.role)) {
-    return NextResponse.redirect(new URL('/profile', req.url));
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   return NextResponse.next();
