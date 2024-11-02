@@ -10,12 +10,18 @@ export default async function handler(req, res) {
 
   try {
     const sheets = await getAuthenticatedGoogleSheets();
+    if (!sheets) {
+      return res.status(500).json({ error: 'Erro ao autenticar com Google Sheets. Verifique as credenciais.' });
+    }
     const sheetId = process.env.SHEET_ID;
 
     console.log(`Buscando metadados da planilha com ID: ${sheetId} para o usuário: ${userEmail}`);
 
     // Obter as informações da planilha (metadados)
     const sheetMeta = await getSheetMetaData();
+    if (!sheetMeta || !sheetMeta.length) {
+      return res.status(500).json({ error: 'Nenhuma aba encontrada na planilha. Verifique o Google Sheets.' });
+    }
 
     // Iterar sobre todas as abas da planilha, pois queremos buscar os dados para todos os analistas
     const sheetNames = sheetMeta.data.sheets.map(sheet => sheet.properties.title);

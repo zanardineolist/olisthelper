@@ -2,12 +2,36 @@ import Head from 'next/head';
 import { useState } from 'react';
 import { getSession } from 'next-auth/react';
 import { Tabs, Tab } from '@mui/material';
+import { styled } from '@mui/system';
 import ManageUsers from '../components/ManageUsers';
 import ManageCategories from '../components/ManageCategories';
 import ManageRecords from '../components/ManageRecords';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import styles from '../styles/Manager.module.css';
+
+// Componentes personalizados usando styled() para estilizar Tabs e Tab
+const StyledTabs = styled(Tabs)({
+  backgroundColor: '#333',
+  borderRadius: '5px',
+  marginBottom: '20px',
+  '& .MuiTabs-indicator': {
+    backgroundColor: '#F0A028',
+    height: '4px',
+    borderRadius: '5px',
+  },
+});
+
+const StyledTab = styled(Tab)({
+  color: '#8b8b8b',
+  fontSize: '16px',
+  textTransform: 'none',
+  transition: 'color 0.3s ease, background-color 0.3s ease',
+  '&.Mui-selected': {
+    color: '#F0A028',
+    backgroundColor: '#444',
+  },
+});
 
 export default function ManagerPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
@@ -25,18 +49,17 @@ export default function ManagerPage({ user }) {
       <Navbar user={user} />
 
       <main className={styles.main}>
-      <Tabs
-        value={currentTab}
-        onChange={handleTabChange}
-        centered
-        className={styles.tabs}
-      >
-        <Tab label="Gerenciar Usuários" className={currentTab === 0 ? styles.activeTab : ''} />
-        <Tab label="Gerenciar Categorias" className={currentTab === 1 ? styles.activeTab : ''} />
-        {(user.role === 'analyst' || user.role === 'tax') && (
-          <Tab label="Gerenciar Registros" className={currentTab === 2 ? styles.activeTab : ''} />
-        )}
-      </Tabs>
+        <StyledTabs
+          value={currentTab}
+          onChange={handleTabChange}
+          centered
+        >
+          <StyledTab label="Gerenciar Usuários" />
+          <StyledTab label="Gerenciar Categorias" />
+          {(user.role === 'analyst' || user.role === 'tax') && (
+            <StyledTab label="Gerenciar Registros" />
+          )}
+        </StyledTabs>
 
         <div className={styles.tabContent}>
           {currentTab === 0 && <ManageUsers user={user} />}
