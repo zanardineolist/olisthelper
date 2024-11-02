@@ -41,17 +41,14 @@ export default async function handler(req, res) {
   const userName = req.headers['x-user-name'];
   const userRole = req.headers['x-user-role'];
 
-  // Verificar se os valores do usuário são válidos
-  if (!userId || !userName || !userRole) {
-    console.error("Erro: Dados do usuário faltando nos headers:", { userId, userName, userRole });
-    return res.status(400).json({ error: "Dados do usuário não fornecidos corretamente." });
-  }
-
   req.user = {
     id: userId,
     name: userName,
     role: userRole,
   };
+
+  // Verificar se req.user está completo
+  const isUserValid = req.user && req.user.id && req.user.name && req.user.role;
 
   try {
     switch (method) {
@@ -76,7 +73,7 @@ export default async function handler(req, res) {
         await addSheetRow(sheetName, [newCategoryName]);
         await sortCategoriesByName(sheetName); // Ordenar categorias após adicionar
 
-        if (req.user) {
+        if (isUserValid) {
           await logAction(req.user.id, req.user.name, req.user.role, 'create_category', 'Categoria', null, { categoryName: newCategoryName });
         }
 
@@ -101,7 +98,7 @@ export default async function handler(req, res) {
         await updateSheetRow(sheetName, updateIndex, [updatedCategoryName]);
         await sortCategoriesByName(sheetName); // Ordenar categorias após atualizar
 
-        if (req.user) {
+        if (isUserValid) {
           await logAction(req.user.id, req.user.name, req.user.role, 'update_category', 'Categoria', { categoryName: previousData[0] }, { categoryName: updatedCategoryName });
         }
 
@@ -125,7 +122,7 @@ export default async function handler(req, res) {
         await deleteSheetRow(sheetName, parseInt(deleteIndex, 10));
         await sortCategoriesByName(sheetName); // Ordenar categorias após excluir
 
-        if (req.user) {
+        if (isUserValid) {
           await logAction(req.user.id, req.user.name, req.user.role, 'delete_category', 'Categoria', { categoryName: deletedData[0] }, null);
         }
 
