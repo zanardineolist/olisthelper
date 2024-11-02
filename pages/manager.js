@@ -1,11 +1,12 @@
 import Head from 'next/head';
-import { getSession } from 'next-auth/react';
 import { useState } from 'react';
-import { Tabs, Tab } from '@material-ui/core';
+import { getSession } from 'next-auth/react';
+import { Tabs, Tab } from '@mui/material';
 import ManageUsers from '../components/ManageUsers';
 import ManageCategories from '../components/ManageCategories';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import styles from '../styles/Manager.module.css';
 
 export default function ManagerPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
@@ -22,7 +23,7 @@ export default function ManagerPage({ user }) {
 
       <Navbar user={user} />
 
-      <main>
+      <main className={styles.main}>
         <Tabs
           value={currentTab}
           onChange={handleTabChange}
@@ -34,9 +35,9 @@ export default function ManagerPage({ user }) {
           <Tab label="Gerenciar Categorias" />
         </Tabs>
 
-        <div style={{ marginTop: '20px' }}>
-          {currentTab === 0 && <ManageUsers />}
-          {currentTab === 1 && <ManageCategories />}
+        <div className={styles.tabContent}>
+          {currentTab === 0 && <ManageUsers user={user} />}
+          {currentTab === 1 && <ManageCategories user={user} />}
         </div>
       </main>
 

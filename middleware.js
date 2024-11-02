@@ -30,15 +30,11 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-<<<<<<< HEAD
   if (req.nextUrl.pathname.startsWith('/profile-analyst') && !allowedRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
   if (req.nextUrl.pathname.startsWith('/manager') && !allowedRoles.includes(token.role)) {
-=======
-  if (req.nextUrl.pathname.startsWith('/manage-users') && !allowedRoles.includes(token.role)) {
->>>>>>> ce39b4b8c074b3b8c1078877d85cce9cc23a8ee5
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
