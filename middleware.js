@@ -8,19 +8,13 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-  // Criar uma nova resposta com os headers do usuário
-  const response = NextResponse.next();
-  response.headers.set('x-user-id', token.sub);
-  response.headers.set('x-user-name', token.name);
-  response.headers.set('x-user-role', token.role);
-
   // Ajustar os papéis permitidos
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super'];
 
   // Se o usuário tentar acessar '/profile-analyst', e já tiver o papel correto, não redirecionar novamente
   if (req.nextUrl.pathname.startsWith('/profile-analyst') && analystRoles.includes(token.role)) {
-    return response;
+    return NextResponse.next();
   }
 
   // Redirecionar caso o papel do usuário não tenha acesso à rota específica
@@ -44,7 +38,7 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
