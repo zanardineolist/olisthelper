@@ -47,6 +47,9 @@ export default async function handler(req, res) {
     role: userRole,
   };
 
+  // Verificar se req.user está completo
+  const isUserValid = req.user && req.user.id && req.user.name && req.user.role;
+
   try {
     switch (method) {
       case 'GET':
@@ -69,9 +72,11 @@ export default async function handler(req, res) {
         }
         await addSheetRow(sheetName, [newCategoryName]);
         await sortCategoriesByName(sheetName); // Ordenar categorias após adicionar
-        if (req.user) {
+
+        if (isUserValid) {
           await logAction(req.user.id, req.user.name, req.user.role, 'create_category', 'Categoria', null, { categoryName: newCategoryName });
         }
+
         return res.status(201).json({ message: 'Categoria adicionada com sucesso.' });
 
       case 'PUT':
@@ -92,9 +97,11 @@ export default async function handler(req, res) {
         const previousData = allRowsUpdate[rowIndex];
         await updateSheetRow(sheetName, updateIndex, [updatedCategoryName]);
         await sortCategoriesByName(sheetName); // Ordenar categorias após atualizar
-        if (req.user) {
+
+        if (isUserValid) {
           await logAction(req.user.id, req.user.name, req.user.role, 'update_category', 'Categoria', { categoryName: previousData[0] }, { categoryName: updatedCategoryName });
         }
+
         return res.status(200).json({ message: 'Categoria atualizada com sucesso.' });
 
       case 'DELETE':
@@ -114,9 +121,11 @@ export default async function handler(req, res) {
         const deletedData = allRowsDelete[deleteRowIndex];
         await deleteSheetRow(sheetName, parseInt(deleteIndex, 10));
         await sortCategoriesByName(sheetName); // Ordenar categorias após excluir
-        if (req.user) {
+
+        if (isUserValid) {
           await logAction(req.user.id, req.user.name, req.user.role, 'delete_category', 'Categoria', { categoryName: deletedData[0] }, null);
         }
+
         return res.status(200).json({ message: 'Categoria excluída com sucesso.' });
 
       default:
