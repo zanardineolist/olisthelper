@@ -44,7 +44,7 @@ export default function ManagerPage({ user }) {
   return (
     <>
       <Head>
-        <title>Gerenciamento Geral</title>
+        <title>Gerenciar Dados</title>
       </Head>
 
       <Navbar user={user} />

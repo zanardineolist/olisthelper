@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       case 'PUT':
         // Editando uma categoria existente
         const { name: updatedCategoryName, index: updateIndex } = req.body;
-        if (!updatedCategoryName || updateIndex === undefined) {
+        if (!updatedCategoryName || typeof updateIndex === 'undefined') {
           return res.status(400).json({ error: 'Nome ou índice da categoria não fornecido.' });
         }
         const previousData = await getSheetValues(sheetName, `A${updateIndex}:A${updateIndex}`);
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
       case 'DELETE':
         // Excluindo uma categoria pela linha
         const { index: deleteIndex } = req.query;
-        if (deleteIndex === undefined) {
+        if (typeof deleteIndex === 'undefined') {
           return res.status(400).json({ error: 'Índice da categoria não fornecido.' });
         }
         const deletedData = await getSheetValues(sheetName, `A${deleteIndex}:A${deleteIndex}`);
