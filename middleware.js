@@ -38,6 +38,11 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
+  // Adicionar informações do token aos cabeçalhos da requisição para uso posterior nos handlers
+  req.headers.set('x-user-id', token.id);
+  req.headers.set('x-user-name', token.name);
+  req.headers.set('x-user-role', token.role);
+
   return NextResponse.next();
 }
 
@@ -49,6 +54,7 @@ export const config = {
     '/dashboard-analyst',
     '/dashboard-super',
     '/profile-analyst',
-    '/manager'
+    '/manager',
+    '/api/manage-category', // Incluindo a rota do handler manage-category.js
   ],
 };

@@ -47,33 +47,86 @@ export default async function handler(req, res) {
     role: userRole,
   };
 
-  console.log('Detalhes do usuário extraídos dos headers:', req.user);
-
   // Verificar se req.user está completo
   const isUserValid = req.user && req.user.id && req.user.name && req.user.role;
 
-  console.log('Usuário é válido:', isUserValid);
-
   try {
     switch (method) {
+      case 'GET':
+        // Obtendo todas as categorias da coluna A, a partir da linha 2
+        const rows = await getSheetValues(sheetName, 'A2:A');
+        if (rows && rows.length > 0) {
+          const categories = rows.map((row, index) => ({
+            id: index + 2, // Identificador para edição/exclusão (linha na planilha)
+            name: row[0],
+          }));
+          return res.status(200).json({ categories });
+        }
+        return res.status(404).json({ error: 'Nenhuma categoria encontrada.' });
+
       case 'POST':
+        // Adicionando uma nova categoria
         const newCategoryName = req.body.name;
         if (!newCategoryName) {
           return res.status(400).json({ error: 'Nome da categoria não fornecido.' });
         }
-
         await addSheetRow(sheetName, [newCategoryName]);
         await sortCategoriesByName(sheetName); // Ordenar categorias após adicionar
 
         if (isUserValid) {
-          console.log('Tentando registrar ação de criar categoria.');
           await logAction(req.user.id, req.user.name, req.user.role, 'create_category', 'Categoria', null, { categoryName: newCategoryName });
-          console.log('Ação de criar categoria registrada com sucesso.');
         }
 
         return res.status(201).json({ message: 'Categoria adicionada com sucesso.' });
 
-      // (Casos PUT e DELETE também podem incluir os mesmos logs para depuração)
+      case 'PUT':
+        // Editando uma categoria existente
+        const updatedCategoryName = req.body.name;
+        const updateIndex = req.body.index;
+        if (!updatedCategoryName || typeof updateIndex === 'undefined') {
+          return res.status(400).json({ error: 'Nome ou índice da categoria não fornecido.' });
+        }
+
+        const allRowsUpdate = await getSheetValues(sheetName, 'A2:A');
+        const rowIndex = updateIndex - 2; // Ajustar índice para a linha correta (abaixo do cabeçalho)
+
+        if (rowIndex < 0 || rowIndex >= allRowsUpdate.length) {
+          return res.status(404).json({ error: 'Categoria não encontrada.' });
+        }
+
+        const previousData = allRowsUpdate[rowIndex];
+        await updateSheetRow(sheetName, updateIndex, [updatedCategoryName]);
+        await sortCategoriesByName(sheetName); // Ordenar categorias após atualizar
+
+        if (isUserValid) {
+          await logAction(req.user.id, req.user.name, req.user.role, 'update_category', 'Categoria', { categoryName: previousData[0] }, { categoryName: updatedCategoryName });
+        }
+
+        return res.status(200).json({ message: 'Categoria atualizada com sucesso.' });
+
+      case 'DELETE':
+        // Excluindo uma categoria pela linha
+        const deleteIndex = req.query.index;
+        if (typeof deleteIndex === 'undefined') {
+          return res.status(400).json({ error: 'Índice da categoria não fornecido.' });
+        }
+
+        const allRowsDelete = await getSheetValues(sheetName, 'A2:A');
+        const deleteRowIndex = deleteIndex - 2; // Ajustar índice para a linha correta (abaixo do cabeçalho)
+
+        if (deleteRowIndex < 0 || deleteRowIndex >= allRowsDelete.length) {
+          return res.status(404).json({ error: 'Categoria não encontrada.' });
+        }
+
+        const deletedData = allRowsDelete[deleteRowIndex];
+        await deleteSheetRow(sheetName, parseInt(deleteIndex, 10));
+        await sortCategoriesByName(sheetName); // Ordenar categorias após excluir
+
+        if (isUserValid) {
+          await logAction(req.user.id, req.user.name, req.user.role, 'delete_category', 'Categoria', { categoryName: deletedData[0] }, null);
+        }
+
+        return res.status(200).json({ message: 'Categoria excluída com sucesso.' });
 
       default:
         res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
