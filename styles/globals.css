@@ -21,6 +21,7 @@
   --footer-bg: #1e1e1e;
 }
 
+/* Corpo da página */
 html, body {
   height: 100%;
   margin: 0;
@@ -47,7 +48,7 @@ main {
 }
 
 .footer {
-  background-color: #1e1e1e;
+  background-color: var(--footer-bg);
   color: #555;
   text-align: center;
   padding: 15px 0;
@@ -103,7 +104,7 @@ html::-webkit-scrollbar-thumb {
   height: 48px;
   border-radius: 50%;
   display: inline-block;
-  border-top: 4px solid #FFF;
+  border-top: 4px solid var(--text-color);
   border-right: 4px solid transparent;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
@@ -141,7 +142,7 @@ html::-webkit-scrollbar-thumb {
   animation: bblFadInOut 1.8s infinite ease-in-out;
 }
 .standardBoxLoader {
-  color: #FFF;
+  color: var(--text-color);
   font-size: 7px;
   position: absolute;
   top: 50%;
@@ -169,7 +170,6 @@ html::-webkit-scrollbar-thumb {
   40% { box-shadow: 0 2.5em 0 0 }
 }
 
-
 /* Tooltip Styles */
 .tooltip {
   position: relative;
@@ -179,8 +179,8 @@ html::-webkit-scrollbar-thumb {
 .tooltip .tooltipText {
   visibility: hidden;
   width: 220px;
-  background-color: #fff;
-  color: #333;
+  background-color: var(--navbar-bg);
+  color: var(--text-color);
   font-size: 12px;
   text-align: center;
   border-radius: 6px;
@@ -203,7 +203,7 @@ html::-webkit-scrollbar-thumb {
   margin-left: -10px;
   border-width: 10px;
   border-style: solid;
-  border-color: #fff transparent transparent transparent;
+  border-color: var(--navbar-bg) transparent transparent transparent;
 }
 
 .tooltip:hover .tooltipText {
