@@ -1,8 +1,25 @@
 import { getSheetValues, updateSheetRow, deleteSheetRow, getSheetMetaData } from '../../utils/googleSheets';
+import { logAction } from '../../utils/firebase/firebaseLogging';
 
 export default async function handler(req, res) {
   const { method } = req;
   const { userId } = req.query;
+
+  // Extraindo informações do usuário dos cookies (passados pelo middleware)
+  const requesterId = req.cookies['user-id'];
+  const requesterName = req.cookies['user-name'];
+  const requesterRole = req.cookies['user-role'];
+
+  req.user = {
+    id: requesterId,
+    name: requesterName,
+    role: requesterRole,
+  };
+
+  console.log('Detalhes do usuário extraídos dos cookies:', req.user);
+
+  const isUserValid = req.user && req.user.id && req.user.name && req.user.role;
+  console.log('Usuário é válido:', isUserValid);
 
   if (!userId) {
     return res.status(400).json({ error: 'User ID não fornecido ou inválido.' });
@@ -28,6 +45,7 @@ export default async function handler(req, res) {
 
     switch (method) {
       case 'GET':
+        console.log('Método GET chamado - Carregando registros...');
         try {
           const records = await getSheetValues(sheetName, 'A:F');
           if (records && records.length > 1) {
@@ -40,6 +58,13 @@ export default async function handler(req, res) {
               category: row[4],
               description: row[5],
             }));
+
+            if (isUserValid) {
+              console.log('Registrando ação de leitura no Firebase...');
+              await logAction(req.user.id, req.user.name, req.user.role, 'read_records', 'Registro', null, { userId }, 'manage-records');
+              console.log('Ação de leitura registrada com sucesso.');
+            }
+
             return res.status(200).json({ records: formattedRecords });
           }
           return res.status(404).json({ error: 'Nenhum registro encontrado.' });
@@ -49,6 +74,7 @@ export default async function handler(req, res) {
         }
 
       case 'PUT':
+        console.log('Método PUT chamado - Atualizando registro...');
         try {
           const { record } = req.body;
           if (!record) {
@@ -62,6 +88,22 @@ export default async function handler(req, res) {
             record.category,
             record.description,
           ]);
+
+          if (isUserValid) {
+            console.log('Registrando ação de atualização no Firebase...');
+            await logAction(req.user.id, req.user.name, req.user.role, 'update_record', 'Registro', {
+              index: req.query.index,
+            }, {
+              date: record.date,
+              time: record.time,
+              name: record.name,
+              email: record.email,
+              category: record.category,
+              description: record.description,
+            }, 'manage-records');
+            console.log('Ação de atualização registrada com sucesso.');
+          }
+
           return res.status(200).json({ message: 'Registro atualizado com sucesso.' });
         } catch (error) {
           console.error('Erro ao atualizar registro:', error);
@@ -69,12 +111,20 @@ export default async function handler(req, res) {
         }
 
       case 'DELETE':
+        console.log('Método DELETE chamado - Excluindo registro...');
         try {
           const index = req.query.index;
           if (!index) {
             return res.status(400).json({ error: 'Índice do registro não fornecido.' });
           }
           await deleteSheetRow(sheetName, parseInt(index, 10) + 2);
+
+          if (isUserValid) {
+            console.log('Registrando ação de exclusão no Firebase...');
+            await logAction(req.user.id, req.user.name, req.user.role, 'delete_record', 'Registro', { index }, null, 'manage-records');
+            console.log('Ação de exclusão registrada com sucesso.');
+          }
+
           return res.status(200).json({ message: 'Registro excluído com sucesso.' });
         } catch (error) {
           console.error('Erro ao excluir registro:', error);

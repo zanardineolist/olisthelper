@@ -87,7 +87,7 @@ export default async function handler(req, res) {
 
         if (isUserValid) {
           console.log('Registrando ação de criação no Firebase...');
-          await logAction(req.user.id, req.user.name, req.user.role, 'create_category', 'Categoria', null, { categoryName: newCategoryName });
+          await logAction(req.user.id, req.user.name, req.user.role, 'create_category', 'Categoria', null, { categoryName: newCategoryName }, 'manage-category');
           console.log('Ação de criação registrada com sucesso.');
         }
 
@@ -120,7 +120,7 @@ export default async function handler(req, res) {
 
         if (isUserValid) {
           console.log('Registrando ação de atualização no Firebase...');
-          await logAction(req.user.id, req.user.name, req.user.role, 'update_category', 'Categoria', { categoryName: previousData[0] }, { categoryName: updatedCategoryName });
+          await logAction(req.user.id, req.user.name, req.user.role, 'update_category', 'Categoria', { categoryName: previousData[0] }, { categoryName: updatedCategoryName }, 'manage-category');
           console.log('Ação de atualização registrada com sucesso.');
         }
 
@@ -152,7 +152,7 @@ export default async function handler(req, res) {
 
         if (isUserValid) {
           console.log('Registrando ação de exclusão no Firebase...');
-          await logAction(req.user.id, req.user.name, req.user.role, 'delete_category', 'Categoria', { categoryName: deletedData[0] }, null);
+          await logAction(req.user.id, req.user.name, req.user.role, 'delete_category', 'Categoria', { categoryName: deletedData[0] }, null, 'manage-category');
           console.log('Ação de exclusão registrada com sucesso.');
         }
 
