@@ -2,8 +2,8 @@
 .main {
   padding: 20px;
   margin-top: 50px;
-  background-color: #121212;
-  color: #fff;
+  background-color: var(--background-color);
+  color: var(--text-color);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -17,8 +17,8 @@
 
 /* ================== Botão Adicionar Item ================== */
 .addButton {
-  background-color: #F0A028;
-  color: #fff;
+  background-color: var(--color-accent2);
+  color: var(--text-color);
   border: none;
   padding: 10px 20px;
   font-size: 16px;
@@ -33,11 +33,11 @@
 
 /* ================== Modal ================== */
 .modal {
-  background-color: #1e1e1e !important;
+  background-color: var(--navbar-bg) !important;
   padding: 30px;
   border-radius: 15px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.8);
-  color: #fff;
+  color: var(--text-color);
   max-width: 500px;
   width: 100%;
   position: absolute;
@@ -59,7 +59,7 @@
 }
 
 .modalTitle {
-  color: #F0A028;
+  color: var(--color-accent2);
   margin-bottom: 20px;
   text-align: center;
 }
@@ -76,7 +76,7 @@
   border: 1px solid #333;
   border-radius: 5px;
   background-color: #222;
-  color: #fff;
+  color: var(--text-color);
   font-family: 'Arial', sans-serif;
   font-size: 16px;
 }
@@ -89,8 +89,8 @@
 
 /* ================== Botões do Modal ================== */
 .saveButton {
-  background-color: #779E3D;
-  color: #fff;
+  background-color: var(--color-success);
+  color: var(--text-color);
   border: none;
   padding: 10px;
   font-size: 16px;
@@ -104,8 +104,8 @@
 }
 
 .cancelButton {
-  background-color: #E64E36;
-  color: #fff;
+  background-color: var(--color-accent1);
+  color: var(--text-color);
   border: none;
   padding: 10px;
   font-size: 16px;
@@ -121,7 +121,7 @@
 
 /* ================== Estilo para o Card da Tabela ================== */
 .cardContainer {
-  background-color: #1e1e1e;
+  background-color: var(--navbar-bg);
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
@@ -138,14 +138,14 @@
 }
 
 .cardTitle {
-  color: #F0A028;
+  color: var(--color-accent2);
   font-size: 1.5rem;
 }
 
 /* ================== Botões com Ícones ================== */
 .iconButton {
   background-color: #1976d2;
-  color: #fff;
+  color: var(--text-color);
   border: none;
   padding: 8px 12px;
   font-size: 14px;
@@ -169,7 +169,7 @@
 .actionButtonIcon {
   background: none;
   border: none;
-  color: #fff;
+  color: var(--text-color);
   cursor: pointer;
   font-size: 18px;
   padding: 5px;
@@ -182,7 +182,7 @@
 
 /* ================== Botões de Tabulação ================== */
 .MuiTabs-root {
-  background-color: #333; /* Fundo das abas */
+  background-color: var(--navbar-bg); /* Fundo das abas */
   border-radius: 5px;
   margin-bottom: 10px;
 }
@@ -195,12 +195,12 @@
 }
 
 .MuiTab-root.Mui-selected {
-  color: #F0A028; /* Cor dos labels das abas ativas */
+  color: var(--color-accent2); /* Cor dos labels das abas ativas */
   background-color: #444; /* Fundo da aba ativa */
 }
 
 .MuiTabs-indicator {
-  background-color: #F0A028; /* Cor do indicador da aba ativa */
+  background-color: var(--color-accent2); /* Cor do indicador da aba ativa */
   height: 4px;
   border-radius: 5px;
 }

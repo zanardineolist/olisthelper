@@ -1,57 +1,57 @@
 .main {
-    padding: 20px;
-    margin-top: 50px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .itemsTable {
-    width: 100%;
-    max-width: 1200px;
-    margin: 20px auto;
-    overflow-x: auto;
-  }
-  
-  .itemsTable table {
-    width: 100%;
-    border-collapse: collapse;
-  }
+  padding: 20px;
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  .itemsTable thead {
-    background-color: #333;
-  }
-  
-  .itemsTable th, .itemsTable td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #444;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  
-  .itemsTable th {
-    color: #F0A028;
-    font-weight: bold;
-  }
-  
-  /* Largura específica das colunas */
-  .itemsTable th:nth-child(1),
-  .itemsTable td:nth-child(1) {
-    width: 30%; /* Nome */
-  }
-  
-  .itemsTable th:nth-child(2),
-  .itemsTable td:nth-child(2) {
-    width: 25%; /* E-mail */
-  }
-  
-  .itemsTable th:nth-child(3),
-  .itemsTable td:nth-child(3) {
-    width: 7%; /* Ações */
-  }
-  
+.itemsTable {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  overflow-x: auto;
+}
+
+.itemsTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.itemsTable thead {
+  background-color: var(--navbar-bg);
+}
+
+.itemsTable th, .itemsTable td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #444;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemsTable th {
+  color: var(--color-accent2);
+  font-weight: bold;
+}
+
+/* Largura específica das colunas */
+.itemsTable th:nth-child(1),
+.itemsTable td:nth-child(1) {
+  width: 30%; /* Nome */
+}
+
+.itemsTable th:nth-child(2),
+.itemsTable td:nth-child(2) {
+  width: 25%; /* E-mail */
+}
+
+.itemsTable th:nth-child(3),
+.itemsTable td:nth-child(3) {
+  width: 7%; /* Ações */
+}
+
 /* Scrollbar para Tabela */
 .itemsTable tbody {
   display: block;
@@ -67,7 +67,7 @@
 }
 
 .itemsTable tbody tr:nth-child(odd) {
-  background-color: #1e1e1e; /* Cor mais escura para linhas ímpares */
+  background-color: var(--navbar-bg); /* Cor mais escura para linhas ímpares */
 }
 
 .itemsTable tbody tr:nth-child(even) {
