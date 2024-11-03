@@ -32,7 +32,7 @@
 }
 
 .itemsTable th {
-  color: var(--color-accent2);
+  color: var(--color-primary);
   font-weight: bold;
 }
 
