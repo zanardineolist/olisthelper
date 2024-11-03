@@ -9,6 +9,16 @@ export async function logAction(userId, userName, userRole, action, target, prev
       return;
     }
 
+    console.log("Tentando registrar log no Firebase com os seguintes dados:", {
+      userId,
+      userName,
+      userRole,
+      action,
+      target,
+      previousData,
+      updatedData,
+    });
+
     const docRef = await addDoc(collection(db, "logs"), {
       userId,
       userName,
