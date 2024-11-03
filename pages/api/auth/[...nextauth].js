@@ -2,7 +2,6 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { getUserFromSheet, addUserToSheetIfNotExists } from '../../../utils/googleSheets';
-import { JWT } from 'next-auth/jwt';
 
 export default NextAuth({
   providers: [
@@ -42,7 +41,7 @@ export default NextAuth({
         try {
           let userDetails = await getUserFromSheet(user.email);
           if (userDetails) {
-            token.id = userDetails[0];
+            token.id = userDetails[0]; // Garantir que o ID seja único e consistente
             token.role = userDetails[3]; // Papel do usuário: 'user', 'analyst', ou 'super'
           }
         } catch (error) {

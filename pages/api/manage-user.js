@@ -57,6 +57,8 @@ export default async function handler(req, res) {
       case 'POST':
         const newUser = req.body;
         const allRows = await getSheetValues(sheetName, 'A:H');
+
+        // Garantir que o ID seja único e não mude após ser gerado
         let userId;
         do {
           userId = Math.floor(1000 + Math.random() * 9000).toString();
@@ -77,15 +79,23 @@ export default async function handler(req, res) {
 
       case 'PUT':
         const updatedUser = req.body;
-        const allRowsUpdate = await getSheetValues(sheetName, 'A:H');
 
+        // Verificar se o ID foi fornecido
+        if (!updatedUser.id) {
+          return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+        }
+
+        // Buscar o índice do usuário na planilha
+        const allRowsUpdate = await getSheetValues(sheetName, 'A:H');
         const rowIndex = allRowsUpdate.findIndex((row) => row[0] === updatedUser.id);
+
         if (rowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
 
+        // Atualizar a linha, mantendo o ID fixo
         await updateSheetRow(sheetName, rowIndex + 1, [
-          updatedUser.id,
+          updatedUser.id, // Não modificar o ID do usuário
           updatedUser.name,
           updatedUser.email,
           updatedUser.profile,
