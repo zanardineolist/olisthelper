@@ -1,7 +1,7 @@
 /* styles/Footer.module.css */
 
 .footer {
-  background-color: #1e1e1e;
+  background-color: var(--footer-bg);
   color: #555;
   text-align: center;
   padding: 15px 0;

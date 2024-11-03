@@ -4,10 +4,11 @@ import styles from '../styles/Navbar.module.css';
 import { useState, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FaSignOutAlt } from 'react-icons/fa';
+import { FaSignOutAlt, FaMoon, FaSun } from 'react-icons/fa';
 
 export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState('dark');
   const router = useRouter();
 
   // Fecha o menu ao clicar fora
@@ -25,6 +26,21 @@ export default function Navbar({ user }) {
     }
   }, [menuOpen]);
 
+  // Inicializa o tema com base no localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }, []);
+
+  // Alterna o tema e salva no localStorage
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
+
   const handleNavigation = (path) => {
     router.push(path);
     setMenuOpen(false);
@@ -37,6 +53,9 @@ export default function Navbar({ user }) {
           <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
         </Link>
       </div>
+      <button onClick={toggleTheme} className={styles.themeToggle}>
+        {theme === 'dark' ? <FaSun /> : <FaMoon />}
+      </button>
       <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
         ☰
       </button>
