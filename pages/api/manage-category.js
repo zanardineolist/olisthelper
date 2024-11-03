@@ -33,6 +33,9 @@ async function sortCategoriesByName(sheetName) {
 }
 
 export default async function handler(req, res) {
+  console.log("Tentando registrar um log de teste.");
+  await logAction("testUserId", "Test User", "testRole", "test_action", "Test Target", null, { test: "data" });
+  console.log("Registro de log de teste realizado.");
   const { method } = req;
   const sheetName = 'Categorias';
 
