@@ -17,8 +17,8 @@
 
 /* ================== Botão Adicionar Item ================== */
 .addButton {
-  background-color: var(--color-accent2);
-  color: var(--text-color);
+  background-color: var(--color-primary);
+  color: var(--color-text-white);
   border: none;
   padding: 10px 20px;
   font-size: 16px;
@@ -28,7 +28,7 @@
 }
 
 .addButton:hover {
-  background-color: #f7ac3c;
+  background-color: var(--color-primary-hover);
 }
 
 /* ================== Modal ================== */
@@ -177,30 +177,30 @@
 }
 
 .actionButtonIcon:hover {
-  color: #f57c00;
+  color: var(--color-primary);
 }
 
 /* ================== Botões de Tabulação ================== */
 .MuiTabs-root {
-  background-color: var(--navbar-bg); /* Fundo das abas */
+  background-color: var(--navbar-bg);
   border-radius: 5px;
   margin-bottom: 10px;
 }
 
 .MuiTab-root {
-  color: #8b8b8b; /* Cor dos labels das abas inativas */
+  color: var(--color-text-gray);
   font-size: 16px;
   text-transform: none;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .MuiTab-root.Mui-selected {
-  color: var(--color-accent2); /* Cor dos labels das abas ativas */
-  background-color: #444; /* Fundo da aba ativa */
+  color: var(--color-primary);
+  background-color: var(--color-accent3);
 }
 
 .MuiTabs-indicator {
-  background-color: var(--color-accent2); /* Cor do indicador da aba ativa */
+  background-color: var(--color-primary);
   height: 4px;
   border-radius: 5px;
 }
