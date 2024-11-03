@@ -15,15 +15,15 @@ async function sortCategoriesByName(sheetName) {
           {
             sortRange: {
               range: {
-                sheetId: 0, // Atualize conforme necessário
-                startRowIndex: 1, // Ignorar a linha de cabeçalho
-                endRowIndex: null, // Até o final
+                sheetId: 0,
+                startRowIndex: 1,
+                endRowIndex: null,
                 startColumnIndex: 0,
-                endColumnIndex: 1, // Apenas a coluna A para categorias
+                endColumnIndex: 1,
               },
               sortSpecs: [
                 {
-                  dimensionIndex: 0, // Índice da coluna A (nome)
+                  dimensionIndex: 0,
                   sortOrder: 'ASCENDING',
                 },
               ],
