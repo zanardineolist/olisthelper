@@ -58,13 +58,6 @@ export default async function handler(req, res) {
               category: row[4],
               description: row[5],
             }));
-
-            if (isUserValid) {
-              console.log('Registrando ação de leitura no Firebase...');
-              await logAction(req.user.id, req.user.name, req.user.role, 'read_records', 'Registro', null, { userId }, 'manage-records');
-              console.log('Ação de leitura registrada com sucesso.');
-            }
-
             return res.status(200).json({ records: formattedRecords });
           }
           return res.status(404).json({ error: 'Nenhum registro encontrado.' });
@@ -80,7 +73,18 @@ export default async function handler(req, res) {
           if (!record) {
             return res.status(400).json({ error: 'Dados do registro não fornecidos.' });
           }
-          await updateSheetRow(sheetName, parseInt(req.query.index, 10) + 2, [
+
+          // Obter valores atuais antes da atualização
+          const allRows = await getSheetValues(sheetName, 'A:F');
+          const rowIndex = parseInt(req.query.index, 10);
+          if (rowIndex < 0 || rowIndex >= allRows.length - 1) {
+            return res.status(404).json({ error: 'Registro não encontrado.' });
+          }
+
+          const previousData = allRows[rowIndex + 1]; // Obter linha anterior (índice ajustado)
+
+          // Atualizar o registro na planilha
+          await updateSheetRow(sheetName, rowIndex + 2, [
             record.date,
             record.time,
             record.name,
@@ -92,7 +96,12 @@ export default async function handler(req, res) {
           if (isUserValid) {
             console.log('Registrando ação de atualização no Firebase...');
             await logAction(req.user.id, req.user.name, req.user.role, 'update_record', 'Registro', {
-              index: req.query.index,
+              date: previousData[0],
+              time: previousData[1],
+              name: previousData[2],
+              email: previousData[3],
+              category: previousData[4],
+              description: previousData[5],
             }, {
               date: record.date,
               time: record.time,
@@ -117,11 +126,29 @@ export default async function handler(req, res) {
           if (!index) {
             return res.status(400).json({ error: 'Índice do registro não fornecido.' });
           }
-          await deleteSheetRow(sheetName, parseInt(index, 10) + 2);
+
+          // Obter valores antes da exclusão
+          const allRows = await getSheetValues(sheetName, 'A:F');
+          const deleteIndex = parseInt(index, 10);
+          if (deleteIndex < 0 || deleteIndex >= allRows.length - 1) {
+            return res.status(404).json({ error: 'Registro não encontrado.' });
+          }
+
+          const deletedData = allRows[deleteIndex + 1]; // Obter linha a ser excluída
+
+          // Excluir a linha na planilha
+          await deleteSheetRow(sheetName, deleteIndex + 2);
 
           if (isUserValid) {
             console.log('Registrando ação de exclusão no Firebase...');
-            await logAction(req.user.id, req.user.name, req.user.role, 'delete_record', 'Registro', { index }, null, 'manage-records');
+            await logAction(req.user.id, req.user.name, req.user.role, 'delete_record', 'Registro', {
+              date: deletedData[0],
+              time: deletedData[1],
+              name: deletedData[2],
+              email: deletedData[3],
+              category: deletedData[4],
+              description: deletedData[5],
+            }, null, 'manage-records');
             console.log('Ação de exclusão registrada com sucesso.');
           }
 
