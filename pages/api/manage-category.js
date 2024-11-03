@@ -1,4 +1,4 @@
-import { getSheetValues, addSheetRow, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
+import { getSheetValues, addSheetRow, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets, getSheetIdByName } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
 
 // Função para ordenar categorias em ordem alfabética pelo nome
