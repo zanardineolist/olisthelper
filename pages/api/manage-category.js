@@ -1,7 +1,28 @@
-import { getSheetValues, addSheetRow, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets, getSheetIdByName } from '../../utils/googleSheets';
+import { getSheetValues, addSheetRow, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
 
-// Função para ordenar categorias em ordem alfabética pelo nome
+// Função para obter o sheetId baseado no nome da aba
+async function getSheetIdByName(sheetName) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+    const response = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+
+    const sheet = response.data.sheets.find((s) => s.properties.title === sheetName);
+    if (sheet) {
+      return sheet.properties.sheetId;
+    } else {
+      throw new Error(`Aba '${sheetName}' não encontrada.`);
+    }
+  } catch (error) {
+    console.error('Erro ao obter sheetId:', error);
+    throw error;
+  }
+}
+
+// Função para ordenar categorias pelo nome em ordem alfabética
 async function sortCategoriesByName(sheetName) {
   try {
     console.log('Iniciando a ordenação das categorias...');
@@ -19,11 +40,11 @@ async function sortCategoriesByName(sheetName) {
                 startRowIndex: 1, // Ignorar a linha de cabeçalho
                 endRowIndex: null, // Até o final
                 startColumnIndex: 0,
-                endColumnIndex: 1, // Ordenar apenas a coluna A
+                endColumnIndex: 1, // Ordenar apenas a coluna A (que é o nome da categoria)
               },
               sortSpecs: [
                 {
-                  dimensionIndex: 0, // Índice da coluna A (nome da categoria)
+                  dimensionIndex: 0, // Índice da coluna A (nome)
                   sortOrder: 'ASCENDING',
                 },
               ],
