@@ -19,7 +19,7 @@
 }
 
 .itemsTable thead {
-  background-color: var(--navbar-bg);
+  background-color: var(--color-accent3);
 }
 
 .itemsTable th, .itemsTable td {

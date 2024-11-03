@@ -138,7 +138,7 @@
 }
 
 .cardTitle {
-  color: var(--color-accent2);
+  color: var(--color-primary);
   font-size: 1.5rem;
 }
 
@@ -182,25 +182,25 @@
 
 /* ================== Botões de Tabulação ================== */
 .MuiTabs-root {
-  background-color: var(--navbar-bg);
+  background-color: var(--navbar-bg) !important;
   border-radius: 5px;
   margin-bottom: 10px;
 }
 
 .MuiTab-root {
-  color: var(--color-text-gray);
+  color: var(--color-text-gray) !important;
   font-size: 16px;
   text-transform: none;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .MuiTab-root.Mui-selected {
-  color: var(--color-primary);
-  background-color: var(--color-accent3);
+  color: var(--color-primary) !important;
+  background-color: var(--color-accent3) !important;
 }
 
 .MuiTabs-indicator {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary) !important;
   height: 4px;
   border-radius: 5px;
 }
