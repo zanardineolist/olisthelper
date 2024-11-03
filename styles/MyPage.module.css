@@ -7,7 +7,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #1E1E1E;
+  background-color: var(--navbar-bg);
   padding: 10px 20px;
   z-index: 1000;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
@@ -48,13 +48,13 @@
   padding: 20px;
   display: flex;
   align-items: center;
-  background-color: #1e1e1e;
+  background-color: var(--navbar-bg);
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  color: #fff;
+  color: var(--text-color);
   width: 100%;
   max-width: 500px;
-  height: auto; /* Removido valor fixo de altura */
+  height: auto;
   position: relative;
 }
 
@@ -125,17 +125,17 @@
 
 /* Caixa de desempenho individual */
 .performanceContainer {
-  padding: 20px; /* Ajustado para dar espaçamento interno consistente */
+  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  background-color: #1e1e1e;
+  background-color: var(--navbar-bg);
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  color: #fff;
+  color: var(--text-color);
   width: 100%;
   max-width: 500px;
-  height: auto; /* Removido valor fixo de altura */
+  height: auto;
   position: relative;
 }
 
@@ -165,7 +165,7 @@
 .performanceItem {
   font-size: 0.9em;
   font-weight: bold;
-  background-color: #1e1e1e;
+  background-color: var(--navbar-bg);
   padding: 10px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
@@ -180,11 +180,11 @@
 /* Container para ranking de categorias */
 .categoryRanking {
   margin-top: 40px; 
-  background-color: #1e1e1e;
+  background-color: var(--navbar-bg);
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  color: #fff;
+  color: var(--text-color);
   width: 90%;
   max-width: 1200px;
   min-height: 200px;
@@ -209,6 +209,9 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 15px;
+  background-color: #2A2A2A;
+  padding: 10px;
+  border-radius: 5px;
 }
 
 .rank {
@@ -223,7 +226,7 @@
 
 /* Barra de progresso das categorias */
 .progressBarCategory {
-  background-color: #0A4EE4;
+  background-color: var(--color-primary);
   height: 10px;
   border-radius: 5px;
   margin-right: 10px;
@@ -237,22 +240,12 @@
   gap: 8px;
 }
 
-.listItem {
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #2A2A2A;
-  padding: 10px;
-  border-radius: 5px;
-}
-
 /* Mensagem de ausência de dados */
 .noData {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%; /* Utilizar todo o espaço do container */
+  height: 100%;
   color: #ccc;
 }
 
@@ -266,7 +259,7 @@
   visibility: hidden;
   width: 200px;
   background-color: #555;
-  color: #fff;
+  color: var(--text-color);
   text-align: center;
   border-radius: 6px;
   padding: 5px 0;
@@ -306,6 +299,6 @@
   align-items: center;
   padding: 5px 10px;
   border-radius: 15px;
-  color: #fff;
+  color: var(--text-color);
   font-weight: 600;
 }
