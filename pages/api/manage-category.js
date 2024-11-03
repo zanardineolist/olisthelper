@@ -42,10 +42,10 @@ export default async function handler(req, res) {
   const { method } = req;
   const sheetName = 'Categorias';
 
-  // Extraindo informações do usuário dos headers
-  const userId = req.headers['x-user-id'];
-  const userName = req.headers['x-user-name'];
-  const userRole = req.headers['x-user-role'];
+  // Extraindo informações do usuário dos cookies (passados pelo middleware)
+  const userId = req.cookies['user-id'];
+  const userName = req.cookies['user-name'];
+  const userRole = req.cookies['user-role'];
 
   req.user = {
     id: userId,
@@ -53,9 +53,8 @@ export default async function handler(req, res) {
     role: userRole,
   };
 
-  console.log('Detalhes do usuário extraídos dos headers:', req.user);
+  console.log('Detalhes do usuário extraídos dos cookies:', req.user);
 
-  // Verificar se req.user está completo
   const isUserValid = req.user && req.user.id && req.user.name && req.user.role;
   console.log('Usuário é válido:', isUserValid);
 

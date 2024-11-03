@@ -38,12 +38,13 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Adicionar informações do token aos cabeçalhos da requisição para uso posterior nos handlers
-  req.headers.set('x-user-id', token.id);
-  req.headers.set('x-user-name', token.name);
-  req.headers.set('x-user-role', token.role);
+  // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
+  const response = NextResponse.next();
+  response.cookies.set('user-id', token.id);
+  response.cookies.set('user-name', token.name);
+  response.cookies.set('user-role', token.role);
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
