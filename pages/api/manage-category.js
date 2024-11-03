@@ -6,16 +6,16 @@ async function sortCategoriesByName(sheetName) {
   try {
     console.log('Iniciando a ordenação das categorias...');
     const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
+    const sheetId = await getSheetIdByName(sheetName);
 
     await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: sheetId,
+      spreadsheetId: process.env.SHEET_ID,
       resource: {
         requests: [
           {
             sortRange: {
               range: {
-                sheetId: 0,
+                sheetId: sheetId,
                 startRowIndex: 1,
                 endRowIndex: null,
                 startColumnIndex: 0,
