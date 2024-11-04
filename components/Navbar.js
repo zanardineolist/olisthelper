@@ -118,16 +118,16 @@ export default function Navbar({ user }) {
     const rtf = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
 
     if (diffInSeconds < 60) {
-      return rtf.format(-diffInSeconds, 'seconds');
+      return rtf.format(-diffInSeconds, 'segundos');
     } else if (diffInSeconds < 3600) {
       const diffInMinutes = Math.floor(diffInSeconds / 60);
-      return rtf.format(-diffInMinutes, 'minutes');
+      return rtf.format(-diffInMinutes, 'minutos');
     } else if (diffInSeconds < 86400) {
       const diffInHours = Math.floor(diffInSeconds / 3600);
-      return rtf.format(-diffInHours, 'hours');
+      return rtf.format(-diffInHours, 'horas');
     } else {
       const diffInDays = Math.floor(diffInSeconds / 86400);
-      return rtf.format(-diffInDays, 'days');
+      return rtf.format(-diffInDays, 'dias');
     }
   };
 
@@ -172,7 +172,7 @@ export default function Navbar({ user }) {
                             {getTimeAgo(notification.timestamp)}
                           </span>
                         </div>
-                        <div className={styles.markAsReadIndicator}>
+                        <div className={styles.markAsReadIndicator} style={{ marginLeft: 'auto' }}>
                           {notification.read ? (
                             <FaCheckDouble className={styles.checkIcon} />
                           ) : (
