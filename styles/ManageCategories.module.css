@@ -19,7 +19,7 @@
 }
 
 .itemsTable thead {
-  background-color: var(--navbar-bg);
+  background-color: var(--color-accent4);
 }
 
 .itemsTable th, .itemsTable td {
@@ -32,7 +32,7 @@
 }
 
 .itemsTable th {
-  color: var(--color-accent2);
+  color: var(--color-text-white);
   font-weight: bold;
 }
 
@@ -62,9 +62,9 @@
 }
 
 .itemsTable tbody tr:nth-child(odd) {
-  background-color: var(--navbar-bg); /* Cor mais escura para linhas ímpares */
+  background-color: var(--color-accent6); /* Cor mais escura para linhas ímpares */
 }
 
 .itemsTable tbody tr:nth-child(even) {
-  background-color: #2a2a2a; /* Cor mais clara para linhas pares */
+  background-color: var(--color-accent7); /* Cor mais clara para linhas pares */
 }
