@@ -12,10 +12,10 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
       }
 
-      // Buscar usuários da aba "Usuários" do Google Sheets, somente as colunas A2:C (ID, Nome, Email)
+      // Buscar usuários da aba "Usuários" do Google Sheets, colunas A2:D (ID, Nome, Email, Perfil)
       let users;
       try {
-        users = await getSheetValues('Usuários', 'A2:C'); // Atualizado para buscar apenas colunas relevantes
+        users = await getSheetValues('Usuários', 'A2:D'); // Atualizado para buscar também os perfis dos usuários
       } catch (sheetError) {
         console.error('Erro ao buscar usuários do Google Sheets:', sheetError);
         return res.status(500).json({ error: 'Erro ao buscar usuários do Google Sheets.' });
@@ -25,16 +25,24 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Nenhum usuário encontrado.' });
       }
 
+      // Filtrar usuários dos perfis "analyst", "tax", "super"
+      const targetUsers = users.filter(user => 
+        user[3] === 'analyst' || user[3] === 'tax' || user[3] === 'super'
+      );
+
+      if (targetUsers.length === 0) {
+        return res.status(400).json({ error: 'Nenhum usuário elegível encontrado.' });
+      }
+
       // Adiciona notificação ao Firestore para cada usuário alvo
       const notificationsCollection = collection(db, 'notifications');
-      const promises = users.map(async (user) => {
-        const [userId, userName, userEmail] = user; // Pegar ID, Nome e Email
+      const promises = targetUsers.map(async (user) => {
+        const [userId, userName, userEmail] = user; // Pegar ID, Nome, e Email
 
         try {
           return await addDoc(notificationsCollection, {
             userId,
-            userName,
-            userEmail,
+            userEmail, // Adicionar e-mail para referência futura
             title,
             message,
             read: false,
