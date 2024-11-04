@@ -97,11 +97,31 @@ export default function ManageCategories() {
   const handleSaveCategory = async () => {
     try {
       setLoading(true);
+
+      // Validação: verificar se a categoria já existe, ignorando a caixa alta/baixa
+      const existingCategory = categories.find(
+        (cat) => cat.name.toLowerCase() === newCategory.trim().toLowerCase()
+      );
+
+      if (existingCategory) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Categoria já existe',
+          text: `A categoria "${existingCategory.name}" já está cadastrada. Por favor, utilize esta categoria.`,
+          showConfirmButton: true,
+          allowOutsideClick: true,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Caso não exista, prosseguir com o salvamento
       const method = isEditing ? 'PUT' : 'POST';
       const body = { name: newCategory };
       if (isEditing) {
         body.index = currentCategoryId;
       }
+
       const res = await fetch('/api/manage-category', {
         method,
         headers: {
@@ -109,6 +129,7 @@ export default function ManageCategories() {
         },
         body: JSON.stringify(body),
       });
+
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
       await loadCategories();
