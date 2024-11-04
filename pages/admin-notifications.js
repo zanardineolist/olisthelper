@@ -44,7 +44,7 @@ export default function AdminNotificationsPage({ user }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId: user.id, title, message }),
+        body: JSON.stringify({ title, message }),
       });
 
       if (!res.ok) {

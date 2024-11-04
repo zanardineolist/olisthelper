@@ -1,48 +1,47 @@
 // pages/api/notifications.js
 import { db } from '../../utils/firebase/firebaseConfig';
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
+import { getSheetValues } from '../../utils/googleSheets'; // Função para buscar dados do Google Sheets
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { userId, title, message } = req.body;
+      const { title, message } = req.body;
 
-      if (!userId || !title || !message) {
+      if (!title || !message) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
       }
 
-      // Adiciona notificação ao Firestore
-      const notificationsCollection = collection(db, 'notifications');
-      const docRef = await addDoc(notificationsCollection, {
-        userId,
-        title,
-        message,
-        read: false,
-        timestamp: new Date(),
-      });
-
-      res.status(201).json({ id: docRef.id, message: 'Notificação adicionada com sucesso!' });
-    } catch (error) {
-      console.error('Erro ao adicionar notificação:', error);
-      res.status(500).json({ error: 'Erro ao adicionar notificação.' });
-    }
-  } else if (req.method === 'GET') {
-    try {
-      const { userId } = req.query;
-
-      if (!userId) {
-        return res.status(400).json({ error: 'ID do usuário é obrigatório.' });
+      // Buscar usuários da aba "Usuários" do Google Sheets
+      const users = await getSheetValues('Usuários');
+      
+      if (!users || users.length === 0) {
+        return res.status(400).json({ error: 'Nenhum usuário encontrado.' });
       }
 
-      const notificationsCollection = collection(db, 'notifications');
-      const q = query(notificationsCollection, where("userId", "==", userId));
-      const querySnapshot = await getDocs(q);
+      // Filtrar usuários dos perfis "analyst", "tax", "super"
+      const targetUsers = users.filter(user => 
+        user.role === 'analyst' || user.role === 'tax' || user.role === 'super'
+      );
 
-      const notifications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      res.status(200).json({ notifications });
+      // Adiciona notificação ao Firestore para cada usuário alvo
+      const notificationsCollection = collection(db, 'notifications');
+      const promises = targetUsers.map(async (user) => {
+        return addDoc(notificationsCollection, {
+          userId: user.id,
+          title,
+          message,
+          read: false,
+          timestamp: new Date(),
+        });
+      });
+
+      await Promise.all(promises);
+
+      res.status(201).json({ message: 'Notificação enviada para todos os usuários elegíveis!' });
     } catch (error) {
-      console.error('Erro ao buscar notificações:', error);
-      res.status(500).json({ error: 'Erro ao buscar notificações.' });
+      console.error('Erro ao adicionar notificações:', error);
+      res.status(500).json({ error: 'Erro ao adicionar notificações.' });
     }
   } else {
     res.status(405).json({ error: 'Método não permitido' });

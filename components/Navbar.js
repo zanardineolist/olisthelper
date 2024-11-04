@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FaSignOutAlt, FaMoon, FaSun, FaBell } from 'react-icons/fa';
-import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications'; // Importar a função de marcar notificações como lidas
+import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
+import moment from 'moment';  // Importação do Moment.js para formatação de datas
 
 export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -88,6 +89,11 @@ export default function Navbar({ user }) {
   // Quantidade de notificações não lidas
   const unreadNotificationsCount = notifications.filter(notification => !notification.read).length;
 
+  // Ordenar as notificações para mostrar as mais recentes primeiro e limitar a 5 notificações
+  const sortedNotifications = notifications
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .slice(0, 5);
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
@@ -113,18 +119,21 @@ export default function Navbar({ user }) {
 
             {showNotifications && (
               <div className={styles.notificationsBox}>
-                {notifications.length === 0 ? (
+                {sortedNotifications.length === 0 ? (
                   <p className={styles.noNotifications}>Nenhuma notificação disponível</p>
                 ) : (
                   <ul className={styles.notificationsList}>
-                    {notifications.map((notification) => (
+                    {sortedNotifications.map((notification) => (
                       <li
                         key={notification.id}
                         className={`${styles.notificationItem} ${notification.read ? styles.read : ''}`}
                       >
-                        <div>
+                        <div className={styles.notificationContent}>
                           <strong>{notification.title}</strong>
                           <p>{notification.message}</p>
+                          <span className={styles.timestamp}>
+                            {moment(notification.timestamp).fromNow()}
+                          </span>
                         </div>
                         {!notification.read && (
                           <button onClick={() => handleMarkAsRead(notification.id)} className={styles.markAsReadButton}>

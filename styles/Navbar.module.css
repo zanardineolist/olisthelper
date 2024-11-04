@@ -113,15 +113,15 @@
   position: absolute;
   top: 50px;
   right: 0;
-  width: 300px;
+  width: 350px;
   max-height: 400px;
   overflow-y: auto;
-  background: var(--color-background);
+  background: #ffffff;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  padding: 10px;
+  padding: 15px;
 }
 
 .notificationsList {
@@ -131,20 +131,35 @@
 }
 
 .notificationItem {
-  padding: 10px;
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f9f9f9;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.notificationItem.read {
-  background-color: var(--color-read);
+.notificationItem:hover {
+  background: #f1f1f1;
+  transform: translateY(-2px);
+}
+
+.notificationContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-top: 5px;
 }
 
 .noNotifications {
   text-align: center;
   color: var(--color-muted);
+  font-size: 14px;
+  margin: 10px 0;
 }
 
 .markAsReadButton {
@@ -153,4 +168,6 @@
   color: var(--color-primary);
   cursor: pointer;
   font-size: 12px;
+  margin-top: 10px;
+  align-self: flex-end;
 }
