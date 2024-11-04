@@ -10,7 +10,7 @@ export async function middleware(req) {
 
   // Ajustar os papéis permitidos
   const analystRoles = ['analyst', 'tax'];
-  const allowedRoles = [...analystRoles, 'super'];
+  const allowedRoles = [...analystRoles, 'super', 'dev'];
 
   // Se o usuário tentar acessar '/profile-analyst', e já tiver o papel correto, não redirecionar novamente
   if (req.nextUrl.pathname.startsWith('/profile-analyst') && analystRoles.includes(token.role)) {
@@ -38,6 +38,10 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
+  if (req.nextUrl.pathname.startsWith('/admin-notifications') && token.role !== 'dev') {
+    return NextResponse.redirect(new URL('/', req.url));
+  }
+
   // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
   const response = NextResponse.next();
   response.cookies.set('user-id', token.id);
@@ -57,5 +61,6 @@ export const config = {
     '/profile-analyst',
     '/manager',
     '/api/manage-category', // Incluindo a rota do handler manage-category.js
+    '/admin-notifications', // Incluindo a página de notificações administrativas
   ],
 };

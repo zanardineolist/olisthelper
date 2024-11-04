@@ -4,11 +4,12 @@ import styles from '../styles/Navbar.module.css';
 import { useState, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FaSignOutAlt, FaMoon, FaSun } from 'react-icons/fa';
+import { FaSignOutAlt, FaMoon, FaSun, FaBell } from 'react-icons/fa';
 
 export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
+  const [notifications, setNotifications] = useState([]);
   const router = useRouter();
 
   // Fecha o menu ao clicar fora
@@ -41,6 +42,22 @@ export default function Navbar({ user }) {
     localStorage.setItem('theme', newTheme);
   };
 
+  // Carregar notificações para o usuário
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        // Substituir pelo endpoint adequado para buscar notificações do usuário
+        const res = await fetch(`/api/notifications?userId=${user.id}`);
+        if (!res.ok) throw new Error('Erro ao carregar notificações');
+        const data = await res.json();
+        setNotifications(data.notifications);
+      } catch (err) {
+        console.error('Erro ao carregar notificações:', err);
+      }
+    };
+    loadNotifications();
+  }, [user.id]);
+
   const handleNavigation = (path) => {
     router.push(path);
     setMenuOpen(false);
@@ -53,12 +70,22 @@ export default function Navbar({ user }) {
           <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
         </Link>
       </div>
-      <button onClick={toggleTheme} className={styles.themeToggle}>
-        {theme === 'dark' ? <FaSun /> : <FaMoon />}
-      </button>
-      <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
-        ☰
-      </button>
+
+      <div className={styles.rightSection}>
+        <button onClick={toggleTheme} className={styles.themeToggle}>
+          {theme === 'dark' ? <FaSun /> : <FaMoon />}
+        </button>
+
+        <div className={styles.notificationToggle}>
+          <FaBell />
+          {notifications.length > 0 && <span className={styles.notificationCount}>{notifications.length}</span>}
+        </div>
+
+        <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
+          ☰
+        </button>
+      </div>
+
       {menuOpen && (
         <div className={styles.menu}>
           {user.role === 'support' && (
@@ -87,6 +114,11 @@ export default function Navbar({ user }) {
           {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
             <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
               Gerenciador
+            </button>
+          )}
+          {user.role === 'dev' && (
+            <button onClick={() => handleNavigation('/admin-notifications')} className={styles.menuButton}>
+              Admin Notificações
             </button>
           )}
           <button onClick={() => signOut({ callbackUrl: '/' })} className={`${styles.menuButton} ${styles.logoutButton}`}>

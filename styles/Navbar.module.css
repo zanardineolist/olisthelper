@@ -83,3 +83,28 @@
   display: flex;
   align-items: center;
 }
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.notificationToggle {
+  position: relative;
+  font-size: 24px;
+  color: var(--color-menu);
+  cursor: pointer;
+}
+
+.notificationCount {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background-color: var(--color-accent1);
+  color: #fff;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+}
