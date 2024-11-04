@@ -90,22 +90,29 @@ export default function Navbar({ user }) {
 
   // Ordenar as notificações para mostrar as mais recentes primeiro e limitar a 5 notificações
   const sortedNotifications = [...notifications]
-    .sort((a, b) => new Date(b.timestamp.toDate()) - new Date(a.timestamp.toDate()))
+    .sort((a, b) => convertTimestampToDate(b.timestamp) - convertTimestampToDate(a.timestamp))
     .slice(0, 5);
+
+  // Função para converter o timestamp para um objeto Date
+  const convertTimestampToDate = (timestamp) => {
+    if (timestamp && typeof timestamp.toDate === 'function') {
+      return timestamp.toDate(); // Firestore Timestamp
+    } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
+      return new Date(timestamp); // String ou número de milissegundos
+    } else {
+      return new Date(); // Caso não seja válido, retorna a data atual como fallback
+    }
+  };
 
   // Função para formatar a data da notificação
   const getTimeAgo = (timestamp) => {
-    if (!timestamp || !timestamp.toDate) {
-      return 'Desconhecido';
-    }
-
-    const now = new Date();
-    const notificationTime = timestamp.toDate();
+    const notificationTime = convertTimestampToDate(timestamp);
 
     if (isNaN(notificationTime)) {
       return 'Desconhecido';
     }
 
+    const now = new Date();
     const diffInSeconds = Math.floor((now - notificationTime) / 1000);
 
     const rtf = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
