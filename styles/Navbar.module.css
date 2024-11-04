@@ -165,7 +165,6 @@
 .markAsReadButton {
   background: none;
   border: none;
-  color: var(--color-primary);
   cursor: pointer;
   font-size: 12px;
   margin-top: 10px;
@@ -182,9 +181,10 @@
   flex-direction: row-reverse;
 }
 
-.markAsReadIcon {
-  color: var(--color-success);
-  font-size: 16px;
+.markAsReadText {
+  margin-left: 0px;
+  font-size: 12px;
+  cursor: pointer;
 }
 
 .checkIconDouble {

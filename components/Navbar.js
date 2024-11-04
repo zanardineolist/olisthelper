@@ -25,32 +25,19 @@ export default function Navbar({ user }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const router = useRouter();
   const notificationRef = useRef(null);
+  const navbarRef = useRef(null);
 
-  // Fecha o menu ao clicar fora
+  // Fecha o menu e/ou notificações ao clicar fora
   useEffect(() => {
-    if (menuOpen) {
-      const handleClickOutside = (event) => {
-        if (!event.target.closest(`.${styles.navbar}`)) {
-          setMenuOpen(false);
-        }
-      };
-      document.addEventListener('click', handleClickOutside);
-      return () => {
-        document.removeEventListener('click', handleClickOutside);
-      };
-    }
-  }, [menuOpen]);
-
-  // Fecha a caixa de notificações ao clicar fora
-  useEffect(() => {
-    const handleClickOutsideNotifications = (event) => {
-      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+    const handleClickOutside = (event) => {
+      if (navbarRef.current && !navbarRef.current.contains(event.target)) {
+        setMenuOpen(false);
         setShowNotifications(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutsideNotifications);
+    document.addEventListener('click', handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutsideNotifications);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, []);
 
@@ -96,12 +83,13 @@ export default function Navbar({ user }) {
   const handleNavigation = (path) => {
     router.push(path);
     setMenuOpen(false);
+    setShowNotifications(false);
   };
 
   // Toggle para abrir/fechar a caixa de notificações
-  const toggleNotifications = (event) => {
-    event.stopPropagation(); // Evitar que o clique no ícone de notificações seja interpretado como um clique fora
+  const toggleNotifications = () => {
     setShowNotifications((prev) => !prev);
+    setMenuOpen(false); // Fecha o menu se as notificações forem abertas
   };
 
   // Marcar uma notificação como lida
@@ -154,7 +142,7 @@ export default function Navbar({ user }) {
   };
 
   return (
-    <nav className={styles.navbar}>
+    <nav ref={navbarRef} className={styles.navbar}>
       <div className={styles.logo}>
         <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'}>
           <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
@@ -196,9 +184,12 @@ export default function Navbar({ user }) {
                         </div>
                         <div className={styles.markAsReadIndicator}>
                           {notification.read ? (
-                            <FaCheckDouble className={`${styles.checkIcon} ${styles.pointer}`} />
+                            <FaCheckDouble className={`${styles.checkIcon} ${styles.checkIconDouble}`} />
                           ) : (
-                            <FaCheck className={`${styles.checkIcon} ${styles.pointer}`} onClick={() => handleMarkAsRead(notification.id)} />
+                            <>
+                              <span className={styles.markAsReadText}>Marcar como lido</span>
+                              <FaCheck className={`${styles.checkIcon} ${styles.pointer}`} onClick={() => handleMarkAsRead(notification.id)} />
+                            </>
                           )}
                         </div>
                       </li>
