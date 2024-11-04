@@ -43,18 +43,16 @@ export default function Navbar({ user }) {
 
   // Fecha a caixa de notificações ao clicar fora
   useEffect(() => {
-    if (showNotifications) {
-      const handleClickOutsideNotifications = (event) => {
-        if (notificationRef.current && !notificationRef.current.contains(event.target)) {
-          setShowNotifications(false);
-        }
-      };
-      document.addEventListener('click', handleClickOutsideNotifications);
-      return () => {
-        document.removeEventListener('click', handleClickOutsideNotifications);
-      };
-    }
-  }, [showNotifications]);
+    const handleClickOutsideNotifications = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutsideNotifications);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutsideNotifications);
+    };
+  }, []);
 
   // Inicializa o tema com base no localStorage
   useEffect(() => {
@@ -101,8 +99,9 @@ export default function Navbar({ user }) {
   };
 
   // Toggle para abrir/fechar a caixa de notificações
-  const toggleNotifications = () => {
-    setShowNotifications(!showNotifications);
+  const toggleNotifications = (event) => {
+    event.stopPropagation(); // Evitar que o clique no ícone de notificações seja interpretado como um clique fora
+    setShowNotifications((prev) => !prev);
   };
 
   // Marcar uma notificação como lida
@@ -197,7 +196,7 @@ export default function Navbar({ user }) {
                         </div>
                         <div className={styles.markAsReadIndicator}>
                           {notification.read ? (
-                            <FaCheckDouble className={`${styles.checkIcon} ${styles.checkIconDouble}`} />
+                            <FaCheckDouble className={`${styles.checkIcon} ${styles.pointer}`} />
                           ) : (
                             <FaCheck className={`${styles.checkIcon} ${styles.pointer}`} onClick={() => handleMarkAsRead(notification.id)} />
                           )}
