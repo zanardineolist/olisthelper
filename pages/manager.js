@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getSession } from 'next-auth/react';
 import { Tabs, Tab } from '@mui/material';
 import { styled } from '@mui/system';
@@ -10,29 +10,33 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import styles from '../styles/Manager.module.css';
 
+// Função para obter o valor da variável CSS
+const getCSSVariable = (variable) =>
+  getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
+
 // Componentes personalizados usando styled() para estilizar Tabs e Tab
-const StyledTabs = styled(Tabs)({
-  backgroundColor: '#333',
+const StyledTabs = styled(Tabs)(() => ({
+  backgroundColor: getCSSVariable('--color-accent4') || '#333',
   borderRadius: '5px',
   marginBottom: '20px',
-  marginTop: '20px', // Adicionando o margin-top desejado
+  marginTop: '20px',
   '& .MuiTabs-indicator': {
-    backgroundColor: '#F0A028',
+    backgroundColor: getCSSVariable('--color-primary') || '#F0A028',
     height: '4px',
     borderRadius: '5px',
   },
-});
+}));
 
-const StyledTab = styled(Tab)({
-  color: '#8b8b8b',
+const StyledTab = styled(Tab)(() => ({
+  color: getCSSVariable('--color-text-gray') || '#8b8b8b',
   fontSize: '16px',
   textTransform: 'none',
   transition: 'color 0.3s ease, background-color 0.3s ease',
   '&.Mui-selected': {
-    color: '#F0A028',
-    backgroundColor: '#444',
+    color: getCSSVariable('--color-primary') || '#F0A028',
+    backgroundColor: getCSSVariable('--color-accent3') || '#444',
   },
-});
+}));
 
 export default function ManagerPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
@@ -40,6 +44,11 @@ export default function ManagerPage({ user }) {
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
+
+  // Re-renderiza para atualizar o tema quando a página é carregada
+  useEffect(() => {
+    getCSSVariable('--navbar-bg');
+  }, []);
 
   return (
     <>

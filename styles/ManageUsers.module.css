@@ -34,6 +34,9 @@
 .itemsTable th {
   color: var(--color-text-white);
   font-weight: bold;
+}
+
+.itemsTable tr {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 }
@@ -74,29 +77,4 @@
 
 .itemsTable tbody tr:nth-child(even) {
   background-color: #2a2a2a; /* Cor mais clara para linhas pares */
-}
-
-/* ================== Botões de Tabulação ================== */
-.MuiTabs-root {
-  background-color: var(--navbar-bg);
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
-.MuiTab-root {
-  color: var(--color-text-gray);
-  font-size: 16px;
-  text-transform: none;
-  transition: color 0.3s ease, background-color 0.3s ease;
-}
-
-.MuiTab-root.Mui-selected {
-  color: var(--color-primary);
-  background-color: var(--color-accent3);
-}
-
-.MuiTabs-indicator {
-  background-color: var(--color-primary);
-  height: 4px;
-  border-radius: 5px;
 }
