@@ -27,7 +27,7 @@
 
 .welcomeText {
   font-size: 1.8em;
-  color: var(--text-color);
+  color: var(--color-text-white);
   margin-bottom: 10px;
 }
 

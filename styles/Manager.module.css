@@ -169,7 +169,7 @@
 .actionButtonIcon {
   background: none;
   border: none;
-  color: var(--text-color);
+  color: var(--color-text-white);
   cursor: pointer;
   font-size: 18px;
   padding: 5px;
