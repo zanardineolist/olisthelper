@@ -21,7 +21,7 @@ const theme = createTheme({
           marginTop: '20px',
         },
         indicator: {
-          backgroundColor: 'var(--color-primary)',
+          backgroundColor: 'var(--color-accent5)',
           height: '4px',
           borderRadius: '5px',
         },
