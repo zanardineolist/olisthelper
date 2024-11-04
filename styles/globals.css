@@ -18,12 +18,16 @@
 
   /* Tema claro */
   --background-color: var(--color-light-bg);
+  --color-navbar :#001647;
+  --color-menu: #444;
   --text-color: #000;
   --navbar-bg: #fff;
   --footer-bg: #f0f0f0;
 }
 
 [data-theme="dark"] {
+  --color-navbar :#1E1E1E;
+  --color-menu: #fff;
   --background-color: #121212;
   --text-color: #fff;
   --navbar-bg: #1E1E1E;
