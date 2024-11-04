@@ -5,11 +5,13 @@ import { useState, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FaSignOutAlt, FaMoon, FaSun, FaBell } from 'react-icons/fa';
+import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications'; // Importar a função de marcar notificações como lidas
 
 export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
   const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
   const router = useRouter();
 
   // Fecha o menu ao clicar fora
@@ -63,6 +65,25 @@ export default function Navbar({ user }) {
     setMenuOpen(false);
   };
 
+  // Toggle para abrir/fechar a caixa de notificações
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+  };
+
+  // Marcar uma notificação como lida
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      await markNotificationAsRead(notificationId);
+      setNotifications((prevNotifications) =>
+        prevNotifications.map((notification) =>
+          notification.id === notificationId ? { ...notification, read: true } : notification
+        )
+      );
+    } catch (error) {
+      console.error('Erro ao marcar notificação como lida:', error);
+    }
+  };
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
@@ -76,10 +97,37 @@ export default function Navbar({ user }) {
           {theme === 'dark' ? <FaSun /> : <FaMoon />}
         </button>
 
-        <div className={styles.notificationToggle}>
+        <div className={styles.notificationToggle} onClick={toggleNotifications}>
           <FaBell />
           {notifications.length > 0 && <span className={styles.notificationCount}>{notifications.length}</span>}
         </div>
+
+        {showNotifications && (
+          <div className={styles.notificationsBox}>
+            {notifications.length === 0 ? (
+              <p className={styles.noNotifications}>Nenhuma notificação disponível</p>
+            ) : (
+              <ul className={styles.notificationsList}>
+                {notifications.map((notification) => (
+                  <li
+                    key={notification.id}
+                    className={`${styles.notificationItem} ${notification.read ? styles.read : ''}`}
+                  >
+                    <div>
+                      <strong>{notification.title}</strong>
+                      <p>{notification.message}</p>
+                    </div>
+                    {!notification.read && (
+                      <button onClick={() => handleMarkAsRead(notification.id)} className={styles.markAsReadButton}>
+                        Marcar como lida
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
 
         <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
           ☰
