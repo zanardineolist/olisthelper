@@ -25,6 +25,7 @@
 .itemsTable th, .itemsTable td {
   padding: 10px;
   text-align: left;
+  color: var(--color-text-white);
   border-bottom: 1px solid #444;
   overflow: hidden;
   text-overflow: ellipsis;
