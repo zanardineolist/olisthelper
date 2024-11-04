@@ -48,16 +48,18 @@ export default function Navbar({ user }) {
   useEffect(() => {
     const loadNotifications = async () => {
       try {
-        const res = await fetch(`/api/notifications?userId=${user.id}`);
-        if (!res.ok) throw new Error('Erro ao carregar notificações');
-        const data = await res.json();
-        setNotifications(data.notifications);
+        if (['analyst', 'tax', 'super'].includes(user.role)) {
+          const res = await fetch(`/api/notifications?userId=${user.id}`);
+          if (!res.ok) throw new Error('Erro ao carregar notificações');
+          const data = await res.json();
+          setNotifications(data.notifications);
+        }
       } catch (err) {
         console.error('Erro ao carregar notificações:', err);
       }
     };
     loadNotifications();
-  }, [user.id]);
+  }, [user.id, user.role]);
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -99,38 +101,43 @@ export default function Navbar({ user }) {
           {theme === 'dark' ? <FaSun /> : <FaMoon />}
         </button>
 
-        <div className={styles.notificationToggle} onClick={toggleNotifications}>
-          <FaBell />
-          {unreadNotificationsCount > 0 && (
-            <span className={styles.notificationCount}>{unreadNotificationsCount}</span>
-          )}
-        </div>
+        {/* Mostrar notificações apenas para os papéis "analyst", "tax" e "super" */}
+        {['analyst', 'tax', 'super'].includes(user.role) && (
+          <>
+            <div className={styles.notificationToggle} onClick={toggleNotifications}>
+              <FaBell />
+              {unreadNotificationsCount > 0 && (
+                <span className={styles.notificationCount}>{unreadNotificationsCount}</span>
+              )}
+            </div>
 
-        {showNotifications && (
-          <div className={styles.notificationsBox}>
-            {notifications.length === 0 ? (
-              <p className={styles.noNotifications}>Nenhuma notificação disponível</p>
-            ) : (
-              <ul className={styles.notificationsList}>
-                {notifications.map((notification) => (
-                  <li
-                    key={notification.id}
-                    className={`${styles.notificationItem} ${notification.read ? styles.read : ''}`}
-                  >
-                    <div>
-                      <strong>{notification.title}</strong>
-                      <p>{notification.message}</p>
-                    </div>
-                    {!notification.read && (
-                      <button onClick={() => handleMarkAsRead(notification.id)} className={styles.markAsReadButton}>
-                        Marcar como lida
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
+            {showNotifications && (
+              <div className={styles.notificationsBox}>
+                {notifications.length === 0 ? (
+                  <p className={styles.noNotifications}>Nenhuma notificação disponível</p>
+                ) : (
+                  <ul className={styles.notificationsList}>
+                    {notifications.map((notification) => (
+                      <li
+                        key={notification.id}
+                        className={`${styles.notificationItem} ${notification.read ? styles.read : ''}`}
+                      >
+                        <div>
+                          <strong>{notification.title}</strong>
+                          <p>{notification.message}</p>
+                        </div>
+                        {!notification.read && (
+                          <button onClick={() => handleMarkAsRead(notification.id)} className={styles.markAsReadButton}>
+                            Marcar como lida
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
-          </div>
+          </>
         )}
 
         <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
