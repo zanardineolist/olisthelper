@@ -5,6 +5,7 @@ import styles from '../styles/ManageCategories.module.css';
 import generalStyles from '../styles/Manager.module.css'; // Importação do estilo geral
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import stringSimilarity from 'string-similarity'; // Importar a biblioteca de similaridade
 
 export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
@@ -98,9 +99,10 @@ export default function ManageCategories() {
     try {
       setLoading(true);
 
-      // Validação: verificar se a categoria já existe, ignorando a caixa alta/baixa
+      // Validação: verificar se a categoria já existe ou se é semelhante, ignorando a caixa alta/baixa
+      const lowerCaseNewCategory = newCategory.trim().toLowerCase();
       const existingCategory = categories.find(
-        (cat) => cat.name.toLowerCase() === newCategory.trim().toLowerCase()
+        (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
       );
 
       if (existingCategory) {
@@ -108,6 +110,27 @@ export default function ManageCategories() {
           icon: 'error',
           title: 'Categoria já existe',
           text: `A categoria "${existingCategory.name}" já está cadastrada. Por favor, utilize esta categoria.`,
+          showConfirmButton: true,
+          allowOutsideClick: true,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Validação: verificar similaridade com outras categorias usando string-similarity
+      const categoryNames = categories.map((cat) => cat.name.toLowerCase());
+      const similarityThreshold = 0.7; // Definir um limite de similaridade (de 0 a 1)
+      const similarCategory = stringSimilarity.findBestMatch(lowerCaseNewCategory, categoryNames);
+
+      if (similarCategory.bestMatch.rating >= similarityThreshold) {
+        const similarCategoryName = categories.find(
+          (cat) => cat.name.toLowerCase() === similarCategory.bestMatch.target
+        ).name;
+
+        Swal.fire({
+          icon: 'warning',
+          title: 'Categoria similar encontrada',
+          text: `Existe uma categoria similar já cadastrada: "${similarCategoryName}". Por favor, verifique antes de adicionar.`,
           showConfirmButton: true,
           allowOutsideClick: true,
         });
