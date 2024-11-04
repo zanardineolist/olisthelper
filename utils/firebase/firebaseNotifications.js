@@ -7,7 +7,7 @@ export async function addNotification(userId, title, message) {
   try {
     if (!userId || !title || !message) {
       console.error("Dados faltando ao tentar adicionar notificação:", { userId, title, message });
-      return;
+      throw new Error("Dados insuficientes para adicionar notificação.");
     }
 
     const notificationsCollection = collection(db, "notifications");
@@ -22,6 +22,7 @@ export async function addNotification(userId, title, message) {
     console.log(`Notificação adicionada com sucesso com ID: ${docRef.id}`);
   } catch (error) {
     console.error("Erro ao adicionar notificação no Firebase:", error);
+    throw new Error("Erro ao adicionar notificação no Firebase.");
   }
 }
 

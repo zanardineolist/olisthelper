@@ -13,7 +13,13 @@ export default async function handler(req, res) {
       }
 
       // Buscar usuários da aba "Usuários" do Google Sheets
-      const users = await getSheetValues('Usuários');
+      let users;
+      try {
+        users = await getSheetValues('Usuários');
+      } catch (sheetError) {
+        console.error('Erro ao buscar usuários do Google Sheets:', sheetError);
+        return res.status(500).json({ error: 'Erro ao buscar usuários do Google Sheets.' });
+      }
       
       if (!users || users.length === 0) {
         return res.status(400).json({ error: 'Nenhum usuário encontrado.' });
@@ -24,16 +30,25 @@ export default async function handler(req, res) {
         user.role === 'analyst' || user.role === 'tax' || user.role === 'super'
       );
 
+      if (targetUsers.length === 0) {
+        return res.status(400).json({ error: 'Nenhum usuário elegível encontrado.' });
+      }
+
       // Adiciona notificação ao Firestore para cada usuário alvo
       const notificationsCollection = collection(db, 'notifications');
       const promises = targetUsers.map(async (user) => {
-        return addDoc(notificationsCollection, {
-          userId: user.id,
-          title,
-          message,
-          read: false,
-          timestamp: new Date(),
-        });
+        try {
+          return await addDoc(notificationsCollection, {
+            userId: user.id,
+            title,
+            message,
+            read: false,
+            timestamp: new Date(),
+          });
+        } catch (notificationError) {
+          console.error(`Erro ao adicionar notificação para o usuário ${user.id}:`, notificationError);
+          throw notificationError; // Se ocorrer erro, lançar para interromper a execução
+        }
       });
 
       await Promise.all(promises);
