@@ -147,7 +147,7 @@
 /* Última atualização de dados */
 .lastUpdated {
   font-size: 0.75em;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-color);
   margin-top: 10px;
   margin-bottom: 7px;
   text-align: left;
@@ -209,7 +209,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 15px;
-  background-color: #2A2A2A;
+  background-color: var(--color-accent9);
   padding: 10px;
   border-radius: 5px;
 }
