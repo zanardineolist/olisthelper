@@ -99,7 +99,7 @@ export default function ManageCategories() {
     try {
       setLoading(true);
 
-      // Validação: verificar se a categoria já existe ou se é semelhante, ignorando a caixa alta/baixa
+      // Validação: verificar se a categoria já existe, ignorando a caixa alta/baixa
       const lowerCaseNewCategory = newCategory.trim().toLowerCase();
       const existingCategory = categories.find(
         (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
@@ -127,15 +127,20 @@ export default function ManageCategories() {
           (cat) => cat.name.toLowerCase() === similarCategory.bestMatch.target
         ).name;
 
-        Swal.fire({
+        const result = await Swal.fire({
           icon: 'warning',
           title: 'Categoria similar encontrada',
-          text: `Existe uma categoria similar já cadastrada: "${similarCategoryName}". Por favor, verifique antes de adicionar.`,
-          showConfirmButton: true,
+          html: `Existe uma categoria similar já cadastrada: <strong>${similarCategoryName}</strong>. Deseja realmente prosseguir com o cadastro desta nova categoria?`,
+          showCancelButton: true,
+          confirmButtonText: 'Sim, adicionar',
+          cancelButtonText: 'Cancelar',
           allowOutsideClick: true,
         });
-        setLoading(false);
-        return;
+
+        if (!result.isConfirmed) {
+          setLoading(false);
+          return;
+        }
       }
 
       // Caso não exista, prosseguir com o salvamento
