@@ -12,41 +12,36 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
       }
 
-      // Buscar usuários da aba "Usuários" do Google Sheets
+      // Buscar usuários da aba "Usuários" do Google Sheets, somente as colunas A2:C (ID, Nome, Email)
       let users;
       try {
-        users = await getSheetValues('Usuários');
+        users = await getSheetValues('Usuários', 'A2:C'); // Atualizado para buscar apenas colunas relevantes
       } catch (sheetError) {
         console.error('Erro ao buscar usuários do Google Sheets:', sheetError);
         return res.status(500).json({ error: 'Erro ao buscar usuários do Google Sheets.' });
       }
-      
+
       if (!users || users.length === 0) {
         return res.status(400).json({ error: 'Nenhum usuário encontrado.' });
       }
 
-      // Filtrar usuários dos perfis "analyst", "tax", "super"
-      const targetUsers = users.filter(user => 
-        user.role === 'analyst' || user.role === 'tax' || user.role === 'super'
-      );
-
-      if (targetUsers.length === 0) {
-        return res.status(400).json({ error: 'Nenhum usuário elegível encontrado.' });
-      }
-
       // Adiciona notificação ao Firestore para cada usuário alvo
       const notificationsCollection = collection(db, 'notifications');
-      const promises = targetUsers.map(async (user) => {
+      const promises = users.map(async (user) => {
+        const [userId, userName, userEmail] = user; // Pegar ID, Nome e Email
+
         try {
           return await addDoc(notificationsCollection, {
-            userId: user.id,
+            userId,
+            userName,
+            userEmail,
             title,
             message,
             read: false,
             timestamp: new Date(),
           });
         } catch (notificationError) {
-          console.error(`Erro ao adicionar notificação para o usuário ${user.id}:`, notificationError);
+          console.error(`Erro ao adicionar notificação para o usuário ${userEmail}:`, notificationError);
           throw notificationError; // Se ocorrer erro, lançar para interromper a execução
         }
       });

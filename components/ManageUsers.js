@@ -319,7 +319,7 @@ export default function ManageUsers({ user }) {
             type="email"
             name="email"
             value={newUser.email}
-            placeholder="E-mail"
+            placeholder="Informe um e-mail ou use um generico."
             className={generalStyles.inputField}
             onChange={handleInputChange}
             required
