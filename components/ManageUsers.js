@@ -6,6 +6,7 @@ import styles from '../styles/ManageUsers.module.css';
 import generalStyles from '../styles/Manager.module.css'; // Importando o estilo geral
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import stringSimilarity from 'string-similarity'; // Importar a biblioteca de similaridade
 
 export default function ManageUsers({ user }) {
   const [users, setUsers] = useState([]);
@@ -125,6 +126,55 @@ export default function ManageUsers({ user }) {
   const handleSaveUser = async () => {
     try {
       setLoading(true);
+
+      // Validação: verificar se o nome ou e-mail já existem
+      const lowerCaseNewName = newUser.name.trim().toLowerCase();
+      const lowerCaseNewEmail = newUser.email.trim().toLowerCase();
+
+      // Verificar e-mails existentes
+      const existingEmailUser = users.find(
+        (user) => user.email.toLowerCase() === lowerCaseNewEmail
+      );
+
+      if (existingEmailUser) {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'E-mail já cadastrado',
+          html: `O e-mail "<strong>${existingEmailUser.email}</strong>" já está cadastrado no nome "<strong>${existingEmailUser.name}</strong>". Por favor, verifique antes de prosseguir.`,
+          showConfirmButton: true,
+          allowOutsideClick: true,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Verificar similaridade de nomes usando string-similarity
+      const userNames = users.map((user) => user.name.toLowerCase());
+      const similarityThreshold = 0.7;
+      const similarName = stringSimilarity.findBestMatch(lowerCaseNewName, userNames);
+
+      if (similarName.bestMatch.rating >= similarityThreshold) {
+        const similarUser = users.find(
+          (user) => user.name.toLowerCase() === similarName.bestMatch.target
+        );
+
+        const result = await Swal.fire({
+          icon: 'warning',
+          title: 'Nome similar encontrado',
+          html: `Existe um nome similar já cadastrado: "<strong>${similarUser.name}</strong>" com o e-mail "<strong>${similarUser.email}</strong>". Deseja realmente prosseguir com o cadastro deste novo usuário?`,
+          showCancelButton: true,
+          confirmButtonText: 'Sim, adicionar',
+          cancelButtonText: 'Cancelar',
+          allowOutsideClick: true,
+        });
+
+        if (!result.isConfirmed) {
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Caso não existam conflitos, prosseguir com o salvamento
       const method = isEditing ? 'PUT' : 'POST';
       const res = await fetch('/api/manage-user', {
         method,
