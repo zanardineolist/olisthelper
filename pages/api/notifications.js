@@ -1,7 +1,7 @@
 // pages/api/notifications.js
 import { db } from '../../utils/firebase/firebaseConfig';
-import { collection, addDoc } from "firebase/firestore";
-import { getSheetValues } from '../../utils/googleSheets'; // Função para buscar dados do Google Sheets
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -42,6 +42,26 @@ export default async function handler(req, res) {
     } catch (error) {
       console.error('Erro ao adicionar notificações:', error);
       res.status(500).json({ error: 'Erro ao adicionar notificações.' });
+    }
+  } else if (req.method === 'GET') {
+    try {
+      const { userId } = req.query;
+
+      if (!userId) {
+        return res.status(400).json({ error: 'ID do usuário é obrigatório.' });
+      }
+
+      // Buscar notificações do usuário no Firestore
+      const notificationsCollection = collection(db, 'notifications');
+      const q = query(notificationsCollection, where("userId", "==", userId));
+      const querySnapshot = await getDocs(q);
+
+      const notifications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      res.status(200).json({ notifications });
+    } catch (error) {
+      console.error('Erro ao buscar notificações:', error);
+      res.status(500).json({ error: 'Erro ao buscar notificações.' });
     }
   } else {
     res.status(405).json({ error: 'Método não permitido' });
