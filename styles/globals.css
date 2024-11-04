@@ -16,6 +16,7 @@
   --color-success: #779E3D;
   --color-text-gray: #8B8B8B;
   --color-text-white: #fff;
+  --color-overlay: #282828;
   --navbar-bg: #1E1E1E;
   --footer-bg: #1e1e1e;
   --bg-tooltip: #282828;
@@ -109,7 +110,7 @@ html::-webkit-scrollbar-thumb {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(36, 36, 36, 0.7);
+  background: var(--color-overlay);
   z-index: 9999;
   display: flex;
   justify-content: center;
@@ -136,7 +137,7 @@ html::-webkit-scrollbar-thumb {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border-left: 4px solid #f57c00;
+  border-left: 4px solid #0A4EE4;
   border-bottom: 4px solid transparent;
   animation: rotation 0.5s linear infinite reverse;
 }
