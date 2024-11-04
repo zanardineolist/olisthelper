@@ -7,6 +7,17 @@ import { useRouter } from 'next/router';
 import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
 
+// Função para converter o timestamp para um objeto Date
+const convertTimestampToDate = (timestamp) => {
+  if (timestamp && typeof timestamp.toDate === 'function') {
+    return timestamp.toDate(); // Firestore Timestamp
+  } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
+    return new Date(timestamp); // String ou número de milissegundos
+  } else {
+    return new Date(); // Caso não seja válido, retorna a data atual como fallback
+  }
+};
+
 export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
@@ -92,17 +103,6 @@ export default function Navbar({ user }) {
   const sortedNotifications = [...notifications]
     .sort((a, b) => convertTimestampToDate(b.timestamp) - convertTimestampToDate(a.timestamp))
     .slice(0, 5);
-
-  // Função para converter o timestamp para um objeto Date
-  const convertTimestampToDate = (timestamp) => {
-    if (timestamp && typeof timestamp.toDate === 'function') {
-      return timestamp.toDate(); // Firestore Timestamp
-    } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
-      return new Date(timestamp); // String ou número de milissegundos
-    } else {
-      return new Date(); // Caso não seja válido, retorna a data atual como fallback
-    }
-  };
 
   // Função para formatar a data da notificação
   const getTimeAgo = (timestamp) => {
