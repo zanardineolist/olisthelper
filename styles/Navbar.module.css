@@ -151,13 +151,13 @@
 
 .timestamp {
   font-size: 12px;
-  color: var(--color-accent3);
+  color: var(--color-accent8);
   margin-top: 5px;
 }
 
 .noNotifications {
   text-align: center;
-  color: var(--color-accent3);
+  color: var(--color-accent8);
   font-size: 14px;
   margin: 10px 0;
 }
@@ -185,4 +185,8 @@
 .markAsReadIcon {
   color: var(--color-success);
   font-size: 16px;
+}
+
+.pointer {
+  cursor: pointer;
 }

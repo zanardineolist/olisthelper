@@ -1,7 +1,7 @@
 // components/Navbar.js
 import Link from 'next/link';
 import styles from '../styles/Navbar.module.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
@@ -24,6 +24,7 @@ export default function Navbar({ user }) {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const router = useRouter();
+  const notificationRef = useRef(null);
 
   // Fecha o menu ao clicar fora
   useEffect(() => {
@@ -39,6 +40,21 @@ export default function Navbar({ user }) {
       };
     }
   }, [menuOpen]);
+
+  // Fecha a caixa de notificações ao clicar fora
+  useEffect(() => {
+    if (showNotifications) {
+      const handleClickOutsideNotifications = (event) => {
+        if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+          setShowNotifications(false);
+        }
+      };
+      document.addEventListener('click', handleClickOutsideNotifications);
+      return () => {
+        document.removeEventListener('click', handleClickOutsideNotifications);
+      };
+    }
+  }, [showNotifications]);
 
   // Inicializa o tema com base no localStorage
   useEffect(() => {
@@ -70,6 +86,13 @@ export default function Navbar({ user }) {
       }
     };
     loadNotifications();
+
+    // Atualização periódica para manter o tempo correto em tempo real
+    const interval = setInterval(() => {
+      setNotifications((prevNotifications) => [...prevNotifications]);
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, [user.id, user.role]);
 
   const handleNavigation = (path) => {
@@ -155,7 +178,7 @@ export default function Navbar({ user }) {
             </div>
 
             {showNotifications && (
-              <div className={styles.notificationsBox}>
+              <div ref={notificationRef} className={styles.notificationsBox}>
                 {sortedNotifications.length === 0 ? (
                   <p className={styles.noNotifications}>Nenhuma notificação disponível</p>
                 ) : (
@@ -174,9 +197,9 @@ export default function Navbar({ user }) {
                         </div>
                         <div className={styles.markAsReadIndicator}>
                           {notification.read ? (
-                            <FaCheckDouble className={styles.checkIcon} />
+                            <FaCheckDouble className={`${styles.checkIcon}`} />
                           ) : (
-                            <FaCheck className={styles.checkIcon} onClick={() => handleMarkAsRead(notification.id)} />
+                            <FaCheck className={`${styles.checkIcon} ${styles.pointer}`} onClick={() => handleMarkAsRead(notification.id)} />
                           )}
                         </div>
                       </li>
