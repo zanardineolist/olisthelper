@@ -4,9 +4,8 @@ import styles from '../styles/Navbar.module.css';
 import { useState, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FaSignOutAlt, FaMoon, FaSun, FaBell } from 'react-icons/fa';
+import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckCircle } from 'react-icons/fa';
 import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
-import moment from 'moment';  // Importação do Moment.js para formatação de datas
 
 export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -94,6 +93,28 @@ export default function Navbar({ user }) {
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, 5);
 
+  // Função para formatar a data da notificação
+  const getTimeAgo = (timestamp) => {
+    const now = new Date();
+    const notificationTime = new Date(timestamp);
+    const diffInSeconds = Math.floor((now - notificationTime) / 1000);
+
+    const rtf = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
+
+    if (diffInSeconds < 60) {
+      return rtf.format(-diffInSeconds, 'seconds');
+    } else if (diffInSeconds < 3600) {
+      const diffInMinutes = Math.floor(diffInSeconds / 60);
+      return rtf.format(-diffInMinutes, 'minutes');
+    } else if (diffInSeconds < 86400) {
+      const diffInHours = Math.floor(diffInSeconds / 3600);
+      return rtf.format(-diffInHours, 'hours');
+    } else {
+      const diffInDays = Math.floor(diffInSeconds / 86400);
+      return rtf.format(-diffInDays, 'days');
+    }
+  };
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
@@ -132,12 +153,12 @@ export default function Navbar({ user }) {
                           <strong>{notification.title}</strong>
                           <p>{notification.message}</p>
                           <span className={styles.timestamp}>
-                            {moment(notification.timestamp).fromNow()}
+                            {getTimeAgo(notification.timestamp)}
                           </span>
                         </div>
                         {!notification.read && (
                           <button onClick={() => handleMarkAsRead(notification.id)} className={styles.markAsReadButton}>
-                            Marcar como lida
+                            <FaCheckCircle className={styles.markAsReadIcon} /> Marcar como lida
                           </button>
                         )}
                       </li>
