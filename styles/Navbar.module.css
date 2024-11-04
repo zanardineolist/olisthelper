@@ -187,6 +187,10 @@
   font-size: 16px;
 }
 
+.checkIconDouble {
+  color: var(--color-primary);
+}
+
 .pointer {
   cursor: pointer;
 }
