@@ -1,8 +1,7 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getSession } from 'next-auth/react';
-import { Tabs, Tab } from '@mui/material';
-import { styled } from '@mui/system';
+import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import ManageUsers from '../components/ManageUsers';
 import ManageCategories from '../components/ManageCategories';
 import ManageRecords from '../components/ManageRecords';
@@ -10,33 +9,40 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import styles from '../styles/Manager.module.css';
 
-// Função para obter o valor da variável CSS
-const getCSSVariable = (variable) =>
-  getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
-
-// Componentes personalizados usando styled() para estilizar Tabs e Tab
-const StyledTabs = styled(Tabs)(() => ({
-  backgroundColor: getCSSVariable('--color-accent4') || '#333',
-  borderRadius: '5px',
-  marginBottom: '20px',
-  marginTop: '20px',
-  '& .MuiTabs-indicator': {
-    backgroundColor: getCSSVariable('--color-primary') || '#F0A028',
-    height: '4px',
-    borderRadius: '5px',
+// Criação do tema com as cores personalizadas
+const theme = createTheme({
+  components: {
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          backgroundColor: 'var(--color-primary)',
+          borderRadius: '5px',
+          marginBottom: '20px',
+          marginTop: '20px',
+        },
+        indicator: {
+          backgroundColor: 'var(--color-accent4)',
+          height: '4px',
+          borderRadius: '5px',
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          color: 'var(--color-text-gray)',
+          fontSize: '16px',
+          textTransform: 'none',
+          transition: 'color 0.3s ease, background-color 0.3s ease',
+          '&.Mui-selected': {
+            color: 'var(--color-primary)',
+            backgroundColor: 'var(--color-accent3)',
+          },
+        },
+      },
+    },
   },
-}));
-
-const StyledTab = styled(Tab)(() => ({
-  color: getCSSVariable('--color-text-gray') || '#8b8b8b',
-  fontSize: '16px',
-  textTransform: 'none',
-  transition: 'color 0.3s ease, background-color 0.3s ease',
-  '&.Mui-selected': {
-    color: getCSSVariable('--color-primary') || '#F0A028',
-    backgroundColor: getCSSVariable('--color-accent3') || '#444',
-  },
-}));
+});
 
 export default function ManagerPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
@@ -44,11 +50,6 @@ export default function ManagerPage({ user }) {
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
-
-  // Re-renderiza para atualizar o tema quando a página é carregada
-  useEffect(() => {
-    getCSSVariable('--navbar-bg');
-  }, []);
 
   return (
     <>
@@ -59,17 +60,15 @@ export default function ManagerPage({ user }) {
       <Navbar user={user} />
 
       <main className={styles.main}>
-        <StyledTabs
-          value={currentTab}
-          onChange={handleTabChange}
-          centered
-        >
-          <StyledTab label="Gerenciar Usuários" />
-          <StyledTab label="Gerenciar Categorias" />
-          {(user.role === 'analyst' || user.role === 'tax') && (
-            <StyledTab label="Gerenciar Registros" />
-          )}
-        </StyledTabs>
+        <ThemeProvider theme={theme}>
+          <Tabs value={currentTab} onChange={handleTabChange} centered>
+            <Tab label="Gerenciar Usuários" />
+            <Tab label="Gerenciar Categorias" />
+            {(user.role === 'analyst' || user.role === 'tax') && (
+              <Tab label="Gerenciar Registros" />
+            )}
+          </Tabs>
+        </ThemeProvider>
 
         <div className={styles.tabContent}>
           {currentTab === 0 && <ManageUsers user={user} />}
