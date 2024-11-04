@@ -48,7 +48,6 @@ export default function Navbar({ user }) {
   useEffect(() => {
     const loadNotifications = async () => {
       try {
-        // Substituir pelo endpoint adequado para buscar notificações do usuário
         const res = await fetch(`/api/notifications?userId=${user.id}`);
         if (!res.ok) throw new Error('Erro ao carregar notificações');
         const data = await res.json();
@@ -84,6 +83,9 @@ export default function Navbar({ user }) {
     }
   };
 
+  // Quantidade de notificações não lidas
+  const unreadNotificationsCount = notifications.filter(notification => !notification.read).length;
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
@@ -99,7 +101,9 @@ export default function Navbar({ user }) {
 
         <div className={styles.notificationToggle} onClick={toggleNotifications}>
           <FaBell />
-          {notifications.length > 0 && <span className={styles.notificationCount}>{notifications.length}</span>}
+          {unreadNotificationsCount > 0 && (
+            <span className={styles.notificationCount}>{unreadNotificationsCount}</span>
+          )}
         </div>
 
         {showNotifications && (
