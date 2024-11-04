@@ -169,11 +169,16 @@
   cursor: pointer;
   font-size: 12px;
   margin-top: 10px;
-  margin-left: auto;
   align-self: flex-end;
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.markAsReadIndicator {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
 }
 
 .markAsReadIcon {
