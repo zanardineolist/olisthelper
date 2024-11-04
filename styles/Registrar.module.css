@@ -24,7 +24,7 @@
   justify-content: center;
   align-items: center;
   padding: 20px;
-  background-color: var(--navbar-bg);
+  background-color: var(--box-color);
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   color: var(--text-color);
@@ -34,7 +34,7 @@
 
 /* Estilo do título do formulário */
 .formTitle {
-  color: var(--color-accent2);
+  color: var(--text-color);
   text-align: center;
   margin-bottom: 20px;
   font-size: 1.5rem;
@@ -57,7 +57,7 @@
 /* Efeito de foco e hover para caixas de texto */
 .formFieldHover:focus,
 .formFieldHover:hover {
-  border-color: var(--color-accent2);
+  border-color: var(--color-primary);
   outline: none;
 }
 
@@ -76,9 +76,9 @@
   resize: vertical;
   padding: 10px;
   border-radius: 5px;
-  border: 1px solid #444;
-  background-color: #222;
-  color: var(--text-color);
+  border: 1px solid var(--labels-border);
+  background-color: var(--labels-bg);
+  color: var(--text-color2);
   font-size: 1rem;
   transition: border-color 0.3s ease;
 }
