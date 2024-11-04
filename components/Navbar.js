@@ -4,7 +4,7 @@ import styles from '../styles/Navbar.module.css';
 import { useState, useEffect } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckCircle } from 'react-icons/fa';
+import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
 
 export default function Navbar({ user }) {
@@ -89,18 +89,18 @@ export default function Navbar({ user }) {
   const unreadNotificationsCount = notifications.filter(notification => !notification.read).length;
 
   // Ordenar as notificações para mostrar as mais recentes primeiro e limitar a 5 notificações
-  const sortedNotifications = notifications
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+  const sortedNotifications = [...notifications]
+    .sort((a, b) => new Date(b.timestamp.toDate()) - new Date(a.timestamp.toDate()))
     .slice(0, 5);
 
   // Função para formatar a data da notificação
   const getTimeAgo = (timestamp) => {
-    if (!timestamp) {
+    if (!timestamp || !timestamp.toDate) {
       return 'Desconhecido';
     }
 
     const now = new Date();
-    const notificationTime = new Date(timestamp);
+    const notificationTime = timestamp.toDate();
 
     if (isNaN(notificationTime)) {
       return 'Desconhecido';
@@ -165,11 +165,13 @@ export default function Navbar({ user }) {
                             {getTimeAgo(notification.timestamp)}
                           </span>
                         </div>
-                        {!notification.read && (
-                          <button onClick={() => handleMarkAsRead(notification.id)} className={styles.markAsReadButton}>
-                            <FaCheckCircle className={styles.markAsReadIcon} /> Marcar como lida
-                          </button>
-                        )}
+                        <div className={styles.markAsReadIndicator}>
+                          {notification.read ? (
+                            <FaCheckDouble className={styles.checkIcon} />
+                          ) : (
+                            <FaCheck className={styles.checkIcon} onClick={() => handleMarkAsRead(notification.id)} />
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>
