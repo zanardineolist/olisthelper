@@ -186,10 +186,10 @@ export default function Navbar({ user }) {
                           {notification.read ? (
                             <FaCheckDouble className={`${styles.checkIcon} ${styles.checkIconDouble}`} />
                           ) : (
-                            <>
+                            <div onClick={() => handleMarkAsRead(notification.id)} className={styles.markAsReadWrapper}>
                               <span className={styles.markAsReadText}>Marcar como lido</span>
-                              <FaCheck className={`${styles.checkIcon} ${styles.pointer}`} onClick={() => handleMarkAsRead(notification.id)} />
-                            </>
+                              <FaCheck className={`${styles.checkIcon}`} />
+                            </div>
                           )}
                         </div>
                       </li>
