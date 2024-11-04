@@ -15,21 +15,21 @@
   --color-success: #779E3D;
   --color-text-gray: #8B8B8B;
   --color-text-white: #fff;
+  --navbar-bg: #1E1E1E;
+  --footer-bg: #1e1e1e;
+  --box-color: #1E1E1E;
+  --bg-tooltip: #282828;
 
   /* Tema claro */
   --background-color: var(--color-light-bg);
-  --navbar-bg :#001647;
   --color-menu: #444;
   --text-color: #333;
-  --footer-bg: #f0f0f0;
 }
 
 [data-theme="dark"] {
-  --navbar-bg :#1E1E1E;
   --color-menu: #fff;
   --background-color: #121212;
   --text-color: #fff;
-  --footer-bg: #1e1e1e;
 }
 
 /* Corpo da página */

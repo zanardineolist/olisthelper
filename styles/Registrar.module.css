@@ -92,8 +92,8 @@
 
 /* Estilo para o botão de envio */
 .submitButton {
-  background-color: var(--color-accent1);
-  color: var(--text-color);
+  background-color: var(--color-primary);
+  color: var(--color-text-white);
   padding: 15px;
   border: none;
   border-radius: 5px;
@@ -104,7 +104,7 @@
 }
 
 .submitButton:hover {
-  background-color: #F57C00;
+  background-color: var(--color-primary-hover);
   transform: translateY(-2px);
 }
 

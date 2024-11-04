@@ -38,13 +38,13 @@
 }
 
 .loginTitle {
-  color: var(--color-accent2);
+  color: var(--color-primary);
   margin-bottom: 20px;
 }
 
 .loginButton {
-  background-color: var(--color-accent1);
-  color: var(--text-color);
+  background-color: var(--color-primary);
+  color: var(--color-text-white);
   padding: 15px 30px;
   border: none;
   border-radius: 5px;
@@ -55,7 +55,7 @@
 }
 
 .loginButton:hover {
-  background-color: #f57c00;
+  background-color: var(--color-primary-hover);
 }
 
 .credits {

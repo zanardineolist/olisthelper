@@ -3,7 +3,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #1E1E1E;
+  background-color: var(--navbar-bg);
   padding: 10px 20px;
   position: fixed;
   top: 0;
