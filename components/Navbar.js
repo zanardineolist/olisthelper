@@ -95,8 +95,17 @@ export default function Navbar({ user }) {
 
   // Função para formatar a data da notificação
   const getTimeAgo = (timestamp) => {
+    if (!timestamp) {
+      return 'Desconhecido';
+    }
+
     const now = new Date();
     const notificationTime = new Date(timestamp);
+
+    if (isNaN(notificationTime)) {
+      return 'Desconhecido';
+    }
+
     const diffInSeconds = Math.floor((now - notificationTime) / 1000);
 
     const rtf = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
