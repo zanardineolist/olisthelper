@@ -1,17 +1,4 @@
 /* styles/Navbar.module.css */
-
-:root {
-  --navbar-bg: #333; /* Cor de fundo da barra de navegação */
-  --color-menu: #fff; /* Cor dos ícones do menu */
-  --color-accent1: #ff6b6b; /* Cor de destaque para a notificação */
-  --color-accent3: #444; /* Cor de destaque para o hover */
-  --color-accent7: #555; /* Cor de fundo da notificação */
-  --color-accent8: #999; /* Cor para timestamps e textos secundários */
-  --color-border: #666; /* Cor da borda das notificações */
-  --color-primary: #4caf50; /* Cor primária para ícones lidos */
-  --box-color: #222; /* Cor do fundo da caixa de notificações */
-}
-
 .navbar {
   display: flex;
   justify-content: space-between;
