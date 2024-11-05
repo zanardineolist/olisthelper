@@ -128,7 +128,6 @@
 }
 
 .notificationItem:hover {
-  background: var(--color-accent3);
   transform: translateY(-2px);
 }
 
@@ -140,12 +139,12 @@
 
 .timestamp {
   font-size: 12px;
-  color: var(--color-accent8);
+  color: var(--color-accent9);
 }
 
 .noNotifications {
   text-align: center;
-  color: var(--color-accent8);
+  color: var(--color-accent9);
   font-size: 14px;
   margin: 10px 0;
 }
@@ -165,12 +164,12 @@
 
 .markAsReadText {
   font-size: 12px;
-  color: var(--color-accent8);
+  color: var(--color-accent9);
   cursor: pointer;
 }
 
 .checkIcon {
-  color: var(--color-menu);
+  color: var(--color-accent9);
 }
 
 .checkIconDouble {
