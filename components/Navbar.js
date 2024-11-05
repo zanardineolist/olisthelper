@@ -7,15 +7,21 @@ import { useRouter } from 'next/router';
 import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
 
-// Função para converter o timestamp para um objeto Date
-const convertTimestampToDate = (timestamp) => {
+// Função para converter o timestamp para um objeto Date no horário de Brasília
+const convertTimestampToBrasiliaDate = (timestamp) => {
+  let date;
   if (timestamp && typeof timestamp.toDate === 'function') {
-    return timestamp.toDate(); // Firestore Timestamp
+    date = timestamp.toDate(); // Firestore Timestamp
   } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
-    return new Date(timestamp); // String ou número de milissegundos
+    date = new Date(timestamp); // String ou número de milissegundos
   } else {
-    return new Date(); // Caso não seja válido, retorna a data atual como fallback
+    date = new Date(); // Caso não seja válido, retorna a data atual como fallback
   }
+  // Ajusta a data para o fuso horário de Brasília (UTC-3)
+  const brasiliaOffset = -3 * 60; // Offset em minutos
+  const currentOffset = date.getTimezoneOffset();
+  date.setMinutes(date.getMinutes() + (currentOffset + brasiliaOffset));
+  return date;
 };
 
 export default function Navbar({ user }) {
@@ -111,12 +117,12 @@ export default function Navbar({ user }) {
 
   // Ordenar as notificações para mostrar as mais recentes primeiro e limitar a 5 notificações
   const sortedNotifications = [...notifications]
-    .sort((a, b) => convertTimestampToDate(b.timestamp) - convertTimestampToDate(a.timestamp))
+    .sort((a, b) => convertTimestampToBrasiliaDate(b.timestamp) - convertTimestampToBrasiliaDate(a.timestamp))
     .slice(0, 5);
 
   // Função para formatar a data da notificação
   const getTimeAgo = (timestamp) => {
-    const notificationTime = convertTimestampToDate(timestamp);
+    const notificationTime = convertTimestampToBrasiliaDate(timestamp);
 
     if (isNaN(notificationTime)) {
       return 'Desconhecido';
