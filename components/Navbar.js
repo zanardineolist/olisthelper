@@ -5,7 +5,7 @@ import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Timestamp } from 'firebase/firestore';
 
@@ -101,10 +101,14 @@ export default function Navbar({ user }) {
 
     if (timestamp instanceof Timestamp) {
       notificationTime = timestamp.toDate(); // Converte Firestore Timestamp para Date
+    } else if (typeof timestamp === 'string') {
+      // Tenta analisar a string como ISO ou como data legível
+      notificationTime = parseISO(timestamp);
+      if (isNaN(notificationTime)) {
+        notificationTime = new Date(timestamp);
+      }
     } else if (timestamp instanceof Date) {
       notificationTime = timestamp;
-    } else if (typeof timestamp === 'string') {
-      notificationTime = new Date(Date.parse(timestamp)); // Converte string para Date
     } else if (typeof timestamp === 'number') {
       notificationTime = new Date(timestamp);
     } else {
