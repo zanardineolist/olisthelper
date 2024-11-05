@@ -7,6 +7,7 @@ import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'rea
 import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Timestamp } from 'firebase/firestore';
 
 export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -97,8 +98,8 @@ export default function Navbar({ user }) {
 
   const getTimeAgo = (timestamp) => {
     let notificationTime;
-    if (timestamp && typeof timestamp.toDate === 'function') {
-      notificationTime = timestamp.toDate();
+    if (timestamp instanceof Timestamp) {
+      notificationTime = timestamp.toDate(); // Converte Firestore Timestamp para Date
     } else if (timestamp instanceof Date) {
       notificationTime = timestamp;
     } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
@@ -210,7 +211,7 @@ export default function Navbar({ user }) {
           )}
           {user.role === 'dev' && (
             <button onClick={() => handleNavigation('/admin-notifications')} className={styles.menuButton}>
-              Admin Notificações
+              Updates
             </button>
           )}
           <button onClick={() => signOut({ callbackUrl: '/' })} className={`${styles.menuButton} ${styles.logoutButton}`}>
