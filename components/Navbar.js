@@ -98,11 +98,14 @@ export default function Navbar({ user }) {
 
   const getTimeAgo = (timestamp) => {
     let notificationTime;
+
     if (timestamp instanceof Timestamp) {
       notificationTime = timestamp.toDate(); // Converte Firestore Timestamp para Date
     } else if (timestamp instanceof Date) {
       notificationTime = timestamp;
-    } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
+    } else if (typeof timestamp === 'string') {
+      notificationTime = new Date(Date.parse(timestamp)); // Converte string para Date
+    } else if (typeof timestamp === 'number') {
       notificationTime = new Date(timestamp);
     } else {
       return 'Desconhecido';
@@ -211,7 +214,7 @@ export default function Navbar({ user }) {
           )}
           {user.role === 'dev' && (
             <button onClick={() => handleNavigation('/admin-notifications')} className={styles.menuButton}>
-              Updates
+              Admin Notificações
             </button>
           )}
           <button onClick={() => signOut({ callbackUrl: '/' })} className={`${styles.menuButton} ${styles.logoutButton}`}>
