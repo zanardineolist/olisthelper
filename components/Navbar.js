@@ -5,9 +5,8 @@ import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Timestamp } from 'firebase/firestore';
 
 export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -93,28 +92,15 @@ export default function Navbar({ user }) {
   const unreadNotificationsCount = notifications.filter(notification => !notification.read).length;
 
   const sortedNotifications = [...notifications]
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .sort((a, b) => b.timestamp - a.timestamp)
     .slice(0, 5);
 
   const getTimeAgo = (timestamp) => {
-    let notificationTime;
-
-    if (timestamp instanceof Timestamp) {
-      notificationTime = timestamp.toDate(); // Converte Firestore Timestamp para Date
-    } else if (typeof timestamp === 'string') {
-      // Tenta analisar a string como ISO ou como data legível
-      notificationTime = parseISO(timestamp);
-      if (isNaN(notificationTime)) {
-        notificationTime = new Date(timestamp);
-      }
-    } else if (timestamp instanceof Date) {
-      notificationTime = timestamp;
-    } else if (typeof timestamp === 'number') {
-      notificationTime = new Date(timestamp);
-    } else {
+    if (typeof timestamp !== 'number') {
       return 'Desconhecido';
     }
 
+    const notificationTime = new Date(timestamp);
     if (isNaN(notificationTime)) {
       return 'Desconhecido';
     }

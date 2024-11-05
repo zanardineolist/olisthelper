@@ -45,7 +45,7 @@ export default async function handler(req, res) {
             title,
             message,
             read: false,
-            timestamp: serverTimestamp(), // Usando serverTimestamp() em vez de new Date()
+            timestamp: new Date().getTime(), // Salva como milissegundos
           });
         } catch (notificationError) {
           console.error(`Erro ao adicionar notificação para o usuário ${userEmail}:`, notificationError);

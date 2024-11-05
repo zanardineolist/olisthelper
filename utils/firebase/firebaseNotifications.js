@@ -16,7 +16,7 @@ export async function addNotification(userId, title, message) {
       title,
       message,
       read: false,
-      timestamp: new Date(),
+      timestamp: new Date().getTime(), // Salva como milissegundos
     });
 
     console.log(`Notificação adicionada com sucesso com ID: ${docRef.id}`);
