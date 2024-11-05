@@ -5,6 +5,8 @@ import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -93,43 +95,24 @@ export default function Navbar({ user }) {
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, 5);
 
-    const getTimeAgo = (timestamp) => {
-      // Verificar se o timestamp é um Firestore Timestamp e convertê-lo
-      let notificationTime;
-      if (timestamp && typeof timestamp.toDate === 'function') {
-        notificationTime = timestamp.toDate(); // Converte se for um Firestore Timestamp
-      } else if (timestamp instanceof Date) {
-        notificationTime = timestamp; // Se já for um objeto Date, usa diretamente
-      } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
-        notificationTime = new Date(timestamp); // Caso seja string ou número, converte para Date
-      } else {
-        return 'Desconhecido'; // Retorna 'Desconhecido' se não for um timestamp válido
-      }
-    
-      // Se a conversão resultar em um valor inválido, retorna 'Desconhecido'
-      if (isNaN(notificationTime)) {
-        return 'Desconhecido';
-      }
-    
-      // Calcular a diferença em relação ao horário atual
-      const now = new Date();
-      const diffInSeconds = Math.floor((now - notificationTime) / 1000);
-    
-      const rtf = new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' });
-    
-      if (diffInSeconds < 60) {
-        return rtf.format(-diffInSeconds, 'second');
-      } else if (diffInSeconds < 3600) {
-        const diffInMinutes = Math.floor(diffInSeconds / 60);
-        return rtf.format(-diffInMinutes, 'minute');
-      } else if (diffInSeconds < 86400) {
-        const diffInHours = Math.floor(diffInSeconds / 3600);
-        return rtf.format(-diffInHours, 'hour');
-      } else {
-        const diffInDays = Math.floor(diffInSeconds / 86400);
-        return rtf.format(-diffInDays, 'day');
-      }
-    };    
+  const getTimeAgo = (timestamp) => {
+    let notificationTime;
+    if (timestamp && typeof timestamp.toDate === 'function') {
+      notificationTime = timestamp.toDate();
+    } else if (timestamp instanceof Date) {
+      notificationTime = timestamp;
+    } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
+      notificationTime = new Date(timestamp);
+    } else {
+      return 'Desconhecido';
+    }
+
+    if (isNaN(notificationTime)) {
+      return 'Desconhecido';
+    }
+
+    return formatDistanceToNow(notificationTime, { addSuffix: true, locale: ptBR });
+  };
 
   return (
     <nav ref={navbarRef} className={styles.navbar}>
