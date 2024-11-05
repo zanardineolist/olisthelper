@@ -1,4 +1,6 @@
+import { db } from '../../utils/firebase/firebaseConfig';
 import { collection, addDoc, getDocs, query, where, serverTimestamp } from "firebase/firestore";
+import { getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -9,6 +11,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
       }
 
+      // Buscar usuários da aba "Usuários" do Google Sheets, colunas A2:D (ID, Nome, Email, Perfil)
       let users;
       try {
         users = await getSheetValues('Usuários', 'A2:D');
@@ -21,7 +24,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Nenhum usuário encontrado.' });
       }
 
-      const targetUsers = users.filter(user => 
+      // Filtrar usuários dos perfis "analyst", "tax", "super"
+      const targetUsers = users.filter(user =>
         user[3] === 'analyst' || user[3] === 'tax' || user[3] === 'super'
       );
 
@@ -29,6 +33,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Nenhum usuário elegível encontrado.' });
       }
 
+      // Adiciona notificação ao Firestore para cada usuário alvo
       const notificationsCollection = collection(db, 'notifications');
       const promises = targetUsers.map(async (user) => {
         const [userId, userName, userEmail] = user;
@@ -63,6 +68,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'ID do usuário é obrigatório.' });
       }
 
+      // Buscar notificações do usuário no Firestore
       const notificationsCollection = collection(db, 'notifications');
       const q = query(notificationsCollection, where("userId", "==", userId));
       const querySnapshot = await getDocs(q);
