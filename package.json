@@ -25,7 +25,9 @@
     "firebase": "^9.23.0",
     "date-fns": "^2.30.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
-    "@fortawesome/free-solid-svg-icons": "^6.2.1"
+    "@fortawesome/free-solid-svg-icons": "^6.2.1",
+    "@fortawesome/free-brands-svg-icons": "^6.2.1",
+    "@fortawesome/free-regular-svg-icons": "^6.2.1"
   },
   "devDependencies": {
     "eslint": "8.0.1",
