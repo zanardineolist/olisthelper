@@ -18,17 +18,11 @@
     "sweetalert2": "^11.7.1",
     "string-similarity": "^4.0.4",
     "react-select": "^5.7.0",
-    "axios": "^1.2.0",
     "@mui/material": "^5.11.0",
-    "react-hook-form": "^7.39.0",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "react-modal": "^3.16.1",
-    "react-icons": "^4.3.1",
-    "@fortawesome/react-fontawesome": "^0.2.0",
-    "@fortawesome/free-solid-svg-icons": "^6.2.1",
     "firebase": "^9.23.0",
-    "moment": "^2.29.4",
     "date-fns": "^2.30.0"
   },
   "devDependencies": {
