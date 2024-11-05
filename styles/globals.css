@@ -31,8 +31,8 @@
 }
 
 [data-theme="dark"] {
-  --color-menu: #fff;
   --background-color: var(--color-dark-bg);
+  --color-menu: #fff;
   --text-color: #fff;
   --box-color: #1E1E1E;
   --labels-bg: #222;
