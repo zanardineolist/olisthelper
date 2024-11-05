@@ -1,4 +1,3 @@
-// components/Navbar.js
 import Link from 'next/link';
 import styles from '../styles/Navbar.module.css';
 import { useState, useEffect, useRef } from 'react';
@@ -6,23 +5,6 @@ import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
-
-// Função para converter o timestamp para um objeto Date no horário de Brasília
-const convertTimestampToBrasiliaDate = (timestamp) => {
-  let date;
-  if (timestamp && typeof timestamp.toDate === 'function') {
-    date = timestamp.toDate(); // Firestore Timestamp
-  } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
-    date = new Date(timestamp); // String ou número de milissegundos
-  } else {
-    date = new Date(); // Caso não seja válido, retorna a data atual como fallback
-  }
-  // Ajusta a data para o fuso horário de Brasília (UTC-3)
-  const brasiliaOffset = -3 * 60; // Offset em minutos
-  const currentOffset = date.getTimezoneOffset();
-  date.setMinutes(date.getMinutes() + (currentOffset + brasiliaOffset));
-  return date;
-};
 
 export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,7 +15,6 @@ export default function Navbar({ user }) {
   const notificationRef = useRef(null);
   const navbarRef = useRef(null);
 
-  // Fecha o menu e/ou notificações ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (navbarRef.current && !navbarRef.current.contains(event.target)) {
@@ -47,14 +28,12 @@ export default function Navbar({ user }) {
     };
   }, []);
 
-  // Inicializa o tema com base no localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
 
-  // Alterna o tema e salva no localStorage
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
@@ -62,7 +41,6 @@ export default function Navbar({ user }) {
     localStorage.setItem('theme', newTheme);
   };
 
-  // Carregar notificações para o usuário
   useEffect(() => {
     const loadNotifications = async () => {
       try {
@@ -78,7 +56,6 @@ export default function Navbar({ user }) {
     };
     loadNotifications();
 
-    // Atualização periódica para manter o tempo correto em tempo real
     const interval = setInterval(() => {
       setNotifications((prevNotifications) => [...prevNotifications]);
     }, 1000);
@@ -92,13 +69,11 @@ export default function Navbar({ user }) {
     setShowNotifications(false);
   };
 
-  // Toggle para abrir/fechar a caixa de notificações
   const toggleNotifications = () => {
     setShowNotifications((prev) => !prev);
-    setMenuOpen(false); // Fecha o menu se as notificações forem abertas
+    setMenuOpen(false);
   };
 
-  // Marcar uma notificação como lida
   const handleMarkAsRead = async (notificationId) => {
     try {
       await markNotificationAsRead(notificationId);
@@ -112,17 +87,14 @@ export default function Navbar({ user }) {
     }
   };
 
-  // Quantidade de notificações não lidas
   const unreadNotificationsCount = notifications.filter(notification => !notification.read).length;
 
-  // Ordenar as notificações para mostrar as mais recentes primeiro e limitar a 5 notificações
   const sortedNotifications = [...notifications]
-    .sort((a, b) => convertTimestampToBrasiliaDate(b.timestamp) - convertTimestampToBrasiliaDate(a.timestamp))
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, 5);
 
-  // Função para formatar a data da notificação
   const getTimeAgo = (timestamp) => {
-    const notificationTime = convertTimestampToBrasiliaDate(timestamp);
+    const notificationTime = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
 
     if (isNaN(notificationTime)) {
       return 'Desconhecido';
@@ -160,7 +132,6 @@ export default function Navbar({ user }) {
           {theme === 'dark' ? <FaSun /> : <FaMoon />}
         </button>
 
-        {/* Mostrar notificações apenas para os papéis "analyst", "tax" e "super" */}
         {['analyst', 'tax', 'super'].includes(user.role) && (
           <>
             <div className={styles.notificationToggle} onClick={toggleNotifications}>
