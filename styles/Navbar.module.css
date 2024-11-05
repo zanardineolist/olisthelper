@@ -15,12 +15,6 @@
 
 .logo img {
   height: 40px;
-  cursor: pointer; /* Permite que o logo seja clicável */
-}
-
-.rightSection {
-  display: flex;
-  align-items: center;
 }
 
 .themeToggle, .menuToggle {
@@ -30,7 +24,55 @@
   font-size: 24px;
   cursor: pointer;
   outline: none;
-  margin-left: 15px; /* Espaçamento entre botões */
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--color-accent4);
+  padding: 10px 0;
+  position: absolute;
+  top: 90%;
+  right: 20px;
+  width: 230px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.menuButton,
+.menuButton a {
+  background-color: var(--color-primary);
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+  width: 80%;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+}
+
+.menuButton:hover,
+.menuButton a:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .notificationToggle {
@@ -38,7 +80,6 @@
   font-size: 24px;
   color: var(--color-menu);
   cursor: pointer;
-  margin-left: 15px; /* Espaçamento à esquerda do ícone de notificação */
 }
 
 .notificationCount {
@@ -82,6 +123,7 @@
   transition: background-color 0.3s ease, transform 0.3s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -91,6 +133,8 @@
 }
 
 .notificationContent {
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
 }
 
@@ -114,7 +158,7 @@
 }
 
 .markAsReadText {
-  margin-right: 8px;
+  margin-right: 5px;
   font-size: 12px;
   color: var(--color-accent8);
   cursor: pointer;
@@ -123,7 +167,6 @@
 .markAsReadIndicator {
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* Garante que os ícones estarão alinhados à direita */
 }
 
 .checkIcon {
@@ -134,38 +177,8 @@
 
 .checkIconDouble {
   color: var(--color-primary);
-  margin-left: 5px;
 }
 
-.menu {
-  position: absolute;
-  top: 50px;
-  right: 0;
-  background: var(--box-color);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  padding: 10px 15px;
-}
-
-.menuButton {
-  display: block;
-  width: 100%;
-  text-align: left;
-  background: transparent;
-  border: none;
-  color: var(--color-menu);
-  padding: 10px 0;
-  font-size: 16px;
+.pointer {
   cursor: pointer;
-}
-
-.menuButton:hover {
-  color: var(--color-accent1);
-}
-
-.logoutButton {
-  color: var(--color-accent1);
-  font-weight: bold;
 }
