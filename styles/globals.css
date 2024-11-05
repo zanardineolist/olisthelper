@@ -11,7 +11,7 @@
   --color-accent7: #474747;
   --color-accent8: #282828;
   --color-accent9: #b1b1b1;
-  --color-dark-bg: #001647;
+  --color-dark-bg: #121212;
   --color-light-bg: #F2F0E8;
   --color-success: #779E3D;
   --color-text-gray: #8B8B8B;
@@ -32,7 +32,7 @@
 
 [data-theme="dark"] {
   --color-menu: #fff;
-  --background-color: #121212;
+  --background-color: var(--color-dark-bg);
   --text-color: #fff;
   --box-color: #1E1E1E;
   --labels-bg: #222;
