@@ -15,13 +15,13 @@ const theme = createTheme({
     MuiTabs: {
       styleOverrides: {
         root: {
-          backgroundColor: 'var(--color-accent4)',
+          backgroundColor: 'var(--manager-menu-bg)',
           borderRadius: '5px',
           marginBottom: '20px',
           marginTop: '20px',
         },
         indicator: {
-          backgroundColor: 'var(--color-accent5)',
+          backgroundColor: 'var(--manager-menu-indicator)',
           height: '4px',
           borderRadius: '5px',
         },
@@ -30,12 +30,12 @@ const theme = createTheme({
     MuiTab: {
       styleOverrides: {
         root: {
-          color: 'var(--color-text-gray)',
+          color: 'var(--text-color)',
           fontSize: '16px',
           textTransform: 'none',
           transition: 'color 0.3s ease, background-color 0.3s ease',
           '&.Mui-selected': {
-            color: 'var(--color-text-white)',
+            color: 'var(--color-white)',
             backgroundColor: 'var(--color-primary)',
           },
         },

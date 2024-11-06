@@ -32,6 +32,8 @@
   --color-treven: #bebebe;
   --scroll-bg: #a7a7a7;
   --scroll: #767676;
+  --manager-menu-indicator: #a8a8a8;
+  --manager-menu-bg: #d2d2d2;
 }
 
 [data-theme="dark"] {
@@ -56,6 +58,8 @@
   --color-treven: #2b2b2b;
   --scroll-bg: #121212;
   --scroll: #555;
+  --manager-menu-indicator: #fff;
+  --manager-menu-bg: #5d5d5d;
 }
 
 /* Corpo da página */
