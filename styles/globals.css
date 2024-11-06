@@ -4,39 +4,38 @@
   --color-primary-hover: #174cbd;
   --color-accent1: #E64E36;
   --color-accent2: #F0A028;
-  --color-accent3: #444;
-  --color-accent4: #333;
-  --color-accent5: #fff;
-  --color-accent6: #3F3F3F;
-  --color-accent7: #474747;
-  --color-accent8: #282828;
-  --color-accent9: #b1b1b1;
-  --color-dark-bg: #121212;
-  --color-light-bg: #F2F0E8;
-  --color-success: #779E3D;
-  --color-text-gray: #8B8B8B;
-  --color-text-white: #fff;
+  --color-accent3: #779E3D;
+  --color-accent4: #2A2A2A;
+  --color-white: #fff;
   --color-overlay: #282828;
-  --navbar-bg: #1E1E1E;
-  --footer-bg: #1e1e1e;
   --bg-tooltip: #282828;
 
   /* Tema claro */
-  --background-color: var(--color-light-bg);
-  --color-menu: #444;
-  --box-color: #f3f3f3;
-  --text-color: #444;
+  --background-color: #ffffff;
+  --navbar-bg: #F9F9F9;
+  --footer-bg: #F9F9F9;
+  --text-color: #5D5D5D;
+  --title-color: #0D0D0D;
+  --box-color: #F4F4F4;
   --labels-bg: #c2c2c2;
   --labels-border: #a8a8a8;
+  --color-icons: #AEAEAE;
+  --menu-bg: #D7D7D7;
+  --color-border: #E5E5E5;
 }
 
 [data-theme="dark"] {
-  --background-color: var(--color-dark-bg);
-  --color-menu: #fff;
-  --text-color: #fff;
-  --box-color: #1E1E1E;
+  --background-color: #212121;
+  --navbar-bg: #171717;
+  --footer-bg: #171717;
+  --text-color: #B4B4B4;
+  --title-color: #ECECEC;
+  --box-color: #2F2F2F;
   --labels-bg: #222;
   --labels-border: #444;
+  --color-icons: #686868;
+  --menu-bg: #676767;
+  --color-border: #383838;
 }
 
 /* Corpo da página */
@@ -67,7 +66,7 @@ main {
 
 .footer {
   background-color: var(--footer-bg);
-  color: #555;
+  color: var(--text-color);
   text-align: center;
   padding: 15px 0;
   font-size: 0.9rem;
@@ -137,7 +136,7 @@ html::-webkit-scrollbar-thumb {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border-left: 4px solid #0A4EE4;
+  border-left: 4px solid var(--color-primary);
   border-bottom: 4px solid transparent;
   animation: rotation 0.5s linear infinite reverse;
 }
@@ -197,7 +196,7 @@ html::-webkit-scrollbar-thumb {
 .tooltip .tooltipText {
   visibility: hidden;
   width: 220px;
-  background-color: var(--navbar-bg);
+  background-color: var(--bg-tooltip);
   color: var(--text-color);
   font-size: 12px;
   text-align: center;
@@ -210,7 +209,6 @@ html::-webkit-scrollbar-thumb {
   margin-left: -110px;
   opacity: 0;
   transition: opacity 0.2s;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .tooltip .tooltipText::after {
@@ -221,7 +219,7 @@ html::-webkit-scrollbar-thumb {
   margin-left: -10px;
   border-width: 10px;
   border-style: solid;
-  border-color: var(--navbar-bg) transparent transparent transparent;
+  border-color: var(--color-border) transparent transparent transparent;
 }
 
 .tooltip:hover .tooltipText {

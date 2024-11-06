@@ -10,7 +10,6 @@
     background-color: var(--navbar-bg);
     padding: 10px 20px;
     z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 /* Estilo do logo */
@@ -67,7 +66,6 @@
     align-items: center;
     background-color: var(--box-color);
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     color: var(--text-color);
     width: 100%;
     max-width: 500px;
@@ -116,7 +114,6 @@
     justify-content: flex-start;
     background-color: var(--box-color);
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     color: var(--text-color);
     width: 100%;
     max-width: 500px;
@@ -151,7 +148,6 @@
     background-color: var(--box-color);
     padding: 10px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -166,7 +162,6 @@
     background-color: var(--box-color);
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     color: var(--text-color);
     width: 90%;
     max-width: 1200px;

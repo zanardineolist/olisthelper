@@ -26,7 +26,6 @@
   padding: 20px;
   background-color: var(--box-color);
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   color: var(--text-color);
   width: 100%;
   max-width: 600px;

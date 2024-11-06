@@ -5,7 +5,7 @@
   min-height: 100vh;
   padding: 40px;
   color: #fff;
-  background-color: #121212;
+  background-color: var(--background-color);
 }
 
 .dashboardContainer {
@@ -14,9 +14,8 @@
   width: 100%;
   max-width: 1600px;
   padding: 20px;
-  background-color: #1E1E1E;
+  background-color: var(--box-color);
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   color: #fff;
 }
 
@@ -48,7 +47,7 @@
 .noData, .loading {
   text-align: center;
   padding: 20px;
-  color: #fff;
+  color: var(--text-color);
 }
 
 .rankingContainer {
@@ -62,9 +61,8 @@
 .leaderboard, .categoryRanking {
   width: 48%;
   padding: 30px;
-  background-color: #1E1E1E;
+  background-color: var(--box-color);
   border-radius: 10px;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
 }
 
 .list {
@@ -77,7 +75,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #2A2A2A;
+  background-color: var(--color-accent4);
   padding: 10px;
   border-radius: 5px;
 }
