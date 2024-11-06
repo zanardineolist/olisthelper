@@ -99,78 +99,82 @@ export default function DashboardSuperPage({ user }) {
   };
 
   // Estilos personalizados para o React-Select
-  const customSelectStyles = {
-    container: (provided) => ({
-      ...provided,
-      width: '500px',
-      margin: '20px auto',
-    }),
-    control: (provided, state) => ({
-      ...provided,
-      backgroundColor: '#222',
-      borderColor: state.isFocused ? '#F0A028' : '#444',
-      color: '#fff',
-      borderRadius: '5px',
-      padding: '5px',
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: '#F0A028',
-      },
-      outline: 'none',
-    }),
-    input: (provided) => ({
-      ...provided,
-      color: '#fff',
-      caretColor: '#fff',
-    }),
-    menu: (provided) => ({
-      ...provided,
-      backgroundColor: '#1e1e1e',
-      maxHeight: '250px',
-      overflowY: 'auto',
-    }),
-    menuList: (provided) => ({
-      ...provided,
-      padding: 0,
-      maxHeight: '250px',
-      '&::-webkit-scrollbar': {
-        width: '8px',
-      },
-      '&::-webkit-scrollbar-track': {
-        background: '#121212',
-      },
-      '&::-webkit-scrollbar-thumb': {
-        backgroundColor: '#555',
-        borderRadius: '10px',
-        border: '2px solid #121212',
-      },
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      backgroundColor: state.isFocused ? '#333' : state.isSelected ? '#F0A028' : '#1e1e1e',
-      color: '#fff',
-      cursor: 'pointer',
-      '&:hover': {
-        backgroundColor: '#333',
-      },
-    }),
-    singleValue: (provided) => ({
-      ...provided,
-      color: '#fff',
-    }),
-    placeholder: (provided) => ({
-      ...provided,
-      color: '#aaa',
-    }),
-    dropdownIndicator: (provided) => ({
-      ...provided,
-      color: '#fff',
-    }),
-    indicatorSeparator: (provided) => ({
-      ...provided,
-      backgroundColor: '#444',
-    }),
-  };
+const customSelectStyles = {
+  container: (provided) => ({
+    ...provided,
+    width: '500px',
+    margin: '20px auto',
+  }),
+  control: (provided, state) => ({
+    ...provided,
+    backgroundColor: 'var(--modals-inputs)',
+    borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
+    color: 'var(--text-color)',
+    borderRadius: '5px',
+    padding: '5px',
+    boxShadow: 'none',
+    '&:hover': {
+      borderColor: 'var(--color-primary)',
+    },
+    outline: 'none',
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+    caretColor: 'var(--text-color)',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--modals-inputs)',
+    maxHeight: '250px',
+    overflowY: 'auto',
+  }),
+  menuList: (provided) => ({
+    ...provided,
+    padding: 0,
+    maxHeight: '250px',
+    '&::-webkit-scrollbar': {
+      width: '8px',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'var(--scroll-bg)',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'var(--scroll)',
+      borderRadius: '10px',
+      border: '2px solid var(--scroll-bg)',
+    },
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused
+      ? 'var(--color-trodd)'
+      : state.isSelected
+      ? 'var(--color-primary)'
+      : 'var(--box-color)',
+    color: 'var(--text-color)',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: 'var(--color-trodd)',
+    },
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'var(--text-color2)',
+  }),
+  dropdownIndicator: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  indicatorSeparator: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--color-border)',
+  }),
+};
 
   if (loading) {
     return (
