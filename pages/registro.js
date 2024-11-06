@@ -118,8 +118,8 @@ export default function RegistroPage({ user }) {
 const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
-    backgroundColor: 'var(--box-color)',
-    borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--labels-border)',
+    backgroundColor: 'var(--labels-bg)',
+    borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
     color: 'var(--text-color)',
     borderRadius: '5px',
     padding: '5px',
@@ -136,7 +136,7 @@ const customSelectStyles = {
   }),
   menu: (provided) => ({
     ...provided,
-    backgroundColor: 'var(--box-color)',
+    backgroundColor: 'var(--labels-bg)',
     maxHeight: '220px',
     overflowY: 'auto',
   }),
@@ -183,7 +183,7 @@ const customSelectStyles = {
   }),
   indicatorSeparator: (provided) => ({
     ...provided,
-    backgroundColor: 'var(--labels-border)',
+    backgroundColor: 'var(--color-border)',
   }),
 };
 

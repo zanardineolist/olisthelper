@@ -229,7 +229,7 @@ export default function ManageUsers({ user }) {
     control: (provided, state) => ({
       ...provided,
       backgroundColor: 'var(--modals-inputs)',
-      borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--labels-border)',
+      borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
       color: 'var(--text-color)',
       '&:hover': {
         borderColor: 'var(--color-primary)',
@@ -284,7 +284,7 @@ export default function ManageUsers({ user }) {
     }),
     indicatorSeparator: (provided) => ({
       ...provided,
-      backgroundColor: 'var(--labels-border)',
+      backgroundColor: 'var(--color-border)',
     }),
   };
 

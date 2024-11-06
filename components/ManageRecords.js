@@ -223,7 +223,7 @@ const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
     backgroundColor: 'var(--modals-inputs)',
-    borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--labels-border)',
+    borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
     color: 'var(--text-color)',
     borderRadius: '5px',
     padding: '5px',
@@ -287,7 +287,7 @@ const customSelectStyles = {
   }),
   indicatorSeparator: (provided) => ({
     ...provided,
-    backgroundColor: 'var(--labels-border)',
+    backgroundColor: 'var(--color-border)',
   }),
 };
 
