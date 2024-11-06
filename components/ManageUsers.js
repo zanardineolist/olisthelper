@@ -311,6 +311,7 @@ export default function ManageUsers({ user }) {
             className={generalStyles.inputField}
             onChange={handleInputChange}
             required
+            autoComplete="off"
           />
           <input
             type="email"
@@ -320,6 +321,7 @@ export default function ManageUsers({ user }) {
             className={generalStyles.inputField}
             onChange={handleInputChange}
             required
+            autoComplete="off"
           />
           <Select
             options={profileOptions}
@@ -336,6 +338,7 @@ export default function ManageUsers({ user }) {
             placeholder="Squad"
             className={generalStyles.inputField}
             onChange={handleInputChange}
+            autoComplete="off"
           />
           <div className={styles.checkboxContainer}>
             <label>

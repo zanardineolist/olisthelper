@@ -352,6 +352,7 @@ const customSelectStyles = {
             className={generalStyles.inputField}
             onChange={handleInputChange}
             required
+            autoComplete="off"
           />
           <input
             type="text"
@@ -361,6 +362,7 @@ const customSelectStyles = {
             className={generalStyles.inputField}
             onChange={handleInputChange}
             required
+            autoComplete="off"
           />
           <Select
             options={users.map(user => ({ value: user.name, label: user.name }))}
@@ -378,6 +380,7 @@ const customSelectStyles = {
             className={generalStyles.inputField}
             onChange={handleInputChange}
             disabled
+            autoComplete="off"
           />
           <Select
             options={categories}
@@ -395,6 +398,7 @@ const customSelectStyles = {
             className={generalStyles.inputField}
             onChange={handleInputChange}
             required
+            autoComplete="off"
           />
           <button onClick={handleSaveRecord} disabled={loading} className={generalStyles.saveButton}>
             Salvar Registro

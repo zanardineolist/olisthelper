@@ -219,6 +219,7 @@ export default function ManageCategories() {
             className={generalStyles.inputField}
             onChange={(e) => setNewCategory(e.target.value)}
             required
+            autoComplete="off"
           />
           <button onClick={handleSaveCategory} disabled={loading} className={generalStyles.saveButton}>
             {isEditing ? 'Atualizar Categoria' : 'Adicionar Categoria'}
