@@ -112,7 +112,10 @@ export default function Navbar({ user }) {
     <nav ref={navbarRef} className={styles.navbar}>
       <div className={styles.logo}>
         <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'}>
-          <img src="/images/logos/olist_helper_logo.png" alt="Olist Helper Logo" />
+          <img 
+            src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
+            alt="Novo Logo" 
+          />
         </Link>
       </div>
 
