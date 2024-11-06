@@ -33,7 +33,7 @@
 
 /* Estilo do título do formulário */
 .formTitle {
-  color: var(--text-color);
+  color: var(--title-color);
   text-align: center;
   margin-bottom: 20px;
   font-size: 1.5rem;
@@ -92,7 +92,7 @@
 /* Estilo para o botão de envio */
 .submitButton {
   background-color: var(--color-primary);
-  color: var(--color-text-white);
+  color: var(--color-white);
   padding: 15px;
   border: none;
   border-radius: 5px;
