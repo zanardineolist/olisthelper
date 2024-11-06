@@ -17,12 +17,13 @@
   --text-color: #5D5D5D;
   --title-color: #0D0D0D;
   --box-color: #F4F4F4;
-  --box-color2: #F4F4F4;
+  --box-color2: #dddddd;
   --labels-bg: #c2c2c2;
   --labels-border: #a8a8a8;
   --color-icons: #AEAEAE;
   --menu-bg: #D7D7D7;
   --color-border: #E5E5E5;
+  --color-list: #848484;
 }
 
 [data-theme="dark"] {
@@ -38,6 +39,7 @@
   --color-icons: #686868;
   --menu-bg: #676767;
   --color-border: #383838;
+  --color-list: #2A2A2A;
 }
 
 /* Corpo da página */

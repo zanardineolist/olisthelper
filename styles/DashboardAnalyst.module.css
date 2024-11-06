@@ -16,7 +16,7 @@
   padding: 20px;
   background-color: var(--box-color);
   border-radius: 10px;
-  color: #fff;
+  color: var(--text-color);
 }
 
 .summary {
@@ -65,6 +65,10 @@
   border-radius: 10px;
 }
 
+.leaderboard h3 {
+  color: var(--title-color);
+}
+
 .list {
   list-style: none;
   padding: 0;
@@ -75,7 +79,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--color-accent4);
+  background-color: var(--color-list);
   padding: 10px;
   border-radius: 5px;
 }
