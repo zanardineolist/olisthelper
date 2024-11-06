@@ -153,7 +153,10 @@ export default function Navbar({ user }) {
                         </div>
                         <div className={styles.markAsReadIndicator}>
                           {notification.read ? (
-                            <FaCheckDouble className={`${styles.checkIconDouble}`} />
+                            <FaCheckDouble 
+                              className={`${styles.checkIconDouble}`} 
+                              title="Lido"
+                            />
                           ) : (
                             <div onClick={() => handleMarkAsRead(notification.id)} className={styles.markAsReadWrapper}>
                               <span className={styles.markAsReadText}>Marcar como lido</span>
