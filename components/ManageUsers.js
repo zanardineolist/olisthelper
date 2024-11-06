@@ -228,7 +228,7 @@ export default function ManageUsers({ user }) {
   const customSelectStyles = {
     control: (provided, state) => ({
       ...provided,
-      backgroundColor: 'var(--box-color)',
+      backgroundColor: 'var(--modals-inputs)',
       borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--labels-border)',
       color: 'var(--text-color)',
       '&:hover': {
@@ -243,7 +243,7 @@ export default function ManageUsers({ user }) {
     }),
     menu: (provided) => ({
       ...provided,
-      backgroundColor: 'var(--box-color)',
+      backgroundColor: 'var(--modals-inputs)',
     }),
     menuList: (provided) => ({
       ...provided,
