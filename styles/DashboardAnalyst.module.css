@@ -61,7 +61,7 @@
 .leaderboard, .categoryRanking {
   width: 48%;
   padding: 30px;
-  background-color: var(--box-color);
+  background-color: var(--box-color2);
   border-radius: 10px;
 }
 
