@@ -65,7 +65,8 @@
   border-radius: 10px;
 }
 
-.leaderboard h3 {
+.leaderboard h3,
+.categoryRanking h3 {
   color: var(--title-color);
 }
 
