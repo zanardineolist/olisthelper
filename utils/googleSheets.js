@@ -1,15 +1,39 @@
 // utils/googleSheets.js
 import { google } from 'googleapis';
+import { cache, CACHE_TIMES } from './cache';
 
-// Função para autenticação do Google Sheets
+let sheetsInstance = null;
+
+// Função para autenticação do Google Sheets com singleton
 export async function getAuthenticatedGoogleSheets() {
+  if (sheetsInstance) return sheetsInstance;
+
   const auth = new google.auth.JWT(
     process.env.GOOGLE_CLIENT_EMAIL,
     null,
     process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     ['https://www.googleapis.com/auth/spreadsheets']
   );
-  return google.sheets({ version: 'v4', auth });
+  
+  sheetsInstance = google.sheets({ version: 'v4', auth });
+  return sheetsInstance;
+}
+
+// Função otimizada para batch requests
+export async function batchGetValues(ranges) {
+  const cacheKey = `batch_${ranges.join('_')}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
+  const sheets = await getAuthenticatedGoogleSheets();
+  const response = await sheets.spreadsheets.values.batchGet({
+    spreadsheetId: process.env.SHEET_ID,
+    ranges: ranges.map(range => range),
+  });
+
+  const data = response.data.valueRanges;
+  cache.set(cacheKey, data, CACHE_TIMES.SHEET_VALUES);
+  return data;
 }
 
 // Função para obter usuário da planilha ou adicioná-lo se não existir
@@ -17,6 +41,11 @@ export async function addUserToSheetIfNotExists(user) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
+    const cacheKey = `user_${user.email}`;
+    
+    // Verificar cache primeiro
+    const cachedUser = cache.get(cacheKey);
+    if (cachedUser) return cachedUser;
 
     // Verificar se o usuário já existe
     const response = await sheets.spreadsheets.values.get({
@@ -27,48 +56,53 @@ export async function addUserToSheetIfNotExists(user) {
     const rows = response.data.values || [];
     const existingUser = rows.find((row) => row[2] === user.email);
     if (existingUser) {
+      cache.set(cacheKey, existingUser, CACHE_TIMES.USERS);
       return existingUser;
     }
 
-    // Gerar ID aleatório único de 4 dígitos que não repita
+    // Gerar ID aleatório único
     let userId;
     do {
       userId = Math.floor(1000 + Math.random() * 9000).toString();
     } while (rows.some(row => row[0] === userId));
 
-    // Determinar o índice da nova linha a ser adicionada
-    const newRowIndex = rows.length + 1; // Aumentar índice para a próxima linha correta
-
-    // Adicionar novo usuário com perfil padrão 'support'
+    const newRowIndex = rows.length + 1;
     const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE'];
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: sheetId,
-      range: `Usuários!A${newRowIndex}:H${newRowIndex}`, // Ajustar para a linha correta
-      valueInputOption: 'USER_ENTERED',
-      resource: {
-        values: [newUser],
-      },
-    });
 
-    // Configurar as células F, G e H como checkboxes na linha correta
+    // Usar batch update para otimizar as requisições
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: sheetId,
       resource: {
         requests: [
           {
+            updateCells: {
+              range: {
+                sheetId: 0,
+                startRowIndex: newRowIndex - 1,
+                endRowIndex: newRowIndex,
+                startColumnIndex: 0,
+                endColumnIndex: 8,
+              },
+              rows: [{
+                values: newUser.map(value => ({
+                  userEnteredValue: { stringValue: value.toString() }
+                }))
+              }],
+              fields: 'userEnteredValue'
+            }
+          },
+          {
             repeatCell: {
               range: {
-                sheetId: 0, // ID da aba, ajuste conforme necessário
-                startRowIndex: newRowIndex - 1, // startRowIndex é baseado em zero
+                sheetId: 0,
+                startRowIndex: newRowIndex - 1,
                 endRowIndex: newRowIndex,
-                startColumnIndex: 5, // Coluna F
-                endColumnIndex: 8,  // Coluna H
+                startColumnIndex: 5,
+                endColumnIndex: 8,
               },
               cell: {
                 dataValidation: {
-                  condition: {
-                    type: 'BOOLEAN',
-                  },
+                  condition: { type: 'BOOLEAN' },
                 },
                 userEnteredValue: { boolValue: false },
               },
@@ -79,6 +113,7 @@ export async function addUserToSheetIfNotExists(user) {
       },
     });
 
+    cache.set(cacheKey, newUser, CACHE_TIMES.USERS);
     return newUser;
   } catch (error) {
     console.error('Erro ao adicionar ou verificar usuário na planilha:', error);
@@ -86,9 +121,13 @@ export async function addUserToSheetIfNotExists(user) {
   }
 }
 
-// Função para obter usuário da planilha
+// Função otimizada para obter usuário da planilha
 export async function getUserFromSheet(email) {
   try {
+    const cacheKey = `user_${email}`;
+    const cachedUser = cache.get(cacheKey);
+    if (cachedUser) return cachedUser;
+
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
@@ -99,7 +138,11 @@ export async function getUserFromSheet(email) {
 
     const rows = response.data.values;
     if (rows) {
-      return rows.find((row) => row[2] === email); // Coluna C contém o e-mail
+      const user = rows.find((row) => row[2] === email);
+      if (user) {
+        cache.set(cacheKey, user, CACHE_TIMES.USERS);
+        return user;
+      }
     }
     return null;
   } catch (error) {
@@ -108,21 +151,32 @@ export async function getUserFromSheet(email) {
   }
 }
 
-// Função para obter metadados da planilha
+// Função otimizada para obter metadados da planilha
 export async function getSheetMetaData() {
   try {
+    const cacheKey = 'sheet_metadata';
+    const cachedMetadata = cache.get(cacheKey);
+    if (cachedMetadata) return cachedMetadata;
+
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
-    return await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+    const metadata = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
+    
+    cache.set(cacheKey, metadata, CACHE_TIMES.METADATA);
+    return metadata;
   } catch (error) {
     console.error('Erro ao obter metadados da planilha:', error);
     throw new Error('Erro ao obter metadados da planilha.');
   }
 }
 
-// Função para obter registros de uma aba específica
+// Função otimizada para obter registros de uma aba específica
 export async function getSheetValues(sheetName, range) {
   try {
+    const cacheKey = `sheet_${sheetName}_${range}`;
+    const cachedValues = cache.get(cacheKey);
+    if (cachedValues) return cachedValues;
+
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
@@ -131,7 +185,9 @@ export async function getSheetValues(sheetName, range) {
       range: `${sheetName}!${range}`,
     });
 
-    return response.data.values || [];
+    const values = response.data.values || [];
+    cache.set(cacheKey, values, CACHE_TIMES.SHEET_VALUES);
+    return values;
   } catch (error) {
     console.error(`Erro ao obter valores da aba ${sheetName}:`, error);
     throw new Error(`Erro ao obter valores da aba ${sheetName}.`);
@@ -148,10 +204,11 @@ export async function appendValuesToSheet(sheetName, values) {
       spreadsheetId: sheetId,
       range: `${sheetName}!A:F`,
       valueInputOption: 'USER_ENTERED',
-      resource: {
-        values,
-      },
+      resource: { values },
     });
+
+    // Invalidar cache relacionado
+    cache.delete(`sheet_${sheetName}_A:F`);
   } catch (error) {
     console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
     throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
@@ -168,109 +225,65 @@ export async function updateSheetRow(sheetName, rowIndex, values) {
       spreadsheetId: sheetId,
       range: `${sheetName}!A${rowIndex}:H${rowIndex}`,
       valueInputOption: 'USER_ENTERED',
-      resource: {
-        values: [values],
-      },
+      resource: { values: [values] },
     });
+
+    // Invalidar cache relacionado
+    cache.delete(`sheet_${sheetName}_A:H`);
   } catch (error) {
     console.error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}:`, error);
     throw new Error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}.`);
   }
 }
 
-// Função para adicionar uma nova linha na planilha e configurar os checkboxes
+// Função otimizada para adicionar uma nova linha
 export async function addSheetRow(sheetName, values) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    // Adicionando os valores na planilha
     const appendResponse = await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      range: `${sheetName}!A:H`, // Ajuste para adicionar na aba correta
+      range: `${sheetName}!A:H`,
       valueInputOption: 'USER_ENTERED',
-      resource: {
-        values: [values],
-      },
+      resource: { values: [values] },
     });
 
-    // Pegar o índice da linha adicionada
     const updatedRange = appendResponse.data.updates.updatedRange;
     const match = updatedRange.match(/(\d+):\w+/);
+    
     if (match) {
-      const newRowIndex = parseInt(match[1], 10) - 1; // Corrigir índice (começa do zero)
+      const newRowIndex = parseInt(match[1], 10) - 1;
+      const [chamado, telefone, chat] = values.slice(5, 8);
 
-      // Configurar as células F, G e H como checkboxes com os valores corretos
-      const [chamado, telefone, chat] = values.slice(5, 8); // Obter valores de Chamado, Telefone e Chat
-
+      // Usar batch update para otimizar as requisições de checkbox
       await sheets.spreadsheets.batchUpdate({
         spreadsheetId: sheetId,
         resource: {
-          requests: [
-            {
-              repeatCell: {
-                range: {
-                  sheetId: 0, // ID da aba, ajuste conforme necessário
-                  startRowIndex: newRowIndex,
-                  endRowIndex: newRowIndex + 1,
-                  startColumnIndex: 5, // Coluna F
-                  endColumnIndex: 6,  // Coluna F (Chamado)
-                },
-                cell: {
-                  userEnteredValue: { boolValue: chamado === 'TRUE' },
-                  dataValidation: {
-                    condition: {
-                      type: 'BOOLEAN',
-                    },
-                  },
-                },
-                fields: 'dataValidation,userEnteredValue',
+          requests: [5, 6, 7].map((colIndex) => ({
+            repeatCell: {
+              range: {
+                sheetId: 0,
+                startRowIndex: newRowIndex,
+                endRowIndex: newRowIndex + 1,
+                startColumnIndex: colIndex,
+                endColumnIndex: colIndex + 1,
               },
-            },
-            {
-              repeatCell: {
-                range: {
-                  sheetId: 0, // ID da aba, ajuste conforme necessário
-                  startRowIndex: newRowIndex,
-                  endRowIndex: newRowIndex + 1,
-                  startColumnIndex: 6, // Coluna G (Telefone)
-                  endColumnIndex: 7,
+              cell: {
+                dataValidation: { condition: { type: 'BOOLEAN' } },
+                userEnteredValue: {
+                  boolValue: values[colIndex] === 'TRUE'
                 },
-                cell: {
-                  userEnteredValue: { boolValue: telefone === 'TRUE' },
-                  dataValidation: {
-                    condition: {
-                      type: 'BOOLEAN',
-                    },
-                  },
-                },
-                fields: 'dataValidation,userEnteredValue',
               },
+              fields: 'dataValidation,userEnteredValue',
             },
-            {
-              repeatCell: {
-                range: {
-                  sheetId: 0, // ID da aba, ajuste conforme necessário
-                  startRowIndex: newRowIndex,
-                  endRowIndex: newRowIndex + 1,
-                  startColumnIndex: 7, // Coluna H (Chat)
-                  endColumnIndex: 8,
-                },
-                cell: {
-                  userEnteredValue: { boolValue: chat === 'TRUE' },
-                  dataValidation: {
-                    condition: {
-                      type: 'BOOLEAN',
-                    },
-                  },
-                },
-                fields: 'dataValidation,userEnteredValue',
-              },
-            },
-          ],
+          })),
         },
       });
     }
+
+    // Invalidar cache relacionado
+    cache.delete(`sheet_${sheetName}_A:H`);
   } catch (error) {
     console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
     throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
@@ -283,10 +296,10 @@ export async function deleteSheetRow(sheetName, rowIndex) {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    // Obter o ID da aba específica pelo nome (sheetName)
     const sheetInfo = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
     });
+    
     const sheet = sheetInfo.data.sheets.find(
       (sheet) => sheet.properties.title === sheetName
     );
@@ -298,20 +311,21 @@ export async function deleteSheetRow(sheetName, rowIndex) {
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: sheetId,
       resource: {
-        requests: [
-          {
-            deleteDimension: {
-              range: {
-                sheetId: sheet.properties.sheetId,
-                dimension: 'ROWS',
-                startIndex: rowIndex - 1, // Precisa subtrair 1, pois o índice começa do zero
-                endIndex: rowIndex, // Exclusão de uma única linha
-              },
+        requests: [{
+          deleteDimension: {
+            range: {
+              sheetId: sheet.properties.sheetId,
+              dimension: 'ROWS',
+              startIndex: rowIndex - 1,
+              endIndex: rowIndex,
             },
           },
-        ],
+        }],
       },
     });
+
+    // Invalidar cache relacionado
+    cache.delete(`sheet_${sheetName}_A:H`);
   } catch (error) {
     console.error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}:`, error);
     throw new Error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}.`);
