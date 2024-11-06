@@ -228,27 +228,22 @@ export default function ManageUsers({ user }) {
   const customSelectStyles = {
     control: (provided, state) => ({
       ...provided,
-      backgroundColor: '#222',
-      borderColor: state.isFocused ? '#F0A028' : '#444',
-      color: '#fff',
-      borderRadius: '5px',
-      padding: '5px',
-      boxShadow: 'none',
+      backgroundColor: 'var(--box-color)',
+      borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--labels-border)',
+      color: 'var(--text-color)',
       '&:hover': {
-        borderColor: '#F0A028',
+        borderColor: 'var(--color-primary)',
       },
       outline: 'none',
     }),
     input: (provided) => ({
       ...provided,
-      color: '#fff',
-      caretColor: '#fff',
+      color: 'var(--text-color)',
+      caretColor: 'var(--text-color)',
     }),
     menu: (provided) => ({
       ...provided,
-      backgroundColor: '#1e1e1e',
-      maxHeight: '220px',
-      overflowY: 'auto',
+      backgroundColor: 'var(--box-color)',
     }),
     menuList: (provided) => ({
       ...provided,
@@ -258,38 +253,38 @@ export default function ManageUsers({ user }) {
         width: '8px',
       },
       '&::-webkit-scrollbar-track': {
-        background: '#121212',
+        background: 'var(--scroll-bg)',
       },
       '&::-webkit-scrollbar-thumb': {
-        backgroundColor: '#555',
+        backgroundColor: 'var(--scroll)',
         borderRadius: '10px',
-        border: '2px solid #121212',
+        border: '2px solid var(--scroll-bg)',
       },
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isFocused ? '#333' : state.isSelected ? '#F0A028' : '#1e1e1e',
-      color: '#fff',
+      backgroundColor: state.isFocused ? 'var(--color-trodd)' : state.isSelected ? 'var(--color-primary)' : 'var(--box-color)',
+      color: 'var(--text-color)',
       cursor: 'pointer',
       '&:hover': {
-        backgroundColor: '#333',
+        backgroundColor: 'var(--color-trodd)',
       },
     }),
     singleValue: (provided) => ({
       ...provided,
-      color: '#fff',
+      color: 'var(--text-color)',
     }),
     placeholder: (provided) => ({
       ...provided,
-      color: '#aaa',
+      color: 'var(--text-color2)',
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: '#fff',
+      color: 'var(--text-color)',
     }),
     indicatorSeparator: (provided) => ({
       ...provided,
-      backgroundColor: '#444',
+      backgroundColor: 'var(--labels-border)',
     }),
   };
 
