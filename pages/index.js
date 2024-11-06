@@ -35,7 +35,7 @@ export default function LoginPage() {
         <div className={styles.loginBox}>
           <div className={styles.logoContainer}>
             <Image
-              src="/images/logos/olist_helper_logo.png"
+              src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
               alt="Olist Helper Logo"
               width={270}
               height={75}
