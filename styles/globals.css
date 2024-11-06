@@ -26,6 +26,10 @@
   --color-border: #E5E5E5;
   --color-list: #848484;
   --color-list2: #e2e2e2;
+  --color-thead: #;
+  --text-th: #fff;
+  --color-trodd: #3F3F3F;
+  --color-treven: #474747;
 }
 
 [data-theme="dark"] {
@@ -44,6 +48,10 @@
   --color-border: #383838;
   --color-list: #2A2A2A;
   --color-list2: #2A2A2A;
+  --color-thead: #;
+  --text-th: #fff;
+  --color-trodd: #3F3F3F;
+  --color-treven: #474747;
 }
 
 /* Corpo da página */

@@ -296,6 +296,6 @@
   align-items: center;
   padding: 5px 10px;
   border-radius: 15px;
-  color: var(--text-color);
+  color: var(--color-white);
   font-weight: 600;
 }

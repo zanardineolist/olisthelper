@@ -7,7 +7,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--navbar-bg);
+    background-color: var(--background-color);
     padding: 10px 20px;
     z-index: 1000;
 }
@@ -172,6 +172,7 @@
 .categoryRankingContainer h3 {
     margin-bottom: 20px;
     font-weight: 600;
+    color: var(--title-color);
 }
 
 /* Lista de categorias */
@@ -187,7 +188,7 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 15px;
-    background-color: var(--color-accent9);
+    background-color: var(--color-list2);
     padding: 10px;
     border-radius: 5px;
 }
@@ -224,7 +225,7 @@
     justify-content: center;
     align-items: center;
     height: 100%;
-    color: var(--color-text-gray);
+    color: var(--text-color);
 }
 
 /* Container para carregamento padrão */
@@ -249,6 +250,6 @@
     align-items: center;
     padding: 5px 10px;
     border-radius: 15px;
-    color: var(--color-text-white);
+    color: var(--color-white);
     font-weight: 600;
 }

@@ -19,13 +19,13 @@
 }
 
 .itemsTable thead {
-  background-color: var(--color-accent8);
+  background-color: var(--color-thead);
 }
 
 .itemsTable th, .itemsTable td {
   padding: 10px;
   text-align: left;
-  color: var(--color-text-white);
+  color: var(--text-th);
   border-bottom: 1px solid #444;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -33,7 +33,7 @@
 }
 
 .itemsTable th {
-  color: var(--color-text-white);
+  color: var(--text-th);
   font-weight: bold;
 }
 
@@ -63,9 +63,9 @@
 }
 
 .itemsTable tbody tr:nth-child(odd) {
-  background-color: var(--color-accent6); /* Cor mais escura para linhas ímpares */
+  background-color: var(--color-trodd); /* Cor mais escura para linhas ímpares */
 }
 
 .itemsTable tbody tr:nth-child(even) {
-  background-color: var(--color-accent7); /* Cor mais clara para linhas pares */
+  background-color: var(--color-treven); /* Cor mais clara para linhas pares */
 }
