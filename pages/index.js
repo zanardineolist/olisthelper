@@ -2,12 +2,13 @@
 import Head from 'next/head';
 import { getSession, signIn } from 'next-auth/react';
 import Image from 'next/image';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import styles from '../styles/Login.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
     const checkSession = async () => {
@@ -25,6 +26,13 @@ export default function LoginPage() {
     checkSession();
   }, [router]);  
 
+  // Recuperar tema do localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }, []);
+
   return (
     <>
       <Head>
@@ -35,7 +43,7 @@ export default function LoginPage() {
         <div className={styles.loginBox}>
           <div className={styles.logoContainer}>
             <Image
-              src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
+              src={theme === 'dark' ? '/images/logos/olist_helper_dark_logo.png' : '/images/logos/olist_helper_logo.png'}
               alt="Olist Helper Logo"
               width={270}
               height={75}
