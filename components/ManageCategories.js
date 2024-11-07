@@ -71,6 +71,7 @@ export default function ManageCategories() {
       if (!res.ok) throw new Error('Erro ao deletar categoria');
 
       await loadCategories();
+      sortCategories();  // Reordena após a exclusão
 
       Swal.fire({
         icon: 'success',
@@ -161,6 +162,7 @@ export default function ManageCategories() {
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
       await loadCategories();
+      sortCategories();  // Reordena após adicionar/editar
 
       setNewCategory('');
       setIsEditing(false);
@@ -187,6 +189,11 @@ export default function ManageCategories() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const sortCategories = () => {
+    const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+    setCategories(sortedCategories);
   };
 
   const handleOpenModal = () => {
