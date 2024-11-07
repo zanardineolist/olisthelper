@@ -107,15 +107,34 @@ export default function ManageCategories() {
       );
 
       if (existingCategory) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Categoria já existe',
-          text: `A categoria "${existingCategory.name}" já está cadastrada. Por favor, utilize outra categoria.`,
-          showConfirmButton: true,
-          allowOutsideClick: true,
-        });
-        setLoading(false);
-        return;
+        if (isEditing && existingCategory.id !== currentCategoryId) {
+          // Ao editar, se já existir outra categoria com o mesmo nome, questiona o usuário
+          const result = await Swal.fire({
+            icon: 'warning',
+            title: 'Categoria já existe',
+            html: `A categoria "<strong>${existingCategory.name}</strong>" já está cadastrada. Deseja realmente sobrescrever esta categoria?`,
+            showCancelButton: true,
+            confirmButtonText: 'Sim, sobrescrever',
+            cancelButtonText: 'Cancelar',
+            allowOutsideClick: true,
+          });
+
+          if (!result.isConfirmed) {
+            setLoading(false);
+            return;
+          }
+        } else if (!isEditing) {
+          // Ao adicionar, se já existir a categoria, bloqueia o processo
+          await Swal.fire({
+            icon: 'warning',
+            title: 'Categoria já existe',
+            html: `A categoria "<strong>${existingCategory.name}</strong>" já está cadastrada. Por favor, utilize outra categoria.`,
+            showConfirmButton: true,
+            allowOutsideClick: true,
+          });
+          setLoading(false);
+          return;
+        }
       }
 
       // Validação de similaridade
@@ -123,7 +142,7 @@ export default function ManageCategories() {
       const similarityThreshold = 0.7;
       const similarCategory = stringSimilarity.findBestMatch(lowerCaseNewCategory, categoryNames);
 
-      if (similarCategory.bestMatch.rating >= similarityThreshold) {
+      if (similarCategory.bestMatch.rating >= similarityThreshold && !isEditing) {
         const similarCategoryName = categories.find(
           (cat) => cat.name.toLowerCase() === similarCategory.bestMatch.target
         ).name;
@@ -144,7 +163,7 @@ export default function ManageCategories() {
         }
       }
 
-      // Caso não exista, prosseguir com o salvamento
+      // Caso não existam problemas, prosseguir com o salvamento
       const method = isEditing ? 'PUT' : 'POST';
       const body = { name: newCategory };
       if (isEditing) {
