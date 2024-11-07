@@ -19,15 +19,14 @@ export default function ManageCategories() {
     loadCategories();
   }, []);
 
-  // Função para carregar as categorias da API e ordená-las
+  // Função para carregar as categorias da API
   const loadCategories = async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/manage-category');
       if (!res.ok) throw new Error('Erro ao carregar categorias');
       const data = await res.json();
-      const sortedCategories = data.categories.sort((a, b) => a.name.localeCompare(b.name));
-      setCategories(sortedCategories);
+      setCategories(data.categories);
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
       Swal.fire({
@@ -50,7 +49,7 @@ export default function ManageCategories() {
     setModalIsOpen(true);
   };
 
-  const handleDeleteCategory = async (categoryIndex) => {
+  const handleDeleteCategory = async (categoryId) => {
     const isConfirmed = await Swal.fire({
       title: 'Tem certeza?',
       text: 'Deseja realmente excluir esta categoria? Esta ação não pode ser desfeita.',
@@ -67,7 +66,7 @@ export default function ManageCategories() {
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/manage-category?index=${categoryIndex}`, {
+      const res = await fetch(`/api/manage-category?id=${categoryId}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Erro ao deletar categoria');
@@ -109,9 +108,9 @@ export default function ManageCategories() {
 
       if (existingCategory) {
         Swal.fire({
-          icon: 'error',
+          icon: 'warning',
           title: 'Categoria já existe',
-          text: `A categoria "${existingCategory.name}" já está cadastrada. Por favor, utilize esta categoria.`,
+          text: `A categoria "${existingCategory.name}" já está cadastrada. Por favor, utilize outra categoria.`,
           showConfirmButton: true,
           allowOutsideClick: true,
         });
@@ -119,9 +118,9 @@ export default function ManageCategories() {
         return;
       }
 
-      // Validação: verificar similaridade com outras categorias usando string-similarity
+      // Validação de similaridade
       const categoryNames = categories.map((cat) => cat.name.toLowerCase());
-      const similarityThreshold = 0.7; // Definir um limite de similaridade (de 0 a 1)
+      const similarityThreshold = 0.7;
       const similarCategory = stringSimilarity.findBestMatch(lowerCaseNewCategory, categoryNames);
 
       if (similarCategory.bestMatch.rating >= similarityThreshold) {
@@ -149,7 +148,7 @@ export default function ManageCategories() {
       const method = isEditing ? 'PUT' : 'POST';
       const body = { name: newCategory };
       if (isEditing) {
-        body.index = currentCategoryId;
+        body.id = currentCategoryId;
       }
 
       const res = await fetch('/api/manage-category', {
@@ -162,10 +161,11 @@ export default function ManageCategories() {
 
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
-      setModalIsOpen(false);
-      setIsEditing(false);
+      await loadCategories(); // Recarrega e atualiza após salvar
+
       setNewCategory('');
-      await loadCategories(); // Recarrega e ordena após salvar
+      setIsEditing(false);
+      setModalIsOpen(false);
 
       Swal.fire({
         icon: 'success',
