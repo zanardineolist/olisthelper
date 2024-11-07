@@ -19,13 +19,15 @@ export default function ManageCategories() {
     loadCategories();
   }, []);
 
+  // Função para carregar as categorias da API e ordená-las
   const loadCategories = async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/manage-category');
       if (!res.ok) throw new Error('Erro ao carregar categorias');
       const data = await res.json();
-      setCategories(data.categories);
+      const sortedCategories = data.categories.sort((a, b) => a.name.localeCompare(b.name));
+      setCategories(sortedCategories);
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
       Swal.fire({
@@ -70,8 +72,7 @@ export default function ManageCategories() {
       });
       if (!res.ok) throw new Error('Erro ao deletar categoria');
 
-      await loadCategories();
-      sortCategories();  // Reordena após a exclusão
+      await loadCategories(); // Recarrega a lista após exclusão
 
       Swal.fire({
         icon: 'success',
@@ -161,12 +162,10 @@ export default function ManageCategories() {
 
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
-      await loadCategories();
-      sortCategories();  // Reordena após adicionar/editar
-
-      setNewCategory('');
-      setIsEditing(false);
       setModalIsOpen(false);
+      setIsEditing(false);
+      setNewCategory('');
+      await loadCategories(); // Recarrega e ordena após salvar
 
       Swal.fire({
         icon: 'success',
@@ -189,11 +188,6 @@ export default function ManageCategories() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const sortCategories = () => {
-    const sortedCategories = [...categories].sort((a, b) => a.name.localeCompare(b.name));
-    setCategories(sortedCategories);
   };
 
   const handleOpenModal = () => {
