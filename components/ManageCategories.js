@@ -15,18 +15,18 @@ export default function ManageCategories() {
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
+  // Função para carregar as categorias da API
   useEffect(() => {
     loadCategories();
   }, []);
 
-  // Função para carregar as categorias da API
   const loadCategories = async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/manage-category');
       if (!res.ok) throw new Error('Erro ao carregar categorias');
       const data = await res.json();
-      setCategories(data.categories);
+      setCategories(data.categories); // Atualiza a listagem de categorias
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
       Swal.fire({
@@ -43,9 +43,9 @@ export default function ManageCategories() {
   };
 
   const handleEditCategory = (category) => {
-    setNewCategory(category.name);
+    setNewCategory(category.name); // Preenche o modal com o nome da categoria
     setCurrentCategoryId(category.id);
-    setIsEditing(true);
+    setIsEditing(true); // Ativa o modo de edição
     setModalIsOpen(true);
   };
 
@@ -66,17 +66,18 @@ export default function ManageCategories() {
 
     try {
       setLoading(true);
+      // Passando o ID no corpo da requisição para DELETE
       const res = await fetch('/api/manage-category', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: categoryId }), // Passando o id no corpo
+        body: JSON.stringify({ id: categoryId }), // Envia o ID da categoria para exclusão
       });
 
       if (!res.ok) throw new Error('Erro ao deletar categoria');
 
-      await loadCategories(); // Recarrega a lista após exclusão
+      await loadCategories(); // Atualiza a lista de categorias após exclusão
 
       Swal.fire({
         icon: 'success',
@@ -105,13 +106,14 @@ export default function ManageCategories() {
     try {
       setLoading(true);
 
-      // Validação de duplicidade: Apenas se estiver adicionando uma nova categoria ou alterando o nome para um já existente (diferente da edição do mesmo item)
+      // Verifica se a categoria já existe antes de adicionar
       const lowerCaseNewCategory = newCategory.trim().toLowerCase();
       const existingCategory = categories.find(
         (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
       );
 
       if (existingCategory && (!isEditing || existingCategory.id !== currentCategoryId)) {
+        // Se a categoria já existir e não for a mesma que estamos editando, bloqueia a operação
         await Swal.fire({
           icon: 'warning',
           title: 'Categoria já existe',
@@ -123,7 +125,7 @@ export default function ManageCategories() {
         return;
       }
 
-      // Validação de similaridade (apenas para novos cadastros)
+      // Verifica a similaridade para evitar a criação de categorias muito semelhantes
       if (!isEditing) {
         const categoryNames = categories.map((cat) => cat.name.toLowerCase());
         const similarityThreshold = 0.7;
@@ -151,11 +153,11 @@ export default function ManageCategories() {
         }
       }
 
-      // Caso não existam problemas, prosseguir com o salvamento
+      // Define o método para salvar ou editar a categoria
       const method = isEditing ? 'PUT' : 'POST';
       const body = { name: newCategory };
       if (isEditing) {
-        body.id = currentCategoryId; // Garantir que o ID seja passado ao editar
+        body.id = currentCategoryId; // Passa o ID da categoria ao editar
       }
 
       const res = await fetch('/api/manage-category', {
@@ -168,11 +170,11 @@ export default function ManageCategories() {
 
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
-      await loadCategories(); // Recarrega e atualiza após salvar
+      await loadCategories(); // Recarrega a lista após salvar
 
       setNewCategory('');
-      setIsEditing(false);
-      setCurrentCategoryId(null); // Resetando o ID após a edição
+      setIsEditing(false); // Desativa o modo de edição
+      setCurrentCategoryId(null); // Limpa o ID após a edição
       setModalIsOpen(false);
 
       Swal.fire({
@@ -200,15 +202,15 @@ export default function ManageCategories() {
 
   const handleOpenModal = () => {
     setNewCategory('');
-    setIsEditing(false);
-    setCurrentCategoryId(null); // Resetando o ID ao abrir o modal para adicionar
+    setIsEditing(false); // Limpa o estado ao abrir o modal para adicionar
+    setCurrentCategoryId(null); // Limpa o ID da categoria ao abrir o modal
     setModalIsOpen(true);
   };
 
   const handleCloseModal = () => {
     setNewCategory('');
     setIsEditing(false);
-    setCurrentCategoryId(null); // Resetando o ID ao fechar o modal
+    setCurrentCategoryId(null); // Limpa o ID ao fechar o modal
     setModalIsOpen(false);
   };
 
