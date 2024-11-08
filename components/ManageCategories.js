@@ -25,7 +25,10 @@ export default function ManageCategories() {
       const res = await fetch('/api/manage-category');
       if (!res.ok) throw new Error('Erro ao carregar categorias');
       const data = await res.json();
-      setCategories(data.categories);
+
+      // Ordenar as categorias de A-Z
+      const sortedCategories = data.categories.sort((a, b) => a.name.localeCompare(b.name));
+      setCategories(sortedCategories);
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
       Swal.fire({
@@ -102,47 +105,49 @@ export default function ManageCategories() {
     try {
       setLoading(true);
 
-      // Validação para garantir que a categoria não exista
-      const lowerCaseNewCategory = newCategory.trim().toLowerCase();
-      const existingCategory = categories.find(
-        (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
-      );
+      // Validação para garantir que a categoria não exista (somente ao adicionar)
+      if (!isEditing) {
+        const lowerCaseNewCategory = newCategory.trim().toLowerCase();
+        const existingCategory = categories.find(
+          (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
+        );
 
-      if (existingCategory) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Categoria já existe',
-          text: `A categoria "${existingCategory.name}" já está cadastrada. Por favor, utilize esta categoria.`,
-          showConfirmButton: true,
-          allowOutsideClick: true,
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Validação de similaridade
-      const categoryNames = categories.map((cat) => cat.name.toLowerCase());
-      const similarityThreshold = 0.7;
-      const similarCategory = stringSimilarity.findBestMatch(lowerCaseNewCategory, categoryNames);
-
-      if (similarCategory.bestMatch.rating >= similarityThreshold) {
-        const similarCategoryName = categories.find(
-          (cat) => cat.name.toLowerCase() === similarCategory.bestMatch.target
-        ).name;
-
-        const result = await Swal.fire({
-          icon: 'warning',
-          title: 'Categoria similar encontrada',
-          html: `Existe uma categoria similar já cadastrada: <strong>${similarCategoryName}</strong>. Deseja realmente prosseguir com o cadastro desta nova categoria?`,
-          showCancelButton: true,
-          confirmButtonText: 'Sim, adicionar',
-          cancelButtonText: 'Cancelar',
-          allowOutsideClick: true,
-        });
-
-        if (!result.isConfirmed) {
+        if (existingCategory) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Categoria já existe',
+            text: `A categoria "${existingCategory.name}" já está cadastrada. Por favor, utilize esta categoria.`,
+            showConfirmButton: true,
+            allowOutsideClick: true,
+          });
           setLoading(false);
           return;
+        }
+
+        // Validação de similaridade (somente ao adicionar)
+        const categoryNames = categories.map((cat) => cat.name.toLowerCase());
+        const similarityThreshold = 0.7;
+        const similarCategory = stringSimilarity.findBestMatch(lowerCaseNewCategory, categoryNames);
+
+        if (similarCategory.bestMatch.rating >= similarityThreshold) {
+          const similarCategoryName = categories.find(
+            (cat) => cat.name.toLowerCase() === similarCategory.bestMatch.target
+          ).name;
+
+          const result = await Swal.fire({
+            icon: 'warning',
+            title: 'Categoria similar encontrada',
+            html: `Existe uma categoria similar já cadastrada: <strong>${similarCategoryName}</strong>. Deseja realmente prosseguir com o cadastro desta nova categoria?`,
+            showCancelButton: true,
+            confirmButtonText: 'Sim, adicionar',
+            cancelButtonText: 'Cancelar',
+            allowOutsideClick: true,
+          });
+
+          if (!result.isConfirmed) {
+            setLoading(false);
+            return;
+          }
         }
       }
 
@@ -165,18 +170,22 @@ export default function ManageCategories() {
 
       if (isEditing) {
         // Atualizar a categoria no estado atual
-        setCategories((prevCategories) =>
-          prevCategories.map((category) =>
+        setCategories((prevCategories) => {
+          const updatedCategories = prevCategories.map((category) =>
             category.id === currentCategoryId ? { ...category, name: newCategory } : category
-          )
-        );
+          );
+          return updatedCategories.sort((a, b) => a.name.localeCompare(b.name));
+        });
       } else {
         // Adicionar nova categoria ao estado atual
         const newCategoryId = categories.length + 2; // Definir ID de forma incremental
-        setCategories((prevCategories) => [
-          ...prevCategories,
-          { id: newCategoryId, name: newCategory },
-        ]);
+        setCategories((prevCategories) => {
+          const updatedCategories = [
+            ...prevCategories,
+            { id: newCategoryId, name: newCategory },
+          ];
+          return updatedCategories.sort((a, b) => a.name.localeCompare(b.name));
+        });
       }
 
       setNewCategory('');
