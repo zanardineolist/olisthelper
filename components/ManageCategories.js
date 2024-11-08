@@ -167,6 +167,7 @@ export default function ManageCategories() {
 
       setNewCategory('');
       setIsEditing(false);
+      setCurrentCategoryId(null);
       setModalIsOpen(false);
 
       Swal.fire({
@@ -195,10 +196,14 @@ export default function ManageCategories() {
   const handleOpenModal = () => {
     setNewCategory('');
     setIsEditing(false);
+    setCurrentCategoryId(null);
     setModalIsOpen(true);
   };
 
   const handleCloseModal = () => {
+    setNewCategory('');
+    setIsEditing(false);
+    setCurrentCategoryId(null);
     setModalIsOpen(false);
   };
 
