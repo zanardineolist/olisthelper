@@ -66,7 +66,6 @@ export default function ManageCategories() {
 
     try {
       setLoading(true);
-      // Passar o id no corpo da requisição ao invés de na URL
       const res = await fetch('/api/manage-category', {
         method: 'DELETE',
         headers: {
