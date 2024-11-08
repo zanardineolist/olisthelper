@@ -100,21 +100,41 @@ export default function ManageCategories() {
     try {
       setLoading(true);
 
-      // Validação: verificar se a categoria já existe, ignorando a caixa alta/baixa
+      // Validação de duplicidade: Apenas se estiver adicionando uma nova categoria ou alterando o nome para um já existente (diferente da edição do mesmo item)
       const lowerCaseNewCategory = newCategory.trim().toLowerCase();
       const existingCategory = categories.find(
         (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
       );
 
-      if (existingCategory) {
-        if (isEditing && existingCategory.id !== currentCategoryId) {
-          // Ao editar, se já existir outra categoria com o mesmo nome, questiona o usuário
+      if (existingCategory && (!isEditing || existingCategory.id !== currentCategoryId)) {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Categoria já existe',
+          html: `A categoria "<strong>${existingCategory.name}</strong>" já está cadastrada. Por favor, utilize outra categoria.`,
+          showConfirmButton: true,
+          allowOutsideClick: true,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Validação de similaridade (apenas para novos cadastros)
+      if (!isEditing) {
+        const categoryNames = categories.map((cat) => cat.name.toLowerCase());
+        const similarityThreshold = 0.7;
+        const similarCategory = stringSimilarity.findBestMatch(lowerCaseNewCategory, categoryNames);
+
+        if (similarCategory.bestMatch.rating >= similarityThreshold) {
+          const similarCategoryName = categories.find(
+            (cat) => cat.name.toLowerCase() === similarCategory.bestMatch.target
+          ).name;
+
           const result = await Swal.fire({
             icon: 'warning',
-            title: 'Categoria já existe',
-            html: `A categoria "<strong>${existingCategory.name}</strong>" já está cadastrada. Deseja realmente sobrescrever esta categoria?`,
+            title: 'Categoria similar encontrada',
+            html: `Existe uma categoria similar já cadastrada: <strong>${similarCategoryName}</strong>. Deseja realmente prosseguir com o cadastro desta nova categoria?`,
             showCancelButton: true,
-            confirmButtonText: 'Sim, sobrescrever',
+            confirmButtonText: 'Sim, adicionar',
             cancelButtonText: 'Cancelar',
             allowOutsideClick: true,
           });
@@ -123,43 +143,6 @@ export default function ManageCategories() {
             setLoading(false);
             return;
           }
-        } else if (!isEditing) {
-          // Ao adicionar, se já existir a categoria, bloqueia o processo
-          await Swal.fire({
-            icon: 'warning',
-            title: 'Categoria já existe',
-            html: `A categoria "<strong>${existingCategory.name}</strong>" já está cadastrada. Por favor, utilize outra categoria.`,
-            showConfirmButton: true,
-            allowOutsideClick: true,
-          });
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Validação de similaridade
-      const categoryNames = categories.map((cat) => cat.name.toLowerCase());
-      const similarityThreshold = 0.7;
-      const similarCategory = stringSimilarity.findBestMatch(lowerCaseNewCategory, categoryNames);
-
-      if (similarCategory.bestMatch.rating >= similarityThreshold && !isEditing) {
-        const similarCategoryName = categories.find(
-          (cat) => cat.name.toLowerCase() === similarCategory.bestMatch.target
-        ).name;
-
-        const result = await Swal.fire({
-          icon: 'warning',
-          title: 'Categoria similar encontrada',
-          html: `Existe uma categoria similar já cadastrada: <strong>${similarCategoryName}</strong>. Deseja realmente prosseguir com o cadastro desta nova categoria?`,
-          showCancelButton: true,
-          confirmButtonText: 'Sim, adicionar',
-          cancelButtonText: 'Cancelar',
-          allowOutsideClick: true,
-        });
-
-        if (!result.isConfirmed) {
-          setLoading(false);
-          return;
         }
       }
 
