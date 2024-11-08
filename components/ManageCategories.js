@@ -69,6 +69,7 @@ export default function ManageCategories() {
       const res = await fetch(`/api/manage-category?id=${categoryId}`, {
         method: 'DELETE',
       });
+
       if (!res.ok) throw new Error('Erro ao deletar categoria');
 
       await loadCategories(); // Recarrega a lista após exclusão
@@ -167,7 +168,7 @@ export default function ManageCategories() {
 
       setNewCategory('');
       setIsEditing(false);
-      setCurrentCategoryId(null);
+      setCurrentCategoryId(null); // Resetando o ID após a edição
       setModalIsOpen(false);
 
       Swal.fire({
@@ -196,14 +197,14 @@ export default function ManageCategories() {
   const handleOpenModal = () => {
     setNewCategory('');
     setIsEditing(false);
-    setCurrentCategoryId(null);
+    setCurrentCategoryId(null); // Resetando o ID ao abrir o modal para adicionar
     setModalIsOpen(true);
   };
 
   const handleCloseModal = () => {
     setNewCategory('');
     setIsEditing(false);
-    setCurrentCategoryId(null);
+    setCurrentCategoryId(null); // Resetando o ID ao fechar o modal
     setModalIsOpen(false);
   };
 
