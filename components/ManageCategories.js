@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import Modal from 'react-modal';
 import styles from '../styles/ManageCategories.module.css';
-import generalStyles from '../styles/Manager.module.css'; // Importação do estilo geral
+import generalStyles from '../styles/Manager.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
-import stringSimilarity from 'string-similarity'; // Importar a biblioteca de similaridade
+import stringSimilarity from 'string-similarity';
 
 export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
@@ -70,7 +70,7 @@ export default function ManageCategories() {
       });
       if (!res.ok) throw new Error('Erro ao deletar categoria');
 
-      await loadCategories();
+      await loadCategories(); // Recarregar a lista de categorias após a exclusão
 
       Swal.fire({
         icon: 'success',
@@ -99,7 +99,7 @@ export default function ManageCategories() {
     try {
       setLoading(true);
 
-      // Validação: verificar se a categoria já existe, ignorando a caixa alta/baixa
+      // Validação para garantir que a categoria não exista
       const lowerCaseNewCategory = newCategory.trim().toLowerCase();
       const existingCategory = categories.find(
         (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
@@ -117,9 +117,9 @@ export default function ManageCategories() {
         return;
       }
 
-      // Validação: verificar similaridade com outras categorias usando string-similarity
+      // Validação de similaridade
       const categoryNames = categories.map((cat) => cat.name.toLowerCase());
-      const similarityThreshold = 0.7; // Definir um limite de similaridade (de 0 a 1)
+      const similarityThreshold = 0.7;
       const similarCategory = stringSimilarity.findBestMatch(lowerCaseNewCategory, categoryNames);
 
       if (similarCategory.bestMatch.rating >= similarityThreshold) {
@@ -143,7 +143,7 @@ export default function ManageCategories() {
         }
       }
 
-      // Caso não exista, prosseguir com o salvamento
+      // Adicionar ou Editar a Categoria
       const method = isEditing ? 'PUT' : 'POST';
       const body = { name: newCategory };
       if (isEditing) {
@@ -160,7 +160,7 @@ export default function ManageCategories() {
 
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
-      await loadCategories();
+      await loadCategories(); // Recarregar as categorias após salvar
 
       setNewCategory('');
       setIsEditing(false);
