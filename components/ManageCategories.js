@@ -111,12 +111,12 @@ export default function ManageCategories() {
         const existingCategory = categories.find(
           (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
         );
-
+      
         if (existingCategory) {
           Swal.fire({
             icon: 'error',
             title: 'Categoria já existe',
-            text: `A categoria "${existingCategory.name}" já está cadastrada. Por favor, utilize esta categoria.`,
+            html: `A categoria <strong>"${existingCategory.name}"</strong> já está cadastrada. Por favor, utilize esta categoria.`,
             showConfirmButton: true,
             allowOutsideClick: true,
           });
