@@ -169,23 +169,20 @@ export default function ManageCategories() {
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
       if (isEditing) {
-        // Atualizar a categoria no estado atual
+        // Atualizar a categoria no estado atual, mantendo a posição atual
         setCategories((prevCategories) => {
           const updatedCategories = prevCategories.map((category) =>
             category.id === currentCategoryId ? { ...category, name: newCategory } : category
           );
-          return updatedCategories.sort((a, b) => a.name.localeCompare(b.name));
+          return updatedCategories;  // Não reordena ao atualizar
         });
       } else {
         // Adicionar nova categoria ao estado atual
         const newCategoryId = categories.length + 2; // Definir ID de forma incremental
-        setCategories((prevCategories) => {
-          const updatedCategories = [
-            ...prevCategories,
-            { id: newCategoryId, name: newCategory },
-          ];
-          return updatedCategories.sort((a, b) => a.name.localeCompare(b.name));
-        });
+        setCategories((prevCategories) => [
+          ...prevCategories,
+          { id: newCategoryId, name: newCategory },
+        ].sort((a, b) => a.name.localeCompare(b.name)));
       }
 
       setNewCategory('');
