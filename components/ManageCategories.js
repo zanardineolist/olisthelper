@@ -66,8 +66,13 @@ export default function ManageCategories() {
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/manage-category?id=${categoryId}`, {
+      // Passar o id no corpo da requisição ao invés de na URL
+      const res = await fetch('/api/manage-category', {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: categoryId }), // Passando o id no corpo
       });
 
       if (!res.ok) throw new Error('Erro ao deletar categoria');
