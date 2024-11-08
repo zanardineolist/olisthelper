@@ -150,7 +150,7 @@ export default function ManageCategories() {
       const method = isEditing ? 'PUT' : 'POST';
       const body = { name: newCategory };
       if (isEditing) {
-        body.id = currentCategoryId;
+        body.id = currentCategoryId; // Garantir que o ID seja passado ao editar
       }
 
       const res = await fetch('/api/manage-category', {
