@@ -14,10 +14,12 @@ export default function ManageCategories() {
   const [isEditing, setIsEditing] = useState(false);
   const [currentCategoryId, setCurrentCategoryId] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [reloadTrigger, setReloadTrigger] = useState(0); // Estado adicional para acionar o reload
 
+  // Chamar loadCategories sempre que o estado reloadTrigger mudar
   useEffect(() => {
     loadCategories();
-  }, []);
+  }, [reloadTrigger]);
 
   const loadCategories = async () => {
     try {
@@ -70,7 +72,7 @@ export default function ManageCategories() {
       });
       if (!res.ok) throw new Error('Erro ao deletar categoria');
 
-      await loadCategories(); // Recarregar a lista de categorias após a exclusão
+      setReloadTrigger((prev) => prev + 1); // Aumenta o reloadTrigger para recarregar as categorias
 
       Swal.fire({
         icon: 'success',
@@ -160,7 +162,7 @@ export default function ManageCategories() {
 
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
-      await loadCategories(); // Recarregar as categorias após salvar
+      setReloadTrigger((prev) => prev + 1); // Aumenta o reloadTrigger para recarregar as categorias
 
       setNewCategory('');
       setIsEditing(false);
