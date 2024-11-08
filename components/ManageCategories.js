@@ -6,6 +6,7 @@ import generalStyles from '../styles/Manager.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import stringSimilarity from 'string-similarity';
+import { cache, CACHE_TIMES } from '../utils/cache'; // Importando cache
 
 export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
@@ -22,13 +23,24 @@ export default function ManageCategories() {
   const loadCategories = async () => {
     try {
       setLoading(true);
+
+      // Verificar cache
+      const cachedCategories = cache.get('categories');
+      if (cachedCategories) {
+        setCategories(cachedCategories);
+        setLoading(false);
+        return;
+      }
+
+      // Requisição ao endpoint se não houver cache
       const res = await fetch('/api/manage-category');
       if (!res.ok) throw new Error('Erro ao carregar categorias');
       const data = await res.json();
 
-      // Ordenar as categorias de A-Z
+      // Ordenar as categorias de A-Z e armazenar em cache
       const sortedCategories = data.categories.sort((a, b) => a.name.localeCompare(b.name));
       setCategories(sortedCategories);
+      cache.set('categories', sortedCategories, CACHE_TIMES.SHEET_VALUES); // Cache por 2 minutos
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
       Swal.fire({
@@ -73,10 +85,11 @@ export default function ManageCategories() {
       });
       if (!res.ok) throw new Error('Erro ao deletar categoria');
 
-      // Remover a categoria do estado atual
+      // Remover a categoria do estado atual e invalidar cache
       setCategories((prevCategories) =>
         prevCategories.filter((category) => category.id !== categoryIndex)
       );
+      cache.delete('categories');
 
       Swal.fire({
         icon: 'success',
@@ -111,7 +124,7 @@ export default function ManageCategories() {
         const existingCategory = categories.find(
           (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
         );
-      
+
         if (existingCategory) {
           Swal.fire({
             icon: 'error',
@@ -174,7 +187,7 @@ export default function ManageCategories() {
           const updatedCategories = prevCategories.map((category) =>
             category.id === currentCategoryId ? { ...category, name: newCategory } : category
           );
-          return updatedCategories;  // Não reordena ao atualizar
+          return updatedCategories; // Não reordena ao atualizar
         });
       } else {
         // Adicionar nova categoria ao estado atual
@@ -184,6 +197,9 @@ export default function ManageCategories() {
           { id: newCategoryId, name: newCategory },
         ].sort((a, b) => a.name.localeCompare(b.name)));
       }
+
+      // Invalidar cache após adicionar ou editar
+      cache.delete('categories');
 
       setNewCategory('');
       setIsEditing(false);
