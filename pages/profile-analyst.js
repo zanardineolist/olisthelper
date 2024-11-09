@@ -1,4 +1,3 @@
-// pages/profile-analyst.js
 import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -16,20 +15,25 @@ export default function AnalystProfilePage({ user }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Definir saudação com base na hora do dia
-    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-    const currentHour = new Date(brtDate).getHours();
-    let greetingMessage = '';
+    // Simulando um pequeno atraso para exibir o loader
+    setLoading(true);
+    setTimeout(() => {
+      // Definir saudação com base na hora do dia
+      const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+      const currentHour = new Date(brtDate).getHours();
+      let greetingMessage = '';
 
-    if (currentHour >= 5 && currentHour < 12) {
-      greetingMessage = 'Bom dia';
-    } else if (currentHour >= 12 && currentHour < 18) {
-      greetingMessage = 'Boa tarde';
-    } else {
-      greetingMessage = 'Boa noite';
-    }
+      if (currentHour >= 5 && currentHour < 12) {
+        greetingMessage = 'Bom dia';
+      } else if (currentHour >= 12 && currentHour < 18) {
+        greetingMessage = 'Boa tarde';
+      } else {
+        greetingMessage = 'Boa noite';
+      }
 
-    setGreeting(greetingMessage);
+      setGreeting(greetingMessage);
+      setLoading(false);
+    }, 500);
   }, []);
 
   useEffect(() => {
@@ -57,8 +61,6 @@ export default function AnalystProfilePage({ user }) {
         setCategoryRanking(categoryData.categories || []);
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -67,7 +69,7 @@ export default function AnalystProfilePage({ user }) {
     }
   }, [user.id]);
 
-  if (!user) {
+  if (loading) {
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
