@@ -247,34 +247,6 @@
   color: var(--text-color);
 }
 
-/* Estilos adicionais para tooltip */
-.tooltip {
-  position: relative;
-  display: inline-block;
-}
-
-.tooltip .tooltipText {
-  visibility: hidden;
-  width: 200px;
-  background-color: var(--bg-tooltip);
-  color: var(--text-tooltip);
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 0;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -100px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.tooltip:hover .tooltipText {
-  visibility: visible;
-  opacity: 1;
-}
-
 /* Container para carregamento padrão */
 .loadingContainer {
   display: flex;

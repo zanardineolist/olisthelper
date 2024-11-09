@@ -228,7 +228,7 @@ html::-webkit-scrollbar-thumb {
   visibility: hidden;
   width: 220px;
   background-color: var(--bg-tooltip);
-  color: var(--text-color);
+  color: var(--text-tooltip);
   font-size: 12px;
   text-align: center;
   border-radius: 6px;
@@ -250,7 +250,7 @@ html::-webkit-scrollbar-thumb {
   margin-left: -10px;
   border-width: 10px;
   border-style: solid;
-  border-color: var(--color-border) transparent transparent transparent;
+  border-color: var(--bg-tooltip) transparent transparent transparent;
 }
 
 .tooltip:hover .tooltipText {
