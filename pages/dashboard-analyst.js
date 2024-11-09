@@ -15,6 +15,8 @@ export default function DashboardAnalyst({ user }) {
   const [leaderboard, setLeaderboard] = useState([]);
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [filter, setFilter] = useState('7');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [filterLabel, setFilterLabel] = useState('Últimos 7 dias');
 
   // Fetch registros do analista
   const fetchRecords = async () => {
@@ -120,6 +122,12 @@ export default function DashboardAnalyst({ user }) {
     fetchCategoryRanking();
   }, [filter, user]);
 
+  const handleFilterChange = (value, label) => {
+    setFilter(value);
+    setFilterLabel(label);
+    setShowDropdown(false);
+  };
+
   if (loading) {
     return (
       <div className="loaderOverlay">
@@ -142,13 +150,17 @@ export default function DashboardAnalyst({ user }) {
         <div className={styles.summary}>
           <p>Total de auxilios: {recordCount}</p>
         </div>
-        <div className={styles.filter}>
-          <label htmlFor="filter">Filtrar por:</label>
-          <select id="filter" value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="1">Hoje</option>
-            <option value="7">Últimos 7 dias</option>
-            <option value="30">Últimos 30 dias</option>
-          </select>
+        <div className={styles.filterButtonContainer}>
+          <button className={styles.filterButton} onClick={() => setShowDropdown(!showDropdown)}>
+            Filtrar por: {filterLabel}
+          </button>
+          {showDropdown && (
+            <div className={styles.dropdown}>
+              <button onClick={() => handleFilterChange('1', 'Hoje')}>Hoje</button>
+              <button onClick={() => handleFilterChange('7', 'Últimos 7 dias')}>Últimos 7 dias</button>
+              <button onClick={() => handleFilterChange('30', 'Últimos 30 dias')}>Últimos 30 dias</button>
+            </div>
+          )}
         </div>
         <div className={styles.chartContainer}>
           {chartData ? (
