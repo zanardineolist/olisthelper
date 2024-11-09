@@ -6,7 +6,6 @@ import generalStyles from '../styles/Manager.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import stringSimilarity from 'string-similarity';
-import { cache, CACHE_TIMES } from '../utils/cache'; // Importando cache
 
 export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
@@ -23,24 +22,13 @@ export default function ManageCategories() {
   const loadCategories = async () => {
     try {
       setLoading(true);
-
-      // Verificar cache
-      const cachedCategories = cache.get('categories');
-      if (cachedCategories) {
-        setCategories(cachedCategories);
-        setLoading(false);
-        return;
-      }
-
-      // Requisição ao endpoint se não houver cache
       const res = await fetch('/api/manage-category');
       if (!res.ok) throw new Error('Erro ao carregar categorias');
       const data = await res.json();
 
-      // Ordenar as categorias de A-Z e armazenar em cache
+      // Ordenar as categorias de A-Z
       const sortedCategories = data.categories.sort((a, b) => a.name.localeCompare(b.name));
       setCategories(sortedCategories);
-      cache.set('categories', sortedCategories, CACHE_TIMES.SHEET_VALUES); // Cache por 2 minutos
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
       Swal.fire({
@@ -85,10 +73,10 @@ export default function ManageCategories() {
       });
       if (!res.ok) throw new Error('Erro ao deletar categoria');
 
-      // Remover a categoria do estado atual e atualizar o cache
-      const updatedCategories = categories.filter((category) => category.id !== categoryIndex);
-      setCategories(updatedCategories);
-      cache.set('categories', updatedCategories, CACHE_TIMES.SHEET_VALUES); // Atualizar cache com a nova lista
+      // Remover a categoria do estado atual
+      setCategories((prevCategories) =>
+        prevCategories.filter((category) => category.id !== categoryIndex)
+      );
 
       Swal.fire({
         icon: 'success',
@@ -123,7 +111,7 @@ export default function ManageCategories() {
         const existingCategory = categories.find(
           (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
         );
-
+      
         if (existingCategory) {
           Swal.fire({
             icon: 'error',
@@ -180,24 +168,22 @@ export default function ManageCategories() {
 
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
-      let updatedCategories;
       if (isEditing) {
-        // Atualizar a categoria no estado atual e no cache, mantendo a posição atual
-        updatedCategories = categories.map((category) =>
-          category.id === currentCategoryId ? { ...category, name: newCategory } : category
-        );
+        // Atualizar a categoria no estado atual, mantendo a posição atual
+        setCategories((prevCategories) => {
+          const updatedCategories = prevCategories.map((category) =>
+            category.id === currentCategoryId ? { ...category, name: newCategory } : category
+          );
+          return updatedCategories;  // Não reordena ao atualizar
+        });
       } else {
-        // Adicionar nova categoria ao estado atual e ao cache
+        // Adicionar nova categoria ao estado atual
         const newCategoryId = categories.length + 2; // Definir ID de forma incremental
-        updatedCategories = [
-          ...categories,
+        setCategories((prevCategories) => [
+          ...prevCategories,
           { id: newCategoryId, name: newCategory },
-        ].sort((a, b) => a.name.localeCompare(b.name));
+        ].sort((a, b) => a.name.localeCompare(b.name)));
       }
-
-      // Atualizar o estado e o cache
-      setCategories(updatedCategories);
-      cache.set('categories', updatedCategories, CACHE_TIMES.SHEET_VALUES); // Atualizar cache com a nova lista
 
       setNewCategory('');
       setIsEditing(false);

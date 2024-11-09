@@ -1,5 +1,6 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
 import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import ManageUsers from '../components/ManageUsers';
@@ -46,9 +47,38 @@ const theme = createTheme({
 
 export default function ManagerPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Definir a aba inicial com base no hash da URL
+    const hash = window.location.hash;
+    if (hash === '#Usuarios') {
+      setCurrentTab(0);
+    } else if (hash === '#Categorias') {
+      setCurrentTab(1);
+    } else if (hash === '#Registros' && (user.role === 'analyst' || user.role === 'tax')) {
+      setCurrentTab(2);
+    }
+  }, [user.role]);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
+    // Atualizar a URL com o hash correspondente
+    let hash = '';
+    switch (newValue) {
+      case 0:
+        hash = '#Usuarios';
+        break;
+      case 1:
+        hash = '#Categorias';
+        break;
+      case 2:
+        hash = '#Registros';
+        break;
+      default:
+        break;
+    }
+    router.push(`${window.location.pathname}${hash}`, undefined, { shallow: true });
   };
 
   return (
