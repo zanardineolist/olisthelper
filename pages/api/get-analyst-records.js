@@ -71,7 +71,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Lógica padrão (com filtro para leaderboard e registros gerais)
+    // Lógica padrão (com filtro para registros gerais)
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentDate = new Date(brtDate);
 

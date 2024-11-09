@@ -1,3 +1,4 @@
+// pages/api/get-analyst-leaderboard.js
 import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
@@ -39,9 +40,11 @@ export default async function handler(req, res) {
 
     console.log(`Total de registros encontrados: ${rows.length}`);
 
-    // Filtrar registros com base no filtro de data (Hoje, Últimos 7 dias, Últimos 30 dias)
+    // Filtrar registros com base no filtro de data (sempre o mês atual)
     const currentDate = new Date();
-    const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
     const filteredRows = rows.filter((row, index) => {
       if (index === 0) return false; // Pular cabeçalho
 
@@ -49,26 +52,7 @@ export default async function handler(req, res) {
       const [day, month, year] = dateStr.split('/').map(Number);
       const date = new Date(year, month - 1, day);
 
-      // Calcula a diferença em milissegundos
-      const diffInMs = brtDate - date;
-      const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
-
-      if (filter === '1') {
-        // Hoje
-        return (
-          date.getDate() === brtDate.getDate() &&
-          date.getMonth() === brtDate.getMonth() &&
-          date.getFullYear() === brtDate.getFullYear()
-        );
-      } else if (filter === '7') {
-        // Últimos 7 dias
-        return diffInDays <= 7 && diffInDays >= 0;
-      } else if (filter === '30') {
-        // Últimos 30 dias
-        return diffInDays <= 30 && diffInDays >= 0;
-      }
-
-      return false;
+      return date.getFullYear() === currentYear && date.getMonth() === currentMonth;
     });
 
     console.log(`Total de registros filtrados: ${filteredRows.length}`);
