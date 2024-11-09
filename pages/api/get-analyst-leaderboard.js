@@ -1,4 +1,3 @@
-// pages/api/get-analyst-records.js
 import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
@@ -17,7 +16,7 @@ export default async function handler(req, res) {
 
     // Obter as informações da planilha (metadados)
     const sheetMeta = await getSheetMetaData();
-
+    
     // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
     const sheetName = sheetMeta.data.sheets.find((sheet) => {
       return sheet.properties.title.startsWith(`#${analystId}`);
@@ -35,69 +34,46 @@ export default async function handler(req, res) {
 
     if (!rows || rows.length === 0) {
       console.log('Nenhum registro encontrado na aba especificada.');
-      return res.status(200).json({ count: 0, dates: [], counts: [], rows: [] });
+      return res.status(200).json({ rows: [] });
     }
 
     console.log(`Total de registros encontrados: ${rows.length}`);
 
-    // Ajustando a data e o horário com base no horário de Brasília
-    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-    const currentDate = new Date(brtDate);
-    currentDate.setHours(23, 59, 59, 999); // Ajustar para o final do dia
-
-    let startDate;
-
-    // Definir a data de início com base no filtro
-    if (filter === '1') {
-      // Hoje
-      startDate = new Date(currentDate);
-      startDate.setHours(0, 0, 0, 0); // Ajustar para o início do dia
-    } else if (filter === '7') {
-      // Últimos 7 dias
-      startDate = new Date(currentDate);
-      startDate.setDate(currentDate.getDate() - 6); // Inclui o dia atual, totalizando 7 dias
-      startDate.setHours(0, 0, 0, 0);
-    } else if (filter === '30') {
-      // Últimos 30 dias
-      startDate = new Date(currentDate);
-      startDate.setDate(currentDate.getDate() - 29); // Inclui o dia atual, totalizando 30 dias
-      startDate.setHours(0, 0, 0, 0);
-    } else {
-      console.log('Filtro inválido.');
-      return res.status(400).json({ error: 'Filtro inválido.' });
-    }
-
-    // Filtrar registros com base nas datas
+    // Filtrar registros com base no filtro de data (Hoje, Últimos 7 dias, Últimos 30 dias)
+    const currentDate = new Date();
+    const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
     const filteredRows = rows.filter((row, index) => {
       if (index === 0) return false; // Pular cabeçalho
 
       const [dateStr] = row;
       const [day, month, year] = dateStr.split('/').map(Number);
-      const recordDate = new Date(year, month - 1, day);
+      const date = new Date(year, month - 1, day);
 
-      return recordDate >= startDate && recordDate <= currentDate;
+      // Calcula a diferença em milissegundos
+      const diffInMs = brtDate - date;
+      const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+      if (filter === '1') {
+        // Hoje
+        return (
+          date.getDate() === brtDate.getDate() &&
+          date.getMonth() === brtDate.getMonth() &&
+          date.getFullYear() === brtDate.getFullYear()
+        );
+      } else if (filter === '7') {
+        // Últimos 7 dias
+        return diffInDays <= 7 && diffInDays >= 0;
+      } else if (filter === '30') {
+        // Últimos 30 dias
+        return diffInDays <= 30 && diffInDays >= 0;
+      }
+
+      return false;
     });
 
-    if (!filteredRows || filteredRows.length === 0) {
-      console.log('Nenhum registro encontrado após o filtro aplicado.');
-      return res.status(200).json({ count: 0, dates: [], counts: [], rows: [] });
-    }
+    console.log(`Total de registros filtrados: ${filteredRows.length}`);
 
-    console.log(`Total de registros após o filtro: ${filteredRows.length}`);
-
-    const count = filteredRows.length;
-    const dates = filteredRows.map((row) => row[0]);
-    const countsObj = dates.reduce((acc, date) => {
-      acc[date] = (acc[date] || 0) + 1;
-      return acc;
-    }, {});
-
-    res.status(200).json({
-      count,
-      dates: Object.keys(countsObj),
-      counts: Object.values(countsObj),
-      rows: filteredRows,
-    });
+    return res.status(200).json({ rows: filteredRows });
   } catch (error) {
     console.error('Erro ao obter registros do analista:', error);
     res.status(500).json({ error: 'Erro ao obter registros.' });
