@@ -12,11 +12,11 @@ export default function AnalystProfilePage({ user }) {
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true); // Estado para carregamento inicial da página
+  const [loading, setLoading] = useState(true); // Estado para carregamento dos dados
 
   useEffect(() => {
-    // Simulando um pequeno atraso para exibir o loader
-    setLoading(true);
+    // Simulando um pequeno atraso para exibir o loader inicial da página
     setTimeout(() => {
       // Definir saudação com base na hora do dia
       const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
@@ -32,12 +32,13 @@ export default function AnalystProfilePage({ user }) {
       }
 
       setGreeting(greetingMessage);
-      setLoading(false);
+      setInitialLoading(false);
     }, 500);
   }, []);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
         const [helpResponse, categoryResponse] = await Promise.all([
@@ -61,6 +62,8 @@ export default function AnalystProfilePage({ user }) {
         setCategoryRanking(categoryData.categories || []);
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -69,7 +72,8 @@ export default function AnalystProfilePage({ user }) {
     }
   }, [user.id]);
 
-  if (loading) {
+  if (initialLoading) {
+    // Loader inicial da página
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
