@@ -67,13 +67,13 @@ export default function ManagerPage({ user }) {
     let hash = '';
     switch (newValue) {
       case 0:
-        hash = '/Usuarios';
+        hash = '#Usuarios';
         break;
       case 1:
-        hash = '/Categorias';
+        hash = '#Categorias';
         break;
       case 2:
-        hash = '/Registros';
+        hash = '#Registros';
         break;
       default:
         break;
