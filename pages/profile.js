@@ -13,28 +13,33 @@ export default function MyPage({ user }) {
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true); // Estado para carregamento inicial da página
+  const [loading, setLoading] = useState(true); // Estado para carregamento dos dados
 
-  // Definir saudação com base na hora do dia
   useEffect(() => {
-    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-    const currentHour = new Date(brtDate).getHours();
-    let greetingMessage = '';
+    // Simulando um pequeno atraso para exibir o loader inicial da página
+    setTimeout(() => {
+      const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+      const currentHour = new Date(brtDate).getHours();
+      let greetingMessage = '';
 
-    if (currentHour >= 5 && currentHour < 12) {
-      greetingMessage = 'Bom dia';
-    } else if (currentHour >= 12 && currentHour < 18) {
-      greetingMessage = 'Boa tarde';
-    } else {
-      greetingMessage = 'Boa noite';
-    }
+      if (currentHour >= 5 && currentHour < 12) {
+        greetingMessage = 'Bom dia';
+      } else if (currentHour >= 12 && currentHour < 18) {
+        greetingMessage = 'Boa tarde';
+      } else {
+        greetingMessage = 'Boa noite';
+      }
 
-    setGreeting(greetingMessage);
+      setGreeting(greetingMessage);
+      setInitialLoading(false);
+    }, 500);
   }, []);
 
   // Buscar dados do usuário
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
           fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
@@ -65,10 +70,13 @@ export default function MyPage({ user }) {
       }
     };
 
-    fetchData();
+    if (user?.email) {
+      fetchData();
+    }
   }, [user.email, user.role]);
 
-  if (!user) {
+  if (initialLoading) {
+    // Loader inicial da página
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
@@ -108,28 +116,22 @@ export default function MyPage({ user }) {
               <h2>{user.name}</h2>
               <p>{user.email}</p>
               <div className={styles.tagsContainer}>
-                {/* Tag para Squad */}
+                {/* Tags de Desempenho */}
                 {performanceData?.squad && (
                   <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
                     #{performanceData.squad}
                   </div>
                 )}
-
-                {/* Tag para Chamado */}
                 {performanceData?.chamado && (
                   <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
                     #Chamado
                   </div>
                 )}
-
-                {/* Tag para Telefone */}
                 {performanceData?.telefone && (
                   <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
                     #Telefone
                   </div>
                 )}
-
-                {/* Tag para Chat */}
                 {performanceData?.chat && (
                   <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
                     #Chat
