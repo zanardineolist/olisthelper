@@ -85,11 +85,10 @@ export default function ManageCategories() {
       });
       if (!res.ok) throw new Error('Erro ao deletar categoria');
 
-      // Remover a categoria do estado atual e invalidar cache
-      setCategories((prevCategories) =>
-        prevCategories.filter((category) => category.id !== categoryIndex)
-      );
-      cache.delete('categories');
+      // Remover a categoria do estado atual e atualizar o cache
+      const updatedCategories = categories.filter((category) => category.id !== categoryIndex);
+      setCategories(updatedCategories);
+      cache.set('categories', updatedCategories, CACHE_TIMES.SHEET_VALUES); // Atualizar cache com a nova lista
 
       Swal.fire({
         icon: 'success',
@@ -181,25 +180,24 @@ export default function ManageCategories() {
 
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
+      let updatedCategories;
       if (isEditing) {
-        // Atualizar a categoria no estado atual, mantendo a posição atual
-        setCategories((prevCategories) => {
-          const updatedCategories = prevCategories.map((category) =>
-            category.id === currentCategoryId ? { ...category, name: newCategory } : category
-          );
-          return updatedCategories; // Não reordena ao atualizar
-        });
+        // Atualizar a categoria no estado atual e no cache, mantendo a posição atual
+        updatedCategories = categories.map((category) =>
+          category.id === currentCategoryId ? { ...category, name: newCategory } : category
+        );
       } else {
-        // Adicionar nova categoria ao estado atual
+        // Adicionar nova categoria ao estado atual e ao cache
         const newCategoryId = categories.length + 2; // Definir ID de forma incremental
-        setCategories((prevCategories) => [
-          ...prevCategories,
+        updatedCategories = [
+          ...categories,
           { id: newCategoryId, name: newCategory },
-        ].sort((a, b) => a.name.localeCompare(b.name)));
+        ].sort((a, b) => a.name.localeCompare(b.name));
       }
 
-      // Invalidar cache após adicionar ou editar
-      cache.delete('categories');
+      // Atualizar o estado e o cache
+      setCategories(updatedCategories);
+      cache.set('categories', updatedCategories, CACHE_TIMES.SHEET_VALUES); // Atualizar cache com a nova lista
 
       setNewCategory('');
       setIsEditing(false);
