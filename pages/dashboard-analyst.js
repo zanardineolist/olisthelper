@@ -55,7 +55,7 @@ export default function DashboardAnalyst({ user }) {
     }
   };
 
-  // Fetch leaderboard de usuários (sempre com base no mês atual)
+  // Fetch leaderboard de usuários (sempre com base no filtro de data)
   const fetchLeaderboard = async () => {
     if (!user?.id) {
       console.error("ID do analista não encontrado.");
@@ -63,7 +63,7 @@ export default function DashboardAnalyst({ user }) {
     }
 
     try {
-      const res = await fetch(`/api/get-analyst-leaderboard?analystId=${user.id}`);
+      const res = await fetch(`/api/get-analyst-leaderboard?analystId=${user.id}&filter=${filter}`);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros para o leaderboard.');
       }
@@ -115,14 +115,14 @@ export default function DashboardAnalyst({ user }) {
     }
   };
 
-  // Carregar dados ao montar o componente e sempre que o filtro mudar (apenas para registros do gráfico)
+  // Carregar dados ao montar o componente e sempre que o filtro mudar (apenas para registros do gráfico e leaderboard)
   useEffect(() => {
     fetchRecords();
+    fetchLeaderboard();
   }, [filter, user]);
 
-  // Carregar leaderboard e ranking de categorias apenas ao montar o componente
+  // Carregar ranking de categorias apenas ao montar o componente
   useEffect(() => {
-    fetchLeaderboard();
     fetchCategoryRanking();
   }, [user]);
 
@@ -177,7 +177,7 @@ export default function DashboardAnalyst({ user }) {
         </div>
         <div className={styles.rankingContainer}>
           <div className={styles.leaderboard}>
-            <h3>Top 5 - Usuários que Mais Pediram Ajuda (Mês Atual)</h3>
+            <h3>Top 5 - Usuários que Mais Pediram Ajuda (Período Selecionado)</h3>
             {leaderboard.length > 0 ? (
               <ul className={styles.list}>
                 {leaderboard.map((user, index) => (
@@ -190,7 +190,7 @@ export default function DashboardAnalyst({ user }) {
                 ))}
               </ul>
             ) : (
-              <div className={styles.noData}>Nenhum assistente solicitou ajuda neste mês.</div>
+              <div className={styles.noData}>Nenhum assistente solicitou ajuda neste período.</div>
             )}
           </div>
           <div className={styles.categoryRanking}>
