@@ -48,40 +48,37 @@ const theme = createTheme({
 export default function ManagerPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
   const router = useRouter();
-  const { tab } = router.query;
 
   useEffect(() => {
-    // Definir a aba inicial com base na rota da URL
-    if (tab === 'Usuarios') {
+    // Definir a aba inicial com base no hash da URL
+    const hash = window.location.hash;
+    if (hash === '#Usuarios') {
       setCurrentTab(0);
-    } else if (tab === 'Categorias') {
+    } else if (hash === '#Categorias') {
       setCurrentTab(1);
-    } else if (tab === 'Registros' && (user.role === 'analyst' || user.role === 'tax')) {
+    } else if (hash === '#Registros' && (user.role === 'analyst' || user.role === 'tax')) {
       setCurrentTab(2);
-    } else {
-      // Caso não tenha um tab válido, redireciona para a primeira aba
-      router.push('/manager/Usuarios', undefined, { shallow: true });
     }
-  }, [tab, user.role, router]);
+  }, [user.role]);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
-    // Atualizar a URL com o caminho correspondente à aba selecionada
-    let path = '';
+    // Atualizar a URL com o hash correspondente
+    let hash = '';
     switch (newValue) {
       case 0:
-        path = '/manager/Usuarios';
+        hash = '/Usuarios';
         break;
       case 1:
-        path = '/manager/Categorias';
+        hash = '/Categorias';
         break;
       case 2:
-        path = '/manager/Registros';
+        hash = '/Registros';
         break;
       default:
         break;
     }
-    router.push(path, undefined, { shallow: true });
+    router.push(`${window.location.pathname}${hash}`, undefined, { shallow: true });
   };
 
   return (
