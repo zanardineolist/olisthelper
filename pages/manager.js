@@ -10,7 +10,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import styles from '../styles/Manager.module.css';
 
-// Criação do tema com as cores personalizadas
 const theme = createTheme({
   components: {
     MuiTabs: {
@@ -47,23 +46,27 @@ const theme = createTheme({
 
 export default function ManagerPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    // Definir a aba inicial com base no hash da URL
-    const hash = window.location.hash;
-    if (hash === '#Usuarios') {
-      setCurrentTab(0);
-    } else if (hash === '#Categorias') {
-      setCurrentTab(1);
-    } else if (hash === '#Registros' && (user.role === 'analyst' || user.role === 'tax')) {
-      setCurrentTab(2);
-    }
+    // Simulando um pequeno atraso para exibir o loader
+    setLoading(true);
+    setTimeout(() => {
+      const hash = window.location.hash;
+      if (hash === '#Usuarios') {
+        setCurrentTab(0);
+      } else if (hash === '#Categorias') {
+        setCurrentTab(1);
+      } else if (hash === '#Registros' && (user.role === 'analyst' || user.role === 'tax')) {
+        setCurrentTab(2);
+      }
+      setLoading(false);
+    }, 500);
   }, [user.role]);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
-    // Atualizar a URL com o hash correspondente
     let hash = '';
     switch (newValue) {
       case 0:
@@ -80,6 +83,14 @@ export default function ManagerPage({ user }) {
     }
     router.push(`${window.location.pathname}${hash}`, undefined, { shallow: true });
   };
+
+  if (loading) {
+    return (
+      <div className="loaderOverlay">
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
     <>
