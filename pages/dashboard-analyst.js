@@ -63,7 +63,7 @@ export default function DashboardAnalyst({ user }) {
     }
 
     try {
-      const res = await fetch(`/api/get-analyst-leaderboard?analystId=${user.id}`);
+      const res = await fetch(`/api/get-analyst-leaderboard?analystId=${user.id}&filter=currentMonth`);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros para o leaderboard.');
       }
