@@ -163,6 +163,7 @@
 .performanceItem {
   font-size: 0.9em;
   font-weight: bold;
+  color: var(--color-white);
   background-color: var(--box-color3);
   padding: 10px;
   border-radius: 8px;
