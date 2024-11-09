@@ -8,7 +8,6 @@
   --color-accent4: #2A2A2A;
   --color-white: #fff;
   --color-overlay: #282828;
-  --bg-tooltip: #282828;
 
   /* Tema claro */
   --background-color: #ffffff;
@@ -19,6 +18,7 @@
   --title-color: #0D0D0D;
   --box-color: #F4F4F4;
   --box-color2: #dddddd;
+  --box-color3: #5d5d5d;
   --labels-bg: #e6e6e6;
   --labels-border: #E5E5E5;
   --color-icons: #AEAEAE;
@@ -35,6 +35,7 @@
   --manager-menu-indicator: #a8a8a8;
   --manager-menu-bg: #d2d2d2;
   --modals-inputs: #e6e6e6;
+  --bg-tooltip: #5D5D5D;
 }
 
 [data-theme="dark"] {
@@ -46,6 +47,7 @@
   --title-color: #ECECEC;
   --box-color: #2F2F2F;
   --box-color2: #222;
+  --box-color3: #5d5d5d;
   --labels-bg: #282828;
   --labels-border: #383838;
   --color-icons: #686868;
@@ -62,6 +64,7 @@
   --manager-menu-indicator: #fff;
   --manager-menu-bg: #5d5d5d;
   --modals-inputs: #282828;
+  --bg-tooltip: #282828;
 }
 
 /* Corpo da página */
