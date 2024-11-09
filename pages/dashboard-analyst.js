@@ -156,7 +156,7 @@ export default function DashboardAnalyst({ user }) {
         </div>
         <div className={styles.filterButtonContainer}>
           <button className={styles.filterButton} onClick={() => setShowDropdown(!showDropdown)}>
-            Filtrar por: {filterLabel}
+            <strong>Filtrar por:</strong> {filterLabel}
           </button>
           {showDropdown && (
             <div className={styles.dropdown}>
