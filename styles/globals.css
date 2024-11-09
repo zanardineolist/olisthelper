@@ -36,7 +36,7 @@
   --manager-menu-bg: #d2d2d2;
   --modals-inputs: #e6e6e6;
   --bg-tooltip: #5D5D5D;
-  --text-tooltip: #fff;
+  --text-tooltip: #c0c0c0;
 }
 
 [data-theme="dark"] {
@@ -66,7 +66,7 @@
   --manager-menu-bg: #5d5d5d;
   --modals-inputs: #282828;
   --bg-tooltip: #747474;
-  --text-tooltip: #fff;
+  --text-tooltip: #c0c0c0;
 }
 
 /* Corpo da página */
