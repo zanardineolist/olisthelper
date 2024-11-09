@@ -45,7 +45,7 @@
 }
 
 .filterButton:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--color-primary-hover);
 }
 
 .filterButton:active {
@@ -56,7 +56,7 @@
   position: absolute;
   top: 100%;
   left: 0;
-  background-color: var(--box-color);
+  background-color: var(--manager-menu-bg);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   margin-top: 5px;
@@ -76,7 +76,7 @@
 }
 
 .dropdown button:hover {
-  background-color: var(--hover-bg-color);
+  background-color: var(--manager-menu-bg-hover);
 }
 
 .chartContainer {

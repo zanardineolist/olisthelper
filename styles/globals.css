@@ -34,6 +34,7 @@
   --scroll: #767676;
   --manager-menu-indicator: #a8a8a8;
   --manager-menu-bg: #d2d2d2;
+  --manager-menu-bg-hover: #b3b3b3;
   --modals-inputs: #e6e6e6;
   --bg-tooltip: #5D5D5D;
   --text-tooltip: #c0c0c0;
@@ -64,6 +65,7 @@
   --scroll: #555;
   --manager-menu-indicator: #fff;
   --manager-menu-bg: #5d5d5d;
+  --manager-menu-bg-hover: #414141;
   --modals-inputs: #282828;
   --bg-tooltip: #747474;
   --text-tooltip: #c0c0c0;
