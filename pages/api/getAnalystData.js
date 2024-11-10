@@ -31,7 +31,7 @@ export default async function handler(req, res) {
 
     // Filtragem de dados baseada no modo fornecido na requisição
     if (mode === 'profile') {
-      // Modo perfil: contar registros do mês atual e anterior
+      // Modo perfil: contar registros do mês atual e anterior (similar ao `get-analyst-records.js`)
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth() + 1; // Mês atual (1-12)
       const currentYear = currentDate.getFullYear();
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
         rows,
       });
     } else if (mode === 'category-ranking') {
-      // Modo ranking de categorias: filtrar registros do mês atual e calcular contagem de categorias
+      // Modo ranking de categorias: filtrar registros do mês atual e calcular contagem de categorias (similar ao `get-category-ranking.js`)
       const currentDate = new Date();
       const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
       const currentMonth = brtDate.getMonth();
@@ -94,8 +94,27 @@ export default async function handler(req, res) {
       console.log('Categorias no ranking:', sortedCategories);
 
       return res.status(200).json({ categories: sortedCategories });
+    } else if (mode === 'leaderboard') {
+      // Modo leaderboard: obter registros do mês atual para o analista (similar ao `get-analyst-leaderboard.js`)
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+
+      const filteredRows = rows.filter((row, index) => {
+        if (index === 0) return false; // Pular cabeçalho
+
+        const [dateStr] = row;
+        const [day, month, year] = dateStr.split('/').map(Number);
+        const date = new Date(year, month - 1, day);
+
+        return date.getFullYear() === currentYear && date.getMonth() === currentMonth;
+      });
+
+      console.log(`Total de registros filtrados: ${filteredRows.length}`);
+
+      return res.status(200).json({ rows: filteredRows });
     } else {
-      // Lógica padrão para filtrar registros gerais com base no filtro fornecido
+      // Lógica padrão para filtrar registros gerais com base no filtro fornecido (similar ao `get-analyst-records.js` com modo padrão)
       const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
       const currentDate = new Date(brtDate);
 
