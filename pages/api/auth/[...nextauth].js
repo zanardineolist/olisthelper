@@ -1,7 +1,8 @@
 // pages/api/auth/[...nextauth].js
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { getSheetValues, addSheetRow } from '../../../utils/batchSheetUtils';
+import { addUserToSheetIfNotExists } from '../../../utils/batchSheetUtils';
+import { cache, CACHE_TIMES } from '../../../utils/cache';
 
 export default NextAuth({
   providers: [
@@ -14,33 +15,27 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       try {
-        // Verifica se o usuário está autorizado ou cria um novo
-        let usersRows = await getSheetValues('Usuários', 'A:H');
-        
-        if (!usersRows || usersRows.length === 0) {
-          return false; // Se não há planilhas de usuários configuradas, rejeitar o login
+        // Verifica se o usuário já está no cache
+        const cacheKey = `user_${user.email.toLowerCase()}`;
+        const cachedUser = cache.get(cacheKey);
+
+        if (cachedUser) {
+          return true; // Se o usuário já está no cache, permitir o login
         }
 
-        // Verificar se o usuário já existe
-        const existingUser = usersRows.find(row => row[2]?.toLowerCase() === user.email.toLowerCase());
+        // Caso contrário, tentar adicionar ou obter o usuário da planilha
+        const addedUser = await addUserToSheetIfNotExists({
+          email: user.email,
+          name: user.name,
+        });
 
-        if (!existingUser) {
-          // Se o usuário não existir, adicionar uma nova linha
-          const newUser = [
-            Math.floor(1000 + Math.random() * 9000).toString(), // Gerar ID único
-            user.name,
-            user.email,
-            'support', // Papel padrão para novos usuários
-            '', // Squad vazio por padrão
-            'FALSE', // Chamado
-            'FALSE', // Telefone
-            'FALSE', // Chat
-          ];
-          
-          await addSheetRow('Usuários', newUser);
+        // Cachear usuário para futuras referências
+        if (addedUser) {
+          cache.set(cacheKey, addedUser, CACHE_TIMES.USERS);
+          return true;
+        } else {
+          return false; // Se houver um problema ao adicionar o usuário
         }
-
-        return true; // Permitir o login
       } catch (error) {
         console.error("Erro durante a verificação do login:", error);
         return false;
@@ -58,13 +53,25 @@ export default NextAuth({
       // Atribuir ID e papel do usuário ao token
       if (user) {
         try {
-          let usersRows = await getSheetValues('Usuários', 'A:H');
-          if (usersRows) {
-            const userDetails = usersRows.find(row => row[2]?.toLowerCase() === user.email.toLowerCase());
-            if (userDetails) {
-              token.id = userDetails[0]; // Garantir que o ID seja único e consistente
-              token.role = userDetails[3]; // Papel do usuário: 'support', 'analyst', ou 'super'
+          const cacheKey = `user_${user.email.toLowerCase()}`;
+          let cachedUser = cache.get(cacheKey);
+
+          // Se o usuário não estiver no cache, buscar da planilha
+          if (!cachedUser) {
+            cachedUser = await addUserToSheetIfNotExists({
+              email: user.email,
+              name: user.name,
+            });
+
+            if (cachedUser) {
+              cache.set(cacheKey, cachedUser, CACHE_TIMES.USERS);
             }
+          }
+
+          // Atribuir valores ao token
+          if (cachedUser) {
+            token.id = cachedUser[0]; // ID do usuário
+            token.role = cachedUser[3]; // Papel do usuário
           }
         } catch (error) {
           console.error("Erro ao obter detalhes do usuário:", error);

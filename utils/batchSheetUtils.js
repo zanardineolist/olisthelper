@@ -49,10 +49,10 @@ export async function batchGetValues(ranges) {
   return data;
 }
 
-// Função para obter valores de uma aba específica com cache, incluindo lógica para perfil específico
+// Função para obter valores de uma aba específica com cache
 export async function getSheetValues(sheetName, range, invalidateCache = false) {
   const cacheKey = `sheet_${sheetName}_${range}`;
-  
+
   if (!invalidateCache) {
     const cachedValues = cache.get(cacheKey);
     if (cachedValues) return cachedValues;
@@ -132,7 +132,6 @@ export async function addSheetRow(sheetName, values) {
 
     if (match) {
       const newRowIndex = parseInt(match[1], 10) - 1;
-      const [chamado, telefone, chat] = values.slice(5, 8);
 
       // Usar batch update para otimizar as requisições de checkbox
       await sheets.spreadsheets.batchUpdate({
@@ -150,7 +149,7 @@ export async function addSheetRow(sheetName, values) {
               cell: {
                 dataValidation: { condition: { type: 'BOOLEAN' } },
                 userEnteredValue: {
-                  boolValue: values[colIndex] === 'TRUE'
+                  boolValue: values[colIndex] === 'TRUE',
                 },
               },
               fields: 'dataValidation,userEnteredValue',
@@ -207,5 +206,53 @@ export async function deleteSheetRow(sheetName, rowIndex) {
   } catch (error) {
     console.error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}:`, error);
     throw new Error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}.`);
+  }
+}
+
+// Função para adicionar usuário à planilha se não existir
+export async function addUserToSheetIfNotExists(user) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+    const cacheKey = `user_${user.email}`;
+    
+    // Verificar cache primeiro
+    const cachedUser = cache.get(cacheKey);
+    if (cachedUser) return cachedUser;
+
+    // Verificar se o usuário já existe
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Usuários!A:H',
+    });
+
+    const rows = response.data.values || [];
+    const existingUser = rows.find((row) => row[2] === user.email);
+    if (existingUser) {
+      cache.set(cacheKey, existingUser, CACHE_TIMES.USERS);
+      return existingUser;
+    }
+
+    // Gerar ID aleatório único
+    let userId;
+    do {
+      userId = Math.floor(1000 + Math.random() * 9000).toString();
+    } while (rows.some(row => row[0] === userId));
+
+    const newRowIndex = rows.length + 1;
+    const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE'];
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: sheetId,
+      range: 'Usuários!A:H',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: [newUser] },
+    });
+
+    cache.set(cacheKey, newUser, CACHE_TIMES.USERS);
+    return newUser;
+  } catch (error) {
+    console.error('Erro ao adicionar ou verificar usuário na planilha:', error);
+    return null;
   }
 }
