@@ -26,10 +26,10 @@ export default async function handler(req, res) {
     const hasTelefone = userRow[6] === 'TRUE';
     const hasChat = userRow[7] === 'TRUE';
 
-    // Verificar o perfil do usuário e aplicar lógica específica
+    // Dividir lógicas por perfil do usuário
     if (userProfile === 'support') {
+      // Lógica específica para o perfil 'support'
       if (mode === 'performance') {
-        // Lógica específica para o perfil 'support' visualizar dados de desempenho
         const sheets = await getAuthenticatedGoogleSheets();
         const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI";
         const performanceRows = await getSheetValues(sheets, sheetIdDesempenho, 'Principal', 'A:V');
@@ -98,24 +98,23 @@ export default async function handler(req, res) {
       }
 
     } else if (userProfile === 'analyst' || userProfile === 'tax') {
-      // Lógica para analistas e membros de tax
+      // Lógica para 'analyst' e 'tax'
       const sheetMeta = await getSheetMetaData();
       const sheetNames = sheetMeta.data.sheets.map(sheet => sheet.properties.title);
       const analystSheetNames = sheetNames.filter(name => name.startsWith('#'));
 
-      let currentMonthCount = 0;
-      let lastMonthCount = 0;
-
-      // Data atual ajustada para o fuso horário de São Paulo
       const currentDate = new Date();
       const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
       const currentMonth = brtDate.getMonth();
       const currentYear = brtDate.getFullYear();
-      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1; // Corrigir para manejar dezembro e janeiro
+      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
       const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
       if (mode === 'help-requests') {
-        // Modo pedidos de ajuda do usuário
+        // Modo pedidos de ajuda para analistas
+        let currentMonthCount = 0;
+        let lastMonthCount = 0;
+
         for (const sheetName of analystSheetNames) {
           const rows = await getSheetValues(sheetName, 'A:F');
 
@@ -144,7 +143,7 @@ export default async function handler(req, res) {
           lastMonth: lastMonthCount,
         });
       } else if (mode === 'category-ranking') {
-        // Modo ranking de categorias
+        // Modo ranking de categorias para analistas
         let rows = [];
         for (const sheetName of sheetNames) {
           const response = await getSheetValues(sheetName, 'A:F');
@@ -183,10 +182,10 @@ export default async function handler(req, res) {
 
         return res.status(200).json({ categories: sortedCategories });
       }
+    } else {
+      // Caso o perfil seja desconhecido ou o modo não seja permitido
+      return res.status(403).json({ error: 'Perfil do usuário inválido ou modo não permitido.' });
     }
-
-    return res.status(400).json({ error: 'Modo inválido ou não autorizado. Modos suportados: performance, category-ranking, help-requests.' });
-
   } catch (error) {
     console.error('Erro ao processar dados do usuário:', error);
     return res.status(500).json({ error: 'Erro ao processar dados do usuário.' });
