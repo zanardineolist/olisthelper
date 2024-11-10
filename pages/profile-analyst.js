@@ -40,14 +40,14 @@ export default function AnalystProfilePage({ user }) {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Buscar dados de ajudas solicitadas, ranking de categorias e desempenho do usuário logado
+        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
         const [helpResponse, categoryResponse] = await Promise.all([
-          fetch(`/api/getUserData?userEmail=${user.email}&mode=help-requests`),
-          fetch(`/api/getUserData?userEmail=${user.email}&mode=category-ranking`)
+          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
+          fetch(`/api/get-category-ranking?analystId=${user.id}`)
         ]);
 
         if (!helpResponse.ok || !categoryResponse.ok) {
-          throw new Error('Erro ao buscar dados do usuário.');
+          throw new Error('Erro ao buscar dados do analista.');
         }
 
         // Ajudas Solicitadas
