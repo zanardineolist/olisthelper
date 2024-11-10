@@ -40,10 +40,10 @@ export default function AnalystProfilePage({ user }) {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
+        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado usando os novos endpoints unificados
         const [helpResponse, categoryResponse] = await Promise.all([
-          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
-          fetch(`/api/get-category-ranking?analystId=${user.id}`)
+          fetch(`/api/getUserData?userEmail=${user.email}&mode=help-requests`),
+          fetch(`/api/getUserData?userEmail=${user.email}&mode=category-ranking`),
         ]);
 
         if (!helpResponse.ok || !categoryResponse.ok) {
