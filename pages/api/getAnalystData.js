@@ -29,15 +29,17 @@ export default async function handler(req, res) {
 
     console.log(`Total de registros encontrados: ${rows.length}`);
 
+    // Data atual ajustada para o fuso horário de São Paulo
+    const currentDate = new Date();
+    const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const currentMonth = brtDate.getMonth() + 1; // Mês atual (1-12)
+    const currentYear = brtDate.getFullYear();
+    const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1; // Mês anterior
+    const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+
     // Filtragem de dados baseada no modo fornecido na requisição
     if (mode === 'profile') {
-      // Modo perfil: contar registros do mês atual e anterior (similar ao `get-analyst-records.js`)
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1; // Mês atual (1-12)
-      const currentYear = currentDate.getFullYear();
-      const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1; // Mês anterior
-      const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
-
+      // Modo perfil: contar registros do mês atual e do mês anterior
       let currentMonthCount = 0;
       let lastMonthCount = 0;
 
@@ -60,12 +62,7 @@ export default async function handler(req, res) {
         rows,
       });
     } else if (mode === 'category-ranking') {
-      // Modo ranking de categorias: filtrar registros do mês atual e calcular contagem de categorias (similar ao `get-category-ranking.js`)
-      const currentDate = new Date();
-      const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
-      const currentMonth = brtDate.getMonth();
-      const currentYear = brtDate.getFullYear();
-
+      // Modo ranking de categorias: calcular a contagem de categorias auxiliadas no mês atual
       const currentMonthRows = rows.filter((row, index) => {
         if (index === 0) return false; // Pular cabeçalho
 
@@ -73,7 +70,7 @@ export default async function handler(req, res) {
         const [day, month, year] = dateStr.split('/').map(Number);
         const date = new Date(year, month - 1, day);
 
-        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+        return date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear;
       });
 
       const categoryCounts = currentMonthRows.reduce((acc, row) => {
@@ -94,63 +91,34 @@ export default async function handler(req, res) {
       console.log('Categorias no ranking:', sortedCategories);
 
       return res.status(200).json({ categories: sortedCategories });
-    } else if (mode === 'leaderboard') {
-      // Modo leaderboard: obter registros do mês atual para o analista (similar ao `get-analyst-leaderboard.js`)
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth();
-      const currentYear = currentDate.getFullYear();
+    } else if (mode === 'help-requests') {
+      // Modo pedidos de ajuda: contar pedidos de ajuda do mês atual e do mês anterior
+      let currentMonthCount = 0;
+      let lastMonthCount = 0;
 
-      const filteredRows = rows.filter((row, index) => {
-        if (index === 0) return false; // Pular cabeçalho
+      rows.forEach((row, index) => {
+        if (index === 0) return; // Pular cabeçalho
 
         const [dateStr] = row;
         const [day, month, year] = dateStr.split('/').map(Number);
         const date = new Date(year, month - 1, day);
 
-        return date.getFullYear() === currentYear && date.getMonth() === currentMonth;
+        if (date.getFullYear() === currentYear && date.getMonth() + 1 === currentMonth) {
+          currentMonthCount++;
+        } else if (
+          (date.getFullYear() === lastMonthYear && date.getMonth() + 1 === lastMonth) ||
+          (currentMonth === 1 && date.getMonth() === 11 && date.getFullYear() === currentYear - 1)
+        ) {
+          lastMonthCount++;
+        }
       });
 
-      console.log(`Total de registros filtrados: ${filteredRows.length}`);
-
-      return res.status(200).json({ rows: filteredRows });
+      return res.status(200).json({
+        currentMonth: currentMonthCount,
+        lastMonth: lastMonthCount,
+      });
     } else {
-      // Lógica padrão para filtrar registros gerais com base no filtro fornecido (similar ao `get-analyst-records.js` com modo padrão)
-      const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-      const currentDate = new Date(brtDate);
-
-      const filteredRows = rows.filter((row, index) => {
-        if (index === 0) return false;
-
-        const [dateStr] = row;
-        const [day, month, year] = dateStr.split('/').map(Number);
-        const date = new Date(year, month - 1, day);
-
-        const diffTime = currentDate - date;
-        const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-        return diffDays <= (filter ? parseInt(filter, 10) : 30);
-      });
-
-      if (!filteredRows || filteredRows.length === 0) {
-        console.log('Nenhum registro encontrado após o filtro aplicado.');
-        return res.status(200).json({ count: 0, dates: [], counts: [], rows: [] });
-      }
-
-      console.log(`Total de registros após o filtro: ${filteredRows.length}`);
-
-      const count = filteredRows.length;
-      const dates = filteredRows.map((row) => row[0]);
-      const countsObj = dates.reduce((acc, date) => {
-        acc[date] = (acc[date] || 0) + 1;
-        return acc;
-      }, {});
-
-      res.status(200).json({
-        count,
-        dates: Object.keys(countsObj),
-        counts: Object.values(countsObj),
-        rows: filteredRows,
-      });
+      return res.status(400).json({ error: 'Modo inválido. Modos suportados: profile, category-ranking, help-requests.' });
     }
   } catch (error) {
     console.error('Erro ao obter dados do analista:', error);

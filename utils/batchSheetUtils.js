@@ -49,11 +49,14 @@ export async function batchGetValues(ranges) {
   return data;
 }
 
-// Função para obter valores de uma aba específica com cache
-export async function getSheetValues(sheetName, range) {
+// Função para obter valores de uma aba específica com cache, incluindo lógica para perfil específico
+export async function getSheetValues(sheetName, range, invalidateCache = false) {
   const cacheKey = `sheet_${sheetName}_${range}`;
-  const cachedValues = cache.get(cacheKey);
-  if (cachedValues) return cachedValues;
+  
+  if (!invalidateCache) {
+    const cachedValues = cache.get(cacheKey);
+    if (cachedValues) return cachedValues;
+  }
 
   const sheets = await getAuthenticatedGoogleSheets();
   const sheetId = process.env.SHEET_ID;
@@ -68,7 +71,7 @@ export async function getSheetValues(sheetName, range) {
   return values;
 }
 
-// Função para adicionar valores a uma aba específica
+// Função para adicionar valores a uma aba específica e invalidar cache relacionado
 export async function appendValuesToSheet(sheetName, values) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
@@ -83,13 +86,14 @@ export async function appendValuesToSheet(sheetName, values) {
 
     // Invalidar cache relacionado
     cache.delete(`sheet_${sheetName}_A:F`);
+    cache.delete(`sheet_${sheetName}_A:H`);
   } catch (error) {
     console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
     throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
   }
 }
 
-// Função para atualizar uma linha específica da planilha
+// Função para atualizar uma linha específica da planilha e invalidar cache relacionado
 export async function updateSheetRow(sheetName, rowIndex, values) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
@@ -110,7 +114,7 @@ export async function updateSheetRow(sheetName, rowIndex, values) {
   }
 }
 
-// Função para adicionar uma nova linha
+// Função para adicionar uma nova linha com lógica específica para analistas
 export async function addSheetRow(sheetName, values) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
@@ -125,7 +129,7 @@ export async function addSheetRow(sheetName, values) {
 
     const updatedRange = appendResponse.data.updates.updatedRange;
     const match = updatedRange.match(/(\d+):\w+/);
-    
+
     if (match) {
       const newRowIndex = parseInt(match[1], 10) - 1;
       const [chamado, telefone, chat] = values.slice(5, 8);
@@ -164,7 +168,7 @@ export async function addSheetRow(sheetName, values) {
   }
 }
 
-// Função para excluir uma linha específica da planilha
+// Função para excluir uma linha específica da planilha e invalidar cache relacionado
 export async function deleteSheetRow(sheetName, rowIndex) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
@@ -173,7 +177,7 @@ export async function deleteSheetRow(sheetName, rowIndex) {
     const sheetInfo = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
     });
-    
+
     const sheet = sheetInfo.data.sheets.find(
       (sheet) => sheet.properties.title === sheetName
     );
