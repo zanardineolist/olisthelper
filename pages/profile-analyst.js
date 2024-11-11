@@ -40,23 +40,26 @@ export default function AnalystProfilePage({ user }) {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Buscar dados do analista usando o novo endpoint unificado
-        const response = await fetch(`/api/getAnalystData?analystId=${user.id}&userEmail=${user.email}&includeCategoryRanking=true`);
+        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
+        const [helpResponse, categoryResponse] = await Promise.all([
+          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
+          fetch(`/api/get-category-ranking?analystId=${user.id}`)
+        ]);
 
-        if (!response.ok) {
+        if (!helpResponse.ok || !categoryResponse.ok) {
           throw new Error('Erro ao buscar dados do analista.');
         }
 
-        const data = await response.json();
-
         // Ajudas Solicitadas
+        const helpData = await helpResponse.json();
         setHelpRequests({
-          currentMonth: data.helpRequests?.currentMonth || 0,
-          lastMonth: data.helpRequests?.lastMonth || 0,
+          currentMonth: helpData.currentMonth,
+          lastMonth: helpData.lastMonth,
         });
 
         // Ranking de Categorias
-        setCategoryRanking(data.categoryRanking || []);
+        const categoryData = await categoryResponse.json();
+        setCategoryRanking(categoryData.categories || []);
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
       } finally {
