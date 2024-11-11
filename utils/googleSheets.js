@@ -1,3 +1,5 @@
+// utils/googleSheets.js
+
 import { google } from 'googleapis';
 import NodeCache from 'node-cache';
 
@@ -151,14 +153,13 @@ async function addUserToSheetIfNotExists(user) {
   }
 }
 
-export async function deleteSheetRow(sheetName, rowIndex) {
+async function deleteSheetRow(sheets, spreadsheetId, sheetName, rowIndex) {
   try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
+    console.log(`Removendo linha ${rowIndex} da aba ${sheetName}`);
 
     // Obter informações da planilha
     const sheetInfo = await sheets.spreadsheets.get({
-      spreadsheetId: sheetId,
+      spreadsheetId,
     });
 
     // Encontrar a aba correspondente ao sheetName
@@ -172,7 +173,7 @@ export async function deleteSheetRow(sheetName, rowIndex) {
 
     // Executar a exclusão da linha usando batchUpdate
     await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: sheetId,
+      spreadsheetId,
       resource: {
         requests: [{
           deleteDimension: {
@@ -204,5 +205,5 @@ export {
   appendValuesToSheet,
   updateSheetRow,
   addUserToSheetIfNotExists,
-  deleteSheetRow,
+  deleteSheetRow
 };
