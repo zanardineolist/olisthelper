@@ -101,7 +101,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
       }
 
-      const rows = await getSheetValues(sheetName, 'A:F');
+      const rows = await getSheetValues(sheets, sheetId, sheetName, 'A:F');
       if (rows && rows.length > 0) {
         rows.shift(); // Ignorar cabeçalho
 
@@ -110,9 +110,7 @@ export default async function handler(req, res) {
         const currentMonth = brtDate.getMonth();
         const currentYear = brtDate.getFullYear();
 
-        const currentMonthRows = rows.filter((row, index) => {
-          if (index === 0) return false;
-
+        const currentMonthRows = rows.filter((row) => {
           const [dateStr] = row;
           const [day, month, year] = dateStr.split('/').map(Number);
           const date = new Date(year, month - 1, day);
