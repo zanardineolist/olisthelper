@@ -41,7 +41,7 @@ export default function AnalystProfilePage({ user }) {
       setLoading(true);
       try {
         // Buscar dados do analista usando o novo endpoint unificado
-        const response = await fetch(`/api/get-analyst-and-tax-data?analystId=${user.id}&includeCategoryRanking=true`);
+        const response = await fetch(`/api/getAnalystData?analystId=${user.id}&includeCategoryRanking=true`);
 
         if (!response.ok) {
           throw new Error('Erro ao buscar dados do analista.');
