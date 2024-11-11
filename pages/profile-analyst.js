@@ -12,8 +12,6 @@ export default function AnalystProfilePage({ user }) {
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
-  const [performance, setPerformance] = useState(null);
-  const [records, setRecords] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true); // Estado para carregamento inicial da página
   const [loading, setLoading] = useState(true); // Estado para carregamento dos dados
 
@@ -42,44 +40,26 @@ export default function AnalystProfilePage({ user }) {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Utilizar o endpoint otimizado para buscar todos os dados de suporte e de analista
-        const supportDataResponse = await fetch(
-          `/api/getSupportData?userEmail=${user.email}&include=ranking,helpRequests`
-        );
+        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
+        const [helpResponse, categoryResponse] = await Promise.all([
+          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
+          fetch(`/api/get-category-ranking?analystId=${user.id}`)
+        ]);
 
-        const analystDataResponse = await fetch(
-          `/api/getAnalystData?analystId=${user.id}&dataType=performance,records`
-        );
-
-        if (!supportDataResponse.ok || !analystDataResponse.ok) {
+        if (!helpResponse.ok || !categoryResponse.ok) {
           throw new Error('Erro ao buscar dados do analista.');
         }
 
-        const supportData = await supportDataResponse.json();
-        const analystData = await analystDataResponse.json();
-
         // Ajudas Solicitadas
-        if (supportData.helpRequests) {
-          setHelpRequests({
-            currentMonth: supportData.helpRequests.currentMonth,
-            lastMonth: supportData.helpRequests.lastMonth,
-          });
-        }
+        const helpData = await helpResponse.json();
+        setHelpRequests({
+          currentMonth: helpData.currentMonth,
+          lastMonth: helpData.lastMonth,
+        });
 
         // Ranking de Categorias
-        if (supportData.categoryRanking) {
-          setCategoryRanking(supportData.categoryRanking.categories || []);
-        }
-
-        // Desempenho do Analista
-        if (analystData.performance) {
-          setPerformance(analystData.performance);
-        }
-
-        // Registros do Analista
-        if (analystData.records) {
-          setRecords(analystData.records.rows || []);
-        }
+        const categoryData = await categoryResponse.json();
+        setCategoryRanking(categoryData.categories || []);
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
       } finally {
@@ -90,7 +70,7 @@ export default function AnalystProfilePage({ user }) {
     if (user?.id) {
       fetchData();
     }
-  }, [user.email]);
+  }, [user.id]);
 
   if (initialLoading) {
     // Loader inicial da página
@@ -154,49 +134,6 @@ export default function AnalystProfilePage({ user }) {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Container para Desempenho do Analista */}
-        <div className={styles.performance}>
-          <h3>Desempenho do Analista</h3>
-          {loading ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
-          ) : performance ? (
-            <div className={styles.performanceDetails}>
-              <p><strong>Total de Chamados:</strong> {performance.totalChamados}</p>
-              <p><strong>Média por Dia:</strong> {performance.mediaPorDia}</p>
-              <p><strong>TMA:</strong> {performance.tma}</p>
-              <p><strong>CSAT:</strong> {performance.csat}</p>
-            </div>
-          ) : (
-            <div className={styles.noData}>
-              Nenhum dado de desempenho disponível no momento.
-            </div>
-          )}
-        </div>
-
-        {/* Container para Registros do Analista */}
-        <div className={styles.records}>
-          <h3>Registros Recentes</h3>
-          {loading ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
-          ) : records.length > 0 ? (
-            <ul className={styles.list}>
-              {records.map((record, index) => (
-                <li key={index} className={styles.listItem}>
-                  <span className={styles.recordDate}>{record.date}</span> - {record.details}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className={styles.noData}>
-              Nenhum registro disponível no momento.
-            </div>
-          )}
         </div>
 
         {/* Container para Ranking de Categorias */}
