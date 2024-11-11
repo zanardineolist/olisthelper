@@ -37,6 +37,11 @@ export default async function handler(req, res) {
       const currentYear = brtDate.getFullYear();
 
       for (const sheetName of analystSheetNames) {
+        if (typeof sheetName !== 'string') {
+          console.error(`Nome da aba inválido: ${sheetName}`);
+          continue;
+        }
+
         const rows = await getSheetValues(sheets, sheetId, sheetName, 'A:F');
 
         if (rows.length > 0) {
@@ -73,6 +78,11 @@ export default async function handler(req, res) {
       const leaderboardData = {};
 
       for (const sheetName of analystSheetNames) {
+        if (typeof sheetName !== 'string') {
+          console.error(`Nome da aba inválido: ${sheetName}`);
+          continue;
+        }
+
         const rows = await getSheetValues(sheets, sheetId, sheetName, 'A:F');
         if (rows && rows.length > 0) {
           rows.shift(); // Ignorar cabeçalho
@@ -97,7 +107,8 @@ export default async function handler(req, res) {
     if (includeCategoryRanking === 'true' && analystId) {
       const sheetName = sheetMeta.data.sheets.find(sheet => sheet.properties.title.startsWith(`#${analystId}`))?.properties.title;
 
-      if (!sheetName) {
+      if (!sheetName || typeof sheetName !== 'string') {
+        console.error(`Nome da aba correspondente ao ID '${analystId}' não existe ou é inválido.`);
         return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
       }
 
@@ -140,6 +151,11 @@ export default async function handler(req, res) {
       const filteredRows = [];
 
       for (const sheetName of analystSheetNames) {
+        if (typeof sheetName !== 'string') {
+          console.error(`Nome da aba inválido: ${sheetName}`);
+          continue;
+        }
+
         const rows = await getSheetValues(sheets, sheetId, sheetName, 'A:F');
         if (rows && rows.length > 0) {
           rows.shift(); // Ignorar cabeçalho
