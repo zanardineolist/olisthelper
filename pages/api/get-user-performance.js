@@ -28,15 +28,14 @@ const parseValue = (value) => {
     if (value.includes('%')) {
       return parseFloat(value.replace('%', '').replace(',', '.'));
     } else if (value.includes(':')) {
-      // Convert time in hh:mm:ss format to total minutes
       const parts = value.split(':');
       return parseInt(parts[0]) * 60 + parseInt(parts[1]) + parseInt(parts[2]) / 60;
     } else if (value === "-") {
-      return null;
+      return 0;
     }
     return parseFloat(value.replace(',', '.'));
   }
-  return value;
+  return value || 0;
 };
 
 const formatTime = (minutes) => {
@@ -57,8 +56,8 @@ const formatHours = (value) => {
 };
 
 const getColorForValue = (value, threshold, isGreaterBetter = true) => {
-  if (value === null) {
-    return null; // Sem cor se o valor for nulo
+  if (value === null || isNaN(value)) {
+    return 'var(--box-color3)';
   }
   return (isGreaterBetter ? value >= threshold : value <= threshold) ? '#779E3D' : '#E64E36';
 };

@@ -375,15 +375,15 @@ export default function DashboardSuperPage({ user }) {
                           <span>Total Chamados:</span>
                           <span>{performanceData.chamados.totalChamados}</span>
                         </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'var(--box-color3)' }}>
                           <span>Média/Dia:</span>
                           <span>{performanceData.chamados.mediaPorDia}</span>
                         </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'var(--box-color3)' }}>
                           <span>TMA:</span>
                           <span>{performanceData.chamados.tma}</span>
                         </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'var(--box-color3)' }}>
                           <span>CSAT:</span>
                           <span>{performanceData.chamados.csat}</span>
                         </div>
@@ -400,15 +400,15 @@ export default function DashboardSuperPage({ user }) {
                           <span>Total Ligações:</span>
                           <span>{performanceData.telefone.totalTelefone}</span>
                         </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.mediaPorDia || 'transparent' }}>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.mediaPorDia || 'var(--box-color3)' }}>
                           <span>Média/Dia:</span>
                           <span>{performanceData.telefone.mediaPorDia}</span>
                         </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'var(--box-color3)' }}>
                           <span>TMA:</span>
                           <span>{performanceData.telefone.tma}</span>
                         </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'var(--box-color3)' }}>
                           <span>CSAT:</span>
                           <span>{performanceData.telefone.csat}</span>
                         </div>
@@ -429,15 +429,15 @@ export default function DashboardSuperPage({ user }) {
                           <span>Total Chats:</span>
                           <span>{performanceData.chat.totalChats}</span>
                         </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.mediaPorDia || 'transparent' }}>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.mediaPorDia || 'var(--box-color3)' }}>
                           <span>Média/Dia:</span>
                           <span>{performanceData.chat.mediaPorDia}</span>
                         </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'var(--box-color3)' }}>
                           <span>TMA:</span>
                           <span>{performanceData.chat.tma}</span>
                         </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
+                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'var(--box-color3)' }}>
                           <span>CSAT:</span>
                           <span>{performanceData.chat.csat}</span>
                         </div>
