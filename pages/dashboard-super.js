@@ -2,7 +2,7 @@
 import Head from 'next/head';
 import { getSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
-import Select from 'react-select';
+import Select, { components } from 'react-select';
 import Navbar from '../components/Navbar';
 import styles from '../styles/DashboardSuper.module.css';
 import Footer from '../components/Footer';
@@ -98,83 +98,118 @@ export default function DashboardSuperPage({ user }) {
     setSelectedUser(selectedOption ? selectedOption.value : null);
   };
 
+  // Função para determinar a cor da tag do perfil
+  const getColorForRole = (role) => {
+    switch (role.toLowerCase()) {
+      case 'support':
+        return '#779E3D'; // Verde para Suporte
+      case 'analyst':
+        return '#0A4EE4'; // Azul para Analista
+      case 'tax':
+        return '#F0A028'; // Laranja para Fiscal
+      default:
+        return '#888'; // Cinza padrão
+    }
+  };
+
+  // Componente customizado para renderizar as opções do Select
+  const CustomOption = (props) => {
+    return (
+      <components.Option {...props}>
+        <span>{props.label}</span>
+        <span
+          style={{
+            backgroundColor: props.data.color,
+            color: '#FFF',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            marginLeft: '10px',
+            fontSize: '0.8em',
+          }}
+        >
+          {props.data.role}
+        </span>
+      </components.Option>
+    );
+  };
+
   // Estilos personalizados para o React-Select
-const customSelectStyles = {
-  container: (provided) => ({
-    ...provided,
-    width: '500px',
-    margin: '20px auto',
-  }),
-  control: (provided, state) => ({
-    ...provided,
-    backgroundColor: 'var(--modals-inputs)',
-    borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
-    color: 'var(--text-color)',
-    borderRadius: '5px',
-    padding: '5px',
-    boxShadow: 'none',
-    '&:hover': {
-      borderColor: 'var(--color-primary)',
-    },
-    outline: 'none',
-  }),
-  input: (provided) => ({
-    ...provided,
-    color: 'var(--text-color)',
-    caretColor: 'var(--text-color)',
-  }),
-  menu: (provided) => ({
-    ...provided,
-    backgroundColor: 'var(--modals-inputs)',
-    maxHeight: '250px',
-    overflowY: 'auto',
-  }),
-  menuList: (provided) => ({
-    ...provided,
-    padding: 0,
-    maxHeight: '250px',
-    '&::-webkit-scrollbar': {
-      width: '8px',
-    },
-    '&::-webkit-scrollbar-track': {
-      background: 'var(--scroll-bg)',
-    },
-    '&::-webkit-scrollbar-thumb': {
-      backgroundColor: 'var(--scroll)',
-      borderRadius: '10px',
-      border: '2px solid var(--scroll-bg)',
-    },
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    backgroundColor: state.isFocused
-      ? 'var(--color-trodd)'
-      : state.isSelected
-      ? 'var(--color-primary)'
-      : 'var(--box-color)',
-    color: 'var(--text-color)',
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: 'var(--color-trodd)',
-    },
-  }),
-  singleValue: (provided) => ({
-    ...provided,
-    color: 'var(--text-color)',
-  }),
-  placeholder: (provided) => ({
-    ...provided,
-    color: 'var(--text-color2)',
-  }),
-  dropdownIndicator: (provided) => ({
-    ...provided,
-    color: 'var(--text-color)',
-  }),
-  indicatorSeparator: (provided) => ({
-    ...provided,
-    backgroundColor: 'var(--color-border)',
-  }),
-};
+  const customSelectStyles = {
+    container: (provided) => ({
+      ...provided,
+      width: '500px',
+      margin: '20px auto',
+    }),
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: 'var(--modals-inputs)',
+      borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
+      color: 'var(--text-color)',
+      borderRadius: '5px',
+      padding: '5px',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: 'var(--color-primary)',
+      },
+      outline: 'none',
+    }),
+    input: (provided) => ({
+      ...provided,
+      color: 'var(--text-color)',
+      caretColor: 'var(--text-color)',
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--modals-inputs)',
+      maxHeight: '250px',
+      overflowY: 'auto',
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      padding: 0,
+      maxHeight: '250px',
+      '&::-webkit-scrollbar': {
+        width: '8px',
+      },
+      '&::-webkit-scrollbar-track': {
+        background: 'var(--scroll-bg)',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: 'var(--scroll)',
+        borderRadius: '10px',
+        border: '2px solid var(--scroll-bg)',
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused
+        ? 'var(--color-trodd)'
+        : state.isSelected
+        ? 'var(--color-primary)'
+        : 'var(--box-color)',
+      color: 'var(--text-color)',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: 'var(--color-trodd)',
+      },
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: 'var(--text-color)',
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: 'var(--text-color2)',
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: 'var(--text-color)',
+    }),
+    indicatorSeparator: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--color-border)',
+    }),
+  };
 
   if (loading) {
     return (
@@ -208,13 +243,19 @@ const customSelectStyles = {
         {/* Campo de Seleção do Colaborador */}
         <div className={styles.profileAndHelpContainer}>
           <Select
-            options={users.map((user) => ({ value: user, label: user.name }))}
+            options={users.map((user) => ({
+              value: user,
+              label: user.name,
+              role: user.role,
+              color: getColorForRole(user.role),
+            }))}
             onChange={handleUserSelect}
             isClearable
             placeholder="Selecione um colaborador"
             styles={customSelectStyles}
             classNamePrefix="react-select"
             noOptionsMessage={() => "Sem resultados"}
+            components={{ Option: CustomOption }}
           />
         </div>
 
