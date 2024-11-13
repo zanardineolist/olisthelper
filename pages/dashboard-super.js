@@ -107,8 +107,34 @@ export default function DashboardSuperPage({ user }) {
         return '#0A4EE4'; // Azul para Analista
       case 'tax':
         return '#F0A028'; // Laranja para Fiscal
+      case 'super':
+        return '#E64E36'; // Vermelho para Supervisor
+      case 'partner':
+        return '#8A2BE2'; // Roxo para Parceiro
+      case 'other':
+        return '#888'; // Cinza para Outro
       default:
         return '#888'; // Cinza padrão
+    }
+  };
+
+  // Função para obter o label de cada perfil
+  const getRoleLabel = (role) => {
+    switch (role.toLowerCase()) {
+      case 'support':
+        return 'Suporte';
+      case 'analyst':
+        return 'Analista';
+      case 'super':
+        return 'Supervisor';
+      case 'tax':
+        return 'Fiscal';
+      case 'partner':
+        return 'Parceiro';
+      case 'other':
+        return 'Outro';
+      default:
+        return 'Desconhecido';
     }
   };
 
@@ -127,7 +153,7 @@ export default function DashboardSuperPage({ user }) {
             fontSize: '0.8em',
           }}
         >
-          {props.data.role}
+          {getRoleLabel(props.data.role)}
         </span>
       </components.Option>
     );
