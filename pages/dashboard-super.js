@@ -269,12 +269,16 @@ export default function DashboardSuperPage({ user }) {
         {/* Campo de Seleção do Colaborador */}
         <div className={styles.profileAndHelpContainer}>
           <Select
-            options={users.map((user) => ({
-              value: user,
-              label: user.name,
-              role: user.role,
-              color: getColorForRole(user.role),
-            }))}
+            options={users
+              .filter((user) => 
+                ['support', 'analyst', 'tax'].includes(user.role.toLowerCase())
+              )
+              .map((user) => ({
+                value: user,
+                label: user.name,
+                role: user.role,
+                color: getColorForRole(user.role),
+              }))}
             onChange={handleUserSelect}
             isClearable
             placeholder="Selecione um colaborador"
