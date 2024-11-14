@@ -111,14 +111,12 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     background-color: var(--box-color);
     border-radius: 10px;
     color: var(--text-color);
     width: 100%;
     max-width: 500px;
-    height: 200px;
+    min-height: 150px;
     position: relative;
 }
 
