@@ -88,8 +88,8 @@ export default async function handler(req, res) {
     }
     const userProfile = userRow[3]?.toLowerCase();
 
-    // Verificar se o perfil do usuário é "user"
-    if (userProfile !== 'support') {
+    // Verificar se o perfil do usuário é "support", "analyst" ou "tax"
+    if (!['support', 'analyst', 'tax'].includes(userProfile)) {
       return res.status(403).json({ error: 'Usuário não autorizado a visualizar os dados de desempenho.' });
     }
 
