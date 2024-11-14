@@ -494,7 +494,7 @@ export default function DashboardSuperPage({ user }) {
                 </div>
               ) : (
                 <>
-                  <h3>Top 10 - Temas de maior dúvida</h3>
+                  <h3>Top 10 - Temas mais auxiliados</h3>
                   {categoryRanking.length > 0 ? (
                     <ul className={styles.list}>
                       {categoryRanking.map((category, index) => (
