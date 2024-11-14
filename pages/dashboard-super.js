@@ -15,8 +15,7 @@ export default function DashboardSuperPage({ user }) {
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
-  const [supportPerformanceData, setSupportPerformanceData] = useState(null);
-  const [analystPerformanceData, setAnalystPerformanceData] = useState({ totalChamados: 0, totalAjudas: 0 });
+  const [performanceData, setPerformanceData] = useState(null);
   const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
@@ -71,10 +70,6 @@ export default function DashboardSuperPage({ user }) {
               fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
             ]);
 
-            if (!helpResponse.ok) throw new Error('Erro ao buscar dados de ajudas solicitadas.');
-            if (!categoryResponse.ok) throw new Error('Erro ao buscar ranking de categorias.');
-            if (!performanceResponse.ok) throw new Error('Erro ao buscar dados de desempenho.');
-
             // Ajudas Solicitadas
             const helpData = await helpResponse.json();
             setHelpRequests({
@@ -88,7 +83,7 @@ export default function DashboardSuperPage({ user }) {
 
             // Desempenho do Usuário
             const performanceData = await performanceResponse.json();
-            setSupportPerformanceData(performanceData);
+            setPerformanceData(performanceData);
           } else if (selectedUser.role === 'analyst' || selectedUser.role === 'tax') {
             // Para analyst e tax, carregar dados de ajudas prestadas, ranking de categorias e total de chamados
             const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
@@ -97,9 +92,9 @@ export default function DashboardSuperPage({ user }) {
               fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
             ]);
 
-            if (!helpResponse.ok) throw new Error('Erro ao buscar dados de ajudas prestadas.');
-            if (!categoryResponse.ok) throw new Error('Erro ao buscar ranking de categorias.');
-            if (!performanceResponse.ok) throw new Error('Erro ao buscar total de chamados.');
+            if (!helpResponse.ok || !categoryResponse.ok || !performanceResponse.ok) {
+              throw new Error('Erro ao buscar dados do analista.');
+            }
 
             // Ajudas Prestadas
             const helpData = await helpResponse.json();
@@ -112,16 +107,16 @@ export default function DashboardSuperPage({ user }) {
             const categoryData = await categoryResponse.json();
             setCategoryRanking(categoryData.categories || []);
 
-            // Total de Chamados e Total de Ajudas
+            // Total de Chamados
             const performanceData = await performanceResponse.json();
-            setAnalystPerformanceData({
+            setPerformanceData({
               totalChamados: performanceData?.chamados?.totalChamados || 0,
               totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.totalChamados || 0),
             });
           }
         } catch (error) {
           console.error('Erro ao buscar dados do usuário:', error);
-          Swal.fire('Erro', error.message, 'error');
+          Swal.fire('Erro', 'Erro ao buscar dados do usuário.', 'error');
         } finally {
           setLoadingData(false);
         }
@@ -335,24 +330,24 @@ export default function DashboardSuperPage({ user }) {
                   <h2>{selectedUser.name}</h2>
                   <p>{selectedUser.email}</p>
                   <div className={styles.tagsContainer}>
-                    {selectedUser.role === 'support' && supportPerformanceData && (
+                    {selectedUser.role === 'support' && performanceData && (
                       <>
-                        {supportPerformanceData?.squad && (
+                        {performanceData?.squad && (
                           <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
-                            #{supportPerformanceData.squad}
+                            #{performanceData.squad}
                           </div>
                         )}
-                        {supportPerformanceData?.chamado && (
+                        {performanceData?.chamado && (
                           <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
                             #Chamado
                           </div>
                         )}
-                        {supportPerformanceData?.telefone && (
+                        {performanceData?.telefone && (
                           <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
                             #Telefone
                           </div>
                         )}
-                        {supportPerformanceData?.chat && (
+                        {performanceData?.chat && (
                           <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
                             #Chat
                           </div>
@@ -394,85 +389,99 @@ export default function DashboardSuperPage({ user }) {
             {selectedUser.role === 'support' && (
               <div className={styles.performanceWrapper}>
                 {loadingData ? (
-                  <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
-                  </div>
+                  <>
+                    <div className={styles.performanceContainer}>
+                      <div className={styles.loadingContainer}>
+                        <div className="standardBoxLoader"></div>
+                      </div>
+                    </div>
+                    <div className={styles.performanceContainer}>
+                      <div className={styles.loadingContainer}>
+                        <div className="standardBoxLoader"></div>
+                      </div>
+                    </div>
+                    <div className={styles.performanceContainer}>
+                      <div className={styles.loadingContainer}>
+                        <div className="standardBoxLoader"></div>
+                      </div>
+                    </div>
+                  </>
                 ) : (
                   <>
-                    {supportPerformanceData?.chamados && (
+                    {performanceData?.chamados && (
                       <div className={styles.performanceContainer}>
                         <h2>Indicadores Chamados</h2>
-                        <p className={styles.lastUpdated}>Atualizado até: {supportPerformanceData?.atualizadoAte || "Data não disponível"}</p>
+                        <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
                         <div className={styles.performanceInfo}>
                           <div className={styles.performanceItem}>
                             <span>Total Chamados:</span>
-                            <span>{supportPerformanceData.chamados.totalChamados}</span>
+                            <span>{performanceData.chamados.totalChamados}</span>
                           </div>
-                          <div className={styles.performanceItem} style={{ backgroundColor: supportPerformanceData.chamados.colors.mediaPorDia || 'var(--box-color3)' }}>
+                          <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'var(--box-color3)' }}>
                             <span>Média/Dia:</span>
-                            <span>{supportPerformanceData.chamados.mediaPorDia}</span>
+                            <span>{performanceData.chamados.mediaPorDia}</span>
                           </div>
-                          <div className={styles.performanceItem} style={{ backgroundColor: supportPerformanceData.chamados.colors.tma || 'var(--box-color3)' }}>
+                          <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'var(--box-color3)' }}>
                             <span>TMA:</span>
-                            <span>{supportPerformanceData.chamados.tma}</span>
+                            <span>{performanceData.chamados.tma}</span>
                           </div>
-                          <div className={styles.performanceItem} style={{ backgroundColor: supportPerformanceData.chamados.colors.csat || 'var(--box-color3)' }}>
+                          <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'var(--box-color3)' }}>
                             <span>CSAT:</span>
-                            <span>{supportPerformanceData.chamados.csat}</span>
+                            <span>{performanceData.chamados.csat}</span>
                           </div>
                         </div>
                       </div>
                     )}
   
-                    {supportPerformanceData?.telefone && (
+                    {performanceData?.telefone && (
                       <div className={styles.performanceContainer}>
                         <h2>Indicadores Telefone</h2>
-                        <p className={styles.lastUpdated}>Atualizado até: {supportPerformanceData?.atualizadoAte || "Data não disponível"}</p>
+                        <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
                         <div className={styles.performanceInfo}>
                           <div className={styles.performanceItem}>
                             <span>Total Ligações:</span>
-                            <span>{supportPerformanceData.telefone.totalTelefone}</span>
+                            <span>{performanceData.telefone.totalTelefone}</span>
                           </div>
-                          <div className={styles.performanceItem} style={{ backgroundColor: supportPerformanceData.telefone.colors.mediaPorDia || 'var(--box-color3)' }}>
+                          <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.mediaPorDia || 'var(--box-color3)' }}>
                             <span>Média/Dia:</span>
-                            <span>{supportPerformanceData.telefone.mediaPorDia}</span>
+                            <span>{performanceData.telefone.mediaPorDia}</span>
                           </div>
-                          <div className={styles.performanceItem} style={{ backgroundColor: supportPerformanceData.telefone.colors.tma || 'var(--box-color3)' }}>
+                          <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'var(--box-color3)' }}>
                             <span>TMA:</span>
-                            <span>{supportPerformanceData.telefone.tma}</span>
+                            <span>{performanceData.telefone.tma}</span>
                           </div>
-                          <div className={styles.performanceItem} style={{ backgroundColor: supportPerformanceData.telefone.colors.csat || 'var(--box-color3)' }}>
+                          <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'var(--box-color3)' }}>
                             <span>CSAT:</span>
-                            <span>{supportPerformanceData.telefone.csat}</span>
+                            <span>{performanceData.telefone.csat}</span>
                           </div>
                           <div className={styles.performanceItem}>
                             <span>Perdidas:</span>
-                            <span>{supportPerformanceData.telefone.perdidas}</span>
+                            <span>{performanceData.telefone.perdidas}</span>
                           </div>
                         </div>
                       </div>
                     )}
   
-                    {supportPerformanceData?.chat && (
+                    {performanceData?.chat && (
                       <div className={styles.performanceContainer}>
                         <h2>Indicadores Chat</h2>
-                        <p className={styles.lastUpdated}>Atualizado até: {supportPerformanceData?.atualizadoAte || "Data não disponível"}</p>
+                        <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
                         <div className={styles.performanceInfo}>
                           <div className={styles.performanceItem}>
                             <span>Total Chats:</span>
-                            <span>{supportPerformanceData.chat.totalChats}</span>
+                            <span>{performanceData.chat.totalChats}</span>
                           </div>
-                          <div className={styles.performanceItem} style={{ backgroundColor: supportPerformanceData.chat.colors.mediaPorDia || 'var(--box-color3)' }}>
+                          <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.mediaPorDia || 'var(--box-color3)' }}>
                             <span>Média/Dia:</span>
-                            <span>{supportPerformanceData.chat.mediaPorDia}</span>
+                            <span>{performanceData.chat.mediaPorDia}</span>
                           </div>
-                          <div className={styles.performanceItem} style={{ backgroundColor: supportPerformanceData.chat.colors.tma || 'var(--box-color3)' }}>
+                          <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'var(--box-color3)' }}>
                             <span>TMA:</span>
-                            <span>{supportPerformanceData.chat.tma}</span>
+                            <span>{performanceData.chat.tma}</span>
                           </div>
-                          <div className={styles.performanceItem} style={{ backgroundColor: supportPerformanceData.chat.colors.csat || 'var(--box-color3)' }}>
+                          <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'var(--box-color3)' }}>
                             <span>CSAT:</span>
-                            <span>{supportPerformanceData.chat.csat}</span>
+                            <span>{performanceData.chat.csat}</span>
                           </div>
                         </div>
                       </div>
@@ -496,7 +505,7 @@ export default function DashboardSuperPage({ user }) {
                       <div className={styles.performanceInfo}>
                         <div className={styles.performanceItem}>
                           <span>Total Chamados:</span>
-                          <span>{analystPerformanceData?.totalChamados}</span>
+                          <span>{performanceData?.totalChamados}</span>
                         </div>
                       </div>
                     </div>
@@ -507,7 +516,7 @@ export default function DashboardSuperPage({ user }) {
                       <div className={styles.performanceInfo}>
                         <div className={styles.performanceItem}>
                           <span>Total de Ajudas:</span>
-                          <span>{analystPerformanceData?.totalAjudas}</span>
+                          <span>{helpRequests.currentMonth + (performanceData?.totalChamados || 0)}</span>
                         </div>
                       </div>
                     </div>
