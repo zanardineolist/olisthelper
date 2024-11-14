@@ -514,11 +514,10 @@ export default function DashboardSuperPage({ user }) {
                     {/* Total de Ajudas */}
                     <div className={styles.performanceContainer}>
                       <h2>Total de Ajudas</h2>
-                      <div className={styles.performanceInfo}>
-                        <div className={styles.performanceItem}>
-                          <span>Total de Ajudas:</span>
-                          <span>{Number(helpRequests.currentMonth) + Number(performanceData?.totalChamados || 0)}</span>
-                        </div>
+                      <div className={styles.performanceInfo} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                        <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
+                          {Number(helpRequests.currentMonth) + Number(performanceData?.totalChamados || 0)}
+                        </span>
                       </div>
                     </div>
                   </>
