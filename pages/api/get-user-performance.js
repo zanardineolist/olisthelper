@@ -118,8 +118,8 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado para o e-mail fornecido.' });
     }
 
-    // Atribuir a data de atualização de forma robusta
-    responsePayload.atualizadoAte = performanceRow[21]?.trim() || "Data não disponível";
+    // Atribuir a data de atualização corretamente
+    responsePayload.atualizadoAte = performanceRow[21] && performanceRow[21].trim() !== "" ? performanceRow[21] : "Data não disponível";
 
     if (hasChamado) {
       const mediaPorDia = parseValue(performanceRow[9]);
