@@ -174,7 +174,7 @@ export default function DashboardSuperPage({ user }) {
       case 'analyst':
         return '#0A4EE4'; // Azul para Analista
       case 'tax':
-        return '#F0A028'; // Laranja para Fiscal
+        return '#8A2BE2'; // Laranja para Fiscal
       case 'super':
         return '#E64E36'; // Vermelho para Supervisor
       case 'partner':
