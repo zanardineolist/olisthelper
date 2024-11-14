@@ -563,6 +563,9 @@ export default function DashboardSuperPage({ user }) {
                   ) : (
                     <>
                       <h2>Total de Ajudas</h2>
+                      <p className={styles.lastUpdated}>
+                            (ajudas prestadas atual + total de rfc)
+                      </p>
                       <div
                         className={styles.performanceInfo}
                         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
