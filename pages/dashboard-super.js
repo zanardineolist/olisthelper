@@ -62,8 +62,8 @@ export default function DashboardSuperPage({ user }) {
         try {
           setLoadingData(true);
 
-          if (selectedUser.role === 'support' || selectedUser.role === 'tax') {
-            // Para suporte e fiscal, carregar desempenho completo
+          if (selectedUser.role === 'support') {
+            // Para suporte, carregar desempenho completo
             const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
               fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
               fetch(`/api/get-user-category-ranking?userEmail=${selectedUser.email}`),
@@ -84,6 +84,7 @@ export default function DashboardSuperPage({ user }) {
             // Desempenho do Usuário
             const performanceData = await performanceResponse.json();
             setPerformanceData(performanceData);
+            
           } else if (selectedUser.role === 'analyst') {
             // Para analyst, carregar dados de ajudas prestadas, ranking de categorias e total de chamados
             const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
@@ -110,6 +111,39 @@ export default function DashboardSuperPage({ user }) {
             // Total de Chamados e Data de Atualização
             const performanceData = await performanceResponse.json();
             setPerformanceData({
+              totalChamados: performanceData?.chamados?.totalChamados || 0,
+              totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.totalChamados || 0),
+              atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
+            });
+
+          } else if (selectedUser.role === 'tax') {
+            // Para fiscal, combinar dados do support e analyst
+            const [helpResponse, categoryResponse, performanceResponse, analystResponse] = await Promise.all([
+              fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`), // Dados de ajuda como suporte
+              fetch(`/api/get-category-ranking?analystId=${selectedUser.id}`), // Ranking de categorias como analyst
+              fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`), // Indicadores de desempenho como suporte
+              fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`) // Dados de analista específicos
+            ]);
+
+            if (!helpResponse.ok || !categoryResponse.ok || !performanceResponse.ok || !analystResponse.ok) {
+              throw new Error('Erro ao buscar dados do fiscal.');
+            }
+
+            // Ajudas Prestadas (similar ao analyst)
+            const helpData = await helpResponse.json();
+            setHelpRequests({
+              currentMonth: helpData.currentMonth,
+              lastMonth: helpData.lastMonth,
+            });
+
+            // Ranking de Categorias (similar ao analyst)
+            const categoryData = await categoryResponse.json();
+            setCategoryRanking(categoryData.categories || []);
+
+            // Indicadores de Desempenho (similar ao support)
+            const performanceData = await performanceResponse.json();
+            setPerformanceData({
+              ...performanceData,
               totalChamados: performanceData?.chamados?.totalChamados || 0,
               totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.totalChamados || 0),
               atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
@@ -354,7 +388,7 @@ export default function DashboardSuperPage({ user }) {
                         )}
                       </>
                     )}
-                    {selectedUser.role === 'analyst' && (
+                    {(selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
                       <div className={styles.tag} style={{ backgroundColor: getColorForRole(selectedUser.role) }}>
                         #{getRoleLabel(selectedUser.role)}
                       </div>
@@ -385,8 +419,8 @@ export default function DashboardSuperPage({ user }) {
               </div>
             </div>
   
-            {/* Container para Indicadores de Desempenho (apenas para Suporte) */}
-            {selectedUser.role === 'support' && (
+            {/* Container para Indicadores de Desempenho (para Suporte e Fiscal) */}
+            {(selectedUser.role === 'support' || selectedUser.role === 'tax') && (
               <div className={styles.performanceWrapper}>
                 {loadingData ? (
                   <>
@@ -432,7 +466,7 @@ export default function DashboardSuperPage({ user }) {
                         </div>
                       </div>
                     )}
-  
+
                     {performanceData?.telefone && (
                       <div className={styles.performanceContainer}>
                         <h2>Indicadores Telefone</h2>
@@ -461,7 +495,7 @@ export default function DashboardSuperPage({ user }) {
                         </div>
                       </div>
                     )}
-  
+
                     {performanceData?.chat && (
                       <div className={styles.performanceContainer}>
                         <h2>Indicadores Chat</h2>
@@ -536,32 +570,34 @@ export default function DashboardSuperPage({ user }) {
               </div>
             )}
   
-            {/* Container para Ranking de Categorias */}
-            <div className={styles.categoryRankingContainer}>
-              {loadingData ? (
-                <div className={styles.loadingContainer}>
-                  <div className="standardBoxLoader"></div>
-                </div>
-              ) : (
-                <>
-                  <h3>Top 10 - Temas mais auxiliados</h3>
-                  {categoryRanking.length > 0 ? (
-                    <ul className={styles.list}>
-                      {categoryRanking.map((category, index) => (
-                        <li key={index} className={styles.listItem}>
-                          <span className={styles.rank}>{index + 1}.</span>
-                          <span className={styles.categoryName}>{category.name}</span>
-                          <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
-                          <span className={styles.count}>{category.count} pedidos de ajuda</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className={styles.noData}>Nenhum registro de tema localizado.</div>
-                  )}
-                </>
-              )}
-            </div>
+            {/* Container para Ranking de Categorias (para Analista e Fiscal) */}
+            {(selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
+              <div className={styles.categoryRankingContainer}>
+                {loadingData ? (
+                  <div className={styles.loadingContainer}>
+                    <div className="standardBoxLoader"></div>
+                  </div>
+                ) : (
+                  <>
+                    <h3>Top 10 - Temas mais auxiliados</h3>
+                    {categoryRanking.length > 0 ? (
+                      <ul className={styles.list}>
+                        {categoryRanking.map((category, index) => (
+                          <li key={index} className={styles.listItem}>
+                            <span className={styles.rank}>{index + 1}.</span>
+                            <span className={styles.categoryName}>{category.name}</span>
+                            <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
+                            <span className={styles.count}>{category.count} pedidos de ajuda</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className={styles.noData}>Nenhum registro de tema localizado.</div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </>
         )}
       </main>
