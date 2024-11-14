@@ -70,6 +70,7 @@
     width: 100%;
     max-width: 500px;
     height: auto;
+    min-height: 150px;
     position: relative;
 }
 
