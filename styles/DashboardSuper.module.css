@@ -111,13 +111,14 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
+    align-items: center;
     background-color: var(--box-color);
     border-radius: 10px;
     color: var(--text-color);
     width: 100%;
     max-width: 500px;
-    height: auto;
+    height: 200px;
     position: relative;
 }
 
@@ -234,7 +235,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100px;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }
 
 /* Container para as tags na caixa de perfil */

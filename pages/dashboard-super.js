@@ -496,7 +496,9 @@ export default function DashboardSuperPage({ user }) {
                 {/* Total Chamados */}
                 <div className={styles.performanceContainer}>
                   {loadingData ? (
-                    <div className="standardBoxLoader"></div>
+                    <div className={styles.loadingContainer}>
+                      <div className="standardBoxLoader"></div>
+                    </div>
                   ) : (
                     <>
                       <h2>Total de RFC</h2>
@@ -518,7 +520,9 @@ export default function DashboardSuperPage({ user }) {
                 {/* Total de Ajudas */}
                 <div className={styles.performanceContainer}>
                   {loadingData ? (
-                    <div className="standardBoxLoader"></div>
+                    <div className={styles.loadingContainer}>
+                      <div className="standardBoxLoader"></div>
+                    </div>
                   ) : (
                     <>
                       <h2>Total de Ajudas</h2>
