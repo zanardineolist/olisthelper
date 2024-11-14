@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar';
 import styles from '../styles/DashboardSuper.module.css';
 import Footer from '../components/Footer';
 import Swal from 'sweetalert2';
+import { useRouter } from 'next/router';
 
 export default function DashboardSuperPage({ user }) {
   const [users, setUsers] = useState([]);
@@ -17,6 +18,7 @@ export default function DashboardSuperPage({ user }) {
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
   const [loadingData, setLoadingData] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     // Saudação com base na hora do dia
@@ -44,6 +46,15 @@ export default function DashboardSuperPage({ user }) {
         if (!res.ok) throw new Error('Erro ao carregar usuários');
         const data = await res.json();
         setUsers(data.users);
+        
+        // Se houver um identificador de usuário na URL, selecionar automaticamente
+        const { userId } = router.query;
+        if (userId) {
+          const matchedUser = data.users.find((u) => u.id === userId);
+          if (matchedUser) {
+            setSelectedUser(matchedUser);
+          }
+        }
       } catch (err) {
         console.error('Erro ao carregar usuários:', err);
         Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
@@ -53,7 +64,7 @@ export default function DashboardSuperPage({ user }) {
     };
 
     loadUsers();
-  }, []);
+  }, [router.query]);
 
   // Carregar dados do usuário selecionado
   useEffect(() => {
@@ -164,6 +175,16 @@ export default function DashboardSuperPage({ user }) {
   // Manipulador de seleção de usuário
   const handleUserSelect = (selectedOption) => {
     setSelectedUser(selectedOption ? selectedOption.value : null);
+    
+    // Atualizar a URL com o identificador do usuário selecionado
+    if (selectedOption) {
+      router.push({
+        pathname: '/dashboard-super',
+        query: { userId: selectedOption.value.id },
+      }, undefined, { shallow: true });
+    } else {
+      router.push('/dashboard-super', undefined, { shallow: true });
+    }
   };
 
   // Função para determinar a cor da tag do perfil
@@ -352,11 +373,12 @@ export default function DashboardSuperPage({ user }) {
             classNamePrefix="react-select"
             noOptionsMessage={() => "Sem resultados"}
             components={{ Option: CustomOption }}
+            value={selectedUser ? { value: selectedUser, label: selectedUser.name } : null}
           />
         </div>
-  
+
         {selectedUser && (
-        <>
+          <>
           {/* Renderização de dados para todos os perfis (suporte, fiscal, analista) */}
           <div className={styles.profileAndHelpContainer}>
             {/* Container de Informações do Perfil */}
