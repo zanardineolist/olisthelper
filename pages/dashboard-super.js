@@ -118,28 +118,27 @@ export default function DashboardSuperPage({ user }) {
 
           } else if (selectedUser.role === 'tax') {
             // Para fiscal, combinar dados do support e analyst
-            const [helpResponse, categoryResponse, performanceResponse, analystResponse] = await Promise.all([
-              fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`), // Dados de ajuda como suporte
+            const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
+              fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`), // Dados de ajuda como analyst
               fetch(`/api/get-category-ranking?analystId=${selectedUser.id}`), // Ranking de categorias como analyst
-              fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`), // Indicadores de desempenho como suporte
-              fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`) // Dados de analista específicos
+              fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`) // Indicadores de desempenho como suporte
             ]);
-
-            if (!helpResponse.ok || !categoryResponse.ok || !performanceResponse.ok || !analystResponse.ok) {
+          
+            if (!helpResponse.ok || !categoryResponse.ok || !performanceResponse.ok) {
               throw new Error('Erro ao buscar dados do fiscal.');
             }
-
+          
             // Ajudas Prestadas (similar ao analyst)
             const helpData = await helpResponse.json();
             setHelpRequests({
               currentMonth: helpData.currentMonth,
               lastMonth: helpData.lastMonth,
             });
-
+          
             // Ranking de Categorias (similar ao analyst)
             const categoryData = await categoryResponse.json();
             setCategoryRanking(categoryData.categories || []);
-
+          
             // Indicadores de Desempenho (similar ao support)
             const performanceData = await performanceResponse.json();
             setPerformanceData({
@@ -149,6 +148,7 @@ export default function DashboardSuperPage({ user }) {
               atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
             });
           }
+          
         } catch (error) {
           console.error('Erro ao buscar dados do usuário:', error);
           Swal.fire('Erro', 'Erro ao buscar dados do usuário.', 'error');
@@ -356,9 +356,14 @@ export default function DashboardSuperPage({ user }) {
         </div>
   
         {selectedUser && (
-          <>
-            {/* Renderização de dados para todos os perfis (suporte, fiscal, analista) */}
-            <div className={styles.profileAndHelpContainer}>
+        <>
+          {/* Renderização de dados para todos os perfis (suporte, fiscal, analista) */}
+          <div className={styles.profileAndHelpContainer}>
+            {loadingData ? (
+              <div className={styles.loadingContainer}>
+                <div className="standardBoxLoader"></div>
+              </div>
+            ) : (
               <div className={styles.profileContainer}>
                 <div className={styles.profileInfo}>
                   <h2>{selectedUser.name}</h2>
@@ -393,9 +398,10 @@ export default function DashboardSuperPage({ user }) {
                         #{getRoleLabel(selectedUser.role)}
                       </div>
                     )}
-                  </div>
-                </div>
-              </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
   
               {/* Ajudas Solicitadas para Suporte / Ajudas Prestadas para Analista/Fiscal */}
               <div className={styles.profileContainer}>
@@ -570,8 +576,8 @@ export default function DashboardSuperPage({ user }) {
               </div>
             )}
   
-            {/* Container para Ranking de Categorias (para Analista e Fiscal) */}
-            {(selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
+            {/* Container para Ranking de Categorias (para Suporte, Analista e Fiscal) */}
+            {(selectedUser.role === 'support' || selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
               <div className={styles.categoryRankingContainer}>
                 {loadingData ? (
                   <div className={styles.loadingContainer}>
@@ -579,7 +585,9 @@ export default function DashboardSuperPage({ user }) {
                   </div>
                 ) : (
                   <>
-                    <h3>Top 10 - Temas mais auxiliados</h3>
+                    <h3>
+                      {selectedUser.role === 'support' ? 'Top 10 - Temas de maior dúvida' : 'Top 10 - Temas mais auxiliados'}
+                    </h3>
                     {categoryRanking.length > 0 ? (
                       <ul className={styles.list}>
                         {categoryRanking.map((category, index) => (
