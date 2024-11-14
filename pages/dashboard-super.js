@@ -62,8 +62,8 @@ export default function DashboardSuperPage({ user }) {
         try {
           setLoadingData(true);
 
-          if (selectedUser.role === 'support') {
-            // Para suporte, carregar desempenho completo
+          if (selectedUser.role === 'support' || selectedUser.role === 'tax') {
+            // Para suporte e fiscal, carregar desempenho completo
             const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
               fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
               fetch(`/api/get-user-category-ranking?userEmail=${selectedUser.email}`),
@@ -84,8 +84,8 @@ export default function DashboardSuperPage({ user }) {
             // Desempenho do Usuário
             const performanceData = await performanceResponse.json();
             setPerformanceData(performanceData);
-          } else if (selectedUser.role === 'analyst' || selectedUser.role === 'tax') {
-            // Para analyst e tax, carregar dados de ajudas prestadas, ranking de categorias e total de chamados
+          } else if (selectedUser.role === 'analyst') {
+            // Para analyst, carregar dados de ajudas prestadas, ranking de categorias e total de chamados
             const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
               fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`),
               fetch(`/api/get-category-ranking?analystId=${selectedUser.id}`),
@@ -323,15 +323,14 @@ export default function DashboardSuperPage({ user }) {
   
         {selectedUser && (
           <>
-            {/* Renderização de dados para todos os perfis (suporte, analista, fiscal) */}
+            {/* Renderização de dados para todos os perfis (suporte, fiscal, analista) */}
             <div className={styles.profileAndHelpContainer}>
-              {/* Perfil do Usuário Selecionado */}
               <div className={styles.profileContainer}>
                 <div className={styles.profileInfo}>
                   <h2>{selectedUser.name}</h2>
                   <p>{selectedUser.email}</p>
                   <div className={styles.tagsContainer}>
-                    {selectedUser.role === 'support' && performanceData && (
+                    {(selectedUser.role === 'support' || selectedUser.role === 'tax') && performanceData && (
                       <>
                         {performanceData?.squad && (
                           <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
@@ -355,7 +354,7 @@ export default function DashboardSuperPage({ user }) {
                         )}
                       </>
                     )}
-                    {(selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
+                    {selectedUser.role === 'analyst' && (
                       <div className={styles.tag} style={{ backgroundColor: getColorForRole(selectedUser.role) }}>
                         #{getRoleLabel(selectedUser.role)}
                       </div>
@@ -492,31 +491,27 @@ export default function DashboardSuperPage({ user }) {
               </div>
             )}
 
-            {(selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
-              <div className={styles.performanceWrapper}>
-                {/* Total Chamados */}
-                <div className={styles.performanceContainer}>
-                  {loadingData ? (
-                    <div className={styles.loadingContainer}>
-                      <div className="standardBoxLoader"></div>
+            {selectedUser.role === 'analyst' && (
+                  <div className={styles.performanceWrapper}>
+                    <div className={styles.performanceContainer}>
+                      {loadingData ? (
+                        <div className={styles.loadingContainer}>
+                          <div className="standardBoxLoader"></div>
+                        </div>
+                      ) : (
+                        <>
+                          <h2>Total de RFC</h2>
+                          <p className={styles.lastUpdated}>
+                            Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}
+                          </p>
+                          <div className={styles.performanceInfo} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                            <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
+                              {performanceData?.totalChamados}
+                            </span>
+                          </div>
+                        </>
+                      )}
                     </div>
-                  ) : (
-                    <>
-                      <h2>Total de RFC</h2>
-                      <p className={styles.lastUpdated}>
-                        Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}
-                      </p>
-                      <div
-                        className={styles.performanceInfo}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
-                      >
-                        <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
-                          {performanceData?.totalChamados}
-                        </span>
-                      </div>
-                    </>
-                  )}
-                </div>
 
                 {/* Total de Ajudas */}
                 <div className={styles.performanceContainer}>
