@@ -493,12 +493,12 @@ export default function DashboardSuperPage({ user }) {
 
             {(selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
               <div className={styles.performanceWrapper}>
-                <>
-                  {/* Total Chamados */}
+                {/* Total Chamados */}
+                <div className={styles.performanceContainer}>
                   {loadingData ? (
                     <div className="standardBoxLoader"></div>
                   ) : (
-                    <div className={styles.performanceContainer}>
+                    <>
                       <h2>Total de RFC</h2>
                       <p className={styles.lastUpdated}>
                         Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}
@@ -511,14 +511,16 @@ export default function DashboardSuperPage({ user }) {
                           {performanceData?.totalChamados}
                         </span>
                       </div>
-                    </div>
+                    </>
                   )}
+                </div>
 
-                  {/* Total de Ajudas */}
+                {/* Total de Ajudas */}
+                <div className={styles.performanceContainer}>
                   {loadingData ? (
                     <div className="standardBoxLoader"></div>
                   ) : (
-                    <div className={styles.performanceContainer}>
+                    <>
                       <h2>Total de Ajudas</h2>
                       <div
                         className={styles.performanceInfo}
@@ -528,9 +530,9 @@ export default function DashboardSuperPage({ user }) {
                           {Number(helpRequests.currentMonth) + Number(performanceData?.totalChamados || 0)}
                         </span>
                       </div>
-                    </div>
+                    </>
                   )}
-                </>
+                </div>
               </div>
             )}
   
