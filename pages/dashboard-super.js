@@ -503,11 +503,10 @@ export default function DashboardSuperPage({ user }) {
                     <div className={styles.performanceContainer}>
                       <h2>Indicadores RFC</h2>
                       <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-                      <div className={styles.performanceInfo}>
-                        <div className={styles.performanceItem}>
-                          <span>Total RFC:</span>
-                          <span>{performanceData?.totalChamados}</span>
-                        </div>
+                      <div className={styles.performanceInfo} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                        <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
+                          {performanceData?.totalChamados}
+                        </span>
                       </div>
                     </div>
 

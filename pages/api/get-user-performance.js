@@ -94,14 +94,14 @@ export default async function handler(req, res) {
     }
 
     const squad = userRow[4];
-    const hasChamado = userProfile === 'support' ? userRow[5] === 'TRUE' : true; // Somente para "support"
+    const hasChamado = userProfile === 'support' ? userRow[5] === 'TRUE' : true;
     const hasTelefone = userRow[6] === 'TRUE';
     const hasChat = userRow[7] === 'TRUE';
 
     // Estrutura de retorno dos dados de desempenho
     const responsePayload = {
       squad,
-      chamado: hasChamado, // Apenas suporte terá o valor de 'hasChamado' verdadeiro ou falso baseado na coluna
+      chamado: hasChamado,
       telefone: hasTelefone,
       chat: hasChat,
     };
@@ -117,6 +117,9 @@ export default async function handler(req, res) {
     if (!performanceRow) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado para o e-mail fornecido.' });
     }
+
+    // Atribuir a data de atualização de forma robusta
+    responsePayload.atualizadoAte = performanceRow[21]?.trim() || "Data não disponível";
 
     if (hasChamado) {
       const mediaPorDia = parseValue(performanceRow[9]);
@@ -168,8 +171,6 @@ export default async function handler(req, res) {
         }
       };
     }
-
-    responsePayload.atualizadoAte = performanceRow[21] || "Data não disponível";
 
     return res.status(200).json(responsePayload);
   } catch (error) {
