@@ -501,10 +501,11 @@ export default function DashboardSuperPage({ user }) {
                   <>
                     {/* Total Chamados */}
                     <div className={styles.performanceContainer}>
-                      <h2>Indicadores Chamados</h2>
+                      <h2>Indicadores RFC</h2>
+                      <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
                       <div className={styles.performanceInfo}>
                         <div className={styles.performanceItem}>
-                          <span>Total Chamados:</span>
+                          <span>Total RFC:</span>
                           <span>{performanceData?.totalChamados}</span>
                         </div>
                       </div>
@@ -516,7 +517,7 @@ export default function DashboardSuperPage({ user }) {
                       <div className={styles.performanceInfo}>
                         <div className={styles.performanceItem}>
                           <span>Total de Ajudas:</span>
-                          <span>{helpRequests.currentMonth + (performanceData?.totalChamados || 0)}</span>
+                          <span>{Number(helpRequests.currentMonth) + Number(performanceData?.totalChamados || 0)}</span>
                         </div>
                       </div>
                     </div>

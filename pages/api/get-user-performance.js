@@ -94,9 +94,17 @@ export default async function handler(req, res) {
     }
 
     const squad = userRow[4];
-    const hasChamado = userRow[5] === 'TRUE';
+    const hasChamado = userProfile === 'support' ? userRow[5] === 'TRUE' : true; // Somente para "support"
     const hasTelefone = userRow[6] === 'TRUE';
     const hasChat = userRow[7] === 'TRUE';
+
+    // Estrutura de retorno dos dados de desempenho
+    const responsePayload = {
+      squad,
+      chamado: hasChamado, // Apenas suporte terá o valor de 'hasChamado' verdadeiro ou falso baseado na coluna
+      telefone: hasTelefone,
+      chat: hasChat,
+    };
 
     // Buscar Dados de Desempenho Usando o E-mail do Usuário
     const performanceRows = await getSheetValues(sheets, sheetIdDesempenho, 'Principal', 'A:V');
@@ -109,14 +117,6 @@ export default async function handler(req, res) {
     if (!performanceRow) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado para o e-mail fornecido.' });
     }
-
-    // Estrutura de retorno dos dados de desempenho
-    const responsePayload = {
-      squad,
-      chamado: hasChamado,
-      telefone: hasTelefone,
-      chat: hasChat,
-    };
 
     if (hasChamado) {
       const mediaPorDia = parseValue(performanceRow[9]);
