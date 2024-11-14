@@ -495,33 +495,31 @@ export default function DashboardSuperPage({ user }) {
               <div className={styles.performanceWrapper}>
                 <>
                   {/* Total Chamados */}
-                  <div className={styles.performanceContainer}>
-                    <h2>Total de RFC</h2>
-                    {loadingData ? (
-                      <div className="standardBoxLoader"></div>
-                    ) : (
-                      <>
-                        <p className={styles.lastUpdated}>
-                          Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}
-                        </p>
-                        <div
-                          className={styles.performanceInfo}
-                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
-                        >
-                          <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
-                            {performanceData?.totalChamados}
-                          </span>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                  {loadingData ? (
+                    <div className="standardBoxLoader"></div>
+                  ) : (
+                    <div className={styles.performanceContainer}>
+                      <h2>Total de RFC</h2>
+                      <p className={styles.lastUpdated}>
+                        Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}
+                      </p>
+                      <div
+                        className={styles.performanceInfo}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
+                      >
+                        <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
+                          {performanceData?.totalChamados}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Total de Ajudas */}
-                  <div className={styles.performanceContainer}>
-                    <h2>Total de Ajudas</h2>
-                    {loadingData ? (
-                      <div className="standardBoxLoader"></div>
-                    ) : (
+                  {loadingData ? (
+                    <div className="standardBoxLoader"></div>
+                  ) : (
+                    <div className={styles.performanceContainer}>
+                      <h2>Total de Ajudas</h2>
                       <div
                         className={styles.performanceInfo}
                         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
@@ -530,8 +528,8 @@ export default function DashboardSuperPage({ user }) {
                           {Number(helpRequests.currentMonth) + Number(performanceData?.totalChamados || 0)}
                         </span>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </>
               </div>
             )}
