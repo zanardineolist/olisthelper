@@ -107,11 +107,12 @@ export default function DashboardSuperPage({ user }) {
             const categoryData = await categoryResponse.json();
             setCategoryRanking(categoryData.categories || []);
 
-            // Total de Chamados
+            // Total de Chamados e Data de Atualização
             const performanceData = await performanceResponse.json();
             setPerformanceData({
               totalChamados: performanceData?.chamados?.totalChamados || 0,
               totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.totalChamados || 0),
+              atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
             });
           }
         } catch (error) {
