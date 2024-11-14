@@ -359,12 +359,13 @@ export default function DashboardSuperPage({ user }) {
         <>
           {/* Renderização de dados para todos os perfis (suporte, fiscal, analista) */}
           <div className={styles.profileAndHelpContainer}>
-            {loadingData ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-              </div>
-            ) : (
-              <div className={styles.profileContainer}>
+            {/* Container de Informações do Perfil */}
+            <div className={styles.profileContainer}>
+              {loadingData ? (
+                <div className={styles.loadingContainer}>
+                  <div className="standardBoxLoader"></div>
+                </div>
+              ) : (
                 <div className={styles.profileInfo}>
                   <h2>{selectedUser.name}</h2>
                   <p>{selectedUser.email}</p>
@@ -398,32 +399,32 @@ export default function DashboardSuperPage({ user }) {
                         #{getRoleLabel(selectedUser.role)}
                       </div>
                     )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-  
-              {/* Ajudas Solicitadas para Suporte / Ajudas Prestadas para Analista/Fiscal */}
-              <div className={styles.profileContainer}>
-                {loadingData ? (
-                  <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
                   </div>
-                ) : (
-                  <div className={styles.profileInfo}>
-                    <h2>
-                      {selectedUser.role === 'support' ? 'Ajudas Solicitadas' : 'Ajudas Prestadas'}
-                    </h2>
-                    <div className={styles.helpRequestsInfo}>
-                      <div className={styles.monthsInfo}>
-                        <p><strong>Mês Atual:</strong> {helpRequests.currentMonth}</p>
-                        <p><strong>Mês Anterior:</strong> {helpRequests.lastMonth}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
+
+            {/* Ajudas Solicitadas para Suporte / Ajudas Prestadas para Analista/Fiscal */}
+            <div className={styles.profileContainer}>
+              {loadingData ? (
+                <div className={styles.loadingContainer}>
+                  <div className="standardBoxLoader"></div>
+                </div>
+              ) : (
+                <div className={styles.profileInfo}>
+                  <h2>
+                    {selectedUser.role === 'support' ? 'Ajudas Solicitadas' : 'Ajudas Prestadas'}
+                  </h2>
+                  <div className={styles.helpRequestsInfo}>
+                    <div className={styles.monthsInfo}>
+                      <p><strong>Mês Atual:</strong> {helpRequests.currentMonth}</p>
+                      <p><strong>Mês Anterior:</strong> {helpRequests.lastMonth}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
   
             {/* Container para Indicadores de Desempenho (para Suporte e Fiscal) */}
             {(selectedUser.role === 'support' || selectedUser.role === 'tax') && (
