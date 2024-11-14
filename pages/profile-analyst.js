@@ -138,7 +138,7 @@ export default function AnalystProfilePage({ user }) {
 
         {/* Container para Ranking de Categorias */}
         <div className={styles.categoryRanking}>
-          <h3>Top 10 - Temas de maior dúvida</h3>
+          <h3>Top 10 - Temas mais auxiliados</h3>
           {loading ? (
             <div className={styles.loadingContainer}>
               <div className="standardBoxLoader"></div>

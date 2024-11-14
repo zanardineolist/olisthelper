@@ -508,6 +508,19 @@ export default function DashboardSuperPage({ user }) {
             {/* Renderização de dados para os perfis analista e fiscal */}
             {(selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
               <>
+                {/* Container para Perfil do Usuário Selecionado */}
+                <div className={styles.profileContainer}>
+                  <div className={styles.profileInfo}>
+                    <h2>{selectedUser.name}</h2>
+                    <p>{selectedUser.email}</p>
+                    <div className={styles.tagsContainer}>
+                      <div className={styles.tag} style={{ backgroundColor: getColorForRole(selectedUser.role) }}>
+                        #{getRoleLabel(selectedUser.role)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+  
                 {/* Container para Ajudas Prestadas */}
                 <div className={styles.profileContainer}>
                   {loadingData ? (
