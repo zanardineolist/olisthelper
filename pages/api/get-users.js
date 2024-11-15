@@ -11,10 +11,9 @@ export default async function handler(req, res) {
 
     if (rows && rows.length > 0) {
       const users = rows.map(row => {
-        const remoteAccessRaw = row[8]; // Coluna "I"
+        const remoteAccessRaw = row[8]?.toString().toLowerCase();
+        const remoteAccess = remoteAccessRaw === 'true' || remoteAccessRaw === 'verdadeiro';
 
-        // Garantir que o valor seja booleano: se for 'TRUE', será true; caso contrário, false.
-        const remoteAccess = remoteAccessRaw === 'TRUE';
 
         return {
           id: row[0],
