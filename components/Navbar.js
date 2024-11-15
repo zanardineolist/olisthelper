@@ -66,7 +66,7 @@ export default function Navbar({ user }) {
   }, [user.id, user.role]);
 
   // Log para verificar valor de acesso remoto do usuário
-  console.log('Acesso Remoto do Usuário:', user.remoteAccess);
+  console.log('Acesso Remoto do Usuário:', user.remoteAccess ?? 'Não definido');
 
   const handleNavigation = (path) => {
     router.push(path);

@@ -15,7 +15,10 @@ export async function middleware(req) {
   // Log para depuração do token
   console.log("Token recebido:", token);
 
-  if (req.nextUrl.pathname.startsWith('/remote') && !(token.role === 'super' || token.remoteAccess === true)) {
+  // Ajustar para garantir que token.remoteAccess não seja undefined
+  token.remoteAccess = token.remoteAccess ?? false;
+
+  if (req.nextUrl.pathname.startsWith('/remote') && !(token.role === 'super' || token.remoteAccess)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 

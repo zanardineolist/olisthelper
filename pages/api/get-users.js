@@ -26,9 +26,13 @@ export default async function handler(req, res) {
           name: row[1],
           email: row[2],
           role: row[3],
-          remoteAccess: remoteAccess,
+          remoteAccess: remoteAccess || false, // Garante que remoteAccess não seja undefined
         };
       });
+
+      // Log para depuração do usuário
+      console.log("Usuários carregados:", users);
+
       return res.status(200).json({ users });
     }
 
