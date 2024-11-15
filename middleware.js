@@ -12,12 +12,13 @@ export async function middleware(req) {
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super', 'dev'];
 
-  // Log para depuração do token
+  // Log para depuração do token recebido
   console.log("Token recebido:", token);
 
-  // Garantir que token.remoteAccess não seja undefined
-  token.remoteAccess = token.remoteAccess ?? false;
+  // Garantir que token.remoteAccess seja booleano (caso contrário, false)
+  token.remoteAccess = token.remoteAccess === true;
 
+  // Controle de acesso para a rota "/remote"
   if (req.nextUrl.pathname.startsWith('/remote') && !(token.role === 'super' || token.remoteAccess)) {
     return NextResponse.redirect(new URL('/', req.url));
   }

@@ -11,13 +11,10 @@ export default async function handler(req, res) {
 
     if (rows && rows.length > 0) {
       const users = rows.map(row => {
-        const remoteAccessRaw = row[8];
+        const remoteAccessRaw = row[8]; // Coluna "I"
 
-        // Log para depuração do valor da coluna "Remoto"
-        console.log("Valor da célula 'Remoto':", remoteAccessRaw);
-
-        // Lógica atualizada para determinar o acesso remoto
-        const remoteAccess = ['SIM', 'VERDADEIRO'].includes(remoteAccessRaw?.toString().trim().toUpperCase());
+        // Garantir que o valor seja booleano: se for 'TRUE', será true; caso contrário, false.
+        const remoteAccess = remoteAccessRaw === 'TRUE';
 
         return {
           id: row[0],
@@ -28,7 +25,7 @@ export default async function handler(req, res) {
         };
       });
 
-      // Log para depuração do usuário
+      // Log para depuração dos usuários carregados
       console.log("Usuários carregados:", users);
 
       return res.status(200).json({ users });
