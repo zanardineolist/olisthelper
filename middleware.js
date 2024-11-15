@@ -15,7 +15,7 @@ export async function middleware(req) {
   // Log para depuração do token
   console.log("Token recebido:", token);
 
-  // Ajustar para garantir que token.remoteAccess não seja undefined
+  // Garantir que token.remoteAccess não seja undefined
   token.remoteAccess = token.remoteAccess ?? false;
 
   if (req.nextUrl.pathname.startsWith('/remote') && !(token.role === 'super' || token.remoteAccess)) {

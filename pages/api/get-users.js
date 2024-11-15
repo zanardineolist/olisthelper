@@ -17,16 +17,14 @@ export default async function handler(req, res) {
         console.log("Valor da célula 'Remoto':", remoteAccessRaw);
 
         // Lógica atualizada para determinar o acesso remoto
-        const remoteAccess = ['TRUE', 'VERDADEIRO', 'true', 'verdadeiro', 1].includes(
-          remoteAccessRaw?.toString().trim().toUpperCase()
-        );
+        const remoteAccess = ['SIM', 'VERDADEIRO'].includes(remoteAccessRaw?.toString().trim().toUpperCase());
 
         return {
           id: row[0],
           name: row[1],
           email: row[2],
           role: row[3],
-          remoteAccess: remoteAccess || false, // Garante que remoteAccess não seja undefined
+          remoteAccess: remoteAccess,
         };
       });
 
