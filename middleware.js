@@ -12,9 +12,9 @@ export async function middleware(req) {
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super', 'dev'];
 
-  if (req.nextUrl.pathname.startsWith('/remote') && !token.remoteAccess) {
+  if (req.nextUrl.pathname.startsWith('/remote') && !(token.remoteAccess || token.role === 'super')) {
     return NextResponse.redirect(new URL('/', req.url));
-  }
+  }  
 
   if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && !allowedRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/', req.url));
