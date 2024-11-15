@@ -10,13 +10,29 @@ export default async function handler(req, res) {
     const rows = await getSheetValues('Usuários', 'A2:I');
 
     if (rows && rows.length > 0) {
-      const users = rows.map(row => ({
-        id: row[0],
-        name: row[1],
-        email: row[2],
-        role: row[3],
-        remoteAccess: row[8] === true || row[8].toString().toUpperCase() === 'TRUE',
-      }));
+      const users = rows.map(row => {
+        const remoteAccessRaw = row[8];
+        
+        // Log para depuração - isso ajuda a ver o que realmente está sendo retornado da célula.
+        console.log("Valor da célula 'Remoto':", remoteAccessRaw);
+
+        // Tratamento flexível para determinar se o valor do checkbox está marcado.
+        const remoteAccess = (
+          remoteAccessRaw === true ||                // Valor é booleano verdadeiro
+          remoteAccessRaw === 'TRUE' ||              // Valor é string 'TRUE' (maiúsculo)
+          remoteAccessRaw === 'true' ||              // Valor é string 'true' (minúsculo)
+          remoteAccessRaw === 1 ||                   // Valor é numérico 1 (algumas planilhas retornam checkbox assim)
+          (typeof remoteAccessRaw === 'string' && remoteAccessRaw.trim().toLowerCase() === 'true') // String com variação de maiúsculas e minúsculas
+        );
+
+        return {
+          id: row[0],
+          name: row[1],
+          email: row[2],
+          role: row[3],
+          remoteAccess: remoteAccess,
+        };
+      });
       return res.status(200).json({ users });
     }
 
