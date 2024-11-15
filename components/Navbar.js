@@ -204,13 +204,20 @@ export default function Navbar({ user }) {
             </button>
           )}
           {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
-            <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
-              Gerenciador
-            </button>
+            <>
+              <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
+                Gerenciador
+              </button>
+              {user.remoteAccess && (
+                <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
+                  Remote
+                </button>
+              )}
+            </>
           )}
           {user.role === 'dev' && (
             <button onClick={() => handleNavigation('/admin-notifications')} className={styles.menuButton}>
-              Admin Notificações
+              Notificações
             </button>
           )}
           <button onClick={() => signOut({ callbackUrl: '/' })} className={`${styles.menuButton} ${styles.logoutButton}`}>

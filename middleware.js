@@ -12,12 +12,10 @@ export async function middleware(req) {
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super', 'dev'];
 
-  // Se o usuário tentar acessar '/profile-analyst', e já tiver o papel correto, não redirecionar novamente
-  if (req.nextUrl.pathname.startsWith('/profile-analyst') && analystRoles.includes(token.role)) {
-    return NextResponse.next();
+  if (req.nextUrl.pathname.startsWith('/remote') && !token.remoteAccess) {
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Redirecionar caso o papel do usuário não tenha acesso à rota específica
   if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && !allowedRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
@@ -42,11 +40,11 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
   const response = NextResponse.next();
   response.cookies.set('user-id', token.id);
   response.cookies.set('user-name', token.name);
   response.cookies.set('user-role', token.role);
+  response.cookies.set('user-remote', token.remoteAccess);
 
   return response;
 }
@@ -60,7 +58,8 @@ export const config = {
     '/dashboard-super',
     '/profile-analyst',
     '/manager',
-    '/api/manage-category', // Incluindo a rota do handler manage-category.js
-    '/admin-notifications', // Incluindo a página de notificações administrativas
+    '/remote',
+    '/api/manage-category',
+    '/admin-notifications',
   ],
 };

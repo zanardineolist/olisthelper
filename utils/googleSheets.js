@@ -4,7 +4,6 @@ import { cache, CACHE_TIMES } from './cache';
 
 let sheetsInstance = null;
 
-// Função para autenticação do Google Sheets com singleton
 export async function getAuthenticatedGoogleSheets() {
   if (sheetsInstance) return sheetsInstance;
 
@@ -43,14 +42,12 @@ export async function addUserToSheetIfNotExists(user) {
     const sheetId = process.env.SHEET_ID;
     const cacheKey = `user_${user.email}`;
     
-    // Verificar cache primeiro
     const cachedUser = cache.get(cacheKey);
     if (cachedUser) return cachedUser;
 
-    // Verificar se o usuário já existe
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Usuários!A:H',
+      range: 'Usuários!A:I',
     });
 
     const rows = response.data.values || [];
@@ -60,16 +57,14 @@ export async function addUserToSheetIfNotExists(user) {
       return existingUser;
     }
 
-    // Gerar ID aleatório único
     let userId;
     do {
       userId = Math.floor(1000 + Math.random() * 9000).toString();
     } while (rows.some(row => row[0] === userId));
 
     const newRowIndex = rows.length + 1;
-    const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE'];
+    const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE', 'FALSE'];
 
-    // Usar batch update para otimizar as requisições
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: sheetId,
       resource: {
@@ -81,15 +76,13 @@ export async function addUserToSheetIfNotExists(user) {
                 startRowIndex: newRowIndex - 1,
                 endRowIndex: newRowIndex,
                 startColumnIndex: 0,
-                endColumnIndex: 8,
+                endColumnIndex: 9,
               },
-              rows: [{
-                values: newUser.map(value => ({
-                  userEnteredValue: { stringValue: value.toString() }
-                }))
-              }],
-              fields: 'userEnteredValue'
-            }
+              rows: [newUser.map(value => ({
+                userEnteredValue: { stringValue: value.toString() }
+              }))],
+              fields: 'userEnteredValue',
+            },
           },
           {
             repeatCell: {
@@ -98,7 +91,7 @@ export async function addUserToSheetIfNotExists(user) {
                 startRowIndex: newRowIndex - 1,
                 endRowIndex: newRowIndex,
                 startColumnIndex: 5,
-                endColumnIndex: 8,
+                endColumnIndex: 9,
               },
               cell: {
                 dataValidation: {
