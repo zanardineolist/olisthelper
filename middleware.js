@@ -12,11 +12,12 @@ export async function middleware(req) {
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super', 'dev'];
 
+  // Log para depuração do token
   console.log("Token recebido:", token);
 
-  if (req.nextUrl.pathname.startsWith('/remote') && !(token.remoteAccess || token.role === 'super')) {
+  if (req.nextUrl.pathname.startsWith('/remote') && !(token.role === 'super' || token.remoteAccess === true)) {
     return NextResponse.redirect(new URL('/', req.url));
-  }  
+  }
 
   if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && !allowedRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/', req.url));

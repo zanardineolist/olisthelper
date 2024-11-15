@@ -211,7 +211,7 @@ export default function Navbar({ user }) {
               <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
                 Gerenciador
               </button>
-              {user.remoteAccess && (
+              {(user.remoteAccess || user.role === 'super') && (
                 <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
                   Remote
                 </button>

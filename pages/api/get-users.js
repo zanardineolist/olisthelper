@@ -13,10 +13,10 @@ export default async function handler(req, res) {
       const users = rows.map(row => {
         const remoteAccessRaw = row[8];
 
-        // Log para depuração
+        // Log para depuração do valor da coluna "Remoto"
         console.log("Valor da célula 'Remoto':", remoteAccessRaw);
 
-        // Tratamento mais consistente para determinar se o valor do checkbox está marcado.
+        // Lógica atualizada para determinar o acesso remoto
         const remoteAccess = ['TRUE', 'VERDADEIRO', 'true', 'verdadeiro', 1].includes(
           remoteAccessRaw?.toString().trim().toUpperCase()
         );
