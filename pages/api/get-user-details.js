@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     const sheetIdMain = process.env.GOOGLE_SHEET_ID_MAIN;
     const sheetIdPerformance = process.env.GOOGLE_SHEET_ID_PERFORMANCE;
 
-    // Buscar Nome do Usuário e Preferências Usando o E-mail
+    // 1. Buscar Nome do Usuário e Preferências Usando o E-mail
     const usersRows = await getSheetValues(sheets, sheetIdMain, 'Usuários', 'A:H');
     if (!usersRows || usersRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
@@ -42,20 +42,23 @@ export default async function handler(req, res) {
 
     // Estrutura de retorno dos dados do usuário
     const responsePayload = {
+      id: userRow[0],
+      name: userRow[1],
+      email: userEmail,
+      role: userProfile,
       squad,
       chamado: hasChamado,
       telefone: hasTelefone,
       chat: hasChat,
     };
 
-    // Buscar Dados de Desempenho Usando o E-mail do Usuário
+    // 2. Buscar Dados de Desempenho Usando o E-mail do Usuário
     const performanceRows = await getSheetValues(sheets, sheetIdPerformance, 'Principal', 'A:V');
     if (performanceRows && performanceRows.length > 0) {
       // Encontrar a linha do desempenho usando o e-mail
       const performanceRow = performanceRows.find(row => row[0]?.toLowerCase() === userEmail.toLowerCase());
       if (performanceRow) {
-        // Atribuir a data de atualização corretamente
-        responsePayload.atualizadoAte = performanceRow[21] && performanceRow[21].trim() !== "" ? performanceRow[21] : "Data não disponível";
+        responsePayload.atualizadoAte = performanceRow[21]?.trim() || "Data não disponível";
 
         if (hasChamado) {
           const mediaPorDia = parseValue(performanceRow[9]);
@@ -63,7 +66,7 @@ export default async function handler(req, res) {
           const csat = parseValue(performanceRow[11]);
 
           responsePayload.chamados = {
-            totalChamados: performanceRow[8],
+            totalChamados: parseValue(performanceRow[8]),
             mediaPorDia,
             tma: formatHours(tma),
             csat,
@@ -80,7 +83,7 @@ export default async function handler(req, res) {
           const csat = parseValue(performanceRow[15]);
 
           responsePayload.telefone = {
-            totalTelefone: performanceRow[12],
+            totalTelefone: parseValue(performanceRow[12]),
             mediaPorDia: parseValue(performanceRow[13]),
             tma: formatTime(tma),
             csat,
@@ -97,7 +100,7 @@ export default async function handler(req, res) {
           const csat = parseValue(performanceRow[20]);
 
           responsePayload.chat = {
-            totalChats: performanceRow[17],
+            totalChats: parseValue(performanceRow[17]),
             mediaPorDia: parseValue(performanceRow[18]),
             tma: tma !== null ? formatTime(tma) : "-",
             csat: csat !== null ? csat : "-",
@@ -110,7 +113,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // Buscar Dados de Ajuda Solicitada do Usuário
+    // 3. Buscar Dados de Ajuda Solicitada do Usuário
     const sheetMeta = await getSheetMetaData();
     const sheetNames = sheetMeta.data.sheets.map(sheet => sheet.properties.title);
     const analystSheetNames = sheetNames.filter(name => name.startsWith('#'));
@@ -126,6 +129,11 @@ export default async function handler(req, res) {
 
     // Iterar sobre todas as abas de analistas para obter os registros de ajuda
     for (const sheetName of analystSheetNames) {
+      if (!sheetName) {
+        console.error('Nome da aba não encontrado.');
+        continue;
+      }
+
       const rows = await getSheetValues(sheets, sheetIdMain, sheetName, 'A:F');
 
       if (rows.length > 0) {
@@ -135,8 +143,12 @@ export default async function handler(req, res) {
         for (const row of rows) {
           const [dateString, , , email] = row;
 
-          if (email === userEmail) {
+          if (!dateString || !email) continue;
+
+          if (email.toLowerCase() === userEmail.toLowerCase()) {
             const [day, month, year] = dateString.split('/').map(Number);
+            if (!day || !month || !year) continue;
+
             const recordDate = new Date(year, month - 1, day);
 
             // Verificar se o registro pertence ao mês atual ou ao anterior
@@ -157,6 +169,17 @@ export default async function handler(req, res) {
       currentMonth: currentMonthCount,
       lastMonth: lastMonthCount,
     };
+
+    // 4. Buscar Dados de Ranking de Categorias (se aplicável)
+    const categoriesRows = await getSheetValues(sheets, sheetIdMain, 'Categorias', 'A:B');
+    if (categoriesRows && categoriesRows.length > 0) {
+      // Filtrar categorias para as quais o usuário fez solicitações no mês atual
+      const userCategories = categoriesRows.filter(row => row[1]?.toLowerCase() === userEmail.toLowerCase());
+      responsePayload.categoryRanking = userCategories.map(row => ({
+        category: row[0],
+        count: parseValue(row[2]),
+      }));
+    }
 
     return res.status(200).json(responsePayload);
   } catch (error) {
