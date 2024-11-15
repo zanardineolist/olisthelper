@@ -27,7 +27,7 @@ export default function DashboardAnalyst({ user }) {
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/get-analyst-records?analystId=${user.id}&filter=${filter}`);
+      const res = await fetch(`/api/analysts/${user.id}/data?mode=records&filter=${filter}`);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros.');
       }
@@ -55,62 +55,25 @@ export default function DashboardAnalyst({ user }) {
     }
   };
 
-  // Fetch leaderboard de usuários (sempre com base no mês atual)
-  const fetchLeaderboard = async () => {
+  // Fetch leaderboard e ranking de categorias (usando endpoint unificado)
+  const fetchDetails = async () => {
     if (!user?.id) {
       console.error("ID do analista não encontrado.");
       return;
     }
 
     try {
-      const res = await fetch(`/api/get-analyst-leaderboard?analystId=${user.id}`);
+      const res = await fetch(`/api/analysts/${user.id}/data?mode=leaderboard`);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros para o leaderboard.');
       }
 
       const data = await res.json();
-      if (!data || !data.rows || data.rows.length === 0) {
-        setLeaderboard([]);
-        return;
-      }
-
-      const userHelpCounts = data.rows.reduce((acc, row) => {
-        const userName = row[2];
-        if (userName) {
-          acc[userName] = (acc[userName] || 0) + 1;
-        }
-        return acc;
-      }, {});
-
-      const sortedUsers = Object.entries(userHelpCounts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([name, count]) => ({ name, count }));
-
-      setLeaderboard(sortedUsers);
-    } catch (err) {
-      console.error('Erro ao carregar leaderboard:', err);
-      setLeaderboard([]);
-    }
-  };
-
-  // Fetch ranking de categorias (sempre com base no mês atual)
-  const fetchCategoryRanking = async () => {
-    if (!user?.id) {
-      console.error("ID do analista não encontrado.");
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/get-category-ranking?analystId=${user.id}`);
-      if (!res.ok) {
-        throw new Error('Erro ao buscar registros das categorias.');
-      }
-
-      const data = await res.json();
+      setLeaderboard(data.leaderboard || []);
       setCategoryRanking(data.categories || []);
     } catch (err) {
-      console.error('Erro ao carregar ranking das categorias:', err);
+      console.error('Erro ao carregar leaderboard e ranking de categorias:', err);
+      setLeaderboard([]);
       setCategoryRanking([]);
     }
   };
@@ -122,8 +85,7 @@ export default function DashboardAnalyst({ user }) {
 
   // Carregar leaderboard e ranking de categorias apenas ao montar o componente
   useEffect(() => {
-    fetchLeaderboard();
-    fetchCategoryRanking();
+    fetchDetails();
   }, [user]);
 
   const handleFilterChange = (value, label) => {

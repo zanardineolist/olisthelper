@@ -14,20 +14,20 @@ export async function getAuthenticatedGoogleSheets() {
     process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     ['https://www.googleapis.com/auth/spreadsheets']
   );
-  
+
   sheetsInstance = google.sheets({ version: 'v4', auth });
   return sheetsInstance;
 }
 
 // Função otimizada para batch requests
-export async function batchGetValues(ranges) {
-  const cacheKey = `batch_${ranges.join('_')}`;
+export async function batchGetValues(sheetId, ranges) {
+  const cacheKey = `batch_${sheetId}_${ranges.join('_')}`;
   const cached = cache.get(cacheKey);
   if (cached) return cached;
 
   const sheets = await getAuthenticatedGoogleSheets();
   const response = await sheets.spreadsheets.values.batchGet({
-    spreadsheetId: process.env.SHEET_ID,
+    spreadsheetId: sheetId,
     ranges: ranges.map(range => range),
   });
 
@@ -170,15 +170,12 @@ export async function getSheetMetaData() {
   }
 }
 
-// Função otimizada para obter registros de uma aba específica
-export async function getSheetValues(sheetName, range) {
+// Função para obter registros de uma aba específica
+export async function getSheetValues(sheets, sheetId, sheetName, range) {
   try {
-    const cacheKey = `sheet_${sheetName}_${range}`;
+    const cacheKey = `sheet_${sheetId}_${sheetName}_${range}`;
     const cachedValues = cache.get(cacheKey);
     if (cachedValues) return cachedValues;
-
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
@@ -195,10 +192,9 @@ export async function getSheetValues(sheetName, range) {
 }
 
 // Função para adicionar valores a uma aba específica
-export async function appendValuesToSheet(sheetName, values) {
+export async function appendValuesToSheet(sheetId, sheetName, values) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
@@ -208,7 +204,7 @@ export async function appendValuesToSheet(sheetName, values) {
     });
 
     // Invalidar cache relacionado
-    cache.delete(`sheet_${sheetName}_A:F`);
+    cache.delete(`sheet_${sheetId}_${sheetName}_A:F`);
   } catch (error) {
     console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
     throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
