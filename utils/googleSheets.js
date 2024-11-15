@@ -118,6 +118,8 @@ export async function addUserToSheetIfNotExists(user) {
 export async function getUserFromSheet(email) {
   try {
     const cacheKey = `user_${email}`;
+    // Invalidar o cache antes de ler novamente
+    cache.delete(cacheKey);
     const cachedUser = cache.get(cacheKey);
     if (cachedUser) return cachedUser;
 
@@ -126,13 +128,16 @@ export async function getUserFromSheet(email) {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Usuários!A:H',
+      range: 'Usuários!A:I',
     });
 
     const rows = response.data.values;
     if (rows) {
-      const user = rows.find((row) => row[2] === email);
+      const user = rows.find((row) => row[2].toLowerCase() === email.toLowerCase());
       if (user) {
+        const remoteAccessRaw = user[8]?.toString().toLowerCase();
+        user.remoteAccess = remoteAccessRaw === 'true' || remoteAccessRaw === 'verdadeiro';
+
         cache.set(cacheKey, user, CACHE_TIMES.USERS);
         return user;
       }

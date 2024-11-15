@@ -15,7 +15,7 @@ export async function middleware(req) {
   // Log para depuração do token recebido
   console.log("Token recebido:", token);
 
-  // Garantir que token.remoteAccess seja booleano (caso contrário, false)
+  // Garantir que token.remoteAccess seja booleano (verificação mais robusta)
   token.remoteAccess = token.remoteAccess === true || token.remoteAccess === 'VERDADEIRO' || token.remoteAccess === 'true';
 
   // Controle de acesso para a rota "/remote"

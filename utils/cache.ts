@@ -75,7 +75,7 @@ class Cache {
 export const cache = new Cache();
 
 export const CACHE_TIMES = {
-  USERS: 30 * 60 * 1000,        // 30 minutos
+  USERS: 10 * 60 * 1000,        // Reduzido para 10 minutos
   PERFORMANCE: 5 * 60 * 1000,   // 5 minutos
   METADATA: 60 * 60 * 1000,     // 1 hora
   SHEET_VALUES: 2 * 60 * 1000   // 2 minutos
