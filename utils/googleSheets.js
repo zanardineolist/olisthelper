@@ -3,6 +3,7 @@ import { google } from 'googleapis';
 
 let sheetsInstance = null;
 
+// Função para autenticação do Google Sheets com singleton
 export async function getAuthenticatedGoogleSheets() {
   if (sheetsInstance) return sheetsInstance;
 
@@ -12,12 +13,12 @@ export async function getAuthenticatedGoogleSheets() {
     process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     ['https://www.googleapis.com/auth/spreadsheets']
   );
-
+  
   sheetsInstance = google.sheets({ version: 'v4', auth });
   return sheetsInstance;
 }
 
-// Função otimizada para batch requests (sem cache)
+// Função otimizada para batch requests (Removido Cache)
 export async function batchGetValues(ranges) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
@@ -26,23 +27,23 @@ export async function batchGetValues(ranges) {
       ranges: ranges.map(range => range),
     });
 
-    const data = response.data.valueRanges;
-    return data;
+    return response.data.valueRanges;
   } catch (error) {
     console.error('Erro ao obter valores em batch:', error);
     throw error;
   }
 }
 
-// Função para obter usuário da planilha ou adicioná-lo se não existir (sem cache)
+// Função para obter usuário da planilha ou adicioná-lo se não existir (Removido Cache)
 export async function addUserToSheetIfNotExists(user) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
+    // Verificar se o usuário já existe
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Usuários!A:I',
+      range: 'Usuários!A:H',
     });
 
     const rows = response.data.values || [];
@@ -52,14 +53,16 @@ export async function addUserToSheetIfNotExists(user) {
       return existingUser;
     }
 
+    // Gerar ID aleatório único
     let userId;
     do {
       userId = Math.floor(1000 + Math.random() * 9000).toString();
     } while (rows.some(row => row[0] === userId));
 
     const newRowIndex = rows.length + 1;
-    const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE', 'FALSE'];
+    const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE'];
 
+    // Usar batch update para otimizar as requisições
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: sheetId,
       resource: {
@@ -71,13 +74,15 @@ export async function addUserToSheetIfNotExists(user) {
                 startRowIndex: newRowIndex - 1,
                 endRowIndex: newRowIndex,
                 startColumnIndex: 0,
-                endColumnIndex: 9,
+                endColumnIndex: 8,
               },
-              rows: [newUser.map(value => ({
-                userEnteredValue: { stringValue: value.toString() }
-              }))],
-              fields: 'userEnteredValue',
-            },
+              rows: [{
+                values: newUser.map(value => ({
+                  userEnteredValue: { stringValue: value.toString() }
+                }))
+              }],
+              fields: 'userEnteredValue'
+            }
           },
           {
             repeatCell: {
@@ -86,7 +91,7 @@ export async function addUserToSheetIfNotExists(user) {
                 startRowIndex: newRowIndex - 1,
                 endRowIndex: newRowIndex,
                 startColumnIndex: 5,
-                endColumnIndex: 9,
+                endColumnIndex: 8,
               },
               cell: {
                 dataValidation: {
@@ -109,7 +114,7 @@ export async function addUserToSheetIfNotExists(user) {
   }
 }
 
-// Função para obter usuário da planilha (sem cache)
+// Função para obter usuário da planilha (Removido Cache)
 export async function getUserFromSheet(email) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
@@ -117,14 +122,14 @@ export async function getUserFromSheet(email) {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Usuários!A:I',
+      range: 'Usuários!A:H',
     });
 
     const rows = response.data.values;
     if (rows) {
       const user = rows.find((row) => row[2].toLowerCase() === email.toLowerCase());
       if (user) {
-        const remoteAccessRaw = user[8]?.toString().toLowerCase();
+        const remoteAccessRaw = user[7]?.toString().toLowerCase();
         const remoteAccess = remoteAccessRaw === 'true' || remoteAccessRaw === 'verdadeiro';
 
         console.log("Usuário encontrado na planilha:", user);
@@ -138,7 +143,6 @@ export async function getUserFromSheet(email) {
           squad: user[4],
           chamado: user[5] === 'TRUE',
           telefone: user[6] === 'TRUE',
-          chat: user[7] === 'TRUE',
           remoteAccess: remoteAccess,
         };
       }
@@ -150,13 +154,13 @@ export async function getUserFromSheet(email) {
   }
 }
 
-// Função para obter metadados da planilha (sem cache)
+// Função para obter metadados da planilha (Removido Cache)
 export async function getSheetMetaData() {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
     const metadata = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-
+    
     console.log("Metadados da planilha obtidos:", metadata);
     return metadata;
   } catch (error) {
@@ -165,7 +169,7 @@ export async function getSheetMetaData() {
   }
 }
 
-// Função para obter registros de uma aba específica (sem cache)
+// Função para obter registros de uma aba específica (Removido Cache)
 export async function getSheetValues(sheetName, range) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
@@ -231,20 +235,14 @@ export async function addSheetRow(sheetName, values) {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    const appendResponse = await sheets.spreadsheets.values.append({
+    await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
       range: `${sheetName}!A:H`,
       valueInputOption: 'USER_ENTERED',
       resource: { values: [values] },
     });
 
-    const updatedRange = appendResponse.data.updates.updatedRange;
-    const match = updatedRange.match(/(\d+):\w+/);
-
-    if (match) {
-      const newRowIndex = parseInt(match[1], 10) - 1;
-      console.log(`Nova linha adicionada na aba ${sheetName}, índice: ${newRowIndex}`);
-    }
+    console.log(`Nova linha adicionada na aba ${sheetName} com valores:`, values);
   } catch (error) {
     console.error(`Erro ao adicionar nova linha à aba ${sheetName}:`, error);
     throw new Error(`Erro ao adicionar nova linha à aba ${sheetName}.`);
@@ -260,7 +258,7 @@ export async function deleteSheetRow(sheetName, rowIndex) {
     const sheetInfo = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
     });
-
+    
     const sheet = sheetInfo.data.sheets.find(
       (sheet) => sheet.properties.title === sheetName
     );
