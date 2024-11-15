@@ -15,7 +15,7 @@ export default async function handler(req, res) {
         name: row[1],
         email: row[2],
         role: row[3],
-        remoteAccess: row[8].trim().toUpperCase() === 'TRUE',
+        remoteAccess: row[8] === true || row[8].toString().toUpperCase() === 'TRUE',
       }));
       return res.status(200).json({ users });
     }
