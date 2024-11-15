@@ -21,8 +21,9 @@ export default async function handler(req, res) {
           remoteAccessRaw === true ||                // Valor é booleano verdadeiro
           remoteAccessRaw === 'TRUE' ||              // Valor é string 'TRUE' (maiúsculo)
           remoteAccessRaw === 'true' ||              // Valor é string 'true' (minúsculo)
+          remoteAccessRaw === 'VERDADEIRO' ||        // Valor é string 'VERDADEIRO' (em português)
           remoteAccessRaw === 1 ||                   // Valor é numérico 1 (algumas planilhas retornam checkbox assim)
-          (typeof remoteAccessRaw === 'string' && remoteAccessRaw.trim().toLowerCase() === 'true') // String com variação de maiúsculas e minúsculas
+          (typeof remoteAccessRaw === 'string' && remoteAccessRaw.trim().toUpperCase() === 'VERDADEIRO') // Variações de string
         );
 
         return {
