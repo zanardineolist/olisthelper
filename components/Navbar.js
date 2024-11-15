@@ -65,6 +65,9 @@ export default function Navbar({ user }) {
     return () => clearInterval(interval);
   }, [user.id, user.role]);
 
+  // Log para verificar valor de acesso remoto do usuário
+  console.log('Acesso Remoto do Usuário:', user.remoteAccess);
+
   const handleNavigation = (path) => {
     router.push(path);
     setMenuOpen(false);
@@ -208,7 +211,7 @@ export default function Navbar({ user }) {
               <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
                 Gerenciador
               </button>
-              {(user.remoteAccess || user.role === 'super') && (
+              {user.remoteAccess && (
                 <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
                   Remote
                 </button>

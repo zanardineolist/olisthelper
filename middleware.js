@@ -12,6 +12,8 @@ export async function middleware(req) {
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super', 'dev'];
 
+  console.log("Token recebido:", token);
+
   if (req.nextUrl.pathname.startsWith('/remote') && !(token.remoteAccess || token.role === 'super')) {
     return NextResponse.redirect(new URL('/', req.url));
   }  
