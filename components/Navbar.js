@@ -111,6 +111,8 @@ export default function Navbar({ user }) {
     return formatDistanceToNow(notificationTime, { addSuffix: true, locale: ptBR });
   };
 
+  console.log('Acesso Remoto do Usuário (Navbar):', user.remoteAccess ?? 'Não definido');
+
   return (
     <nav ref={navbarRef} className={styles.navbar}>
       <div className={styles.logo}>

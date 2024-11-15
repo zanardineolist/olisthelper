@@ -8,19 +8,19 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
+  // Log do token recebido para depuração
+  console.log("Token recebido no middleware:", token);
+
   // Ajustar os papéis permitidos
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super', 'dev'];
 
-  // Log para depuração do token recebido
-  console.log("Token recebido:", token);
-
-  // Garantir que token.remoteAccess seja booleano (verificação mais robusta)
-  token.remoteAccess = token.remoteAccess === true || token.remoteAccess === 'VERDADEIRO' || token.remoteAccess === 'true';
-
   // Controle de acesso para a rota "/remote"
-  if (req.nextUrl.pathname.startsWith('/remote') && !(token.role === 'super' || token.remoteAccess)) {
-    return NextResponse.redirect(new URL('/', req.url));
+  if (req.nextUrl.pathname.startsWith('/remote')) {
+    console.log("Verificando acesso à rota '/remote'. Token.role:", token.role, "Token.remoteAccess:", token.remoteAccess);
+    if (!(token.role === 'super' || token.remoteAccess)) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
   }
 
   if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && !allowedRoles.includes(token.role)) {
