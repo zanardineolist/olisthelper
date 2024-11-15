@@ -1,4 +1,3 @@
-// pages/api/get-users.js
 import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
@@ -8,10 +7,7 @@ export default async function handler(req, res) {
 
   try {
     const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.GOOGLE_SHEET_ID_MAIN;
-
-    // Buscar dados dos usuários na aba 'Usuários'
-    const rows = await getSheetValues(sheets, sheetId, 'Usuários', 'A2:H');
+    const rows = await getSheetValues('Usuários', 'A2:D');
 
     if (rows && rows.length > 0) {
       const users = rows.map(row => ({
@@ -19,10 +15,6 @@ export default async function handler(req, res) {
         name: row[1],
         email: row[2],
         role: row[3],
-        squad: row[4],
-        chamado: row[5] === 'TRUE',
-        telefone: row[6] === 'TRUE',
-        chat: row[7] === 'TRUE',
       }));
       return res.status(200).json({ users });
     }
