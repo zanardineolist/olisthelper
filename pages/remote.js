@@ -316,7 +316,7 @@ export async function getServerSideProps(context) {
         id: session.id,
         name: session.user.name,
         email: session.user.email,
-        remoteAccess: session.remoteAccess || false,
+        remoteAccess: session.remoteAccess === true || session.remoteAccess === 'VERDADEIRO' || session.remoteAccess === 'verdadeiro',
       },
     },
   };

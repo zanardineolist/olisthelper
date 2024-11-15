@@ -12,8 +12,8 @@ export default async function handler(req, res) {
     if (rows && rows.length > 0) {
       const users = rows.map(row => {
         const remoteAccessRaw = row[8];
-        
-        // Log para depuração - isso ajuda a ver o que realmente está sendo retornado da célula.
+
+        // Log para depuração
         console.log("Valor da célula 'Remoto':", remoteAccessRaw);
 
         // Tratamento flexível para determinar se o valor do checkbox está marcado.
@@ -22,6 +22,7 @@ export default async function handler(req, res) {
           remoteAccessRaw === 'TRUE' ||              // Valor é string 'TRUE' (maiúsculo)
           remoteAccessRaw === 'true' ||              // Valor é string 'true' (minúsculo)
           remoteAccessRaw === 'VERDADEIRO' ||        // Valor é string 'VERDADEIRO' (em português)
+          remoteAccessRaw === 'verdadeiro' ||        // Valor é string 'verdadeiro' (em português minúsculo)
           remoteAccessRaw === 1 ||                   // Valor é numérico 1 (algumas planilhas retornam checkbox assim)
           (typeof remoteAccessRaw === 'string' && remoteAccessRaw.trim().toUpperCase() === 'VERDADEIRO') // Variações de string
         );
