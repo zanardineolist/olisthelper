@@ -261,7 +261,7 @@ export default function RemotePage({ user }) {
     );
   }  
 
-export async function getServerSideProps(context) {
+  export async function getServerSideProps(context) {
     const session = await getSession(context);
     if (!session) {
       return {
@@ -287,8 +287,8 @@ export async function getServerSideProps(context) {
       const userData = await userRes.json();
       const currentUser = userData.users.find(user => user.id === session.id);
   
-      // Definindo se o usuário pode acessar as abas de remoto
-      const canAccessRemote = currentUser?.remoto || false;
+      // Garantir que a verificação para a coluna "remoto" está correta
+      const canAccessRemote = currentUser?.remoto === 'TRUE';
   
       return {
         props: {
