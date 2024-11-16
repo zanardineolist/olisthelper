@@ -1,156 +1,164 @@
-/* Estilos principais para o container da página */
+/* ================== Estilo Geral da Página ================== */
 .main {
-    padding: 20px;
-    margin-top: 50px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: var(--background-color);
-    color: var(--text-color);
+  padding: 20px;
+  margin-top: 50px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main h1 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #8b8b8b;
+}
+
+/* ================== Estilo para as Tabs ================== */
+.tabsContainer {
+  width: 100%;
+  max-width: 1400px;
+  background-color: var(--manager-menu-bg);
+  border-radius: 5px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+/* ================== Formulário ================== */
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: var(--box-color);
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  margin-bottom: 5px;
+  color: var(--title-color);
+  font-weight: bold;
+}
+
+.inputField {
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background-color: var(--modals-inputs);
+  color: var(--text-color);
+  font-family: 'Arial', sans-serif;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.inputField:hover {
+  border: 1px solid var(--color-primary);
+}
+
+.submitButton {
+  background-color: var(--color-accent3);
+  color: var(--color-white);
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.submitButton:hover {
+  background-color: #87A553;
+}
+
+/* ================== Estilo da Tabela ================== */
+.recordsTable {
+  width: 100%;
+  max-width: 1000px;
+  margin: 20px auto;
+  overflow-x: auto;
+  border-collapse: collapse;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recordsTable thead {
+  background-color: var(--color-thead);
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+.recordsTable th,
+.recordsTable td {
+  padding: 10px;
+  text-align: left;
+  color: var(--text-th);
+  border-bottom: 1px solid var(--color-border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recordsTable th {
+  font-weight: bold;
+}
+
+.recordsTable tbody {
+  display: block;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.recordsTable thead,
+.recordsTable tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.recordsTable tbody tr:nth-child(odd) {
+  background-color: var(--color-trodd);
+}
+
+.recordsTable tbody tr:nth-child(even) {
+  background-color: var(--color-treven);
+}
+
+/* ================== Loader ================== */
+.loaderOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loader {
+  border: 6px solid var(--color-border);
+  border-top: 6px solid var(--color-primary);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  
-  /* Estilo para o container das abas */
-  .tabContent {
-    width: 100%;
-    max-width: 1200px;
-    margin-top: 20px;
-    background-color: var(--box-color);
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+  100% {
+    transform: rotate(360deg);
   }
-  
-  /* Estilo para o formulário de registro */
-  .formContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .formGroup {
-    margin-bottom: 20px;
-    width: 100%;
-    max-width: 600px;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .formGroup label {
-    margin-bottom: 8px;
-    font-weight: bold;
-  }
-  
-  .formGroup input {
-    padding: 10px;
-    border: 1px solid var(--color-border);
-    border-radius: 5px;
-    background-color: var(--modals-inputs);
-    color: var(--text-color);
-    font-size: 16px;
-    transition: border-color 0.3s ease;
-  }
-  
-  .formGroup input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-  }
-  
-  /* Estilo para o react-select */
-  .react-select__control {
-    width: 100%;
-    max-width: 600px;
-  }
-  
-  .formButtonContainer {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .submitButton {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    padding: 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 200px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    font-size: 1rem;
-  }
-  
-  .submitButton:hover {
-    background-color: var(--color-primary-hover);
-    transform: translateY(-2px);
-  }
-  
-  .submitButton:disabled {
-    background-color: var(--color-border);
-    cursor: not-allowed;
-  }
-  
-  /* Estilo do dashboard */
-  .dashboard {
-    width: 100%;
-    overflow-x: auto;
-  }
-  
-  .dashboard table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .dashboard th, .dashboard td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid var(--color-border);
-    color: var(--text-color);
-  }
-  
-  .dashboard th {
-    background-color: var(--color-thead);
-    font-weight: bold;
-  }
-  
-  .dashboard tbody tr:nth-child(odd) {
-    background-color: var(--color-trodd); /* Cor mais escura para linhas ímpares */
-  }
-  
-  .dashboard tbody tr:nth-child(even) {
-    background-color: var(--color-treven); /* Cor mais clara para linhas pares */
-  }
-  
-  /* Loader para carregamento de registros */
-  .loaderOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .loader {
-    border: 8px solid var(--color-border);
-    border-top: 8px solid var(--color-primary);
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-  
+}
