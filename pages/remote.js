@@ -110,11 +110,12 @@ export default function RemotePage({ user }) {
   const [records, setRecords] = useState([]);
   const router = useRouter();
 
+  // Definindo as permissões de acesso
+  const showFormAndUserRecordsTabs = user.hasRemoto && !user.isSuperUser;
   const showAllRecordsTab = user.isSuperUser;
-  const showFormAndUserRecordsTabs = user.hasRemoto;
 
   useEffect(() => {
-    if (showFormAndUserRecordsTabs) {
+    if (showFormAndUserRecordsTabs || showAllRecordsTab) {
       const loadRecords = async () => {
         try {
           const res = await fetch(`/api/get-remote-records?userId=${user.id}`);
@@ -127,7 +128,7 @@ export default function RemotePage({ user }) {
       };
       loadRecords();
     }
-  }, [user.id, showFormAndUserRecordsTabs]);
+  }, [user.id, showFormAndUserRecordsTabs, showAllRecordsTab]);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
@@ -306,7 +307,7 @@ export default function RemotePage({ user }) {
             </form>
           )}
           {showFormAndUserRecordsTabs && currentTab === 1 && renderDashboard(records.filter(record => record.userName === user.name))}
-          {showAllRecordsTab && currentTab === (showFormAndUserRecordsTabs ? 2 : 0) && renderDashboard(records)}
+          {showAllRecordsTab && currentTab === 0 && renderDashboard(records)}
         </div>
       </main>
 
