@@ -8,12 +8,12 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-  // Log do token recebido para depuração
-  console.log("Token recebido no middleware:", token);
-
   // Ajustar os papéis permitidos
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super', 'dev'];
+
+  // Log do token recebido para depuração
+  console.log("Token recebido no middleware:", token);
 
   // Controle de acesso para a rota "/remote"
   if (req.nextUrl.pathname.startsWith('/remote')) {
@@ -52,7 +52,7 @@ export async function middleware(req) {
   response.cookies.set('user-id', token.id);
   response.cookies.set('user-name', token.name);
   response.cookies.set('user-role', token.role);
-  response.cookies.set('user-remote', token.remoteAccess);
+  response.cookies.set('user-remote-access', token.remoteAccess);
 
   return response;
 }

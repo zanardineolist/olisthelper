@@ -16,6 +16,12 @@ export default function Navbar({ user }) {
   const router = useRouter();
   const notificationRef = useRef(null);
   const navbarRef = useRef(null);
+  const [remoteAccessAllowed, setRemoteAccessAllowed] = useState(false);
+
+  useEffect(() => {
+    const userRemoteAccess = user.remoteAccess || (document.cookie.includes('user-remote-access=Sim'));
+    setRemoteAccessAllowed(userRemoteAccess);
+  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -208,7 +214,7 @@ export default function Navbar({ user }) {
               <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
                 Gerenciador
               </button>
-              {(user.remoteAccess === 'Sim' || user.role === 'super') && (
+              {(remoteAccessAllowed || user.role === 'super') && (
                 <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
                   Remote
                 </button>
