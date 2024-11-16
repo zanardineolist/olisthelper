@@ -288,7 +288,7 @@ export default function RemotePage({ user }) {
       const currentUser = userData.users.find(user => user.id === session.id);
   
       // Garantir que a verificação para a coluna "remoto" está correta
-      const canAccessRemote = currentUser?.remoto === 'TRUE';
+      const canAccessRemote = currentUser?.remoto === true;
   
       return {
         props: {
@@ -309,4 +309,5 @@ export default function RemotePage({ user }) {
         },
       };
     }
-  }  
+  }
+  
