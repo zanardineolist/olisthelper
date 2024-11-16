@@ -54,9 +54,9 @@ export default function RemotePage({ user }) {
     const [records, setRecords] = useState([]);
     const router = useRouter();
   
-    // Determinar quais abas exibir com base no papel do usuário e permissões
+    // Determinar quais abas exibir com base no novo campo combinado
     const showAllRecordsTab = user.role === 'super';
-    const showFormAndUserRecordsTabs = user.remoto;
+    const showFormAndUserRecordsTabs = user.hasRemoteAccess;
   
     useEffect(() => {
       if (showFormAndUserRecordsTabs) {
@@ -287,8 +287,8 @@ export default function RemotePage({ user }) {
       const userData = await userRes.json();
       const currentUser = userData.users.find(user => user.id === session.id);
   
-      // Garantir que a verificação para a coluna "remoto" está correta
-      const canAccessRemote = currentUser?.remoto === true;
+      // Determinar se o usuário tem acesso ao remoto baseado na nova prop
+      const hasRemoteAccess = currentUser?.hasRemoteAccess;
   
       return {
         props: {
@@ -296,7 +296,7 @@ export default function RemotePage({ user }) {
             ...session.user,
             role: session.role,
             id: session.id,
-            remoto: canAccessRemote,
+            hasRemoteAccess,
           },
         },
       };
