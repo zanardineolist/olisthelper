@@ -18,7 +18,7 @@ export async function middleware(req) {
   // Controle de acesso para a rota "/remote"
   if (req.nextUrl.pathname.startsWith('/remote')) {
     console.log("Verificando acesso à rota '/remote'. Token.role:", token.role, "Token.remoteAccess:", token.remoteAccess);
-    if (!(token.role === 'super' || token.remoteAccess)) {
+    if (!(token.role === 'super' || token.remoteAccess === true)) {
       return NextResponse.redirect(new URL('/', req.url));
     }
   }
