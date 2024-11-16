@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
     if (rows && rows.length > 0) {
       const records = rows
-        .filter(row => row[2] === userId)
+        .filter(row => row[1] === userId)
         .map(row => ({
           datetime: row[0],
           userName: row[1],

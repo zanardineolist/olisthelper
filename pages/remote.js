@@ -1,4 +1,4 @@
-import { getSession } from 'next-auth/react'; // Importando getSession corretamente
+import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
@@ -44,7 +44,6 @@ const theme = createTheme({
 });
 
 export async function getServerSideProps(context) {
-  // Obtém a sessão do usuário autenticado
   const session = await getSession(context);
   if (!session) {
     return {
@@ -61,12 +60,11 @@ export async function getServerSideProps(context) {
       throw new Error('NEXTAUTH_URL não está definida.');
     }
 
-    // Fetch user permissions from Google Sheets
     const userRes = await fetch(`${apiUrl}/api/get-users`);
     if (!userRes.ok) {
       throw new Error(`Erro ao buscar usuários: ${userRes.statusText}`);
     }
-    
+
     const userData = await userRes.json();
     const currentUser = userData.users.find(user => user.id === session.id);
 
@@ -74,16 +72,19 @@ export async function getServerSideProps(context) {
       throw new Error('Usuário não encontrado.');
     }
 
-    // Definir as permissões do usuário
-    const hasRemoto = currentUser?.hasRemoto;
+    // Obter perfis do usuário e verificar permissões
+    const roles = currentUser.roles || [];
+    const hasRemoto = roles.includes('remote');
+    const isSuperUser = roles.includes('super');
 
     return {
       props: {
         user: {
           ...session.user,
-          role: currentUser.role,
+          roles,
           id: currentUser.id,
           hasRemoto,
+          isSuperUser,
         },
       },
     };
@@ -109,8 +110,7 @@ export default function RemotePage({ user }) {
   const [records, setRecords] = useState([]);
   const router = useRouter();
 
-  // Determinar quais abas exibir com base nas permissões do usuário
-  const showAllRecordsTab = user.role === 'super';
+  const showAllRecordsTab = user.isSuperUser;
   const showFormAndUserRecordsTabs = user.hasRemoto;
 
   useEffect(() => {
