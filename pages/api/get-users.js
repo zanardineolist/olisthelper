@@ -20,7 +20,7 @@ export default async function handler(req, res) {
           role: row[3],
           remoteAccess: remoteAccess,
         };
-      });       
+      });      
 
       // Log para depuração dos usuários carregados
       console.log("Usuários carregados:", users);

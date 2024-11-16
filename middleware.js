@@ -23,6 +23,7 @@ export async function middleware(req) {
     }
   }
 
+  // Controle de acesso para outras rotas
   if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && !allowedRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
