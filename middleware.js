@@ -1,5 +1,6 @@
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
+import { getAuthenticatedGoogleSheets, getSheetValues } from "../utils/googleSheets";
 
 export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -17,9 +18,25 @@ export async function middleware(req) {
 
   // Controle de acesso para a rota "/remote"
   if (req.nextUrl.pathname.startsWith('/remote')) {
-    console.log("Verificando acesso à rota '/remote'. Token.role:", token.role, "Token.remoteAccess:", token.remoteAccess);
-    if (!(token.role === 'super' || token.remoteAccess === 'Sim')) {
-      return NextResponse.redirect(new URL('/', req.url));
+    try {
+      // Obter a permissão de acesso ao Google Sheets diretamente
+      const sheets = await getAuthenticatedGoogleSheets();
+      const rows = await getSheetValues('Usuários', 'A2:I');
+
+      if (rows && rows.length > 0) {
+        const userRow = rows.find(row => row[2] === token.email);
+        const remoteAccess = userRow && userRow[8]?.toLowerCase() === 'TRUE';
+
+        // Verificar se o usuário possui acesso remoto ou é superusuário
+        if (!(token.role === 'super' || remoteAccess)) {
+          return NextResponse.redirect(new URL('/', req.url));
+        }
+      } else {
+        return NextResponse.redirect(new URL('/profile', req.url));
+      }
+    } catch (error) {
+      console.error('Erro ao obter permissões do Google Sheets:', error);
+      return NextResponse.redirect(new URL('/profile', req.url));
     }
   }
 

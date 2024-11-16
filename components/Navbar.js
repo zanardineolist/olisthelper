@@ -19,9 +19,24 @@ export default function Navbar({ user }) {
   const [remoteAccessAllowed, setRemoteAccessAllowed] = useState(false);
 
   useEffect(() => {
-    const userRemoteAccess = user.remoteAccess || (document.cookie.includes('user-remote-access=Sim'));
-    setRemoteAccessAllowed(userRemoteAccess);
-  }, [user]);
+    const fetchPermissions = async () => {
+      try {
+        const res = await fetch(`/api/get-users`);
+        if (!res.ok) throw new Error('Erro ao buscar permissões dos usuários');
+        
+        const { users } = await res.json();
+        const currentUser = users.find(u => u.email === user.email);
+        
+        if (currentUser) {
+          setRemoteAccessAllowed(currentUser.remoteAccess === 'Sim');
+        }
+      } catch (err) {
+        console.error('Erro ao buscar permissões do usuário:', err);
+      }
+    };
+
+    fetchPermissions();
+  }, [user.email]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -214,7 +229,7 @@ export default function Navbar({ user }) {
               <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
                 Gerenciador
               </button>
-              {(remoteAccessAllowed || user.role === 'super') && (
+              {remoteAccessAllowed && (
                 <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
                   Remote
                 </button>

@@ -8,6 +8,7 @@ import Footer from '../components/Footer';
 import styles from '../styles/Remote.module.css';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
+import { getAuthenticatedGoogleSheets, getSheetValues } from '../utils/googleSheets';
 
 const theme = createTheme({
   components: {
@@ -298,8 +299,47 @@ export default function RemotePage({ user }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  
-  if (!session || (session.remoteAccess !== 'Sim' && session.role !== 'super')) {
+
+  // Verificar a permissão diretamente da planilha do Google Sheets
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const rows = await getSheetValues('Usuários', 'A2:I');
+
+    if (rows && rows.length > 0) {
+      const userRow = rows.find(row => row[2] === session?.user?.email);
+      const remoteAccess = userRow && userRow[8]?.toLowerCase() === 'sim';
+
+      if (!session || (!remoteAccess && session.role !== 'super')) {
+        return {
+          redirect: {
+            destination: '/',
+            permanent: false,
+          },
+        };
+      }
+
+      return {
+        props: {
+          user: {
+            ...session.user,
+            role: session.role,
+            id: session.id,
+            name: session.user.name,
+            email: session.user.email,
+            remoteAccess: remoteAccess,
+          },
+        },
+      };
+    } else {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
+  } catch (error) {
+    console.error('Erro ao obter permissões do Google Sheets:', error);
     return {
       redirect: {
         destination: '/',
@@ -307,17 +347,4 @@ export async function getServerSideProps(context) {
       },
     };
   }
-
-  return {
-    props: {
-      user: {
-        ...session.user,
-        role: session.role,
-        id: session.id,
-        name: session.user.name,
-        email: session.user.email,
-        remoteAccess: session.remoteAccess,
-      },
-    },
-  };
 }
