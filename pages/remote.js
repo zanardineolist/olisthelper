@@ -262,29 +262,49 @@ export default function RemotePage({ user }) {
 }
 
 export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  if (!session) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  // Fetch user permissions from Google Sheets
-  const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/get-users`);
-  const userData = await userRes.json();
-  const currentUser = userData.users.find(user => user.id === session.id);
-
-  return {
-    props: {
-      user: {
-        ...session.user,
-        role: session.role,
-        id: session.id,
-        remoto: currentUser?.remoto || false,
-      },
-    },
-  };
-}
+    const session = await getSession(context);
+    if (!session) {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
+  
+    try {
+      // Verifica se a URL do API está definida
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      if (!apiUrl) {
+        throw new Error('NEXT_PUBLIC_API_URL não está definida.');
+      }
+  
+      // Fetch user permissions from Google Sheets
+      const userRes = await fetch(`${apiUrl}/api/get-users`);
+      if (!userRes.ok) {
+        throw new Error(`Erro ao buscar usuários: ${userRes.statusText}`);
+      }
+      
+      const userData = await userRes.json();
+      const currentUser = userData.users.find(user => user.id === session.id);
+  
+      return {
+        props: {
+          user: {
+            ...session.user,
+            role: session.role,
+            id: session.id,
+            remoto: currentUser?.remoto || false,
+          },
+        },
+      };
+    } catch (error) {
+      console.error('Erro ao obter dados do usuário:', error);
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
+  }  
