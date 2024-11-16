@@ -13,20 +13,23 @@ export default async function handler(req, res) {
 
   try {
     const rows = await getSheetValues('Remoto', 'A2:E');
-    if (rows && rows.length > 0) {
-      const records = rows.map((row) => ({
-        datetime: row[0],
-        userName: row[1],
-        chamado: row[2],
-        tema: row[3],
-      }));
 
-      res.status(200).json({ records });
+    if (rows && rows.length > 0) {
+      const records = rows
+        .filter(row => row[2] === userId)
+        .map(row => ({
+          datetime: row[0],
+          userName: row[1],
+          chamado: row[2],
+          tema: row[3],
+        }));
+
+      return res.status(200).json({ records });
     } else {
-      res.status(404).json({ error: 'Nenhum registro encontrado.' });
+      return res.status(404).json({ error: 'Nenhum registro encontrado.' });
     }
   } catch (error) {
     console.error('Erro ao obter registros remotos:', error);
-    res.status(500).json({ error: 'Erro ao obter registros remotos.' });
+    return res.status(500).json({ error: 'Erro ao obter registros remotos.' });
   }
 }

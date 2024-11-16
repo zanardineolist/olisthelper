@@ -273,7 +273,6 @@ export async function getServerSideProps(context) {
     }
   
     try {
-      // Usa a variável NEXTAUTH_URL que já está definida no ambiente Vercel
       const apiUrl = process.env.NEXTAUTH_URL || '';
       if (!apiUrl) {
         throw new Error('NEXTAUTH_URL não está definida.');
@@ -307,4 +306,5 @@ export async function getServerSideProps(context) {
         },
       };
     }
-  }  
+  }
+  
