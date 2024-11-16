@@ -196,12 +196,20 @@ export default function Navbar({ user }) {
               <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
                 Dashboard
               </button>
+              <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
+                Remote
+              </button>
             </>
           )}
           {user.role === 'super' && (
-            <button onClick={() => handleNavigation('/dashboard-super')} className={styles.menuButton}>
-              Dashboard
-            </button>
+            <>
+              <button onClick={() => handleNavigation('/dashboard-super')} className={styles.menuButton}>
+                Dashboard
+              </button>
+              <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
+                Remote
+              </button>
+            </>
           )}
           {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
             <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
