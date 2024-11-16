@@ -50,7 +50,7 @@ export async function addUserToSheetIfNotExists(user) {
     // Verificar se o usuário já existe
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Usuários!A:H',
+      range: 'Usuários!A:I',  // Atualizar o range para incluir a coluna I
     });
 
     const rows = response.data.values || [];
@@ -67,7 +67,7 @@ export async function addUserToSheetIfNotExists(user) {
     } while (rows.some(row => row[0] === userId));
 
     const newRowIndex = rows.length + 1;
-    const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE'];
+    const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE', 'FALSE'];
 
     // Usar batch update para otimizar as requisições
     await sheets.spreadsheets.batchUpdate({
@@ -81,7 +81,7 @@ export async function addUserToSheetIfNotExists(user) {
                 startRowIndex: newRowIndex - 1,
                 endRowIndex: newRowIndex,
                 startColumnIndex: 0,
-                endColumnIndex: 8,
+                endColumnIndex: 9,
               },
               rows: [{
                 values: newUser.map(value => ({
@@ -98,7 +98,7 @@ export async function addUserToSheetIfNotExists(user) {
                 startRowIndex: newRowIndex - 1,
                 endRowIndex: newRowIndex,
                 startColumnIndex: 5,
-                endColumnIndex: 8,
+                endColumnIndex: 9,
               },
               cell: {
                 dataValidation: {
@@ -216,20 +216,49 @@ export async function appendValuesToSheet(sheetName, values) {
 }
 
 // Função para atualizar uma linha específica da planilha
-export async function updateSheetRow(sheetName, rowIndex, values) {
+export async function updateSheetRow(sheetName, rowIndex, newValues) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    await sheets.spreadsheets.values.update({
+    // Buscar os valores atuais da linha
+    const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: `${sheetName}!A${rowIndex}:H${rowIndex}`,
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: [values] },
+      range: `${sheetName}!A${rowIndex}:I${rowIndex}`,  // Obtendo toda a linha do usuário
     });
 
-    // Invalidar cache relacionado
-    cache.delete(`sheet_${sheetName}_A:H`);
+    const currentValues = response.data.values ? response.data.values[0] : null;
+
+    // Comparar com os novos valores
+    if (currentValues) {
+      let hasChanges = false;
+
+      for (let i = 0; i < newValues.length; i++) {
+        if (currentValues[i] !== newValues[i]) {
+          hasChanges = true;
+          break;
+        }
+      }
+
+      // Se não houver alterações, não atualize a planilha nem o cache
+      if (!hasChanges) {
+        console.log('Nenhuma mudança detectada, não é necessário atualizar.');
+        return;
+      }
+    }
+
+    // Se houver alterações, então proceda com a atualização
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: sheetId,
+      range: `${sheetName}!A${rowIndex}:I${rowIndex}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: [newValues] },
+    });
+
+    // Atualizar o cache somente se houver alterações
+    const cacheKey = `user_${newValues[2]}`;  // Supondo que o email esteja na posição 2
+    cache.set(cacheKey, newValues, CACHE_TIMES.USERS);
+
   } catch (error) {
     console.error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}:`, error);
     throw new Error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}.`);

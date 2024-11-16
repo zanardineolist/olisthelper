@@ -42,10 +42,6 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  if (req.nextUrl.pathname.startsWith('/remote') && !allowedRoles.includes(token.role)) {
-    return NextResponse.redirect(new URL('/', req.url));
-  }
-
   // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
   const response = NextResponse.next();
   response.cookies.set('user-id', token.id);
@@ -64,8 +60,7 @@ export const config = {
     '/dashboard-super',
     '/profile-analyst',
     '/manager',
-    '/remote',
-    '/api/manage-category',
-    '/admin-notifications',
+    '/api/manage-category', // Incluindo a rota do handler manage-category.js
+    '/admin-notifications', // Incluindo a página de notificações administrativas
   ],
 };
