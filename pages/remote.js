@@ -54,19 +54,25 @@ export default function RemotePage({ user }) {
   const [records, setRecords] = useState([]);
   const router = useRouter();
 
+  // Determinar quais abas exibir com base no papel do usuário e permissões
+  const showAllRecordsTab = user.role === 'super';
+  const showFormAndUserRecordsTabs = user.remoto;
+
   useEffect(() => {
-    const loadRecords = async () => {
-      try {
-        const res = await fetch(`/api/get-remote-records?userId=${user.id}`);
-        if (!res.ok) throw new Error('Erro ao carregar registros');
-        const data = await res.json();
-        setRecords(data.records);
-      } catch (err) {
-        console.error('Erro ao carregar registros:', err);
-      }
-    };
-    loadRecords();
-  }, [user.id]);
+    if (showFormAndUserRecordsTabs) {
+      const loadRecords = async () => {
+        try {
+          const res = await fetch(`/api/get-remote-records?userId=${user.id}`);
+          if (!res.ok) throw new Error('Erro ao carregar registros');
+          const data = await res.json();
+          setRecords(data.records);
+        } catch (err) {
+          console.error('Erro ao carregar registros:', err);
+        }
+      };
+      loadRecords();
+    }
+  }, [user.id, showFormAndUserRecordsTabs]);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
@@ -164,10 +170,6 @@ export default function RemotePage({ user }) {
     </table>
   );
 
-  if (currentTab === 2 && user.role !== 'super') {
-    return <div>Acesso restrito ao perfil \"Super\"</div>;
-  }
-
   return (
     <>
       <Head>
@@ -179,14 +181,18 @@ export default function RemotePage({ user }) {
       <main className={styles.main}>
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
-            <Tab label="Formulário" />
-            <Tab label="Meus Registros" />
-            {user.role === 'super' && <Tab label="Todos os Registros" />}
+            {showFormAndUserRecordsTabs && (
+              <>
+                <Tab label="Formulário" />
+                <Tab label="Meus Registros" />
+              </>
+            )}
+            {showAllRecordsTab && <Tab label="Todos os Registros" />}
           </Tabs>
         </ThemeProvider>
 
         <div className={styles.tabContent}>
-          {currentTab === 0 && (
+          {showFormAndUserRecordsTabs && currentTab === 0 && (
             <form onSubmit={handleSubmit} className={styles.formContainer}>
               <div className={styles.formGroup}>
                 <label htmlFor="datetime">Data e Hora</label>
@@ -245,8 +251,8 @@ export default function RemotePage({ user }) {
               </div>
             </form>
           )}
-          {currentTab === 1 && renderDashboard(records.filter(record => record.userName === user.name))}
-          {currentTab === 2 && user.role === 'super' && renderDashboard(records)}
+          {showFormAndUserRecordsTabs && currentTab === 1 && renderDashboard(records.filter(record => record.userName === user.name))}
+          {showAllRecordsTab && currentTab === (showFormAndUserRecordsTabs ? 2 : 0) && renderDashboard(records)}
         </div>
       </main>
 
@@ -266,12 +272,18 @@ export async function getServerSideProps(context) {
     };
   }
 
+  // Fetch user permissions from Google Sheets
+  const userRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/get-users`);
+  const userData = await userRes.json();
+  const currentUser = userData.users.find(user => user.id === session.id);
+
   return {
     props: {
       user: {
         ...session.user,
         role: session.role,
         id: session.id,
+        remoto: currentUser?.remoto || false,
       },
     },
   };
