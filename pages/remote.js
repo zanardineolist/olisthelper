@@ -1,3 +1,4 @@
+import { getSession } from 'next-auth/react'; // Importando getSession corretamente
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
@@ -41,6 +42,61 @@ const theme = createTheme({
     },
   },
 });
+
+export async function getServerSideProps(context) {
+  // Obtém a sessão do usuário autenticado
+  const session = await getSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  try {
+    const apiUrl = process.env.NEXTAUTH_URL || '';
+    if (!apiUrl) {
+      throw new Error('NEXTAUTH_URL não está definida.');
+    }
+
+    // Fetch user permissions from Google Sheets
+    const userRes = await fetch(`${apiUrl}/api/get-users`);
+    if (!userRes.ok) {
+      throw new Error(`Erro ao buscar usuários: ${userRes.statusText}`);
+    }
+    
+    const userData = await userRes.json();
+    const currentUser = userData.users.find(user => user.id === session.id);
+
+    if (!currentUser) {
+      throw new Error('Usuário não encontrado.');
+    }
+
+    // Definir as permissões do usuário
+    const hasRemoto = currentUser?.hasRemoto;
+
+    return {
+      props: {
+        user: {
+          ...session.user,
+          role: currentUser.role,
+          id: currentUser.id,
+          hasRemoto,
+        },
+      },
+    };
+  } catch (error) {
+    console.error('Erro ao obter dados do usuário:', error);
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+}
 
 export default function RemotePage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
