@@ -299,7 +299,7 @@ export default function RemotePage({ user }) {
 export async function getServerSideProps(context) {
   const session = await getSession(context);
   
-  if (!session || (!session.remoteAccess && session.role !== 'super')) {
+  if (!session || (!session.remoteAccess || session.remoteAccess !== 'Sim') && session.role !== 'super') {
     return {
       redirect: {
         destination: '/',
@@ -316,7 +316,7 @@ export async function getServerSideProps(context) {
         id: session.id,
         name: session.user.name,
         email: session.user.email,
-        remoteAccess: session.remoteAccess === true || session.remoteAccess === 'VERDADEIRO' || session.remoteAccess === 'verdadeiro',
+        remoteAccess: session.remoteAccess,
       },
     },
   };

@@ -11,8 +11,7 @@ export default async function handler(req, res) {
 
     if (rows && rows.length > 0) {
       const users = rows.map(row => {
-        const remoteAccessRaw = row[8]?.toString().toLowerCase();
-        const remoteAccess = remoteAccessRaw === 'sim';
+        const remoteAccess = row[8]?.toString().toLowerCase() === 'sim' ? 'Sim' : 'Não';
       
         return {
           id: row[0],
@@ -21,7 +20,7 @@ export default async function handler(req, res) {
           role: row[3],
           remoteAccess: remoteAccess,
         };
-      });      
+      });       
 
       // Log para depuração dos usuários carregados
       console.log("Usuários carregados:", users);
