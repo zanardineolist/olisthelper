@@ -16,27 +16,6 @@ export default function Navbar({ user }) {
   const router = useRouter();
   const notificationRef = useRef(null);
   const navbarRef = useRef(null);
-  const [remoteAccessAllowed, setRemoteAccessAllowed] = useState(false);
-
-  useEffect(() => {
-    const fetchPermissions = async () => {
-      try {
-        const res = await fetch(`/api/get-users`);
-        if (!res.ok) throw new Error('Erro ao buscar permissões dos usuários');
-        
-        const { users } = await res.json();
-        const currentUser = users.find(u => u.email === user.email);
-        
-        if (currentUser) {
-          setRemoteAccessAllowed(currentUser.remoteAccess === 'Sim');
-        }
-      } catch (err) {
-        console.error('Erro ao buscar permissões do usuário:', err);
-      }
-    };
-
-    fetchPermissions();
-  }, [user.email]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -225,20 +204,13 @@ export default function Navbar({ user }) {
             </button>
           )}
           {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
-            <>
-              <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
-                Gerenciador
-              </button>
-              {remoteAccessAllowed && (
-                <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
-                  Remote
-                </button>
-              )}
-            </>
+            <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
+              Gerenciador
+            </button>
           )}
           {user.role === 'dev' && (
             <button onClick={() => handleNavigation('/admin-notifications')} className={styles.menuButton}>
-              Notificações
+              Admin Notificações
             </button>
           )}
           <button onClick={() => signOut({ callbackUrl: '/' })} className={`${styles.menuButton} ${styles.logoutButton}`}>
