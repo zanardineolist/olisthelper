@@ -216,49 +216,21 @@ export async function appendValuesToSheet(sheetName, values) {
 }
 
 // Função para atualizar uma linha específica da planilha
-export async function updateSheetRow(sheetName, rowIndex, newValues) {
+export async function updateSheetRow(sheetName, rowIndex, values) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    // Buscar os valores atuais da linha
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: `${sheetName}!A${rowIndex}:I${rowIndex}`,  // Obtendo toda a linha do usuário
-    });
-
-    const currentValues = response.data.values ? response.data.values[0] : null;
-
-    // Comparar com os novos valores
-    if (currentValues) {
-      let hasChanges = false;
-
-      for (let i = 0; i < newValues.length; i++) {
-        if (currentValues[i] !== newValues[i]) {
-          hasChanges = true;
-          break;
-        }
-      }
-
-      // Se não houver alterações, não atualize a planilha nem o cache
-      if (!hasChanges) {
-        console.log('Nenhuma mudança detectada, não é necessário atualizar.');
-        return;
-      }
-    }
-
-    // Se houver alterações, então proceda com a atualização
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
-      range: `${sheetName}!A${rowIndex}:I${rowIndex}`,
+      range: `${sheetName}!A${rowIndex}:H${rowIndex}`,
       valueInputOption: 'USER_ENTERED',
-      resource: { values: [newValues] },
+      resource: { values: [values] },
     });
 
-    // Atualizar o cache somente se houver alterações
-    const cacheKey = `user_${newValues[2]}`;  // Supondo que o email esteja na posição 2
-    cache.set(cacheKey, newValues, CACHE_TIMES.USERS);
-
+    // Atualizar o cache relacionado diretamente após a modificação
+    const cacheKey = `user_${values[2]}`;
+    cache.set(cacheKey, values, CACHE_TIMES.USERS);
   } catch (error) {
     console.error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}:`, error);
     throw new Error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}.`);
