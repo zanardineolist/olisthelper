@@ -273,10 +273,10 @@ export async function getServerSideProps(context) {
     }
   
     try {
-      // Verifica se a URL do API está definida
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      // Usa a variável NEXTAUTH_URL que já está definida no ambiente Vercel
+      const apiUrl = process.env.NEXTAUTH_URL || '';
       if (!apiUrl) {
-        throw new Error('NEXT_PUBLIC_API_URL não está definida.');
+        throw new Error('NEXTAUTH_URL não está definida.');
       }
   
       // Fetch user permissions from Google Sheets
