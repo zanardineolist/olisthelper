@@ -8,6 +8,10 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
+  // Declarar `analystRoles` antes do uso
+  const analystRoles = ['analyst', 'tax'];
+  const allowedRoles = [...analystRoles, 'super', 'dev'];
+
   // Buscar as permissões do usuário a partir da API (dados do Google Sheets)
   const response = await fetch(`${req.nextUrl.origin}/api/get-users?id=${token.id}`);
   const userData = await response.json();
