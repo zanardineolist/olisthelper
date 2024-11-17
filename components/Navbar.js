@@ -203,7 +203,7 @@ export default function Navbar({ user }) {
               Dashboard
             </button>
           )}
-          {(user.permissions.manageUsers || user.permissions.manageCategories || user.permissions.manageRecords) && (
+          {user.permissions && (user.permissions.manageUsers || user.permissions.manageCategories || user.permissions.manageRecords) && (
             <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
               Gerenciador
             </button>
