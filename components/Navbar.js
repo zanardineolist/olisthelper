@@ -1,16 +1,14 @@
 import Link from 'next/link';
 import styles from '../styles/Navbar.module.css';
-import { useState, useEffect, useRef, useContext } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { UserContext } from '../context/UserContext'; // Importar o contexto do usuário
 
-export default function Navbar() {
-  const { user, loading } = useContext(UserContext);
+export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
   const [notifications, setNotifications] = useState([]);
@@ -46,8 +44,6 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    if (!user || loading) return;
-
     const loadNotifications = async () => {
       try {
         if (['analyst', 'tax', 'super'].includes(user.role)) {
@@ -67,7 +63,7 @@ export default function Navbar() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [user, loading]);
+  }, [user.id, user.role]);
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -111,14 +107,6 @@ export default function Navbar() {
 
     return formatDistanceToNow(notificationTime, { addSuffix: true, locale: ptBR });
   };
-
-  if (loading) {
-    return <div>Carregando...</div>;
-  }
-
-  if (!user) {
-    return null; // Pode redirecionar o usuário para a página de login se necessário
-  }
 
   return (
     <nav ref={navbarRef} className={styles.navbar}>
@@ -215,7 +203,7 @@ export default function Navbar() {
               Dashboard
             </button>
           )}
-          {user.permissions && (user.permissions.manageUsers || user.permissions.manageCategories || user.permissions.manageRecords) && (
+          {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
             <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
               Gerenciador
             </button>

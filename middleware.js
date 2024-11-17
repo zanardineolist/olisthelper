@@ -8,13 +8,16 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
+  // Ajustar os papéis permitidos
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super', 'dev'];
 
+  // Se o usuário tentar acessar '/profile-analyst', e já tiver o papel correto, não redirecionar novamente
   if (req.nextUrl.pathname.startsWith('/profile-analyst') && analystRoles.includes(token.role)) {
     return NextResponse.next();
   }
 
+  // Redirecionar caso o papel do usuário não tenha acesso à rota específica
   if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && !allowedRoles.includes(token.role)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
@@ -31,25 +34,21 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  if (req.nextUrl.pathname.startsWith('/manager')) {
-    const permissions = token.permissions || {};
-
-    if (!(permissions.manageUsers || permissions.manageCategories || permissions.manageRecords)) {
-      return NextResponse.redirect(new URL('/', req.url));
-    }
+  if (req.nextUrl.pathname.startsWith('/manager') && !allowedRoles.includes(token.role)) {
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   if (req.nextUrl.pathname.startsWith('/admin-notifications') && token.role !== 'dev') {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  const nextResponse = NextResponse.next();
-  nextResponse.cookies.set('user-id', token.id);
-  nextResponse.cookies.set('user-name', token.name);
-  nextResponse.cookies.set('user-role', token.role);
-  nextResponse.cookies.set('permissions', JSON.stringify(token.permissions));
+  // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
+  const response = NextResponse.next();
+  response.cookies.set('user-id', token.id);
+  response.cookies.set('user-name', token.name);
+  response.cookies.set('user-role', token.role);
 
-  return nextResponse;
+  return response;
 }
 
 export const config = {
@@ -61,7 +60,7 @@ export const config = {
     '/dashboard-super',
     '/profile-analyst',
     '/manager',
-    '/api/manage-category',
-    '/admin-notifications',
+    '/api/manage-category', // Incluindo a rota do handler manage-category.js
+    '/admin-notifications', // Incluindo a página de notificações administrativas
   ],
 };
