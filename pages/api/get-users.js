@@ -1,35 +1,34 @@
-import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
+import { getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Método não permitido' });
   }
 
   try {
     const sheets = await getAuthenticatedGoogleSheets();
-    const rows = await getSheetValues('Usuários', 'A2:L');
+    const rows = await sheets.getRows();
 
-    if (rows && rows.length > 0) {
-      const users = rows.map(row => ({
-        id: row[0],
-        name: row[1],
-        email: row[2],
-        role: row[3],
-        squad: row[4] || null,
-        chamado: row[5] === 'TRUE',
-        telefone: row[6] === 'TRUE',
-        chat: row[7] === 'TRUE',
-        remoto: row[8] === 'TRUE',
-        manageUsers: row[9] === 'TRUE',
-        manageCategories: row[10] === 'TRUE',
-        manageRecords: row[11] === 'TRUE',
-      }));
-      return res.status(200).json({ users });
+    const userRow = rows.find(row => row.id === req.query.id);
+
+    if (!userRow) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
-    return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
+    const userData = {
+      id: userRow.id,
+      name: userRow.name,
+      role: userRow.role,
+      permissions: {
+        manageUsers: userRow.manageUsers === 'TRUE',
+        manageCategories: userRow.manageCategories === 'TRUE',
+        manageRecords: userRow.manageRecords === 'TRUE',
+      }
+    };
+
+    return res.status(200).json(userData);
   } catch (error) {
-    console.error('Erro ao buscar usuários:', error);
-    return res.status(500).json({ error: 'Erro ao buscar usuários. Verifique suas credenciais e a configuração do Google Sheets.' });
+    console.error('Erro ao buscar usuário:', error);
+    return res.status(500).json({ error: 'Erro ao buscar usuário' });
   }
 }
