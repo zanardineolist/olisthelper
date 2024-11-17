@@ -11,12 +11,13 @@ export const UserProvider = ({ children }) => {
       try {
         const res = await fetch('/api/get-user');
         if (!res.ok) {
-          throw new Error('Erro ao buscar usuário');
+          throw new Error(`Erro ao buscar usuário: ${res.status} ${res.statusText}`);
         }
         const userData = await res.json();
         setUser(userData);
       } catch (err) {
-        console.error('Erro ao buscar usuário:', err);
+        console.error('Erro ao buscar usuário:', err.message);
+        setUser(null); // Definir usuário como null em caso de erro
       } finally {
         setLoading(false);
       }
