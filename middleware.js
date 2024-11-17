@@ -23,6 +23,8 @@ export async function middleware(req) {
     manageRecords: userData.manageRecords === 'TRUE',
   };
 
+  console.log('Permissões do Usuário:', token.permissions);
+
   // Se o usuário tentar acessar '/profile-analyst', e já tiver o papel correto, não redirecionar novamente
   if (req.nextUrl.pathname.startsWith('/profile-analyst') && analystRoles.includes(token.role)) {
     return NextResponse.next();
@@ -45,6 +47,7 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
+  // Verificar se o acesso à rota "manager" está autorizado
   if (req.nextUrl.pathname.startsWith('/manager')) {
     const { manageUsers, manageCategories, manageRecords } = token.permissions;
 

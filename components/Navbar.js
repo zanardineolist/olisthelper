@@ -203,10 +203,12 @@ export default function Navbar({ user }) {
               Dashboard
             </button>
           )}
-          {user.permissions && (user.permissions.manageUsers || user.permissions.manageCategories || user.permissions.manageRecords) && (
+          {user.permissions && (user.permissions.manageUsers || user.permissions.manageCategories || user.permissions.manageRecords) ? (
             <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
               Gerenciador
             </button>
+          ) : (
+            console.log('Permissões indisponíveis ou não configuradas para acessar o Gerenciador')
           )}
           {user.role === 'dev' && (
             <button onClick={() => handleNavigation('/admin-notifications')} className={styles.menuButton}>
