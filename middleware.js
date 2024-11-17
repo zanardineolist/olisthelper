@@ -8,9 +8,16 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/profile', req.url));
   }
 
-  // Ajustar os papéis permitidos
-  const analystRoles = ['analyst', 'tax'];
-  const allowedRoles = [...analystRoles, 'super', 'dev'];
+  // Buscar as permissões do usuário a partir da API (dados do Google Sheets)
+  const response = await fetch(`${req.nextUrl.origin}/api/get-users?id=${token.id}`);
+  const userData = await response.json();
+
+  // Adicionar permissões do Google Sheets ao token
+  token.permissions = {
+    manageUsers: userData.manageUsers === 'TRUE',
+    manageCategories: userData.manageCategories === 'TRUE',
+    manageRecords: userData.manageRecords === 'TRUE',
+  };
 
   // Se o usuário tentar acessar '/profile-analyst', e já tiver o papel correto, não redirecionar novamente
   if (req.nextUrl.pathname.startsWith('/profile-analyst') && analystRoles.includes(token.role)) {
@@ -34,8 +41,13 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  if (req.nextUrl.pathname.startsWith('/manager') && !allowedRoles.includes(token.role)) {
-    return NextResponse.redirect(new URL('/', req.url));
+  if (req.nextUrl.pathname.startsWith('/manager')) {
+    const { manageUsers, manageCategories, manageRecords } = token.permissions;
+
+    // Verificar se há pelo menos uma permissão para acessar a página "manager"
+    if (!(manageUsers || manageCategories || manageRecords)) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
   }
 
   if (req.nextUrl.pathname.startsWith('/admin-notifications') && token.role !== 'dev') {
@@ -43,12 +55,13 @@ export async function middleware(req) {
   }
 
   // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
-  const response = NextResponse.next();
-  response.cookies.set('user-id', token.id);
-  response.cookies.set('user-name', token.name);
-  response.cookies.set('user-role', token.role);
+  const nextResponse = NextResponse.next();
+  nextResponse.cookies.set('user-id', token.id);
+  nextResponse.cookies.set('user-name', token.name);
+  nextResponse.cookies.set('user-role', token.role);
+  nextResponse.cookies.set('permissions', JSON.stringify(token.permissions));
 
-  return response;
+  return nextResponse;
 }
 
 export const config = {
@@ -60,7 +73,7 @@ export const config = {
     '/dashboard-super',
     '/profile-analyst',
     '/manager',
-    '/api/manage-category', // Incluindo a rota do handler manage-category.js
-    '/admin-notifications', // Incluindo a página de notificações administrativas
+    '/api/manage-category',
+    '/admin-notifications',
   ],
 };

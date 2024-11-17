@@ -1,5 +1,3 @@
-import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
-
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -7,7 +5,7 @@ export default async function handler(req, res) {
 
   try {
     const sheets = await getAuthenticatedGoogleSheets();
-    const rows = await getSheetValues('Usuários', 'A2:I');
+    const rows = await getSheetValues('Usuários', 'A2:L');
 
     if (rows && rows.length > 0) {
       const users = rows.map(row => ({
@@ -20,6 +18,9 @@ export default async function handler(req, res) {
         telefone: row[6] === 'TRUE',
         chat: row[7] === 'TRUE',
         remoto: row[8] === 'TRUE',
+        manageUsers: row[9] === 'TRUE',
+        manageCategories: row[10] === 'TRUE',
+        manageRecords: row[11] === 'TRUE',
       }));
       return res.status(200).json({ users });
     }

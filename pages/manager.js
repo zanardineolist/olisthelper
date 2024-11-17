@@ -54,16 +54,20 @@ export default function ManagerPage({ user }) {
     setLoading(true);
     setTimeout(() => {
       const hash = window.location.hash;
-      if (hash === '#Usuarios') {
+      if (hash === '#Usuarios' && user.permissions.manageUsers) {
         setCurrentTab(0);
-      } else if (hash === '#Categorias') {
+      } else if (hash === '#Categorias' && user.permissions.manageCategories) {
         setCurrentTab(1);
-      } else if (hash === '#Registros' && (user.role === 'analyst' || user.role === 'tax')) {
+      } else if (
+        hash === '#Registros' &&
+        user.permissions.manageRecords &&
+        user.role !== 'super'
+      ) {
         setCurrentTab(2);
       }
       setLoading(false);
     }, 500);
-  }, [user.role]);
+  }, [user.permissions, user.role]);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
@@ -103,18 +107,18 @@ export default function ManagerPage({ user }) {
       <main className={styles.main}>
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
-            <Tab label="Gerenciar Usuários" />
-            <Tab label="Gerenciar Categorias" />
-            {(user.role === 'analyst' || user.role === 'tax') && (
+            {user.permissions.manageUsers && <Tab label="Gerenciar Usuários" />}
+            {user.permissions.manageCategories && <Tab label="Gerenciar Categorias" />}
+            {user.permissions.manageRecords && user.role !== 'super' && (
               <Tab label="Gerenciar Registros" />
             )}
           </Tabs>
         </ThemeProvider>
 
         <div className={styles.tabContent}>
-          {currentTab === 0 && <ManageUsers user={user} />}
-          {currentTab === 1 && <ManageCategories user={user} />}
-          {currentTab === 2 && (user.role === 'analyst' || user.role === 'tax') && (
+          {currentTab === 0 && user.permissions.manageUsers && <ManageUsers user={user} />}
+          {currentTab === 1 && user.permissions.manageCategories && <ManageCategories user={user} />}
+          {currentTab === 2 && user.permissions.manageRecords && user.role !== 'super' && (
             <ManageRecords user={user} />
           )}
         </div>
