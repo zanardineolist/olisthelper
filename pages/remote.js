@@ -54,14 +54,18 @@ export default function RemotePage({ user }) {
   const [formData, setFormData] = useState({
     chamado: '',
     tema: null,
+    description: '',
   });
   const [userRecords, setUserRecords] = useState([]);
   const [allRecords, setAllRecords] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     if (user.role === 'support+') loadUserRecords();
     if (user.role === 'super') loadAllRecords();
+    setLoading(false);
   }, [user.role]);
 
   const loadUserRecords = async () => {
@@ -113,14 +117,12 @@ export default function RemotePage({ user }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     if (!formData.tema || !formData.chamado) {
       Swal.fire('Erro', 'Todos os campos são obrigatórios.', 'error');
+      setSubmitting(false);
       return;
     }
-
-    const date = new Date();
-    const formattedDate = date.toLocaleDateString('pt-BR');
-    const formattedTime = date.toLocaleTimeString('pt-BR');
 
     try {
       const response = await fetch('/api/remote-record', {
@@ -129,26 +131,36 @@ export default function RemotePage({ user }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          date: formattedDate,
-          time: formattedTime,
-          name: user.name,
           chamado: formData.chamado,
           tema: formData.tema.value,
+          description: formData.description,
+          name: user.name,
+          email: user.email,
         }),
       });
 
       if (response.ok) {
         Swal.fire('Sucesso', 'Registro adicionado com sucesso.', 'success');
-        setFormData({ chamado: '', tema: null });
-        loadUserRecords(); // Atualizar os registros
+        setFormData({ chamado: '', tema: null, description: '' });
+        loadUserRecords();
       } else {
         Swal.fire('Erro', 'Falha ao adicionar registro. Tente novamente.', 'error');
       }
     } catch (error) {
       console.error('Erro ao adicionar registro:', error);
       Swal.fire('Erro', 'Falha ao adicionar registro. Tente novamente.', 'error');
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className={styles.loaderOverlay}>
+        <div className={styles.loader}></div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -169,92 +181,120 @@ export default function RemotePage({ user }) {
 
         {currentTab === 0 && user.role === 'support+' && (
           <div className={styles.formContainer}>
-            <h2>Registrar Acesso</h2>
+            <h2 className={styles.formTitle}>Registrar Acesso Remoto</h2>
             <form onSubmit={handleSubmit}>
-              <label>Data e Hora</label>
-              <p>{new Date().toLocaleString('pt-BR')}</p>
+              <div className={styles.formGroup}>
+                <label htmlFor="chamado">Número do Chamado</label>
+                <input
+                  type="text"
+                  id="chamado"
+                  name="chamado"
+                  value={formData.chamado}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.inputField}
+                />
+              </div>
 
-              <label>Nome</label>
-              <p>{user.name}</p>
+              <div className={styles.formGroup}>
+                <label htmlFor="tema">Tema</label>
+                <Select
+                  id="tema"
+                  name="tema"
+                  options={temaOptions}
+                  value={formData.tema}
+                  onChange={handleSelectChange}
+                  isClearable
+                  placeholder="Selecione um tema"
+                  classNamePrefix="react-select"
+                  required
+                />
+              </div>
 
-              <label>Número do Chamado</label>
-              <input
-                type="text"
-                name="chamado"
-                value={formData.chamado}
-                onChange={handleInputChange}
-                required
-              />
+              <div className={styles.formGroup}>
+                <label htmlFor="description">Descrição</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Descreva brevemente o atendimento."
+                  required
+                  rows="4"
+                  className={styles.inputField}
+                />
+              </div>
 
-              <label>Tema</label>
-              <Select
-                options={temaOptions}
-                value={formData.tema}
-                onChange={handleSelectChange}
-                placeholder="Selecione um tema"
-                required
-              />
-
-              <button type="submit" disabled={loading}>
-                {loading ? 'Salvando...' : 'Salvar'}
-              </button>
+              <div className={styles.formButtonContainer}>
+                <button type="submit" className={styles.submitButton} disabled={submitting}>
+                  {submitting ? 'Registrando...' : 'Registrar'}
+                </button>
+              </div>
             </form>
           </div>
         )}
 
         {currentTab === 1 && user.role === 'support+' && (
-          <div className={styles.dashboard}>
-            <h2>Meus Registros</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Hora</th>
-                  <th>Nome</th>
-                  <th>Chamado</th>
-                  <th>Tema</th>
-                </tr>
-              </thead>
-              <tbody>
-                {userRecords.map((record, index) => (
-                  <tr key={index}>
-                    <td>{record[0]}</td>
-                    <td>{record[1]}</td>
-                    <td>{record[2]}</td>
-                    <td>{record[3]}</td>
-                    <td>{record[4]}</td>
+          <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+            <h2 className={styles.cardTitle}>Meus Registros</h2>
+            <div className={styles.recordsTable}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Nome</th>
+                    <th>Chamado</th>
+                    <th>Tema</th>
+                    <th>Descrição</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {userRecords.map((record, index) => (
+                    <tr key={index}>
+                      <td>{record[0]}</td>
+                      <td>{record[1]}</td>
+                      <td>{record[2]}</td>
+                      <td>{record[3]}</td>
+                      <td>{record[4]}</td>
+                      <td>{record[5]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {currentTab === 2 && user.role === 'super' && (
-          <div className={styles.dashboard}>
-            <h2>Registros Gerais</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Hora</th>
-                  <th>Nome</th>
-                  <th>Chamado</th>
-                  <th>Tema</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allRecords.map((record, index) => (
-                  <tr key={index}>
-                    <td>{record[0]}</td>
-                    <td>{record[1]}</td>
-                    <td>{record[2]}</td>
-                    <td>{record[3]}</td>
-                    <td>{record[4]}</td>
+          <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+            <h2 className={styles.cardTitle}>Registros Gerais</h2>
+            <div className={styles.recordsTable}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Nome</th>
+                    <th>Chamado</th>
+                    <th>Tema</th>
+                    <th>Descrição</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {allRecords.map((record, index) => (
+                    <tr key={index}>
+                      <td>{record[0]}</td>
+                      <td>{record[1]}</td>
+                      <td>{record[2]}</td>
+                      <td>{record[3]}</td>
+                      <td>{record[4]}</td>
+                      <td>{record[5]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </main>
@@ -282,6 +322,8 @@ export async function getServerSideProps(context) {
         ...session.user,
         role: session.role,
         id: session.id,
+        name: session.user.name,
+        email: session.user.email,
       },
     },
   };
