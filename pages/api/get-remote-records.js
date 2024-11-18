@@ -10,6 +10,7 @@ export default async function handler(req, res) {
   try {
     // Obter todos os registros
     const records = await getSheetValues('Remoto', 'A:G');
+    console.log('Registros obtidos do Google Sheets:', records);
 
     // Converter registros em datas baseadas no horário de Brasília
     const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
@@ -30,15 +31,18 @@ export default async function handler(req, res) {
     let filteredRecords = records;
     if (userEmail) {
       filteredRecords = records.filter(record => record[3] === userEmail);
+      console.log(`Registros filtrados para o usuário ${userEmail}:`, filteredRecords);
     }
 
     // Retornar registros do mês atual se solicitado
     if (filterByMonth === 'true') {
       const monthRecords = filteredRecords.filter(isFromCurrentMonth);
+      console.log('Registros do mês atual:', monthRecords);
       return res.status(200).json({ monthRecords, allRecords: filteredRecords });
     }
 
     // Caso contrário, retornar todos os registros
+    console.log('Todos os registros:', filteredRecords);
     return res.status(200).json({ allRecords: filteredRecords });
   } catch (error) {
     console.error('Erro ao buscar registros:', error);
