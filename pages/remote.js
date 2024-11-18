@@ -118,7 +118,8 @@ export default function RemotePage({ user }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    if (!formData.tema || !formData.chamado) {
+
+    if (!formData.tema || !formData.chamado || !formData.description) {
       Swal.fire('Erro', 'Todos os campos são obrigatórios.', 'error');
       setSubmitting(false);
       return;
@@ -131,11 +132,13 @@ export default function RemotePage({ user }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          date: new Date().toLocaleDateString('pt-BR'),
+          time: new Date().toLocaleTimeString('pt-BR'),
+          name: user.name,
+          email: user.email,
           chamado: formData.chamado,
           tema: formData.tema.value,
           description: formData.description,
-          name: user.name,
-          email: user.email,
         }),
       });
 
@@ -144,7 +147,8 @@ export default function RemotePage({ user }) {
         setFormData({ chamado: '', tema: null, description: '' });
         loadUserRecords();
       } else {
-        Swal.fire('Erro', 'Falha ao adicionar registro. Tente novamente.', 'error');
+        const errorData = await response.json();
+        Swal.fire('Erro', `Falha ao adicionar registro: ${errorData.error}`, 'error');
       }
     } catch (error) {
       console.error('Erro ao adicionar registro:', error);
@@ -207,6 +211,7 @@ export default function RemotePage({ user }) {
                   isClearable
                   placeholder="Selecione um tema"
                   classNamePrefix="react-select"
+                  className={styles.reactSelect}
                   required
                 />
               </div>
@@ -221,7 +226,7 @@ export default function RemotePage({ user }) {
                   placeholder="Descreva brevemente o atendimento."
                   required
                   rows="4"
-                  className={styles.inputField}
+                  className={styles.formTextarea}
                 />
               </div>
 
