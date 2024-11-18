@@ -89,12 +89,12 @@ export default async function handler(req, res) {
     const userProfile = userRow[3]?.toLowerCase();
 
     // Verificar se o perfil do usuário é "support", "analyst" ou "tax"
-    if (!['support', 'analyst', 'tax'].includes(userProfile)) {
+    if (!['support', 'support+', 'analyst', 'tax'].includes(userProfile)) {
       return res.status(403).json({ error: 'Usuário não autorizado a visualizar os dados de desempenho.' });
     }
 
     const squad = userRow[4];
-    const hasChamado = (userProfile === 'support' || userProfile === 'tax') ? userRow[5] === 'TRUE' : true;
+    const hasChamado = (userProfile === 'support' || user.role ==='support+' || userProfile === 'tax') ? userRow[5] === 'TRUE' : true;
     const hasTelefone = userRow[6] === 'TRUE';
     const hasChat = userRow[7] === 'TRUE';
 

@@ -180,7 +180,7 @@ export default function Navbar({ user }) {
 
       {menuOpen && (
         <div className={styles.menu}>
-          {user.role === 'support' && (
+          {user.role === 'support' || user.role ==='support+' && (
             <button onClick={() => handleNavigation('/profile')} className={styles.menuButton}>
               Meu Perfil
             </button>
