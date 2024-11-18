@@ -208,6 +208,11 @@ export default function Navbar({ user }) {
               Gerenciador
             </button>
           )}
+          {(user.role === 'support+' || user.role === 'super') && (
+            <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
+              Acesso Remoto
+            </button>
+          )}
           {user.role === 'dev' && (
             <button onClick={() => handleNavigation('/admin-notifications')} className={styles.menuButton}>
               Admin Notificações
