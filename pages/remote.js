@@ -364,7 +364,7 @@ export default function RemotePage({ user }) {
                               </tr>
                             </thead>
                             <tbody>
-                              {allRecords.map((record, index) => (
+                              {userRecords.map((record, index) => (
                                 <tr key={index}>
                                   <td>{record[0]}</td>
                                   <td>{record[1]}</td>
