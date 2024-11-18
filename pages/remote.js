@@ -155,6 +155,7 @@ export default function RemotePage({ user }) {
         const data = await response.json();
         setUserRecords(data.records);
         setUserMonthTotal(data.records.length);  // Atualiza o total do mês atual
+        setUserTotal(data.total);  // Atualiza o total de todos os registros
       } else {
         console.error('Erro ao buscar registros do usuário.');
       }
@@ -164,7 +165,7 @@ export default function RemotePage({ user }) {
       setLoadingRecords(false);
     }
   };
-  
+
   const loadAllRecords = async () => {
     try {
       setLoadingRecords(true);
@@ -173,6 +174,7 @@ export default function RemotePage({ user }) {
         const data = await response.json();
         setAllRecords(data.records);
         setAllMonthTotal(data.records.length);  // Atualiza o total do mês atual
+        setAllTotal(data.total);  // Atualiza o total de todos os registros
       } else {
         console.error('Erro ao buscar todos os registros.');
       }
@@ -181,7 +183,7 @@ export default function RemotePage({ user }) {
     } finally {
       setLoadingRecords(false);
     }
-  };  
+  };
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);

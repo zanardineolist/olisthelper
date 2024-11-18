@@ -8,29 +8,37 @@ export default async function handler(req, res) {
   const { userEmail, filterByMonth } = req.query;
 
   try {
+    // Obter todos os registros
     const records = await getSheetValues('Remoto', 'A:G');
 
-    let filteredRecords = records;
+    // Converter registros em datas baseadas no horário de Brasília
+    const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+    const currentMonth = new Date(today).getMonth();
+    const currentYear = new Date(today).getFullYear();
 
+    // Função para converter a string de data do registro
+    const isFromCurrentMonth = (record) => {
+      const [day, month, year] = record[0].split('/');
+      const recordDate = new Date(`${year}-${month}-${day}`);
+      return (
+        recordDate.getMonth() === currentMonth &&
+        recordDate.getFullYear() === currentYear
+      );
+    };
+
+    // Filtrar registros para um determinado usuário, se especificado
+    let filteredRecords = records;
     if (userEmail) {
       filteredRecords = records.filter(record => record[3] === userEmail);
     }
 
-    // Filtrar por mês atual baseado no horário de Brasília
+    // Retornar registros do mês atual se solicitado
     if (filterByMonth === 'true') {
-      const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-      const currentMonth = new Date(today).getMonth();
-      const currentYear = new Date(today).getFullYear();
-
-      filteredRecords = filteredRecords.filter(record => {
-        const recordDate = new Date(record[0]);
-        return (
-          recordDate.getMonth() === currentMonth &&
-          recordDate.getFullYear() === currentYear
-        );
-      });
+      const monthRecords = filteredRecords.filter(isFromCurrentMonth);
+      return res.status(200).json({ records: monthRecords, total: filteredRecords.length });
     }
 
+    // Caso contrário, retornar todos os registros
     return res.status(200).json({ records: filteredRecords });
   } catch (error) {
     console.error('Erro ao buscar registros:', error);
