@@ -153,9 +153,9 @@ export default function RemotePage({ user }) {
       const response = await fetch(`/api/get-remote-records?userEmail=${encodeURIComponent(user.email)}&filterByMonth=true`);
       if (response.ok) {
         const data = await response.json();
-        setUserRecords(data.records);
-        setUserMonthTotal(data.records.length);  // Atualiza o total do mês atual
-        setUserTotal(data.total);  // Atualiza o total de todos os registros
+        setUserRecords(data.allRecords); // Definir todos os registros para listagem
+        setUserMonthTotal(data.monthRecords.length); // Atualizar o total do mês atual
+        setUserTotal(data.allRecords.length); // Atualizar o total de registros
       } else {
         console.error('Erro ao buscar registros do usuário.');
       }
@@ -172,9 +172,9 @@ export default function RemotePage({ user }) {
       const response = await fetch('/api/get-remote-records?filterByMonth=true');
       if (response.ok) {
         const data = await response.json();
-        setAllRecords(data.records);
-        setAllMonthTotal(data.records.length);  // Atualiza o total do mês atual
-        setAllTotal(data.total);  // Atualiza o total de todos os registros
+        setAllRecords(data.allRecords); // Definir todos os registros para listagem
+        setAllMonthTotal(data.monthRecords.length); // Atualizar o total do mês atual
+        setAllTotal(data.allRecords.length); // Atualizar o total de registros
       } else {
         console.error('Erro ao buscar todos os registros.');
       }
@@ -376,108 +376,97 @@ export default function RemotePage({ user }) {
           </div>
         )}
 
+          {/* Tabelas de registros */}
           {currentTab === 1 && user.role === 'support+' && (
-                    <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-                      <h2 className={styles.cardTitle}>Meus Acessos</h2>
-                      {loadingRecords ? (
-                        <div className={styles.loadingContainer}>
-                          <div className="standardBoxLoader"></div>
-                        </div>
-                      ) : (
-                        <div className={styles.recordsTable}>
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>Data</th>
-                                <th>Hora</th>
-                                <th>Nome</th>
-                                <th>E-mail</th>
-                                <th>Chamado</th>
-                                <th>Tema</th>
-                                <th>Descrição</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {userRecords.map((record, index) => (
-                                <tr key={index}>
-                                  <td>{record[0]}</td>
-                                  <td>{record[1]}</td>
-                                  <td>{record[2]}</td>
-                                  <td style={{ display: 'none' }}>{record[3]}</td>
-                                  <td>{record[4]}</td>
-                                  <td>{record[5]}</td>
-                                  <td>
-                                    <span style={{ display: 'flex', alignItems: 'center' }}>
-                                      <span style={{ marginRight: '8px' }}>
-                                        {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
-                                      </span>
-                                      <FontAwesomeIcon
-                                        icon={faInfoCircle}
-                                        className={styles.infoIcon}
-                                        onClick={() => handleDescriptionClick(record[6])}
-                                      />
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </div>
-                  )}
+            <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+              <h2 className={styles.cardTitle}>Meus Acessos</h2>
+              <div className={styles.recordsTable}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Hora</th>
+                      <th>Nome</th>
+                      <th>E-mail</th>
+                      <th>Chamado</th>
+                      <th>Tema</th>
+                      <th>Descrição</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {userRecords.map((record, index) => (
+                      <tr key={index}>
+                        <td>{record[0]}</td>
+                        <td>{record[1]}</td>
+                        <td>{record[2]}</td>
+                        <td style={{ display: 'none' }}>{record[3]}</td>
+                        <td>{record[4]}</td>
+                        <td>{record[5]}</td>
+                        <td>
+                          <span style={{ display: 'flex', alignItems: 'center' }}>
+                            <span style={{ marginRight: '8px' }}>
+                              {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                            </span>
+                            <FontAwesomeIcon
+                              icon={faInfoCircle}
+                              className={styles.infoIcon}
+                              onClick={() => handleDescriptionClick(record[6])}
+                            />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
-                  {currentTab === 2 && user.role === 'super' && (
-                    <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-                      <h2 className={styles.cardTitle}>Acessos Realizados</h2>
-                      {loadingRecords ? (
-                        <div className={styles.loadingContainer}>
-                          <div className="standardBoxLoader"></div>
-                        </div>
-                      ) : (
-                        <div className={styles.recordsTable}>
-                          <table>
-                            <thead>
-                              <tr>
-                                <th>Data</th>
-                                <th>Hora</th>
-                                <th>Nome</th>
-                                <th>E-mail</th>
-                                <th>Chamado</th>
-                                <th>Tema</th>
-                                <th>Descrição</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {allRecords.map((record, index) => (
-                                <tr key={index}>
-                                  <td>{record[0]}</td>
-                                  <td>{record[1]}</td>
-                                  <td>{record[2]}</td>
-                                  <td style={{ display: 'none' }}>{record[3]}</td>
-                                  <td>{record[4]}</td>
-                                  <td>{record[5]}</td>
-                                  <td>
-                                    <span style={{ display: 'flex', alignItems: 'center' }}>
-                                      <span style={{ marginRight: '8px' }}>
-                                        {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
-                                      </span>
-                                      <FontAwesomeIcon
-                                        icon={faInfoCircle}
-                                        className={styles.infoIcon}
-                                        onClick={() => handleDescriptionClick(record[6])}
-                                      />
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </main>
+          {currentTab === 2 && user.role === 'super' && (
+            <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+              <h2 className={styles.cardTitle}>Acessos Realizados</h2>
+              <div className={styles.recordsTable}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Hora</th>
+                      <th>Nome</th>
+                      <th>E-mail</th>
+                      <th>Chamado</th>
+                      <th>Tema</th>
+                      <th>Descrição</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allRecords.map((record, index) => (
+                      <tr key={index}>
+                        <td>{record[0]}</td>
+                        <td>{record[1]}</td>
+                        <td>{record[2]}</td>
+                        <td style={{ display: 'none' }}>{record[3]}</td>
+                        <td>{record[4]}</td>
+                        <td>{record[5]}</td>
+                        <td>
+                          <span style={{ display: 'flex', alignItems: 'center' }}>
+                            <span style={{ marginRight: '8px' }}>
+                              {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                            </span>
+                            <FontAwesomeIcon
+                              icon={faInfoCircle}
+                              className={styles.infoIcon}
+                              onClick={() => handleDescriptionClick(record[6])}
+                            />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </main>
 
       <Footer />
     </>

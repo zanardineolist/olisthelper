@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     const currentMonth = new Date(today).getMonth();
     const currentYear = new Date(today).getFullYear();
 
-    // Função para converter a string de data do registro
+    // Função para verificar se o registro pertence ao mês atual
     const isFromCurrentMonth = (record) => {
       const [day, month, year] = record[0].split('/');
       const recordDate = new Date(`${year}-${month}-${day}`);
@@ -35,11 +35,11 @@ export default async function handler(req, res) {
     // Retornar registros do mês atual se solicitado
     if (filterByMonth === 'true') {
       const monthRecords = filteredRecords.filter(isFromCurrentMonth);
-      return res.status(200).json({ records: monthRecords, total: filteredRecords.length });
+      return res.status(200).json({ monthRecords, allRecords: filteredRecords });
     }
 
     // Caso contrário, retornar todos os registros
-    return res.status(200).json({ records: filteredRecords });
+    return res.status(200).json({ allRecords: filteredRecords });
   } catch (error) {
     console.error('Erro ao buscar registros:', error);
     res.status(500).json({ error: 'Erro ao buscar registros. Tente novamente.' });
