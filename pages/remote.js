@@ -352,6 +352,11 @@ export default function RemotePage({ user }) {
                       name="chamado"
                       value={formData.chamado}
                       onChange={handleInputChange}
+                      onKeyDown={(event) => {
+                        if (!/[0-9]/.test(event.key) && event.key !== 'Backspace' && event.key !== 'Delete' && event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+                          event.preventDefault();
+                        }
+                      }}
                       required
                       className={styles.inputField}
                       autoComplete="off"
