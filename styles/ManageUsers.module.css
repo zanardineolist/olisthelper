@@ -53,22 +53,16 @@
 .itemsTable th:nth-child(3),
 .itemsTable td:nth-child(3) {
   width: 7%; /* Chamado */
-  text-align: center; /* Centraliza o checkbox horizontalmente */
-  vertical-align: middle; /* Centraliza o checkbox verticalmente */
 }
 
 .itemsTable th:nth-child(4),
 .itemsTable td:nth-child(4) {
   width: 7%; /* Telefone */
-  text-align: center; /* Centraliza o checkbox horizontalmente */
-  vertical-align: middle; /* Centraliza o checkbox verticalmente */
 }
 
 .itemsTable th:nth-child(5),
 .itemsTable td:nth-child(5) {
   width: 7%; /* Chat */
-  text-align: center; /* Centraliza o checkbox horizontalmente */
-  vertical-align: middle; /* Centraliza o checkbox verticalmente */
 }
 
 .itemsTable th:nth-child(6),
@@ -76,24 +70,29 @@
   width: 10%; /* Ações */
 }
 
+/* Centralizar horizontalmente os valores das células específicas das colunas (checkboxes) */
+.itemsTable td:nth-child(3),
+.itemsTable td:nth-child(4),
+.itemsTable td:nth-child(5) {
+  text-align: center; /* Centraliza horizontalmente as células das colunas Chamado, Telefone, Chat */
+}
+
 /* Estilizar checkboxes */
 .itemsTable td input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  cursor: pointer;
-  appearance: none; /* Remove o estilo padrão do checkbox */
+  appearance: none;
   border: 2px solid var(--color-border);
   border-radius: 3px;
-  background-color: #1c1c1c; /* Cor de fundo quando desmarcado */
+  background-color: #1c1c1c;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
 }
 
 /* Checkbox quando marcado */
 .itemsTable td input[type="checkbox"]:checked {
-  background-color: var(--color-primary); /* Cor de fundo quando marcado */
+  background-color: var(--color-primary);
   border-color: var(--color-primary);
 }
 
