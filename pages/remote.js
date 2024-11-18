@@ -373,19 +373,21 @@ export default function RemotePage({ user }) {
                                   <td>{record[4]}</td>
                                   <td>{record[5]}</td>
                                   <td>
-                                    <span
-                                      style={{ cursor: 'pointer' }}
-                                      onClick={() => handleDescriptionClick(record[6])}
-                                    >
+                                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                                      <span style={{ marginRight: '8px' }}>
+                                        {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                                      </span>
                                       <FontAwesomeIcon
                                         icon={faInfoCircle}
                                         style={{
-                                          color: 'var(--color-primary)',
+                                          color: 'var(--color-icons)',
                                           fontSize: '1.2em',
+                                          cursor: 'pointer',
                                           transition: 'color 0.3s ease',
                                         }}
-                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-primary-hover)'}
-                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-primary)'}
+                                        onClick={() => handleDescriptionClick(record[6])}
+                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-primary)'}
+                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-icons)'}
                                       />
                                     </span>
                                   </td>
@@ -429,19 +431,21 @@ export default function RemotePage({ user }) {
                                   <td>{record[4]}</td>
                                   <td>{record[5]}</td>
                                   <td>
-                                    <span
-                                      style={{ cursor: 'pointer' }}
-                                      onClick={() => handleDescriptionClick(record[6])}
-                                    >
+                                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                                      <span style={{ marginRight: '8px' }}>
+                                        {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                                      </span>
                                       <FontAwesomeIcon
                                         icon={faInfoCircle}
                                         style={{
-                                          color: 'var(--color-primary)',
+                                          color: 'var(--color-icons)',
                                           fontSize: '1.2em',
+                                          cursor: 'pointer',
                                           transition: 'color 0.3s ease',
                                         }}
-                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-primary-hover)'}
-                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-primary)'}
+                                        onClick={() => handleDescriptionClick(record[6])}
+                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-primary)'}
+                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-icons)'}
                                       />
                                     </span>
                                   </td>
