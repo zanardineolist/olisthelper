@@ -7,6 +7,8 @@ import { getSession } from 'next-auth/react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import styles from '../styles/Remote.module.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 const theme = createTheme({
   components: {
@@ -362,7 +364,7 @@ export default function RemotePage({ user }) {
                               </tr>
                             </thead>
                             <tbody>
-                              {userRecords.map((record, index) => (
+                              {allRecords.map((record, index) => (
                                 <tr key={index}>
                                   <td>{record[0]}</td>
                                   <td>{record[1]}</td>
@@ -372,10 +374,19 @@ export default function RemotePage({ user }) {
                                   <td>{record[5]}</td>
                                   <td>
                                     <span
-                                      style={{ cursor: 'pointer', color: 'var(--color-primary)' }}
+                                      style={{ cursor: 'pointer' }}
                                       onClick={() => handleDescriptionClick(record[6])}
                                     >
-                                      {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                                      <FontAwesomeIcon
+                                        icon={faInfoCircle}
+                                        style={{
+                                          color: 'var(--color-primary)',
+                                          fontSize: '1.2em',
+                                          transition: 'color 0.3s ease',
+                                        }}
+                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-primary-hover)'}
+                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-primary)'}
+                                      />
                                     </span>
                                   </td>
                                 </tr>
@@ -419,10 +430,19 @@ export default function RemotePage({ user }) {
                                   <td>{record[5]}</td>
                                   <td>
                                     <span
-                                      style={{ cursor: 'pointer', color: 'var(--color-primary)' }}
+                                      style={{ cursor: 'pointer' }}
                                       onClick={() => handleDescriptionClick(record[6])}
                                     >
-                                      {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                                      <FontAwesomeIcon
+                                        icon={faInfoCircle}
+                                        style={{
+                                          color: 'var(--color-primary)',
+                                          fontSize: '1.2em',
+                                          transition: 'color 0.3s ease',
+                                        }}
+                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-primary-hover)'}
+                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-primary)'}
+                                      />
                                     </span>
                                   </td>
                                 </tr>
