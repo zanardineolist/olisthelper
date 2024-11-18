@@ -52,7 +52,22 @@
 
 .itemsTable th:nth-child(3),
 .itemsTable td:nth-child(3) {
-  width: 7%; /* Ações */
+  width: 7%; /* Chamado */
+}
+
+.itemsTable th:nth-child(4),
+.itemsTable td:nth-child(4) {
+  width: 7%; /* Telefone */
+}
+
+.itemsTable th:nth-child(5),
+.itemsTable td:nth-child(5) {
+  width: 7%; /* Chat */
+}
+
+.itemsTable th:nth-child(6),
+.itemsTable td:nth-child(6) {
+  width: 10%; /* Ações */
 }
 
 /* Scrollbar para Tabela */

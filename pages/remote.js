@@ -192,7 +192,7 @@ export default function RemotePage({ user }) {
     } else if (newValue === 2 && user.role === 'super') {
       loadAllRecords();
     }
-  };
+  };  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

@@ -389,29 +389,53 @@ export default function ManageUsers({ user }) {
         </div>
         <div className={styles.itemsTable}>
           <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td className={generalStyles.actionButtons}>
-                    <button onClick={() => handleEditUser(user)} className={generalStyles.actionButtonIcon}>
-                      <FontAwesomeIcon icon={faPenToSquare} />
-                    </button>
-                    <button onClick={() => handleDeleteUser(user.id)} className={generalStyles.actionButtonIcon}>
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+              <thead>
+                  <tr>
+                      <th>Nome</th>
+                      <th>E-mail</th>
+                      <th>Chamado</th>
+                      <th>Telefone</th>
+                      <th>Chat</th>
+                      <th>Ações</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  {users.map((user) => (
+                      <tr key={user.id}>
+                          <td>{user.name}</td>
+                          <td>{user.email}</td>
+                          <td>
+                              <input
+                                  type="checkbox"
+                                  disabled
+                                  checked={user.chamado}
+                              />
+                          </td>
+                          <td>
+                              <input
+                                  type="checkbox"
+                                  disabled
+                                  checked={user.telefone}
+                              />
+                          </td>
+                          <td>
+                              <input
+                                  type="checkbox"
+                                  disabled
+                                  checked={user.chat}
+                              />
+                          </td>
+                          <td className={generalStyles.actionButtons}>
+                              <button onClick={() => handleEditUser(user)} className={generalStyles.actionButtonIcon}>
+                                  <FontAwesomeIcon icon={faPenToSquare} />
+                              </button>
+                              <button onClick={() => handleDeleteUser(user.id)} className={generalStyles.actionButtonIcon}>
+                                  <FontAwesomeIcon icon={faTrash} />
+                              </button>
+                          </td>
+                      </tr>
+                  ))}
+              </tbody>
           </table>
         </div>
       </div>
