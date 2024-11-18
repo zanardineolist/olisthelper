@@ -245,8 +245,8 @@ export default function RemotePage({ user }) {
 
   if (initialLoading) {
     return (
-      <div className={styles.loaderOverlay}>
-        <div className={styles.loader}></div>
+      <div className="loaderOverlay">
+        <div className="loader"></div>
       </div>
     );
   }
