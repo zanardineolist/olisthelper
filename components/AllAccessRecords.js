@@ -8,7 +8,7 @@ export default function AllAccessRecords({ user }) {
   const [allRecords, setAllRecords] = useState([]);
   const [allMonthTotal, setAllMonthTotal] = useState(0);
   const [allTotal, setAllTotal] = useState(0);
-  const [loadingRecords, setLoadingRecords] = useState(false); // Inicializa como false para não bloquear a renderização inicial
+  const [loadingRecords, setLoadingRecords] = useState(false);
 
   useEffect(() => {
     loadAllRecords();
@@ -30,18 +30,18 @@ export default function AllAccessRecords({ user }) {
       console.error('Erro ao buscar todos os registros:', error);
       Swal.fire('Erro', 'Erro ao buscar todos os registros. Tente novamente.', 'error');
     } finally {
-      setLoadingRecords(false); // Garante que o estado de carregamento seja atualizado após a tentativa de obtenção dos dados
+      setLoadingRecords(false);
     }
   };
 
-  // Se ainda estiver carregando os dados, exibe um indicador de carregamento
-  if (loadingRecords) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
+  const handleDescriptionClick = (description) => {
+    Swal.fire({
+      title: 'Descrição Completa',
+      text: description,
+      icon: 'info',
+      confirmButtonText: 'Fechar',
+    });
+  };
 
   return (
     <div className={styles.performanceWrapper}>
@@ -97,12 +97,3 @@ export default function AllAccessRecords({ user }) {
     </div>
   );
 }
-
-const handleDescriptionClick = (description) => {
-  Swal.fire({
-    title: 'Descrição Completa',
-    text: description,
-    icon: 'info',
-    confirmButtonText: 'Fechar',
-  });
-};
