@@ -78,6 +78,9 @@ export default function RemotePage({ user }) {
           {currentTab === 2 && user.role === 'super' && (
             <AllAccessRecords user={user} currentTab={currentTab} />
           )}
+          {currentTab === 3 && user.role === 'super' && (
+            <div style={{ display: 'none' }}></div> // Conteúdo da aba oculta
+          )}
         </div>
       </main>
 
