@@ -32,14 +32,15 @@ export default async function handler(req, res) {
       filteredRecords = records.filter(record => record[3] === userEmail);
     }
 
-    // Retornar registros do mês atual se solicitado
+    // Se filterByMonth for 'true', retornar apenas os registros do mês atual
     if (filterByMonth === 'true') {
       const monthRecords = filteredRecords.filter(isFromCurrentMonth);
-      return res.status(200).json({ monthRecords, allRecords: filteredRecords });
+      return res.status(200).json({ records: monthRecords });
     }
 
     // Caso contrário, retornar todos os registros
-    return res.status(200).json({ allRecords: filteredRecords });
+    return res.status(200).json({ records: filteredRecords });
+
   } catch (error) {
     console.error('Erro ao buscar registros:', error);
     res.status(500).json({ error: 'Erro ao buscar registros. Tente novamente.' });
