@@ -296,12 +296,13 @@ export default function RemotePage({ user }) {
         </ThemeProvider>
   
         {initialLoading ? (
+          // Loader durante o carregamento inicial
           <div className="loaderOverlay">
             <div className="loader"></div>
           </div>
         ) : (
           <>
-            {/* Container de contagem para perfil support+ */}
+            {/* Containers de contagem para perfil support+ */}
             {currentTab === 1 && user.role === 'support+' && (
               <div className={styles.performanceWrapper}>
                 <div className={styles.performanceContainer}>
@@ -315,18 +316,27 @@ export default function RemotePage({ user }) {
               </div>
             )}
   
-            {/* Container de contagem para perfil super */}
+            {/* Containers de contagem para perfil super */}
             {currentTab === 2 && user.role === 'super' && (
-              <div className={styles.performanceWrapper}>
-                <div className={styles.performanceContainer}>
-                  <h2>Acessos no Mês Atual</h2>
-                  <span className={styles.totalCount}>{allMonthTotal}</span>
-                </div>
-                <div className={styles.performanceContainer}>
-                  <h2>Acessos Realizados</h2>
-                  <span className={styles.totalCount}>{allTotal}</span>
-                </div>
-              </div>
+              <>
+                {loadingRecords ? (
+                  // Exibir loader enquanto registros estão sendo carregados
+                  <div className="loaderOverlay">
+                    <div className="loader"></div>
+                  </div>
+                ) : (
+                  <div className={styles.performanceWrapper}>
+                    <div className={styles.performanceContainer}>
+                      <h2>Acessos no Mês Atual</h2>
+                      <span className={styles.totalCount}>{allMonthTotal}</span>
+                    </div>
+                    <div className={styles.performanceContainer}>
+                      <h2>Acessos Realizados</h2>
+                      <span className={styles.totalCount}>{allTotal}</span>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
   
             {/* Formulário para registrar acesso remoto (somente para perfil support+) */}
