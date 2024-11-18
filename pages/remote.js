@@ -173,10 +173,16 @@ export default function RemotePage({ user }) {
       const response = await fetch('/api/get-remote-records');
       if (response.ok) {
         const data = await response.json();
-        console.log('Dados recebidos para todos os registros:', data);
-        setAllRecords(data.allRecords || []);
-        setAllMonthTotal(data.monthRecords?.length || 0);
-        setAllTotal(data.allRecords?.length || 0);
+        console.log('Dados recebidos para todos os registros:', data); // Adicione este log
+        
+        // Verifique se `data.allRecords` e `data.monthRecords` são arrays
+        if (Array.isArray(data.allRecords) && Array.isArray(data.monthRecords)) {
+          setAllRecords(data.allRecords);
+          setAllMonthTotal(data.monthRecords.length);
+          setAllTotal(data.allRecords.length);
+        } else {
+          console.error('Estrutura dos dados recebidos está incorreta:', data);
+        }
       } else {
         console.error('Erro ao buscar todos os registros.');
       }
@@ -185,8 +191,7 @@ export default function RemotePage({ user }) {
     } finally {
       setLoadingRecords(false);
     }
-  };
-  
+  };  
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
@@ -304,16 +309,22 @@ export default function RemotePage({ user }) {
         )}
 
         {currentTab === 2 && user.role === 'super' && (
-          <div className={styles.performanceWrapper}>
-            <div className={styles.performanceContainer}>
-              <h2>Acessos no Mês Atual</h2>
-              <span className={styles.totalCount}>{allMonthTotal}</span>
-            </div>
-            <div className={styles.performanceContainer}>
-              <h2>Acessos Realizados</h2>
-              <span className={styles.totalCount}>{allTotal}</span>
-            </div>
-          </div>
+          <>
+            {allMonthTotal > 0 || allTotal > 0 ? (
+              <div className={styles.performanceWrapper}>
+                <div className={styles.performanceContainer}>
+                  <h2>Acessos no Mês Atual</h2>
+                  <span className={styles.totalCount}>{allMonthTotal}</span>
+                </div>
+                <div className={styles.performanceContainer}>
+                  <h2>Acessos Realizados</h2>
+                  <span className={styles.totalCount}>{allTotal}</span>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.noData}>Nenhum registro encontrado.</div>
+            )}
+          </>
         )}
 
         {currentTab === 0 && user.role === 'support+' && (
@@ -455,13 +466,15 @@ export default function RemotePage({ user }) {
                       <td>
                         <span style={{ display: 'flex', alignItems: 'center' }}>
                           <span style={{ marginRight: '8px' }}>
-                            {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                            {record[6] && record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
                           </span>
-                          <FontAwesomeIcon
-                            icon={faInfoCircle}
-                            className={styles.infoIcon}
-                            onClick={() => handleDescriptionClick(record[6])}
-                          />
+                          {record[6] && (
+                            <FontAwesomeIcon
+                              icon={faInfoCircle}
+                              className={styles.infoIcon}
+                              onClick={() => handleDescriptionClick(record[6])}
+                            />
+                          )}
                         </span>
                       </td>
                     </tr>
