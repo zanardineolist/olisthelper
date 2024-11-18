@@ -317,70 +317,74 @@ export default function RemotePage({ user }) {
           </div>
         )}
 
-        {currentTab === 1 && user.role === 'support+' && (
-          <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-            <h2 className={styles.cardTitle}>Meus Acessos</h2>
-            <div className={styles.recordsTable}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Hora</th>
-                    <th>Nome</th>
-                    <th>Chamado</th>
-                    <th>Tema</th>
-                    <th>Descrição</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {userRecords.map((record, index) => (
-                    <tr key={index}>
-                      <td>{record[0]}</td>
-                      <td>{record[1]}</td>
-                      <td>{record[2]}</td>
-                      <td>{record[3]}</td>
-                      <td>{record[4]}</td>
-                      <td>{record[5]}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+      {currentTab === 1 && user.role === 'support+' && (
+                <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+                  <h2 className={styles.cardTitle}>Meus Acessos</h2>
+                  <div className={styles.recordsTable}>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Data</th>
+                          <th>Hora</th>
+                          <th>Nome</th>
+                          <th>E-mail</th>
+                          <th>Chamado</th>
+                          <th>Tema</th>
+                          <th>Descrição</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {userRecords.map((record, index) => (
+                          <tr key={index}>
+                            <td>{record[0]}</td>
+                            <td>{record[1]}</td>
+                            <td>{record[2]}</td>
+                            <td>{record[3]}</td>
+                            <td>{record[4]}</td>
+                            <td>{record[5]}</td>
+                            <td>{record[6]}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
-        {currentTab === 2 && user.role === 'super' && (
-          <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-            <h2 className={styles.cardTitle}>Acessos Realizados</h2>
-            <div className={styles.recordsTable}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Hora</th>
-                    <th>Nome</th>
-                    <th>Chamado</th>
-                    <th>Tema</th>
-                    <th>Descrição</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allRecords.map((record, index) => (
-                    <tr key={index}>
-                      <td>{record[0]}</td>
-                      <td>{record[1]}</td>
-                      <td>{record[2]}</td>
-                      <td>{record[3]}</td>
-                      <td>{record[4]}</td>
-                      <td>{record[5]}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </main>
+              {currentTab === 2 && user.role === 'super' && (
+                <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+                  <h2 className={styles.cardTitle}>Acessos Realizados</h2>
+                  <div className={styles.recordsTable}>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Data</th>
+                          <th>Hora</th>
+                          <th>Nome</th>
+                          <th>E-mail</th>
+                          <th>Chamado</th>
+                          <th>Tema</th>
+                          <th>Descrição</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {allRecords.map((record, index) => (
+                          <tr key={index}>
+                            <td>{record[0]}</td>
+                            <td>{record[1]}</td>
+                            <td>{record[2]}</td>
+                            <td>{record[3]}</td>
+                            <td>{record[4]}</td>
+                            <td>{record[5]}</td>
+                            <td>{record[6]}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </main>
 
       <Footer />
     </>
