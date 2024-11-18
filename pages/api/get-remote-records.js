@@ -10,6 +10,7 @@ export default async function handler(req, res) {
   try {
     // Obter todos os registros
     const records = await getSheetValues('Remoto', 'A:G');
+    const dataWithoutHeader = records.slice(1); // Ignora a primeira linha (cabeçalho)
     console.log('Registros obtidos do Google Sheets:', records);
 
     // Verificar se é uma requisição de um usuário específico ou para todos os registros
@@ -24,15 +25,15 @@ export default async function handler(req, res) {
 
         const isFromCurrentMonth = (record) => {
           const [day, month, year] = record[0].split('/');
-          const recordDate = new Date(`${year}-${month}-${day}`);
+          const recordDate = new Date(year, month - 1, day);
           return (
             recordDate.getMonth() === currentMonth &&
             recordDate.getFullYear() === currentYear
           );
         };
-
-        const monthRecords = filteredRecords.filter(isFromCurrentMonth);
-        console.log('Registros do mês atual:', monthRecords);
+        
+        const monthRecords = dataWithoutHeader.filter(isFromCurrentMonth);
+        console.log('Registros do mês atual:', monthRecords);        
 
         return res.status(200).json({ monthRecords, allRecords: filteredRecords });
       }
@@ -41,9 +42,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ allRecords: filteredRecords });
     }
 
-    // Caso não seja uma requisição de usuário específico, retornar todos os registros
-    console.log('Todos os registros:', records);
-    return res.status(200).json({ allRecords: records });
+    // Caso não seja uma requisição de usuário específico, retornar todos os registros (a partir da linha 2)
+    console.log('Todos os registros:', dataWithoutHeader);
+    return res.status(200).json({ allRecords: dataWithoutHeader });
 
   } catch (error) {
     console.error('Erro ao buscar registros:', error);

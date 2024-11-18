@@ -77,17 +77,17 @@ export default function RemotePage({ user }) {
       <main className={styles.main}>
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
-            {(user.role === 'support+' || user.role === 'super') && <Tab label="Registrar" />}
-            {(user.role === 'support+' || user.role === 'super') && <Tab label="Meus Acessos" />}
+            {user.role === 'support+' && <Tab label="Registrar" />}
+            {user.role === 'support+' && <Tab label="Meus Acessos" />}
             {user.role === 'super' && <Tab label="Todos os Acessos" />}
           </Tabs>
         </ThemeProvider>
 
         <div className={styles.tabContent}>
-          {currentTab === 0 && (user.role === 'support+' || user.role === 'super') && (
+          {currentTab === 0 && user.role === 'support+' && (
             <RegisterAccess user={user} />
           )}
-          {currentTab === 1 && (user.role === 'support+' || user.role === 'super') && (
+          {currentTab === 1 && user.role === 'support+' && (
             <MyAccessRecords user={user} />
           )}
           {currentTab === 2 && user.role === 'super' && (

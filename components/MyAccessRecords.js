@@ -32,7 +32,7 @@ export default function MyAccessRecords({ user }) {
     } finally {
       setLoadingRecords(false);
     }
-  };
+  };  
 
   const handleDescriptionClick = (description) => {
     Swal.fire({
