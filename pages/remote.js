@@ -64,6 +64,7 @@ export default function RemotePage({ user }) {
             {user.role === 'support+' && <Tab label="Registrar" />}
             {user.role === 'support+' && <Tab label="Meus Acessos" />}
             {user.role === 'super' && <Tab label="Todos os Acessos" />}
+            {user.role === 'super' && <Tab label="Oculto" style={{ display: 'none' }} />} {/* Aba oculta */}
           </Tabs>
         </ThemeProvider>
 
