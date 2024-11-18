@@ -49,6 +49,78 @@ const temaOptions = [
   { value: 'SAT', label: 'SAT' },
 ];
 
+const customSelectStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    backgroundColor: 'var(--labels-bg)',
+    borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
+    color: 'var(--text-color)',
+    borderRadius: '5px',
+    padding: '5px',
+    boxShadow: 'none',
+    '&:hover': {
+      borderColor: 'var(--color-primary)',
+    },
+    outline: 'none',
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+    caretColor: 'var(--text-color)',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--labels-bg)',
+    maxHeight: '220px',
+    overflowY: 'auto',
+  }),
+  menuList: (provided) => ({
+    ...provided,
+    padding: 0,
+    maxHeight: '220px',
+    '&::-webkit-scrollbar': {
+      width: '8px',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'var(--scroll-bg)',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'var(--scroll)',
+      borderRadius: '10px',
+      border: '2px solid var(--scroll-bg)',
+    },
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused
+      ? 'var(--color-trodd)'
+      : state.isSelected
+      ? 'var(--color-primary)'
+      : 'var(--box-color)',
+    color: 'var(--text-color)',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: 'var(--color-trodd)',
+    },
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'var(--text-color2)',
+  }),
+  dropdownIndicator: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  indicatorSeparator: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--color-border)',
+  }),
+};
+
 export default function RemotePage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
   const [formData, setFormData] = useState({
@@ -137,7 +209,7 @@ export default function RemotePage({ user }) {
           name: user.name,
           email: user.email,
           chamado: formData.chamado,
-          tema: formData.tema.value,
+          tema: formData.tema.label,
           description: formData.description,
         }),
       });
@@ -210,8 +282,8 @@ export default function RemotePage({ user }) {
                   onChange={handleSelectChange}
                   isClearable
                   placeholder="Selecione um tema"
+                  styles={customSelectStyles}
                   classNamePrefix="react-select"
-                  className={styles.reactSelect}
                   required
                 />
               </div>
