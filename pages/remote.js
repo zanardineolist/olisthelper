@@ -147,7 +147,7 @@ export default function RemotePage({ user }) {
     }
     setInitialLoading(false);
   }, [user, currentTab]);
-
+  
   const loadUserRecords = async () => {
     try {
       setLoadingRecords(true);
@@ -169,16 +169,17 @@ export default function RemotePage({ user }) {
 
   const loadAllRecords = async () => {
     try {
-      setLoadingRecords(true);
+      setLoadingRecords(true);  // Inicia o carregamento
       const response = await fetch('/api/get-remote-records');
       if (response.ok) {
         const data = await response.json();
         console.log('Dados recebidos para todos os registros:', data);
   
-        // Atualizando os estados com os registros recebidos
+        // Atualizar estados de registros e contagem
         if (Array.isArray(data.allRecords)) {
           setAllRecords(data.allRecords);
           setAllTotal(data.allRecords.length);
+          setAllMonthTotal(data.monthRecords?.length || 0);
         } else {
           console.error('Estrutura dos dados recebidos está incorreta:', data);
         }
@@ -189,6 +190,7 @@ export default function RemotePage({ user }) {
       console.error('Erro ao buscar todos os registros:', error);
     } finally {
       setLoadingRecords(false);
+      setInitialLoading(false); 
     }
   };  
 
@@ -281,9 +283,9 @@ export default function RemotePage({ user }) {
       <Head>
         <title>Acesso Remoto</title>
       </Head>
-
+  
       <Navbar user={user} />
-
+  
       <main className={styles.main}>
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
@@ -292,24 +294,29 @@ export default function RemotePage({ user }) {
             {user.role === 'super' && <Tab label="Todos os Acessos" />}
           </Tabs>
         </ThemeProvider>
-
-        {/* Total Containers */}
-        {currentTab === 1 && user.role === 'support+' && (
-          <div className={styles.performanceWrapper}>
-            <div className={styles.performanceContainer}>
-              <h2>Acessos no Mês Atual</h2>
-              <span className={styles.totalCount}>{userMonthTotal}</span>
-            </div>
-            <div className={styles.performanceContainer}>
-              <h2>Acessos Realizados</h2>
-              <span className={styles.totalCount}>{userTotal}</span>
-            </div>
+  
+        {initialLoading ? (
+          <div className="loaderOverlay">
+            <div className="loader"></div>
           </div>
-        )}
-
-        {currentTab === 2 && user.role === 'super' && (
+        ) : (
           <>
-            {allMonthTotal > 0 || allTotal > 0 ? (
+            {/* Container de contagem para perfil support+ */}
+            {currentTab === 1 && user.role === 'support+' && (
+              <div className={styles.performanceWrapper}>
+                <div className={styles.performanceContainer}>
+                  <h2>Acessos no Mês Atual</h2>
+                  <span className={styles.totalCount}>{userMonthTotal}</span>
+                </div>
+                <div className={styles.performanceContainer}>
+                  <h2>Acessos Realizados</h2>
+                  <span className={styles.totalCount}>{userTotal}</span>
+                </div>
+              </div>
+            )}
+  
+            {/* Container de contagem para perfil super */}
+            {currentTab === 2 && user.role === 'super' && (
               <div className={styles.performanceWrapper}>
                 <div className={styles.performanceContainer}>
                   <h2>Acessos no Mês Atual</h2>
@@ -320,174 +327,187 @@ export default function RemotePage({ user }) {
                   <span className={styles.totalCount}>{allTotal}</span>
                 </div>
               </div>
-            ) : (
-              <div className={styles.noData}>Nenhum registro encontrado.</div>
+            )}
+  
+            {/* Formulário para registrar acesso remoto (somente para perfil support+) */}
+            {currentTab === 0 && user.role === 'support+' && (
+              <div className={styles.formContainer}>
+                <h2 className={styles.formTitle}>Registrar Acesso Remoto</h2>
+                <form onSubmit={handleSubmit}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="chamado">Número do Chamado</label>
+                    <input
+                      type="text"
+                      id="chamado"
+                      name="chamado"
+                      value={formData.chamado}
+                      onChange={handleInputChange}
+                      required
+                      className={styles.inputField}
+                      autoComplete="off"
+                    />
+                  </div>
+  
+                  <div className={styles.formGroup}>
+                    <label htmlFor="tema">Tema</label>
+                    <Select
+                      id="tema"
+                      name="tema"
+                      options={temaOptions}
+                      value={formData.tema}
+                      onChange={handleSelectChange}
+                      isClearable
+                      placeholder="Indique o tema do acesso"
+                      styles={customSelectStyles}
+                      classNamePrefix="react-select"
+                      required
+                    />
+                  </div>
+  
+                  <div className={styles.formGroup}>
+                    <label htmlFor="description">Descrição</label>
+                    <textarea
+                      id="description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      placeholder="Adicione aqui informações do acesso se necessário..."
+                      rows="4"
+                      className={styles.formTextarea}
+                    />
+                  </div>
+  
+                  <div className={styles.formButtonContainer}>
+                    <button type="submit" className={styles.submitButton} disabled={submitting}>
+                      {submitting ? 'Registrando...' : 'Registrar'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+  
+            {/* Tabela de registros para perfil support+ */}
+            {currentTab === 1 && user.role === 'support+' && (
+              loadingRecords ? (
+                <div className="loaderOverlay">
+                  <div className="loader"></div>
+                </div>
+              ) : (
+                <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+                  <h2 className={styles.cardTitle}>Meus Acessos</h2>
+                  <div className={styles.recordsTable}>
+                    {userRecords.length > 0 ? (
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Data</th>
+                            <th>Hora</th>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Chamado</th>
+                            <th>Tema</th>
+                            <th>Descrição</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {userRecords.map((record, index) => (
+                            <tr key={index}>
+                              <td>{record[0]}</td>
+                              <td>{record[1]}</td>
+                              <td>{record[2]}</td>
+                              <td>{record[3]}</td>
+                              <td>{record[4]}</td>
+                              <td>{record[5]}</td>
+                              <td>
+                                <span style={{ display: 'flex', alignItems: 'center' }}>
+                                  <span style={{ marginRight: '8px' }}>
+                                    {record[6]?.length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                                  </span>
+                                  {record[6] && (
+                                    <FontAwesomeIcon
+                                      icon={faInfoCircle}
+                                      className={styles.infoIcon}
+                                      onClick={() => handleDescriptionClick(record[6])}
+                                    />
+                                  )}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <div className={styles.noData}>Nenhum registro encontrado.</div>
+                    )}
+                  </div>
+                </div>
+              )
+            )}
+  
+            {/* Tabela de registros para perfil super */}
+            {currentTab === 2 && user.role === 'super' && (
+              loadingRecords ? (
+                <div className="loaderOverlay">
+                  <div className="loader"></div>
+                </div>
+              ) : (
+                <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+                  <h2 className={styles.cardTitle}>Acessos Realizados</h2>
+                  <div className={styles.recordsTable}>
+                    {allRecords.length > 0 ? (
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Data</th>
+                            <th>Hora</th>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Chamado</th>
+                            <th>Tema</th>
+                            <th>Descrição</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {allRecords.map((record, index) => (
+                            <tr key={index}>
+                              <td>{record[0]}</td>
+                              <td>{record[1]}</td>
+                              <td>{record[2]}</td>
+                              <td>{record[3]}</td>
+                              <td>{record[4]}</td>
+                              <td>{record[5]}</td>
+                              <td>
+                                <span style={{ display: 'flex', alignItems: 'center' }}>
+                                  <span style={{ marginRight: '8px' }}>
+                                    {record[6]?.length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                                  </span>
+                                  {record[6] && (
+                                    <FontAwesomeIcon
+                                      icon={faInfoCircle}
+                                      className={styles.infoIcon}
+                                      onClick={() => handleDescriptionClick(record[6])}
+                                    />
+                                  )}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <div className={styles.noData}>Nenhum registro encontrado.</div>
+                    )}
+                  </div>
+                </div>
+              )
             )}
           </>
         )}
-
-        {currentTab === 0 && user.role === 'support+' && (
-          <div className={styles.formContainer}>
-            <h2 className={styles.formTitle}>Registrar Acesso Remoto</h2>
-            <form onSubmit={handleSubmit}>
-            <div className={styles.formGroup}>
-                <label htmlFor="chamado">Número do Chamado</label>
-                <input
-                  type="text"
-                  id="chamado"
-                  name="chamado"
-                  value={formData.chamado}
-                  onChange={handleInputChange}
-                  onKeyDown={(event) => {
-                    if (!/[0-9]/.test(event.key) && event.key !== 'Backspace' && event.key !== 'Delete' && event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
-                      event.preventDefault();
-                    }
-                  }}
-                  required
-                  className={styles.inputField}
-                  autoComplete="off"
-                />
-            </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="tema">Tema</label>
-                <Select
-                  id="tema"
-                  name="tema"
-                  options={temaOptions}
-                  value={formData.tema}
-                  onChange={handleSelectChange}
-                  isClearable
-                  placeholder="Indique o tema do acesso"
-                  styles={customSelectStyles}
-                  classNamePrefix="react-select"
-                  required
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="description">Descrição</label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Adicione aqui informações do acesso se necessário..."
-                  rows="4"
-                  className={styles.formTextarea}
-                />
-              </div>
-
-              <div className={styles.formButtonContainer}>
-                <button type="submit" className={styles.submitButton} disabled={submitting}>
-                  {submitting ? 'Registrando...' : 'Registrar'}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
-          {/* Tabelas de registros */}
-        {currentTab === 1 && user.role === 'support+' && (
-          <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-            <h2 className={styles.cardTitle}>Meus Acessos</h2>
-            <div className={styles.recordsTable}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Hora</th>
-                    <th>Nome</th>
-                    <th>E-mail</th>
-                    <th>Chamado</th>
-                    <th>Tema</th>
-                    <th>Descrição</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {userRecords.map((record, index) => (
-                    <tr key={index}>
-                      <td>{record[0]}</td>
-                      <td>{record[1]}</td>
-                      <td>{record[2]}</td>
-                      <td>{record[3]}</td>
-                      <td>{record[4]}</td>
-                      <td>{record[5]}</td>
-                      <td>
-                        <span style={{ display: 'flex', alignItems: 'center' }}>
-                          <span style={{ marginRight: '8px' }}>
-                            {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
-                          </span>
-                          <FontAwesomeIcon
-                            icon={faInfoCircle}
-                            className={styles.infoIcon}
-                            onClick={() => handleDescriptionClick(record[6])}
-                          />
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {currentTab === 2 && user.role === 'super' && loadingRecords ? (
-          <div className="loaderOverlay">
-            <div className="loader"></div>
-          </div>
-        ) : (
-          <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-            <h2 className={styles.cardTitle}>Acessos Realizados</h2>
-            <div className={styles.recordsTable}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Hora</th>
-                    <th>Nome</th>
-                    <th>E-mail</th>
-                    <th>Chamado</th>
-                    <th>Tema</th>
-                    <th>Descrição</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allRecords.map((record, index) => (
-                    <tr key={index}>
-                      <td>{record[0]}</td>
-                      <td>{record[1]}</td>
-                      <td>{record[2]}</td>
-                      <td>{record[3]}</td>
-                      <td>{record[4]}</td>
-                      <td>{record[5]}</td>
-                      <td>
-                        <span style={{ display: 'flex', alignItems: 'center' }}>
-                          <span style={{ marginRight: '8px' }}>
-                            {record[6] && record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
-                          </span>
-                          {record[6] && (
-                            <FontAwesomeIcon
-                              icon={faInfoCircle}
-                              className={styles.infoIcon}
-                              onClick={() => handleDescriptionClick(record[6])}
-                            />
-                          )}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
       </main>
-
+  
       <Footer />
     </>
-  );
+  );  
 }
 
 export async function getServerSideProps(context) {
