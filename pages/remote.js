@@ -150,14 +150,11 @@ export default function RemotePage({ user }) {
   const loadUserRecords = async () => {
     try {
       setLoadingRecords(true);
-      const response = await fetch(`/api/get-remote-records?userEmail=${encodeURIComponent(user.email)}`);
+      const response = await fetch(`/api/get-remote-records?userEmail=${encodeURIComponent(user.email)}&filterByMonth=true`);
       if (response.ok) {
         const data = await response.json();
-        const month = new Date().getMonth();
-        const monthRecords = data.records.filter(record => new Date(record[0]).getMonth() === month);
         setUserRecords(data.records);
-        setUserMonthTotal(monthRecords.length);
-        setUserTotal(data.records.length);
+        setUserMonthTotal(data.records.length);  // Atualiza o total do mês atual
       } else {
         console.error('Erro ao buscar registros do usuário.');
       }
@@ -167,18 +164,15 @@ export default function RemotePage({ user }) {
       setLoadingRecords(false);
     }
   };
-
+  
   const loadAllRecords = async () => {
     try {
       setLoadingRecords(true);
-      const response = await fetch('/api/get-remote-records');
+      const response = await fetch('/api/get-remote-records?filterByMonth=true');
       if (response.ok) {
         const data = await response.json();
-        const month = new Date().getMonth();
-        const monthRecords = data.records.filter(record => new Date(record[0]).getMonth() === month);
         setAllRecords(data.records);
-        setAllMonthTotal(monthRecords.length);
-        setAllTotal(data.records.length);
+        setAllMonthTotal(data.records.length);  // Atualiza o total do mês atual
       } else {
         console.error('Erro ao buscar todos os registros.');
       }
@@ -187,7 +181,7 @@ export default function RemotePage({ user }) {
     } finally {
       setLoadingRecords(false);
     }
-  };
+  };  
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
