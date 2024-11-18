@@ -78,7 +78,7 @@ export default function RemotePage({ user }) {
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
             {(user.role === 'support+' || user.role === 'super') && <Tab label="Registrar" />}
-            {(user.role === 'support+') && <Tab label="Meus Acessos" />}
+            {(user.role === 'support+' || user.role === 'super') && <Tab label="Meus Acessos" />}
             {user.role === 'super' && <Tab label="Todos os Acessos" />}
           </Tabs>
         </ThemeProvider>

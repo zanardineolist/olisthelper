@@ -8,7 +8,7 @@ export default function MyAccessRecords({ user }) {
   const [userRecords, setUserRecords] = useState([]);
   const [userMonthTotal, setUserMonthTotal] = useState(0);
   const [userTotal, setUserTotal] = useState(0);
-  const [loadingRecords, setLoadingRecords] = useState(true);
+  const [loadingRecords, setLoadingRecords] = useState(false);
 
   useEffect(() => {
     loadUserRecords();
@@ -34,13 +34,14 @@ export default function MyAccessRecords({ user }) {
     }
   };
 
-  if (loadingRecords) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
+  const handleDescriptionClick = (description) => {
+    Swal.fire({
+      title: 'Descrição Completa',
+      text: description,
+      icon: 'info',
+      confirmButtonText: 'Fechar',
+    });
+  };
 
   return (
     <div className={styles.performanceWrapper}>
