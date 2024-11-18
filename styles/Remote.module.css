@@ -217,8 +217,8 @@
   table-layout: fixed;
 }
 
-.recordsTable th:nth-child(1), .recordsTable td:nth-child(1) { width: 15%; }  /* Coluna Data */
-.recordsTable th:nth-child(2), .recordsTable td:nth-child(2) { width: 10%; }  /* Coluna Hora */
+.recordsTable th:nth-child(1), .recordsTable td:nth-child(1) { width: 13%; }  /* Coluna Data */
+.recordsTable th:nth-child(2), .recordsTable td:nth-child(2) { width: 13%; }  /* Coluna Hora */
 .recordsTable th:nth-child(3), .recordsTable td:nth-child(3) { width: 25%; }  /* Coluna Nome */
 .recordsTable th:nth-child(4), .recordsTable td:nth-child(4) { display: none; }  /* Coluna E-mail - Esconder */
 .recordsTable th:nth-child(5), .recordsTable td:nth-child(5) { width: 13%; }  /* Coluna Chamado */
