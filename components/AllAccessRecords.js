@@ -8,12 +8,10 @@ export default function AllAccessRecords({ user, currentTab }) {
   const [allRecords, setAllRecords] = useState([]);
   const [allMonthTotal, setAllMonthTotal] = useState(0);
   const [allTotal, setAllTotal] = useState(0);
-  const [loadingRecords, setLoadingRecords] = useState(false);
 
   // Função para carregar todos os registros
   const loadAllRecords = async () => {
     try {
-      setLoadingRecords(true);
       const response = await fetch('/api/get-remote-records');
       if (response.ok) {
         const data = await response.json();
@@ -26,8 +24,6 @@ export default function AllAccessRecords({ user, currentTab }) {
     } catch (error) {
       console.error('Erro ao buscar todos os registros:', error);
       Swal.fire('Erro', 'Erro ao buscar todos os registros. Tente novamente.', 'error');
-    } finally {
-      setLoadingRecords(false);
     }
   };
 
@@ -36,18 +32,6 @@ export default function AllAccessRecords({ user, currentTab }) {
       loadAllRecords();
     }
   }, [currentTab]);
-
-  useEffect(() => {
-    loadAllRecords();
-  }, []);
-
-  if (loadingRecords) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.performanceWrapper}>

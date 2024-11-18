@@ -45,26 +45,10 @@ const theme = createTheme({
 
 export default function RemotePage({ user }) {
   const [currentTab, setCurrentTab] = useState(user.role === 'super' ? 2 : 0);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
-  }, []);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
-
-  if (loading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
 
   return (
     <>
