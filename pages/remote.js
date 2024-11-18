@@ -134,6 +134,7 @@ export default function RemotePage({ user }) {
   const [userRecords, setUserRecords] = useState([]);
   const [allRecords, setAllRecords] = useState([]);
   const [loadingRecords, setLoadingRecords] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [userMonthTotal, setUserMonthTotal] = useState(0);
   const [userTotal, setUserTotal] = useState(0);
   const [allMonthTotal, setAllMonthTotal] = useState(0);
@@ -295,8 +296,8 @@ export default function RemotePage({ user }) {
           </Tabs>
         </ThemeProvider>
   
+        {/* Carregamento inicial da página */}
         {initialLoading ? (
-          // Loader durante o carregamento inicial
           <div className="loaderOverlay">
             <div className="loader"></div>
           </div>
@@ -320,7 +321,6 @@ export default function RemotePage({ user }) {
             {currentTab === 2 && user.role === 'super' && (
               <>
                 {loadingRecords ? (
-                  // Exibir loader enquanto registros estão sendo carregados
                   <div className="loaderOverlay">
                     <div className="loader"></div>
                   </div>
