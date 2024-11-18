@@ -212,13 +212,14 @@ export default function RemotePage({ user }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-
-    if (!formData.tema || !formData.chamado || !formData.description) {
-      Swal.fire('Erro', 'Todos os campos são obrigatórios.', 'error');
+  
+    // Validação dos campos obrigatórios: 'tema' e 'chamado'
+    if (!formData.tema || !formData.chamado) {
+      Swal.fire('Erro', 'Os campos Número do Chamado e Tema são obrigatórios.', 'error');
       setSubmitting(false);
       return;
     }
-
+  
     try {
       const response = await fetch('/api/remote-record', {
         method: 'POST',
@@ -235,22 +236,22 @@ export default function RemotePage({ user }) {
           description: formData.description,
         }),
       });
-
+  
       if (response.ok) {
-        Swal.fire('Sucesso', 'Registro adicionado com sucesso.', 'success');
+        Swal.fire('Sucesso', 'Acesso registrado com sucesso.', 'success');
         setFormData({ chamado: '', tema: null, description: '' });
-        loadUserRecords(); // Atualiza os registros após adicionar um novo
+        loadUserRecords();
       } else {
         const errorData = await response.json();
-        Swal.fire('Erro', `Falha ao adicionar registro: ${errorData.error}`, 'error');
+        Swal.fire('Erro', `Falha ao registrar acesso: ${errorData.error}`, 'error');
       }
     } catch (error) {
-      console.error('Erro ao adicionar registro:', error);
-      Swal.fire('Erro', 'Falha ao adicionar registro. Tente novamente.', 'error');
+      console.error('Erro ao registrar acesso:', error);
+      Swal.fire('Erro', 'Falha ao registrar acesso. Tente novamente.', 'error');
     } finally {
       setSubmitting(false);
     }
-  };
+  };  
 
   const handleDescriptionClick = (description) => {
     Swal.fire({
