@@ -137,25 +137,22 @@ export default function RemotePage({ user }) {
   const [userTotal, setUserTotal] = useState(0);
   const [allMonthTotal, setAllMonthTotal] = useState(0);
   const [allTotal, setAllTotal] = useState(0);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (user.role === 'support+' && currentTab === 1) {
-      loadUserRecords();
-    } else if (user.role === 'super' && currentTab === 2) {
+    if (user.role === 'super' && currentTab === 2) {
       loadAllRecords();
     }
-  }, [user, currentTab]);
+  }, [user, currentTab]);  
 
   const loadUserRecords = async () => {
     try {
       setLoadingRecords(true);
-      const response = await fetch(`/api/get-remote-records?userEmail=${encodeURIComponent(user.email)}`);
+      const response = await fetch(`/api/get-remote-records?userEmail=${encodeURIComponent(user.email)}&filterByMonth=true`);
       if (response.ok) {
         const data = await response.json();
         setUserRecords(data.allRecords); // Definir todos os registros para listagem
         setUserMonthTotal(data.monthRecords.length); // Atualizar o total do mês atual
-        setUserTotal(data.allRecords.length); // Atualizar o total de registros do usuário
+        setUserTotal(data.allRecords.length); // Atualizar o total de registros
       } else {
         console.error('Erro ao buscar registros do usuário.');
       }
@@ -187,7 +184,12 @@ export default function RemotePage({ user }) {
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
-  };
+    if (newValue === 1 && user.role === 'support+') {
+      loadUserRecords();
+    } else if (newValue === 2 && user.role === 'super') {
+      loadAllRecords();
+    }
+  };  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -207,14 +209,14 @@ export default function RemotePage({ user }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-
+  
     // Validação dos campos obrigatórios: 'tema' e 'chamado'
     if (!formData.tema || !formData.chamado) {
       Swal.fire('Erro', 'Os campos Número do Chamado e Tema são obrigatórios.', 'error');
       setSubmitting(false);
       return;
     }
-
+  
     try {
       const response = await fetch('/api/remote-record', {
         method: 'POST',
@@ -231,7 +233,7 @@ export default function RemotePage({ user }) {
           description: formData.description,
         }),
       });
-
+  
       if (response.ok) {
         Swal.fire('Sucesso', 'Acesso registrado com sucesso.', 'success');
         setFormData({ chamado: '', tema: null, description: '' });
@@ -246,7 +248,7 @@ export default function RemotePage({ user }) {
     } finally {
       setSubmitting(false);
     }
-  };
+  };  
 
   const handleDescriptionClick = (description) => {
     Swal.fire({
@@ -256,8 +258,9 @@ export default function RemotePage({ user }) {
       confirmButtonText: 'Fechar'
     });
   };
+  
 
-  if (loadingRecords) {
+  if (initialLoading) {
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
@@ -309,12 +312,11 @@ export default function RemotePage({ user }) {
           </div>
         )}
 
-        {/* Formulário de Registro */}
         {currentTab === 0 && user.role === 'support+' && (
           <div className={styles.formContainer}>
             <h2 className={styles.formTitle}>Registrar Acesso Remoto</h2>
             <form onSubmit={handleSubmit}>
-              <div className={styles.formGroup}>
+            <div className={styles.formGroup}>
                 <label htmlFor="chamado">Número do Chamado</label>
                 <input
                   type="text"
@@ -331,7 +333,7 @@ export default function RemotePage({ user }) {
                   className={styles.inputField}
                   autoComplete="off"
                 />
-              </div>
+            </div>
 
               <div className={styles.formGroup}>
                 <label htmlFor="tema">Tema</label>
@@ -371,97 +373,97 @@ export default function RemotePage({ user }) {
           </div>
         )}
 
-        {/* Tabelas de registros */}
-        {currentTab === 1 && user.role === 'support+' && (
-          <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-            <h2 className={styles.cardTitle}>Meus Acessos</h2>
-            <div className={styles.recordsTable}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Hora</th>
-                    <th>Nome</th>
-                    <th>E-mail</th>
-                    <th>Chamado</th>
-                    <th>Tema</th>
-                    <th>Descrição</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {userRecords.map((record, index) => (
-                    <tr key={index}>
-                      <td>{record[0]}</td>
-                      <td>{record[1]}</td>
-                      <td>{record[2]}</td>
-                      <td style={{ display: 'none' }}>{record[3]}</td>
-                      <td>{record[4]}</td>
-                      <td>{record[5]}</td>
-                      <td>
-                        <span style={{ display: 'flex', alignItems: 'center' }}>
-                          <span style={{ marginRight: '8px' }}>
-                            {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
-                          </span>
-                          <FontAwesomeIcon
-                            icon={faInfoCircle}
-                            className={styles.infoIcon}
-                            onClick={() => handleDescriptionClick(record[6])}
-                          />
-                        </span>
-                      </td>
+          {/* Tabelas de registros */}
+          {currentTab === 1 && user.role === 'support+' && (
+            <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+              <h2 className={styles.cardTitle}>Meus Acessos</h2>
+              <div className={styles.recordsTable}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Hora</th>
+                      <th>Nome</th>
+                      <th>E-mail</th>
+                      <th>Chamado</th>
+                      <th>Tema</th>
+                      <th>Descrição</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {userRecords.map((record, index) => (
+                      <tr key={index}>
+                        <td>{record[0]}</td>
+                        <td>{record[1]}</td>
+                        <td>{record[2]}</td>
+                        <td style={{ display: 'none' }}>{record[3]}</td>
+                        <td>{record[4]}</td>
+                        <td>{record[5]}</td>
+                        <td>
+                          <span style={{ display: 'flex', alignItems: 'center' }}>
+                            <span style={{ marginRight: '8px' }}>
+                              {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                            </span>
+                            <FontAwesomeIcon
+                              icon={faInfoCircle}
+                              className={styles.infoIcon}
+                              onClick={() => handleDescriptionClick(record[6])}
+                            />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {currentTab === 2 && user.role === 'super' && (
-          <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-            <h2 className={styles.cardTitle}>Acessos Realizados</h2>
-            <div className={styles.recordsTable}>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Hora</th>
-                    <th>Nome</th>
-                    <th>E-mail</th>
-                    <th>Chamado</th>
-                    <th>Tema</th>
-                    <th>Descrição</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allRecords.map((record, index) => (
-                    <tr key={index}>
-                      <td>{record[0]}</td>
-                      <td>{record[1]}</td>
-                      <td>{record[2]}</td>
-                      <td style={{ display: 'none' }}>{record[3]}</td>
-                      <td>{record[4]}</td>
-                      <td>{record[5]}</td>
-                      <td>
-                        <span style={{ display: 'flex', alignItems: 'center' }}>
-                          <span style={{ marginRight: '8px' }}>
-                            {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
-                          </span>
-                          <FontAwesomeIcon
-                            icon={faInfoCircle}
-                            className={styles.infoIcon}
-                            onClick={() => handleDescriptionClick(record[6])}
-                          />
-                        </span>
-                      </td>
+          {currentTab === 2 && user.role === 'super' && (
+            <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+              <h2 className={styles.cardTitle}>Acessos Realizados</h2>
+              <div className={styles.recordsTable}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Data</th>
+                      <th>Hora</th>
+                      <th>Nome</th>
+                      <th>E-mail</th>
+                      <th>Chamado</th>
+                      <th>Tema</th>
+                      <th>Descrição</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {allRecords.map((record, index) => (
+                      <tr key={index}>
+                        <td>{record[0]}</td>
+                        <td>{record[1]}</td>
+                        <td>{record[2]}</td>
+                        <td>{record[3]}</td>
+                        <td>{record[4]}</td>
+                        <td>{record[5]}</td>
+                        <td>
+                          <span style={{ display: 'flex', alignItems: 'center' }}>
+                            <span style={{ marginRight: '8px' }}>
+                              {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                            </span>
+                            <FontAwesomeIcon
+                              icon={faInfoCircle}
+                              className={styles.infoIcon}
+                              onClick={() => handleDescriptionClick(record[6])}
+                            />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
-      </main>
+          )}
+        </main>
 
       <Footer />
     </>
