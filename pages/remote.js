@@ -45,7 +45,7 @@ const theme = createTheme({
 });
 
 export default function RemotePage({ user }) {
-  const [currentTab, setCurrentTab] = useState(user.role === 'super' ? 2 : 0);
+  const [currentTab, setCurrentTab] = useState(0);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
@@ -70,16 +70,16 @@ export default function RemotePage({ user }) {
         </ThemeProvider>
 
         <div className={styles.tabContent}>
-          {currentTab === 0 && user.role === 'support+' && (
+          {user.role === 'support+' && currentTab === 0 && (
             <RegisterAccess user={user} />
           )}
-          {currentTab === 1 && user.role === 'support+' && (
+          {user.role === 'support+' && currentTab === 1 && (
             <MyAccessRecords user={user} />
           )}
-          {currentTab === 2 && user.role === 'super' && (
+          {user.role === 'super' && currentTab === 0 && (
             <AllAccessRecords user={user} currentTab={currentTab} />
           )}
-          {currentTab === 3 && user.role === 'super' && (
+          {user.role === 'super' && currentTab === 1 && (
             <GoogleCalendar />
           )}
         </div>
