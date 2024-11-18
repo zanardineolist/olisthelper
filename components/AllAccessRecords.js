@@ -31,12 +31,15 @@ export default function AllAccessRecords({ user, currentTab }) {
     }
   };
 
-  // useEffect para carregar registros quando a aba "Todos os Acessos" for ativada
   useEffect(() => {
     if (currentTab === 2) {
       loadAllRecords();
     }
   }, [currentTab]);
+
+  useEffect(() => {
+    loadAllRecords();
+  }, []);
 
   if (loadingRecords) {
     return (
