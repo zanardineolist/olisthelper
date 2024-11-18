@@ -53,21 +53,30 @@
 .itemsTable th:nth-child(3),
 .itemsTable td:nth-child(3) {
   width: 7%; /* Chamado */
+  text-align: center; /* Centraliza o checkbox */
 }
 
 .itemsTable th:nth-child(4),
 .itemsTable td:nth-child(4) {
   width: 7%; /* Telefone */
+  text-align: center; /* Centraliza o checkbox */
 }
 
 .itemsTable th:nth-child(5),
 .itemsTable td:nth-child(5) {
   width: 7%; /* Chat */
+  text-align: center; /* Centraliza o checkbox */
 }
 
 .itemsTable th:nth-child(6),
 .itemsTable td:nth-child(6) {
   width: 10%; /* Ações */
+}
+
+/* Estilizar checkboxes */
+.itemsTable td input[type="checkbox"] {
+  transform: scale(1.2); /* Ajusta o tamanho do checkbox se necessário */
+  accent-color: var(--color-primary); /* Define uma cor personalizada quando estiver marcado */
 }
 
 /* Scrollbar para Tabela */
