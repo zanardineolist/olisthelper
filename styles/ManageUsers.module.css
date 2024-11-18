@@ -73,20 +73,22 @@
 /* Centralizar horizontalmente o conteúdo das células de checkbox */
 .itemsTable td:nth-child(3),
 .itemsTable td:nth-child(4),
-.itemsTable td:nth-child(5) {
-  text-align: center; /* Centraliza os checkboxes horizontalmente */
+.itemsTable td:nth-child(5),
+.itemsTable td:nth-child(6) {
+  text-align: center;
 }
 
 /* Estilizar checkboxes */
 .itemsTable td input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  appearance: none; /* Remove o estilo padrão do checkbox */
+  appearance: none;
   border: 2px solid var(--color-border);
   border-radius: 3px;
-  background-color: #1c1c1c; /* Cor de fundo quando desmarcado */
-  display: block; /* Ajusta o checkbox para ser um bloco centralizável */
-  margin: 0 auto; /* Centraliza o checkbox dentro da célula */
+  background-color: var(--color-icons);
+  display: block;
+  margin: auto;
+  text-align: center;
 }
 
 /* Checkbox quando marcado */
