@@ -4,16 +4,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import styles from '../styles/Remote.module.css';
 
-export default function AllAccessRecords({ user }) {
+export default function AllAccessRecords({ user, currentTab }) {
   const [allRecords, setAllRecords] = useState([]);
   const [allMonthTotal, setAllMonthTotal] = useState(0);
   const [allTotal, setAllTotal] = useState(0);
   const [loadingRecords, setLoadingRecords] = useState(false);
 
-  useEffect(() => {
-    loadAllRecords();
-  }, []);
-
+  // Função para carregar todos os registros
   const loadAllRecords = async () => {
     try {
       setLoadingRecords(true);
@@ -34,14 +31,20 @@ export default function AllAccessRecords({ user }) {
     }
   };
 
-  const handleDescriptionClick = (description) => {
-    Swal.fire({
-      title: 'Descrição Completa',
-      text: description,
-      icon: 'info',
-      confirmButtonText: 'Fechar',
-    });
-  };
+  // useEffect para carregar registros quando a aba "Todos os Acessos" for ativada
+  useEffect(() => {
+    if (currentTab === 2) {
+      loadAllRecords();
+    }
+  }, [currentTab]);
+
+  if (loadingRecords) {
+    return (
+      <div className="loaderOverlay">
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.performanceWrapper}>
@@ -97,3 +100,12 @@ export default function AllAccessRecords({ user }) {
     </div>
   );
 }
+
+const handleDescriptionClick = (description) => {
+  Swal.fire({
+    title: 'Descrição Completa',
+    text: description,
+    icon: 'info',
+    confirmButtonText: 'Fechar',
+  });
+};

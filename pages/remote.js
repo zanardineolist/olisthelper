@@ -91,7 +91,7 @@ export default function RemotePage({ user }) {
             <MyAccessRecords user={user} />
           )}
           {currentTab === 2 && user.role === 'super' && (
-            <AllAccessRecords user={user} />
+            <AllAccessRecords user={user} currentTab={currentTab} />
           )}
         </div>
       </main>
