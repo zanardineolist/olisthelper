@@ -1,4 +1,5 @@
 // utils/cache.ts
+
 type CacheData = {
   data: any;
   timestamp: number;
@@ -9,14 +10,13 @@ class Cache {
   private store: Map<string, CacheData>;
   private maxSize: number;
 
-  constructor(maxSize = 100) {  // Define um limite padrão de 100 itens
+  constructor(maxSize = 100) {
     this.store = new Map();
     this.maxSize = maxSize;
   }
 
   set(key: string, data: any, duration: number): void {
     if (this.store.size >= this.maxSize) {
-      // Remover o item mais antigo se o cache estiver cheio
       const oldestKey = this.getOldestKey();
       if (oldestKey) {
         this.store.delete(oldestKey);
@@ -25,7 +25,7 @@ class Cache {
     this.store.set(key, {
       data,
       timestamp: Date.now(),
-      expiry: Date.now() + duration
+      expiry: Date.now() + duration,
     });
   }
 
@@ -47,7 +47,16 @@ class Cache {
     this.store.clear();
   }
 
-  // Retorna a chave do item mais antigo no cache
+  update(key: string, data: any): void {
+    if (this.store.has(key)) {
+      this.store.set(key, {
+        data,
+        timestamp: Date.now(),
+        expiry: this.store.get(key)!.expiry,
+      });
+    }
+  }
+
   private getOldestKey(): string | undefined {
     let oldestKey: string | undefined = undefined;
     let oldestTimestamp = Infinity;
@@ -62,7 +71,6 @@ class Cache {
     return oldestKey;
   }
 
-  // Limpar itens expirados periodicamente
   clearExpired(): void {
     for (const [key, value] of this.store.entries()) {
       if (Date.now() > value.expiry) {
@@ -75,8 +83,8 @@ class Cache {
 export const cache = new Cache();
 
 export const CACHE_TIMES = {
-  USERS: 30 * 60 * 1000,        // 30 minutos
-  PERFORMANCE: 5 * 60 * 1000,   // 5 minutos
-  METADATA: 60 * 60 * 1000,     // 1 hora
-  SHEET_VALUES: 2 * 60 * 1000   // 2 minutos
+  USERS: 30 * 60 * 1000,
+  PERFORMANCE: 5 * 60 * 1000,
+  METADATA: 60 * 60 * 1000,
+  SHEET_VALUES: 2 * 60 * 1000,
 };

@@ -4,7 +4,6 @@ import { cache, CACHE_TIMES } from './cache';
 
 let sheetsInstance = null;
 
-// Função para autenticação do Google Sheets com singleton
 export async function getAuthenticatedGoogleSheets() {
   if (sheetsInstance) return sheetsInstance;
 
@@ -14,12 +13,11 @@ export async function getAuthenticatedGoogleSheets() {
     process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
     ['https://www.googleapis.com/auth/spreadsheets']
   );
-  
+
   sheetsInstance = google.sheets({ version: 'v4', auth });
   return sheetsInstance;
 }
 
-// Função otimizada para batch requests
 export async function batchGetValues(ranges) {
   const cacheKey = `batch_${ranges.join('_')}`;
   const cached = cache.get(cacheKey);
@@ -202,13 +200,13 @@ export async function appendValuesToSheet(sheetName, values) {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      range: `${sheetName}!A:F`,
+      range: `${sheetName}!A:H`,
       valueInputOption: 'USER_ENTERED',
       resource: { values },
     });
 
-    // Invalidar cache relacionado
-    cache.delete(`sheet_${sheetName}_A:F`);
+    // Invalidar cache relacionado após adicionar valores
+    cache.delete(`sheet_${sheetName}_A:H`);
   } catch (error) {
     console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
     throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
@@ -221,44 +219,15 @@ export async function updateSheetRow(sheetName, rowIndex, newValues) {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    // Buscar os valores atuais da linha
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: `${sheetName}!A${rowIndex}:I${rowIndex}`,  // Obtendo toda a linha do usuário
-    });
-
-    const currentValues = response.data.values ? response.data.values[0] : null;
-
-    // Comparar com os novos valores
-    if (currentValues) {
-      let hasChanges = false;
-
-      for (let i = 0; i < newValues.length; i++) {
-        if (currentValues[i] !== newValues[i]) {
-          hasChanges = true;
-          break;
-        }
-      }
-
-      // Se não houver alterações, não atualize a planilha nem o cache
-      if (!hasChanges) {
-        console.log('Nenhuma mudança detectada, não é necessário atualizar.');
-        return;
-      }
-    }
-
-    // Se houver alterações, então proceda com a atualização
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
-      range: `${sheetName}!A${rowIndex}:I${rowIndex}`,
+      range: `${sheetName}!A${rowIndex}:H${rowIndex}`,
       valueInputOption: 'USER_ENTERED',
       resource: { values: [newValues] },
     });
 
     // Atualizar o cache somente se houver alterações
-    const cacheKey = `user_${newValues[2]}`;  // Supondo que o email esteja na posição 2
-    cache.set(cacheKey, newValues, CACHE_TIMES.USERS);
-
+    cache.delete(`sheet_${sheetName}_A:H`);
   } catch (error) {
     console.error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}:`, error);
     throw new Error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}.`);
@@ -328,7 +297,7 @@ export async function deleteSheetRow(sheetName, rowIndex) {
     const sheetInfo = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
     });
-    
+
     const sheet = sheetInfo.data.sheets.find(
       (sheet) => sheet.properties.title === sheetName
     );
@@ -353,7 +322,7 @@ export async function deleteSheetRow(sheetName, rowIndex) {
       },
     });
 
-    // Invalidar cache relacionado
+    // Invalidar cache relacionado após deletar uma linha
     cache.delete(`sheet_${sheetName}_A:H`);
   } catch (error) {
     console.error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}:`, error);
