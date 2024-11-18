@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import RegisterAccess from '../components/RegisterAccess';
 import MyAccessRecords from '../components/MyAccessRecords';
 import AllAccessRecords from '../components/AllAccessRecords';
+import GoogleCalendar from '../components/GoogleCalendar';
 import styles from '../styles/Remote.module.css';
 
 const theme = createTheme({
@@ -64,7 +65,7 @@ export default function RemotePage({ user }) {
             {user.role === 'support+' && <Tab label="Registrar" />}
             {user.role === 'support+' && <Tab label="Meus Acessos" />}
             {user.role === 'super' && <Tab label="Todos os Acessos" />}
-            {user.role === 'super' && <Tab label="Oculto" style={{ display: 'none' }} />} {/* Aba oculta */}
+            {user.role === 'super' && <Tab label="Agenda" />}
           </Tabs>
         </ThemeProvider>
 
@@ -79,7 +80,7 @@ export default function RemotePage({ user }) {
             <AllAccessRecords user={user} currentTab={currentTab} />
           )}
           {currentTab === 3 && user.role === 'super' && (
-            <div style={{ display: 'none' }}></div> // Conteúdo da aba oculta
+            <GoogleCalendar />
           )}
         </div>
       </main>
