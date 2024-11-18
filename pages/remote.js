@@ -130,18 +130,12 @@ export default function RemotePage({ user }) {
   });
   const [userRecords, setUserRecords] = useState([]);
   const [allRecords, setAllRecords] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    setLoading(true);
-    if (user.role === 'support+') loadUserRecords();
-    if (user.role === 'super') loadAllRecords();
-    setLoading(false);
-  }, [user.role]);
 
   const loadUserRecords = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`/api/get-remote-records?userEmail=${encodeURIComponent(user.email)}`);
       if (response.ok) {
         const data = await response.json();
@@ -151,11 +145,14 @@ export default function RemotePage({ user }) {
       }
     } catch (error) {
       console.error('Erro ao buscar registros do usuário:', error);
+    } finally {
+      setLoading(false);
     }
-  };  
+  };
 
   const loadAllRecords = async () => {
     try {
+      setLoading(true);
       const response = await fetch('/api/get-remote-records');
       if (response.ok) {
         const data = await response.json();
@@ -165,11 +162,18 @@ export default function RemotePage({ user }) {
       }
     } catch (error) {
       console.error('Erro ao buscar todos os registros:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
+    if (newValue === 1 && user.role === 'support+') {
+      loadUserRecords();
+    } else if (newValue === 2 && user.role === 'super') {
+      loadAllRecords();
+    }
   };
 
   const handleInputChange = (e) => {
@@ -217,7 +221,7 @@ export default function RemotePage({ user }) {
       if (response.ok) {
         Swal.fire('Sucesso', 'Registro adicionado com sucesso.', 'success');
         setFormData({ chamado: '', tema: null, description: '' });
-        loadUserRecords();
+        loadUserRecords(); // Atualiza os registros após adicionar um novo
       } else {
         const errorData = await response.json();
         Swal.fire('Erro', `Falha ao adicionar registro: ${errorData.error}`, 'error');
