@@ -379,15 +379,8 @@ export default function RemotePage({ user }) {
                                       </span>
                                       <FontAwesomeIcon
                                         icon={faInfoCircle}
-                                        style={{
-                                          color: 'var(--color-icons)',
-                                          fontSize: '1.2em',
-                                          cursor: 'pointer',
-                                          transition: 'color 0.3s ease',
-                                        }}
+                                        className={styles.infoIcon}
                                         onClick={() => handleDescriptionClick(record[6])}
-                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-icons)'}
-                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-primary)'}
                                       />
                                     </span>
                                   </td>
@@ -437,15 +430,8 @@ export default function RemotePage({ user }) {
                                       </span>
                                       <FontAwesomeIcon
                                         icon={faInfoCircle}
-                                        style={{
-                                          color: 'var(--color-icons)',
-                                          fontSize: '1.2em',
-                                          cursor: 'pointer',
-                                          transition: 'color 0.3s ease',
-                                        }}
+                                        className={styles.infoIcon}
                                         onClick={() => handleDescriptionClick(record[6])}
-                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-icons)'}
-                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-primary)'}
                                       />
                                     </span>
                                   </td>

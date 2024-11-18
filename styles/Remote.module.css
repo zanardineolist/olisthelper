@@ -233,6 +233,17 @@
   background-color: var(--color-treven);
 }
 
+.infoIcon {
+  color: var(--color-primary);
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.infoIcon:hover {
+  color: var(--color-primary-hover);
+}
+
 /* ================== Loader ================== */
 .loaderOverlay {
   position: fixed;
