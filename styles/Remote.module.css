@@ -234,14 +234,14 @@
 }
 
 .infoIcon {
-  color: var(--color-primary);
+  color: var(--color-icons);
   font-size: 1.2em;
   cursor: pointer;
   transition: color 0.3s ease;
 }
 
 .infoIcon:hover {
-  color: var(--color-primary-hover);
+  color: var(--color-primary);
 }
 
 /* ================== Loader ================== */
