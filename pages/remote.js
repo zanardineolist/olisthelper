@@ -243,6 +243,16 @@ export default function RemotePage({ user }) {
     }
   };
 
+  const handleDescriptionClick = (description) => {
+    Swal.fire({
+      title: 'Descrição Completa',
+      text: description,
+      icon: 'info',
+      confirmButtonText: 'Fechar'
+    });
+  };
+  
+
   if (initialLoading) {
     return (
       <div className="loaderOverlay">
@@ -357,10 +367,17 @@ export default function RemotePage({ user }) {
                                   <td>{record[0]}</td>
                                   <td>{record[1]}</td>
                                   <td>{record[2]}</td>
-                                  <td>{record[3]}</td>
+                                  <td style={{ display: 'none' }}>{record[3]}</td>
                                   <td>{record[4]}</td>
                                   <td>{record[5]}</td>
-                                  <td>{record[6]}</td>
+                                  <td>
+                                    <span
+                                      style={{ cursor: 'pointer', color: 'var(--color-primary)' }}
+                                      onClick={() => handleDescriptionClick(record[6])}
+                                    >
+                                      {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                                    </span>
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
@@ -397,10 +414,17 @@ export default function RemotePage({ user }) {
                                   <td>{record[0]}</td>
                                   <td>{record[1]}</td>
                                   <td>{record[2]}</td>
-                                  <td>{record[3]}</td>
+                                  <td style={{ display: 'none' }}>{record[3]}</td>
                                   <td>{record[4]}</td>
                                   <td>{record[5]}</td>
-                                  <td>{record[6]}</td>
+                                  <td>
+                                    <span
+                                      style={{ cursor: 'pointer', color: 'var(--color-primary)' }}
+                                      onClick={() => handleDescriptionClick(record[6])}
+                                    >
+                                      {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                                    </span>
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
