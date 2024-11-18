@@ -135,10 +135,13 @@ export default function RemotePage({ user }) {
   const [initialLoading, setInitialLoading] = useState(true);
   const [loadingRecords, setLoadingRecords] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [userMonthTotal, setUserMonthTotal] = useState(0);
+  const [userTotal, setUserTotal] = useState(0);
+  const [allMonthTotal, setAllMonthTotal] = useState(0);
+  const [allTotal, setAllTotal] = useState(0);
 
   useEffect(() => {
     setInitialLoading(true);
-    // Simulando um atraso para exibir o loader inicial da página
     setTimeout(() => {
       setInitialLoading(false);
     }, 500);
@@ -150,7 +153,11 @@ export default function RemotePage({ user }) {
       const response = await fetch(`/api/get-remote-records?userEmail=${encodeURIComponent(user.email)}`);
       if (response.ok) {
         const data = await response.json();
+        const month = new Date().getMonth();
+        const monthRecords = data.records.filter(record => new Date(record[0]).getMonth() === month);
         setUserRecords(data.records);
+        setUserMonthTotal(monthRecords.length);
+        setUserTotal(data.records.length);
       } else {
         console.error('Erro ao buscar registros do usuário.');
       }
@@ -167,7 +174,11 @@ export default function RemotePage({ user }) {
       const response = await fetch('/api/get-remote-records');
       if (response.ok) {
         const data = await response.json();
+        const month = new Date().getMonth();
+        const monthRecords = data.records.filter(record => new Date(record[0]).getMonth() === month);
         setAllRecords(data.records);
+        setAllMonthTotal(monthRecords.length);
+        setAllTotal(data.records.length);
       } else {
         console.error('Erro ao buscar todos os registros.');
       }
@@ -279,6 +290,33 @@ export default function RemotePage({ user }) {
             {user.role === 'super' && <Tab label="Todos os Acessos" />}
           </Tabs>
         </ThemeProvider>
+
+        {/* Total Containers */}
+        {currentTab === 1 && user.role === 'support+' && (
+          <div className={styles.performanceWrapper}>
+            <div className={styles.performanceContainer}>
+              <h2>Total de Acessos no Mês Atual</h2>
+              <span className={styles.totalCount}>{userMonthTotal}</span>
+            </div>
+            <div className={styles.performanceContainer}>
+              <h2>Total de Acessos Registrados</h2>
+              <span className={styles.totalCount}>{userTotal}</span>
+            </div>
+          </div>
+        )}
+
+        {currentTab === 2 && user.role === 'super' && (
+          <div className={styles.performanceWrapper}>
+            <div className={styles.performanceContainer}>
+              <h2>Total de Acessos no Mês Atual (Todos os Usuários)</h2>
+              <span className={styles.totalCount}>{allMonthTotal}</span>
+            </div>
+            <div className={styles.performanceContainer}>
+              <h2>Total de Acessos Registrados (Todos os Usuários)</h2>
+              <span className={styles.totalCount}>{allTotal}</span>
+            </div>
+          </div>
+        )}
 
         {currentTab === 0 && user.role === 'support+' && (
           <div className={styles.formContainer}>
