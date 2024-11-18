@@ -173,9 +173,10 @@ export default function RemotePage({ user }) {
       const response = await fetch('/api/get-remote-records');
       if (response.ok) {
         const data = await response.json();
-        setAllRecords(data.allRecords);
-        setAllMonthTotal(data.monthRecords.length);
-        setAllTotal(data.allRecords.length);
+        console.log('Dados recebidos para todos os registros:', data);
+        setAllRecords(data.allRecords || []);
+        setAllMonthTotal(data.monthRecords?.length || 0);
+        setAllTotal(data.allRecords?.length || 0);
       } else {
         console.error('Erro ao buscar todos os registros.');
       }
@@ -185,6 +186,7 @@ export default function RemotePage({ user }) {
       setLoadingRecords(false);
     }
   };
+  
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
@@ -421,7 +423,11 @@ export default function RemotePage({ user }) {
           </div>
         )}
 
-        {currentTab === 2 && user.role === 'super' && (
+        {currentTab === 2 && user.role === 'super' && loadingRecords ? (
+          <div className="loaderOverlay">
+            <div className="loader"></div>
+          </div>
+        ) : (
           <div className={`${styles.cardContainer} ${styles.dashboard}`}>
             <h2 className={styles.cardTitle}>Acessos Realizados</h2>
             <div className={styles.recordsTable}>
