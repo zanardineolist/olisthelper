@@ -291,11 +291,11 @@ export default function RemotePage({ user }) {
         {currentTab === 1 && user.role === 'support+' && (
           <div className={styles.performanceWrapper}>
             <div className={styles.performanceContainer}>
-              <h2>Total de Acessos no Mês Atual</h2>
+              <h2>Acessos no Mês Atual</h2>
               <span className={styles.totalCount}>{userMonthTotal}</span>
             </div>
             <div className={styles.performanceContainer}>
-              <h2>Total de Acessos Registrados</h2>
+              <h2>Acessos Realizados</h2>
               <span className={styles.totalCount}>{userTotal}</span>
             </div>
           </div>
@@ -304,11 +304,11 @@ export default function RemotePage({ user }) {
         {currentTab === 2 && user.role === 'super' && (
           <div className={styles.performanceWrapper}>
             <div className={styles.performanceContainer}>
-              <h2>Total de Acessos no Mês Atual (Todos os Usuários)</h2>
+              <h2>Acessos no Mês Atual</h2>
               <span className={styles.totalCount}>{allMonthTotal}</span>
             </div>
             <div className={styles.performanceContainer}>
-              <h2>Total de Acessos Registrados (Todos os Usuários)</h2>
+              <h2>Acessos Realizados</h2>
               <span className={styles.totalCount}>{allTotal}</span>
             </div>
           </div>
