@@ -51,38 +51,42 @@
 }
 
 .itemsTable th:nth-child(3),
-.itemsTable td:nth-child(3),
+.itemsTable td:nth-child(3) {
+  width: 7%; /* Chamado */
+}
+
 .itemsTable th:nth-child(4),
-.itemsTable td:nth-child(4),
+.itemsTable td:nth-child(4) {
+  width: 7%; /* Telefone */
+}
+
 .itemsTable th:nth-child(5),
 .itemsTable td:nth-child(5) {
-  width: 7%;
-  text-align: center;
+  width: 7%; /* Chat */
 }
 
-/* Estilo para células de dados contendo checkboxes */
-.itemsTable td:nth-child(3),
-.itemsTable td:nth-child(4),
-.itemsTable td:nth-child(5) {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Largura da coluna Ações */
 .itemsTable th:nth-child(6),
 .itemsTable td:nth-child(6) {
   width: 7%; /* Ações */
+}
+
+/* Centralizar horizontalmente o conteúdo das células de checkbox */
+.itemsTable td:nth-child(3),
+.itemsTable td:nth-child(4),
+.itemsTable td:nth-child(5) {
+  text-align: center; /* Centraliza os checkboxes horizontalmente */
 }
 
 /* Estilizar checkboxes */
 .itemsTable td input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  appearance: none;
+  appearance: none; /* Remove o estilo padrão do checkbox */
   border: 2px solid var(--color-border);
   border-radius: 3px;
-  background-color: var(--color-icons);
+  background-color: #1c1c1c; /* Cor de fundo quando desmarcado */
+  display: block; /* Ajusta o checkbox para ser um bloco centralizável */
+  margin: 0 auto; /* Centraliza o checkbox dentro da célula */
 }
 
 /* Checkbox quando marcado */
