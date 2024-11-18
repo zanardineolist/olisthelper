@@ -73,10 +73,32 @@
   width: 10%; /* Ações */
 }
 
-/* Estilizar checkboxes */
+/* Customização do Checkbox */
 .itemsTable td input[type="checkbox"] {
-  transform: scale(1.2); /* Ajusta o tamanho do checkbox se necessário */
-  accent-color: var(--color-primary); /* Define uma cor personalizada quando estiver marcado */
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  appearance: none; /* Remove o estilo padrão do checkbox */
+  border: 2px solid var(--color-border);
+  border-radius: 3px;
+  background-color: #1c1c1c; /* Cor de fundo quando desmarcado */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+/* Checkbox quando marcado */
+.itemsTable td input[type="checkbox"]:checked {
+  background-color: var(--color-primary); /* Cor de fundo quando marcado */
+  border-color: var(--color-primary);
+}
+
+.itemsTable td input[type="checkbox"]:checked::before {
+  content: "✔";
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
 }
 
 /* Scrollbar para Tabela */
