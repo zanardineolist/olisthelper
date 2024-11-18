@@ -281,7 +281,7 @@ export default function RemotePage({ user }) {
                   value={formData.tema}
                   onChange={handleSelectChange}
                   isClearable
-                  placeholder="Selecione um tema"
+                  placeholder="Indique o tema do acesso"
                   styles={customSelectStyles}
                   classNamePrefix="react-select"
                   required
@@ -295,7 +295,7 @@ export default function RemotePage({ user }) {
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
-                  placeholder="Descreva brevemente o atendimento."
+                  placeholder="Adicione aqui informações do acesso se necessário..."
                   required
                   rows="4"
                   className={styles.formTextarea}

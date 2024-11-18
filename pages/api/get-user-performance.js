@@ -94,7 +94,7 @@ export default async function handler(req, res) {
     }
 
     const squad = userRow[4];
-    const hasChamado = (userProfile === 'support' || user.role ==='support+' || userProfile === 'tax') ? userRow[5] === 'TRUE' : true;
+    const hasChamado = (userProfile === 'support' || userProfile ==='support+' || userProfile === 'tax') ? userRow[5] === 'TRUE' : true;
     const hasTelefone = userRow[6] === 'TRUE';
     const hasChat = userRow[7] === 'TRUE';
 
