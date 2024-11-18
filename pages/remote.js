@@ -173,12 +173,11 @@ export default function RemotePage({ user }) {
       const response = await fetch('/api/get-remote-records');
       if (response.ok) {
         const data = await response.json();
-        console.log('Dados recebidos para todos os registros:', data); // Adicione este log
+        console.log('Dados recebidos para todos os registros:', data);
   
-        // Verifique se `data.allRecords` e `data.monthRecords` são arrays
+        // Atualizando os estados com os registros recebidos
         if (Array.isArray(data.allRecords)) {
           setAllRecords(data.allRecords);
-          setAllMonthTotal(data.monthRecords?.length || 0);
           setAllTotal(data.allRecords.length);
         } else {
           console.error('Estrutura dos dados recebidos está incorreta:', data);

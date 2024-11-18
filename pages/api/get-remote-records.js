@@ -12,38 +12,39 @@ export default async function handler(req, res) {
     const records = await getSheetValues('Remoto', 'A:G');
     console.log('Registros obtidos do Google Sheets:', records);
 
-    // Converter registros em datas baseadas no horário de Brasília
-    const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-    const currentMonth = new Date(today).getMonth();
-    const currentYear = new Date(today).getFullYear();
-
-    // Função para verificar se o registro pertence ao mês atual
-    const isFromCurrentMonth = (record) => {
-      const [day, month, year] = record[0].split('/');
-      const recordDate = new Date(`${year}-${month}-${day}`);
-      return (
-        recordDate.getMonth() === currentMonth &&
-        recordDate.getFullYear() === currentYear
-      );
-    };
-
-    // Filtrar registros para um determinado usuário, se especificado
-    let filteredRecords = records;
+    // Verificar se é uma requisição de um usuário específico ou para todos os registros
     if (userEmail) {
-      filteredRecords = records.filter(record => record[3] === userEmail);
+      const filteredRecords = records.filter(record => record[3] === userEmail);
       console.log(`Registros filtrados para o usuário ${userEmail}:`, filteredRecords);
+
+      if (filterByMonth === 'true') {
+        const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+        const currentMonth = new Date(today).getMonth();
+        const currentYear = new Date(today).getFullYear();
+
+        const isFromCurrentMonth = (record) => {
+          const [day, month, year] = record[0].split('/');
+          const recordDate = new Date(`${year}-${month}-${day}`);
+          return (
+            recordDate.getMonth() === currentMonth &&
+            recordDate.getFullYear() === currentYear
+          );
+        };
+
+        const monthRecords = filteredRecords.filter(isFromCurrentMonth);
+        console.log('Registros do mês atual:', monthRecords);
+
+        return res.status(200).json({ monthRecords, allRecords: filteredRecords });
+      }
+
+      // Se não for solicitado apenas registros do mês, retornar todos os registros do usuário
+      return res.status(200).json({ allRecords: filteredRecords });
     }
 
-    // Retornar registros do mês atual se solicitado
-    if (filterByMonth === 'true') {
-      const monthRecords = filteredRecords.filter(isFromCurrentMonth);
-      console.log('Registros do mês atual:', monthRecords);
-      return res.status(200).json({ monthRecords, allRecords: filteredRecords });
-    }
+    // Caso não seja uma requisição de usuário específico, retornar todos os registros
+    console.log('Todos os registros:', records);
+    return res.status(200).json({ allRecords: records });
 
-    // Caso contrário, retornar todos os registros
-    console.log('Todos os registros:', filteredRecords);
-    return res.status(200).json({ allRecords: filteredRecords });
   } catch (error) {
     console.error('Erro ao buscar registros:', error);
     res.status(500).json({ error: 'Erro ao buscar registros. Tente novamente.' });
