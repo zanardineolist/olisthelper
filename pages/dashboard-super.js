@@ -62,13 +62,13 @@ export default function DashboardSuperPage({ user }) {
         try {
           setLoadingData(true);
 
-          if (selectedUser.role === 'support') {
+          if (selectedUser.role === 'support' || selectedUser.role === 'support+') {
             // Para suporte, carregar desempenho completo
             const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
               fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
               fetch(`/api/get-user-category-ranking?userEmail=${selectedUser.email}`),
               fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
-            ]);
+            ]);   
 
             // Ajudas Solicitadas
             const helpData = await helpResponse.json();
@@ -171,6 +171,8 @@ export default function DashboardSuperPage({ user }) {
     switch (role.toLowerCase()) {
       case 'support':
         return '#779E3D'; // Verde para Suporte
+      case 'support+':
+        return '#779E3D'; // Verde para Suporte+        
       case 'analyst':
         return '#0A4EE4'; // Azul para Analista
       case 'tax':
@@ -191,6 +193,8 @@ export default function DashboardSuperPage({ user }) {
     switch (role.toLowerCase()) {
       case 'support':
         return 'Suporte';
+      case 'support+':
+        return 'Suporte+';        
       case 'analyst':
         return 'Analista';
       case 'super':
@@ -338,7 +342,7 @@ export default function DashboardSuperPage({ user }) {
         <div className={styles.profileAndHelpContainer}>
           <Select
             options={users
-              .filter((user) => ['support', 'analyst', 'tax'].includes(user.role.toLowerCase()))
+              .filter((user) => ['support', 'support+', 'analyst', 'tax'].includes(user.role.toLowerCase()))
               .map((user) => ({
                 value: user,
                 label: user.name,
@@ -370,7 +374,7 @@ export default function DashboardSuperPage({ user }) {
                   <h2>{selectedUser.name}</h2>
                   <p>{selectedUser.email}</p>
                   <div className={styles.tagsContainer}>
-                    {(selectedUser.role === 'support' || selectedUser.role === 'tax') && performanceData && (
+                  {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
                       <>
                         {performanceData?.squad && (
                           <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
@@ -413,7 +417,7 @@ export default function DashboardSuperPage({ user }) {
               ) : (
                 <div className={styles.profileInfo}>
                   <h2>
-                    {selectedUser.role === 'support' ? 'Ajudas Solicitadas' : 'Ajudas Prestadas'}
+                    {selectedUser.role === 'support' || selectedUser.role === 'support+' ? 'Ajudas Solicitadas' : 'Ajudas Prestadas'}
                   </h2>
                   <div className={styles.helpRequestsInfo}>
                     <div className={styles.monthsInfo}>
@@ -427,7 +431,7 @@ export default function DashboardSuperPage({ user }) {
           </div>
   
             {/* Container para Indicadores de Desempenho (para Suporte e Fiscal) */}
-            {(selectedUser.role === 'support' || selectedUser.role === 'tax') && (
+            {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && (
               <div className={styles.performanceWrapper}>
                 {loadingData ? (
                   <>
@@ -581,7 +585,7 @@ export default function DashboardSuperPage({ user }) {
             )}
   
             {/* Container para Ranking de Categorias (para Suporte, Analista e Fiscal) */}
-            {(selectedUser.role === 'support' || selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
+            {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
               <div className={styles.categoryRankingContainer}>
                 {loadingData ? (
                   <div className={styles.loadingContainer}>
@@ -590,7 +594,7 @@ export default function DashboardSuperPage({ user }) {
                 ) : (
                   <>
                     <h3>
-                      {selectedUser.role === 'support' ? 'Top 10 - Temas de maior dúvida' : 'Top 10 - Temas mais auxiliados'}
+                      {selectedUser.role === 'support' || selectedUser.role === 'support+' ? 'Top 10 - Temas de maior dúvida' : 'Top 10 - Temas mais auxiliados'}
                     </h3>
                     {categoryRanking.length > 0 ? (
                       <ul className={styles.list}>

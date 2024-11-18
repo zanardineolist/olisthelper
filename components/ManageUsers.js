@@ -25,6 +25,7 @@ export default function ManageUsers({ user }) {
 
   const profileOptions = [
     { value: 'support', label: 'Suporte' },
+    { value: 'support+', label: 'Suporte Remoto' },
     { value: 'analyst', label: 'Analista' },
     { value: 'super', label: 'Supervisor' },
     { value: 'tax', label: 'Fiscal' },

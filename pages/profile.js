@@ -44,22 +44,22 @@ export default function MyPage({ user }) {
         const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
           fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
           fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),
-          user.role === 'support' ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
+          (user.role === 'support' || user.role === 'support+') ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
         ]);
-
+  
         // Ajudas Solicitadas
         const helpData = await helpResponse.json();
         setHelpRequests({
           currentMonth: helpData.currentMonth,
           lastMonth: helpData.lastMonth,
         });
-
+  
         // Ranking de Categorias
         const categoryData = await categoryResponse.json();
         setCategoryRanking(categoryData.categories || []);
-
+  
         // Desempenho do Usuário (apenas para suporte)
-        if (user.role === 'support') {
+        if (user.role === 'support' || user.role === 'support+') {
           const performanceData = await performanceResponse.json();
           setPerformanceData(performanceData);
         }
@@ -69,11 +69,11 @@ export default function MyPage({ user }) {
         setLoading(false);
       }
     };
-
+  
     if (user?.email) {
       fetchData();
     }
-  }, [user.email, user.role]);
+  }, [user.email, user.role]);  
 
   if (initialLoading) {
     // Loader inicial da página
