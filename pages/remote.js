@@ -142,7 +142,7 @@ export default function RemotePage({ user }) {
 
   const loadUserRecords = async () => {
     try {
-      const response = await fetch(`/api/get-remote-records?user=${encodeURIComponent(user.name)}`);
+      const response = await fetch(`/api/get-remote-records?userEmail=${encodeURIComponent(user.email)}`);
       if (response.ok) {
         const data = await response.json();
         setUserRecords(data.records);
@@ -152,7 +152,7 @@ export default function RemotePage({ user }) {
     } catch (error) {
       console.error('Erro ao buscar registros do usuário:', error);
     }
-  };
+  };  
 
   const loadAllRecords = async () => {
     try {

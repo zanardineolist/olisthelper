@@ -5,18 +5,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { user } = req.query;
+  const { userEmail } = req.query;
 
   try {
-    const records = await getSheetValues('Remoto', 'A:E');
+    const records = await getSheetValues('Remoto', 'A:G');
 
-    if (user) {
-      // Filtrar registros do usuário especificado
-      const userRecords = records.filter(record => record[2] === user);
+    if (userEmail) {
+      const userRecords = records.filter(record => record[3] === userEmail);
       return res.status(200).json({ records: userRecords });
     }
 
-    // Se não houver usuário especificado, retornar todos os registros
     return res.status(200).json({ records });
   } catch (error) {
     console.error('Erro ao buscar registros:', error);

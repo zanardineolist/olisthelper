@@ -77,9 +77,15 @@
   border-radius: 5px;
   border: 1px solid var(--labels-border);
   background-color: var(--labels-bg);
-  color: var(--text-color2);
+  color: var(--text-color);
   font-size: 1rem;
   transition: border-color 0.3s ease;
+}
+
+.formTextarea:focus,
+.formTextarea:hover {
+  border-color: var(--color-primary);
+  outline: none;
 }
 
 /* Container para o botão do formulário */
