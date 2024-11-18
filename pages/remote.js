@@ -308,17 +308,23 @@ export default function RemotePage({ user }) {
           </div>
         )}
 
-        {currentTab === 2 && user.role === 'super' && !loadingRecords && (
-          <div className={styles.performanceWrapper}>
-            <div className={styles.performanceContainer}>
-              <h2>Acessos no Mês Atual</h2>
-              <span className={styles.totalCount}>{allMonthTotal}</span>
-            </div>
-            <div className={styles.performanceContainer}>
-              <h2>Acessos Realizados</h2>
-              <span className={styles.totalCount}>{allTotal}</span>
-            </div>
-          </div>
+        {currentTab === 2 && user.role === 'super' && (
+          <>
+            {allMonthTotal > 0 || allTotal > 0 ? (
+              <div className={styles.performanceWrapper}>
+                <div className={styles.performanceContainer}>
+                  <h2>Acessos no Mês Atual</h2>
+                  <span className={styles.totalCount}>{allMonthTotal}</span>
+                </div>
+                <div className={styles.performanceContainer}>
+                  <h2>Acessos Realizados</h2>
+                  <span className={styles.totalCount}>{allTotal}</span>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.noData}>Nenhum registro encontrado.</div>
+            )}
+          </>
         )}
 
         {currentTab === 0 && user.role === 'support+' && (
@@ -428,51 +434,53 @@ export default function RemotePage({ user }) {
           </div>
         )}
 
-        {currentTab === 2 && user.role === 'super' && !loadingRecords && (
+        {currentTab === 2 && user.role === 'super' && loadingRecords ? (
+          <div className="loaderOverlay">
+            <div className="loader"></div>
+          </div>
+        ) : (
           <div className={`${styles.cardContainer} ${styles.dashboard}`}>
             <h2 className={styles.cardTitle}>Acessos Realizados</h2>
             <div className={styles.recordsTable}>
-              {allRecords.length > 0 ? (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Data</th>
-                      <th>Hora</th>
-                      <th>Nome</th>
-                      <th>E-mail</th>
-                      <th>Chamado</th>
-                      <th>Tema</th>
-                      <th>Descrição</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allRecords.map((record, index) => (
-                      <tr key={index}>
-                        <td>{record[0]}</td>
-                        <td>{record[1]}</td>
-                        <td>{record[2]}</td>
-                        <td>{record[3]}</td>
-                        <td>{record[4]}</td>
-                        <td>{record[5]}</td>
-                        <td>
-                          <span style={{ display: 'flex', alignItems: 'center' }}>
-                            <span style={{ marginRight: '8px' }}>
-                              {record[6]?.length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
-                            </span>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Chamado</th>
+                    <th>Tema</th>
+                    <th>Descrição</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allRecords.map((record, index) => (
+                    <tr key={index}>
+                      <td>{record[0]}</td>
+                      <td>{record[1]}</td>
+                      <td>{record[2]}</td>
+                      <td>{record[3]}</td>
+                      <td>{record[4]}</td>
+                      <td>{record[5]}</td>
+                      <td>
+                        <span style={{ display: 'flex', alignItems: 'center' }}>
+                          <span style={{ marginRight: '8px' }}>
+                            {record[6] && record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                          </span>
+                          {record[6] && (
                             <FontAwesomeIcon
                               icon={faInfoCircle}
                               className={styles.infoIcon}
                               onClick={() => handleDescriptionClick(record[6])}
                             />
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className={styles.noData}>Nenhum registro encontrado.</div>
-              )}
+                          )}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
