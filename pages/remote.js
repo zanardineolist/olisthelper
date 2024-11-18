@@ -386,8 +386,8 @@ export default function RemotePage({ user }) {
                                           transition: 'color 0.3s ease',
                                         }}
                                         onClick={() => handleDescriptionClick(record[6])}
-                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-primary)'}
-                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-icons)'}
+                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-icons)'}
+                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-primary)'}
                                       />
                                     </span>
                                   </td>
@@ -444,8 +444,8 @@ export default function RemotePage({ user }) {
                                           transition: 'color 0.3s ease',
                                         }}
                                         onClick={() => handleDescriptionClick(record[6])}
-                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-primary)'}
-                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-icons)'}
+                                        onMouseEnter={(e) => e.target.style.color = 'var(--color-icons)'}
+                                        onMouseLeave={(e) => e.target.style.color = 'var(--color-primary)'}
                                       />
                                     </span>
                                   </td>
