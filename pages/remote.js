@@ -362,7 +362,6 @@ export default function RemotePage({ user }) {
                   value={formData.description}
                   onChange={handleInputChange}
                   placeholder="Adicione aqui informações do acesso se necessário..."
-                  required
                   rows="4"
                   className={styles.formTextarea}
                 />
