@@ -241,7 +241,7 @@ export default function RemotePage({ user }) {
   return (
     <>
       <Head>
-        <title>Remoto</title>
+        <title>Acesso Remoto</title>
       </Head>
 
       <Navbar user={user} />
@@ -249,9 +249,9 @@ export default function RemotePage({ user }) {
       <main className={styles.main}>
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
-            {user.role === 'support+' && <Tab label="Formulário" />}
-            {user.role === 'support+' && <Tab label="Meus Registros" />}
-            {user.role === 'super' && <Tab label="Todos os Registros" />}
+            {user.role === 'support+' && <Tab label="Registrar" />}
+            {user.role === 'support+' && <Tab label="Meus Acessos" />}
+            {user.role === 'super' && <Tab label="Todos os Acessos" />}
           </Tabs>
         </ThemeProvider>
 
@@ -313,7 +313,7 @@ export default function RemotePage({ user }) {
 
         {currentTab === 1 && user.role === 'support+' && (
           <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-            <h2 className={styles.cardTitle}>Meus Registros</h2>
+            <h2 className={styles.cardTitle}>Meus Acessos</h2>
             <div className={styles.recordsTable}>
               <table>
                 <thead>
@@ -345,7 +345,7 @@ export default function RemotePage({ user }) {
 
         {currentTab === 2 && user.role === 'super' && (
           <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-            <h2 className={styles.cardTitle}>Registros Gerais</h2>
+            <h2 className={styles.cardTitle}>Acessos Realizados</h2>
             <div className={styles.recordsTable}>
               <table>
                 <thead>
