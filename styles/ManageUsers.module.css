@@ -51,30 +51,28 @@
 }
 
 .itemsTable th:nth-child(3),
-.itemsTable td:nth-child(3) {
-  width: 7%; /* Chamado */
-}
-
+.itemsTable td:nth-child(3),
 .itemsTable th:nth-child(4),
-.itemsTable td:nth-child(4) {
-  width: 7%; /* Telefone */
-}
-
+.itemsTable td:nth-child(4),
 .itemsTable th:nth-child(5),
 .itemsTable td:nth-child(5) {
-  width: 7%; /* Chat */
+  width: 7%;
+  text-align: center;
 }
 
-.itemsTable th:nth-child(6),
-.itemsTable td:nth-child(6) {
-  width: 10%; /* Ações */
-}
-
-/* Centralizar horizontalmente os valores das células específicas das colunas (checkboxes) */
+/* Estilo para células de dados contendo checkboxes */
 .itemsTable td:nth-child(3),
 .itemsTable td:nth-child(4),
 .itemsTable td:nth-child(5) {
-  text-align: center; /* Centraliza horizontalmente as células das colunas Chamado, Telefone, Chat */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Largura da coluna Ações */
+.itemsTable th:nth-child(6),
+.itemsTable td:nth-child(6) {
+  width: 7%; /* Ações */
 }
 
 /* Estilizar checkboxes */
@@ -84,10 +82,7 @@
   appearance: none;
   border: 2px solid var(--color-border);
   border-radius: 3px;
-  background-color: #1c1c1c;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background-color: var(--color-icons);
 }
 
 /* Checkbox quando marcado */
