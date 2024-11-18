@@ -130,12 +130,21 @@ export default function RemotePage({ user }) {
   });
   const [userRecords, setUserRecords] = useState([]);
   const [allRecords, setAllRecords] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loadingRecords, setLoadingRecords] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setInitialLoading(true);
+    // Simulando um atraso para exibir o loader inicial da página
+    setTimeout(() => {
+      setInitialLoading(false);
+    }, 500);
+  }, []);
 
   const loadUserRecords = async () => {
     try {
-      setLoading(true);
+      setLoadingRecords(true);
       const response = await fetch(`/api/get-remote-records?userEmail=${encodeURIComponent(user.email)}`);
       if (response.ok) {
         const data = await response.json();
@@ -146,13 +155,13 @@ export default function RemotePage({ user }) {
     } catch (error) {
       console.error('Erro ao buscar registros do usuário:', error);
     } finally {
-      setLoading(false);
+      setLoadingRecords(false);
     }
   };
 
   const loadAllRecords = async () => {
     try {
-      setLoading(true);
+      setLoadingRecords(true);
       const response = await fetch('/api/get-remote-records');
       if (response.ok) {
         const data = await response.json();
@@ -163,7 +172,7 @@ export default function RemotePage({ user }) {
     } catch (error) {
       console.error('Erro ao buscar todos os registros:', error);
     } finally {
-      setLoading(false);
+      setLoadingRecords(false);
     }
   };
 
@@ -234,7 +243,7 @@ export default function RemotePage({ user }) {
     }
   };
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <div className={styles.loaderOverlay}>
         <div className={styles.loader}></div>
@@ -321,74 +330,86 @@ export default function RemotePage({ user }) {
           </div>
         )}
 
-      {currentTab === 1 && user.role === 'support+' && (
-                <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-                  <h2 className={styles.cardTitle}>Meus Acessos</h2>
-                  <div className={styles.recordsTable}>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Data</th>
-                          <th>Hora</th>
-                          <th>Nome</th>
-                          <th>E-mail</th>
-                          <th>Chamado</th>
-                          <th>Tema</th>
-                          <th>Descrição</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {userRecords.map((record, index) => (
-                          <tr key={index}>
-                            <td>{record[0]}</td>
-                            <td>{record[1]}</td>
-                            <td>{record[2]}</td>
-                            <td>{record[3]}</td>
-                            <td>{record[4]}</td>
-                            <td>{record[5]}</td>
-                            <td>{record[6]}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
+          {currentTab === 1 && user.role === 'support+' && (
+                    <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+                      <h2 className={styles.cardTitle}>Meus Acessos</h2>
+                      {loadingRecords ? (
+                        <div className={styles.loadingContainer}>
+                          <div className="standardBoxLoader"></div>
+                        </div>
+                      ) : (
+                        <div className={styles.recordsTable}>
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Data</th>
+                                <th>Hora</th>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>Chamado</th>
+                                <th>Tema</th>
+                                <th>Descrição</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {userRecords.map((record, index) => (
+                                <tr key={index}>
+                                  <td>{record[0]}</td>
+                                  <td>{record[1]}</td>
+                                  <td>{record[2]}</td>
+                                  <td>{record[3]}</td>
+                                  <td>{record[4]}</td>
+                                  <td>{record[5]}</td>
+                                  <td>{record[6]}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-              {currentTab === 2 && user.role === 'super' && (
-                <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-                  <h2 className={styles.cardTitle}>Acessos Realizados</h2>
-                  <div className={styles.recordsTable}>
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Data</th>
-                          <th>Hora</th>
-                          <th>Nome</th>
-                          <th>E-mail</th>
-                          <th>Chamado</th>
-                          <th>Tema</th>
-                          <th>Descrição</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {allRecords.map((record, index) => (
-                          <tr key={index}>
-                            <td>{record[0]}</td>
-                            <td>{record[1]}</td>
-                            <td>{record[2]}</td>
-                            <td>{record[3]}</td>
-                            <td>{record[4]}</td>
-                            <td>{record[5]}</td>
-                            <td>{record[6]}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </main>
+                  {currentTab === 2 && user.role === 'super' && (
+                    <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+                      <h2 className={styles.cardTitle}>Acessos Realizados</h2>
+                      {loadingRecords ? (
+                        <div className={styles.loadingContainer}>
+                          <div className="standardBoxLoader"></div>
+                        </div>
+                      ) : (
+                        <div className={styles.recordsTable}>
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Data</th>
+                                <th>Hora</th>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>Chamado</th>
+                                <th>Tema</th>
+                                <th>Descrição</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {allRecords.map((record, index) => (
+                                <tr key={index}>
+                                  <td>{record[0]}</td>
+                                  <td>{record[1]}</td>
+                                  <td>{record[2]}</td>
+                                  <td>{record[3]}</td>
+                                  <td>{record[4]}</td>
+                                  <td>{record[5]}</td>
+                                  <td>{record[6]}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </main>
 
       <Footer />
     </>
