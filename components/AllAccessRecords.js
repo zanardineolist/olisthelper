@@ -20,9 +20,25 @@ export default function AllAccessRecords({ user, currentTab }) {
       const response = await fetch('/api/get-remote-records');
       if (response.ok) {
         const data = await response.json();
-        setAllRecords(data.allRecords || []);
-        setAllMonthTotal(data.monthRecords ? data.monthRecords.length : 0);
-        setAllTotal(data.allRecords ? data.allRecords.length : 0);
+        const records = data.allRecords || [];
+        setAllRecords(records);
+        setAllTotal(records.length);
+
+        // Filtrar registros do mês atual para definir o valor de "Acessos no Mês Atual"
+        const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+        const currentMonth = new Date(today).getMonth();
+        const currentYear = new Date(today).getFullYear();
+
+        const monthRecords = records.filter(record => {
+          const [day, month, year] = record[0].split('/');
+          const recordDate = new Date(year, month - 1, day);
+          return (
+            recordDate.getMonth() === currentMonth &&
+            recordDate.getFullYear() === currentYear
+          );
+        });
+
+        setAllMonthTotal(monthRecords.length);
       } else {
         Swal.fire('Erro', 'Erro ao buscar todos os registros.', 'error');
       }
