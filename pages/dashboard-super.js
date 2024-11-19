@@ -319,7 +319,7 @@ export default function DashboardSuperPage({ user }) {
           {props.data.chamado && (
             <span
               style={{
-                backgroundColor: '#F0A028',
+                backgroundColor: '#8DD7D7',
                 color: '#FFF',
                 padding: '2px 6px',
                 borderRadius: '4px',
@@ -333,7 +333,7 @@ export default function DashboardSuperPage({ user }) {
           {props.data.telefone && (
             <span
               style={{
-                backgroundColor: '#E64E36',
+                backgroundColor: '#001647',
                 color: '#FFF',
                 padding: '2px 6px',
                 borderRadius: '4px',
@@ -347,7 +347,7 @@ export default function DashboardSuperPage({ user }) {
           {props.data.chat && (
             <span
               style={{
-                backgroundColor: '#779E3D',
+                backgroundColor: '#DF9FC7',
                 color: '#FFF',
                 padding: '2px 6px',
                 borderRadius: '4px',
