@@ -278,27 +278,27 @@
 }
 
 .recordsTable th:nth-child(1), .recordsTable td:nth-child(1) {
-  width: 13%;  /* Coluna Data */
+  width: 10%;  /* Coluna Data */
 }
 
 .recordsTable th:nth-child(2), .recordsTable td:nth-child(2) {
-  width: 13%;  /* Coluna Hora */
+  width: 10%;  /* Coluna Hora */
 }
 
 .recordsTable th:nth-child(3), .recordsTable td:nth-child(3) {
-  width: 20%;  /* Coluna Nome */
+  width: 15%;  /* Coluna Nome */
 }
 
 .recordsTable th:nth-child(4), .recordsTable td:nth-child(4) {
-  width: 13%;  /* Coluna Chamado */
+  width: 9%;  /* Coluna Chamado */
 }
 
 .recordsTable th:nth-child(5), .recordsTable td:nth-child(5) {
-  width: 18%;  /* Coluna Tema */
+  width: 16%;  /* Coluna Tema */
 }
 
 .recordsTable th:nth-child(6), .recordsTable td:nth-child(6) {
-  width: 15%;  /* Coluna Descrição */
+  width: 18%;  /* Coluna Descrição */
 }
 
 .recordsTable tbody tr:nth-child(odd) {
