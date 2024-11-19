@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
+import { getUserFromSheet } from '../utils/googleSheets';
 
 export default function AnalystProfilePage({ user }) {
   const router = useRouter();
@@ -189,7 +190,8 @@ export default function AnalystProfilePage({ user }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  if (!session || (session.role !== 'analyst' && session.role !== 'tax')) {
+
+  if (!session) {
     return {
       redirect: {
         destination: '/',
@@ -197,12 +199,38 @@ export async function getServerSideProps(context) {
       },
     };
   }
+
+  // Obter informações atualizadas do usuário do Google Sheets
+  try {
+    const userFromSheet = await getUserFromSheet(session.user.email);
+    if (!userFromSheet || !['analyst', 'tax'].includes(userFromSheet[3])) {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false,
+        },
+      };
+    }
+
+    // Atualizar as informações da sessão com os dados do Google Sheets
+    session.user.role = userFromSheet[3];
+    session.user.id = userFromSheet[0];
+  } catch (error) {
+    console.error('Erro ao buscar perfil do usuário:', error);
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
   return {
     props: {
       user: {
         ...session.user,
-        role: session.role,
-        id: session.id,
+        role: session.user.role,
+        id: session.user.id,
       },
     },
   };
