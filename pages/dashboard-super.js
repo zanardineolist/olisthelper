@@ -394,11 +394,13 @@ export default function DashboardSuperPage({ user }) {
                 label: user.name,
                 role: user.role,
                 color: getColorForRole(user.role),
+                chamado: user.chamado,
+                telefone: user.telefone,
+                chat: user.chat,
               }))}
             onChange={handleUserSelect}
             isClearable
             placeholder="Selecione um colaborador"
-            styles={customSelectStyles}
             classNamePrefix="react-select"
             noOptionsMessage={() => "Sem resultados"}
             components={{ Option: CustomOption }}
