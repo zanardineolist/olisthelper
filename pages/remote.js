@@ -56,9 +56,9 @@ export default function RemotePage({ user }) {
       <Head>
         <title>Acesso Remoto</title>
       </Head>
-
+  
       <Navbar user={user} />
-
+  
       <main className={styles.main}>
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
@@ -68,7 +68,7 @@ export default function RemotePage({ user }) {
             {user.role === 'super' && <Tab label="Agenda" />}
           </Tabs>
         </ThemeProvider>
-
+  
         <div className={styles.tabContent}>
           {user.role === 'support+' && currentTab === 0 && (
             <RegisterAccess user={user} />
@@ -77,17 +77,19 @@ export default function RemotePage({ user }) {
             <MyAccessRecords user={user} />
           )}
           {user.role === 'super' && currentTab === 0 && (
-            <AllAccessRecords user={user} currentTab={currentTab} />
+            <div className={styles.performanceWrapper}>
+              <AllAccessRecords user={user} currentTab={currentTab} />
+            </div>
           )}
           {user.role === 'super' && currentTab === 1 && (
             <GoogleCalendar />
           )}
         </div>
       </main>
-
+  
       <Footer />
     </>
-  );
+  );  
 }
 
 export async function getServerSideProps(context) {
