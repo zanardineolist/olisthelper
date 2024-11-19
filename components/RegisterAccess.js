@@ -152,6 +152,7 @@ export default function RegisterAccess({ user }) {
     <div className={styles.formContainer}>
       <h2 className={styles.formTitle}>Registrar Acesso Remoto</h2>
       <form onSubmit={handleSubmit}>
+        {/* Campo: Número do Chamado */}
         <div className={styles.formGroup}>
           <label htmlFor="chamado">Número do Chamado</label>
           <input
@@ -176,7 +177,8 @@ export default function RegisterAccess({ user }) {
             autoComplete="off"
           />
         </div>
-
+  
+        {/* Campo: Tema */}
         <div className={styles.formGroup}>
           <label htmlFor="tema">Tema</label>
           <Select
@@ -192,7 +194,8 @@ export default function RegisterAccess({ user }) {
             required
           />
         </div>
-
+  
+        {/* Campo: Descrição */}
         <div className={styles.formGroup}>
           <label htmlFor="description">Descrição</label>
           <textarea
@@ -205,7 +208,8 @@ export default function RegisterAccess({ user }) {
             className={styles.formTextarea}
           />
         </div>
-
+  
+        {/* Botão de Envio */}
         <div className={styles.formButtonContainer}>
           <button type="submit" className={styles.submitButton} disabled={submitting}>
             {submitting ? 'Registrando...' : 'Registrar'}
@@ -213,5 +217,5 @@ export default function RegisterAccess({ user }) {
         </div>
       </form>
     </div>
-  );
+  );  
 }

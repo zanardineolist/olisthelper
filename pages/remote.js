@@ -77,9 +77,7 @@ export default function RemotePage({ user }) {
             <MyAccessRecords user={user} />
           )}
           {user.role === 'super' && currentTab === 0 && (
-            <div className={styles.performanceWrapper}>
-              <AllAccessRecords user={user} currentTab={currentTab} />
-            </div>
+            <AllAccessRecords user={user} currentTab={currentTab} />
           )}
           {user.role === 'super' && currentTab === 1 && (
             <GoogleCalendar />
