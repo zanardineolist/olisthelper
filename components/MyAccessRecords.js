@@ -39,90 +39,80 @@ export default function MyAccessRecords({ user }) {
       {/* Contadores de Performance */}
       <div className={styles.performanceWrapper}>
         <div className={styles.performanceContainer}>
+          <h2>Acessos no Mês Atual</h2>
           {loadingRecords ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
+            <div className="standardBoxLoader"></div>
           ) : (
-            <>
-              <h2>Acessos no Mês Atual</h2>
-              <span className={styles.totalCount}>{userMonthTotal}</span>
-            </>
+            <span className={styles.totalCount}>{userMonthTotal}</span>
           )}
         </div>
         <div className={styles.performanceContainer}>
+          <h2>Acessos Realizados</h2>
           {loadingRecords ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
+            <div className="standardBoxLoader"></div>
           ) : (
-            <>
-              <h2>Acessos Realizados</h2>
-              <span className={styles.totalCount}>{userTotal}</span>
-            </>
+            <span className={styles.totalCount}>{userTotal}</span>
           )}
         </div>
       </div>
 
       {/* Tabela de Registros */}
-      {loadingRecords ? (
-        <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-          <div className={styles.loadingContainer}>
-            <div className="standardBoxLoader"></div>
-          </div>
-        </div>
-      ) : (
-        <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>Meus Acessos</h2>
-          </div>
-          <div className={styles.recordsTable}>
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Hora</th>
-                  <th>Nome</th>
-                  <th>Chamado</th>
-                  <th>Tema</th>
-                  <th>Descrição</th>
-                </tr>
-              </thead>
-              <tbody>
-                {userRecords.length > 0 ? (
-                  userRecords.map((record, index) => (
-                    <tr key={index}>
-                      <td>{record[0]}</td>
-                      <td>{record[1]}</td>
-                      <td>{record[2]}</td>
-                      <td>{record[4]}</td>
-                      <td>{record[5]}</td>
-                      <td>
-                        <span style={{ display: 'flex', alignItems: 'center' }}>
-                          <span style={{ marginRight: '8px' }}>
-                            {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+      <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+        {loadingRecords ? (
+          <div className="standardBoxLoader"></div>
+        ) : (
+          <>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>Meus Acessos</h2>
+            </div>
+            <div className={styles.recordsTable}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Nome</th>
+                    <th>Chamado</th>
+                    <th>Tema</th>
+                    <th>Descrição</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userRecords.length > 0 ? (
+                    userRecords.map((record, index) => (
+                      <tr key={index}>
+                        <td>{record[0]}</td>
+                        <td>{record[1]}</td>
+                        <td>{record[2]}</td>
+                        <td>{record[4]}</td>
+                        <td>{record[5]}</td>
+                        <td>
+                          <span style={{ display: 'flex', alignItems: 'center' }}>
+                            <span style={{ marginRight: '8px' }}>
+                              {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                            </span>
+                            <FontAwesomeIcon
+                              icon={faInfoCircle}
+                              className={styles.infoIcon}
+                              onClick={() => handleDescriptionClick(record[6])}
+                            />
                           </span>
-                          <FontAwesomeIcon
-                            icon={faInfoCircle}
-                            className={styles.infoIcon}
-                            onClick={() => handleDescriptionClick(record[6])}
-                          />
-                        </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="6" style={{ textAlign: 'center' }}>
+                        Nenhum registro encontrado.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="6" style={{ textAlign: 'center' }}>
-                      Nenhum registro encontrado.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </div>
     </>
   );
 }
