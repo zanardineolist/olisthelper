@@ -17,11 +17,14 @@ export default async function handler(req, res) {
     // Obter as informações da planilha (metadados)
     const sheetMeta = await getSheetMetaData();
 
-    // Iterar sobre todas as abas da planilha, pois queremos buscar os dados para todos os analistas
-    const sheetNames = sheetMeta.data.sheets.map(sheet => sheet.properties.title);
+    // Filtrar apenas as abas que representam analistas ou usuários "tax" com o formato esperado: "#id - Nome"
+    const sheetNames = sheetMeta.data.sheets
+      .map(sheet => sheet.properties.title)
+      .filter(name => /^#\d+ - .+$/.test(name)); // Apenas abas que começam com "#" seguido por números e um nome
 
     let rows = [];
 
+    // Iterar sobre as abas filtradas para buscar os dados
     for (const sheetName of sheetNames) {
       const response = await getSheetValues(sheetName, 'A:F');
       rows = rows.concat(response);
