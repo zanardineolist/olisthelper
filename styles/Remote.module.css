@@ -277,13 +277,29 @@
   table-layout: fixed;
 }
 
-.recordsTable th:nth-child(1), .recordsTable td:nth-child(1) { width: 15%; }  /* Coluna Data */
-.recordsTable th:nth-child(2), .recordsTable td:nth-child(2) { width: 14%; }  /* Coluna Hora */
-.recordsTable th:nth-child(3), .recordsTable td:nth-child(3) { width: 25%; }  /* Coluna Nome */
-.recordsTable th:nth-child(4), .recordsTable td:nth-child(4) { display: none; }  /* Coluna E-mail - Esconder */
-.recordsTable th:nth-child(5), .recordsTable td:nth-child(5) { width: 13%; }  /* Coluna Chamado */
-.recordsTable th:nth-child(6), .recordsTable td:nth-child(6) { width: 25%; }  /* Coluna Tema */
-.recordsTable th:nth-child(7), .recordsTable td:nth-child(7) { width: 25%; }  /* Coluna Descrição */
+.recordsTable th:nth-child(1), .recordsTable td:nth-child(1) {
+  width: 15%;  /* Coluna Data */
+}
+
+.recordsTable th:nth-child(2), .recordsTable td:nth-child(2) {
+  width: 14%;  /* Coluna Hora */
+}
+
+.recordsTable th:nth-child(3), .recordsTable td:nth-child(3) {
+  width: 25%;  /* Coluna Nome */
+}
+
+.recordsTable th:nth-child(4), .recordsTable td:nth-child(4) {
+  width: 13%;  /* Coluna Chamado */
+}
+
+.recordsTable th:nth-child(5), .recordsTable td:nth-child(5) {
+  width: 18%;  /* Coluna Tema */
+}
+
+.recordsTable th:nth-child(6), .recordsTable td:nth-child(6) {
+  width: 15%;  /* Coluna Descrição */
+}
 
 .recordsTable tbody tr:nth-child(odd) {
   background-color: var(--color-trodd);
