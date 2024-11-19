@@ -422,3 +422,23 @@
     font-size: 0.9rem;
   }
 }
+
+/* ================== Chartjs Estilos ================== */
+
+.chartContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: var(--box-color);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chartContainer h2 {
+  font-size: 1.5rem;
+  color: var(--title-color);
+  margin-bottom: 20px;
+}
