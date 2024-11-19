@@ -13,9 +13,8 @@ export default async function handler(req, res) {
     const dataWithoutHeader = records.slice(1); // Ignora a primeira linha (cabeçalho)
     console.log('Registros obtidos do Google Sheets:', records);
 
-    // Verificar se é uma requisição de um usuário específico ou para todos os registros
     if (userEmail) {
-      const filteredRecords = records.filter(record => record[3] === userEmail);
+      const filteredRecords = dataWithoutHeader.filter(record => record[3] === userEmail);
       console.log(`Registros filtrados para o usuário ${userEmail}:`, filteredRecords);
 
       if (filterByMonth === 'true') {
@@ -32,7 +31,7 @@ export default async function handler(req, res) {
           );
         };
         
-        const monthRecords = dataWithoutHeader.filter(isFromCurrentMonth);
+        const monthRecords = filteredRecords.filter(isFromCurrentMonth);
         console.log('Registros do mês atual:', monthRecords);        
 
         return res.status(200).json({ monthRecords, allRecords: filteredRecords });
