@@ -46,7 +46,7 @@ export default function Navbar({ user }) {
   useEffect(() => {
     const loadNotifications = async () => {
       try {
-        if (['analyst', 'tax', 'super'].includes(user.role)) {
+        if (['analyst', 'tax', 'super', 'support+'].includes(user.role)) {
           const res = await fetch(`/api/notifications?userId=${user.id}`);
           if (!res.ok) throw new Error('Erro ao carregar notificações');
           const data = await res.json();
@@ -124,7 +124,7 @@ export default function Navbar({ user }) {
           {theme === 'dark' ? <FaSun /> : <FaMoon />}
         </button>
 
-        {['analyst', 'tax', 'super'].includes(user.role) && (
+        {['analyst', 'tax', 'super', 'support+'].includes(user.role) && (
           <>
             <div className={styles.notificationToggle} onClick={toggleNotifications}>
               <FaBell />
