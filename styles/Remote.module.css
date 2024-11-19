@@ -15,6 +15,37 @@
   color: #8b8b8b;
 }
 
+/* ================== Estilo para os Containers da Tabela ================== */
+.cardContainer {
+  background-color: var(--box-color);
+  padding: 20px;
+  border-radius: 10px;
+  margin: 20px 0;
+  width: 100%;
+  max-width: 1400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.cardTitle {
+  color: var(--title-color);
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
 /* ================== Estilo para os containers ================== */
 
 .performanceWrapper {
@@ -266,6 +297,7 @@
   background-color: var(--color-treven);
 }
 
+/* ================== Ícones de Informação ================== */
 .infoIcon {
   color: var(--color-icons);
   font-size: 1.2em;
