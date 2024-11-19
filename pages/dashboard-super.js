@@ -298,27 +298,28 @@ export default function DashboardSuperPage({ user }) {
 
   // Componente customizado para renderizar as opções do Select
   const CustomOption = (props) => {
-    const [tags, setTags] = useState({
-      chamado: false,
-      telefone: false,
-      chat: false,
-    });
-
-    const handleCheckboxChange = (e, tag) => {
-      setTags((prevTags) => ({
-        ...prevTags,
-        [tag]: e.target.checked,
-      }));
-    };
-
     return (
       <components.Option {...props}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <span>{props.label}</span>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span>{props.label}</span>
+          <span
+            style={{
+              backgroundColor: props.data.color,
+              color: '#FFF',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              marginLeft: '10px',
+              fontSize: '0.8em',
+            }}
+          >
+            {getRoleLabel(props.data.role)}
+          </span>
+
+          {/* Adicionando novas tags para Chamado, Telefone e Chat se forem TRUE */}
+          {props.data.chamado && (
             <span
               style={{
-                backgroundColor: props.data.color,
+                backgroundColor: '#F0A028',
                 color: '#FFF',
                 padding: '2px 6px',
                 borderRadius: '4px',
@@ -326,38 +327,37 @@ export default function DashboardSuperPage({ user }) {
                 fontSize: '0.8em',
               }}
             >
-              {getRoleLabel(props.data.role)}
-            </span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '20px' }}>
-            <label style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="checkbox"
-                checked={tags.chamado}
-                onChange={(e) => handleCheckboxChange(e, 'chamado')}
-                style={{ marginRight: '5px' }}
-              />
               Chamado
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="checkbox"
-                checked={tags.telefone}
-                onChange={(e) => handleCheckboxChange(e, 'telefone')}
-                style={{ marginRight: '5px' }}
-              />
+            </span>
+          )}
+          {props.data.telefone && (
+            <span
+              style={{
+                backgroundColor: '#E64E36',
+                color: '#FFF',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                marginLeft: '10px',
+                fontSize: '0.8em',
+              }}
+            >
               Telefone
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="checkbox"
-                checked={tags.chat}
-                onChange={(e) => handleCheckboxChange(e, 'chat')}
-                style={{ marginRight: '5px' }}
-              />
+            </span>
+          )}
+          {props.data.chat && (
+            <span
+              style={{
+                backgroundColor: '#779E3D',
+                color: '#FFF',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                marginLeft: '10px',
+                fontSize: '0.8em',
+              }}
+            >
               Chat
-            </label>
-          </div>
+            </span>
+          )}
         </div>
       </components.Option>
     );
