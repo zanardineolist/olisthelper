@@ -59,7 +59,9 @@ export default function MyAccessRecords({ user }) {
   
       {/* Tabela de Registros */}
       <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-        <h2 className={styles.cardTitle}>Meus Acessos</h2>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>Meus Acessos</h2>
+        </div>
         {loadingRecords ? (
           <div className="loaderOverlay">
             <div className="loader"></div>

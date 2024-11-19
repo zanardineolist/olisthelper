@@ -53,7 +53,9 @@ export default function AllAccessRecords({ user, currentTab }) {
   
       {/* Tabela de Registros */}
       <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-        <h2 className={styles.cardTitle}>Acessos Realizados</h2>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>Acessos Realizados</h2>
+        </div>
         {loading ? (
           <div className="loaderOverlay">
             <div className="loader"></div>
@@ -107,7 +109,7 @@ export default function AllAccessRecords({ user, currentTab }) {
         )}
       </div>
     </>
-  );  
+  );
 }
 
 const handleDescriptionClick = (description) => {
