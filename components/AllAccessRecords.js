@@ -8,11 +8,16 @@ export default function AllAccessRecords({ user, currentTab }) {
   const [allRecords, setAllRecords] = useState([]);
   const [allMonthTotal, setAllMonthTotal] = useState(0);
   const [allTotal, setAllTotal] = useState(0);
-  const [loading, setLoading] = useState(false); // Estado de carregamento
+  const [loading, setLoading] = useState(false);
 
-  // Função para carregar todos os registros
+  useEffect(() => {
+    if (currentTab === 0) {
+      loadAllRecords();
+    }
+  }, [currentTab]);
+
   const loadAllRecords = async () => {
-    setLoading(true); // Iniciar o carregamento
+    setLoading(true);
     try {
       const response = await fetch('/api/get-remote-records');
       if (response.ok) {
@@ -27,15 +32,9 @@ export default function AllAccessRecords({ user, currentTab }) {
       console.error('Erro ao buscar todos os registros:', error);
       Swal.fire('Erro', 'Erro ao buscar todos os registros. Tente novamente.', 'error');
     } finally {
-      setLoading(false); // Finalizar o carregamento
+      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (currentTab === 0) { // Ajustar para garantir que carrega quando `currentTab` for 0
-      loadAllRecords();
-    }
-  }, [currentTab]);
 
   return (
     <>
@@ -43,22 +42,34 @@ export default function AllAccessRecords({ user, currentTab }) {
       <div className={styles.performanceWrapper}>
         <div className={styles.performanceContainer}>
           <h2>Acessos no Mês Atual</h2>
-          <span className={styles.totalCount}>{allMonthTotal}</span>
+          {loading ? (
+            <div className={styles.loadingContainer}>
+              <div className="standardBoxLoader"></div>
+            </div>
+          ) : (
+            <span className={styles.totalCount}>{allMonthTotal}</span>
+          )}
         </div>
         <div className={styles.performanceContainer}>
           <h2>Acessos Realizados</h2>
-          <span className={styles.totalCount}>{allTotal}</span>
+          {loading ? (
+            <div className={styles.loadingContainer}>
+              <div className="standardBoxLoader"></div>
+            </div>
+          ) : (
+            <span className={styles.totalCount}>{allTotal}</span>
+          )}
         </div>
       </div>
-  
+
       {/* Tabela de Registros */}
       <div className={`${styles.cardContainer} ${styles.dashboard}`}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Acessos Realizados</h2>
         </div>
         {loading ? (
-          <div className="loaderOverlay">
-            <div className="loader"></div>
+          <div className={styles.loadingContainer}>
+            <div className="standardBoxLoader"></div>
           </div>
         ) : (
           <div className={styles.recordsTable}>
@@ -111,12 +122,3 @@ export default function AllAccessRecords({ user, currentTab }) {
     </>
   );
 }
-
-const handleDescriptionClick = (description) => {
-  Swal.fire({
-    title: 'Descrição Completa',
-    text: description,
-    icon: 'info',
-    confirmButtonText: 'Fechar',
-  });
-};

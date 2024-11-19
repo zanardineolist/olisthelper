@@ -46,19 +46,34 @@ const theme = createTheme({
 
 export default function RemotePage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setInitialLoading(false);
+    }, 500);
+  }, []);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
+
+  if (initialLoading) {
+    return (
+      <div className="loaderOverlay">
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
     <>
       <Head>
         <title>Acesso Remoto</title>
       </Head>
-  
+
       <Navbar user={user} />
-  
+
       <main className={styles.main}>
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
@@ -68,7 +83,7 @@ export default function RemotePage({ user }) {
             {user.role === 'super' && <Tab label="Agenda" />}
           </Tabs>
         </ThemeProvider>
-  
+
         <div className={styles.tabContent}>
           {user.role === 'support+' && currentTab === 0 && (
             <RegisterAccess user={user} />
@@ -84,10 +99,10 @@ export default function RemotePage({ user }) {
           )}
         </div>
       </main>
-  
+
       <Footer />
     </>
-  );  
+  );
 }
 
 export async function getServerSideProps(context) {

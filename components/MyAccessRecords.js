@@ -32,15 +32,6 @@ export default function MyAccessRecords({ user }) {
     } finally {
       setLoadingRecords(false);
     }
-  };  
-
-  const handleDescriptionClick = (description) => {
-    Swal.fire({
-      title: 'Descrição Completa',
-      text: description,
-      icon: 'info',
-      confirmButtonText: 'Fechar',
-    });
   };
 
   return (
@@ -49,22 +40,34 @@ export default function MyAccessRecords({ user }) {
       <div className={styles.performanceWrapper}>
         <div className={styles.performanceContainer}>
           <h2>Acessos no Mês Atual</h2>
-          <span className={styles.totalCount}>{userMonthTotal}</span>
+          {loadingRecords ? (
+            <div className={styles.loadingContainer}>
+              <div className="standardBoxLoader"></div>
+            </div>
+          ) : (
+            <span className={styles.totalCount}>{userMonthTotal}</span>
+          )}
         </div>
         <div className={styles.performanceContainer}>
           <h2>Acessos Realizados</h2>
-          <span className={styles.totalCount}>{userTotal}</span>
+          {loadingRecords ? (
+            <div className={styles.loadingContainer}>
+              <div className="standardBoxLoader"></div>
+            </div>
+          ) : (
+            <span className={styles.totalCount}>{userTotal}</span>
+          )}
         </div>
       </div>
-  
+
       {/* Tabela de Registros */}
       <div className={`${styles.cardContainer} ${styles.dashboard}`}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Meus Acessos</h2>
         </div>
         {loadingRecords ? (
-          <div className="loaderOverlay">
-            <div className="loader"></div>
+          <div className={styles.loadingContainer}>
+            <div className="standardBoxLoader"></div>
           </div>
         ) : (
           <div className={styles.recordsTable}>
@@ -115,5 +118,5 @@ export default function MyAccessRecords({ user }) {
         )}
       </div>
     </>
-  );  
+  );
 }
