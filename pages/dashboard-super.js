@@ -401,6 +401,7 @@ export default function DashboardSuperPage({ user }) {
             onChange={handleUserSelect}
             isClearable
             placeholder="Selecione um colaborador"
+            styles={customSelectStyles}
             classNamePrefix="react-select"
             noOptionsMessage={() => "Sem resultados"}
             components={{ Option: CustomOption }}
