@@ -14,10 +14,10 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       try {
-        // Verifica se o usuário está autorizado ou cria um novo
-        const userDetails = await addUserToSheetIfNotExists(user);
+        // Centralizar a verificação e adição do usuário ao Google Sheets
+        const userDetails = await getOrCreateUser(user);
         if (!userDetails) {
-          console.log("Usuário não autorizado:", user.email);
+          console.error("Usuário não autorizado ou erro durante criação:", user.email);
           return false; // Rejeitar o login se o usuário não puder ser criado
         }
         console.log("Usuário autorizado:", userDetails);
@@ -31,7 +31,7 @@ export default NextAuth({
       // Adicionar ID e papel do usuário à sessão
       if (token) {
         session.id = token.id;
-        session.role = token.role; // Papel do usuário: 'user', 'analyst', ou 'super'
+        session.role = token.role; // Papel do usuário: 'user', 'analyst', 'tax', 'super', 'support+'
       }
       return session;
     },
@@ -39,10 +39,10 @@ export default NextAuth({
       // Atribuir ID e papel do usuário ao token
       if (user) {
         try {
-          let userDetails = await getUserFromSheet(user.email);
+          const userDetails = await getOrCreateUser(user);
           if (userDetails) {
-            token.id = userDetails[0]; // Garantir que o ID seja único e consistente
-            token.role = userDetails[3]; // Papel do usuário: 'user', 'analyst', ou 'super'
+            token.id = userDetails[0]; // ID único do usuário
+            token.role = userDetails[3]; // Papel do usuário: 'user', 'analyst', 'tax', 'super', 'support+'
           }
         } catch (error) {
           console.error("Erro ao obter detalhes do usuário:", error);
@@ -54,9 +54,32 @@ export default NextAuth({
   pages: {
     signIn: '/',
     signOut: '/',
-    error: '/auth/error',
+    error: '/auth/error', // Página de erro personalizada para melhor feedback ao usuário
   },
   jwt: {
     secret: process.env.NEXTAUTH_SECRET,
   },
 });
+
+/**
+ * Função auxiliar para obter ou criar usuário no Google Sheets.
+ * Centraliza a lógica de verificação e criação de um novo usuário, evitando duplicação.
+ * @param {Object} user - Objeto do usuário fornecido pelo Google.
+ * @returns {Promise<Array|null>} - Detalhes do usuário ou null em caso de falha.
+ */
+async function getOrCreateUser(user) {
+  try {
+    // Verificar se o usuário já existe no Google Sheets
+    let userDetails = await getUserFromSheet(user.email);
+    if (userDetails) {
+      return userDetails; // Retornar detalhes se o usuário já existir
+    }
+    
+    // Adicionar um novo usuário se não encontrado
+    userDetails = await addUserToSheetIfNotExists(user);
+    return userDetails;
+  } catch (error) {
+    console.error("Erro ao obter ou criar usuário:", error);
+    return null;
+  }
+}

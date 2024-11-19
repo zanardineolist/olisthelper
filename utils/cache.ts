@@ -1,18 +1,26 @@
 // utils/cache.ts
 
+import EventEmitter from 'events';
+
 type CacheData = {
   data: any;
   timestamp: number;
   expiry: number;
 };
 
-class Cache {
+class Cache extends EventEmitter {
   private store: Map<string, CacheData>;
   private maxSize: number;
 
   constructor(maxSize = 100) {
+    super();
     this.store = new Map();
     this.maxSize = maxSize;
+
+    // Ouvir eventos para atualizar cache
+    this.on('update', (key, data, duration) => {
+      this.set(key, data, duration);
+    });
   }
 
   set(key: string, data: any, duration: number): void {
@@ -78,10 +86,21 @@ class Cache {
       }
     }
   }
+
+  // Método para forçar atualização do cache a partir de uma fonte externa (e.g., planilha Google)
+  async updateCache(key: string, fetchFunction: () => Promise<any>, duration: number): Promise<void> {
+    try {
+      const data = await fetchFunction();
+      this.emit('update', key, data, duration);
+    } catch (error) {
+      console.error(`Erro ao atualizar cache para a chave ${key}:`, error);
+    }
+  }
 }
 
 export const cache = new Cache();
 
+// Constantes de tempo de cache (em milissegundos)
 export const CACHE_TIMES = {
   USERS: 30 * 60 * 1000,
   PERFORMANCE: 5 * 60 * 1000,

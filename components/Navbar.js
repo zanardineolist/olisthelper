@@ -7,6 +7,8 @@ import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'rea
 import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { db } from '../utils/firebase/firebaseConfig';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -44,26 +46,21 @@ export default function Navbar({ user }) {
   };
 
   useEffect(() => {
-    const loadNotifications = async () => {
-      try {
-        if (['analyst', 'tax', 'super', 'support+'].includes(user.role)) {
-          const res = await fetch(`/api/notifications?userId=${user.id}`);
-          if (!res.ok) throw new Error('Erro ao carregar notificações');
-          const data = await res.json();
-          setNotifications(data.notifications);
-        }
-      } catch (err) {
-        console.error('Erro ao carregar notificações:', err);
-      }
-    };
-    loadNotifications();
+    if (!user?.id) return;
 
-    const interval = setInterval(() => {
-      setNotifications((prevNotifications) => [...prevNotifications]);
-    }, 1000);
+    const notificationsCollection = collection(db, "notifications");
+    const q = query(notificationsCollection, where("userId", "==", user.id));
 
-    return () => clearInterval(interval);
-  }, [user.id, user.role]);
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const updatedNotifications = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setNotifications(updatedNotifications);
+    });
+
+    return () => unsubscribe();
+  }, [user.id]);
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -120,13 +117,13 @@ export default function Navbar({ user }) {
       </div>
 
       <div className={styles.rightSection}>
-        <button onClick={toggleTheme} className={styles.themeToggle}>
+        <button onClick={toggleTheme} className={styles.themeToggle} aria-label="Alternar tema">
           {theme === 'dark' ? <FaSun /> : <FaMoon />}
         </button>
 
         {['analyst', 'tax', 'super', 'support+'].includes(user.role) && (
           <>
-            <div className={styles.notificationToggle} onClick={toggleNotifications}>
+            <div className={styles.notificationToggle} onClick={toggleNotifications} aria-label="Notificações">
               <FaBell />
               {unreadNotificationsCount > 0 && (
                 <span className={styles.notificationCount}>{unreadNotificationsCount}</span>
@@ -173,14 +170,14 @@ export default function Navbar({ user }) {
           </>
         )}
 
-        <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle}>
+        <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle} aria-label="Menu">
           ☰
         </button>
       </div>
 
       {menuOpen && (
         <div className={styles.menu}>
-          {user.role === 'support' || user.role ==='support+' && (
+          {(user.role === 'support' || user.role === 'support+') && (
             <button onClick={() => handleNavigation('/profile')} className={styles.menuButton}>
               Meu Perfil
             </button>
