@@ -10,12 +10,6 @@ export default function AllAccessRecords({ user, currentTab }) {
   const [allTotal, setAllTotal] = useState(0);
   const [loading, setLoading] = useState(false); // Estado de carregamento
 
-  useEffect(() => {
-    if (currentTab === 0) {
-      loadAllRecords();
-    }
-  }, [currentTab]);
-
   const loadAllRecords = async () => {
     setLoading(true);
     try {
@@ -36,91 +30,92 @@ export default function AllAccessRecords({ user, currentTab }) {
     }
   };
 
+  useEffect(() => {
+    if (currentTab === 0) {
+      loadAllRecords();
+    }
+  }, [currentTab]);
+
   return (
     <>
       {/* Contadores de Performance */}
       <div className={styles.performanceWrapper}>
         <div className={styles.performanceContainer}>
           <h2>Acessos no Mês Atual</h2>
-          <div className={styles.loadingContent}>
-            {loading ? (
-              <div className="standardBoxLoader"></div>
-            ) : (
-              <span className={styles.totalCount}>{allMonthTotal}</span>
-            )}
-          </div>
+          <span className={styles.totalCount}>{allMonthTotal}</span>
         </div>
         <div className={styles.performanceContainer}>
           <h2>Acessos Realizados</h2>
-          <div className={styles.loadingContent}>
-            {loading ? (
-              <div className="standardBoxLoader"></div>
-            ) : (
-              <span className={styles.totalCount}>{allTotal}</span>
-            )}
-          </div>
+          <span className={styles.totalCount}>{allTotal}</span>
         </div>
       </div>
   
       {/* Tabela de Registros */}
       <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-        <div className={styles.loadingContent}>
-          {loading ? (
-            <div className="standardBoxLoader"></div>
-          ) : (
-            <>
-              <div className={styles.cardHeader}>
-                <h2 className={styles.cardTitle}>Acessos Realizados</h2>
-              </div>
-              <div className={styles.recordsTable}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Data</th>
-                      <th>Hora</th>
-                      <th>Nome</th>
-                      <th>Chamado</th>
-                      <th>Tema</th>
-                      <th>Descrição</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allRecords.length > 0 ? (
-                      allRecords.map((record, index) => (
-                        <tr key={index}>
-                          <td>{record[0]}</td>
-                          <td>{record[1]}</td>
-                          <td>{record[2]}</td>
-                          <td>{record[4]}</td>
-                          <td>{record[5]}</td>
-                          <td>
-                            <span style={{ display: 'flex', alignItems: 'center' }}>
-                              <span style={{ marginRight: '8px' }}>
-                                {record[6]?.length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
-                              </span>
-                              <FontAwesomeIcon
-                                icon={faInfoCircle}
-                                className={styles.infoIcon}
-                                onClick={() => handleDescriptionClick(record[6])}
-                              />
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="6" style={{ textAlign: 'center' }}>
-                          Nenhum registro encontrado.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </>
-          )}
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>Acessos Realizados</h2>
         </div>
+        {loading ? (
+          <div className="loaderOverlay">
+            <div className="loader"></div>
+          </div>
+        ) : (
+          <div className={styles.recordsTable}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Hora</th>
+                  <th>Nome</th>
+                  <th>Chamado</th>
+                  <th>Tema</th>
+                  <th>Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+                {allRecords.length > 0 ? (
+                  allRecords.map((record, index) => (
+                    <tr key={index}>
+                      <td>{record[0]}</td>
+                      <td>{record[1]}</td>
+                      <td>{record[2]}</td>
+                      <td>{record[4]}</td>
+                      <td>{record[5]}</td>
+                      <td>
+                        <span style={{ display: 'flex', alignItems: 'center' }}>
+                          <span style={{ marginRight: '8px' }}>
+                            {record[6]?.length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                          </span>
+                          <FontAwesomeIcon
+                            icon={faInfoCircle}
+                            className={styles.infoIcon}
+                            onClick={() => handleDescriptionClick(record[6])}
+                          />
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center' }}>
+                      Nenhum registro encontrado.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </>
   );
 }
+
+const handleDescriptionClick = (description) => {
+  Swal.fire({
+    title: 'Descrição Completa',
+    text: description,
+    icon: 'info',
+    confirmButtonText: 'Fechar',
+  });
+};
