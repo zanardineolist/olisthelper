@@ -23,7 +23,6 @@
   margin: 20px 0;
   width: 100%;
   max-width: 1400px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard {
@@ -49,8 +48,8 @@
 /* ================== Estilo para os containers ================== */
 
 .performanceWrapper {
-  width: 90%;
-  max-width: 1000px;
+  width: 100%;
+  max-width: 1400px;
   margin: 20px auto;
   display: flex;
   justify-content: space-between;
@@ -71,7 +70,6 @@
   max-width: 300px;
   height: 100px;
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .totalCount {
@@ -99,7 +97,6 @@
   border-radius: 10px;
   max-width: 800px;
   width: 100%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .formTitle {
@@ -244,7 +241,6 @@
   margin: 20px auto;
   overflow-x: auto;
   border-collapse: collapse;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .recordsTable thead {
