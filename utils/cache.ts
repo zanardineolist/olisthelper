@@ -56,13 +56,7 @@ class Cache extends EventEmitter {
   }
 
   update(key: string, data: any): void {
-    if (this.store.has(key)) {
-      this.store.set(key, {
-        data,
-        timestamp: Date.now(),
-        expiry: this.store.get(key)!.expiry,
-      });
-    }
+    this.set(key, data, CACHE_TIMES.USERS);
   }
 
   private getOldestKey(): string | undefined {

@@ -1,12 +1,19 @@
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
+import { getUserFromSheet } from "../utils/googleSheets";
 
 export async function middleware(req) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  let token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   // Redirecionar para página de login se não houver token
   if (!token) {
     return NextResponse.redirect(new URL('/', req.url));
+  }
+
+  // Verificar se o perfil do usuário está atualizado
+  const userFromSheet = await getUserFromSheet(token.email);
+  if (userFromSheet && userFromSheet[3] !== token.role) {
+    token.role = userFromSheet[3];
   }
 
   // Ajustar os papéis permitidos

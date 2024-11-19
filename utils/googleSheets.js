@@ -143,6 +143,37 @@ export async function getUserFromSheet(email) {
   }
 }
 
+export async function updateUserProfile(email, newRole) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Usuários!A:H',
+    });
+
+    const rows = response.data.values;
+    if (rows) {
+      const userIndex = rows.findIndex((row) => row[2] === email);
+      if (userIndex >= 0) {
+        rows[userIndex][3] = newRole;
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: sheetId,
+          range: `Usuários!A${userIndex + 1}:H${userIndex + 1}`,
+          valueInputOption: 'USER_ENTERED',
+          resource: { values: [rows[userIndex]] },
+        });
+
+        const cacheKey = `user_${email}`;
+        await cache.updateCache(cacheKey, () => getUserFromSheet(email), CACHE_TIMES.USERS);
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao atualizar perfil do usuário na planilha:', error);
+  }
+}
+
 export async function getSheetMetaData() {
   try {
     const cacheKey = 'sheet_metadata';
