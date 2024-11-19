@@ -176,7 +176,7 @@ export default function DashboardSuperPage({ user }) {
       case 'analyst':
         return '#0A4EE4'; // Azul para Analista
       case 'tax':
-        return '#8A2BE2'; // Laranja para Fiscal
+        return '#8A2BE2'; // Roxo para Fiscal
       case 'super':
         return '#E64E36'; // Vermelho para Supervisor
       case 'partner':
@@ -209,21 +209,6 @@ export default function DashboardSuperPage({ user }) {
         return 'Desconhecido';
     }
   };
-
-  // Componente customizado para renderizar as opções do Select
-  const CustomOption = (props) => {
-    const [tags, setTags] = useState({
-      chamado: false,
-      telefone: false,
-      chat: false,
-    });
-
-    const handleCheckboxChange = (e, tag) => {
-      setTags((prevTags) => ({
-        ...prevTags,
-        [tag]: e.target.checked,
-      }));
-    };
 
   // Estilos personalizados para o React-Select
   const customSelectStyles = {
@@ -311,6 +296,21 @@ export default function DashboardSuperPage({ user }) {
     );
   }
 
+  // Componente customizado para renderizar as opções do Select
+  const CustomOption = (props) => {
+    const [tags, setTags] = useState({
+      chamado: false,
+      telefone: false,
+      chat: false,
+    });
+
+    const handleCheckboxChange = (e, tag) => {
+      setTags((prevTags) => ({
+        ...prevTags,
+        [tag]: e.target.checked,
+      }));
+    };
+
     return (
       <components.Option {...props}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -362,19 +362,19 @@ export default function DashboardSuperPage({ user }) {
       </components.Option>
     );
   };
-
+  
   return (
     <>
       <Head>
         <title>Dashboard Supervisor</title>
       </Head>
-  
+
       {/* Navbar reutilizável */}
       <Navbar user={user} />
-  
+
       <main className={styles.main}>
         <h1 className={styles.greeting}>Olá, {greeting} {user.name.split(' ')[0]}!</h1>
-  
+
         {/* Container com informações do perfil do supervisor */}
         <div className={styles.profileContainer}>
           <img src={user.image} alt={user.name} className={styles.profileImage} />
@@ -383,7 +383,7 @@ export default function DashboardSuperPage({ user }) {
             <p>{user.email}</p>
           </div>
         </div>
-  
+
         {/* Campo de Seleção do Colaborador */}
         <div className={styles.profileAndHelpContainer}>
           <Select
