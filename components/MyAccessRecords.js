@@ -39,37 +39,43 @@ export default function MyAccessRecords({ user }) {
       {/* Contadores de Performance */}
       <div className={styles.performanceWrapper}>
         <div className={styles.performanceContainer}>
-          <h2>Acessos no Mês Atual</h2>
           {loadingRecords ? (
             <div className={styles.loadingContainer}>
               <div className="standardBoxLoader"></div>
             </div>
           ) : (
-            <span className={styles.totalCount}>{userMonthTotal}</span>
+            <>
+              <h2>Acessos no Mês Atual</h2>
+              <span className={styles.totalCount}>{userMonthTotal}</span>
+            </>
           )}
         </div>
         <div className={styles.performanceContainer}>
-          <h2>Acessos Realizados</h2>
           {loadingRecords ? (
             <div className={styles.loadingContainer}>
               <div className="standardBoxLoader"></div>
             </div>
           ) : (
-            <span className={styles.totalCount}>{userTotal}</span>
+            <>
+              <h2>Acessos Realizados</h2>
+              <span className={styles.totalCount}>{userTotal}</span>
+            </>
           )}
         </div>
       </div>
 
       {/* Tabela de Registros */}
-      <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>Meus Acessos</h2>
-        </div>
-        {loadingRecords ? (
+      {loadingRecords ? (
+        <div className={`${styles.cardContainer} ${styles.dashboard}`}>
           <div className={styles.loadingContainer}>
             <div className="standardBoxLoader"></div>
           </div>
-        ) : (
+        </div>
+      ) : (
+        <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Meus Acessos</h2>
+          </div>
           <div className={styles.recordsTable}>
             <table>
               <thead>
@@ -115,8 +121,8 @@ export default function MyAccessRecords({ user }) {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 }

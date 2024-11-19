@@ -8,7 +8,7 @@ export default function AllAccessRecords({ user, currentTab }) {
   const [allRecords, setAllRecords] = useState([]);
   const [allMonthTotal, setAllMonthTotal] = useState(0);
   const [allTotal, setAllTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Estado de carregamento
 
   useEffect(() => {
     if (currentTab === 0) {
@@ -41,37 +41,43 @@ export default function AllAccessRecords({ user, currentTab }) {
       {/* Contadores de Performance */}
       <div className={styles.performanceWrapper}>
         <div className={styles.performanceContainer}>
-          <h2>Acessos no Mês Atual</h2>
           {loading ? (
             <div className={styles.loadingContainer}>
               <div className="standardBoxLoader"></div>
             </div>
           ) : (
-            <span className={styles.totalCount}>{allMonthTotal}</span>
+            <>
+              <h2>Acessos no Mês Atual</h2>
+              <span className={styles.totalCount}>{allMonthTotal}</span>
+            </>
           )}
         </div>
         <div className={styles.performanceContainer}>
-          <h2>Acessos Realizados</h2>
           {loading ? (
             <div className={styles.loadingContainer}>
               <div className="standardBoxLoader"></div>
             </div>
           ) : (
-            <span className={styles.totalCount}>{allTotal}</span>
+            <>
+              <h2>Acessos Realizados</h2>
+              <span className={styles.totalCount}>{allTotal}</span>
+            </>
           )}
         </div>
       </div>
-
+  
       {/* Tabela de Registros */}
-      <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>Acessos Realizados</h2>
-        </div>
-        {loading ? (
+      {loading ? (
+        <div className={`${styles.cardContainer} ${styles.dashboard}`}>
           <div className={styles.loadingContainer}>
             <div className="standardBoxLoader"></div>
           </div>
-        ) : (
+        </div>
+      ) : (
+        <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Acessos Realizados</h2>
+          </div>
           <div className={styles.recordsTable}>
             <table>
               <thead>
@@ -117,8 +123,8 @@ export default function AllAccessRecords({ user, currentTab }) {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 }
