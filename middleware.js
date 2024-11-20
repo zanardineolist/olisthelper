@@ -48,9 +48,9 @@ export async function middleware(req) {
 
   // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
   const response = NextResponse.next();
-  response.cookies.set('user-id', token.id);
-  response.cookies.set('user-name', token.name);
-  response.cookies.set('user-role', token.role);
+  response.cookies.set('user-id', token.id, { httpOnly: true, secure: true, sameSite: 'Strict' });
+  response.cookies.set('user-name', token.name, { httpOnly: true, secure: true, sameSite: 'Strict' });
+  response.cookies.set('user-role', token.role, { httpOnly: true, secure: true, sameSite: 'Strict' });
 
   return response;
 }
