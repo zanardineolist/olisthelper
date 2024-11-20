@@ -1,6 +1,6 @@
 // utils/cache.ts
-
 import EventEmitter from 'events';
+import { getEdgeConfig, setEdgeConfig } from '@vercel/edge-config';
 
 type CacheData = {
   data: any;
@@ -20,7 +20,29 @@ class Cache extends EventEmitter {
     // Ouvir eventos para atualizar cache
     this.on('update', (key, data, duration) => {
       this.set(key, data, duration);
+      // Atualizar também no Edge Config
+      setEdgeConfig(key, data, { ttl: duration / 1000 }).catch(console.error);
     });
+  }
+
+  async get(key: string): Promise<any> {
+    // Primeiro tentar o cache local
+    const cached = this.store.get(key);
+    if (cached && Date.now() <= cached.expiry) {
+      return cached.data;
+    }
+    // Tentar no Edge Config
+    try {
+      const edgeData = await getEdgeConfig(key);
+      if (edgeData) {
+        // Atualizar cache local se o Edge Config estiver disponível
+        this.set(key, edgeData, CACHE_TIMES.SHEET_VALUES);
+        return edgeData;
+      }
+    } catch (error) {
+      console.error(`Erro ao obter do Edge Config para a chave ${key}:`, error);
+    }
+    return null;
   }
 
   set(key: string, data: any, duration: number): void {
@@ -35,16 +57,9 @@ class Cache extends EventEmitter {
       timestamp: Date.now(),
       expiry: Date.now() + duration,
     });
-  }
 
-  get(key: string): any {
-    const cached = this.store.get(key);
-    if (!cached) return null;
-    if (Date.now() > cached.expiry) {
-      this.store.delete(key);
-      return null;
-    }
-    return cached.data;
+    // Definir no Edge Config para cache distribuído
+    setEdgeConfig(key, data, { ttl: duration / 1000 }).catch(console.error);
   }
 
   delete(key: string): void {
@@ -55,8 +70,13 @@ class Cache extends EventEmitter {
     this.store.clear();
   }
 
-  update(key: string, data: any): void {
-    this.set(key, data, CACHE_TIMES.USERS);
+  async updateCache(key: string, fetchFunction: () => Promise<any>, duration: number): Promise<void> {
+    try {
+      const data = await fetchFunction();
+      this.emit('update', key, data, duration);
+    } catch (error) {
+      console.error(`Erro ao atualizar cache para a chave ${key}:`, error);
+    }
   }
 
   private getOldestKey(): string | undefined {
@@ -71,24 +91,6 @@ class Cache extends EventEmitter {
     }
 
     return oldestKey;
-  }
-
-  clearExpired(): void {
-    for (const [key, value] of this.store.entries()) {
-      if (Date.now() > value.expiry) {
-        this.store.delete(key);
-      }
-    }
-  }
-
-  // Método para forçar atualização do cache a partir de uma fonte externa (e.g., planilha Google)
-  async updateCache(key: string, fetchFunction: () => Promise<any>, duration: number): Promise<void> {
-    try {
-      const data = await fetchFunction();
-      this.emit('update', key, data, duration);
-    } catch (error) {
-      console.error(`Erro ao atualizar cache para a chave ${key}:`, error);
-    }
   }
 }
 

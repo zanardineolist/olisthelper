@@ -1,6 +1,7 @@
 // utils/googleSheets.js
 import { google } from 'googleapis';
 import { cache, CACHE_TIMES } from './cache';
+import { getEdgeConfig, setEdgeConfig } from '@vercel/edge-config';
 
 let sheetsInstance = null;
 
@@ -20,7 +21,7 @@ export async function getAuthenticatedGoogleSheets() {
 
 export async function batchGetValues(ranges) {
   const cacheKey = `batch_${ranges.join('_')}`;
-  const cached = cache.get(cacheKey);
+  const cached = await cache.get(cacheKey);
   if (cached) return cached;
 
   const sheets = await getAuthenticatedGoogleSheets();
@@ -117,7 +118,7 @@ export async function addUserToSheetIfNotExists(user) {
 export async function getUserFromSheet(email) {
   try {
     const cacheKey = `user_${email}`;
-    const cachedUser = cache.get(cacheKey);
+    const cachedUser = await cache.get(cacheKey);
     if (cachedUser) return cachedUser;
 
     const sheets = await getAuthenticatedGoogleSheets();
@@ -195,7 +196,7 @@ export async function getSheetMetaData() {
 export async function getSheetValues(sheetName, range) {
   try {
     const cacheKey = `sheet_${sheetName}_${range}`;
-    const cachedValues = cache.get(cacheKey);
+    const cachedValues = await cache.get(cacheKey);
     if (cachedValues) return cachedValues;
 
     const sheets = await getAuthenticatedGoogleSheets();
