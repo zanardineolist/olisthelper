@@ -1,6 +1,9 @@
-// utils/cache.ts
 import EventEmitter from 'events';
-import { getEdgeConfig, setEdgeConfig } from '@vercel/edge-config';
+
+let edgeConfig;
+if (typeof window === 'undefined') {
+  edgeConfig = require('@vercel/edge-config');
+}
 
 type CacheData = {
   data: any;
@@ -21,7 +24,9 @@ class Cache extends EventEmitter {
     this.on('update', (key, data, duration) => {
       this.set(key, data, duration);
       // Atualizar também no Edge Config
-      setEdgeConfig(key, data, { ttl: duration / 1000 }).catch(console.error);
+      if (edgeConfig) {
+        edgeConfig.setEdgeConfig(key, data, { ttl: duration / 1000 }).catch(console.error);
+      }
     });
   }
 
@@ -33,11 +38,13 @@ class Cache extends EventEmitter {
     }
     // Tentar no Edge Config
     try {
-      const edgeData = await getEdgeConfig(key);
-      if (edgeData) {
-        // Atualizar cache local se o Edge Config estiver disponível
-        this.set(key, edgeData, CACHE_TIMES.SHEET_VALUES);
-        return edgeData;
+      if (edgeConfig) {
+        const edgeData = await edgeConfig.getEdgeConfig(key);
+        if (edgeData) {
+          // Atualizar cache local se o Edge Config estiver disponível
+          this.set(key, edgeData, CACHE_TIMES.SHEET_VALUES);
+          return edgeData;
+        }
       }
     } catch (error) {
       console.error(`Erro ao obter do Edge Config para a chave ${key}:`, error);
@@ -59,7 +66,9 @@ class Cache extends EventEmitter {
     });
 
     // Definir no Edge Config para cache distribuído
-    setEdgeConfig(key, data, { ttl: duration / 1000 }).catch(console.error);
+    if (edgeConfig) {
+      edgeConfig.setEdgeConfig(key, data, { ttl: duration / 1000 }).catch(console.error);
+    }
   }
 
   delete(key: string): void {

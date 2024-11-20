@@ -1,7 +1,11 @@
 // utils/googleSheets.js
 import { google } from 'googleapis';
 import { cache, CACHE_TIMES } from './cache';
-import { getEdgeConfig, setEdgeConfig } from '@vercel/edge-config';
+
+let edgeConfig;
+if (typeof window === 'undefined') {
+  edgeConfig = require('@vercel/edge-config');
+}
 
 let sheetsInstance = null;
 
@@ -178,7 +182,7 @@ export async function updateUserProfile(email, newRole) {
 export async function getSheetMetaData() {
   try {
     const cacheKey = 'sheet_metadata';
-    const cachedMetadata = cache.get(cacheKey);
+    const cachedMetadata = await cache.get(cacheKey);
     if (cachedMetadata) return cachedMetadata;
 
     const sheets = await getAuthenticatedGoogleSheets();
