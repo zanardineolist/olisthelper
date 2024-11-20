@@ -1,6 +1,5 @@
 // pages/api/update-cache.js
 import { cache, CACHE_TIMES } from '../../utils/cache';
-import { setEdgeConfig } from '@vercel/edge-config';
 import { getSheetValues } from '../../utils/googleSheets';
 
 // Função para processar atualizações em fila
@@ -17,9 +16,8 @@ async function processQueue() {
       const cacheKey = `sheet_${sheetName}_${range}`;
       const updatedValues = await getSheetValues(sheetName, range);
 
-      // Atualiza no cache local e também no Edge Config
+      // Atualiza no cache local
       cache.set(cacheKey, updatedValues, CACHE_TIMES.SHEET_VALUES);
-      await setEdgeConfig(cacheKey, updatedValues, { ttl: CACHE_TIMES.SHEET_VALUES / 1000 });
     } catch (error) {
       console.error('Erro ao atualizar o cache para fila:', error);
     }
