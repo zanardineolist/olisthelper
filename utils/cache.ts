@@ -24,9 +24,6 @@ class Cache extends EventEmitter {
     this.on('update', (key, data, duration) => {
       this.set(key, data, duration);
     });
-
-    // Limpeza periódica de entradas expiradas
-    setInterval(() => this.clearExpired(), 5 * 60 * 1000); // Limpa a cada 5 minutos
   }
 
   set(key: string, data: any, duration: number): void {
@@ -96,16 +93,6 @@ class Cache extends EventEmitter {
       this.emit('update', key, data, duration);
     } catch (error) {
       console.error(`Erro ao atualizar cache para a chave ${key}:`, error);
-    }
-  }
-
-  // Função para limpar o cache de uma linha específica
-  clearRowCache(sheetName: string, rowIndex: number): void {
-    const keyPattern = new RegExp(`^sheet_${sheetName}_.*${rowIndex}$`);
-    for (const key of this.store.keys()) {
-      if (keyPattern.test(key)) {
-        this.delete(key);
-      }
     }
   }
 }

@@ -158,7 +158,6 @@ export async function updateUserProfile(email, newRole) {
       const userIndex = rows.findIndex((row) => row[2] === email);
       if (userIndex >= 0) {
         rows[userIndex][3] = newRole;
-
         await sheets.spreadsheets.values.update({
           spreadsheetId: sheetId,
           range: `Usuários!A${userIndex + 1}:H${userIndex + 1}`,
