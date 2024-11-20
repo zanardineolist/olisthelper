@@ -2,6 +2,9 @@
 
 import EventEmitter from 'events';
 
+// Define um mapeamento para armazenar frequências de edições por aba para ajustar o tempo de expiração
+const cacheFrequencyMap = new Map<string, number>();
+
 type CacheData = {
   data: any;
   timestamp: number;
@@ -56,7 +59,9 @@ class Cache extends EventEmitter {
   }
 
   update(key: string, data: any): void {
-    this.set(key, data, CACHE_TIMES.USERS);
+    const frequency = cacheFrequencyMap.get(key) || 1;
+    const dynamicDuration = CACHE_TIMES.USERS / frequency;
+    this.set(key, data, dynamicDuration);
   }
 
   private getOldestKey(): string | undefined {
