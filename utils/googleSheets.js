@@ -1,11 +1,7 @@
 // utils/googleSheets.js
 import { google } from 'googleapis';
 import { cache, CACHE_TIMES } from './cache';
-
-let edgeConfig;
-if (typeof window === 'undefined') {
-  edgeConfig = require('@vercel/edge-config');
-}
+import { getEdgeConfig, setEdgeConfig } from './edgeConfig';
 
 let sheetsInstance = null;
 
@@ -36,6 +32,7 @@ export async function batchGetValues(ranges) {
 
   const data = response.data.valueRanges;
   cache.set(cacheKey, data, CACHE_TIMES.SHEET_VALUES);
+  await setEdgeConfig(cacheKey, data, { ttl: CACHE_TIMES.SHEET_VALUES / 1000 });
   return data;
 }
 
@@ -45,7 +42,7 @@ export async function addUserToSheetIfNotExists(user) {
     const sheetId = process.env.SHEET_ID;
     const cacheKey = `user_${user.email}`;
 
-    const cachedUser = cache.get(cacheKey);
+    const cachedUser = await cache.get(cacheKey);
     if (cachedUser) return cachedUser;
 
     const response = await sheets.spreadsheets.values.get({
@@ -57,6 +54,7 @@ export async function addUserToSheetIfNotExists(user) {
     const existingUser = rows.find((row) => row[2] === user.email);
     if (existingUser) {
       cache.set(cacheKey, existingUser, CACHE_TIMES.USERS);
+      await setEdgeConfig(cacheKey, existingUser, { ttl: CACHE_TIMES.USERS / 1000 });
       return existingUser;
     }
 
@@ -112,6 +110,7 @@ export async function addUserToSheetIfNotExists(user) {
     });
 
     await cache.updateCache(cacheKey, () => Promise.resolve(newUser), CACHE_TIMES.USERS);
+    await setEdgeConfig(cacheKey, newUser, { ttl: CACHE_TIMES.USERS / 1000 });
     return newUser;
   } catch (error) {
     console.error('Erro ao adicionar ou verificar usuário na planilha:', error);
@@ -138,6 +137,7 @@ export async function getUserFromSheet(email) {
       const user = rows.find((row) => row[2] === email);
       if (user) {
         cache.set(cacheKey, user, CACHE_TIMES.USERS);
+        await setEdgeConfig(cacheKey, user, { ttl: CACHE_TIMES.USERS / 1000 });
         return user;
       }
     }
@@ -172,6 +172,7 @@ export async function updateUserProfile(email, newRole) {
 
         const cacheKey = `user_${email}`;
         await cache.updateCache(cacheKey, () => getUserFromSheet(email), CACHE_TIMES.USERS);
+        await setEdgeConfig(cacheKey, rows[userIndex], { ttl: CACHE_TIMES.USERS / 1000 });
       }
     }
   } catch (error) {
@@ -190,6 +191,7 @@ export async function getSheetMetaData() {
     const metadata = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
 
     cache.set(cacheKey, metadata, CACHE_TIMES.METADATA);
+    await setEdgeConfig(cacheKey, metadata, { ttl: CACHE_TIMES.METADATA / 1000 });
     return metadata;
   } catch (error) {
     console.error('Erro ao obter metadados da planilha:', error);
