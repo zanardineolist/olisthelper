@@ -1,18 +1,22 @@
 // utils/edgeConfig.js
 
 let edgeConfig = null;
+let isEdgeConfigAvailable = false;
 
 if (typeof window === 'undefined') {
   try {
     edgeConfig = require('@vercel/edge-config');
+    if (edgeConfig && typeof edgeConfig.get === 'function' && typeof edgeConfig.set === 'function') {
+      isEdgeConfigAvailable = true;
+    }
   } catch (e) {
     console.error("Falha ao importar Edge Config: ", e);
   }
 }
 
 export async function getEdgeConfig(key) {
-  if (!edgeConfig || typeof edgeConfig.get !== 'function') {
-    console.error("Edge Config não está disponível ou o método 'get' não existe.");
+  if (!isEdgeConfigAvailable) {
+    console.warn("Edge Config não está disponível ou o método 'get' não existe.");
     return null;
   }
 
@@ -25,8 +29,8 @@ export async function getEdgeConfig(key) {
 }
 
 export async function setEdgeConfig(key, value, options) {
-  if (!edgeConfig || typeof edgeConfig.set !== 'function') {
-    console.error("Edge Config não está disponível ou o método 'set' não existe.");
+  if (!isEdgeConfigAvailable) {
+    console.warn("Edge Config não está disponível ou o método 'set' não existe.");
     return;
   }
 
@@ -38,8 +42,8 @@ export async function setEdgeConfig(key, value, options) {
 }
 
 export async function deleteEdgeConfig(key) {
-  if (!edgeConfig || typeof edgeConfig.delete !== 'function') {
-    console.error("Edge Config não está disponível ou o método 'delete' não existe.");
+  if (!isEdgeConfigAvailable || typeof edgeConfig.delete !== 'function') {
+    console.warn("Edge Config não está disponível ou o método 'delete' não existe.");
     return;
   }
 
@@ -50,7 +54,8 @@ export async function deleteEdgeConfig(key) {
   }
 }
 
-module.exports = {
+export default {
   getEdgeConfig,
-  setEdgeConfig
+  setEdgeConfig,
+  deleteEdgeConfig,
 };

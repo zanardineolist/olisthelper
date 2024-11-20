@@ -1,7 +1,9 @@
 // utils/googleSheets.js
 import { google } from 'googleapis';
 import { cache, CACHE_TIMES } from './cache';
-import { getEdgeConfig, setEdgeConfig } from './edgeConfig';
+import edgeConfig from './edgeConfig';
+
+const { getEdgeConfig, setEdgeConfig } = edgeConfig;
 
 let sheetsInstance = null;
 
@@ -32,7 +34,11 @@ export async function batchGetValues(ranges) {
 
   const data = response.data.valueRanges;
   cache.set(cacheKey, data, CACHE_TIMES.SHEET_VALUES);
-  await setEdgeConfig(cacheKey, data, { ttl: CACHE_TIMES.SHEET_VALUES / 1000 });
+
+  // Verificar disponibilidade do Edge Config antes de definir
+  if (edgeConfig.isEdgeConfigAvailable) {
+    await setEdgeConfig(cacheKey, data, { ttl: CACHE_TIMES.SHEET_VALUES / 1000 });
+  }
   return data;
 }
 
@@ -54,7 +60,11 @@ export async function addUserToSheetIfNotExists(user) {
     const existingUser = rows.find((row) => row[2] === user.email);
     if (existingUser) {
       cache.set(cacheKey, existingUser, CACHE_TIMES.USERS);
-      await setEdgeConfig(cacheKey, existingUser, { ttl: CACHE_TIMES.USERS / 1000 });
+
+      // Verificar disponibilidade do Edge Config antes de definir
+      if (edgeConfig.isEdgeConfigAvailable) {
+        await setEdgeConfig(cacheKey, existingUser, { ttl: CACHE_TIMES.USERS / 1000 });
+      }
       return existingUser;
     }
 
@@ -110,7 +120,11 @@ export async function addUserToSheetIfNotExists(user) {
     });
 
     await cache.updateCache(cacheKey, () => Promise.resolve(newUser), CACHE_TIMES.USERS);
-    await setEdgeConfig(cacheKey, newUser, { ttl: CACHE_TIMES.USERS / 1000 });
+
+    // Verificar disponibilidade do Edge Config antes de definir
+    if (edgeConfig.isEdgeConfigAvailable) {
+      await setEdgeConfig(cacheKey, newUser, { ttl: CACHE_TIMES.USERS / 1000 });
+    }
     return newUser;
   } catch (error) {
     console.error('Erro ao adicionar ou verificar usuário na planilha:', error);
@@ -137,7 +151,11 @@ export async function getUserFromSheet(email) {
       const user = rows.find((row) => row[2] === email);
       if (user) {
         cache.set(cacheKey, user, CACHE_TIMES.USERS);
-        await setEdgeConfig(cacheKey, user, { ttl: CACHE_TIMES.USERS / 1000 });
+
+        // Verificar disponibilidade do Edge Config antes de definir
+        if (edgeConfig.isEdgeConfigAvailable) {
+          await setEdgeConfig(cacheKey, user, { ttl: CACHE_TIMES.USERS / 1000 });
+        }
         return user;
       }
     }
@@ -191,7 +209,11 @@ export async function getSheetMetaData() {
     const metadata = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
 
     cache.set(cacheKey, metadata, CACHE_TIMES.METADATA);
-    await setEdgeConfig(cacheKey, metadata, { ttl: CACHE_TIMES.METADATA / 1000 });
+
+    // Verificar disponibilidade do Edge Config antes de definir
+    if (edgeConfig.isEdgeConfigAvailable) {
+      await setEdgeConfig(cacheKey, metadata, { ttl: CACHE_TIMES.METADATA / 1000 });
+    }
     return metadata;
   } catch (error) {
     console.error('Erro ao obter metadados da planilha:', error);
@@ -215,6 +237,11 @@ export async function getSheetValues(sheetName, range) {
 
     const values = response.data.values || [];
     cache.set(cacheKey, values, CACHE_TIMES.SHEET_VALUES);
+
+    // Verificar disponibilidade do Edge Config antes de definir
+    if (edgeConfig.isEdgeConfigAvailable) {
+      await setEdgeConfig(cacheKey, values, { ttl: CACHE_TIMES.SHEET_VALUES / 1000 });
+    }
     return values;
   } catch (error) {
     console.error(`Erro ao obter valores da aba ${sheetName}:`, error);
@@ -234,7 +261,14 @@ export async function appendValuesToSheet(sheetName, values) {
       resource: { values },
     });
 
-    await cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
+    const cacheKey = `sheet_${sheetName}_A:H`;
+    await cache.updateCache(cacheKey, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
+
+    // Verificar disponibilidade do Edge Config antes de definir
+    if (edgeConfig.isEdgeConfigAvailable) {
+      const cachedValues = await getSheetValues(sheetName, 'A:H');
+      await setEdgeConfig(cacheKey, cachedValues, { ttl: CACHE_TIMES.SHEET_VALUES / 1000 });
+    }
   } catch (error) {
     console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
     throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
@@ -253,7 +287,14 @@ export async function updateSheetRow(sheetName, rowIndex, newValues) {
       resource: { values: [newValues] },
     });
 
-    await cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
+    const cacheKey = `sheet_${sheetName}_A:H`;
+    await cache.updateCache(cacheKey, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
+
+    // Verificar disponibilidade do Edge Config antes de definir
+    if (edgeConfig.isEdgeConfigAvailable) {
+      const cachedValues = await getSheetValues(sheetName, 'A:H');
+      await setEdgeConfig(cacheKey, cachedValues, { ttl: CACHE_TIMES.SHEET_VALUES / 1000 });
+    }
   } catch (error) {
     console.error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}:`, error);
     throw new Error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}.`);
@@ -303,7 +344,14 @@ export async function addSheetRow(sheetName, values) {
       });
     }
 
-    await cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
+    const cacheKey = `sheet_${sheetName}_A:H`;
+    await cache.updateCache(cacheKey, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
+
+    // Verificar disponibilidade do Edge Config antes de definir
+    if (edgeConfig.isEdgeConfigAvailable) {
+      const cachedValues = await getSheetValues(sheetName, 'A:H');
+      await setEdgeConfig(cacheKey, cachedValues, { ttl: CACHE_TIMES.SHEET_VALUES / 1000 });
+    }
   } catch (error) {
     console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
     throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
@@ -343,7 +391,14 @@ export async function deleteSheetRow(sheetName, rowIndex) {
       },
     });
 
-    await cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
+    const cacheKey = `sheet_${sheetName}_A:H`;
+    await cache.updateCache(cacheKey, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
+
+    // Verificar disponibilidade do Edge Config antes de definir
+    if (edgeConfig.isEdgeConfigAvailable) {
+      const cachedValues = await getSheetValues(sheetName, 'A:H');
+      await setEdgeConfig(cacheKey, cachedValues, { ttl: CACHE_TIMES.SHEET_VALUES / 1000 });
+    }
   } catch (error) {
     console.error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}:`, error);
     throw new Error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}.`);

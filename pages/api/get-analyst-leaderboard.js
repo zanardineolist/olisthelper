@@ -1,7 +1,10 @@
 // pages/api/get-analyst-leaderboard.js
 import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
 import { cache, CACHE_TIMES } from '../../utils/cache';
+import edgeConfig from '../../utils/edgeConfig';
 import { zonedTimeToUtc } from 'date-fns-tz';
+
+const { setEdgeConfig, isEdgeConfigAvailable } = edgeConfig;
 
 export default async function handler(req, res) {
   const { analystId } = req.query;
@@ -54,9 +57,13 @@ export default async function handler(req, res) {
       if (index === 0) return; // Ignorar cabeçalho
 
       const [dateStr] = row;
+      if (!dateStr || !dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+        console.warn('Formato de data inválido em:', dateStr);
+        return;
+      }
+
       const [day, month, year] = dateStr.split('/').map(Number);
       const recordDate = new Date(year, month - 1, day);
-
       const diffInDays = Math.floor((currentDate - recordDate) / (1000 * 60 * 60 * 24));
 
       if (diffInDays === 0) {
@@ -72,6 +79,11 @@ export default async function handler(req, res) {
 
     // Armazenar no cache (local e Edge Config)
     cache.set(cacheKey, rowsFiltered, CACHE_TIMES.PERFORMANCE);
+
+    // Verificar disponibilidade do Edge Config antes de definir
+    if (isEdgeConfigAvailable) {
+      await setEdgeConfig(cacheKey, rowsFiltered, { ttl: CACHE_TIMES.PERFORMANCE / 1000 });
+    }
 
     return res.status(200).json({ rows: rowsFiltered });
   } catch (error) {

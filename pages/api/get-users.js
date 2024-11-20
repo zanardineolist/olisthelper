@@ -1,5 +1,8 @@
 import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
 import { cache, CACHE_TIMES } from '../../utils/cache';
+import edgeConfig from '../../utils/edgeConfig';
+
+const { setEdgeConfig, isEdgeConfigAvailable } = edgeConfig;
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -31,8 +34,13 @@ export default async function handler(req, res) {
         chat: row[7] === 'TRUE',
       }));
 
-      // Armazenar os usuários no cache local e no Edge Config para futuras requisições
+      // Armazenar os usuários no cache local
       cache.set(cacheKey, users, CACHE_TIMES.USERS);
+
+      // Verificar disponibilidade do Edge Config antes de definir
+      if (isEdgeConfigAvailable) {
+        await setEdgeConfig(cacheKey, users, { ttl: CACHE_TIMES.USERS / 1000 });
+      }
 
       return res.status(200).json({ users });
     }
