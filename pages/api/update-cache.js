@@ -1,5 +1,5 @@
-import { cache } from '../../../utils/cache';
-import { getSheetValues } from '../../../utils/googleSheets';
+import { cache } from '../../utils/cache';
+import { getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
