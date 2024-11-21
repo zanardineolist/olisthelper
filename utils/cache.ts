@@ -38,6 +38,9 @@ class Cache extends EventEmitter {
       timestamp: Date.now(),
       expiry: Date.now() + duration,
     });
+
+    // Atualizar frequência de edições
+    this.updateFrequency(key);
   }
 
   get(key: string): any {
@@ -52,15 +55,17 @@ class Cache extends EventEmitter {
 
   delete(key: string): void {
     this.store.delete(key);
+    cacheFrequencyMap.delete(key);  // Remover a frequência do mapeamento ao excluir
   }
 
   clear(): void {
     this.store.clear();
+    cacheFrequencyMap.clear();  // Limpar o mapeamento de frequências ao limpar o cache
   }
 
   update(key: string, data: any): void {
     const frequency = cacheFrequencyMap.get(key) || 1;
-    const dynamicDuration = CACHE_TIMES.USERS / frequency;
+    const dynamicDuration = CACHE_TIMES.SHEET_VALUES / frequency;
     this.set(key, data, dynamicDuration);
   }
 
@@ -94,6 +99,12 @@ class Cache extends EventEmitter {
     } catch (error) {
       console.error(`Erro ao atualizar cache para a chave ${key}:`, error);
     }
+  }
+
+  // Atualizar a frequência de edições no cache para calcular a duração dinamicamente
+  private updateFrequency(key: string): void {
+    const frequency = cacheFrequencyMap.get(key) || 0;
+    cacheFrequencyMap.set(key, frequency + 1);
   }
 }
 
