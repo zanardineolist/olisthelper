@@ -115,16 +115,16 @@ export default async function handler(req, res) {
           newUserId = Math.floor(1000 + Math.random() * 9000).toString();
         } while (allRows.some(row => row[0] === newUserId));
 
-        // Corrigindo a chamada para `appendValuesToSheet`
+        // Corrigindo a chamada para `appendValuesToSheet` e adicionando os valores com checkboxes já configurados
         await appendValuesToSheet(sheetName, [[
           newUserId,
           newUser.name,
           newUser.email,
           newUser.profile,
           newUser.squad,
-          newUser.chamado ? 'TRUE' : 'FALSE',
-          newUser.telefone ? 'TRUE' : 'FALSE',
-          newUser.chat ? 'TRUE' : 'FALSE'
+          'FALSE',  // Placeholder para Checkbox (Chamado)
+          'FALSE',  // Placeholder para Checkbox (Telefone)
+          'FALSE'   // Placeholder para Checkbox (Chat)
         ]]);
 
         // Atualizando as informações da planilha após adicionar o novo usuário
