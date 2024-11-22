@@ -56,12 +56,12 @@ export default function AdminNotificationsPage({ user }) {
         (profile) => selectedProfiles[profile]
       );
 
-      // Converter os perfis para os nomes corretos da planilha
+      // Usar os valores exatos da planilha
       const profilesMap = {
-        supportPlus: 'Support Plus',
-        analyst: 'Analista',
-        tax: 'Fiscal',
-        super: 'Supervisão',
+        supportPlus: 'support+',
+        analyst: 'analyst',
+        tax: 'tax',
+        super: 'super',
       };
       const profilesMapped = profilesToSend.map(profile => profilesMap[profile]);
 
