@@ -6,25 +6,26 @@ import styles from '../styles/Layout.module.css';
 
 export default function Layout({ children, user }) {
   const [topNotification, setTopNotification] = useState(null);
-  const [isBannerVisible, setIsBannerVisible] = useState(true);
 
   useEffect(() => {
-    // Buscar notificações do tipo "top" para o usuário atual
-    const fetchTopNotification = async () => {
-      if (user?.id) {
+    // Buscar notificações do tipo "top" para o usuário atual assim que o user estiver disponível
+    if (user?.id) {
+      const fetchTopNotification = async () => {
         try {
           const notifications = await getUserNotifications(user.id);
-          const topNotification = notifications.find(notification => notification.notificationType === 'top' && !notification.read);
+          const topNotification = notifications.find(
+            (notification) => notification.notificationType === 'top' && !notification.read
+          );
           if (topNotification) {
             setTopNotification(topNotification);
           }
         } catch (error) {
           console.error('Erro ao buscar notificações do usuário:', error);
         }
-      }
-    };
+      };
 
-    fetchTopNotification();
+      fetchTopNotification();
+    }
   }, [user]);
 
   const handleCloseBanner = async () => {
@@ -32,7 +33,6 @@ export default function Layout({ children, user }) {
       try {
         await markNotificationAsRead(topNotification.id);
         setTopNotification(null);
-        setIsBannerVisible(false);
       } catch (error) {
         console.error('Erro ao marcar notificação como lida:', error);
       }
@@ -41,7 +41,7 @@ export default function Layout({ children, user }) {
 
   return (
     <div className={styles.layout}>
-      {topNotification && isBannerVisible && (
+      {topNotification && (
         <div className={styles.notificationBanner}>
           <p>{topNotification.message}</p>
           <button className={styles.closeButton} onClick={handleCloseBanner} aria-label="Fechar banner de notificação">X</button>
