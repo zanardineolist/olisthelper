@@ -221,22 +221,23 @@ export async function getSheetIdByName(sheetName) {
 export async function getUserFromSheet(email) {
   try {
     const rows = await getSheetValues('Usuários', 'A:H');
-    const user = rows.find((row) => row[2] === email);
-    return user ? {
-      id: row[0],
-      name: row[1],
-      email: row[2],
-      profile: row[3],
-      squad: row[4],
-      chamado: row[5] === 'TRUE',
-      telefone: row[6] === 'TRUE',
-      chat: row[7] === 'TRUE',
+    const userRow = rows.find((row) => row[2] === email);
+    return userRow ? {
+      id: userRow[0],
+      name: userRow[1],
+      email: userRow[2],
+      profile: userRow[3],
+      squad: userRow[4],
+      chamado: userRow[5] === 'TRUE',
+      telefone: userRow[6] === 'TRUE',
+      chat: userRow[7] === 'TRUE',
     } : null;
   } catch (error) {
     console.error('Erro ao buscar usuário na planilha:', error);
     throw new Error('Erro ao buscar usuário na planilha.');
   }
 }
+
 
 // Função para ordenar os usuários em ordem alfabética pelo nome
 export async function sortSheetByColumn(sheetName, startRowIndex, startColumnIndex, endColumnIndex, dimensionIndex) {
