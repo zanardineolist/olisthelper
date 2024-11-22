@@ -3,12 +3,17 @@ import { collection, addDoc, getDocs, query, where, updateDoc, doc } from "fireb
 import { db } from "./firebaseConfig";
 
 // Função para adicionar uma notificação ao Firestore
-export async function addNotification(userId, title, message) {
+export async function addNotification(userId, title, message, notificationType = 'bell') {
   try {
     if (!userId || !title || !message) {
       throw new Error("Dados insuficientes para adicionar notificação.");
     }
 
+    // Gerar um identificador personalizado (customId) para a notificação
+    const normalizedTitle = title.replace(/\s+/g, '_').toLowerCase();
+    const customId = `${notificationType}_${normalizedTitle}_${userId}_notify`;
+
+    // Adiciona notificação ao Firestore
     const notificationsCollection = collection(db, "notifications");
     await addDoc(notificationsCollection, {
       userId,
@@ -16,6 +21,8 @@ export async function addNotification(userId, title, message) {
       message,
       read: false,
       timestamp: new Date().getTime(),
+      notificationType,
+      customId,
     });
 
   } catch (error) {
