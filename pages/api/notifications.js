@@ -43,15 +43,16 @@ export default async function handler(req, res) {
           const normalizedTitle = title.replace(/\s+/g, '_').toLowerCase();
           const uniqueId = uuidv4();
           const notificationId = `${type}_${normalizedTitle}_${userId}_${uniqueId}`;
-
+        
           try {
             const notificationDoc = doc(notificationsCollection, notificationId);
             await setDoc(notificationDoc, {
               userId,
               userEmail,
-              userRole, // Adicionando o perfil do usuário à notificação
+              userRole,
               title,
               message,
+              notificationStyle, // Novo campo indicando se é aviso ou informação
               read: false,
               timestamp: new Date().getTime(),
               notificationType: type,

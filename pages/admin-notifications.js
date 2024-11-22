@@ -5,7 +5,8 @@ import { getSession } from 'next-auth/react';
 import { TextField, Button, ThemeProvider, createTheme, FormControlLabel, Checkbox, FormGroup, RadioGroup, Radio } from '@mui/material';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import styles from '../styles/Manager.module.css';
+import managerStyles from '../styles/Manager.module.css';
+import adminStyles from '../styles/AdminNotifications.module.css';
 
 const theme = createTheme({
   components: {
@@ -41,7 +42,8 @@ export default function AdminNotificationsPage({ user }) {
     tax: false,
     super: false,
   });
-  const [notificationType, setNotificationType] = useState('bell'); // Novo estado para o tipo de notificação
+  const [notificationType, setNotificationType] = useState('bell');
+  const [notificationStyle, setNotificationStyle] = useState('aviso'); 
 
   const handleProfileChange = (event) => {
     setSelectedProfiles({
@@ -77,7 +79,7 @@ export default function AdminNotificationsPage({ user }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title, message, profiles: profilesMapped, notificationType }),
+        body: JSON.stringify({ title, message, profiles: profilesMapped, notificationType, notificationStyle }),
       });
 
       if (!res.ok) {
@@ -95,6 +97,7 @@ export default function AdminNotificationsPage({ user }) {
         super: false,
       });
       setNotificationType('bell'); // Resetar tipo de notificação
+      setNotificationStyle('aviso'); // Resetar estilo de notificação
     } catch (error) {
       console.error('Erro ao enviar notificação:', error);
       alert('Erro ao enviar notificação');
@@ -111,11 +114,12 @@ export default function AdminNotificationsPage({ user }) {
 
       <Navbar user={user} />
 
-      <main className={styles.main}>
+      <main className={adminStyles.mainContent}>
         <ThemeProvider theme={theme}>
-          <div className={styles.formContainer}>
-            <h2>Enviar Nova Notificação</h2>
+          <div className={adminStyles.formContainer}>
+            <h2 className={adminStyles.formTitle}>Enviar Nova Notificação</h2>
             <TextField
+              className={adminStyles.textField}
               label="Título da Notificação"
               variant="outlined"
               fullWidth
@@ -124,6 +128,7 @@ export default function AdminNotificationsPage({ user }) {
               required
             />
             <TextField
+              className={adminStyles.textarea}
               label="Mensagem da Notificação"
               variant="outlined"
               fullWidth
@@ -174,27 +179,40 @@ export default function AdminNotificationsPage({ user }) {
                 }
                 label="Supervisão"
               />
-            </FormGroup>
-            <RadioGroup
-              value={notificationType}
-              onChange={(e) => setNotificationType(e.target.value)}
-              row
-            >
-              <FormControlLabel value="bell" control={<Radio />} label="Sino (Navbar)" />
-              <FormControlLabel value="top" control={<Radio />} label="Banner no Topo" />
-              <FormControlLabel value="both" control={<Radio />} label="Ambos" />
-            </RadioGroup>
-            <Button
-              variant="contained"
-              fullWidth
-              onClick={handleSubmit}
-              disabled={loading || !title || !message}
-            >
-              {loading ? 'Enviando...' : 'Enviar Notificação'}
-            </Button>
-          </div>
-        </ThemeProvider>
-      </main>
+             </FormGroup>
+              <RadioGroup
+                className={adminStyles.radioGroup}
+                value={notificationType}
+                onChange={(e) => setNotificationType(e.target.value)}
+                row
+              >
+                <FormControlLabel value="bell" control={<Radio />} label="Sino (Navbar)" />
+                <FormControlLabel value="top" control={<Radio />} label="Banner no Topo" />
+                <FormControlLabel value="both" control={<Radio />} label="Ambos" />
+              </RadioGroup>
+              <RadioGroup
+                className={adminStyles.radioGroup}
+                value={notificationStyle}
+                onChange={(e) => setNotificationStyle(e.target.value)}
+                row
+              >
+                <FormControlLabel value="aviso" control={<Radio />} label="Aviso" />
+                <FormControlLabel value="informacao" control={<Radio />} label="Informação" />
+              </RadioGroup>
+              <div className={adminStyles.formButtonContainer}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleSubmit}
+                  disabled={loading || !title || !message}
+                  className={adminStyles.submitButton}
+                >
+                  {loading ? 'Enviando...' : 'Enviar Notificação'}
+                </Button>
+              </div>
+            </div>
+          </ThemeProvider>
+        </main>
 
       <Footer />
     </>

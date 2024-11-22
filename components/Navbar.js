@@ -173,7 +173,11 @@ export default function Navbar({ user }) {
   return (
     <div className={`${styles.navbarWrapper} ${topNotification ? styles.withBanner : ''}`}>
       {topNotification && (
-        <div className={styles.notificationBanner}>
+        <div
+          className={`${styles.notificationBanner} ${
+            topNotification.notificationStyle === 'informacao' ? styles.informacaoBanner : styles.avisoBanner
+          }`}
+        >
           <p>{topNotification.message}</p>
           <button onClick={handleCloseTopNotification} className={styles.closeButton}>✕</button>
         </div>
