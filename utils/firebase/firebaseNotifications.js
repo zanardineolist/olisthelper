@@ -3,9 +3,9 @@ import { collection, setDoc, getDocs, query, where, updateDoc, doc, writeBatch, 
 import { db } from "./firebaseConfig";
 
 // Função para adicionar uma notificação ao Firestore
-export async function addNotification(userId, title, message, notificationType = 'bell') {
+export async function addNotification(userId, title, message, notificationType = 'bell', userRole) {
   try {
-    if (!userId || !title || !message) {
+    if (!userId || !title || !message || !userRole) {
       throw new Error("Dados insuficientes para adicionar notificação.");
     }
 
@@ -19,6 +19,7 @@ export async function addNotification(userId, title, message, notificationType =
       userId,
       title,
       message,
+      userRole, // Adicionando o perfil do usuário à notificação
       read: false,
       timestamp: new Date().getTime(),
       notificationType,
@@ -29,15 +30,20 @@ export async function addNotification(userId, title, message, notificationType =
   }
 }
 
-// Função para buscar as notificações do usuário
-export async function getUserNotifications(userId, limitNumber = 10) {
+// Função para buscar as notificações do usuário com base no userId e userRole
+export async function getUserNotifications(userId, userRole, limitNumber = 10) {
   try {
-    if (!userId) {
+    if (!userId || !userRole) {
       return [];
     }
 
     const notificationsCollection = collection(db, "notifications");
-    const q = query(notificationsCollection, where("userId", "==", userId), limit(limitNumber));
+    const q = query(
+      notificationsCollection,
+      where("userId", "==", userId),
+      where("userRole", "==", userRole),
+      limit(limitNumber)
+    );
     const querySnapshot = await getDocs(q);
 
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));

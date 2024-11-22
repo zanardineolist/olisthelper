@@ -36,7 +36,7 @@ export default async function handler(req, res) {
       // Adiciona notificação ao Firestore para cada usuário alvo
       const notificationsCollection = collection(db, 'notifications');
       const promises = targetUsers.map(async (user) => {
-        const [userId, userName, userEmail] = user;
+        const [userId, userName, userEmail, userRole] = user;
 
         // Função auxiliar para adicionar uma notificação
         const addNotification = async (type) => {
@@ -49,6 +49,7 @@ export default async function handler(req, res) {
             await setDoc(notificationDoc, {
               userId,
               userEmail,
+              userRole, // Adicionando o perfil do usuário à notificação
               title,
               message,
               read: false,
@@ -80,17 +81,22 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'GET') {
     try {
-      const { userId, limit: limitParam } = req.query;
+      const { userId, userRole, limit: limitParam } = req.query;
 
-      if (!userId) {
-        return res.status(400).json({ error: 'ID do usuário é obrigatório.' });
+      if (!userId || !userRole) {
+        return res.status(400).json({ error: 'ID do usuário e perfil são obrigatórios.' });
       }
 
       const limitValue = limitParam ? parseInt(limitParam, 10) : 10;
 
-      // Buscar notificações do usuário no Firestore com limitação
+      // Buscar notificações do usuário no Firestore com limitação e baseadas no perfil do usuário
       const notificationsCollection = collection(db, 'notifications');
-      const q = query(notificationsCollection, where("userId", "==", userId), limit(limitValue));
+      const q = query(
+        notificationsCollection,
+        where("userId", "==", userId),
+        where("userRole", "==", userRole),
+        limit(limitValue)
+      );
       const querySnapshot = await getDocs(q);
 
       const notifications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));

@@ -171,134 +171,137 @@ export default function Navbar({ user }) {
   };
 
   return (
-    <nav ref={navbarRef} className={styles.navbar}>
+    <div className={styles.navbarWrapper}>
       {topNotification && (
         <div className={styles.notificationBanner}>
           <p>{topNotification.message}</p>
           <button onClick={handleCloseTopNotification} className={styles.closeButton}>✕</button>
         </div>
       )}
-      <div className={styles.logo}>
-        <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'}>
-          <img 
-            src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
-            alt="Novo Logo" 
-          />
-        </Link>
-      </div>
+      
+      <nav ref={navbarRef} className={styles.navbar}>
+        <div className={styles.logo}>
+          <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'}>
+            <img 
+              src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
+              alt="Novo Logo" 
+            />
+          </Link>
+        </div>
 
-      <div className={styles.rightSection}>
-        <button onClick={toggleTheme} className={styles.themeToggle} aria-label="Alternar tema">
-          {theme === 'dark' ? <FaSun /> : <FaMoon />}
-        </button>
+        <div className={styles.rightSection}>
+          <button onClick={toggleTheme} className={styles.themeToggle} aria-label="Alternar tema">
+            {theme === 'dark' ? <FaSun /> : <FaMoon />}
+          </button>
 
-        {['analyst', 'tax', 'super', 'support+', 'dev'].includes(user.role) && (
-          <>
-            <div className={styles.notificationToggle} onClick={toggleNotifications} aria-label="Notificações">
-              <FaBell />
-              {unreadNotificationsCount > 0 && (
-                <span className={styles.notificationCount}>{unreadNotificationsCount}</span>
-              )}
-            </div>
-
-            {showNotifications && (
-              <div ref={notificationRef} className={styles.notificationsBox}>
-                {sortedNotifications.length === 0 ? (
-                  <p className={styles.noNotifications}>Nenhuma notificação disponível</p>
-                ) : (
-                  <ul className={styles.notificationsList}>
-                    {sortedNotifications.map((notification) => (
-                      <li
-                        key={notification.id}
-                        className={`${styles.notificationItem} ${notification.read ? styles.read : ''}`}
-                      >
-                        <div className={styles.notificationContent}>
-                          <strong>{notification.title}</strong>
-                          <p>{notification.message}</p>
-                          <span className={styles.timestamp}>
-                            {getTimeAgo(notification.timestamp)}
-                          </span>
-                        </div>
-                        <div className={styles.markAsReadIndicator}>
-                          {notification.read ? (
-                            <FaCheckDouble 
-                              className={`${styles.checkIconDouble}`} 
-                              title="Lido"
-                            />
-                          ) : (
-                            <div onClick={() => handleMarkAsRead(notification.id)} className={styles.markAsReadWrapper}>
-                              <span className={styles.markAsReadText}>Marcar como lido</span>
-                              <FaCheck className={`${styles.checkIcon}`} />
-                            </div>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <button onClick={markAllAsRead} className={styles.markAllReadButton}>
-                  Marcar todas como lidas
-                </button>
-                {lastVisible && (
-                  <button onClick={loadMoreNotifications} disabled={isLoadingMore} className={styles.loadMoreButton}>
-                    {isLoadingMore ? 'Carregando...' : 'Carregar mais'}
-                  </button>
+          {['analyst', 'tax', 'super', 'support+', 'dev'].includes(user.role) && (
+            <>
+              <div className={styles.notificationToggle} onClick={toggleNotifications} aria-label="Notificações">
+                <FaBell />
+                {unreadNotificationsCount > 0 && (
+                  <span className={styles.notificationCount}>{unreadNotificationsCount}</span>
                 )}
               </div>
-            )}
-          </>
-        )}
 
-        <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle} aria-label="Menu">
-          ☰
-        </button>
-      </div>
-
-      {menuOpen && (
-        <div className={styles.menu}>
-          {(user.role === 'support' || user.role === 'support+') && (
-            <button onClick={() => handleNavigation('/profile')} className={styles.menuButton}>
-              Meu Perfil
-            </button>
-          )}
-          {(user.role === 'analyst' || user.role === 'tax') && (
-            <>
-              <button onClick={() => handleNavigation('/profile-analyst')} className={styles.menuButton}>
-                Meu Perfil
-              </button>
-              <button onClick={() => handleNavigation('/registro')} className={styles.menuButton}>
-                Registrar Ajuda
-              </button>
-              <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
-                Dashboard
-              </button>
+              {showNotifications && (
+                <div ref={notificationRef} className={styles.notificationsBox}>
+                  {sortedNotifications.length === 0 ? (
+                    <p className={styles.noNotifications}>Nenhuma notificação disponível</p>
+                  ) : (
+                    <ul className={styles.notificationsList}>
+                      {sortedNotifications.map((notification) => (
+                        <li
+                          key={notification.id}
+                          className={`${styles.notificationItem} ${notification.read ? styles.read : ''}`}
+                        >
+                          <div className={styles.notificationContent}>
+                            <strong>{notification.title}</strong>
+                            <p>{notification.message}</p>
+                            <span className={styles.timestamp}>
+                              {getTimeAgo(notification.timestamp)}
+                            </span>
+                          </div>
+                          <div className={styles.markAsReadIndicator}>
+                            {notification.read ? (
+                              <FaCheckDouble 
+                                className={`${styles.checkIconDouble}`} 
+                                title="Lido"
+                              />
+                            ) : (
+                              <div onClick={() => handleMarkAsRead(notification.id)} className={styles.markAsReadWrapper}>
+                                <span className={styles.markAsReadText}>Marcar como lido</span>
+                                <FaCheck className={`${styles.checkIcon}`} />
+                              </div>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <button onClick={markAllAsRead} className={styles.markAllReadButton}>
+                    Marcar todas como lidas
+                  </button>
+                  {lastVisible && (
+                    <button onClick={loadMoreNotifications} disabled={isLoadingMore} className={styles.loadMoreButton}>
+                      {isLoadingMore ? 'Carregando...' : 'Carregar mais'}
+                    </button>
+                  )}
+                </div>
+              )}
             </>
           )}
-          {user.role === 'super' && (
-            <button onClick={() => handleNavigation('/dashboard-super')} className={styles.menuButton}>
-              Dashboard
-            </button>
-          )}
-          {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
-            <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
-              Gerenciador
-            </button>
-          )}
-          {(user.role === 'support+' || user.role === 'super') && (
-            <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
-              Acesso Remoto
-            </button>
-          )}
-          {user.role === 'dev' && (
-            <button onClick={() => handleNavigation('/admin-notifications')} className={styles.menuButton}>
-              Admin Notificações
-            </button>
-          )}
-          <button onClick={() => signOut({ callbackUrl: '/' })} className={`${styles.menuButton} ${styles.logoutButton}`}>
-            <FaSignOutAlt style={{ marginRight: '8px', fontSize: '20px' }} /> Logout
+
+          <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle} aria-label="Menu">
+            ☰
           </button>
         </div>
-      )}
-    </nav>
+
+        {menuOpen && (
+          <div className={styles.menu}>
+            {(user.role === 'support' || user.role === 'support+') && (
+              <button onClick={() => handleNavigation('/profile')} className={styles.menuButton}>
+                Meu Perfil
+              </button>
+            )}
+            {(user.role === 'analyst' || user.role === 'tax') && (
+              <>
+                <button onClick={() => handleNavigation('/profile-analyst')} className={styles.menuButton}>
+                  Meu Perfil
+                </button>
+                <button onClick={() => handleNavigation('/registro')} className={styles.menuButton}>
+                  Registrar Ajuda
+                </button>
+                <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
+                  Dashboard
+                </button>
+              </>
+            )}
+            {user.role === 'super' && (
+              <button onClick={() => handleNavigation('/dashboard-super')} className={styles.menuButton}>
+                Dashboard
+              </button>
+            )}
+            {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
+              <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
+                Gerenciador
+              </button>
+            )}
+            {(user.role === 'support+' || user.role === 'super') && (
+              <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
+                Acesso Remoto
+              </button>
+            )}
+            {user.role === 'dev' && (
+              <button onClick={() => handleNavigation('/admin-notifications')} className={styles.menuButton}>
+                Admin Notificações
+              </button>
+            )}
+            <button onClick={() => signOut({ callbackUrl: '/' })} className={`${styles.menuButton} ${styles.logoutButton}`}>
+              <FaSignOutAlt style={{ marginRight: '8px', fontSize: '20px' }} /> Logout
+            </button>
+          </div>
+        )}
+      </nav>
+    </div>
   );
 }
