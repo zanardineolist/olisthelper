@@ -8,6 +8,17 @@ async function invalidateCache(sheetName) {
   cache.delete(cacheKey); // Remover o cache após cada operação de modificação para garantir que os dados sejam atualizados
 }
 
+// Função para ordenar categorias pelo nome em ordem alfabética
+async function sortCategoriesByName(sheetName) {
+  try {
+    console.log('Iniciando a ordenação das categorias...');
+    await sortSheetByColumn(sheetName, 1, 0, 1, 0); // Ordena a partir da linha 2 (índice 1)
+    console.log('Ordenação das categorias concluída.');
+  } catch (error) {
+    console.error('Erro ao ordenar categorias:', error);
+  }
+}
+
 export default async function handler(req, res) {
   const { method } = req;
   const sheetName = 'Categorias';
@@ -57,7 +68,7 @@ export default async function handler(req, res) {
         console.log('Nova categoria adicionada:', newCategoryName);
 
         // Ordenar categorias após a adição
-        await sortSheetByColumn(sheetName, 1, 0, 1, 0); // Ordena a partir da linha 2 (índice 1)
+        await sortCategoriesByName(sheetName);
 
         // Invalida o cache após adicionar uma nova categoria
         invalidateCache(sheetName);
@@ -95,7 +106,7 @@ export default async function handler(req, res) {
         console.log('Categoria atualizada de:', previousData[0], 'para:', updatedCategoryName);
 
         // Ordenar categorias após a atualização
-        await sortSheetByColumn(sheetName, 1, 0, 1, 0); // Ordena a partir da linha 2 (índice 1)
+        await sortCategoriesByName(sheetName);
 
         // Invalida o cache após atualizar uma categoria
         invalidateCache(sheetName);
@@ -132,7 +143,7 @@ export default async function handler(req, res) {
         console.log('Categoria excluída:', deletedData[0]);
 
         // Ordenar categorias após a exclusão
-        await sortSheetByColumn(sheetName, 1, 0, 1, 0); // Ordena a partir da linha 2 (índice 1)
+        await sortCategoriesByName(sheetName);
 
         // Invalida o cache após excluir uma categoria
         invalidateCache(sheetName);
