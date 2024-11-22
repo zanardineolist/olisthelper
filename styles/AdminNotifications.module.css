@@ -1,5 +1,5 @@
 /* Estilos principais para o container da página */
-.container {
+  .container {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -21,8 +21,7 @@
   .formContainer {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* Alinhar à esquerda */
     padding: 20px;
     background-color: var(--box-color);
     border-radius: 10px;
@@ -35,9 +34,10 @@
   /* Estilo do título do formulário */
   .formTitle {
     color: var(--title-color);
-    text-align: center;
+    text-align: left; /* Alinhar à esquerda */
     margin-bottom: 20px;
     font-size: 1.75rem;
+    width: 100%; /* Ocupa toda a largura */
   }
   
   /* Estilo para o grupo de campos do formulário */
@@ -52,6 +52,7 @@
   .formGroup label {
     margin-bottom: 8px;
     font-weight: bold;
+    text-align: left; /* Alinhar à esquerda */
   }
   
   /* Caixa de texto para título e mensagem */
@@ -74,11 +75,7 @@
   
   /* Estilo para a área de texto (mensagem) */
   .textarea {
-    width: 100%;
-    max-width: 500px;
-    min-width: 500px;
-    max-height: 200px;
-    resize: vertical;
+    width: 100%; /* Igual ao textField para consistência */
     padding: 10px;
     border-radius: 5px;
     border: 1px solid var(--labels-border);
@@ -86,6 +83,7 @@
     color: var(--text-color);
     font-size: 1rem;
     transition: border-color 0.3s ease;
+    resize: vertical; /* Permitir redimensionamento apenas vertical */
   }
   
   .textarea:focus,
@@ -98,7 +96,7 @@
   .radioGroup {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: flex-start; /* Alinhar à esquerda */
     margin-bottom: 20px;
   }
   
@@ -152,5 +150,4 @@
       max-width: 100%;
       min-width: 100%;
     }
-  }
-  
+  }  
