@@ -1,25 +1,11 @@
 import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets, sortSheetByColumn } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
+import { cache } from '../../utils/cache';
 
-// Função para obter o sheetId baseado no nome da aba
-async function getSheetIdByName(sheetName) {
-  try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
-    const response = await sheets.spreadsheets.get({
-      spreadsheetId: sheetId,
-    });
-
-    const sheet = response.data.sheets.find((s) => s.properties.title === sheetName);
-    if (sheet) {
-      return sheet.properties.sheetId;
-    } else {
-      throw new Error(`Aba '${sheetName}' não encontrada.`);
-    }
-  } catch (error) {
-    console.error('Erro ao obter sheetId:', error);
-    throw error;
-  }
+// Função para invalidar o cache da aba
+async function invalidateCache(sheetName) {
+  const cacheKey = `sheet_${sheetName}_A:A`;
+  cache.delete(cacheKey); // Remover o cache após cada operação de modificação para garantir que os dados sejam atualizados
 }
 
 export default async function handler(req, res) {
@@ -65,9 +51,16 @@ export default async function handler(req, res) {
           console.error('Erro: Nome da categoria não fornecido.');
           return res.status(400).json({ error: 'Nome da categoria não fornecido.' });
         }
+
+        // Adicionar nova categoria
         await appendValuesToSheet(sheetName, [[newCategoryName]]);
         console.log('Nova categoria adicionada:', newCategoryName);
+
+        // Ordenar categorias após a adição
         await sortSheetByColumn(sheetName, 1, 0, 1, 0); // Ordena a partir da linha 2 (índice 1)
+
+        // Invalida o cache após adicionar uma nova categoria
+        await invalidateCache(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de criação no Firebase...');
@@ -100,7 +93,12 @@ export default async function handler(req, res) {
         const previousData = allRowsUpdate[rowIndex];
         await updateSheetRow(sheetName, updateIndex, [updatedCategoryName]);
         console.log('Categoria atualizada de:', previousData[0], 'para:', updatedCategoryName);
+
+        // Ordenar categorias após a atualização
         await sortSheetByColumn(sheetName, 1, 0, 1, 0); // Ordena a partir da linha 2 (índice 1)
+
+        // Invalida o cache após atualizar uma categoria
+        await invalidateCache(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de atualização no Firebase...');
@@ -132,7 +130,12 @@ export default async function handler(req, res) {
         const deletedData = allRowsDelete[deleteRowIndex];
         await deleteSheetRow(sheetName, parseInt(deleteIndex, 10));
         console.log('Categoria excluída:', deletedData[0]);
+
+        // Ordenar categorias após a exclusão
         await sortSheetByColumn(sheetName, 1, 0, 1, 0); // Ordena a partir da linha 2 (índice 1)
+
+        // Invalida o cache após excluir uma categoria
+        await invalidateCache(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de exclusão no Firebase...');
