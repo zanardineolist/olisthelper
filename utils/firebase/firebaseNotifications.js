@@ -1,5 +1,5 @@
 // utils/firebase/firebaseNotifications.js
-import { collection, addDoc, getDocs, query, where, updateDoc, doc } from "firebase/firestore";
+import { collection, setDoc, getDocs, query, where, updateDoc, doc, writeBatch, limit } from "firebase/firestore";
 import { db } from "./firebaseConfig";
 
 // Função para adicionar uma notificação ao Firestore
@@ -13,16 +13,15 @@ export async function addNotification(userId, title, message, notificationType =
     const normalizedTitle = title.replace(/\s+/g, '_').toLowerCase();
     const customId = `${notificationType}_${normalizedTitle}_${userId}_notify`;
 
-    // Adiciona notificação ao Firestore
-    const notificationsCollection = collection(db, "notifications");
-    await addDoc(notificationsCollection, {
+    // Define o documento de notificação usando customId como identificador
+    const notificationDoc = doc(db, "notifications", customId);
+    await setDoc(notificationDoc, {
       userId,
       title,
       message,
       read: false,
       timestamp: new Date().getTime(),
       notificationType,
-      customId,
     });
 
   } catch (error) {
@@ -31,14 +30,14 @@ export async function addNotification(userId, title, message, notificationType =
 }
 
 // Função para buscar as notificações do usuário
-export async function getUserNotifications(userId) {
+export async function getUserNotifications(userId, limitNumber = 10) {
   try {
     if (!userId) {
       return [];
     }
 
     const notificationsCollection = collection(db, "notifications");
-    const q = query(notificationsCollection, where("userId", "==", userId));
+    const q = query(notificationsCollection, where("userId", "==", userId), limit(limitNumber));
     const querySnapshot = await getDocs(q);
 
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -59,5 +58,25 @@ export async function markNotificationAsRead(notificationId) {
 
   } catch (error) {
     throw new Error("Erro ao marcar notificação como lida no Firebase.");
+  }
+}
+
+// Função para marcar múltiplas notificações como lidas
+export async function markMultipleNotificationsAsRead(notificationIds) {
+  if (!notificationIds || notificationIds.length === 0) {
+    return;
+  }
+
+  const batch = writeBatch(db);
+
+  notificationIds.forEach((id) => {
+    const notificationRef = doc(db, "notifications", id);
+    batch.update(notificationRef, { read: true });
+  });
+
+  try {
+    await batch.commit();
+  } catch (error) {
+    throw new Error("Erro ao marcar notificações como lidas no Firebase.");
   }
 }

@@ -1,3 +1,4 @@
+// pages/api/notifications.js
 import { db } from '../../utils/firebase/firebaseConfig';
 import { collection, setDoc, doc, getDocs, query, where } from "firebase/firestore";
 import { getSheetValues } from '../../utils/googleSheets';
@@ -11,10 +12,6 @@ export default async function handler(req, res) {
       if (!title || !message || !profiles || profiles.length === 0 || !notificationType) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios e ao menos um perfil deve ser selecionado.' });
       }
-
-      // Log para depuração
-      console.log('Perfis selecionados:', profiles);
-      console.log('Tipo de notificação selecionado:', notificationType);
 
       // Buscar usuários da aba "Usuários" do Google Sheets, colunas A2:D (ID, Nome, Email, Perfil)
       let users;
@@ -32,9 +29,6 @@ export default async function handler(req, res) {
       // Filtrar usuários com base nos perfis selecionados
       const targetUsers = users.filter(user => profiles.includes(user[3]));
 
-      // Log para depuração dos usuários-alvo
-      console.log('Usuários elegíveis encontrados:', targetUsers);
-
       if (targetUsers.length === 0) {
         return res.status(400).json({ error: 'Nenhum usuário elegível encontrado. Verifique os perfis selecionados.' });
       }
@@ -45,7 +39,7 @@ export default async function handler(req, res) {
         const [userId, userName, userEmail] = user;
 
         // Gerar um identificador base para a notificação
-        const normalizedTitle = title.replace(/\s+/g, '_').toLowerCase(); // Normalizar o título
+        const normalizedTitle = title.replace(/\s+/g, '_').toLowerCase();
         const baseNotificationId = `${notificationType}_${normalizedTitle}_${userId}_`;
 
         // Verificar se já existe uma notificação similar (mesmo tipo, título e usuário)
@@ -58,7 +52,7 @@ export default async function handler(req, res) {
         }
 
         // Gerar um ID único para a notificação, evitando duplicidade
-        const uniqueId = uuidv4(); // Gerar um UUID aleatório para garantir unicidade
+        const uniqueId = uuidv4();
         const notificationId = `${baseNotificationId}${uniqueId}`;
 
         try {
@@ -69,8 +63,8 @@ export default async function handler(req, res) {
             title,
             message,
             read: false,
-            timestamp: new Date().getTime(), // Salva como milissegundos
-            notificationType, // Novo campo para identificar o tipo da notificação (sino, topo ou ambos)
+            timestamp: new Date().getTime(),
+            notificationType,
           });
         } catch (notificationError) {
           console.error(`Erro ao adicionar notificação para o usuário ${userEmail}:`, notificationError);
@@ -87,15 +81,17 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'GET') {
     try {
-      const { userId } = req.query;
+      const { userId, limit: limitParam } = req.query;
 
       if (!userId) {
         return res.status(400).json({ error: 'ID do usuário é obrigatório.' });
       }
 
-      // Buscar notificações do usuário no Firestore
+      const limitValue = limitParam ? parseInt(limitParam, 10) : 10;
+
+      // Buscar notificações do usuário no Firestore com limitação
       const notificationsCollection = collection(db, 'notifications');
-      const q = query(notificationsCollection, where("userId", "==", userId));
+      const q = query(notificationsCollection, where("userId", "==", userId), limit(limitValue));
       const querySnapshot = await getDocs(q);
 
       const notifications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
