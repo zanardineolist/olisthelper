@@ -18,9 +18,9 @@ async function sortUsersByName(sheetName) {
       throw new Error(`Aba '${sheetName}' não encontrada.`);
     }
 
-    // Realizando a ordenação da coluna B (nome)
+    // Realizando a ordenação incluindo todas as colunas relevantes
     await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: process.env.SHEET_ID,
+      spreadsheetId: sheetId,
       resource: {
         requests: [
           {
@@ -28,12 +28,12 @@ async function sortUsersByName(sheetName) {
               range: {
                 sheetId: sheet.properties.sheetId,
                 startRowIndex: 1,
-                startColumnIndex: 1,
-                endColumnIndex: 2,
+                startColumnIndex: 0,
+                endColumnIndex: 8,
               },
               sortSpecs: [
                 {
-                  dimensionIndex: 1, // Coluna B (índice 1)
+                  dimensionIndex: 1,
                   sortOrder: 'ASCENDING',
                 },
               ],
