@@ -130,7 +130,7 @@ export default async function handler(req, res) {
         // Adicionando checkbox para colunas específicas (chamado, telefone, chat) diretamente na nova linha
         await addCheckboxToSheet(sheetName, {
           startRowIndex: allRows.length, // A linha do novo usuário
-          endRowIndex: allRows.length + 1,
+          endRowIndex: allRows.length, // Corrigido para não afetar a linha de cima
           startColumnIndex: 5,
           endColumnIndex: 8
         });
