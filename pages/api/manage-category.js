@@ -49,7 +49,7 @@ async function sortCategoriesByName(sheetName) {
 }
 
 async function invalidateCache(sheetName) {
-  const cacheKey = `sheet_${sheetName}_A:H`;
+  const cacheKey = `sheet_${sheetName}_A:A`;
   cache.delete(cacheKey);
 }
 
