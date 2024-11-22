@@ -64,6 +64,7 @@ export async function appendValuesToSheet(sheetName, values) {
     const lastRow = await getLastFilledRow(sheetName);
     const nextRow = lastRow + 1;
 
+    // Adicionar valores à planilha
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
       range: `${sheetName}!A${nextRow}:H${nextRow}`,
@@ -71,8 +72,8 @@ export async function appendValuesToSheet(sheetName, values) {
       resource: { values },
     });
 
-    // Configurar checkboxes nas colunas "Chamado", "Telefone", e "Chat"
-    await setCheckboxesForColumns(sheetName, nextRow);
+    // Configurar checkboxes nas colunas "Chamado", "Telefone", e "Chat" usando os valores passados
+    await setCheckboxesForColumns(sheetName, nextRow, values[0].slice(5, 8));
 
     cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
   } catch (error) {
@@ -81,7 +82,7 @@ export async function appendValuesToSheet(sheetName, values) {
   }
 }
 
-export async function setCheckboxesForColumns(sheetName, rowNumber) {
+export async function setCheckboxesForColumns(sheetName, rowNumber, checkboxValues) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
@@ -96,6 +97,7 @@ export async function setCheckboxesForColumns(sheetName, rowNumber) {
       throw new Error(`Aba '${sheetName}' não encontrada.`);
     }
 
+    // Definir o valor das checkboxes com base nos valores fornecidos
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: sheetId,
       resource: {
@@ -112,9 +114,9 @@ export async function setCheckboxesForColumns(sheetName, rowNumber) {
               rows: [
                 {
                   values: [
-                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
-                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
-                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
+                    { userEnteredValue: { boolValue: checkboxValues[0] === 'TRUE' }, dataValidation: { condition: { type: 'BOOLEAN' } } },
+                    { userEnteredValue: { boolValue: checkboxValues[1] === 'TRUE' }, dataValidation: { condition: { type: 'BOOLEAN' } } },
+                    { userEnteredValue: { boolValue: checkboxValues[2] === 'TRUE' }, dataValidation: { condition: { type: 'BOOLEAN' } } },
                   ],
                 },
               ],
@@ -124,7 +126,7 @@ export async function setCheckboxesForColumns(sheetName, rowNumber) {
         ],
       },
     });
-    console.log('Checkboxes adicionados nas colunas especificadas.');
+    console.log('Checkboxes adicionados e configurados nas colunas especificadas.');
   } catch (error) {
     console.error('Erro ao configurar checkboxes:', error);
     throw new Error('Erro ao configurar checkboxes nas colunas.');
