@@ -1,38 +1,50 @@
-import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, getUserFromSheet, getAuthenticatedGoogleSheets, addCheckboxesToColumns } from '../../utils/googleSheets';
+import { getSheetValues, addSheetRow, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
-import { cache } from '../../utils/cache';
+
+// Função para obter o sheetId baseado no nome da aba
+async function getSheetIdByName(sheetName) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+    const response = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+
+    const sheet = response.data.sheets.find((s) => s.properties.title === sheetName);
+    if (sheet) {
+      return sheet.properties.sheetId;
+    } else {
+      throw new Error(`Aba '${sheetName}' não encontrada.`);
+    }
+  } catch (error) {
+    console.error('Erro ao obter sheetId:', error);
+    throw error;
+  }
+}
 
 // Função para ordenar usuários pelo nome em ordem alfabética
 async function sortUsersByName(sheetName) {
   try {
     console.log('Iniciando a ordenação dos usuários...');
     const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
-
-    const sheetInfo = await sheets.spreadsheets.get({
-      spreadsheetId: sheetId,
-    });
-
-    const sheet = sheetInfo.data.sheets.find((s) => s.properties.title === sheetName);
-    if (!sheet) {
-      throw new Error(`Aba '${sheetName}' não encontrada.`);
-    }
+    const sheetId = await getSheetIdByName(sheetName);
 
     await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: sheetId,
+      spreadsheetId: process.env.SHEET_ID,
       resource: {
         requests: [
           {
             sortRange: {
               range: {
-                sheetId: sheet.properties.sheetId,
-                startRowIndex: 1,
+                sheetId: sheetId, // Usar o sheetId específico da aba "Usuários"
+                startRowIndex: 1, // Ignorar a linha de cabeçalho
+                endRowIndex: null, // Até o final
                 startColumnIndex: 0,
-                endColumnIndex: 8,
+                endColumnIndex: 8, // Ordenar todas as colunas A até H
               },
               sortSpecs: [
                 {
-                  dimensionIndex: 1,
+                  dimensionIndex: 1, // Índice da coluna B (nome)
                   sortOrder: 'ASCENDING',
                 },
               ],
@@ -45,11 +57,6 @@ async function sortUsersByName(sheetName) {
   } catch (error) {
     console.error('Erro ao ordenar usuários:', error);
   }
-}
-
-async function invalidateCache(sheetName) {
-  const cacheKey = `sheet_${sheetName}_A:H`;
-  cache.delete(cacheKey); // Remover o cache após cada operação de modificação para garantir que os dados sejam atualizados
 }
 
 export default async function handler(req, res) {
@@ -73,14 +80,12 @@ export default async function handler(req, res) {
   console.log('Usuário é válido:', isUserValid);
 
   try {
-    // Obtendo todos os usuários antes de realizar operações de PUT e DELETE
-    const allRows = await getSheetValues(sheetName, 'A:H');
-
     switch (method) {
       case 'GET':
         console.log('Método GET chamado - Carregando usuários...');
-        if (allRows && allRows.length > 1) {
-          const users = allRows.slice(1).map((row) => ({
+        const rows = await getSheetValues(sheetName, 'A:H');
+        if (rows && rows.length > 1) {
+          const users = rows.slice(1).map((row) => ({
             id: row[0],
             name: row[1],
             email: row[2],
@@ -97,75 +102,58 @@ export default async function handler(req, res) {
       case 'POST':
         console.log('Método POST chamado - Adicionando novo usuário...');
         const newUser = req.body;
+        const allRows = await getSheetValues(sheetName, 'A:H');
 
-        // Verificar se o usuário já existe pelo email
-        const existingUser = await getUserFromSheet(newUser.email);
-        if (existingUser) {
-          return res.status(409).json({ error: 'Usuário já existe com este e-mail.' });
-        }
-
-        // Gerar ID único para o novo usuário
-        let newUserId;
+        // Garantir que o ID seja único e não mude após ser gerado
+        let userId;
         do {
-          newUserId = Math.floor(1000 + Math.random() * 9000).toString();
-        } while (allRows.some(row => row[0] === newUserId));
+          userId = Math.floor(1000 + Math.random() * 9000).toString();
+        } while (allRows.some(row => row[0] === userId));
 
-        // Adicionar o novo usuário à planilha
-        await appendValuesToSheet(sheetName, [
-          [
-            newUserId,
-            newUser.name,
-            newUser.email,
-            newUser.profile,
-            newUser.squad,
-            newUser.chamado ? 'TRUE' : 'FALSE',
-            newUser.telefone ? 'TRUE' : 'FALSE',
-            newUser.chat ? 'TRUE' : 'FALSE',
-          ],
-        ], true); // Passar 'true' para garantir que os checkboxes sejam adicionados
-
-        // Ordenar usuários após a adição
+        await addSheetRow(sheetName, [
+          userId,
+          newUser.name,
+          newUser.email,
+          newUser.profile,
+          newUser.squad,
+          newUser.chamado ? 'TRUE' : 'FALSE',
+          newUser.telefone ? 'TRUE' : 'FALSE',
+          newUser.chat ? 'TRUE' : 'FALSE',
+        ]);
         await sortUsersByName(sheetName);
-
-        // Invalida o cache após adicionar um novo usuário
-        await invalidateCache(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de criação no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'create_user', 'Usuário', null, {
-            userId: newUserId,
+            userId,
             name: newUser.name,
             email: newUser.email,
           }, 'manage-user');
           console.log('Ação de criação registrada com sucesso.');
         }
 
-        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: newUserId });
+        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: userId });
 
       case 'PUT':
         console.log('Método PUT chamado - Atualizando usuário...');
         const updatedUser = req.body;
 
+        // Verificar se o ID foi fornecido
         if (!updatedUser.id) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        // Buscar o índice da linha do usuário para atualização, verificando todos os dados
-        const updateRowIndex = allRows.findIndex(
-          row => row[0] === updatedUser.id &&
-                 row[1] === updatedUser.name &&
-                 row[2] === updatedUser.email &&
-                 row[3] === updatedUser.profile &&
-                 row[4] === updatedUser.squad
-        );
+        // Buscar o índice do usuário na planilha
+        const allRowsUpdate = await getSheetValues(sheetName, 'A:H');
+        const rowIndex = allRowsUpdate.findIndex((row) => row[0] === updatedUser.id);
 
-        if (updateRowIndex === -1) {
+        if (rowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
 
-        // Atualizar informações do usuário na planilha
-        await updateSheetRow(sheetName, updateRowIndex + 2, [
-          updatedUser.id,
+        const previousData = allRowsUpdate[rowIndex];
+        await updateSheetRow(sheetName, rowIndex + 1, [
+          updatedUser.id, // Não modificar o ID do usuário
           updatedUser.name,
           updatedUser.email,
           updatedUser.profile,
@@ -174,20 +162,19 @@ export default async function handler(req, res) {
           updatedUser.telefone ? 'TRUE' : 'FALSE',
           updatedUser.chat ? 'TRUE' : 'FALSE',
         ]);
-
-        // Ordenar usuários após a atualização
         await sortUsersByName(sheetName);
-
-        // Invalida o cache após a atualização de um usuário
-        await invalidateCache(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de atualização no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'update_user', 'Usuário', {
+            userId: previousData[0],
+            name: previousData[1],
+            email: previousData[2],
+          }, {
             userId: updatedUser.id,
             name: updatedUser.name,
             email: updatedUser.email,
-          }, null, 'manage-user');
+          }, 'manage-user');
           console.log('Ação de atualização registrada com sucesso.');
         }
 
@@ -201,30 +188,22 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        // Buscar índice da linha do usuário para exclusão, verificando todos os dados
-        const deleteRowIndex = allRows.findIndex(
-          row => row[0] === deleteUserId &&
-                 row[1] === req.query.name &&
-                 row[2] === req.query.email
-        );
-
+        const userRows = await getSheetValues(sheetName, 'A:H');
+        const deleteRowIndex = userRows.findIndex((row) => row[0] === deleteUserId);
         if (deleteRowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
 
-        // Excluir o usuário da planilha
-        await deleteSheetRow(sheetName, deleteRowIndex + 2);
-
-        // Ordenar usuários após a exclusão
+        const deletedData = userRows[deleteRowIndex];
+        await deleteSheetRow(sheetName, deleteRowIndex + 1);
         await sortUsersByName(sheetName);
-
-        // Invalida o cache após excluir um usuário
-        await invalidateCache(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de exclusão no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'delete_user', 'Usuário', {
-            userId: deleteUserId,
+            userId: deletedData[0],
+            name: deletedData[1],
+            email: deletedData[2],
           }, null, 'manage-user');
           console.log('Ação de exclusão registrada com sucesso.');
         }

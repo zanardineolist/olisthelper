@@ -73,7 +73,10 @@ export default function ManageCategories() {
       });
       if (!res.ok) throw new Error('Erro ao deletar categoria');
 
-      await loadCategories(); // Recarregar a lista de categorias após exclusão
+      // Remover a categoria do estado atual
+      setCategories((prevCategories) =>
+        prevCategories.filter((category) => category.id !== categoryIndex)
+      );
 
       Swal.fire({
         icon: 'success',
@@ -108,7 +111,7 @@ export default function ManageCategories() {
         const existingCategory = categories.find(
           (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
         );
-
+      
         if (existingCategory) {
           Swal.fire({
             icon: 'error',
@@ -165,7 +168,22 @@ export default function ManageCategories() {
 
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
-      await loadCategories(); // Recarregar a lista de categorias após adicionar/editar
+      if (isEditing) {
+        // Atualizar a categoria no estado atual, mantendo a posição atual
+        setCategories((prevCategories) => {
+          const updatedCategories = prevCategories.map((category) =>
+            category.id === currentCategoryId ? { ...category, name: newCategory } : category
+          );
+          return updatedCategories;  // Não reordena ao atualizar
+        });
+      } else {
+        // Adicionar nova categoria ao estado atual
+        const newCategoryId = categories.length + 2; // Definir ID de forma incremental
+        setCategories((prevCategories) => [
+          ...prevCategories,
+          { id: newCategoryId, name: newCategory },
+        ].sort((a, b) => a.name.localeCompare(b.name)));
+      }
 
       setNewCategory('');
       setIsEditing(false);
