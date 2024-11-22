@@ -9,7 +9,6 @@ async function sortUsersByName(sheetName) {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    // Obtendo informações da planilha
     const sheetInfo = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
     });
@@ -19,7 +18,6 @@ async function sortUsersByName(sheetName) {
       throw new Error(`Aba '${sheetName}' não encontrada.`);
     }
 
-    // Realizando a ordenação incluindo todas as colunas relevantes
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: sheetId,
       resource: {
@@ -152,10 +150,15 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        // Buscar o índice da linha do usuário para atualização, verificando se todos os dados coincidem
+        // Buscar o índice da linha do usuário para atualização, verificando todos os dados
         const updateRowIndex = allRows.findIndex(
-          row => row[0] === updatedUser.id && row[2] === updatedUser.email
+          row => row[0] === updatedUser.id &&
+                 row[1] === updatedUser.name &&
+                 row[2] === updatedUser.email &&
+                 row[3] === updatedUser.profile &&
+                 row[4] === updatedUser.squad
         );
+
         if (updateRowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
@@ -198,10 +201,13 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        // Buscar índice da linha do usuário para exclusão, verificando se todos os dados coincidem
+        // Buscar índice da linha do usuário para exclusão, verificando todos os dados
         const deleteRowIndex = allRows.findIndex(
-          row => row[0] === deleteUserId && row[2] === req.query.email
+          row => row[0] === deleteUserId &&
+                 row[1] === req.query.name &&
+                 row[2] === req.query.email
         );
+
         if (deleteRowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
