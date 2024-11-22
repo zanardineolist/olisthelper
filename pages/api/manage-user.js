@@ -1,4 +1,4 @@
-import { getSheetValues, addSheetRow, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
+import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
 
 // Função para obter o sheetId baseado no nome da aba
@@ -103,19 +103,20 @@ export default async function handler(req, res) {
         console.log('Método POST chamado - Adicionando novo usuário...');
         const newUser = req.body;
         const allRows = await getSheetValues(sheetName, 'A:H');
-
+      
         // Garantir que o email não exista previamente
         if (allRows.some(row => row[2] === newUser.email)) {
           return res.status(400).json({ error: 'Email já cadastrado.' });
         }
-
+      
         // Garantir que o ID seja único e não mude após ser gerado
         let newUserId;
         do {
           newUserId = Math.floor(1000 + Math.random() * 9000).toString();
         } while (allRows.some(row => row[0] === newUserId));
-
-        await addSheetRow(sheetName, [
+      
+        // Corrigindo a chamada para `appendValuesToSheet`
+        await appendValuesToSheet(sheetName, [[
           newUserId,
           newUser.name,
           newUser.email,
@@ -123,10 +124,10 @@ export default async function handler(req, res) {
           newUser.squad,
           newUser.chamado ? 'TRUE' : 'FALSE',
           newUser.telefone ? 'TRUE' : 'FALSE',
-          newUser.chat ? 'TRUE' : 'FALSE',
-        ]);
+          newUser.chat ? 'TRUE' : 'FALSE'
+        ]]);
         await sortUsersByName(sheetName);
-
+      
         if (isUserValid) {
           console.log('Registrando ação de criação no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'create_user', 'Usuário', null, {
@@ -136,9 +137,9 @@ export default async function handler(req, res) {
           }, 'manage-user');
           console.log('Ação de criação registrada com sucesso.');
         }
-
-        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: newUserId });
-
+      
+        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: newUserId });   
+             
       case 'PUT':
         console.log('Método PUT chamado - Atualizando usuário...');
         const updatedUser = req.body;
