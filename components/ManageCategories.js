@@ -6,6 +6,7 @@ import generalStyles from '../styles/Manager.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import stringSimilarity from 'string-similarity';
+import { getSheetValues, updateSheetRow, deleteSheetRow, appendValuesToSheet } from '../utils/googleSheets';
 
 export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
@@ -22,12 +23,16 @@ export default function ManageCategories() {
   const loadCategories = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/manage-category');
-      if (!res.ok) throw new Error('Erro ao carregar categorias');
-      const data = await res.json();
+      const data = await getSheetValues('Categorias', 'A:Z'); // Buscar valores diretamente da planilha
+
+      // Formatar os dados da planilha para o estado de categorias
+      const formattedCategories = data.map((row, index) => ({
+        id: index + 1, // O ID é baseado no índice da linha + 1
+        name: row[0], // Nome da categoria
+      }));
 
       // Ordenar as categorias de A-Z
-      const sortedCategories = data.categories.sort((a, b) => a.name.localeCompare(b.name));
+      const sortedCategories = formattedCategories.sort((a, b) => a.name.localeCompare(b.name));
       setCategories(sortedCategories);
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
@@ -68,15 +73,8 @@ export default function ManageCategories() {
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/manage-category?index=${categoryIndex}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Erro ao deletar categoria');
-
-      // Remover a categoria do estado atual
-      setCategories((prevCategories) =>
-        prevCategories.filter((category) => category.id !== categoryIndex)
-      );
+      await deleteSheetRow('Categorias', categoryIndex + 1); // Excluir a linha correta (ajustando para linha 1 ser o cabeçalho)
+      await loadCategories(); // Recarregar as categorias após a exclusão
 
       Swal.fire({
         icon: 'success',
@@ -111,7 +109,7 @@ export default function ManageCategories() {
         const existingCategory = categories.find(
           (cat) => cat.name.toLowerCase() === lowerCaseNewCategory
         );
-      
+
         if (existingCategory) {
           Swal.fire({
             icon: 'error',
@@ -149,41 +147,15 @@ export default function ManageCategories() {
             return;
           }
         }
-      }
 
-      // Adicionar ou Editar a Categoria
-      const method = isEditing ? 'PUT' : 'POST';
-      const body = { name: newCategory };
-      if (isEditing) {
-        body.index = currentCategoryId;
-      }
-
-      const res = await fetch('/api/manage-category', {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) throw new Error('Erro ao salvar categoria');
-
-      if (isEditing) {
-        // Atualizar a categoria no estado atual, mantendo a posição atual
-        setCategories((prevCategories) => {
-          const updatedCategories = prevCategories.map((category) =>
-            category.id === currentCategoryId ? { ...category, name: newCategory } : category
-          );
-          return updatedCategories;  // Não reordena ao atualizar
-        });
+        // Adicionar a nova categoria
+        await appendValuesToSheet('Categorias', [[newCategory]]);
       } else {
-        // Adicionar nova categoria ao estado atual
-        const newCategoryId = categories.length + 2; // Definir ID de forma incremental
-        setCategories((prevCategories) => [
-          ...prevCategories,
-          { id: newCategoryId, name: newCategory },
-        ].sort((a, b) => a.name.localeCompare(b.name)));
+        // Editar a categoria existente
+        await updateSheetRow('Categorias', currentCategoryId + 1, [newCategory]);
       }
+
+      await loadCategories();
 
       setNewCategory('');
       setIsEditing(false);
@@ -277,7 +249,7 @@ export default function ManageCategories() {
                     <button onClick={() => handleEditCategory(category)} className={generalStyles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </button>
-                    <button onClick={() => handleDeleteCategory(category.id)} className={generalStyles.actionButtonIcon}>
+                    <button onClick={() => handleDeleteCategory(category.id - 1)} className={generalStyles.actionButtonIcon}>
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </td>

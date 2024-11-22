@@ -7,6 +7,7 @@ import generalStyles from '../styles/Manager.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import stringSimilarity from 'string-similarity';
+import { getSheetValues, addUserToSheetIfNotExists, updateUserProfile, deleteSheetRow } from '../utils/googleSheets';
 
 export default function ManageUsers({ user }) {
   const [users, setUsers] = useState([]);
@@ -40,10 +41,18 @@ export default function ManageUsers({ user }) {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/manage-user');
-      if (!res.ok) throw new Error('Erro ao carregar usuários');
-      const data = await res.json();
-      setUsers(data.users);
+      const data = await getSheetValues('Usuários', 'A:Z'); // Buscar valores diretamente da planilha
+      const formattedUsers = data.map((row, index) => ({
+        id: row[0],
+        name: row[1],
+        email: row[2],
+        profile: row[3],
+        squad: row[4] || '',
+        chamado: row[5] === 'TRUE',
+        telefone: row[6] === 'TRUE',
+        chat: row[7] === 'TRUE',
+      }));
+      setUsers(formattedUsers);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
       Swal.fire({
@@ -94,11 +103,7 @@ export default function ManageUsers({ user }) {
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/manage-user?id=${userId}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) throw new Error('Erro ao deletar usuário');
-
+      await deleteSheetRow('Usuários', parseInt(userId));
       await loadUsers();
 
       Swal.fire({
@@ -175,18 +180,11 @@ export default function ManageUsers({ user }) {
             return;
           }
         }
-      }
 
-      // Caso não existam conflitos ou seja uma edição, prosseguir com o salvamento
-      const method = isEditing ? 'PUT' : 'POST';
-      const res = await fetch('/api/manage-user', {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newUser),
-      });
-      if (!res.ok) throw new Error('Erro ao salvar usuário');
+        await addUserToSheetIfNotExists(newUser);
+      } else {
+        await updateUserProfile(newUser.email, newUser.profile);
+      }
 
       await loadUsers();
 

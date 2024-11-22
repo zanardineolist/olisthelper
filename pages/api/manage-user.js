@@ -1,34 +1,24 @@
-import { getSheetValues, addSheetRow, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
+import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, getUserFromSheet, updateUserProfile, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
-
-// Função para obter o sheetId baseado no nome da aba
-async function getSheetIdByName(sheetName) {
-  try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
-    const response = await sheets.spreadsheets.get({
-      spreadsheetId: sheetId,
-    });
-
-    const sheet = response.data.sheets.find((s) => s.properties.title === sheetName);
-    if (sheet) {
-      return sheet.properties.sheetId;
-    } else {
-      throw new Error(`Aba '${sheetName}' não encontrada.`);
-    }
-  } catch (error) {
-    console.error('Erro ao obter sheetId:', error);
-    throw error;
-  }
-}
 
 // Função para ordenar usuários pelo nome em ordem alfabética
 async function sortUsersByName(sheetName) {
   try {
     console.log('Iniciando a ordenação dos usuários...');
     const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = await getSheetIdByName(sheetName);
+    const sheetId = process.env.SHEET_ID;
 
+    // Obtendo informações da planilha
+    const sheetInfo = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+
+    const sheet = sheetInfo.data.sheets.find((s) => s.properties.title === sheetName);
+    if (!sheet) {
+      throw new Error(`Aba '${sheetName}' não encontrada.`);
+    }
+
+    // Realizando a ordenação da coluna B (nome)
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: process.env.SHEET_ID,
       resource: {
@@ -36,15 +26,14 @@ async function sortUsersByName(sheetName) {
           {
             sortRange: {
               range: {
-                sheetId: sheetId, // Usar o sheetId específico da aba "Usuários"
-                startRowIndex: 1, // Ignorar a linha de cabeçalho
-                endRowIndex: null, // Até o final
-                startColumnIndex: 0,
-                endColumnIndex: 8, // Ordenar todas as colunas A até H
+                sheetId: sheet.properties.sheetId,
+                startRowIndex: 1,
+                startColumnIndex: 1,
+                endColumnIndex: 2,
               },
               sortSpecs: [
                 {
-                  dimensionIndex: 1, // Índice da coluna B (nome)
+                  dimensionIndex: 1, // Coluna B (índice 1)
                   sortOrder: 'ASCENDING',
                 },
               ],
@@ -102,74 +91,74 @@ export default async function handler(req, res) {
       case 'POST':
         console.log('Método POST chamado - Adicionando novo usuário...');
         const newUser = req.body;
+
+        // Verificar se o usuário já existe pelo email
+        const existingUser = await getUserFromSheet(newUser.email);
+        if (existingUser) {
+          return res.status(409).json({ error: 'Usuário já existe com este e-mail.' });
+        }
+
+        // Gerar ID único para o novo usuário
         const allRows = await getSheetValues(sheetName, 'A:H');
-
-        // Garantir que o ID seja único e não mude após ser gerado
-        let userId;
+        let newUserId;
         do {
-          userId = Math.floor(1000 + Math.random() * 9000).toString();
-        } while (allRows.some(row => row[0] === userId));
+          newUserId = Math.floor(1000 + Math.random() * 9000).toString();
+        } while (allRows.some(row => row[0] === newUserId));
 
-        await addSheetRow(sheetName, [
-          userId,
-          newUser.name,
-          newUser.email,
-          newUser.profile,
-          newUser.squad,
-          newUser.chamado ? 'TRUE' : 'FALSE',
-          newUser.telefone ? 'TRUE' : 'FALSE',
-          newUser.chat ? 'TRUE' : 'FALSE',
+        // Adicionar o novo usuário à planilha
+        await appendValuesToSheet(sheetName, [
+          [
+            newUserId,
+            newUser.name,
+            newUser.email,
+            newUser.profile,
+            newUser.squad,
+            newUser.chamado ? 'TRUE' : 'FALSE',
+            newUser.telefone ? 'TRUE' : 'FALSE',
+            newUser.chat ? 'TRUE' : 'FALSE',
+          ],
         ]);
+
+        // Ordenar usuários após a adição
         await sortUsersByName(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de criação no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'create_user', 'Usuário', null, {
-            userId,
+            userId: newUserId,
             name: newUser.name,
             email: newUser.email,
           }, 'manage-user');
           console.log('Ação de criação registrada com sucesso.');
         }
 
-        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: userId });
+        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: newUserId });
 
       case 'PUT':
         console.log('Método PUT chamado - Atualizando usuário...');
         const updatedUser = req.body;
 
-        // Verificar se o ID foi fornecido
         if (!updatedUser.id) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        // Buscar o índice do usuário na planilha
-        const allRowsUpdate = await getSheetValues(sheetName, 'A:H');
-        const rowIndex = allRowsUpdate.findIndex((row) => row[0] === updatedUser.id);
-
-        if (rowIndex === -1) {
+        const userToUpdate = await getUserFromSheet(updatedUser.email);
+        if (!userToUpdate) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
 
-        const previousData = allRowsUpdate[rowIndex];
-        await updateSheetRow(sheetName, rowIndex + 1, [
-          updatedUser.id, // Não modificar o ID do usuário
-          updatedUser.name,
-          updatedUser.email,
-          updatedUser.profile,
-          updatedUser.squad,
-          updatedUser.chamado ? 'TRUE' : 'FALSE',
-          updatedUser.telefone ? 'TRUE' : 'FALSE',
-          updatedUser.chat ? 'TRUE' : 'FALSE',
-        ]);
+        // Atualizar informações do usuário na planilha
+        await updateUserProfile(updatedUser.email, updatedUser.profile);
+
+        // Ordenar usuários após a atualização
         await sortUsersByName(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de atualização no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'update_user', 'Usuário', {
-            userId: previousData[0],
-            name: previousData[1],
-            email: previousData[2],
+            userId: userToUpdate[0],
+            name: userToUpdate[1],
+            email: userToUpdate[2],
           }, {
             userId: updatedUser.id,
             name: updatedUser.name,
@@ -196,6 +185,8 @@ export default async function handler(req, res) {
 
         const deletedData = userRows[deleteRowIndex];
         await deleteSheetRow(sheetName, deleteRowIndex + 1);
+
+        // Ordenar usuários após a exclusão
         await sortUsersByName(sheetName);
 
         if (isUserValid) {

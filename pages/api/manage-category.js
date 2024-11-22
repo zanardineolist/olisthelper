@@ -1,33 +1,22 @@
-import { getSheetValues, addSheetRow, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
+import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
-
-// Função para obter o sheetId baseado no nome da aba
-async function getSheetIdByName(sheetName) {
-  try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
-    const response = await sheets.spreadsheets.get({
-      spreadsheetId: sheetId,
-    });
-
-    const sheet = response.data.sheets.find((s) => s.properties.title === sheetName);
-    if (sheet) {
-      return sheet.properties.sheetId;
-    } else {
-      throw new Error(`Aba '${sheetName}' não encontrada.`);
-    }
-  } catch (error) {
-    console.error('Erro ao obter sheetId:', error);
-    throw error;
-  }
-}
 
 // Função para ordenar categorias pelo nome em ordem alfabética
 async function sortCategoriesByName(sheetName) {
   try {
     console.log('Iniciando a ordenação das categorias...');
     const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = await getSheetIdByName(sheetName);
+    const sheetId = process.env.SHEET_ID;
+
+    // Utilizando a função centralizada de `getSheetIdByName` do googleSheets.js
+    const sheetInfo = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+
+    const sheet = sheetInfo.data.sheets.find((s) => s.properties.title === sheetName);
+    if (!sheet) {
+      throw new Error(`Aba '${sheetName}' não encontrada.`);
+    }
 
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: process.env.SHEET_ID,
@@ -36,9 +25,8 @@ async function sortCategoriesByName(sheetName) {
           {
             sortRange: {
               range: {
-                sheetId: sheetId,
+                sheetId: sheet.properties.sheetId,
                 startRowIndex: 1,
-                endRowIndex: null,
                 startColumnIndex: 0,
                 endColumnIndex: 1,
               },
@@ -102,8 +90,12 @@ export default async function handler(req, res) {
           console.error('Erro: Nome da categoria não fornecido.');
           return res.status(400).json({ error: 'Nome da categoria não fornecido.' });
         }
-        await addSheetRow(sheetName, [newCategoryName]);
+
+        // Utilizando a função `appendValuesToSheet` em vez de `addSheetRow`
+        await appendValuesToSheet(sheetName, [[newCategoryName]]);
         console.log('Nova categoria adicionada:', newCategoryName);
+
+        // Ordenar categorias após a adição
         await sortCategoriesByName(sheetName);
 
         if (isUserValid) {
@@ -137,6 +129,8 @@ export default async function handler(req, res) {
         const previousData = allRowsUpdate[rowIndex];
         await updateSheetRow(sheetName, updateIndex, [updatedCategoryName]);
         console.log('Categoria atualizada de:', previousData[0], 'para:', updatedCategoryName);
+        
+        // Ordenar categorias após a atualização
         await sortCategoriesByName(sheetName);
 
         if (isUserValid) {
@@ -169,6 +163,8 @@ export default async function handler(req, res) {
         const deletedData = allRowsDelete[deleteRowIndex];
         await deleteSheetRow(sheetName, parseInt(deleteIndex, 10));
         console.log('Categoria excluída:', deletedData[0]);
+
+        // Ordenar categorias após a exclusão
         await sortCategoriesByName(sheetName);
 
         if (isUserValid) {
