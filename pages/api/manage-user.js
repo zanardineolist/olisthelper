@@ -1,4 +1,4 @@
-import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, addCheckboxToSheet, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
+import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
 
 // Função para obter o sheetId baseado no nome da aba
@@ -115,33 +115,17 @@ export default async function handler(req, res) {
           newUserId = Math.floor(1000 + Math.random() * 9000).toString();
         } while (allRows.some(row => row[0] === newUserId));
 
-        // Corrigindo a chamada para `appendValuesToSheet` e adicionando os valores com checkboxes já configurados
+        // Adicionando os valores do novo usuário com as permissões como TRUE ou FALSE
         await appendValuesToSheet(sheetName, [[
           newUserId,
           newUser.name,
           newUser.email,
           newUser.profile,
           newUser.squad,
-          'FALSE',  // Placeholder para Checkbox (Chamado)
-          'FALSE',  // Placeholder para Checkbox (Telefone)
-          'FALSE'   // Placeholder para Checkbox (Chat)
+          newUser.chamado ? 'TRUE' : 'FALSE',
+          newUser.telefone ? 'TRUE' : 'FALSE',
+          newUser.chat ? 'TRUE' : 'FALSE'
         ]]);
-
-        // Atualizando as informações da planilha após adicionar o novo usuário
-        const updatedRows = await getSheetValues(sheetName, 'A:H');
-        const newUserRowIndex = updatedRows.findIndex(row => row[0] === newUserId);
-
-        if (newUserRowIndex === -1) {
-          return res.status(500).json({ error: 'Erro ao localizar o novo usuário na planilha.' });
-        }
-
-        // Adicionando checkbox para colunas específicas (chamado, telefone, chat) diretamente na nova linha
-        await addCheckboxToSheet(sheetName, {
-          startRowIndex: newUserRowIndex, // A linha do novo usuário
-          endRowIndex: newUserRowIndex + 1,
-          startColumnIndex: 5,
-          endColumnIndex: 8
-        });
 
         await sortUsersByName(sheetName);
 
