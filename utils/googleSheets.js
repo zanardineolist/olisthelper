@@ -158,27 +158,40 @@ export async function updateSheetRow(sheetName, rowIndex, newValues) {
   }
 }
 
+export async function getSheetIdByName(sheetName) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+
+    const response = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+
+    const sheet = response.data.sheets.find((s) => s.properties.title === sheetName);
+    if (sheet) {
+      return sheet.properties.sheetId;
+    } else {
+      throw new Error(`Aba '${sheetName}' não encontrada.`);
+    }
+  } catch (error) {
+    console.error(`Erro ao obter sheetId da aba ${sheetName}:`, error);
+    throw error;
+  }
+}
+
 export async function deleteSheetRow(sheetName, rowIndex) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
-    const sheetInfo = await sheets.spreadsheets.get({
-      spreadsheetId: process.env.SHEET_ID,
-    });
-
-    const sheet = sheetInfo.data.sheets.find((sheet) => sheet.properties.title === sheetName);
-
-    if (!sheet) {
-      throw new Error(`Aba ${sheetName} não encontrada.`);
-    }
+    const sheetId = await getSheetIdByName(sheetName);
 
     await sheets.spreadsheets.batchUpdate({
-      spreadsheetId: sheetId,
+      spreadsheetId: process.env.SHEET_ID,
       resource: {
         requests: [
           {
             deleteDimension: {
               range: {
-                sheetId: sheet.properties.sheetId,
+                sheetId: sheetId,
                 dimension: 'ROWS',
                 startIndex: rowIndex - 1,
                 endIndex: rowIndex,
