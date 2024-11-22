@@ -1,14 +1,14 @@
 import { db } from '../../utils/firebase/firebaseConfig';
-import { collection, addDoc, getDocs, query, where, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import { getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { title, message } = req.body;
+      const { title, message, profiles } = req.body;
 
-      if (!title || !message) {
-        return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+      if (!title || !message || !profiles || profiles.length === 0) {
+        return res.status(400).json({ error: 'Todos os campos são obrigatórios e ao menos um perfil deve ser selecionado.' });
       }
 
       // Buscar usuários da aba "Usuários" do Google Sheets, colunas A2:D (ID, Nome, Email, Perfil)
@@ -24,10 +24,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Nenhum usuário encontrado.' });
       }
 
-      // Filtrar usuários dos perfis "analyst", "tax", "super"
-      const targetUsers = users.filter(user =>
-        user[3] === 'analyst' || user[3] === 'tax' || user[3] === 'super'
-      );
+      // Filtrar usuários com base nos perfis selecionados
+      const targetUsers = users.filter(user => profiles.includes(user[3]));
 
       if (targetUsers.length === 0) {
         return res.status(400).json({ error: 'Nenhum usuário elegível encontrado.' });

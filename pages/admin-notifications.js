@@ -2,7 +2,7 @@
 import Head from 'next/head';
 import { useState } from 'react';
 import { getSession } from 'next-auth/react';
-import { TextField, Button, ThemeProvider, createTheme } from '@mui/material';
+import { TextField, Button, ThemeProvider, createTheme, FormControlLabel, Checkbox, FormGroup } from '@mui/material';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import styles from '../styles/Manager.module.css';
@@ -35,16 +35,39 @@ export default function AdminNotificationsPage({ user }) {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedProfiles, setSelectedProfiles] = useState({
+    analyst: false,
+    tax: false,
+    super: false,
+    supportPlus: false,
+  });
+
+  const handleProfileChange = (event) => {
+    setSelectedProfiles({
+      ...selectedProfiles,
+      [event.target.name]: event.target.checked,
+    });
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
+      const profilesToSend = Object.keys(selectedProfiles).filter(
+        (profile) => selectedProfiles[profile]
+      );
+
+      if (profilesToSend.length === 0) {
+        alert('Selecione ao menos um perfil para enviar a notificação.');
+        setLoading(false);
+        return;
+      }
+
       const res = await fetch('/api/notifications', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title, message }),
+        body: JSON.stringify({ title, message, profiles: profilesToSend }),
       });
 
       if (!res.ok) {
@@ -55,6 +78,12 @@ export default function AdminNotificationsPage({ user }) {
       alert(data.message);
       setTitle('');
       setMessage('');
+      setSelectedProfiles({
+        analyst: false,
+        tax: false,
+        super: false,
+        supportPlus: false,
+      });
     } catch (error) {
       console.error('Erro ao enviar notificação:', error);
       alert('Erro ao enviar notificação');
@@ -93,6 +122,48 @@ export default function AdminNotificationsPage({ user }) {
               onChange={(e) => setMessage(e.target.value)}
               required
             />
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedProfiles.analyst}
+                    onChange={handleProfileChange}
+                    name="analyst"
+                  />
+                }
+                label="Analyst"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedProfiles.tax}
+                    onChange={handleProfileChange}
+                    name="tax"
+                  />
+                }
+                label="Tax"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedProfiles.super}
+                    onChange={handleProfileChange}
+                    name="super"
+                  />
+                }
+                label="Super"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedProfiles.supportPlus}
+                    onChange={handleProfileChange}
+                    name="supportPlus"
+                  />
+                }
+                label="Support+"
+              />
+            </FormGroup>
             <Button
               variant="contained"
               fullWidth
