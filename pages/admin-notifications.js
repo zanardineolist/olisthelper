@@ -36,10 +36,10 @@ export default function AdminNotificationsPage({ user }) {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedProfiles, setSelectedProfiles] = useState({
+    supportPlus: false,
     analyst: false,
     tax: false,
     super: false,
-    supportPlus: false,
   });
 
   const handleProfileChange = (event) => {
@@ -56,7 +56,16 @@ export default function AdminNotificationsPage({ user }) {
         (profile) => selectedProfiles[profile]
       );
 
-      if (profilesToSend.length === 0) {
+      // Converter os perfis para os nomes corretos da planilha
+      const profilesMap = {
+        supportPlus: 'Support Plus',
+        analyst: 'Analista',
+        tax: 'Fiscal',
+        super: 'Supervisão',
+      };
+      const profilesMapped = profilesToSend.map(profile => profilesMap[profile]);
+
+      if (profilesMapped.length === 0) {
         alert('Selecione ao menos um perfil para enviar a notificação.');
         setLoading(false);
         return;
@@ -67,7 +76,7 @@ export default function AdminNotificationsPage({ user }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title, message, profiles: profilesToSend }),
+        body: JSON.stringify({ title, message, profiles: profilesMapped }),
       });
 
       if (!res.ok) {
@@ -79,10 +88,10 @@ export default function AdminNotificationsPage({ user }) {
       setTitle('');
       setMessage('');
       setSelectedProfiles({
+        supportPlus: false,
         analyst: false,
         tax: false,
         super: false,
-        supportPlus: false,
       });
     } catch (error) {
       console.error('Erro ao enviar notificação:', error);
@@ -126,12 +135,22 @@ export default function AdminNotificationsPage({ user }) {
               <FormControlLabel
                 control={
                   <Checkbox
+                    checked={selectedProfiles.supportPlus}
+                    onChange={handleProfileChange}
+                    name="supportPlus"
+                  />
+                }
+                label="Support Plus"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
                     checked={selectedProfiles.analyst}
                     onChange={handleProfileChange}
                     name="analyst"
                   />
                 }
-                label="Analyst"
+                label="Analista"
               />
               <FormControlLabel
                 control={
@@ -141,7 +160,7 @@ export default function AdminNotificationsPage({ user }) {
                     name="tax"
                   />
                 }
-                label="Tax"
+                label="Fiscal"
               />
               <FormControlLabel
                 control={
@@ -151,17 +170,7 @@ export default function AdminNotificationsPage({ user }) {
                     name="super"
                   />
                 }
-                label="Super"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={selectedProfiles.supportPlus}
-                    onChange={handleProfileChange}
-                    name="supportPlus"
-                  />
-                }
-                label="Support+"
+                label="Supervisão"
               />
             </FormGroup>
             <Button

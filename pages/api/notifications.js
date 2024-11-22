@@ -11,6 +11,9 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios e ao menos um perfil deve ser selecionado.' });
       }
 
+      // Log para depuração
+      console.log('Perfis selecionados:', profiles);
+
       // Buscar usuários da aba "Usuários" do Google Sheets, colunas A2:D (ID, Nome, Email, Perfil)
       let users;
       try {
@@ -27,8 +30,11 @@ export default async function handler(req, res) {
       // Filtrar usuários com base nos perfis selecionados
       const targetUsers = users.filter(user => profiles.includes(user[3]));
 
+      // Log para depuração dos usuários-alvo
+      console.log('Usuários elegíveis encontrados:', targetUsers);
+
       if (targetUsers.length === 0) {
-        return res.status(400).json({ error: 'Nenhum usuário elegível encontrado.' });
+        return res.status(400).json({ error: 'Nenhum usuário elegível encontrado. Verifique os perfis selecionados.' });
       }
 
       // Adiciona notificação ao Firestore para cada usuário alvo
