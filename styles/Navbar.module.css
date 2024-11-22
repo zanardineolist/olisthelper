@@ -11,6 +11,9 @@
 
 .navbarWrapper {
   position: relative;
+}
+
+.navbarWrapper.withBanner {
   padding-top: 50px;
 }
 

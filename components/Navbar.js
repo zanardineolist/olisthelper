@@ -171,7 +171,7 @@ export default function Navbar({ user }) {
   };
 
   return (
-    <div className={styles.navbarWrapper}>
+    <div className={`${styles.navbarWrapper} ${topNotification ? styles.withBanner : ''}`}>
       {topNotification && (
         <div className={styles.notificationBanner}>
           <p>{topNotification.message}</p>
