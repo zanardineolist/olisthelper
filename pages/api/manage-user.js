@@ -124,7 +124,7 @@ export default async function handler(req, res) {
             newUser.telefone ? 'TRUE' : 'FALSE',
             newUser.chat ? 'TRUE' : 'FALSE',
           ],
-        ], true); // Passar 'true' para adicionar checkboxes
+        ], true); // Passar 'true' para garantir que os checkboxes sejam adicionados
 
         // Ordenar usuários após a adição
         await sortUsersByName(sheetName);
@@ -152,8 +152,10 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        // Buscar o índice da linha do usuário para atualização
-        const updateRowIndex = allRows.findIndex(row => row[0] === updatedUser.id);
+        // Buscar o índice da linha do usuário para atualização, verificando se todos os dados coincidem
+        const updateRowIndex = allRows.findIndex(
+          row => row[0] === updatedUser.id && row[2] === updatedUser.email
+        );
         if (updateRowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
@@ -196,8 +198,10 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        // Buscar índice da linha do usuário para exclusão
-        const deleteRowIndex = allRows.findIndex(row => row[0] === deleteUserId);
+        // Buscar índice da linha do usuário para exclusão, verificando se todos os dados coincidem
+        const deleteRowIndex = allRows.findIndex(
+          row => row[0] === deleteUserId && row[2] === req.query.email
+        );
         if (deleteRowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
