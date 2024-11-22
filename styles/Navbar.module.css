@@ -108,26 +108,21 @@
 
 /* Estilo personalizado para a scrollbar dentro de notificationsBox */
 .notificationsBox::-webkit-scrollbar {
-  width: 6px;
+  width: 6px !important;
 }
 
 .notificationsBox::-webkit-scrollbar-track {
-  background: transparent; /* Tornar a trilha invisível */
+  background: transparent !important;
 }
 
 .notificationsBox::-webkit-scrollbar-thumb {
-  background: var(--scroll);
+  background: var(--scroll) !important;
   border-radius: 10px;
 }
 
 .notificationsBox {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scroll) transparent; /* Tornar a trilha invisível */
-}
-
-.notificationsBox {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scroll) var(--scroll-bg);
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--scroll) transparent;
 }
 
 .notificationsList {
