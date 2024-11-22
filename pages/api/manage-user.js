@@ -1,4 +1,4 @@
-import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
+import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, addCheckboxToSheet, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
 
 // Função para obter o sheetId baseado no nome da aba
@@ -103,18 +103,18 @@ export default async function handler(req, res) {
         console.log('Método POST chamado - Adicionando novo usuário...');
         const newUser = req.body;
         const allRows = await getSheetValues(sheetName, 'A:H');
-      
+
         // Garantir que o email não exista previamente
         if (allRows.some(row => row[2] === newUser.email)) {
           return res.status(400).json({ error: 'Email já cadastrado.' });
         }
-      
+
         // Garantir que o ID seja único e não mude após ser gerado
         let newUserId;
         do {
           newUserId = Math.floor(1000 + Math.random() * 9000).toString();
         } while (allRows.some(row => row[0] === newUserId));
-      
+
         // Corrigindo a chamada para `appendValuesToSheet`
         await appendValuesToSheet(sheetName, [[
           newUserId,
@@ -126,8 +126,17 @@ export default async function handler(req, res) {
           newUser.telefone ? 'TRUE' : 'FALSE',
           newUser.chat ? 'TRUE' : 'FALSE'
         ]]);
+
+        // Adicionando checkbox para colunas específicas (chamado, telefone, chat)
+        await addCheckboxToSheet(sheetName, {
+          startRowIndex: allRows.length + 1,
+          endRowIndex: allRows.length + 2,
+          startColumnIndex: 5,
+          endColumnIndex: 8 
+        });
+
         await sortUsersByName(sheetName);
-      
+
         if (isUserValid) {
           console.log('Registrando ação de criação no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'create_user', 'Usuário', null, {
@@ -137,9 +146,12 @@ export default async function handler(req, res) {
           }, 'manage-user');
           console.log('Ação de criação registrada com sucesso.');
         }
-      
-        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: newUserId });   
-             
+
+        // Atualizando o cache após adicionar o usuário
+        await getSheetValues(sheetName, 'A:H', true); // Forçando atualização do cache
+
+        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: newUserId });
+
       case 'PUT':
         console.log('Método PUT chamado - Atualizando usuário...');
         const updatedUser = req.body;
@@ -190,6 +202,9 @@ export default async function handler(req, res) {
           console.log('Ação de atualização registrada com sucesso.');
         }
 
+        // Atualizando o cache após editar o usuário
+        await getSheetValues(sheetName, 'A:H', true); // Forçando atualização do cache
+
         return res.status(200).json({ message: 'Usuário atualizado com sucesso.' });
 
       case 'DELETE':
@@ -225,6 +240,9 @@ export default async function handler(req, res) {
           }, null, 'manage-user');
           console.log('Ação de exclusão registrada com sucesso.');
         }
+
+        // Atualizando o cache após excluir o usuário
+        await getSheetValues(sheetName, 'A:H', true); // Forçando atualização do cache
 
         return res.status(200).json({ message: 'Usuário excluído com sucesso.' });
 

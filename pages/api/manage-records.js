@@ -72,7 +72,7 @@ export default async function handler(req, res) {
           const { record } = req.body;
           const rowIndex = parseInt(req.query.index, 10);
 
-          if (!record || !rowIndex) {
+          if (!record || rowIndex == null) {
             return res.status(400).json({ error: 'Dados do registro ou índice não fornecidos.' });
           }
 
@@ -119,6 +119,9 @@ export default async function handler(req, res) {
             console.log('Ação de atualização registrada com sucesso.');
           }
 
+          // Atualizando o cache após editar o registro
+          await getSheetValues(sheetName, 'A:F', true); // Forçando atualização do cache
+
           return res.status(200).json({ message: 'Registro atualizado com sucesso.' });
         } catch (error) {
           console.error('Erro ao atualizar registro:', error);
@@ -162,6 +165,9 @@ export default async function handler(req, res) {
             }, null, 'manage-records');
             console.log('Ação de exclusão registrada com sucesso.');
           }
+
+          // Atualizando o cache após excluir o registro
+          await getSheetValues(sheetName, 'A:F', true); // Forçando atualização do cache
 
           return res.status(200).json({ message: 'Registro excluído com sucesso.' });
         } catch (error) {
