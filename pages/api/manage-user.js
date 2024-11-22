@@ -83,7 +83,7 @@ export default async function handler(req, res) {
     switch (method) {
       case 'GET':
         console.log('Método GET chamado - Carregando usuários...');
-        const rows = await getSheetValues(sheetName, 'A:H');
+        const rows = await getSheetValues(sheetName, 'A:H', true); // Utilizando cache
         if (rows && rows.length > 1) {
           const users = rows.slice(1).map((row) => ({
             id: row[0],
@@ -102,7 +102,7 @@ export default async function handler(req, res) {
       case 'POST':
         console.log('Método POST chamado - Adicionando novo usuário...');
         const newUser = req.body;
-        const allRows = await getSheetValues(sheetName, 'A:H');
+        const allRows = await getSheetValues(sheetName, 'A:H', true);
 
         // Garantir que o email não exista previamente
         if (allRows.some(row => row[2] === newUser.email)) {
@@ -127,6 +127,9 @@ export default async function handler(req, res) {
           newUser.chat ? 'TRUE' : 'FALSE'
         ]]);
 
+        // Atualizar cache imediatamente após adicionar o novo usuário
+        const updatedRows = await getSheetValues(sheetName, 'A:H', true);
+
         await sortUsersByName(sheetName);
 
         if (isUserValid) {
@@ -138,9 +141,6 @@ export default async function handler(req, res) {
           }, 'manage-user');
           console.log('Ação de criação registrada com sucesso.');
         }
-
-        // Atualizando o cache após adicionar o usuário
-        await getSheetValues(sheetName, 'A:H', true); // Forçando atualização do cache
 
         return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: newUserId });
 
@@ -154,7 +154,7 @@ export default async function handler(req, res) {
         }
 
         // Buscar o índice do usuário na planilha
-        const allRowsUpdate = await getSheetValues(sheetName, 'A:H');
+        const allRowsUpdate = await getSheetValues(sheetName, 'A:H', true);
         const rowIndex = allRowsUpdate.findIndex((row) => row[0] === updatedUser.id);
 
         if (rowIndex === -1) {
@@ -178,6 +178,10 @@ export default async function handler(req, res) {
           updatedUser.telefone ? 'TRUE' : 'FALSE',
           updatedUser.chat ? 'TRUE' : 'FALSE',
         ], previousData);
+
+        // Atualizar cache imediatamente após atualizar o usuário
+        await getSheetValues(sheetName, 'A:H', true);
+
         await sortUsersByName(sheetName);
 
         if (isUserValid) {
@@ -194,9 +198,6 @@ export default async function handler(req, res) {
           console.log('Ação de atualização registrada com sucesso.');
         }
 
-        // Atualizando o cache após editar o usuário
-        await getSheetValues(sheetName, 'A:H', true); // Forçando atualização do cache
-
         return res.status(200).json({ message: 'Usuário atualizado com sucesso.' });
 
       case 'DELETE':
@@ -207,7 +208,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        const userRows = await getSheetValues(sheetName, 'A:H');
+        const userRows = await getSheetValues(sheetName, 'A:H', true);
         const deleteRowIndex = userRows.findIndex((row) => row[0] === deleteUserId);
         if (deleteRowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
@@ -221,6 +222,10 @@ export default async function handler(req, res) {
         }
 
         await deleteSheetRow(sheetName, deleteRowIndex + 1, deletedData);
+
+        // Atualizar cache imediatamente após excluir o usuário
+        await getSheetValues(sheetName, 'A:H', true);
+
         await sortUsersByName(sheetName);
 
         if (isUserValid) {
@@ -232,9 +237,6 @@ export default async function handler(req, res) {
           }, null, 'manage-user');
           console.log('Ação de exclusão registrada com sucesso.');
         }
-
-        // Atualizando o cache após excluir o usuário
-        await getSheetValues(sheetName, 'A:H', true); // Forçando atualização do cache
 
         return res.status(200).json({ message: 'Usuário excluído com sucesso.' });
 
