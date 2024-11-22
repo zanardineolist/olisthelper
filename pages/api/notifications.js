@@ -5,14 +5,15 @@ import { getSheetValues } from '../../utils/googleSheets';
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { title, message, profiles } = req.body;
+      const { title, message, profiles, notificationType } = req.body;
 
-      if (!title || !message || !profiles || profiles.length === 0) {
+      if (!title || !message || !profiles || profiles.length === 0 || !notificationType) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios e ao menos um perfil deve ser selecionado.' });
       }
 
       // Log para depuração
       console.log('Perfis selecionados:', profiles);
+      console.log('Tipo de notificação selecionado:', notificationType);
 
       // Buscar usuários da aba "Usuários" do Google Sheets, colunas A2:D (ID, Nome, Email, Perfil)
       let users;
@@ -50,6 +51,7 @@ export default async function handler(req, res) {
             message,
             read: false,
             timestamp: new Date().getTime(), // Salva como milissegundos
+            notificationType, // Novo campo para identificar o tipo da notificação (sino, topo ou ambos)
           });
         } catch (notificationError) {
           console.error(`Erro ao adicionar notificação para o usuário ${userEmail}:`, notificationError);

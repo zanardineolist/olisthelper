@@ -2,7 +2,7 @@
 import Head from 'next/head';
 import { useState } from 'react';
 import { getSession } from 'next-auth/react';
-import { TextField, Button, ThemeProvider, createTheme, FormControlLabel, Checkbox, FormGroup } from '@mui/material';
+import { TextField, Button, ThemeProvider, createTheme, FormControlLabel, Checkbox, FormGroup, RadioGroup, Radio } from '@mui/material';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import styles from '../styles/Manager.module.css';
@@ -41,6 +41,7 @@ export default function AdminNotificationsPage({ user }) {
     tax: false,
     super: false,
   });
+  const [notificationType, setNotificationType] = useState('bell'); // Novo estado para o tipo de notificação
 
   const handleProfileChange = (event) => {
     setSelectedProfiles({
@@ -76,7 +77,7 @@ export default function AdminNotificationsPage({ user }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title, message, profiles: profilesMapped }),
+        body: JSON.stringify({ title, message, profiles: profilesMapped, notificationType }),
       });
 
       if (!res.ok) {
@@ -93,6 +94,7 @@ export default function AdminNotificationsPage({ user }) {
         tax: false,
         super: false,
       });
+      setNotificationType('bell'); // Resetar tipo de notificação
     } catch (error) {
       console.error('Erro ao enviar notificação:', error);
       alert('Erro ao enviar notificação');
@@ -173,6 +175,15 @@ export default function AdminNotificationsPage({ user }) {
                 label="Supervisão"
               />
             </FormGroup>
+            <RadioGroup
+              value={notificationType}
+              onChange={(e) => setNotificationType(e.target.value)}
+              row
+            >
+              <FormControlLabel value="bell" control={<Radio />} label="Sino (Navbar)" />
+              <FormControlLabel value="top" control={<Radio />} label="Banner no Topo" />
+              <FormControlLabel value="both" control={<Radio />} label="Ambos" />
+            </RadioGroup>
             <Button
               variant="contained"
               fullWidth
