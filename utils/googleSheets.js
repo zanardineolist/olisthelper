@@ -60,50 +60,13 @@ export async function addUserToSheetIfNotExists(user) {
       userId = Math.floor(1000 + Math.random() * 9000).toString();
     } while (rows.some(row => row[0] === userId));
 
-    const newRowIndex = rows.length + 1;
     const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE', 'FALSE'];
 
-    await sheets.spreadsheets.batchUpdate({
+    await sheets.spreadsheets.values.append({
       spreadsheetId: sheetId,
-      resource: {
-        requests: [
-          {
-            updateCells: {
-              range: {
-                sheetId: 0,
-                startRowIndex: newRowIndex - 1,
-                endRowIndex: newRowIndex,
-                startColumnIndex: 0,
-                endColumnIndex: 9,
-              },
-              rows: [{
-                values: newUser.map(value => ({
-                  userEnteredValue: { stringValue: value.toString() }
-                }))
-              }],
-              fields: 'userEnteredValue'
-            }
-          },
-          {
-            repeatCell: {
-              range: {
-                sheetId: 0,
-                startRowIndex: newRowIndex - 1,
-                endRowIndex: newRowIndex,
-                startColumnIndex: 5,
-                endColumnIndex: 9,
-              },
-              cell: {
-                dataValidation: {
-                  condition: { type: 'BOOLEAN' },
-                },
-                userEnteredValue: { boolValue: false },
-              },
-              fields: 'dataValidation,userEnteredValue',
-            },
-          },
-        ],
-      },
+      range: 'Usuários!A:I',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: [newUser] },
     });
 
     await cache.updateCache(cacheKey, () => Promise.resolve(newUser), CACHE_TIMES.USERS);
@@ -125,7 +88,7 @@ export async function getUserFromSheet(email) {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Usuários!A:H',
+      range: 'Usuários!A:I',
     });
 
     const rows = response.data.values;
@@ -150,7 +113,7 @@ export async function updateUserProfile(email, newRole) {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Usuários!A:H',
+      range: 'Usuários!A:I',
     });
 
     const rows = response.data.values;
@@ -158,9 +121,15 @@ export async function updateUserProfile(email, newRole) {
       const userIndex = rows.findIndex((row) => row[2] === email);
       if (userIndex >= 0) {
         rows[userIndex][3] = newRole;
+
+        // Validação antes de atualizar
+        if (rows[userIndex][2] !== email) {
+          throw new Error('Validação falhou: O email do usuário não corresponde ao registro existente.');
+        }
+
         await sheets.spreadsheets.values.update({
           spreadsheetId: sheetId,
-          range: `Usuários!A${userIndex + 1}:H${userIndex + 1}`,
+          range: `Usuários!A${userIndex + 1}:I${userIndex + 1}`,
           valueInputOption: 'USER_ENTERED',
           resource: { values: [rows[userIndex]] },
         });
@@ -234,10 +203,17 @@ export async function appendValuesToSheet(sheetName, values) {
   }
 }
 
-export async function updateSheetRow(sheetName, rowIndex, newValues) {
+export async function updateSheetRow(sheetName, rowIndex, newValues, expectedValues) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
+
+    // Validação dos valores atuais antes de atualizar
+    const allRows = await getSheetValues(sheetName, `A${rowIndex}:H${rowIndex}`);
+    const currentValues = allRows[0];
+    if (!expectedValues.every((val, idx) => val === currentValues[idx])) {
+      throw new Error('Validação falhou: os valores atuais não correspondem aos valores esperados.');
+    }
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
@@ -253,60 +229,17 @@ export async function updateSheetRow(sheetName, rowIndex, newValues) {
   }
 }
 
-export async function addSheetRow(sheetName, values) {
+export async function deleteSheetRow(sheetName, rowIndex, expectedValues) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    const appendResponse = await sheets.spreadsheets.values.append({
-      spreadsheetId: sheetId,
-      range: `${sheetName}!A:H`,
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: [values] },
-    });
-
-    const updatedRange = appendResponse.data.updates?.updatedRange;
-    const match = updatedRange?.match(/(\d+):\w+/);
-
-    if (match) {
-      const newRowIndex = parseInt(match[1], 10) - 1;
-
-      await sheets.spreadsheets.batchUpdate({
-        spreadsheetId: sheetId,
-        resource: {
-          requests: [5, 6, 7].map((colIndex) => ({
-            repeatCell: {
-              range: {
-                sheetId: 0,
-                startRowIndex: newRowIndex,
-                endRowIndex: newRowIndex + 1,
-                startColumnIndex: colIndex,
-                endColumnIndex: colIndex + 1,
-              },
-              cell: {
-                dataValidation: { condition: { type: 'BOOLEAN' } },
-                userEnteredValue: {
-                  boolValue: values[colIndex] === 'TRUE'
-                },
-              },
-              fields: 'dataValidation,userEnteredValue',
-            },
-          })),
-        },
-      });
+    // Validação dos valores atuais antes de deletar
+    const allRows = await getSheetValues(sheetName, `A${rowIndex}:H${rowIndex}`);
+    const currentValues = allRows[0];
+    if (!expectedValues.every((val, idx) => val === currentValues[idx])) {
+      throw new Error('Validação falhou: os valores atuais não correspondem aos valores esperados.');
     }
-
-    await cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
-  } catch (error) {
-    console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
-    throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
-  }
-}
-
-export async function deleteSheetRow(sheetName, rowIndex) {
-  try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
 
     const sheetInfo = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,

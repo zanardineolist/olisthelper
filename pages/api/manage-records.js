@@ -70,18 +70,24 @@ export default async function handler(req, res) {
         console.log('Método PUT chamado - Atualizando registro...');
         try {
           const { record } = req.body;
-          if (!record) {
-            return res.status(400).json({ error: 'Dados do registro não fornecidos.' });
+          const rowIndex = parseInt(req.query.index, 10);
+
+          if (!record || !rowIndex) {
+            return res.status(400).json({ error: 'Dados do registro ou índice não fornecidos.' });
           }
 
           // Obter valores atuais antes da atualização
           const allRows = await getSheetValues(sheetName, 'A:F');
-          const rowIndex = parseInt(req.query.index, 10);
           if (rowIndex < 0 || rowIndex >= allRows.length - 1) {
             return res.status(404).json({ error: 'Registro não encontrado.' });
           }
 
           const previousData = allRows[rowIndex + 1]; // Obter linha anterior (índice ajustado)
+
+          // Validação antes de atualizar
+          if (!previousData || previousData.length < 6) {
+            return res.status(400).json({ error: 'Dados atuais do registro não correspondem ao esperado.' });
+          }
 
           // Atualizar o registro na planilha
           await updateSheetRow(sheetName, rowIndex + 2, [
@@ -91,7 +97,7 @@ export default async function handler(req, res) {
             record.email,
             record.category,
             record.description,
-          ]);
+          ], previousData);
 
           if (isUserValid) {
             console.log('Registrando ação de atualização no Firebase...');
@@ -136,8 +142,13 @@ export default async function handler(req, res) {
 
           const deletedData = allRows[deleteIndex + 1]; // Obter linha a ser excluída
 
+          // Validação antes de excluir
+          if (!deletedData || deletedData.length < 6) {
+            return res.status(400).json({ error: 'Dados do registro não correspondem ao esperado.' });
+          }
+
           // Excluir a linha na planilha
-          await deleteSheetRow(sheetName, deleteIndex + 2);
+          await deleteSheetRow(sheetName, deleteIndex + 2, deletedData);
 
           if (isUserValid) {
             console.log('Registrando ação de exclusão no Firebase...');

@@ -102,6 +102,13 @@ export default async function handler(req, res) {
           console.error('Erro: Nome da categoria não fornecido.');
           return res.status(400).json({ error: 'Nome da categoria não fornecido.' });
         }
+
+        // Garantir que o nome da categoria não exista previamente
+        const allRows = await getSheetValues(sheetName, 'A2:A');
+        if (allRows.some(row => row[0].toLowerCase() === newCategoryName.toLowerCase())) {
+          return res.status(400).json({ error: 'Categoria já existe.' });
+        }
+
         await addSheetRow(sheetName, [newCategoryName]);
         console.log('Nova categoria adicionada:', newCategoryName);
         await sortCategoriesByName(sheetName);
@@ -135,7 +142,13 @@ export default async function handler(req, res) {
         }
 
         const previousData = allRowsUpdate[rowIndex];
-        await updateSheetRow(sheetName, updateIndex, [updatedCategoryName]);
+
+        // Garantir que o nome da categoria não seja duplicado após a atualização
+        if (allRowsUpdate.some((row, idx) => idx !== rowIndex && row[0].toLowerCase() === updatedCategoryName.toLowerCase())) {
+          return res.status(400).json({ error: 'Categoria com este nome já existe.' });
+        }
+
+        await updateSheetRow(sheetName, updateIndex, [updatedCategoryName], previousData);
         console.log('Categoria atualizada de:', previousData[0], 'para:', updatedCategoryName);
         await sortCategoriesByName(sheetName);
 
@@ -167,7 +180,13 @@ export default async function handler(req, res) {
         }
 
         const deletedData = allRowsDelete[deleteRowIndex];
-        await deleteSheetRow(sheetName, parseInt(deleteIndex, 10));
+
+        // Validação antes de deletar a categoria
+        if (deletedData[0] !== allRowsDelete[deleteRowIndex][0]) {
+          return res.status(400).json({ error: 'Categoria não corresponde ao registro existente.' });
+        }
+
+        await deleteSheetRow(sheetName, parseInt(deleteIndex, 10), deletedData);
         console.log('Categoria excluída:', deletedData[0]);
         await sortCategoriesByName(sheetName);
 

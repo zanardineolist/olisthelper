@@ -104,14 +104,19 @@ export default async function handler(req, res) {
         const newUser = req.body;
         const allRows = await getSheetValues(sheetName, 'A:H');
 
+        // Garantir que o email não exista previamente
+        if (allRows.some(row => row[2] === newUser.email)) {
+          return res.status(400).json({ error: 'Email já cadastrado.' });
+        }
+
         // Garantir que o ID seja único e não mude após ser gerado
-        let userId;
+        let newUserId;
         do {
-          userId = Math.floor(1000 + Math.random() * 9000).toString();
-        } while (allRows.some(row => row[0] === userId));
+          newUserId = Math.floor(1000 + Math.random() * 9000).toString();
+        } while (allRows.some(row => row[0] === newUserId));
 
         await addSheetRow(sheetName, [
-          userId,
+          newUserId,
           newUser.name,
           newUser.email,
           newUser.profile,
@@ -125,14 +130,14 @@ export default async function handler(req, res) {
         if (isUserValid) {
           console.log('Registrando ação de criação no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'create_user', 'Usuário', null, {
-            userId,
+            userId: newUserId,
             name: newUser.name,
             email: newUser.email,
           }, 'manage-user');
           console.log('Ação de criação registrada com sucesso.');
         }
 
-        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: userId });
+        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: newUserId });
 
       case 'PUT':
         console.log('Método PUT chamado - Atualizando usuário...');
@@ -152,6 +157,12 @@ export default async function handler(req, res) {
         }
 
         const previousData = allRowsUpdate[rowIndex];
+
+        // Validação antes de atualizar o usuário
+        if (previousData[2] !== updatedUser.email) {
+          return res.status(400).json({ error: 'Email do usuário não corresponde ao registro existente.' });
+        }
+
         await updateSheetRow(sheetName, rowIndex + 1, [
           updatedUser.id, // Não modificar o ID do usuário
           updatedUser.name,
@@ -161,7 +172,7 @@ export default async function handler(req, res) {
           updatedUser.chamado ? 'TRUE' : 'FALSE',
           updatedUser.telefone ? 'TRUE' : 'FALSE',
           updatedUser.chat ? 'TRUE' : 'FALSE',
-        ]);
+        ], previousData);
         await sortUsersByName(sheetName);
 
         if (isUserValid) {
@@ -195,7 +206,13 @@ export default async function handler(req, res) {
         }
 
         const deletedData = userRows[deleteRowIndex];
-        await deleteSheetRow(sheetName, deleteRowIndex + 1);
+
+        // Validação antes de deletar o usuário
+        if (deletedData[0] !== deleteUserId) {
+          return res.status(400).json({ error: 'ID do usuário não corresponde ao registro existente.' });
+        }
+
+        await deleteSheetRow(sheetName, deleteRowIndex + 1, deletedData);
         await sortUsersByName(sheetName);
 
         if (isUserValid) {
