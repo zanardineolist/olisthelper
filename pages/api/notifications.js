@@ -33,42 +33,41 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Nenhum usuário elegível encontrado. Verifique os perfis selecionados.' });
       }
 
-      // Adiciona notificação ao Firestore para cada usuário alvo, usando setDoc para definir um ID personalizado
+      // Adiciona notificação ao Firestore para cada usuário alvo
       const notificationsCollection = collection(db, 'notifications');
       const promises = targetUsers.map(async (user) => {
         const [userId, userName, userEmail] = user;
 
-        // Gerar um identificador base para a notificação
-        const normalizedTitle = title.replace(/\s+/g, '_').toLowerCase();
-        const baseNotificationId = `${notificationType}_${normalizedTitle}_${userId}_`;
+        // Função auxiliar para adicionar uma notificação
+        const addNotification = async (type) => {
+          const normalizedTitle = title.replace(/\s+/g, '_').toLowerCase();
+          const uniqueId = uuidv4();
+          const notificationId = `${type}_${normalizedTitle}_${userId}_${uniqueId}`;
 
-        // Verificar se já existe uma notificação similar (mesmo tipo, título e usuário)
-        const q = query(notificationsCollection, where("userId", "==", userId), where("notificationType", "==", notificationType), where("title", "==", title));
-        const querySnapshot = await getDocs(q);
+          try {
+            const notificationDoc = doc(notificationsCollection, notificationId);
+            await setDoc(notificationDoc, {
+              userId,
+              userEmail,
+              title,
+              message,
+              read: false,
+              timestamp: new Date().getTime(),
+              notificationType: type,
+            });
+          } catch (notificationError) {
+            console.error(`Erro ao adicionar notificação para o usuário ${userEmail}:`, notificationError);
+            throw notificationError;
+          }
+        };
 
-        if (!querySnapshot.empty) {
-          console.log(`Notificação já enviada para o usuário ${userEmail} com título "${title}".`);
-          return; // Se já existe, não adiciona novamente
-        }
-
-        // Gerar um ID único para a notificação, evitando duplicidade
-        const uniqueId = uuidv4();
-        const notificationId = `${baseNotificationId}${uniqueId}`;
-
-        try {
-          const notificationDoc = doc(notificationsCollection, notificationId);
-          return await setDoc(notificationDoc, {
-            userId,
-            userEmail,
-            title,
-            message,
-            read: false,
-            timestamp: new Date().getTime(),
-            notificationType,
-          });
-        } catch (notificationError) {
-          console.error(`Erro ao adicionar notificação para o usuário ${userEmail}:`, notificationError);
-          throw notificationError;
+        if (notificationType === 'both') {
+          // Enviar notificações separadas para 'bell' e 'top'
+          await addNotification('bell');
+          await addNotification('top');
+        } else {
+          // Enviar notificação única para 'bell' ou 'top'
+          await addNotification(notificationType);
         }
       });
 

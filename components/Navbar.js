@@ -18,6 +18,7 @@ export default function Navbar({ user }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [lastVisible, setLastVisible] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [topNotification, setTopNotification] = useState(null);
   const router = useRouter();
   const notificationRef = useRef(null);
   const navbarRef = useRef(null);
@@ -53,7 +54,7 @@ export default function Navbar({ user }) {
     localStorage.setItem('theme', newTheme);
   };
 
-  // Real-time notifications with Firestore
+  // Real-time notifications with Firestore (combined `bell` and `top` notifications logic)
   useEffect(() => {
     if (!user?.id) return;
 
@@ -65,7 +66,11 @@ export default function Navbar({ user }) {
         id: doc.id,
         ...doc.data()
       }));
-      setNotifications(updatedNotifications);
+
+      // Filtrar notificações para navbar (bell) e banner (top)
+      setNotifications(updatedNotifications.filter(notification => notification.notificationType === 'bell'));
+      const topNotif = updatedNotifications.find(notification => notification.notificationType === 'top' && !notification.read);
+      setTopNotification(topNotif);
       setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
     });
 
@@ -153,8 +158,26 @@ export default function Navbar({ user }) {
     return formatDistanceToNow(notificationTime, { addSuffix: true, locale: ptBR });
   };
 
+  // Function to handle closing the top notification banner
+  const handleCloseTopNotification = async () => {
+    if (topNotification) {
+      try {
+        await markNotificationAsRead(topNotification.id);
+        setTopNotification(null);
+      } catch (error) {
+        console.error('Erro ao marcar notificação do topo como lida:', error);
+      }
+    }
+  };
+
   return (
     <nav ref={navbarRef} className={styles.navbar}>
+      {topNotification && (
+        <div className={styles.notificationBanner}>
+          <p>{topNotification.message}</p>
+          <button onClick={handleCloseTopNotification} className={styles.closeButton}>✕</button>
+        </div>
+      )}
       <div className={styles.logo}>
         <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'}>
           <img 
