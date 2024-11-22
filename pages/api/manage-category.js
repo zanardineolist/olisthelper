@@ -1,4 +1,4 @@
-import { getSheetValues, addSheetRow, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
+import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
 
 // Função para obter o sheetId baseado no nome da aba
@@ -109,7 +109,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Categoria já existe.' });
         }
 
-        await addSheetRow(sheetName, [newCategoryName]);
+        await appendValuesToSheet(sheetName, [[newCategoryName]]);
         console.log('Nova categoria adicionada:', newCategoryName);
         await sortCategoriesByName(sheetName);
 

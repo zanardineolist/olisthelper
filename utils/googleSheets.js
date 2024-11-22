@@ -222,6 +222,7 @@ export async function updateSheetRow(sheetName, rowIndex, newValues, expectedVal
       resource: { values: [newValues] },
     });
 
+    // Atualizar cache imediatamente após a operação
     await cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
   } catch (error) {
     console.error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}:`, error);
@@ -269,9 +270,66 @@ export async function deleteSheetRow(sheetName, rowIndex, expectedValues) {
       },
     });
 
+    // Atualizar cache imediatamente após a exclusão
     await cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
   } catch (error) {
     console.error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}:`, error);
     throw new Error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}.`);
+  }
+}
+
+export async function addCheckboxToSheet(sheetName, range) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+
+    const sheetInfo = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+
+    const sheet = sheetInfo.data.sheets.find(
+      (sheet) => sheet.properties.title === sheetName
+    );
+
+    if (!sheet) {
+      throw new Error(`Aba ${sheetName} não encontrada.`);
+    }
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: sheetId,
+      resource: {
+        requests: [{
+          updateCells: {
+            range: {
+              sheetId: sheet.properties.sheetId,
+              startRowIndex: parseInt(range.startRowIndex) - 1,
+              endRowIndex: parseInt(range.endRowIndex),
+              startColumnIndex: parseInt(range.startColumnIndex),
+              endColumnIndex: parseInt(range.endColumnIndex),
+            },
+            rows: [{
+              values: [{
+                userEnteredFormat: {
+                  backgroundColor: { red: 1, green: 1, blue: 1 },
+                  horizontalAlignment: 'CENTER'
+                },
+                dataValidation: {
+                  condition: {
+                    type: 'BOOLEAN',
+                    values: []
+                  },
+                  strict: true,
+                  showCustomUi: true
+                }
+              }]
+            }],
+            fields: 'userEnteredFormat, dataValidation'
+          }
+        }],
+      },
+    });
+  } catch (error) {
+    console.error(`Erro ao adicionar checkbox na aba ${sheetName}:`, error);
+    throw new Error(`Erro ao adicionar checkbox na aba ${sheetName}.`);
   }
 }
