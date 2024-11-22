@@ -1,6 +1,7 @@
 import { db } from '../../utils/firebase/firebaseConfig';
-import { collection, addDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, setDoc, doc, getDocs, query, where } from "firebase/firestore";
 import { getSheetValues } from '../../utils/googleSheets';
+import { v4 as uuidv4 } from 'uuid';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -38,13 +39,31 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Nenhum usuário elegível encontrado. Verifique os perfis selecionados.' });
       }
 
-      // Adiciona notificação ao Firestore para cada usuário alvo
+      // Adiciona notificação ao Firestore para cada usuário alvo, usando setDoc para definir um ID personalizado
       const notificationsCollection = collection(db, 'notifications');
       const promises = targetUsers.map(async (user) => {
         const [userId, userName, userEmail] = user;
 
+        // Gerar um identificador base para a notificação
+        const normalizedTitle = title.replace(/\s+/g, '_').toLowerCase(); // Normalizar o título
+        const baseNotificationId = `${notificationType}_${normalizedTitle}_${userId}_`;
+
+        // Verificar se já existe uma notificação similar (mesmo tipo, título e usuário)
+        const q = query(notificationsCollection, where("userId", "==", userId), where("notificationType", "==", notificationType), where("title", "==", title));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          console.log(`Notificação já enviada para o usuário ${userEmail} com título "${title}".`);
+          return; // Se já existe, não adiciona novamente
+        }
+
+        // Gerar um ID único para a notificação, evitando duplicidade
+        const uniqueId = uuidv4(); // Gerar um UUID aleatório para garantir unicidade
+        const notificationId = `${baseNotificationId}${uniqueId}`;
+
         try {
-          return await addDoc(notificationsCollection, {
+          const notificationDoc = doc(notificationsCollection, notificationId);
+          return await setDoc(notificationDoc, {
             userId,
             userEmail,
             title,
