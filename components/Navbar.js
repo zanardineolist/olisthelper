@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
-import { markNotificationAsRead, getUserNotifications } from '../utils/firebase/firebaseNotifications';
+import { markNotificationAsRead } from '../utils/firebase/firebaseNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { db } from '../utils/firebase/firebaseConfig';
@@ -49,7 +49,7 @@ export default function Navbar({ user }) {
   useEffect(() => {
     if (!user?.id) return;
 
-    // Buscar todas as notificações do usuário
+    // Buscar todas as notificações do usuário em tempo real
     const notificationsCollection = collection(db, "notifications");
     const q = query(notificationsCollection, where("userId", "==", user.id));
 
