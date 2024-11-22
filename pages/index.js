@@ -18,6 +18,8 @@ export default function LoginPage() {
           router.push('/profile-analyst');
         } else if (session.role === 'super') {
           router.push('/dashboard-super');
+        } else if (session.role === 'dev') {
+          router.push('/admin-notifications');
         } else {
           router.push('/profile');
         }
@@ -72,7 +74,7 @@ export async function getServerSideProps(context) {
   if (session) {
     return {
       redirect: {
-        destination: (session.role === 'analyst' || session.role === 'tax') ? '/profile-analyst' : session.role === 'super' ? '/dashboard-super' : '/profile',
+        destination: (session.role === 'analyst' || session.role === 'tax') ? '/profile-analyst' : session.role === 'super' ? '/dashboard-super' : session.role === 'dev' ? '/admin-notifications' : '/profile',
         permanent: false,
       },
     };
