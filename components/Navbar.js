@@ -56,10 +56,10 @@ export default function Navbar({ user }) {
   // Real-time notifications with Firestore
   useEffect(() => {
     if (!user?.id) return;
-
+  
     const notificationsCollection = collection(db, "notifications");
-    let q = query(notificationsCollection, where("userId", "==", user.id), limit(10));
-
+    const q = query(notificationsCollection, where("userId", "==", user.id));
+  
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const updatedNotifications = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -68,9 +68,9 @@ export default function Navbar({ user }) {
       setNotifications(updatedNotifications);
       setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
     });
-
+  
     return () => unsubscribe();
-  }, [user.id]);
+  }, [user.id]);  
 
   // Load more notifications when needed
   const loadMoreNotifications = () => {
