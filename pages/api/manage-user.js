@@ -75,12 +75,14 @@ export default async function handler(req, res) {
   console.log('Usuário é válido:', isUserValid);
 
   try {
+    // Obtendo todos os usuários antes de realizar operações de PUT e DELETE
+    const allRows = await getSheetValues(sheetName, 'A:H');
+
     switch (method) {
       case 'GET':
         console.log('Método GET chamado - Carregando usuários...');
-        const rows = await getSheetValues(sheetName, 'A:H');
-        if (rows && rows.length > 1) {
-          const users = rows.slice(1).map((row) => ({
+        if (allRows && allRows.length > 1) {
+          const users = allRows.slice(1).map((row) => ({
             id: row[0],
             name: row[1],
             email: row[2],
@@ -105,7 +107,6 @@ export default async function handler(req, res) {
         }
 
         // Gerar ID único para o novo usuário
-        const allRows = await getSheetValues(sheetName, 'A:H');
         let newUserId;
         do {
           newUserId = Math.floor(1000 + Math.random() * 9000).toString();
@@ -151,9 +152,14 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
+        // Buscar o índice da linha do usuário para atualização
+        const updateRowIndex = allRows.findIndex(row => row[0] === updatedUser.id);
+        if (updateRowIndex === -1) {
+          return res.status(404).json({ error: 'Usuário não encontrado.' });
+        }
+
         // Atualizar informações do usuário na planilha
-        const updateRowIndex = allRows.findIndex(row => row[0] === updatedUser.id) + 2; // Ajustar para o índice correto
-        await updateSheetRow(sheetName, updateRowIndex, [
+        await updateSheetRow(sheetName, updateRowIndex + 2, [
           updatedUser.id,
           updatedUser.name,
           updatedUser.email,
@@ -190,9 +196,14 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        // Encontrar índice da linha do usuário para exclusão
-        const deleteRowIndex = allRows.findIndex(row => row[0] === deleteUserId) + 2; // Ajustar para o índice correto
-        await deleteSheetRow(sheetName, deleteRowIndex);
+        // Buscar índice da linha do usuário para exclusão
+        const deleteRowIndex = allRows.findIndex(row => row[0] === deleteUserId);
+        if (deleteRowIndex === -1) {
+          return res.status(404).json({ error: 'Usuário não encontrado.' });
+        }
+
+        // Excluir o usuário da planilha
+        await deleteSheetRow(sheetName, deleteRowIndex + 2);
 
         // Ordenar usuários após a exclusão
         await sortUsersByName(sheetName);
