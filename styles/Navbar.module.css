@@ -95,7 +95,7 @@
 .notificationsBox {
   position: absolute;
   top: 50px;
-  right: 0;
+  right: 10px;
   width: 350px;
   max-height: 400px;
   overflow-y: auto;
@@ -112,12 +112,17 @@
 }
 
 .notificationsBox::-webkit-scrollbar-track {
-  background: var(--scroll-bg);
+  background: transparent; /* Tornar a trilha invisível */
 }
 
 .notificationsBox::-webkit-scrollbar-thumb {
   background: var(--scroll);
   border-radius: 10px;
+}
+
+.notificationsBox {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll) transparent; /* Tornar a trilha invisível */
 }
 
 .notificationsBox {
