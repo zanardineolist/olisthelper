@@ -6,7 +6,6 @@ import generalStyles from '../styles/Manager.module.css'; // Importando o estilo
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Select from 'react-select';
-import { getSheetValues, updateSheetRow, deleteSheetRow, appendValuesToSheet } from '../utils/googleSheets';
 
 export default function ManageRecords({ user }) {
   const [records, setRecords] = useState([]);
@@ -34,22 +33,19 @@ export default function ManageRecords({ user }) {
   const loadRecords = async () => {
     try {
       setLoading(true);
-      const data = await getSheetValues('Registros', 'A:Z'); // Buscar registros diretamente da planilha
-      const formattedRecords = data.map((row) => ({
-        date: row[0],
-        time: row[1],
-        name: row[2],
-        email: row[3],
-        category: row[4],
-        description: row[5],
-      }));
-      setRecords(formattedRecords);
+      const res = await fetch(`/api/manage-records?userId=${user.id}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao carregar registros');
+      }
+      const data = await res.json();
+      setRecords(data.records);
     } catch (err) {
       console.error('Erro ao carregar registros:', err);
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao carregar registros.',
+        text: err.message,
         timer: 2000,
         showConfirmButton: false,
         allowOutsideClick: true,
@@ -61,14 +57,19 @@ export default function ManageRecords({ user }) {
 
   const loadCategories = async () => {
     try {
-      const data = await getSheetValues('Categorias', 'A:Z'); // Buscar categorias diretamente da planilha
-      setCategories(data.map((cat) => ({ value: cat[0], label: cat[0] })));
+      const res = await fetch('/api/manage-category');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao carregar categorias');
+      }
+      const data = await res.json();
+      setCategories(data.categories.map(cat => ({ value: cat.name, label: cat.name })));
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao carregar categorias.',
+        text: err.message,
         timer: 2000,
         showConfirmButton: false,
         allowOutsideClick: true,
@@ -78,14 +79,19 @@ export default function ManageRecords({ user }) {
 
   const loadUsers = async () => {
     try {
-      const data = await getSheetValues('Usuários', 'A:Z'); // Buscar usuários diretamente da planilha
-      setUsers(data.map((user) => ({ name: user[1], email: user[2] })));
+      const res = await fetch('/api/get-users');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao carregar usuários');
+      }
+      const data = await res.json();
+      setUsers(data.users);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao carregar usuários.',
+        text: err.message,
         timer: 2000,
         showConfirmButton: false,
         allowOutsideClick: true,
@@ -117,9 +123,15 @@ export default function ManageRecords({ user }) {
 
     try {
       setLoading(true);
-      await deleteSheetRow('Registros', index + 1); // Excluir a linha correta (ajustando para linha 1 ser o cabeçalho)
-      await loadRecords();
+      const res = await fetch(`/api/manage-records?userId=${user.id}&index=${index}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao deletar registro');
+      }
 
+      await loadRecords();
       Swal.fire({
         icon: 'success',
         title: 'Excluído!',
@@ -133,7 +145,7 @@ export default function ManageRecords({ user }) {
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao deletar registro.',
+        text: err.message,
         timer: 2000,
         showConfirmButton: false,
         allowOutsideClick: true,
@@ -146,29 +158,22 @@ export default function ManageRecords({ user }) {
   const handleSaveRecord = async () => {
     try {
       setLoading(true);
-
-      if (!isEditing) {
-        // Adicionar novo registro
-        await appendValuesToSheet('Registros', [
-          [editedRecord.date, editedRecord.time, editedRecord.name, editedRecord.email, editedRecord.category, editedRecord.description],
-        ]);
-      } else {
-        // Editar registro existente
-        await updateSheetRow('Registros', editingRecordIndex + 1, [
-          editedRecord.date,
-          editedRecord.time,
-          editedRecord.name,
-          editedRecord.email,
-          editedRecord.category,
-          editedRecord.description,
-        ]);
+      const res = await fetch(`/api/manage-records?userId=${user.id}&index=${editingRecordIndex}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ record: editedRecord }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao salvar registro');
       }
 
       await loadRecords();
       setEditedRecord({ date: '', time: '', name: '', email: '', category: '', description: '' });
       setIsEditing(false);
       setModalIsOpen(false);
-
       Swal.fire({
         icon: 'success',
         title: 'Sucesso!',
@@ -182,7 +187,7 @@ export default function ManageRecords({ user }) {
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao salvar registro.',
+        text: err.message,
         timer: 2000,
         showConfirmButton: false,
         allowOutsideClick: true,
@@ -213,78 +218,78 @@ export default function ManageRecords({ user }) {
     setModalIsOpen(false);
   };
 
-  // Estilos personalizados para o React-Select
-  const customSelectStyles = {
-    control: (provided, state) => ({
-      ...provided,
-      backgroundColor: 'var(--modals-inputs)',
-      borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
-      color: 'var(--text-color)',
-      borderRadius: '5px',
-      padding: '5px',
-      boxShadow: 'none',
-      '&:hover': {
-        borderColor: 'var(--color-primary)',
-      },
-      outline: 'none',
-    }),
-    input: (provided) => ({
-      ...provided,
-      color: 'var(--text-color)',
-      caretColor: 'var(--text-color)',
-    }),
-    menu: (provided) => ({
-      ...provided,
-      backgroundColor: 'var(--modals-inputs)',
-      maxHeight: '220px',
-      overflowY: 'auto',
-    }),
-    menuList: (provided) => ({
-      ...provided,
-      padding: 0,
-      maxHeight: '220px',
-      '&::-webkit-scrollbar': {
-        width: '8px',
-      },
-      '&::-webkit-scrollbar-track': {
-        background: 'var(--scroll-bg)',
-      },
-      '&::-webkit-scrollbar-thumb': {
-        backgroundColor: 'var(--scroll)',
-        borderRadius: '10px',
-        border: '2px solid var(--scroll-bg)',
-      },
-    }),
-    option: (provided, state) => ({
-      ...provided,
-      backgroundColor: state.isFocused
-        ? 'var(--color-trodd)'
-        : state.isSelected
-        ? 'var(--color-primary)'
-        : 'var(--modals-inputs)',
-      color: 'var(--text-color)',
-      cursor: 'pointer',
-      '&:hover': {
-        backgroundColor: 'var(--color-trodd)',
-      },
-    }),
-    singleValue: (provided) => ({
-      ...provided,
-      color: 'var(--text-color)',
-    }),
-    placeholder: (provided) => ({
-      ...provided,
-      color: 'var(--text-color2)',
-    }),
-    dropdownIndicator: (provided) => ({
-      ...provided,
-      color: 'var(--text-color)',
-    }),
-    indicatorSeparator: (provided) => ({
-      ...provided,
-      backgroundColor: 'var(--color-border)',
-    }),
-  };
+  // Estilos personalizados para o React-Select, conforme o registro.js
+const customSelectStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    backgroundColor: 'var(--modals-inputs)',
+    borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
+    color: 'var(--text-color)',
+    borderRadius: '5px',
+    padding: '5px',
+    boxShadow: 'none',
+    '&:hover': {
+      borderColor: 'var(--color-primary)',
+    },
+    outline: 'none',
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+    caretColor: 'var(--text-color)',
+  }),
+  menu: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--modals-inputs)',
+    maxHeight: '220px',
+    overflowY: 'auto',
+  }),
+  menuList: (provided) => ({
+    ...provided,
+    padding: 0,
+    maxHeight: '220px',
+    '&::-webkit-scrollbar': {
+      width: '8px',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'var(--scroll-bg)',
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'var(--scroll)',
+      borderRadius: '10px',
+      border: '2px solid var(--scroll-bg)',
+    },
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    backgroundColor: state.isFocused
+      ? 'var(--color-trodd)'
+      : state.isSelected
+      ? 'var(--color-primary)'
+      : 'var(--modals-inputs)',
+    color: 'var(--text-color)',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: 'var(--color-trodd)',
+    },
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'var(--text-color2)',
+  }),
+  dropdownIndicator: (provided) => ({
+    ...provided,
+    color: 'var(--text-color)',
+  }),
+  indicatorSeparator: (provided) => ({
+    ...provided,
+    backgroundColor: 'var(--color-border)',
+  }),
+};
 
   return (
     <div className={generalStyles.main}>
