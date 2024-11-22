@@ -60,7 +60,7 @@ export default async function handler(req, res) {
         await sortSheetByColumn(sheetName, 1, 0, 1, 0); // Ordena a partir da linha 2 (índice 1)
 
         // Invalida o cache após adicionar uma nova categoria
-        await invalidateCache(sheetName);
+        invalidateCache(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de criação no Firebase...');
@@ -98,7 +98,7 @@ export default async function handler(req, res) {
         await sortSheetByColumn(sheetName, 1, 0, 1, 0); // Ordena a partir da linha 2 (índice 1)
 
         // Invalida o cache após atualizar uma categoria
-        await invalidateCache(sheetName);
+        invalidateCache(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de atualização no Firebase...');
@@ -135,7 +135,7 @@ export default async function handler(req, res) {
         await sortSheetByColumn(sheetName, 1, 0, 1, 0); // Ordena a partir da linha 2 (índice 1)
 
         // Invalida o cache após excluir uma categoria
-        await invalidateCache(sheetName);
+        invalidateCache(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de exclusão no Firebase...');
