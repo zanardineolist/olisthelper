@@ -56,10 +56,10 @@ export default function Navbar({ user }) {
   // Real-time notifications with Firestore
   useEffect(() => {
     if (!user?.id) return;
-  
+
     const notificationsCollection = collection(db, "notifications");
     const q = query(notificationsCollection, where("userId", "==", user.id));
-  
+
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const updatedNotifications = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -68,9 +68,9 @@ export default function Navbar({ user }) {
       setNotifications(updatedNotifications);
       setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
     });
-  
+
     return () => unsubscribe();
-  }, [user.id]);  
+  }, [user?.id]);
 
   // Load more notifications when needed
   const loadMoreNotifications = () => {
@@ -137,8 +137,7 @@ export default function Navbar({ user }) {
   const unreadNotificationsCount = notifications.filter(notification => !notification.read).length;
 
   // Sort notifications by timestamp
-  const sortedNotifications = [...notifications]
-    .sort((a, b) => b.timestamp - a.timestamp);
+  const sortedNotifications = [...notifications].sort((a, b) => b.timestamp - a.timestamp);
 
   // Format timestamp to time ago
   const getTimeAgo = (timestamp) => {
@@ -170,7 +169,7 @@ export default function Navbar({ user }) {
           {theme === 'dark' ? <FaSun /> : <FaMoon />}
         </button>
 
-        {['analyst', 'tax', 'super', 'support+'].includes(user.role) && (
+        {['analyst', 'tax', 'super', 'support+', 'dev'].includes(user.role) && (
           <>
             <div className={styles.notificationToggle} onClick={toggleNotifications} aria-label="Notificações">
               <FaBell />

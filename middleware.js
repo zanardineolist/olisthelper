@@ -10,45 +10,27 @@ export async function middleware(req) {
 
   // Ajustar os papéis permitidos
   const analystRoles = ['analyst', 'tax'];
-  const allowedRoles = [...analystRoles, 'super', 'dev'];
+  const allowedRoles = [...analystRoles, 'super', 'dev', 'support+'];
 
-  // Se o usuário tentar acessar '/profile-analyst', e já tiver o papel correto, não redirecionar novamente
-  if (req.nextUrl.pathname.startsWith('/profile-analyst') && analystRoles.includes(token.role)) {
-    return NextResponse.next();
-  }
+  // Verificar acesso permitido e evitar redirecionamento indesejado
+  const routesWithAllowedRoles = {
+    '/profile-analyst': analystRoles,
+    '/dashboard-analyst': allowedRoles,
+    '/dashboard-super': ['super'],
+    '/registro': allowedRoles,
+    '/manager': allowedRoles,
+    '/admin-notifications': ['dev'],
+    '/remote': ['support+', 'super']
+  };
 
-  // Redirecionar caso o papel do usuário não tenha acesso à rota específica
-  if (req.nextUrl.pathname.startsWith('/dashboard-analyst') && !allowedRoles.includes(token.role)) {
-    return NextResponse.redirect(new URL('/', req.url));
-  }
-
-  if (req.nextUrl.pathname.startsWith('/dashboard-super') && token.role !== 'super') {
-    return NextResponse.redirect(new URL('/', req.url));
-  }
-
-  if (req.nextUrl.pathname.startsWith('/registro') && !allowedRoles.includes(token.role)) {
-    return NextResponse.redirect(new URL('/', req.url));
-  }
-
-  if (req.nextUrl.pathname.startsWith('/profile-analyst') && !allowedRoles.includes(token.role)) {
-    return NextResponse.redirect(new URL('/', req.url));
-  }
-
-  if (req.nextUrl.pathname.startsWith('/manager') && !allowedRoles.includes(token.role)) {
-    return NextResponse.redirect(new URL('/', req.url));
-  }
-
-  if (req.nextUrl.pathname.startsWith('/admin-notifications') && token.role !== 'dev') {
-    return NextResponse.redirect(new URL('/', req.url));
-  }
-
-  if (req.nextUrl.pathname.startsWith('/remote') && !['support+', 'super'].includes(token.role)) {
+  const matchedRoute = Object.keys(routesWithAllowedRoles).find(route => req.nextUrl.pathname.startsWith(route));
+  if (matchedRoute && !routesWithAllowedRoles[matchedRoute].includes(token.role)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
   // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
   const response = NextResponse.next();
-  response.cookies.set('user-id', token.id,);
+  response.cookies.set('user-id', token.id);
   response.cookies.set('user-name', token.name);
   response.cookies.set('user-role', token.role);
 

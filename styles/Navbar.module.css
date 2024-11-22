@@ -176,6 +176,27 @@
   cursor: pointer;
 }
 
+.markAllReadButton,
+.loadMoreButton {
+  background-color: var(--color-primary);
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  text-align: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+}
+
+.markAllReadButton:hover,
+.loadMoreButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
 .notificationBanner {
   width: 100%;
   background-color: var(--color-accent1);
