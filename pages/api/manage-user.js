@@ -1,4 +1,4 @@
-import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, getUserFromSheet, updateUserProfile, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
+import { getSheetValues, appendValuesToSheet, updateSheetRowById, deleteSheetRowById, getUserFromSheet, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
 
 // Função para ordenar usuários pelo nome em ordem alfabética
@@ -142,13 +142,17 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        const userToUpdate = await getUserFromSheet(updatedUser.email);
-        if (!userToUpdate) {
-          return res.status(404).json({ error: 'Usuário não encontrado.' });
-        }
-
         // Atualizar informações do usuário na planilha
-        await updateUserProfile(updatedUser.email, updatedUser.profile);
+        await updateSheetRowById(sheetName, updatedUser.id, [
+          updatedUser.id,
+          updatedUser.name,
+          updatedUser.email,
+          updatedUser.profile,
+          updatedUser.squad,
+          updatedUser.chamado ? 'TRUE' : 'FALSE',
+          updatedUser.telefone ? 'TRUE' : 'FALSE',
+          updatedUser.chat ? 'TRUE' : 'FALSE',
+        ]);
 
         // Ordenar usuários após a atualização
         await sortUsersByName(sheetName);
@@ -156,14 +160,10 @@ export default async function handler(req, res) {
         if (isUserValid) {
           console.log('Registrando ação de atualização no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'update_user', 'Usuário', {
-            userId: userToUpdate[0],
-            name: userToUpdate[1],
-            email: userToUpdate[2],
-          }, {
             userId: updatedUser.id,
             name: updatedUser.name,
             email: updatedUser.email,
-          }, 'manage-user');
+          }, null, 'manage-user');
           console.log('Ação de atualização registrada com sucesso.');
         }
 
@@ -177,14 +177,8 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        const userRows = await getSheetValues(sheetName, 'A:H');
-        const deleteRowIndex = userRows.findIndex((row) => row[0] === deleteUserId);
-        if (deleteRowIndex === -1) {
-          return res.status(404).json({ error: 'Usuário não encontrado.' });
-        }
-
-        const deletedData = userRows[deleteRowIndex];
-        await deleteSheetRow(sheetName, deleteRowIndex + 1);
+        // Excluir o usuário da planilha
+        await deleteSheetRowById(sheetName, deleteUserId);
 
         // Ordenar usuários após a exclusão
         await sortUsersByName(sheetName);
@@ -192,9 +186,7 @@ export default async function handler(req, res) {
         if (isUserValid) {
           console.log('Registrando ação de exclusão no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'delete_user', 'Usuário', {
-            userId: deletedData[0],
-            name: deletedData[1],
-            email: deletedData[2],
+            userId: deleteUserId,
           }, null, 'manage-user');
           console.log('Ação de exclusão registrada com sucesso.');
         }

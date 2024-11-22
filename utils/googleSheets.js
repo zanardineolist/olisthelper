@@ -18,163 +18,21 @@ export async function getAuthenticatedGoogleSheets() {
   return sheetsInstance;
 }
 
-export async function batchGetValues(ranges) {
-  const cacheKey = `batch_${ranges.join('_')}`;
-  const cached = cache.get(cacheKey);
-  if (cached) return cached;
-
-  const sheets = await getAuthenticatedGoogleSheets();
-  const response = await sheets.spreadsheets.values.batchGet({
-    spreadsheetId: process.env.SHEET_ID,
-    ranges: ranges.map(range => range),
-  });
-
-  const data = response.data.valueRanges;
-  cache.set(cacheKey, data, CACHE_TIMES.SHEET_VALUES);
-  return data;
-}
-
-export async function addUserToSheetIfNotExists(user) {
+export async function getLastFilledRow(sheetName) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
-    const cacheKey = `user_${user.email}`;
-
-    const cachedUser = cache.get(cacheKey);
-    if (cachedUser) return cachedUser;
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: sheetId,
-      range: 'Usuários!A:I',
+      range: `${sheetName}!A:A`,
     });
 
     const rows = response.data.values || [];
-    const existingUser = rows.find((row) => row[2] === user.email);
-    if (existingUser) {
-      cache.set(cacheKey, existingUser, CACHE_TIMES.USERS);
-      return existingUser;
-    }
-
-    let userId;
-    do {
-      userId = Math.floor(1000 + Math.random() * 9000).toString();
-    } while (rows.some(row => row[0] === userId));
-
-    const newUser = [userId, user.name, user.email, 'support', '', 'FALSE', 'FALSE', 'FALSE', 'FALSE'];
-
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: sheetId,
-      range: 'Usuários!A:I',
-      valueInputOption: 'USER_ENTERED',
-      resource: { values: [newUser] },
-    });
-
-    cache.set(cacheKey, newUser, CACHE_TIMES.USERS);
-    return newUser;
+    return rows.length;
   } catch (error) {
-    console.error('Erro ao adicionar ou verificar usuário na planilha:', error);
-    return null;
-  }
-}
-
-export async function getUserFromSheet(email) {
-  try {
-    const cacheKey = `user_${email}`;
-    const cachedUser = cache.get(cacheKey);
-    if (cachedUser) return cachedUser;
-
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
-
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: 'Usuários!A:H',
-    });
-
-    const rows = response.data.values || [];
-    const user = rows.find((row) => row[2] === email);
-    if (user) {
-      cache.set(cacheKey, user, CACHE_TIMES.USERS);
-      return user;
-    }
-    return null;
-  } catch (error) {
-    console.error('Erro ao buscar usuário na planilha:', error);
-    return null;
-  }
-}
-
-export async function updateUserProfile(email, newRole) {
-  try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
-
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: 'Usuários!A:H',
-    });
-
-    const rows = response.data.values || [];
-    const userIndex = rows.findIndex((row) => row[2] === email);
-    if (userIndex >= 0) {
-      rows[userIndex][3] = newRole;
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: sheetId,
-        range: `Usuários!A${userIndex + 1}:H${userIndex + 1}`,
-        valueInputOption: 'USER_ENTERED',
-        resource: { values: [rows[userIndex]] },
-      });
-
-      const cacheKey = `user_${email}`;
-      cache.set(cacheKey, rows[userIndex], CACHE_TIMES.USERS);
-    }
-  } catch (error) {
-    console.error('Erro ao atualizar perfil do usuário na planilha:', error);
-  }
-}
-
-export async function getSheetMetaData() {
-  try {
-    const cacheKey = 'sheet_metadata';
-    const cachedMetadata = cache.get(cacheKey);
-    if (cachedMetadata) return cachedMetadata;
-
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
-    const metadata = await sheets.spreadsheets.get({ spreadsheetId: sheetId });
-
-    cache.set(cacheKey, metadata, CACHE_TIMES.METADATA);
-    return metadata;
-  } catch (error) {
-    console.error('Erro ao obter metadados da planilha:', error);
-    throw new Error('Erro ao obter metadados da planilha.');
-  }
-}
-
-export async function getSheetValues(sheetName, range) {
-  try {
-    if (parseInt(range.match(/\d+/), 10) <= 1) {
-      throw new Error('Intervalo de busca inválido. O cabeçalho não deve ser incluído.');
-    }
-
-    const cacheKey = `sheet_${sheetName}_${range}`;
-    const cachedValues = cache.get(cacheKey);
-    if (cachedValues) return cachedValues;
-
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
-
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: sheetId,
-      range: `${sheetName}!${range}`,
-    });
-
-    const values = response.data.values || [];
-    cache.set(cacheKey, values, CACHE_TIMES.SHEET_VALUES);
-    return values;
-  } catch (error) {
-    console.error(`Erro ao obter valores da aba ${sheetName}:`, error);
-    throw new Error(`Erro ao obter valores da aba ${sheetName}.`);
+    console.error(`Erro ao obter a última linha preenchida da aba ${sheetName}:`, error);
+    throw new Error(`Erro ao obter a última linha preenchida da aba ${sheetName}.`);
   }
 }
 
@@ -183,16 +41,16 @@ export async function appendValuesToSheet(sheetName, values) {
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
-    const response = await sheets.spreadsheets.values.append({
+    // Buscar a última linha preenchida
+    const lastRow = await getLastFilledRow(sheetName);
+    const nextRow = lastRow + 1;
+
+    await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
-      range: `${sheetName}!A:H`,
+      range: `${sheetName}!A${nextRow}:H${nextRow}`,
       valueInputOption: 'USER_ENTERED',
       resource: { values },
     });
-
-    if (!response.statusText === 'OK') {
-      throw new Error('Falha ao adicionar valores à planilha.');
-    }
 
     cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
   } catch (error) {
@@ -201,37 +59,53 @@ export async function appendValuesToSheet(sheetName, values) {
   }
 }
 
-export async function updateSheetRow(sheetName, rowIndex, newValues) {
+export async function updateSheetRowById(sheetName, identifier, newValues) {
   try {
-    if (rowIndex <= 1) {
-      throw new Error('Índice inválido. Não é possível editar o cabeçalho.');
-    }
-
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
 
+    // Buscar a linha com o identificador específico
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: `${sheetName}!A:H`,
+    });
+
+    const rows = response.data.values || [];
+    const rowIndex = rows.findIndex((row) => row[0] === identifier);
+    if (rowIndex < 0) {
+      throw new Error('Registro não encontrado.');
+    }
+
     await sheets.spreadsheets.values.update({
       spreadsheetId: sheetId,
-      range: `${sheetName}!A${rowIndex}:H${rowIndex}`,
+      range: `${sheetName}!A${rowIndex + 1}:H${rowIndex + 1}`,
       valueInputOption: 'USER_ENTERED',
       resource: { values: [newValues] },
     });
 
     cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
   } catch (error) {
-    console.error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}:`, error);
-    throw new Error(`Erro ao atualizar valores na linha ${rowIndex} da aba ${sheetName}.`);
+    console.error(`Erro ao atualizar valores na linha ${rowIndex + 1} da aba ${sheetName}:`, error);
+    throw new Error(`Erro ao atualizar valores na linha ${rowIndex + 1} da aba ${sheetName}.`);
   }
 }
 
-export async function deleteSheetRow(sheetName, rowIndex) {
+export async function deleteSheetRowById(sheetName, identifier) {
   try {
-    if (rowIndex <= 1) {
-      throw new Error('Índice inválido. Não é possível excluir o cabeçalho.');
-    }
-
     const sheets = await getAuthenticatedGoogleSheets();
     const sheetId = process.env.SHEET_ID;
+
+    // Buscar a linha com o identificador específico
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: `${sheetName}!A:H`,
+    });
+
+    const rows = response.data.values || [];
+    const rowIndex = rows.findIndex((row) => row[0] === identifier);
+    if (rowIndex < 0) {
+      throw new Error('Registro não encontrado.');
+    }
 
     const sheetInfo = await sheets.spreadsheets.get({
       spreadsheetId: sheetId,
@@ -253,8 +127,8 @@ export async function deleteSheetRow(sheetName, rowIndex) {
             range: {
               sheetId: sheet.properties.sheetId,
               dimension: 'ROWS',
-              startIndex: rowIndex - 1,
-              endIndex: rowIndex,
+              startIndex: rowIndex,
+              endIndex: rowIndex + 1,
             },
           },
         }],
@@ -263,7 +137,30 @@ export async function deleteSheetRow(sheetName, rowIndex) {
 
     cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
   } catch (error) {
-    console.error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}:`, error);
-    throw new Error(`Erro ao excluir linha ${rowIndex} da aba ${sheetName}.`);
+    console.error(`Erro ao excluir linha ${rowIndex + 1} da aba ${sheetName}:`, error);
+    throw new Error(`Erro ao excluir linha ${rowIndex + 1} da aba ${sheetName}.`);
+  }
+}
+
+export async function getSheetValues(sheetName, range) {
+  try {
+    const cacheKey = `sheet_${sheetName}_${range}`;
+    const cachedValues = cache.get(cacheKey);
+    if (cachedValues) return cachedValues;
+
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: `${sheetName}!${range}`,
+    });
+
+    const values = response.data.values || [];
+    cache.set(cacheKey, values, CACHE_TIMES.SHEET_VALUES);
+    return values;
+  } catch (error) {
+    console.error(`Erro ao obter valores da aba ${sheetName}:`, error);
+    throw new Error(`Erro ao obter valores da aba ${sheetName}.`);
   }
 }
