@@ -1,4 +1,4 @@
-import { getSheetValues, appendValuesToSheet, updateSheetRowById, deleteSheetRowById, getUserFromSheet, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
+import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, getUserFromSheet, getAuthenticatedGoogleSheets, addCheckboxesToColumns } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
 import { cache } from '../../utils/cache';
 
@@ -123,7 +123,7 @@ export default async function handler(req, res) {
             newUser.telefone ? 'TRUE' : 'FALSE',
             newUser.chat ? 'TRUE' : 'FALSE',
           ],
-        ]);
+        ], true); // Passar 'true' para adicionar checkboxes
 
         // Ordenar usuários após a adição
         await sortUsersByName(sheetName);
@@ -152,7 +152,8 @@ export default async function handler(req, res) {
         }
 
         // Atualizar informações do usuário na planilha
-        await updateSheetRowById(sheetName, updatedUser.id, [
+        const updateRowIndex = allRows.findIndex(row => row[0] === updatedUser.id) + 2; // Ajustar para o índice correto
+        await updateSheetRow(sheetName, updateRowIndex, [
           updatedUser.id,
           updatedUser.name,
           updatedUser.email,
@@ -189,8 +190,9 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        // Excluir o usuário da planilha
-        await deleteSheetRowById(sheetName, deleteUserId);
+        // Encontrar índice da linha do usuário para exclusão
+        const deleteRowIndex = allRows.findIndex(row => row[0] === deleteUserId) + 2; // Ajustar para o índice correto
+        await deleteSheetRow(sheetName, deleteRowIndex);
 
         // Ordenar usuários após a exclusão
         await sortUsersByName(sheetName);
