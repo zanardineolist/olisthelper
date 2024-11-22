@@ -78,6 +78,82 @@ export async function appendValuesToSheet(sheetName, values) {
   }
 }
 
+export async function setCheckboxesForColumns(sheetName, rowNumber) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+
+    // Obtendo informações da planilha
+    const sheetInfo = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId,
+    });
+
+    const sheet = sheetInfo.data.sheets.find((s) => s.properties.title === sheetName);
+    if (!sheet) {
+      throw new Error(`Aba '${sheetName}' não encontrada.`);
+    }
+
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: sheetId,
+      resource: {
+        requests: [
+          {
+            updateCells: {
+              range: {
+                sheetId: sheet.properties.sheetId,
+                startRowIndex: rowNumber - 1,
+                endRowIndex: rowNumber,
+                startColumnIndex: 5, // Coluna F (Chamado)
+                endColumnIndex: 8,   // Coluna H (Chat)
+              },
+              rows: [
+                {
+                  values: [
+                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
+                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
+                    { userEnteredValue: { boolValue: false }, dataValidation: { condition: { type: 'BOOLEAN' } } },
+                  ],
+                },
+              ],
+              fields: 'userEnteredValue,dataValidation',
+            },
+          },
+        ],
+      },
+    });
+    console.log('Checkboxes adicionados nas colunas especificadas.');
+  } catch (error) {
+    console.error('Erro ao configurar checkboxes:', error);
+    throw new Error('Erro ao configurar checkboxes nas colunas.');
+  }
+}
+
+export async function appendValuesToSheet(sheetName, values) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+
+    // Buscar a última linha preenchida
+    const lastRow = await getLastFilledRow(sheetName);
+    const nextRow = lastRow + 1;
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: sheetId,
+      range: `${sheetName}!A${nextRow}:H${nextRow}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values },
+    });
+
+    // Configurar checkboxes nas colunas "Chamado", "Telefone", e "Chat"
+    await setCheckboxesForColumns(sheetName, nextRow);
+
+    cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
+  } catch (error) {
+    console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
+    throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
+  }
+}
+
 export async function updateSheetRowById(sheetName, identifier, newValues) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
