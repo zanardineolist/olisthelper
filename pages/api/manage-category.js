@@ -2,10 +2,12 @@ import { getSheetValues, appendValuesToSheet, updateSheetRow, deleteSheetRow, ge
 import { logAction } from '../../utils/firebase/firebaseLogging';
 import { cache } from '../../utils/cache';
 
-// Função para invalidar o cache da aba
-async function invalidateCache(sheetName) {
-  const cacheKey = `sheet_${sheetName}_A:A`;
-  cache.delete(cacheKey); // Remover o cache após cada operação de modificação para garantir que os dados sejam atualizados
+// Função para invalidar e atualizar o cache da aba
+async function refreshCache(sheetName, range) {
+  const cacheKey = `sheet_${sheetName}_${range}`;
+  cache.delete(cacheKey); // Remover o cache existente
+  const updatedValues = await getSheetValues(sheetName, range); // Atualizar o cache forçando nova leitura dos dados
+  cache.set(cacheKey, updatedValues, 0); // Reinsere os dados no cache sem expiração para garantir atualizações imediatas
 }
 
 // Função para ordenar categorias pelo nome em ordem alfabética
@@ -70,8 +72,8 @@ export default async function handler(req, res) {
         // Ordenar categorias após a adição
         await sortCategoriesByName(sheetName);
 
-        // Invalida o cache após adicionar uma nova categoria
-        await invalidateCache(sheetName);
+        // Atualiza o cache após adicionar uma nova categoria
+        await refreshCache(sheetName, 'A2:A');
 
         if (isUserValid) {
           console.log('Registrando ação de criação no Firebase...');
@@ -108,8 +110,8 @@ export default async function handler(req, res) {
         // Ordenar categorias após a atualização
         await sortCategoriesByName(sheetName);
 
-        // Invalida o cache após atualizar uma categoria
-        await invalidateCache(sheetName);
+        // Atualiza o cache após atualizar uma categoria
+        await refreshCache(sheetName, 'A2:A');
 
         if (isUserValid) {
           console.log('Registrando ação de atualização no Firebase...');
@@ -145,8 +147,8 @@ export default async function handler(req, res) {
         // Ordenar categorias após a exclusão
         await sortCategoriesByName(sheetName);
 
-        // Invalida o cache após excluir uma categoria
-        await invalidateCache(sheetName);
+        // Atualiza o cache após excluir uma categoria
+        await refreshCache(sheetName, 'A2:A');
 
         if (isUserValid) {
           console.log('Registrando ação de exclusão no Firebase...');
