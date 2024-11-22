@@ -18,6 +18,25 @@ export async function getAuthenticatedGoogleSheets() {
   return sheetsInstance;
 }
 
+export async function getUserFromSheet(email) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      range: 'Usuários!A:H',
+    });
+
+    const rows = response.data.values || [];
+    const user = rows.find((row) => row[2] === email);
+    return user || null;
+  } catch (error) {
+    console.error('Erro ao buscar usuário na planilha:', error);
+    return null;
+  }
+}
+
 export async function getLastFilledRow(sheetName) {
   try {
     const sheets = await getAuthenticatedGoogleSheets();
