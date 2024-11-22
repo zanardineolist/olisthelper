@@ -71,6 +71,9 @@ export async function appendValuesToSheet(sheetName, values) {
       resource: { values },
     });
 
+    // Configurar checkboxes nas colunas "Chamado", "Telefone", e "Chat"
+    await setCheckboxesForColumns(sheetName, nextRow);
+
     cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
   } catch (error) {
     console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
@@ -125,32 +128,6 @@ export async function setCheckboxesForColumns(sheetName, rowNumber) {
   } catch (error) {
     console.error('Erro ao configurar checkboxes:', error);
     throw new Error('Erro ao configurar checkboxes nas colunas.');
-  }
-}
-
-export async function appendValuesToSheet(sheetName, values) {
-  try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
-
-    // Buscar a última linha preenchida
-    const lastRow = await getLastFilledRow(sheetName);
-    const nextRow = lastRow + 1;
-
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: sheetId,
-      range: `${sheetName}!A${nextRow}:H${nextRow}`,
-      valueInputOption: 'USER_ENTERED',
-      resource: { values },
-    });
-
-    // Configurar checkboxes nas colunas "Chamado", "Telefone", e "Chat"
-    await setCheckboxesForColumns(sheetName, nextRow);
-
-    cache.updateCache(`sheet_${sheetName}_A:H`, () => getSheetValues(sheetName, 'A:H'), CACHE_TIMES.SHEET_VALUES);
-  } catch (error) {
-    console.error(`Erro ao adicionar valores à aba ${sheetName}:`, error);
-    throw new Error(`Erro ao adicionar valores à aba ${sheetName}.`);
   }
 }
 
