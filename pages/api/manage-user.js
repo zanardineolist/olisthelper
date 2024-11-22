@@ -127,10 +127,18 @@ export default async function handler(req, res) {
           newUser.chat ? 'TRUE' : 'FALSE'
         ]]);
 
+        // Atualizando as informações da planilha após adicionar o novo usuário
+        const updatedRows = await getSheetValues(sheetName, 'A:H');
+        const newUserRowIndex = updatedRows.findIndex(row => row[0] === newUserId);
+
+        if (newUserRowIndex === -1) {
+          return res.status(500).json({ error: 'Erro ao localizar o novo usuário na planilha.' });
+        }
+
         // Adicionando checkbox para colunas específicas (chamado, telefone, chat) diretamente na nova linha
         await addCheckboxToSheet(sheetName, {
-          startRowIndex: allRows.length, // A linha do novo usuário
-          endRowIndex: allRows.length, // Corrigido para não afetar a linha de cima
+          startRowIndex: newUserRowIndex, // A linha do novo usuário
+          endRowIndex: newUserRowIndex + 1,
           startColumnIndex: 5,
           endColumnIndex: 8
         });
