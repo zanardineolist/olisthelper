@@ -1,5 +1,6 @@
 import { getSheetValues, appendValuesToSheet, updateSheetRowById, deleteSheetRowById, getUserFromSheet, getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
 import { logAction } from '../../utils/firebase/firebaseLogging';
+import { cache } from '../../utils/cache';
 
 // Função para ordenar usuários pelo nome em ordem alfabética
 async function sortUsersByName(sheetName) {
@@ -46,6 +47,11 @@ async function sortUsersByName(sheetName) {
   } catch (error) {
     console.error('Erro ao ordenar usuários:', error);
   }
+}
+
+async function invalidateCache(sheetName) {
+  const cacheKey = `sheet_${sheetName}_A:H`;
+  cache.delete(cacheKey); // Remover o cache após cada operação de modificação para garantir que os dados sejam atualizados
 }
 
 export default async function handler(req, res) {
@@ -122,6 +128,9 @@ export default async function handler(req, res) {
         // Ordenar usuários após a adição
         await sortUsersByName(sheetName);
 
+        // Invalida o cache após adicionar um novo usuário
+        await invalidateCache(sheetName);
+
         if (isUserValid) {
           console.log('Registrando ação de criação no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'create_user', 'Usuário', null, {
@@ -157,6 +166,9 @@ export default async function handler(req, res) {
         // Ordenar usuários após a atualização
         await sortUsersByName(sheetName);
 
+        // Invalida o cache após a atualização de um usuário
+        await invalidateCache(sheetName);
+
         if (isUserValid) {
           console.log('Registrando ação de atualização no Firebase...');
           await logAction(req.user.id, req.user.name, req.user.role, 'update_user', 'Usuário', {
@@ -182,6 +194,9 @@ export default async function handler(req, res) {
 
         // Ordenar usuários após a exclusão
         await sortUsersByName(sheetName);
+
+        // Invalida o cache após excluir um usuário
+        await invalidateCache(sheetName);
 
         if (isUserValid) {
           console.log('Registrando ação de exclusão no Firebase...');
