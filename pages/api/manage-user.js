@@ -83,7 +83,8 @@ export default async function handler(req, res) {
     switch (method) {
       case 'GET':
         console.log('Método GET chamado - Carregando usuários...');
-        const rows = await getSheetValues(sheetName, 'A:H', true); // Utilizando cache
+        // Aqui, não utilizamos o cache para garantir que os dados estejam atualizados após uma operação de escrita
+        const rows = await getSheetValues(sheetName, 'A:H', false);
         if (rows && rows.length > 1) {
           const users = rows.slice(1).map((row) => ({
             id: row[0],
@@ -102,7 +103,7 @@ export default async function handler(req, res) {
       case 'POST':
         console.log('Método POST chamado - Adicionando novo usuário...');
         const newUser = req.body;
-        const allRows = await getSheetValues(sheetName, 'A:H', true);
+        const allRows = await getSheetValues(sheetName, 'A:H', false);
 
         // Garantir que o email não exista previamente
         if (allRows.some(row => row[2] === newUser.email)) {
@@ -126,9 +127,6 @@ export default async function handler(req, res) {
           newUser.telefone ? 'TRUE' : 'FALSE',
           newUser.chat ? 'TRUE' : 'FALSE'
         ]]);
-
-        // Atualizar cache imediatamente após adicionar o novo usuário
-        const updatedRows = await getSheetValues(sheetName, 'A:H', true);
 
         await sortUsersByName(sheetName);
 
@@ -154,7 +152,7 @@ export default async function handler(req, res) {
         }
 
         // Buscar o índice do usuário na planilha
-        const allRowsUpdate = await getSheetValues(sheetName, 'A:H', true);
+        const allRowsUpdate = await getSheetValues(sheetName, 'A:H', false);
         const rowIndex = allRowsUpdate.findIndex((row) => row[0] === updatedUser.id);
 
         if (rowIndex === -1) {
@@ -169,7 +167,7 @@ export default async function handler(req, res) {
         }
 
         await updateSheetRow(sheetName, rowIndex + 1, [
-          updatedUser.id, // Não modificar o ID do usuário
+          updatedUser.id,
           updatedUser.name,
           updatedUser.email,
           updatedUser.profile,
@@ -178,9 +176,6 @@ export default async function handler(req, res) {
           updatedUser.telefone ? 'TRUE' : 'FALSE',
           updatedUser.chat ? 'TRUE' : 'FALSE',
         ], previousData);
-
-        // Atualizar cache imediatamente após atualizar o usuário
-        await getSheetValues(sheetName, 'A:H', true);
 
         await sortUsersByName(sheetName);
 
@@ -208,7 +203,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
 
-        const userRows = await getSheetValues(sheetName, 'A:H', true);
+        const userRows = await getSheetValues(sheetName, 'A:H', false);
         const deleteRowIndex = userRows.findIndex((row) => row[0] === deleteUserId);
         if (deleteRowIndex === -1) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
@@ -222,9 +217,6 @@ export default async function handler(req, res) {
         }
 
         await deleteSheetRow(sheetName, deleteRowIndex + 1, deletedData);
-
-        // Atualizar cache imediatamente após excluir o usuário
-        await getSheetValues(sheetName, 'A:H', true);
 
         await sortUsersByName(sheetName);
 
