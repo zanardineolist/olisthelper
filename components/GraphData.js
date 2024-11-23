@@ -192,7 +192,7 @@ export default function GraphData({ users }) {
 
   return (
     <div className={styles.graphDataContainer}>
-      <h2>Gráfico de Dados dos Analistas/Fiscais</h2>
+      <h2>Gráfico de auxilios Analistas/Fiscal</h2>
 
       <div className={styles.filterButtonContainer}>
         <button

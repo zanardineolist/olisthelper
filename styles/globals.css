@@ -32,8 +32,8 @@
   --color-treven: #c9c9c9;
   --scroll-bg: #a7a7a7;
   --scroll: #767676;
-  --manager-menu-indicator: #a8a8a8;
-  --manager-menu-bg: #d2d2d2;
+  --tab-menu-indicator: #a8a8a8;
+  --tab-menu-bg: #d2d2d2;
   --manager-menu-bg-hover: #b3b3b3;
   --modals-inputs: #e6e6e6;
   --bg-tooltip: #5D5D5D;
@@ -63,8 +63,8 @@
   --color-treven: #2b2b2b;
   --scroll-bg: #121212;
   --scroll: #555;
-  --manager-menu-indicator: #fff;
-  --manager-menu-bg: #5d5d5d;
+  --tab-menu-indicator: #fff;
+  --tab-menu-bg: #5d5d5d;
   --manager-menu-bg-hover: #414141;
   --modals-inputs: #282828;
   --bg-tooltip: #747474;

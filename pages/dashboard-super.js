@@ -15,13 +15,13 @@ const theme = createTheme({
     MuiTabs: {
       styleOverrides: {
         root: {
-          backgroundColor: 'var(--super-menu-bg)',
+          backgroundColor: 'var(--tab-menu-bg)',
           borderRadius: '5px',
           marginBottom: '20px',
           marginTop: '20px',
         },
         indicator: {
-          backgroundColor: 'var(--super-menu-indicator)',
+          backgroundColor: 'var(--tab-menu-indicator)',
           height: '4px',
           borderRadius: '5px',
         },
@@ -87,7 +87,7 @@ export default function DashboardSuper({ user }) {
       const hash = window.location.hash;
       if (hash === '#Dashboard') {
         setCurrentTab(0);
-      } else if (hash === '#Graph') {
+      } else if (hash === '#DataChart') {
         setCurrentTab(1);
       }
     }, 500);
@@ -101,7 +101,7 @@ export default function DashboardSuper({ user }) {
         hash = '#Dashboard';
         break;
       case 1:
-        hash = '#Graph';
+        hash = '#DataChart';
         break;
       default:
         break;
@@ -141,7 +141,7 @@ export default function DashboardSuper({ user }) {
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
             <Tab label="Dashboard" />
-            <Tab label="Graph de Dados" />
+            <Tab label="Data Chart" />
           </Tabs>
         </ThemeProvider>
 
