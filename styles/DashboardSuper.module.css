@@ -44,11 +44,6 @@
     justify-content: center;
     margin-top: 20px;
   }
-
-  .tabContent {
-    min-height: 200px;
-    margin-top: 20px;
-  }
   
 /* Saudação do usuário */
 .greeting {
