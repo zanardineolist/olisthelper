@@ -10,9 +10,10 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import Select, { components as selectComponents } from 'react-select';
+import Select from 'react-select';
 import Swal from 'sweetalert2';
 import styles from '../styles/GraphData.module.css';
+import dayjs from 'dayjs';
 
 // Registrar os elementos necessários do Chart.js
 ChartJS.register(
@@ -26,8 +27,8 @@ ChartJS.register(
 
 export default function GraphData({ users }) {
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [filter, setFilter] = useState('7');
-  const [filterLabel, setFilterLabel] = useState('Últimos 7 dias');
+  const [filter, setFilter] = useState('1');  // Definir o dia atual como padrão
+  const [filterLabel, setFilterLabel] = useState('Hoje');
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState(null);
 
@@ -42,6 +43,12 @@ export default function GraphData({ users }) {
     '#DF9FC7',
   ];
 
+  // Função para gerar um array de datas
+  const generateDateRange = (days) => {
+    const today = dayjs();
+    return Array.from({ length: days }, (_, i) => today.subtract(i, 'day').format('DD/MM/YYYY')).reverse();
+  };
+
   // Função para buscar dados dos registros dos usuários selecionados
   const fetchRecordsForUsers = async () => {
     if (!selectedUsers.length) {
@@ -52,25 +59,25 @@ export default function GraphData({ users }) {
     try {
       setLoading(true);
       const datasets = [];
-      let labels = [];
+      const labels = generateDateRange(parseInt(filter));
 
       for (const [index, user] of selectedUsers.entries()) {
         const res = await fetch(`/api/get-analyst-records?analystId=${user.id}&filter=${filter}`);
         if (!res.ok) throw new Error(`Erro ao buscar registros do usuário ${user.name}`);
 
         const data = await res.json();
-        if (data.count > 0) {
-          datasets.push({
-            label: user.name,
-            data: data.counts,
-            backgroundColor: colors[index % colors.length],
-            borderColor: colors[index % colors.length],
-            borderWidth: 1,
-          });
+        const userCounts = labels.map(label => {
+          const dateIndex = data.dates.indexOf(label);
+          return dateIndex !== -1 ? data.counts[dateIndex] : 0;
+        });
 
-          // Definir labels de acordo com os registros encontrados
-          labels = data.dates;
-        }
+        datasets.push({
+          label: user.name,
+          data: userCounts,
+          backgroundColor: colors[index % colors.length],
+          borderColor: colors[index % colors.length],
+          borderWidth: 1,
+        });
       }
 
       setChartData({
@@ -100,7 +107,7 @@ export default function GraphData({ users }) {
   const customSelectStyles = {
     container: (provided) => ({
       ...provided,
-      width: '500px',
+      width: '800px',  // Aumentar a largura para comportar mais usuários
       margin: '20px auto',
     }),
     control: (provided, state) => ({
@@ -179,9 +186,24 @@ export default function GraphData({ users }) {
       <h2>Gráfico de Dados dos Analistas/Fiscais</h2>
 
       <div className={styles.filterButtonContainer}>
-        <button className={styles.filterButton} onClick={() => handleFilterChange('1', 'Hoje')}>Hoje</button>
-        <button className={styles.filterButton} onClick={() => handleFilterChange('7', 'Últimos 7 dias')}>Últimos 7 dias</button>
-        <button className={styles.filterButton} onClick={() => handleFilterChange('30', 'Últimos 30 dias')}>Últimos 30 dias</button>
+        <button
+          className={`${styles.filterButton} ${filter === '1' ? styles.activeFilterButton : ''}`}
+          onClick={() => handleFilterChange('1', 'Hoje')}
+        >
+          Hoje
+        </button>
+        <button
+          className={`${styles.filterButton} ${filter === '7' ? styles.activeFilterButton : ''}`}
+          onClick={() => handleFilterChange('7', 'Últimos 7 dias')}
+        >
+          Últimos 7 dias
+        </button>
+        <button
+          className={`${styles.filterButton} ${filter === '30' ? styles.activeFilterButton : ''}`}
+          onClick={() => handleFilterChange('30', 'Últimos 30 dias')}
+        >
+          Últimos 30 dias
+        </button>
       </div>
 
       <Select
@@ -200,7 +222,7 @@ export default function GraphData({ users }) {
         noOptionsMessage={() => 'Sem resultados'}
       />
 
-      <div className={styles.chartContainer} style={{ minHeight: '300px' }}>
+      <div className={styles.chartContainer} style={{ minHeight: '400px' }}>
         {loading ? (
           <div className="standardBoxLoader"></div>
         ) : (
