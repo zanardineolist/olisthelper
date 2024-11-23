@@ -30,13 +30,12 @@
     color: var(--text-color);
     display: flex;
     flex-direction: column;
-    align-items: center;
   }
 
   .leftAlignContainer {
     width: 100%;
     text-align: left;
-    margin-bottom: 20px;
+    margin-bottom: 0px;
   }
 
   .tabsContainer {
