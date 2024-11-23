@@ -87,7 +87,7 @@ export default function DashboardSuper({ user }) {
       const hash = window.location.hash;
       if (hash === '#Dashboard') {
         setCurrentTab(0);
-      } else if (hash === '#Gráfico') {
+      } else if (hash === '#Graph') {
         setCurrentTab(1);
       }
     }, 500);
@@ -101,7 +101,7 @@ export default function DashboardSuper({ user }) {
         hash = '#Dashboard';
         break;
       case 1:
-        hash = '#Gráfico';
+        hash = '#Graph';
         break;
       default:
         break;
@@ -140,8 +140,8 @@ export default function DashboardSuper({ user }) {
 
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
-            <Tab label="Dados do Dashboard" />
-            <Tab label="Gráfico de Chamados" />
+            <Tab label="Dashboard" />
+            <Tab label="Graph de Dados" />
           </Tabs>
         </ThemeProvider>
 
