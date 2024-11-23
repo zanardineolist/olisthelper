@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
 import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import DashboardData from '../components/DashboardData';
 import GraphData from '../components/GraphData';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import Swal from 'sweetalert2';
 import styles from '../styles/DashboardSuper.module.css';
 
