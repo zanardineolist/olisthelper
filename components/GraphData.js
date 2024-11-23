@@ -27,7 +27,7 @@ ChartJS.register(
 
 export default function GraphData({ users }) {
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [filter, setFilter] = useState('1');  // Definir o dia atual como padrão
+  const [filter, setFilter] = useState('1');
   const [filterLabel, setFilterLabel] = useState('Hoje');
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState(null);
@@ -60,6 +60,7 @@ export default function GraphData({ users }) {
       setLoading(true);
       const datasets = [];
       const labels = generateDateRange(parseInt(filter));
+      let hasData = false; // Flag para verificar se há algum dado
 
       for (const [index, user] of selectedUsers.entries()) {
         const res = await fetch(`/api/get-analyst-records?analystId=${user.id}&filter=${filter}`);
@@ -71,6 +72,10 @@ export default function GraphData({ users }) {
           return dateIndex !== -1 ? data.counts[dateIndex] : 0;
         });
 
+        if (userCounts.some(count => count > 0)) {
+          hasData = true; // Se houver algum valor maior que zero, marcar como verdadeiro
+        }
+
         datasets.push({
           label: user.name,
           data: userCounts,
@@ -80,10 +85,14 @@ export default function GraphData({ users }) {
         });
       }
 
-      setChartData({
-        labels,
-        datasets,
-      });
+      if (hasData) {
+        setChartData({
+          labels,
+          datasets,
+        });
+      } else {
+        setChartData(null); // Se não houver dados, definir chartData como null
+      }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
       Swal.fire('Erro', 'Erro ao carregar registros.', 'error');
