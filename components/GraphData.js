@@ -10,7 +10,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import Select from 'react-select';
+import Select, { components as selectComponents } from 'react-select';
 import Swal from 'sweetalert2';
 import styles from '../styles/GraphData.module.css';
 
@@ -96,6 +96,84 @@ export default function GraphData({ users }) {
     setFilterLabel(label);
   };
 
+  // Estilos personalizados para o React-Select
+  const customSelectStyles = {
+    container: (provided) => ({
+      ...provided,
+      width: '500px',
+      margin: '20px auto',
+    }),
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: 'var(--modals-inputs)',
+      borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
+      color: 'var(--text-color)',
+      borderRadius: '5px',
+      padding: '5px',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: 'var(--color-primary)',
+      },
+      outline: 'none',
+    }),
+    input: (provided) => ({
+      ...provided,
+      color: 'var(--text-color)',
+      caretColor: 'var(--text-color)',
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--modals-inputs)',
+      maxHeight: '250px',
+      overflowY: 'auto',
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      padding: 0,
+      maxHeight: '250px',
+      '&::-webkit-scrollbar': {
+        width: '8px',
+      },
+      '&::-webkit-scrollbar-track': {
+        background: 'var(--scroll-bg)',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: 'var(--scroll)',
+        borderRadius: '10px',
+        border: '2px solid var(--scroll-bg)',
+      },
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused
+        ? 'var(--color-trodd)'
+        : state.isSelected
+        ? 'var(--color-primary)'
+        : 'var(--box-color)',
+      color: 'var(--text-color)',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: 'var(--color-trodd)',
+      },
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: 'var(--text-color)',
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: 'var(--text-color2)',
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: 'var(--text-color)',
+    }),
+    indicatorSeparator: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--color-border)',
+    }),
+  };
+
   return (
     <div className={styles.graphDataContainer}>
       <h2>Gráfico de Dados dos Analistas/Fiscais</h2>
@@ -117,11 +195,12 @@ export default function GraphData({ users }) {
         }}
         isMulti
         placeholder="Selecione analistas ou fiscais"
+        styles={customSelectStyles}
         classNamePrefix="react-select"
         noOptionsMessage={() => 'Sem resultados'}
       />
 
-      <div className={styles.chartContainer}>
+      <div className={styles.chartContainer} style={{ minHeight: '300px' }}>
         {loading ? (
           <div className="standardBoxLoader"></div>
         ) : (
