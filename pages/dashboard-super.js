@@ -126,34 +126,34 @@ export default function DashboardSuper({ user }) {
       <Navbar user={user} />
 
       <main className={styles.main}>
-        <h1 className={styles.greeting}>
-          Olá, {greeting} {user.name.split(' ')[0]}!
-        </h1>
+        <div className={styles.leftAlignContainer}>
+          <h1 className={styles.greeting}>
+            Olá, {greeting} {user.name.split(' ')[0]}!
+          </h1>
 
-        <div className={styles.profileContainer}>
-          <img src={user.image} alt={user.name} className={styles.profileImage} />
-          <div className={styles.profileInfo}>
-            <h2>{user.name}</h2>
-            <p>{user.email}</p>
+          <div className={styles.profileContainer}>
+            <img src={user.image} alt={user.name} className={styles.profileImage} />
+            <div className={styles.profileInfo}>
+              <h2>{user.name}</h2>
+              <p>{user.email}</p>
+            </div>
           </div>
         </div>
-      </main>
 
-      {/* ThemeProvider para as abas, fora do main, mas antes do conteúdo das abas */}
-      <ThemeProvider theme={theme}>
-        <div className={styles.tabsContainer}>
-          <Tabs value={currentTab} onChange={handleTabChange} centered>
-            <Tab label="Dashboard" />
-            <Tab label="Data Chart" />
-          </Tabs>
+        <ThemeProvider theme={theme}>
+          <div className={styles.tabsContainer}>
+            <Tabs value={currentTab} onChange={handleTabChange} centered>
+              <Tab label="Dashboard" />
+              <Tab label="Data Chart" />
+            </Tabs>
+          </div>
+        </ThemeProvider>
+
+        <div className={styles.tabContent}>
+          {currentTab === 0 && <DashboardData user={user} />}
+          {currentTab === 1 && <GraphData users={users} />}
         </div>
-      </ThemeProvider>
-
-      {/* Conteúdo das abas */}
-      <div className={styles.tabContent}>
-        {currentTab === 0 && <DashboardData user={user} />}
-        {currentTab === 1 && <GraphData users={users} />}
-      </div>
+      </main>
 
       <Footer />
     </>

@@ -30,11 +30,24 @@
     color: var(--text-color);
     display: flex;
     flex-direction: column;
+    align-items: center;
+  }
+
+  .leftAlignContainer {
+    width: 100%;
+    max-width: 1200px;
+    text-align: left;
+    margin-bottom: 20px;
   }
 
   .tabsContainer {
     display: flex;
     justify-content: center;
+    margin-top: 20px;
+  }
+
+  .tabContent {
+    min-height: 200px;
     margin-top: 20px;
   }
   
