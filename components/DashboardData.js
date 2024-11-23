@@ -241,14 +241,6 @@ export default function DashboardData({ user }) {
     }),
   };
 
-  if (loading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
-
   // Componente customizado para renderizar as opções do Select
   const CustomOption = (props) => {
     return (
