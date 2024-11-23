@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import DashboardData from '../components/DashboardData';
 import GraphData from '../components/GraphData';
+import Swal from 'sweetalert2';
 import styles from '../styles/DashboardSuper.module.css';
 
 const theme = createTheme({
@@ -47,6 +48,7 @@ export default function DashboardSuper({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
   const [greeting, setGreeting] = useState('');
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -62,8 +64,25 @@ export default function DashboardSuper({ user }) {
   }, []);
 
   useEffect(() => {
+    // Carregar lista de usuários ao montar o componente
+    const loadUsers = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/get-users');
+        if (!res.ok) throw new Error('Erro ao carregar usuários');
+        const data = await res.json();
+        setUsers(data.users.filter(user => ['analyst', 'tax'].includes(user.role.toLowerCase())));
+      } catch (err) {
+        console.error('Erro ao carregar usuários:', err);
+        Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUsers();
+
     // Simulando um pequeno atraso para exibir o loader
-    setLoading(true);
     setTimeout(() => {
       const hash = window.location.hash;
       if (hash === '#Dashboard') {
@@ -71,7 +90,6 @@ export default function DashboardSuper({ user }) {
       } else if (hash === '#Gráfico') {
         setCurrentTab(1);
       }
-      setLoading(false);
     }, 500);
   }, []);
 
@@ -129,7 +147,7 @@ export default function DashboardSuper({ user }) {
 
         <div className={styles.tabContent}>
           {currentTab === 0 && <DashboardData user={user} />}
-          {currentTab === 1 && <GraphData user={user} />}
+          {currentTab === 1 && <GraphData users={users} />}
         </div>
       </main>
 
