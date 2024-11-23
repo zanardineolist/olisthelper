@@ -24,10 +24,13 @@
 
 /* Área principal da página */
 .main {
-    flex: 1;
     padding: 20px;
-    margin-top: 80px;
-}
+    margin-top: 50px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+  }
 
 /* Saudação do usuário */
 .greeting {
@@ -261,20 +264,3 @@
     color: var(--color-white);
     font-weight: 600;
 }
-
-/* ================== Estilo Geral da Página ================== */
-.main {
-    padding: 20px;
-    margin-top: 50px;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .main h1 {
-    margin-bottom: 20px;
-    text-align: center;
-    color: #8b8b8b;
-  }
