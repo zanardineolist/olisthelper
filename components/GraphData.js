@@ -52,6 +52,8 @@ export default function GraphData({ users }) {
     try {
       setLoading(true);
       const datasets = [];
+      let labels = [];
+
       for (const [index, user] of selectedUsers.entries()) {
         const res = await fetch(`/api/get-analyst-records?analystId=${user.id}&filter=${filter}`);
         if (!res.ok) throw new Error(`Erro ao buscar registros do usuário ${user.name}`);
@@ -65,11 +67,11 @@ export default function GraphData({ users }) {
             borderColor: colors[index % colors.length],
             borderWidth: 1,
           });
+
+          // Definir labels de acordo com os registros encontrados
+          labels = data.dates;
         }
       }
-
-      // Utilizar as datas reais dos registros
-      const labels = datasets.length > 0 ? data.dates : [];
 
       setChartData({
         labels,
@@ -121,9 +123,7 @@ export default function GraphData({ users }) {
 
       <div className={styles.chartContainer}>
         {loading ? (
-          <div className={styles.loadingOverlay}>
-            <div className="standardBoxLoader"></div>
-          </div>
+          <div className="standardBoxLoader"></div>
         ) : (
           chartData ? (
             <Bar data={chartData} />
