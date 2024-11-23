@@ -252,7 +252,7 @@ export default function DashboardData({ user }) {
   // Componente customizado para renderizar as opções do Select
   const CustomOption = (props) => {
     return (
-      <components.Option {...props}>
+      <selectComponents.Option {...props}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span>{props.label}</span>
           <span
@@ -312,7 +312,7 @@ export default function DashboardData({ user }) {
             </span>
           )}
         </div>
-      </components.Option>
+      </selectComponents.Option>
     );
   };
 
