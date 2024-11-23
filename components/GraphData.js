@@ -116,7 +116,7 @@ export default function GraphData({ users }) {
   const customSelectStyles = {
     container: (provided) => ({
       ...provided,
-      width: '800px',  // Aumentar a largura para comportar mais usuários
+      width: '800px',
       margin: '20px auto',
     }),
     control: (provided, state) => ({

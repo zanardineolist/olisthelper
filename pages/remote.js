@@ -15,13 +15,13 @@ const theme = createTheme({
     MuiTabs: {
       styleOverrides: {
         root: {
-          backgroundColor: 'var(--manager-menu-bg)',
+          backgroundColor: 'var(--tab-menu-bg)',
           borderRadius: '5px',
           marginBottom: '20px',
           marginTop: '20px',
         },
         indicator: {
-          backgroundColor: 'var(--manager-menu-indicator)',
+          backgroundColor: 'var(--tab-menu-indicator)',
           height: '4px',
           borderRadius: '5px',
         },

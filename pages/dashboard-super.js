@@ -9,6 +9,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Swal from 'sweetalert2';
 import styles from '../styles/DashboardSuper.module.css';
+import styles from '../styles/Manager.module.css';
 
 const theme = createTheme({
   components: {
