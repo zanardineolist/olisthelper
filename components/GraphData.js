@@ -31,11 +31,16 @@ export default function GraphData({ users }) {
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState(null);
 
-  // Definir cores aleatórias para os usuários
-  const generateRandomColor = () => {
-    const randomColor = `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 1)`;
-    return randomColor;
-  };
+  // Paleta de cores fornecida
+  const colors = [
+    '#E64E36',
+    '#F0A028',
+    '#0A4EE4',
+    '#001647',
+    '#779E3D',
+    '#8DD7D7',
+    '#DF9FC7',
+  ];
 
   // Função para buscar dados dos registros dos usuários selecionados
   const fetchRecordsForUsers = async () => {
@@ -47,7 +52,7 @@ export default function GraphData({ users }) {
     try {
       setLoading(true);
       const datasets = [];
-      for (const user of selectedUsers) {
+      for (const [index, user] of selectedUsers.entries()) {
         const res = await fetch(`/api/get-analyst-records?analystId=${user.id}&filter=${filter}`);
         if (!res.ok) throw new Error(`Erro ao buscar registros do usuário ${user.name}`);
 
@@ -56,15 +61,15 @@ export default function GraphData({ users }) {
           datasets.push({
             label: user.name,
             data: data.counts,
-            backgroundColor: generateRandomColor(),
-            borderColor: generateRandomColor(),
+            backgroundColor: colors[index % colors.length],
+            borderColor: colors[index % colors.length],
             borderWidth: 1,
           });
         }
       }
 
-      // Definir as datas apenas do primeiro dataset para manter a consistência no gráfico
-      const labels = datasets.length > 0 ? datasets[0].data.map((_, index) => `Dia ${index + 1}`) : [];
+      // Utilizar as datas reais dos registros
+      const labels = datasets.length > 0 ? data.dates : [];
 
       setChartData({
         labels,
@@ -116,8 +121,8 @@ export default function GraphData({ users }) {
 
       <div className={styles.chartContainer}>
         {loading ? (
-          <div className="loaderOverlay">
-            <div className="loader"></div>
+          <div className={styles.loadingOverlay}>
+            <div className="standardBoxLoader"></div>
           </div>
         ) : (
           chartData ? (
