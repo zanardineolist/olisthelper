@@ -7,9 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { title, message, profiles, notificationType } = req.body;
+      const { title, message, profiles, notificationType, notificationStyle } = req.body; // Adicione notificationStyle aqui
 
-      if (!title || !message || !profiles || profiles.length === 0 || !notificationType) {
+      if (!title || !message || !profiles || profiles.length === 0 || !notificationType || !notificationStyle) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios e ao menos um perfil deve ser selecionado.' });
       }
 
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
           const normalizedTitle = title.replace(/\s+/g, '_').toLowerCase();
           const uniqueId = uuidv4();
           const notificationId = `${type}_${normalizedTitle}_${userId}_${uniqueId}`;
-        
+
           try {
             const notificationDoc = doc(notificationsCollection, notificationId);
             await setDoc(notificationDoc, {
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
               userRole,
               title,
               message,
-              notificationStyle, // Novo campo indicando se é aviso ou informação
+              notificationStyle, // Usando o valor recebido do req.body
               read: false,
               timestamp: new Date().getTime(),
               notificationType: type,
