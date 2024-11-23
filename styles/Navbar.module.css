@@ -5,16 +5,19 @@
   align-items: center;
   background-color: var(--navbar-bg);
   padding: 10px 20px;
-  position: relative;
+  position: fixed;
+  top: 0;
+  width: 100%;
   z-index: 1000;
 }
 
 .navbarWrapper {
   position: relative;
+  padding-top: 0;
 }
 
 .navbarWrapper.withBanner {
-  padding-top: 40px;
+  margin-top: 40px;
 }
 
 .logo img {
@@ -231,7 +234,7 @@
   font-weight: 500;
   font-size: 14px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 1100;

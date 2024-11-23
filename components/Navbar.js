@@ -182,7 +182,7 @@ export default function Navbar({ user }) {
           <button onClick={handleCloseTopNotification} className={styles.closeButton}>✕</button>
         </div>
       )}
-      
+
       <nav ref={navbarRef} className={styles.navbar}>
         <div className={styles.logo}>
           <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'}>
