@@ -137,15 +137,9 @@ export default function DashboardSuper({ user }) {
             <p>{user.email}</p>
           </div>
         </div>
-
-        {/* Conteúdo principal fora do ThemeProvider */}
-        <div className={styles.tabContent}>
-          {currentTab === 0 && <DashboardData user={user} />}
-          {currentTab === 1 && <GraphData users={users} />}
-        </div>
       </main>
 
-      {/* Container separado para as abas */}
+      {/* ThemeProvider para as abas, fora do main, mas antes do conteúdo das abas */}
       <ThemeProvider theme={theme}>
         <div className={styles.tabsContainer}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
@@ -154,6 +148,12 @@ export default function DashboardSuper({ user }) {
           </Tabs>
         </div>
       </ThemeProvider>
+
+      {/* Conteúdo das abas */}
+      <div className={styles.tabContent}>
+        {currentTab === 0 && <DashboardData user={user} />}
+        {currentTab === 1 && <GraphData users={users} />}
+      </div>
 
       <Footer />
     </>
