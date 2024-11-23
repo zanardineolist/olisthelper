@@ -138,18 +138,22 @@ export default function DashboardSuper({ user }) {
           </div>
         </div>
 
-        <ThemeProvider theme={theme}>
-          <Tabs value={currentTab} onChange={handleTabChange} centered>
-            <Tab label="Dashboard" />
-            <Tab label="Data Chart" />
-          </Tabs>
-        </ThemeProvider>
-
+        {/* Conteúdo principal fora do ThemeProvider */}
         <div className={styles.tabContent}>
           {currentTab === 0 && <DashboardData user={user} />}
           {currentTab === 1 && <GraphData users={users} />}
         </div>
       </main>
+
+      {/* Container separado para as abas */}
+      <ThemeProvider theme={theme}>
+        <div className={styles.tabsContainer}>
+          <Tabs value={currentTab} onChange={handleTabChange} centered>
+            <Tab label="Dashboard" />
+            <Tab label="Data Chart" />
+          </Tabs>
+        </div>
+      </ThemeProvider>
 
       <Footer />
     </>

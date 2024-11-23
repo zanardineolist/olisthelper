@@ -32,12 +32,12 @@
     flex-direction: column;
   }
 
-  .main h1 {
-    margin-bottom: 20px;
-    text-align: center;
-    color: #8b8b8b;
+  .tabsContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
   }
-
+  
 /* Saudação do usuário */
 .greeting {
     margin-bottom: 20px;
