@@ -1,0 +1,101 @@
+/* styles/GraphData.module.css */
+.graphDataContainer {
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--box-color);
+    border-radius: 10px;
+    color: var(--text-color);
+  }
+  
+  .filterButtonContainer {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .filterButton {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  
+  .filterButton:hover {
+    background-color: var(--color-primary-hover);
+  }
+  
+  .filterButton:active {
+    transform: scale(0.98);
+  }
+  
+  .chartContainer {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .noData, .loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-color);
+  }
+  
+  .selectUsersContainer {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .selectUsersLabel {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+  }
+  
+  .selectUsers {
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  .loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-overlay);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .loader {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: inline-block;
+    border-top: 4px solid var(--text-color);
+    border-right: 4px solid transparent;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+  }
+  
+  @keyframes rotation {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
