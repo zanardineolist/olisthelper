@@ -1,9 +1,28 @@
 // components/GraphData.js
 import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
 import styles from '../styles/GraphData.module.css';
+
+// Registrar os elementos necessários do Chart.js
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function GraphData({ users }) {
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -44,8 +63,11 @@ export default function GraphData({ users }) {
         }
       }
 
+      // Definir as datas apenas do primeiro dataset para manter a consistência no gráfico
+      const labels = datasets.length > 0 ? datasets[0].data.map((_, index) => `Dia ${index + 1}`) : [];
+
       setChartData({
-        labels: selectedUsers.map(user => user.name),
+        labels,
         datasets,
       });
     } catch (error) {
@@ -83,7 +105,9 @@ export default function GraphData({ users }) {
           label: user.name,
           id: user.id,
         }))}
-        onChange={setSelectedUsers}
+        onChange={(selectedOptions) => {
+          setSelectedUsers(selectedOptions ? selectedOptions.map(option => option.value) : []);
+        }}
         isMulti
         placeholder="Selecione analistas ou fiscais"
         classNamePrefix="react-select"
