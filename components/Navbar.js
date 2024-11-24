@@ -11,7 +11,7 @@ import { db } from '../utils/firebase/firebaseConfig';
 import { collection, query, where, onSnapshot, limit, startAfter } from 'firebase/firestore';
 import _ from 'lodash';
 
-export default function Navbar({ user, hasBanner }) {
+export default function Navbar({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
   const [notifications, setNotifications] = useState([]);
@@ -171,7 +171,7 @@ export default function Navbar({ user, hasBanner }) {
   };
 
   return (
-    <>
+    <div className={`${styles.navbarWrapper} ${topNotification ? styles.withBanner : ''}`}>
       {topNotification && (
         <div
           className={`${styles.notificationBanner} ${
@@ -182,7 +182,7 @@ export default function Navbar({ user, hasBanner }) {
           <button onClick={handleCloseTopNotification} className={styles.closeButton}>✕</button>
         </div>
       )}
-  
+
       <nav ref={navbarRef} className={styles.navbar}>
         <div className={styles.logo}>
           <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'}>
@@ -191,13 +191,13 @@ export default function Navbar({ user, hasBanner }) {
               alt="Novo Logo" 
             />
           </Link>
-        </div>  
-  
+        </div>
+
         <div className={styles.rightSection}>
           <button onClick={toggleTheme} className={styles.themeToggle} aria-label="Alternar tema">
             {theme === 'dark' ? <FaSun /> : <FaMoon />}
           </button>
-  
+
           {['analyst', 'tax', 'super', 'support+', 'dev'].includes(user.role) && (
             <>
               <div className={styles.notificationToggle} onClick={toggleNotifications} aria-label="Notificações">
@@ -206,7 +206,7 @@ export default function Navbar({ user, hasBanner }) {
                   <span className={styles.notificationCount}>{unreadNotificationsCount}</span>
                 )}
               </div>
-  
+
               {showNotifications && (
                 <div ref={notificationRef} className={styles.notificationsBox}>
                   {sortedNotifications.length === 0 ? (
@@ -254,12 +254,12 @@ export default function Navbar({ user, hasBanner }) {
               )}
             </>
           )}
-  
+
           <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle} aria-label="Menu">
             ☰
           </button>
         </div>
-  
+
         {menuOpen && (
           <div className={styles.menu}>
             {(user.role === 'support' || user.role === 'support+') && (
@@ -306,6 +306,6 @@ export default function Navbar({ user, hasBanner }) {
           </div>
         )}
       </nav>
-    </>
-  );  
+    </div>
+  );
 }

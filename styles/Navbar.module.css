@@ -6,22 +6,18 @@
   background-color: var(--navbar-bg);
   padding: 10px 20px;
   position: fixed;
+  top: 0;
   width: 100%;
-  top: 40px;
   z-index: 1000;
-  transition: top 0.3s ease;
-}
-
-.navbarWithBanner {
-  top: 40px;
 }
 
 .navbarWrapper {
   position: relative;
+  padding-top: 40px;
 }
 
-.hasBanner .navbar {
-  top: 50px;
+.navbarWrapper.withBanner {
+  margin-top: 40px;
 }
 
 .logo img {
