@@ -11,13 +11,12 @@
   z-index: 1000;
 }
 
-.navbarWrapper {
-  position: relative;
-  padding-top: 40px;
+.navbarWithBanner {
+  top: 40px;
 }
 
-.navbarWrapper.withBanner {
-  margin-top: 80px;
+.navbarWrapper {
+  position: relative;
 }
 
 .logo img {

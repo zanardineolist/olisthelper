@@ -171,7 +171,7 @@ export default function Navbar({ user, hasBanner }) {
   };
 
   return (
-    <div className={`${styles.navbarWrapper} ${hasBanner && topNotification ? styles.withBanner : ''}`}>
+    <div className={`${styles.navbarWrapper} ${hasBanner ? styles.withBanner : ''}`}>
       {topNotification && (
         <div
           className={`${styles.notificationBanner} ${
@@ -182,8 +182,8 @@ export default function Navbar({ user, hasBanner }) {
           <button onClick={handleCloseTopNotification} className={styles.closeButton}>✕</button>
         </div>
       )}
-
-      <nav ref={navbarRef} className={styles.navbar}>
+  
+      <nav ref={navbarRef} className={`${styles.navbar} ${hasBanner ? styles.navbarWithBanner : ''}`}>
         <div className={styles.logo}>
           <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'}>
             <img 
@@ -191,7 +191,7 @@ export default function Navbar({ user, hasBanner }) {
               alt="Novo Logo" 
             />
           </Link>
-        </div>
+        </div>  
 
         <div className={styles.rightSection}>
           <button onClick={toggleTheme} className={styles.themeToggle} aria-label="Alternar tema">
