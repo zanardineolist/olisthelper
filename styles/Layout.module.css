@@ -9,9 +9,9 @@
 
 .main {
   flex-grow: 1;
-  padding: 60px;
+  padding: 60px 20px;
 }
 
 .withBanner .main {
-  padding-top: 100px;
+  padding-top: 120px;
 }

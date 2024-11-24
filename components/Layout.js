@@ -7,7 +7,7 @@ export default function Layout({ children }) {
 
   return (
     <div className={`${styles.layout} ${hasBanner ? styles.withBanner : ''}`}>
-      <Navbar />
+      <Navbar hasBanner={hasBanner} />
       <main className={styles.main}>
         {children}
       </main>

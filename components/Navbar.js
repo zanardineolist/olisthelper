@@ -11,7 +11,7 @@ import { db } from '../utils/firebase/firebaseConfig';
 import { collection, query, where, onSnapshot, limit, startAfter } from 'firebase/firestore';
 import _ from 'lodash';
 
-export default function Navbar({ user }) {
+export default function Navbar({ user, hasBanner }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState('dark');
   const [notifications, setNotifications] = useState([]);
@@ -171,7 +171,7 @@ export default function Navbar({ user }) {
   };
 
   return (
-    <div className={`${styles.navbarWrapper} ${topNotification ? styles.withBanner : ''}`}>
+    <div className={`${styles.navbarWrapper} ${hasBanner && topNotification ? styles.withBanner : ''}`}>
       {topNotification && (
         <div
           className={`${styles.notificationBanner} ${
