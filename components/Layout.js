@@ -7,13 +7,14 @@ export default function Layout({ children }) {
   const [hasBanner, setHasBanner] = useState(false);
 
   useEffect(() => {
+    // Atualiza o estado para saber se o banner está ativo
     const bannerElement = document.querySelector('.notificationBanner');
     setHasBanner(!!bannerElement);
-  }, []);
+  }, [hasBanner]);
 
   return (
-    <div className={`${styles.layout} ${hasBanner ? styles.withBanner : ''}`}>
-      <Navbar hasBanner={hasBanner} />
+    <div className={`${styles.layout} ${hasBanner ? 'hasBanner' : ''}`}>
+      <Navbar />
       <main className={styles.main}>
         {children}
       </main>

@@ -6,9 +6,10 @@
   background-color: var(--navbar-bg);
   padding: 10px 20px;
   position: fixed;
-  top: 0;
   width: 100%;
+  top: 40px;
   z-index: 1000;
+  transition: top 0.3s ease;
 }
 
 .navbarWithBanner {
@@ -17,6 +18,10 @@
 
 .navbarWrapper {
   position: relative;
+}
+
+.hasBanner .navbar {
+  top: 50px;
 }
 
 .logo img {

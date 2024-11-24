@@ -171,7 +171,7 @@ export default function Navbar({ user, hasBanner }) {
   };
 
   return (
-    <div className={`${styles.navbarWrapper} ${hasBanner ? styles.withBanner : ''}`}>
+    <>
       {topNotification && (
         <div
           className={`${styles.notificationBanner} ${
@@ -183,7 +183,7 @@ export default function Navbar({ user, hasBanner }) {
         </div>
       )}
   
-      <nav ref={navbarRef} className={`${styles.navbar} ${hasBanner ? styles.navbarWithBanner : ''}`}>
+      <nav ref={navbarRef} className={styles.navbar}>
         <div className={styles.logo}>
           <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'}>
             <img 
@@ -192,12 +192,12 @@ export default function Navbar({ user, hasBanner }) {
             />
           </Link>
         </div>  
-
+  
         <div className={styles.rightSection}>
           <button onClick={toggleTheme} className={styles.themeToggle} aria-label="Alternar tema">
             {theme === 'dark' ? <FaSun /> : <FaMoon />}
           </button>
-
+  
           {['analyst', 'tax', 'super', 'support+', 'dev'].includes(user.role) && (
             <>
               <div className={styles.notificationToggle} onClick={toggleNotifications} aria-label="Notificações">
@@ -206,7 +206,7 @@ export default function Navbar({ user, hasBanner }) {
                   <span className={styles.notificationCount}>{unreadNotificationsCount}</span>
                 )}
               </div>
-
+  
               {showNotifications && (
                 <div ref={notificationRef} className={styles.notificationsBox}>
                   {sortedNotifications.length === 0 ? (
@@ -254,12 +254,12 @@ export default function Navbar({ user, hasBanner }) {
               )}
             </>
           )}
-
+  
           <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle} aria-label="Menu">
             ☰
           </button>
         </div>
-
+  
         {menuOpen && (
           <div className={styles.menu}>
             {(user.role === 'support' || user.role === 'support+') && (
@@ -306,6 +306,6 @@ export default function Navbar({ user, hasBanner }) {
           </div>
         )}
       </nav>
-    </div>
-  );
+    </>
+  );  
 }
