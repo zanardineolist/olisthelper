@@ -16,8 +16,11 @@ export default async function handler(req, res) {
           .from('messages')
           .select(`
             *,
-            tags (id, name),
-            message_likes (user_id)
+            message_tags(tag_id),
+            message_likes(user_id),
+            message_tags!inner(
+              tags(id, name)
+            )
           `);
 
         // Filtrar por privacidade
@@ -33,26 +36,27 @@ export default async function handler(req, res) {
         }
 
         // Filtrar por tags
-        if (tags && tags.length > 0) {
+        if (tags) {
           const tagArray = Array.isArray(tags) ? tags : [tags];
-          query = query.contains('tags', tagArray);
+          query = query.containedBy('message_tags.tag_id', tagArray);
         }
 
         const { data, error } = await query.order('created_at', { ascending: false });
 
         if (error) throw error;
 
-        // Formatar os dados para incluir informações sobre likes
+        // Formatar os dados para incluir informações sobre likes e tags
         const formattedData = data.map(message => ({
           ...message,
           liked_by_user: message.message_likes?.some(like => like.user_id === userId) || false,
-          tags: message.tags.map(tag => tag.name)
+          tags: Array.from(new Set(message.message_tags.map(mt => mt.tags.name))), // Remove duplicatas
+          likes_count: message.message_likes?.length || 0
         }));
 
         return res.status(200).json(formattedData);
       } catch (error) {
         console.error('Error fetching messages:', error);
-        return res.status(500).json({ error: 'Error ao buscar mensagens' });
+        return res.status(500).json({ error: 'Erro ao buscar mensagens' });
       }
 
     case 'POST':
@@ -144,16 +148,18 @@ export default async function handler(req, res) {
             .eq('message_id', id);
 
           // Adicionar novas tags
-          const messageTags = tags.map(tagId => ({
-            message_id: id,
-            tag_id: tagId
-          }));
+          if (tags.length > 0) {
+            const messageTags = tags.map(tagId => ({
+              message_id: id,
+              tag_id: tagId
+            }));
 
-          const { error: tagError } = await supabase
-            .from('message_tags')
-            .insert(messageTags);
+            const { error: tagError } = await supabase
+              .from('message_tags')
+              .insert(messageTags);
 
-          if (tagError) throw tagError;
+            if (tagError) throw tagError;
+          }
         }
 
         return res.status(200).json(message);
