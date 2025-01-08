@@ -12,15 +12,16 @@ export default async function handler(req, res) {
     case 'GET':
       try {
         const { isPrivate, searchTerm, tags } = req.query;
+        
+        // Primeira consulta para buscar as mensagens básicas
         let query = supabase
           .from('messages')
           .select(`
             *,
-            message_tags(tag_id),
-            message_likes(user_id),
-            message_tags!inner(
-              tags(id, name)
-            )
+            message_tags!left(
+              tags(name)
+            ),
+            message_likes!left(user_id)
           `);
 
         // Filtrar por privacidade
@@ -35,22 +36,24 @@ export default async function handler(req, res) {
           query = query.or(`title.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%`);
         }
 
-        // Filtrar por tags
+        // Filtrar por tags se necessário
         if (tags) {
           const tagArray = Array.isArray(tags) ? tags : [tags];
-          query = query.containedBy('message_tags.tag_id', tagArray);
+          query = query.containedBy('message_tags.tags.id', tagArray);
         }
 
         const { data, error } = await query.order('created_at', { ascending: false });
 
         if (error) throw error;
 
-        // Formatar os dados para incluir informações sobre likes e tags
+        // Formatar os dados
         const formattedData = data.map(message => ({
           ...message,
-          liked_by_user: message.message_likes?.some(like => like.user_id === userId) || false,
-          tags: Array.from(new Set(message.message_tags.map(mt => mt.tags.name))), // Remove duplicatas
-          likes_count: message.message_likes?.length || 0
+          tags: message.message_tags
+            .filter(mt => mt.tags) // Filtrar tags nulas
+            .map(mt => mt.tags.name), // Extrair apenas os nomes das tags
+          liked_by_user: message.message_likes.some(like => like.user_id === userId),
+          likes_count: message.message_likes.length
         }));
 
         return res.status(200).json(formattedData);
@@ -63,9 +66,20 @@ export default async function handler(req, res) {
       try {
         const { title, content, is_private, is_shared, tags } = req.body;
 
-        // Validar dados obrigatórios
-        if (!title || !content) {
-          return res.status(400).json({ error: 'Título e conteúdo são obrigatórios' });
+        // Converter o userId para UUID se necessário
+        let userUuid;
+        try {
+          const { data: userData, error: userError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('user_email', userId)
+            .single();
+
+          if (userError) throw userError;
+          userUuid = userData.id;
+        } catch (error) {
+          console.error('Error fetching user UUID:', error);
+          return res.status(500).json({ error: 'Erro ao identificar usuário' });
         }
 
         // Criar a mensagem
@@ -74,7 +88,7 @@ export default async function handler(req, res) {
           .insert([{
             title,
             content,
-            user_id: userId,
+            user_id: userUuid,
             is_private: is_private || false,
             is_shared: is_shared || true
           }])
@@ -107,7 +121,6 @@ export default async function handler(req, res) {
       try {
         const { id, title, content, is_private, is_shared, tags } = req.body;
 
-        // Validar dados obrigatórios
         if (!id || !title || !content) {
           return res.status(400).json({ error: 'ID, título e conteúdo são obrigatórios' });
         }
@@ -115,11 +128,11 @@ export default async function handler(req, res) {
         // Verificar se o usuário é dono da mensagem
         const { data: existingMessage } = await supabase
           .from('messages')
-          .select()
+          .select('user_id')
           .eq('id', id)
           .single();
 
-        if (existingMessage.user_id !== userId) {
+        if (!existingMessage || existingMessage.user_id !== userId) {
           return res.status(403).json({ error: 'Não autorizado a editar esta mensagem' });
         }
 
@@ -139,7 +152,7 @@ export default async function handler(req, res) {
 
         if (messageError) throw messageError;
 
-        // Atualizar tags
+        // Atualizar tags se fornecidas
         if (tags) {
           // Remover tags antigas
           await supabase
@@ -179,11 +192,11 @@ export default async function handler(req, res) {
         // Verificar se o usuário é dono da mensagem
         const { data: existingMessage } = await supabase
           .from('messages')
-          .select()
+          .select('user_id')
           .eq('id', id)
           .single();
 
-        if (existingMessage.user_id !== userId) {
+        if (!existingMessage || existingMessage.user_id !== userId) {
           return res.status(403).json({ error: 'Não autorizado a deletar esta mensagem' });
         }
 
