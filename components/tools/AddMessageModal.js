@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Modal from 'react-modal';
 import Select from 'react-select';
-import { saveMessage, createTag } from '../../utils/supabase';
 import Swal from 'sweetalert2';
 import styles from '../../styles/AddMessageModal.module.css';
 
@@ -23,28 +22,40 @@ export default function AddMessageModal({ isOpen, onClose, onMessageAdded, user,
     }));
   };
 
-  const handleTagChange = (selectedOptions) => {
+  const handleTagChange = async (selectedOptions) => {
+    const selectedTags = selectedOptions || [];
+    
+    // Verificar se há novas tags para criar
+    const newTags = selectedTags.filter(tag => tag.__isNew__);
+    const existingTags = selectedTags.filter(tag => !tag.__isNew__);
+
+    // Criar novas tags se necessário
+    for (const newTag of newTags) {
+      try {
+        const response = await fetch('/api/messages/tags', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: newTag.value }),
+        });
+
+        if (!response.ok) throw new Error('Erro ao criar tag');
+        
+        const tag = await response.json();
+        existingTags.push({
+          value: tag.id,
+          label: tag.name
+        });
+      } catch (error) {
+        console.error('Error creating tag:', error);
+      }
+    }
+
     setFormData(prev => ({
       ...prev,
-      tags: selectedOptions || []
+      tags: existingTags
     }));
-  };
-
-  const handleCreateTag = async (inputValue) => {
-    try {
-      const newTag = await createTag(inputValue);
-      if (newTag) {
-        const newOption = { value: newTag.id, label: newTag.name };
-        setFormData(prev => ({
-          ...prev,
-          tags: [...prev.tags, newOption]
-        }));
-        return newOption;
-      }
-    } catch (error) {
-      console.error('Error creating tag:', error);
-      Swal.fire('Erro', 'Não foi possível criar a tag', 'error');
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -58,27 +69,32 @@ export default function AddMessageModal({ isOpen, onClose, onMessageAdded, user,
 
     setSubmitting(true);
     try {
-      const messageData = {
-        title: formData.title.trim(),
-        content: formData.content.trim(),
-        user_id: user.id,
-        is_private: formData.is_private,
-        is_shared: formData.is_shared,
-        tags: formData.tags.map(tag => tag.value)
-      };
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: formData.title.trim(),
+          content: formData.content.trim(),
+          tags: formData.tags.map(tag => tag.value),
+          is_private: formData.is_private,
+          is_shared: formData.is_shared
+        }),
+      });
 
-      const savedMessage = await saveMessage(messageData);
-      if (savedMessage) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Sucesso!',
-          text: 'Mensagem salva com sucesso',
-          timer: 1500,
-          showConfirmButton: false
-        });
-        onMessageAdded();
-        handleClose();
-      }
+      if (!response.ok) throw new Error('Erro ao salvar mensagem');
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: 'Mensagem salva com sucesso',
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      onMessageAdded();
+      handleClose();
     } catch (error) {
       console.error('Error saving message:', error);
       Swal.fire('Erro', 'Não foi possível salvar a mensagem', 'error');
@@ -142,10 +158,13 @@ export default function AddMessageModal({ isOpen, onClose, onMessageAdded, user,
               options={availableTags}
               value={formData.tags}
               onChange={handleTagChange}
-              onCreateOption={handleCreateTag}
+              onCreateOption={(inputValue) => {
+                handleTagChange([...formData.tags, { __isNew__: true, value: inputValue, label: inputValue }]);
+              }}
               placeholder="Selecione ou crie tags..."
               className={styles.tagSelect}
               classNamePrefix="select"
+              isCreatable
             />
           </div>
 

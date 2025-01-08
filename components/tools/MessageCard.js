@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faCopy, faTrash, faLock, faGlobe } from '@fortawesome/free-solid-svg-icons';
-import { toggleMessageLike } from '../../utils/supabase';
 import Swal from 'sweetalert2';
 import styles from '../../styles/MessageCard.module.css';
 
-export default function MessageCard({ message, user, onDeleted, onLiked }) {
+export default function MessageCard({ message, user, onDeleted, onMessageLiked }) {
   const [copying, setCopying] = useState(false);
   const [liking, setLiking] = useState(false);
 
@@ -35,8 +34,17 @@ export default function MessageCard({ message, user, onDeleted, onLiked }) {
     if (liking) return;
     setLiking(true);
     try {
-      await toggleMessageLike(message.id, user.id);
-      onLiked();
+      const response = await fetch('/api/messages/like', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messageId: message.id }),
+      });
+
+      if (!response.ok) throw new Error('Erro ao curtir mensagem');
+      
+      onMessageLiked();
     } catch (err) {
       Swal.fire({
         icon: 'error',
@@ -72,17 +80,26 @@ export default function MessageCard({ message, user, onDeleted, onLiked }) {
 
     if (result.isConfirmed) {
       try {
-        const { data, error } = await supabase
-          .from('messages')
-          .delete()
-          .eq('id', message.id);
+        const response = await fetch(`/api/messages?id=${message.id}`, {
+          method: 'DELETE',
+        });
 
-        if (error) throw error;
+        if (!response.ok) throw new Error('Erro ao deletar mensagem');
 
         onDeleted();
-        Swal.fire('Excluído!', 'Mensagem excluída com sucesso.', 'success');
+        Swal.fire({
+          icon: 'success',
+          title: 'Sucesso!',
+          text: 'Mensagem excluída com sucesso',
+          timer: 1500,
+          showConfirmButton: false
+        });
       } catch (err) {
-        Swal.fire('Erro', 'Não foi possível excluir a mensagem', 'error');
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Não foi possível excluir a mensagem'
+        });
       }
     }
   };

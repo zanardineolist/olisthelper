@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { fetchMessages, fetchAllTags } from '../../utils/supabase';
 import MessageList from './MessageList';
 import AddMessageModal from './AddMessageModal';
 import Select from 'react-select';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faFilter } from '@fortawesome/free-solid-svg-icons';
 import styles from '../../styles/MessagesManager.module.css';
+import Swal from 'sweetalert2';
 
 export default function MessagesManager({ user }) {
   const [messages, setMessages] = useState([]);
@@ -20,20 +20,25 @@ export default function MessagesManager({ user }) {
   useEffect(() => {
     loadMessages();
     loadTags();
-  }, [viewMode, user.id]);
+  }, [viewMode, searchTerm, selectedTags]);
 
   const loadMessages = async () => {
     setLoading(true);
     try {
-      const data = await fetchMessages({
+      const queryParams = new URLSearchParams({
         isPrivate: viewMode === 'private',
-        userId: user.id,
-        searchTerm,
-        tags: selectedTags.map(tag => tag.value)
+        searchTerm: searchTerm,
+        ...(selectedTags.length && { tags: selectedTags.map(tag => tag.value) })
       });
+
+      const response = await fetch(`/api/messages?${queryParams}`);
+      if (!response.ok) throw new Error('Erro ao carregar mensagens');
+      
+      const data = await response.json();
       setMessages(data);
     } catch (error) {
       console.error('Error loading messages:', error);
+      Swal.fire('Erro', 'Não foi possível carregar as mensagens', 'error');
     } finally {
       setLoading(false);
     }
@@ -41,28 +46,26 @@ export default function MessagesManager({ user }) {
 
   const loadTags = async () => {
     try {
-      const tags = await fetchAllTags();
+      const response = await fetch('/api/messages/tags');
+      if (!response.ok) throw new Error('Erro ao carregar tags');
+      
+      const tags = await response.json();
       setAvailableTags(tags.map(tag => ({
         value: tag.id,
         label: tag.name
       })));
     } catch (error) {
       console.error('Error loading tags:', error);
+      Swal.fire('Erro', 'Não foi possível carregar as tags', 'error');
     }
   };
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
-    // Debounce implementado para melhor performance
-    const timeoutId = setTimeout(() => {
-      loadMessages();
-    }, 300);
-    return () => clearTimeout(timeoutId);
   };
 
   const handleTagChange = (selectedOptions) => {
     setSelectedTags(selectedOptions || []);
-    loadMessages();
   };
 
   const handleMessageAdded = () => {
