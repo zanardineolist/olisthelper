@@ -1,0 +1,49 @@
+/* Container principal da página */
+.main {
+    padding: 20px;
+    margin-top: 50px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: calc(100vh - 120px);
+  }
+  
+  /* Container para as tabs */
+  .tabsContainer {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  /* Conteúdo das tabs */
+  .tabContent {
+    width: 100%;
+    max-width: 1400px;
+    margin: 20px auto;
+    background-color: var(--box-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Estilo para estados de carregamento */
+  .loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    width: 100%;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .main {
+      padding: 10px;
+    }
+  
+    .tabContent {
+      padding: 15px;
+    }
+  }

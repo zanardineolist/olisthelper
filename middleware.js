@@ -20,7 +20,8 @@ export async function middleware(req) {
     '/registro': allowedRoles,
     '/manager': allowedRoles,
     '/admin-notifications': ['dev'],
-    '/remote': ['support+', 'super']
+    '/remote': ['support+', 'super'],
+    '/tools': ['support', 'support+', 'analyst', 'tax']
   };
 
   const matchedRoute = Object.keys(routesWithAllowedRoles).find(route => req.nextUrl.pathname.startsWith(route));
@@ -49,5 +50,7 @@ export const config = {
     '/api/manage-category',
     '/admin-notifications',
     '/remote',
+    '/tools',
+    '/registrar',
   ],
 };

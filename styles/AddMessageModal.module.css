@@ -1,0 +1,198 @@
+.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--box-color);
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modalContent {
+    width: 100%;
+  }
+  
+  .modalTitle {
+    color: var(--title-color);
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.5em;
+  }
+  
+  .formGroup {
+    margin-bottom: 20px;
+  }
+  
+  .formGroup label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-weight: bold;
+  }
+  
+  .input,
+  .textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    background-color: var(--modals-inputs);
+    color: var(--text-color);
+    font-size: 1em;
+    transition: border-color 0.3s ease;
+  }
+  
+  .input:focus,
+  .textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+  
+  .textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .checkboxGroup {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .checkboxGroup label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--text-color);
+  }
+  
+  .checkboxGroup input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  
+  .buttonGroup {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+  
+  .submitButton,
+  .cancelButton {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+  }
+  
+  .submitButton {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
+  
+  .submitButton:hover {
+    background-color: var(--color-primary-hover);
+  }
+  
+  .submitButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .cancelButton {
+    background-color: var(--color-accent1);
+    color: var(--color-white);
+  }
+  
+  .cancelButton:hover {
+    background-color: #ff6b6b;
+  }
+  
+  /* Estilos para o React-Select */
+  .tagSelect {
+    color: var(--text-color);
+  }
+  
+  .tagSelect :global(.select__control) {
+    background-color: var(--modals-inputs);
+    border-color: var(--color-border);
+  }
+  
+  .tagSelect :global(.select__control--is-focused) {
+    border-color: var(--color-primary);
+    box-shadow: none;
+  }
+  
+  .tagSelect :global(.select__menu) {
+    background-color: var(--modals-inputs);
+  }
+  
+  .tagSelect :global(.select__option) {
+    background-color: var(--box-color);
+    color: var(--text-color);
+  }
+  
+  .tagSelect :global(.select__option--is-focused) {
+    background-color: var(--color-primary-hover);
+  }
+  
+  .tagSelect :global(.select__option--is-selected) {
+    background-color: var(--color-primary);
+  }
+  
+  .tagSelect :global(.select__multi-value) {
+    background-color: var(--color-primary);
+  }
+  
+  .tagSelect :global(.select__multi-value__label) {
+    color: var(--color-white);
+  }
+  
+  .tagSelect :global(.select__multi-value__remove) {
+    color: var(--color-white);
+  }
+  
+  .tagSelect :global(.select__multi-value__remove:hover) {
+    background-color: var(--color-accent1);
+    color: var(--color-white);
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .modal {
+      width: 95%;
+      padding: 20px;
+    }
+  
+    .buttonGroup {
+      flex-direction: column;
+    }
+  
+    .submitButton,
+    .cancelButton {
+      width: 100%;
+    }
+  }
