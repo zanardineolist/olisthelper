@@ -259,3 +259,29 @@ html::-webkit-scrollbar-thumb {
   visibility: visible;
   opacity: 1;
 }
+
+/* SweetAlert2 Customization */
+.message-modal-content {
+  max-height: 70vh !important;
+  overflow-y: auto !important;
+  padding: 15px !important;
+  font-size: 1.1em !important;
+  line-height: 1.6 !important;
+  color: var(--text-color) !important;
+  background-color: var(--box-color) !important;
+  border-radius: 10px !important;
+  margin: 20px 0 !important;
+}
+
+.swal2-popup {
+  background-color: var(--box-color) !important;
+  color: var(--text-color) !important;
+}
+
+.swal2-title {
+  color: var(--title-color) !important;
+}
+
+.swal2-html-container {
+  color: var(--text-color) !important;
+}
