@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-  if (!token) {
+  if (!token?.id) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
@@ -29,12 +29,26 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
+  // Criar a resposta e definir cookies com opções de segurança
   const response = NextResponse.next();
-  response.cookies.set('user-id', token.id);
-  response.cookies.set('user-email', token.email);
-  response.cookies.set('user-name', token.name);
-  response.cookies.set('user-role', token.role);
+  
+  const cookieOptions = {
+    maxAge: 60 * 60 * 24, // 24 horas
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/'
+  };
+
+  // Definir cookies com os dados do usuário
+  response.cookies.set('user-id', token.id, cookieOptions);
+  response.cookies.set('user-email', token.email, cookieOptions);
+  response.cookies.set('user-name', token.name, cookieOptions);
+  response.cookies.set('user-role', token.role, cookieOptions);
+
+  // Adicionar headers para o Supabase
+  response.headers.set('x-user-id', token.id);
+  response.headers.set('x-user-role', token.role);
 
   return response;
 }
@@ -52,6 +66,6 @@ export const config = {
     '/admin-notifications',
     '/remote',
     '/tools',
-    '/registrar',
+    '/api/messages/:path*'
   ],
 };

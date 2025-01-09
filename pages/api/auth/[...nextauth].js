@@ -1,7 +1,43 @@
-// pages/api/auth/[...nextauth].js
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { getUserFromSheet, addUserToSheetIfNotExists } from '../../../utils/googleSheets';
+
+/**
+ * Função auxiliar para validar e processar o usuário
+ * @param {Object} user - Dados do usuário do Google
+ * @returns {Promise<Array|null>} Detalhes do usuário ou null
+ */
+async function processUser(user) {
+  if (!user?.email) return null;
+
+  // Validar domínio do email
+  if (!user.email.endsWith('@tiny.com.br') && !user.email.endsWith('@olist.com')) {
+    console.log('Email não autorizado:', user.email);
+    return null;
+  }
+
+  try {
+    // Verificar se usuário existe na planilha
+    let userDetails = await getUserFromSheet(user.email);
+    
+    // Se não existir, tentar criar
+    if (!userDetails) {
+      console.log('Criando novo usuário na planilha:', user.email);
+      userDetails = await addUserToSheetIfNotExists(user);
+      
+      // Verificar se a criação foi bem sucedida
+      if (!userDetails) {
+        console.error('Falha ao criar usuário na planilha:', user.email);
+        return null;
+      }
+    }
+
+    return userDetails;
+  } catch (error) {
+    console.error('Erro ao processar usuário:', error);
+    return null;
+  }
+}
 
 export default NextAuth({
   providers: [
@@ -11,75 +47,65 @@ export default NextAuth({
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  
   callbacks: {
     async signIn({ user }) {
       try {
-        // Centralizar a verificação e adição do usuário ao Google Sheets
-        const userDetails = await getOrCreateUser(user);
+        const userDetails = await processUser(user);
         if (!userDetails) {
-          console.error("Usuário não autorizado ou erro durante criação:", user.email);
-          return false; // Rejeitar o login se o usuário não puder ser criado
+          return false;
         }
-        console.log("Usuário autorizado:", userDetails);
-        return true; // Permitir o login
+
+        // Adicionar dados da planilha ao objeto do usuário
+        user.sheetId = userDetails[0];    // ID da planilha (ex: 8487)
+        user.role = userDetails[3];       // Papel do usuário
+        return true;
       } catch (error) {
-        console.error("Erro durante a verificação do login:", error);
+        console.error("Erro durante signIn:", error);
         return false;
       }
     },
-    async session({ session, token }) {
-      // Adicionar ID e papel do usuário à sessão
-      if (token) {
-        session.id = token.id;
-        session.role = token.role; // Papel do usuário: 'user', 'analyst', 'tax', 'super', 'support+'
-      }
-      return session;
-    },
-    async jwt({ token, user }) {
-      // Atribuir ID e papel do usuário ao token
-      if (user) {
-        try {
-          const userDetails = await getOrCreateUser(user);
-          if (userDetails) {
-            token.id = userDetails[0]; // ID único do usuário
-            token.role = userDetails[3]; // Papel do usuário: 'user', 'analyst', 'tax', 'super', 'support+'
-          }
-        } catch (error) {
-          console.error("Erro ao obter detalhes do usuário:", error);
-        }
+
+    async jwt({ token, user, account, profile }) {
+      // Adicionar dados do usuário ao token durante o primeiro login
+      if (user && account) {
+        token.id = user.sheetId;
+        token.email = user.email;
+        token.name = user.name;
+        token.role = user.role;
       }
       return token;
     },
+
+    async session({ session, token }) {
+      // Adicionar dados do token à sessão
+      if (token) {
+        session.user.id = token.id;
+        session.user.email = token.email;
+        session.user.name = token.name;
+        session.user.role = token.role;
+      }
+      return session;
+    },
   },
+
+  events: {
+    async signIn({ user }) {
+      console.log('Usuário logado com sucesso:', user.email);
+    },
+    async signOut({ token }) {
+      console.log('Usuário deslogado:', token?.email);
+    },
+    async error(error) {
+      console.error('Erro de autenticação:', error);
+    }
+  },
+
   pages: {
     signIn: '/',
     signOut: '/',
-    error: '/auth/error', // Página de erro personalizada para melhor feedback ao usuário
+    error: '/auth/error',
   },
-  jwt: {
-    secret: process.env.NEXTAUTH_SECRET,
-  },
-});
 
-/**
- * Função auxiliar para obter ou criar usuário no Google Sheets.
- * Centraliza a lógica de verificação e criação de um novo usuário, evitando duplicação.
- * @param {Object} user - Objeto do usuário fornecido pelo Google.
- * @returns {Promise<Array|null>} - Detalhes do usuário ou null em caso de falha.
- */
-async function getOrCreateUser(user) {
-  try {
-    // Verificar se o usuário já existe no Google Sheets
-    let userDetails = await getUserFromSheet(user.email);
-    if (userDetails) {
-      return userDetails; // Retornar detalhes se o usuário já existir
-    }
-    
-    // Adicionar um novo usuário se não encontrado
-    userDetails = await addUserToSheetIfNotExists(user);
-    return userDetails;
-  } catch (error) {
-    console.error("Erro ao obter ou criar usuário:", error);
-    return null;
-  }
-}
+  debug: process.env.NODE_ENV === 'development',
+});
