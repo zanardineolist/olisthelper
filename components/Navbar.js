@@ -263,14 +263,9 @@ export default function Navbar({ user }) {
         {menuOpen && (
           <div className={styles.menu}>
             {(user.role === 'support' || user.role === 'support+') && (
-              <>
               <button onClick={() => handleNavigation('/profile')} className={styles.menuButton}>
                 Meu Perfil
               </button>
-              <button onClick={() => handleNavigation('/tools')} className={styles.menuButton}>
-                Ferramentas
-              </button>
-            </>
             )}
             {(user.role === 'analyst' || user.role === 'tax') && (
               <>
@@ -282,9 +277,6 @@ export default function Navbar({ user }) {
               </button>
               <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
                 Dashboard
-              </button>
-              <button onClick={() => handleNavigation('/tools')} className={styles.menuButton}>
-                Ferramentas
               </button>
             </>
             )}
