@@ -14,7 +14,7 @@ export default async function handler(req, res) {
         const { data, error } = await supabase
           .from('tags')
           .select('*')
-          .order('name');
+          .order('name', { ascending: true });
 
         if (error) throw error;
 
@@ -32,11 +32,11 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Nome da tag é obrigatório' });
         }
 
-        // Verificar se a tag já existe
+        // Verificar se a tag já existe (ignorando case)
         const { data: existingTag } = await supabase
           .from('tags')
           .select()
-          .ilike('name', name)
+          .ilike('name', name.trim())
           .single();
 
         if (existingTag) {
@@ -46,7 +46,11 @@ export default async function handler(req, res) {
         // Criar nova tag
         const { data: newTag, error } = await supabase
           .from('tags')
-          .insert([{ name: name.trim() }])
+          .insert([{ 
+            name: name.trim(),
+            created_by: userId,
+            created_at: new Date().toISOString()
+          }])
           .select()
           .single();
 

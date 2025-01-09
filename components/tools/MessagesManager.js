@@ -16,6 +16,7 @@ export default function MessagesManager({ user }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+  const [editingMessage, setEditingMessage] = useState(null);
 
   useEffect(() => {
     loadMessages();
@@ -28,7 +29,7 @@ export default function MessagesManager({ user }) {
       const queryParams = new URLSearchParams({
         isPrivate: viewMode === 'private',
         searchTerm: searchTerm,
-        ...(selectedTags.length && { tags: selectedTags.map(tag => tag.value) })
+        ...(selectedTags.length && { tags: selectedTags.map(tag => tag.value).join(',') })
       });
 
       const response = await fetch(`/api/messages?${queryParams}`);
@@ -56,7 +57,6 @@ export default function MessagesManager({ user }) {
       })));
     } catch (error) {
       console.error('Error loading tags:', error);
-      Swal.fire('Erro', 'Não foi possível carregar as tags', 'error');
     }
   };
 
@@ -71,6 +71,37 @@ export default function MessagesManager({ user }) {
   const handleMessageAdded = () => {
     loadMessages();
     setIsModalOpen(false);
+    setEditingMessage(null);
+  };
+
+  const handleMessageDeleted = (messageId) => {
+    setMessages(prevMessages => prevMessages.filter(msg => msg.id !== messageId));
+  };
+
+  const handleMessageLiked = async (messageId) => {
+    const updatedMessages = messages.map(msg => {
+      if (msg.id === messageId) {
+        const newLikeCount = msg.liked_by_user ? msg.likes_count - 1 : msg.likes_count + 1;
+        return {
+          ...msg,
+          liked_by_user: !msg.liked_by_user,
+          likes_count: newLikeCount
+        };
+      }
+      return msg;
+    });
+    setMessages(updatedMessages);
+  };
+
+  const handleMessageEdit = (message) => {
+    setEditingMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedTags([]);
+    setShowFilters(false);
   };
 
   return (
@@ -93,7 +124,10 @@ export default function MessagesManager({ user }) {
 
         <button 
           className={styles.addButton}
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setEditingMessage(null);
+            setIsModalOpen(true);
+          }}
         >
           <FontAwesomeIcon icon={faPlus} /> Nova Mensagem
         </button>
@@ -109,7 +143,7 @@ export default function MessagesManager({ user }) {
             className={styles.searchInput}
           />
           <button 
-            className={styles.filterButton}
+            className={`${styles.filterButton} ${showFilters ? styles.active : ''}`}
             onClick={() => setShowFilters(!showFilters)}
           >
             <FontAwesomeIcon icon={faFilter} />
@@ -127,6 +161,12 @@ export default function MessagesManager({ user }) {
               className={styles.tagSelect}
               classNamePrefix="select"
             />
+            <button 
+              onClick={clearFilters}
+              className={styles.clearFiltersButton}
+            >
+              Limpar Filtros
+            </button>
           </div>
         )}
       </div>
@@ -139,17 +179,22 @@ export default function MessagesManager({ user }) {
         <MessageList 
           messages={messages}
           user={user}
-          onMessageDeleted={loadMessages}
-          onMessageLiked={loadMessages}
+          onMessageDeleted={handleMessageDeleted}
+          onMessageLiked={handleMessageLiked}
+          onMessageEdit={handleMessageEdit}
         />
       )}
 
       <AddMessageModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingMessage(null);
+        }}
         onMessageAdded={handleMessageAdded}
         user={user}
         availableTags={availableTags}
+        editingMessage={editingMessage}
       />
     </div>
   );

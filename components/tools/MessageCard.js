@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faCopy, faTrash, faLock, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faCopy, faTrash, faLock, faGlobe, faEdit } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
 import styles from '../../styles/MessageCard.module.css';
 
-export default function MessageCard({ message, user, onDeleted, onMessageLiked }) {
+export default function MessageCard({ message, user, onDeleted, onMessageLiked, onEdit }) {
   const [copying, setCopying] = useState(false);
   const [liking, setLiking] = useState(false);
 
@@ -66,6 +66,12 @@ export default function MessageCard({ message, user, onDeleted, onMessageLiked }
         htmlContainer: 'message-modal-content'
       }
     });
+  };
+
+  const handleEdit = () => {
+    if (onEdit) {
+      onEdit(message);
+    }
   };
 
   const handleDelete = async () => {
@@ -131,11 +137,19 @@ export default function MessageCard({ message, user, onDeleted, onMessageLiked }
         ))}
       </div>
 
+      <div className={styles.metadata}>
+        <span className={styles.author}>Por: {message.author_name || 'Anônimo'}</span>
+        <span className={styles.date}>
+          {new Date(message.created_at).toLocaleDateString('pt-BR')}
+        </span>
+      </div>
+
       <div className={styles.actions}>
         <button 
           className={`${styles.actionButton} ${message.liked_by_user ? styles.liked : ''}`}
           onClick={handleLike}
           disabled={liking}
+          title="Curtir"
         >
           <FontAwesomeIcon icon={faHeart} />
           <span>{message.likes_count || 0}</span>
@@ -145,17 +159,28 @@ export default function MessageCard({ message, user, onDeleted, onMessageLiked }
           className={styles.actionButton}
           onClick={handleCopy}
           disabled={copying}
+          title="Copiar conteúdo"
         >
           <FontAwesomeIcon icon={faCopy} />
         </button>
 
         {message.user_id === user.id && (
-          <button
-            className={styles.actionButton}
-            onClick={handleDelete}
-          >
-            <FontAwesomeIcon icon={faTrash} />
-          </button>
+          <>
+            <button
+              className={styles.actionButton}
+              onClick={handleEdit}
+              title="Editar"
+            >
+              <FontAwesomeIcon icon={faEdit} />
+            </button>
+            <button
+              className={styles.actionButton}
+              onClick={handleDelete}
+              title="Excluir"
+            >
+              <FontAwesomeIcon icon={faTrash} />
+            </button>
+          </>
         )}
       </div>
     </div>

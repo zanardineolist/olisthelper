@@ -1,10 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 import Swal from 'sweetalert2';
 import styles from '../../styles/AddMessageModal.module.css';
 
-export default function AddMessageModal({ isOpen, onClose, onMessageAdded, user, availableTags }) {
+export default function AddMessageModal({ 
+  isOpen, 
+  onClose, 
+  onMessageAdded, 
+  user, 
+  availableTags,
+  editingMessage = null 
+}) {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -13,6 +21,18 @@ export default function AddMessageModal({ isOpen, onClose, onMessageAdded, user,
     is_shared: true
   });
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (editingMessage) {
+      setFormData({
+        title: editingMessage.title,
+        content: editingMessage.content,
+        tags: editingMessage.tags.map(tag => ({ value: tag, label: tag })),
+        is_private: editingMessage.is_private,
+        is_shared: editingMessage.is_shared
+      });
+    }
+  }, [editingMessage]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -58,19 +78,32 @@ export default function AddMessageModal({ isOpen, onClose, onMessageAdded, user,
     }));
   };
 
+  const validateForm = () => {
+    if (!formData.title.trim()) {
+      Swal.fire('Erro', 'O título é obrigatório', 'error');
+      return false;
+    }
+    if (!formData.content.trim()) {
+      Swal.fire('Erro', 'O conteúdo é obrigatório', 'error');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (submitting) return;
-
-    if (!formData.title.trim() || !formData.content.trim()) {
-      Swal.fire('Erro', 'Por favor, preencha todos os campos obrigatórios', 'error');
-      return;
-    }
+    if (submitting || !validateForm()) return;
 
     setSubmitting(true);
     try {
-      const response = await fetch('/api/messages', {
-        method: 'POST',
+      const endpoint = editingMessage 
+        ? `/api/messages/${editingMessage.id}`
+        : '/api/messages';
+      
+      const method = editingMessage ? 'PUT' : 'POST';
+
+      const response = await fetch(endpoint, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -88,7 +121,7 @@ export default function AddMessageModal({ isOpen, onClose, onMessageAdded, user,
       Swal.fire({
         icon: 'success',
         title: 'Sucesso!',
-        text: 'Mensagem salva com sucesso',
+        text: `Mensagem ${editingMessage ? 'atualizada' : 'salva'} com sucesso`,
         timer: 1500,
         showConfirmButton: false
       });
@@ -118,12 +151,15 @@ export default function AddMessageModal({ isOpen, onClose, onMessageAdded, user,
     <Modal
       isOpen={isOpen}
       onRequestClose={handleClose}
-      contentLabel="Adicionar Mensagem"
+      contentLabel={editingMessage ? "Editar Mensagem" : "Adicionar Mensagem"}
       className={styles.modal}
       overlayClassName={styles.overlay}
     >
       <div className={styles.modalContent}>
-        <h2 className={styles.modalTitle}>Nova Mensagem</h2>
+        <h2 className={styles.modalTitle}>
+          {editingMessage ? 'Editar Mensagem' : 'Nova Mensagem'}
+        </h2>
+        
         <form onSubmit={handleSubmit}>
           <div className={styles.formGroup}>
             <label htmlFor="title">Título</label>
@@ -135,6 +171,7 @@ export default function AddMessageModal({ isOpen, onClose, onMessageAdded, user,
               onChange={handleInputChange}
               className={styles.input}
               required
+              maxLength={100}
             />
           </div>
 
@@ -148,23 +185,23 @@ export default function AddMessageModal({ isOpen, onClose, onMessageAdded, user,
               className={styles.textarea}
               rows="6"
               required
+              maxLength={2000}
             />
+            <span className={styles.charCount}>
+              {formData.content.length}/2000
+            </span>
           </div>
 
           <div className={styles.formGroup}>
             <label>Tags</label>
-            <Select
+            <CreatableSelect
               isMulti
               options={availableTags}
               value={formData.tags}
               onChange={handleTagChange}
-              onCreateOption={(inputValue) => {
-                handleTagChange([...formData.tags, { __isNew__: true, value: inputValue, label: inputValue }]);
-              }}
               placeholder="Selecione ou crie tags..."
               className={styles.tagSelect}
               classNamePrefix="select"
-              isCreatable
             />
           </div>
 
@@ -195,7 +232,7 @@ export default function AddMessageModal({ isOpen, onClose, onMessageAdded, user,
               className={styles.submitButton}
               disabled={submitting}
             >
-              {submitting ? 'Salvando...' : 'Salvar'}
+              {submitting ? 'Salvando...' : (editingMessage ? 'Atualizar' : 'Salvar')}
             </button>
             <button
               type="button"

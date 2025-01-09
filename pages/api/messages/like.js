@@ -48,7 +48,8 @@ export default async function handler(req, res) {
         .from('message_likes')
         .insert([{
           message_id: messageId,
-          user_id: userId
+          user_id: userId,
+          created_at: new Date().toISOString()
         }]);
 
       if (insertError) throw insertError;
