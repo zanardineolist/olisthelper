@@ -1,34 +1,49 @@
+// utils/supabase.js
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
   throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: false
+    },
+    global: {
+      headers: {
+        'x-user-id': typeof window !== 'undefined' ? 
+          document.cookie.split('; ').find(row => row.startsWith('user-id='))?.split('=')[1] : undefined
+      }
+    }
+  }
+);
 
 // Função para inicializar usuário no Supabase
 export async function initializeUser(user) {
-  if (!user?.email) return null;
+  if (!user?.id || !user?.email) return null;
 
-  const { data, error } = await supabase
-    .from('users')
-    .upsert({
-      user_email: user.email,
-      user_name: user.name
-    }, {
-      onConflict: 'user_email',
-      returning: true
-    });
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .upsert({
+        id: user.id,
+        email: user.email,
+        name: user.name
+      }, {
+        onConflict: 'id',
+        returning: true
+      });
 
-  if (error) {
+    if (error) throw error;
+    return data?.[0];
+  } catch (error) {
     console.error('Error initializing user:', error);
-    return null;
+    throw error;
   }
-
-  return data?.[0];
 }
 
 // Função para buscar mensagens
