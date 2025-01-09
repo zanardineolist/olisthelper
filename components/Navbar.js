@@ -263,22 +263,30 @@ export default function Navbar({ user }) {
         {menuOpen && (
           <div className={styles.menu}>
             {(user.role === 'support' || user.role === 'support+') && (
+              <>
               <button onClick={() => handleNavigation('/profile')} className={styles.menuButton}>
                 Meu Perfil
               </button>
+              <button onClick={() => handleNavigation('/tools')} className={styles.menuButton}>
+                Ferramentas
+              </button>
+            </>
             )}
             {(user.role === 'analyst' || user.role === 'tax') && (
               <>
-                <button onClick={() => handleNavigation('/profile-analyst')} className={styles.menuButton}>
-                  Meu Perfil
-                </button>
-                <button onClick={() => handleNavigation('/registro')} className={styles.menuButton}>
-                  Registrar Ajuda
-                </button>
-                <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
-                  Dashboard
-                </button>
-              </>
+              <button onClick={() => handleNavigation('/profile-analyst')} className={styles.menuButton}>
+                Meu Perfil
+              </button>
+              <button onClick={() => handleNavigation('/registro')} className={styles.menuButton}>
+                Registrar Ajuda
+              </button>
+              <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
+                Dashboard
+              </button>
+              <button onClick={() => handleNavigation('/tools')} className={styles.menuButton}>
+                Ferramentas
+              </button>
+            </>
             )}
             {user.role === 'super' && (
               <button onClick={() => handleNavigation('/dashboard-super')} className={styles.menuButton}>
