@@ -1,6 +1,12 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { supabase } from '../../../utils/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Inicialização do cliente Supabase
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export default NextAuth({
   providers: [
@@ -18,6 +24,7 @@ export default NextAuth({
         const userDomain = user.email.split('@')[1];
         
         if (!allowedDomains.includes(userDomain)) {
+          console.log('Domínio não permitido:', userDomain);
           return false;
         }
 
@@ -35,7 +42,7 @@ export default NextAuth({
 
         if (!existingUser) {
           // Criar novo usuário com perfil padrão 'support'
-          const { error: insertError } = await supabase
+          const { data: newUser, error: insertError } = await supabase
             .from('users')
             .insert([{
               email: user.email,
@@ -43,12 +50,16 @@ export default NextAuth({
               role: 'support',
               image: user.image,
               active: true
-            }]);
+            }])
+            .select()
+            .single();
 
           if (insertError) {
             console.error("Erro ao criar usuário:", insertError);
             return false;
           }
+
+          console.log('Novo usuário criado:', newUser);
         }
 
         return true;
@@ -60,14 +71,16 @@ export default NextAuth({
     async session({ session }) {
       if (session?.user?.email) {
         try {
-          // Buscar dados do usuário no Supabase
           const { data: userData, error } = await supabase
             .from('users')
             .select('*')
             .eq('email', session.user.email)
             .single();
 
-          if (error) throw error;
+          if (error) {
+            console.error("Erro ao buscar dados do usuário:", error);
+            throw error;
+          }
 
           if (userData) {
             session.user = {
@@ -79,6 +92,7 @@ export default NextAuth({
           }
         } catch (error) {
           console.error("Erro ao buscar dados da sessão:", error);
+          return session;
         }
       }
       return session;
@@ -86,14 +100,16 @@ export default NextAuth({
     async jwt({ token, user }) {
       if (user) {
         try {
-          // Buscar dados do usuário no Supabase quando o token é criado
           const { data: userData, error } = await supabase
             .from('users')
             .select('*')
             .eq('email', user.email)
             .single();
 
-          if (error) throw error;
+          if (error) {
+            console.error("Erro ao buscar dados para o token:", error);
+            throw error;
+          }
 
           if (userData) {
             token.id = userData.id;
@@ -111,5 +127,6 @@ export default NextAuth({
     signIn: '/',
     signOut: '/',
     error: '/auth/error',
-  }
+  },
+  debug: process.env.NODE_ENV === 'development',
 });
