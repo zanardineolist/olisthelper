@@ -8,28 +8,33 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Ajustar os papéis permitidos
-  const analystRoles = ['analyst', 'tax'];
-  const allowedRoles = [...analystRoles, 'super', 'dev', 'support+'];
+  // Verificar se o usuário está ativo
+  if (!token.active) {
+    return NextResponse.redirect(new URL('/auth/inactive', req.url));
+  }
 
-  // Verificar acesso permitido e evitar redirecionamento indesejado
-  const routesWithAllowedRoles = {
-    '/profile-analyst': analystRoles,
-    '/dashboard-analyst': allowedRoles,
+  // Definir papéis permitidos por rota
+  const routePermissions = {
+    '/profile-analyst': ['analyst', 'tax'],
+    '/dashboard-analyst': ['analyst', 'tax', 'super'],
     '/dashboard-super': ['super'],
-    '/registro': allowedRoles,
-    '/manager': allowedRoles,
+    '/registro': ['analyst', 'tax', 'super'],
+    '/manager': ['analyst', 'tax', 'super'],
     '/admin-notifications': ['dev'],
     '/remote': ['support+', 'super'],
-    '/tools': ['support', 'support+', 'analyst', 'tax']
+    '/tools': ['support', 'analyst', 'tax']
   };
 
-  const matchedRoute = Object.keys(routesWithAllowedRoles).find(route => req.nextUrl.pathname.startsWith(route));
-  if (matchedRoute && !routesWithAllowedRoles[matchedRoute].includes(token.role)) {
+  // Verificar permissões da rota atual
+  const route = Object.keys(routePermissions).find(path => 
+    req.nextUrl.pathname.startsWith(path)
+  );
+
+  if (route && !routePermissions[route].includes(token.role)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
+  // Adicionar informações do usuário como cookies temporários
   const response = NextResponse.next();
   response.cookies.set('user-id', token.id);
   response.cookies.set('user-email', token.email);
@@ -48,10 +53,9 @@ export const config = {
     '/dashboard-super',
     '/profile-analyst',
     '/manager',
-    '/api/manage-category',
+    '/api/manage-user',
     '/admin-notifications',
     '/remote',
-    '/tools',
-    '/registrar',
+    '/tools'
   ],
 };

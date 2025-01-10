@@ -1,7 +1,6 @@
-// pages/api/auth/[...nextauth].js
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { getUserFromSheet, addUserToSheetIfNotExists } from '../../../utils/googleSheets';
+import { supabase } from '../../../utils/supabase';
 
 export default NextAuth({
   providers: [
@@ -14,72 +13,103 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       try {
-        // Centralizar a verificação e adição do usuário ao Google Sheets
-        const userDetails = await getOrCreateUser(user);
-        if (!userDetails) {
-          console.error("Usuário não autorizado ou erro durante criação:", user.email);
-          return false; // Rejeitar o login se o usuário não puder ser criado
+        // Verificar domínios permitidos
+        const allowedDomains = ['tiny.com.br', 'olist.com'];
+        const userDomain = user.email.split('@')[1];
+        
+        if (!allowedDomains.includes(userDomain)) {
+          return false;
         }
-        console.log("Usuário autorizado:", userDetails);
-        return true; // Permitir o login
+
+        // Verificar/criar usuário no Supabase
+        const { data: existingUser, error: selectError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', user.email)
+          .single();
+
+        if (selectError && selectError.code !== 'PGRST116') {
+          console.error("Erro ao verificar usuário:", selectError);
+          return false;
+        }
+
+        if (!existingUser) {
+          // Criar novo usuário com perfil padrão 'support'
+          const { error: insertError } = await supabase
+            .from('users')
+            .insert([{
+              email: user.email,
+              name: user.name,
+              role: 'support',
+              image: user.image,
+              active: true
+            }]);
+
+          if (insertError) {
+            console.error("Erro ao criar usuário:", insertError);
+            return false;
+          }
+        }
+
+        return true;
       } catch (error) {
-        console.error("Erro durante a verificação do login:", error);
+        console.error("Erro durante o processo de sign in:", error);
         return false;
       }
     },
-    async session({ session, token }) {
-      // Adicionar ID e papel do usuário à sessão
-      if (token) {
-        session.id = token.id;
-        session.role = token.role; // Papel do usuário: 'user', 'analyst', 'tax', 'super', 'support+'
+    async session({ session }) {
+      if (session?.user?.email) {
+        try {
+          // Buscar dados do usuário no Supabase
+          const { data: userData, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', session.user.email)
+            .single();
+
+          if (error) throw error;
+
+          if (userData) {
+            session.user = {
+              ...session.user,
+              id: userData.id,
+              role: userData.role,
+              active: userData.active
+            };
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados da sessão:", error);
+        }
       }
       return session;
     },
     async jwt({ token, user }) {
-      // Atribuir ID e papel do usuário ao token
       if (user) {
         try {
-          const userDetails = await getOrCreateUser(user);
-          if (userDetails) {
-            token.id = userDetails[0]; // ID único do usuário
-            token.role = userDetails[3]; // Papel do usuário: 'user', 'analyst', 'tax', 'super', 'support+'
+          // Buscar dados do usuário no Supabase quando o token é criado
+          const { data: userData, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', user.email)
+            .single();
+
+          if (error) throw error;
+
+          if (userData) {
+            token.id = userData.id;
+            token.role = userData.role;
+            token.active = userData.active;
           }
         } catch (error) {
-          console.error("Erro ao obter detalhes do usuário:", error);
+          console.error("Erro ao buscar dados para o token:", error);
         }
       }
       return token;
-    },
+    }
   },
   pages: {
     signIn: '/',
     signOut: '/',
-    error: '/auth/error', // Página de erro personalizada para melhor feedback ao usuário
-  },
-  jwt: {
-    secret: process.env.NEXTAUTH_SECRET,
-  },
-});
-
-/**
- * Função auxiliar para obter ou criar usuário no Google Sheets.
- * Centraliza a lógica de verificação e criação de um novo usuário, evitando duplicação.
- * @param {Object} user - Objeto do usuário fornecido pelo Google.
- * @returns {Promise<Array|null>} - Detalhes do usuário ou null em caso de falha.
- */
-async function getOrCreateUser(user) {
-  try {
-    // Verificar se o usuário já existe no Google Sheets
-    let userDetails = await getUserFromSheet(user.email);
-    if (userDetails) {
-      return userDetails; // Retornar detalhes se o usuário já existir
-    }
-    
-    // Adicionar um novo usuário se não encontrado
-    userDetails = await addUserToSheetIfNotExists(user);
-    return userDetails;
-  } catch (error) {
-    console.error("Erro ao obter ou criar usuário:", error);
-    return null;
+    error: '/auth/error',
   }
-}
+});
