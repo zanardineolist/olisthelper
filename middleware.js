@@ -1,4 +1,3 @@
-// middleware.js
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
@@ -9,35 +8,31 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
+  // Ajustar os papéis permitidos
   const analystRoles = ['analyst', 'tax'];
-  const allowedRoles = [...analystRoles, 'super', 'dev', 'support+', 'support', 'partner', 'other'];
+  const allowedRoles = [...analystRoles, 'super', 'dev', 'support+'];
 
-  // Verificar acesso permitido
+  // Verificar acesso permitido e evitar redirecionamento indesejado
   const routesWithAllowedRoles = {
     '/profile-analyst': analystRoles,
-    '/dashboard-analyst': [...analystRoles, 'super'],
+    '/dashboard-analyst': allowedRoles,
     '/dashboard-super': ['super'],
-    '/registro': [...analystRoles],
-    '/manager': [...analystRoles, 'super'],
+    '/registro': allowedRoles,
+    '/manager': allowedRoles,
     '/admin-notifications': ['dev'],
-    '/remote': ['support+', 'super'],
-    '/profile': ['support', 'support+']
+    '/remote': ['support+', 'super']
   };
 
-  const matchedRoute = Object.keys(routesWithAllowedRoles).find(route => 
-    req.nextUrl.pathname.startsWith(route)
-  );
-
+  const matchedRoute = Object.keys(routesWithAllowedRoles).find(route => req.nextUrl.pathname.startsWith(route));
   if (matchedRoute && !routesWithAllowedRoles[matchedRoute].includes(token.role)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Adicionar informações do usuário aos cookies
+  // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
   const response = NextResponse.next();
   response.cookies.set('user-id', token.id);
   response.cookies.set('user-name', token.name);
   response.cookies.set('user-role', token.role);
-  response.cookies.set('user-email', token.email);
 
   return response;
 }
