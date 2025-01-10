@@ -45,11 +45,13 @@ export default NextAuth({
           const { data: newUser, error: insertError } = await supabase
             .from('users')
             .insert([{
+              user_id: Math.floor(1000 + Math.random() * 9000).toString(), // Gera ID numérico
               email: user.email,
               name: user.name,
               role: 'support',
-              image: user.image,
-              active: true
+              chamado: false,
+              telefone: false,
+              chat: false
             }])
             .select()
             .single();
@@ -85,9 +87,8 @@ export default NextAuth({
           if (userData) {
             session.user = {
               ...session.user,
-              id: userData.id,
-              role: userData.role,
-              active: userData.active
+              id: userData.user_id,  // Usando user_id em vez de id
+              role: userData.role
             };
           }
         } catch (error) {
@@ -112,9 +113,8 @@ export default NextAuth({
           }
 
           if (userData) {
-            token.id = userData.id;
+            token.id = userData.user_id;  // Usando user_id em vez de id
             token.role = userData.role;
-            token.active = userData.active;
           }
         } catch (error) {
           console.error("Erro ao buscar dados para o token:", error);

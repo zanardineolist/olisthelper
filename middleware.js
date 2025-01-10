@@ -8,11 +8,6 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Verificar se o usuário está ativo
-  if (!token.active) {
-    return NextResponse.redirect(new URL('/auth/inactive', req.url));
-  }
-
   // Definir papéis permitidos por rota
   const routePermissions = {
     '/profile-analyst': ['analyst', 'tax'],
