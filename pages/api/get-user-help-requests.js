@@ -1,4 +1,5 @@
-import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
+import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
+import { supabase } from '../../utils/supabase';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -12,60 +13,101 @@ export default async function handler(req, res) {
   }
 
   try {
+    // 1. Buscar dados do usuário no Supabase
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', userEmail)
+      .single();
+
+    if (userError || !userData) {
+      console.error('Erro ao buscar usuário:', userError);
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    // 2. Inicializar Google Sheets
     const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
 
-    // Obter metadados da planilha
-    const sheetMeta = await getSheetMetaData();
-    const sheetNames = sheetMeta.data.sheets.map(sheet => sheet.properties.title);
+    // 3. Obter metadados das abas
+    const sheetMeta = await sheets.spreadsheets.get({
+      spreadsheetId: process.env.SHEET_ID
+    });
 
-    // Filtrar apenas as abas que representam analistas
-    const analystSheetNames = sheetNames.filter(name => name.startsWith('#'));
+    // 4. Filtrar abas de analistas (formato #ID - Nome)
+    const analystSheets = sheetMeta.data.sheets
+      .filter(sheet => /^#\d+/.test(sheet.properties.title))
+      .map(sheet => sheet.properties.title);
 
+    // 5. Inicializar contadores
     let currentMonthCount = 0;
     let lastMonthCount = 0;
 
-    // Data atual
-    const today = new Date();
-    const brtDate = new Date(today.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    // 6. Configurar datas para filtro
+    const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+    const brtDate = new Date(today);
     const currentMonth = brtDate.getMonth();
     const currentYear = brtDate.getFullYear();
+    const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
-    // Iterar sobre todas as abas de analistas para obter os registros de ajuda
-    for (const sheetName of analystSheetNames) {
-      const rows = await getSheetValues(sheetName, 'A:F');
+    // 7. Processar cada aba
+    for (const sheetName of analystSheets) {
+      try {
+        const rows = await getSheetValues(sheetName, 'A:F');
+        if (!rows || rows.length <= 1) continue; // Pular se vazio ou só tem cabeçalho
 
-      if (rows.length > 0) {
-        // Ignorar o cabeçalho
-        rows.shift();
-
-        for (const row of rows) {
-          const [dateString, , , email] = row;
-
+        // Processar registros da aba atual
+        for (const row of rows.slice(1)) { // Ignorar cabeçalho
+          const [dateStr, , , email] = row;
+          
           if (email === userEmail) {
-            const [day, month, year] = dateString.split('/').map(Number);
+            const [day, month, year] = dateStr.split('/').map(Number);
             const recordDate = new Date(year, month - 1, day);
 
-            // Verificar se o registro pertence ao mês atual ou ao anterior
-            if (recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear) {
+            // Classificar por mês
+            if (recordDate.getMonth() === currentMonth && 
+                recordDate.getFullYear() === currentYear) {
               currentMonthCount++;
-            } else if (
-              (recordDate.getMonth() === currentMonth - 1 && recordDate.getFullYear() === currentYear) ||
-              (currentMonth === 0 && recordDate.getMonth() === 11 && recordDate.getFullYear() === currentYear - 1)
-            ) {
+            } else if (recordDate.getMonth() === lastMonth && 
+                      recordDate.getFullYear() === lastMonthYear) {
               lastMonthCount++;
             }
           }
         }
+      } catch (sheetError) {
+        console.error(`Erro ao processar aba ${sheetName}:`, sheetError);
+        // Continuar processando outras abas mesmo se uma falhar
       }
     }
 
-    res.status(200).json({
+    // 8. Calcular porcentagem de variação
+    let percentageChange = 0;
+    if (lastMonthCount > 0) {
+      percentageChange = ((currentMonthCount - lastMonthCount) / lastMonthCount) * 100;
+    }
+
+    // 9. Retornar resposta formatada
+    return res.status(200).json({
       currentMonth: currentMonthCount,
       lastMonth: lastMonthCount,
+      percentageChange: Math.round(percentageChange * 10) / 10, // Arredondar para 1 decimal
+      userData: {
+        name: userData.name,
+        role: userData.role,
+        squad: userData.squad || null
+      },
+      metadata: {
+        periodStart: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`,
+        periodEnd: brtDate.toISOString().split('T')[0],
+        timezone: 'America/Sao_Paulo'
+      }
     });
+
   } catch (error) {
-    console.error('Erro ao obter ajudas solicitadas:', error);
-    res.status(500).json({ error: 'Erro ao obter as ajudas solicitadas. Verifique suas credenciais e a configuração do Google Sheets.' });
+    console.error('Erro ao processar solicitação:', error);
+    return res.status(500).json({ 
+      error: 'Erro ao processar solicitação',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 }

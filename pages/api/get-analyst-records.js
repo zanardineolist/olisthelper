@@ -1,5 +1,5 @@
-// pages/api/get-analyst-records.js
-import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
+import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
+import { supabase } from '../../utils/supabase';
 
 export default async function handler(req, res) {
   const { analystId, mode, filter } = req.query;
@@ -10,42 +10,51 @@ export default async function handler(req, res) {
   }
 
   try {
+    // 1. Buscar dados do analista no Supabase
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', analystId)
+      .single();
+
+    if (userError || !userData) {
+      console.error('Erro ao buscar dados do usuário:', userError);
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    // 2. Inicializar Google Sheets
     const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
 
-    console.log(`Buscando metadados da planilha com ID: ${sheetId} para o analista: ${analystId}`);
+    // 3. Buscar a aba correspondente
+    const sheetMeta = await sheets.spreadsheets.get({
+      spreadsheetId: process.env.SHEET_ID
+    });
 
-    // Obter as informações da planilha (metadados)
-    const sheetMeta = await getSheetMetaData();
-
-    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
-    const sheetName = sheetMeta.data.sheets.find((sheet) => {
-      return sheet.properties.title.startsWith(`#${analystId}`);
-    })?.properties.title;
+    const sheetName = sheetMeta.data.sheets
+      .find(sheet => sheet.properties.title.startsWith(`#${userData.user_id}`))
+      ?.properties.title;
 
     if (!sheetName) {
-      console.log(`Erro: A aba correspondente ao ID '${analystId}' não existe na planilha.`);
-      return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
+      console.log(`Erro: Aba não encontrada para o ID '${userData.user_id}'`);
+      return res.status(404).json({ error: 'Aba não encontrada para este usuário' });
     }
 
     console.log(`Aba localizada: ${sheetName}`);
 
-    // Caso a aba seja encontrada, prosseguir para obter os valores
+    // 4. Buscar dados da planilha
     const rows = await getSheetValues(sheetName, 'A:F');
 
     if (!rows || rows.length === 0) {
-      console.log('Nenhum registro encontrado na aba especificada.');
+      console.log('Nenhum registro encontrado.');
       return res.status(200).json({ count: 0, rows: [] });
     }
 
-    console.log(`Total de registros encontrados: ${rows.length}`);
-
-    // Filtrar registros para o perfil do analista (current month e last month)
+    // 5. Processar dados baseado no modo
     if (mode === 'profile') {
       const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1; // Mês atual (1-12)
+      const currentMonth = currentDate.getMonth() + 1;
       const currentYear = currentDate.getFullYear();
-      const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1; // Mês anterior
+      const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
       const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
       let currentMonthCount = 0;
@@ -71,7 +80,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Lógica padrão (com filtro para registros gerais)
+    // 6. Processamento padrão com filtro
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentDate = new Date(brtDate);
 
@@ -89,12 +98,16 @@ export default async function handler(req, res) {
     });
 
     if (!filteredRows || filteredRows.length === 0) {
-      console.log('Nenhum registro encontrado após o filtro aplicado.');
-      return res.status(200).json({ count: 0, dates: [], counts: [], rows: [] });
+      console.log('Nenhum registro encontrado após o filtro.');
+      return res.status(200).json({ 
+        count: 0, 
+        dates: [], 
+        counts: [], 
+        rows: [] 
+      });
     }
 
-    console.log(`Total de registros após o filtro: ${filteredRows.length}`);
-
+    // 7. Preparar resposta
     const count = filteredRows.length;
     const dates = filteredRows.map((row) => row[0]);
     const countsObj = dates.reduce((acc, date) => {
@@ -102,14 +115,20 @@ export default async function handler(req, res) {
       return acc;
     }, {});
 
-    res.status(200).json({
+    console.log(`Total de registros após o filtro: ${count}`);
+
+    return res.status(200).json({
       count,
       dates: Object.keys(countsObj),
       counts: Object.values(countsObj),
       rows: filteredRows,
     });
+
   } catch (error) {
-    console.error('Erro ao obter registros do analista:', error);
-    res.status(500).json({ error: 'Erro ao obter registros.' });
+    console.error('Erro ao obter registros:', error);
+    return res.status(500).json({ 
+      error: 'Erro ao obter registros.',
+      details: error.message 
+    });
   }
 }
