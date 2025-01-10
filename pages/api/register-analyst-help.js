@@ -1,5 +1,4 @@
-import { getAuthenticatedGoogleSheets, appendValuesToSheet } from '../../utils/googleSheets';
-import { supabase } from '../../utils/supabase';
+import { getAuthenticatedGoogleSheets, getSheetMetaData, appendValuesToSheet } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,123 +7,31 @@ export default async function handler(req, res) {
 
   const { userName, userEmail, category, description, analystId } = req.body;
 
-  // 1. Validação de entrada
   if (!userName || !userEmail || !category || !description || !analystId) {
     return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
   }
 
   try {
-    // 2. Verificar analista no Supabase
-    const { data: analystData, error: analystError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', analystId)
-      .single();
-
-    if (analystError || !analystData) {
-      console.error('Erro ao verificar analista:', analystError);
-      return res.status(404).json({ error: 'Analista não encontrado' });
-    }
-
-    // 3. Verificar perfil do analista
-    if (!['analyst', 'tax'].includes(analystData.role)) {
-      return res.status(403).json({ error: 'Usuário não tem permissão para registrar ajudas' });
-    }
-
-    // 4. Verificar usuário que recebe ajuda
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', userEmail)
-      .single();
-
-    if (userError || !userData) {
-      console.error('Erro ao verificar usuário:', userError);
-      return res.status(404).json({ error: 'Usuário não encontrado' });
-    }
-
-    // 5. Inicializar Google Sheets
     const sheets = await getAuthenticatedGoogleSheets();
-
-    // 6. Buscar aba do analista
-    const sheetMeta = await sheets.spreadsheets.get({
-      spreadsheetId: process.env.SHEET_ID
-    });
-
-    const sheetName = sheetMeta.data.sheets
-      .find(sheet => sheet.properties.title.startsWith(`#${analystData.user_id}`))
-      ?.properties.title;
+    const sheetMeta = await getSheetMetaData();
+    const sheetName = sheetMeta.data.sheets.find(sheet => sheet.properties.title.startsWith(`#${analystId}`))?.properties.title;
 
     if (!sheetName) {
-      return res.status(404).json({ error: 'Aba não encontrada para este analista' });
+      return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
     }
 
-    // 7. Formatar data e hora
-    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-    const now = new Date(brtDate);
-    const formattedDate = now.toLocaleDateString('pt-BR');
-    const formattedTime = now.toLocaleTimeString('pt-BR');
+    // Formatar a data e hora atuais para o horário de Brasília (UTC-3)
+    const date = new Date();
+    const brtDate = new Date(date.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const formattedDate = brtDate.toLocaleDateString('pt-BR');
+    const formattedTime = brtDate.toLocaleTimeString('pt-BR');
 
-    // 8. Preparar dados para inserção
-    const record = [
-      formattedDate,
-      formattedTime,
-      userName,
-      userEmail,
-      category,
-      description
-    ];
+    // Adicionar os dados na aba do analista
+    await appendValuesToSheet(sheetName, [[formattedDate, formattedTime, userName, userEmail, category, description]]);
 
-    // 9. Registrar na planilha
-    await appendValuesToSheet(sheetName, [record]);
-
-    // 10. Registrar no Supabase para backup
-    const { error: insertError } = await supabase
-      .from('analyst_help')
-      .insert([{
-        analyst_id: analystId,
-        user_id: userData.id,
-        category,
-        description,
-        date: formattedDate,
-        time: formattedTime,
-        created_at: now.toISOString()
-      }]);
-
-    if (insertError) {
-      console.error('Erro ao registrar no Supabase:', insertError);
-      // Não falhar a requisição se apenas o backup falhar
-    }
-
-    // 11. Retornar sucesso
-    return res.status(200).json({ 
-      message: 'Ajuda registrada com sucesso.',
-      data: {
-        timestamp: now.toISOString(),
-        helpId: now.getTime().toString(),
-        analyst: {
-          id: analystId,
-          name: analystData.name,
-          role: analystData.role
-        },
-        user: {
-          name: userName,
-          email: userEmail
-        },
-        help: {
-          date: formattedDate,
-          time: formattedTime,
-          category,
-          description: description.substring(0, 100) + (description.length > 100 ? '...' : '')
-        }
-      }
-    });
-
+    res.status(200).json({ message: 'Ajuda registrada com sucesso.' });
   } catch (error) {
     console.error('Erro ao registrar ajuda:', error);
-    return res.status(500).json({ 
-      error: 'Erro ao registrar ajuda',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    res.status(500).json({ error: 'Erro ao registrar a ajuda. Verifique suas credenciais e a configuração do Google Sheets.' });
   }
 }

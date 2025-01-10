@@ -1,5 +1,4 @@
-import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
-import { supabase } from '../../utils/supabase';
+import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   const { analystId } = req.query;
@@ -10,54 +9,42 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. Buscar dados do analista no Supabase
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', analystId)
-      .single();
-
-    if (userError || !userData) {
-      console.error('Erro ao buscar usuário:', userError);
-      return res.status(404).json({ error: 'Usuário não encontrado' });
-    }
-
-    // 2. Validar perfil do usuário
-    if (!['analyst', 'tax'].includes(userData.role)) {
-      return res.status(403).json({ error: 'Perfil não autorizado' });
-    }
-
-    // 3. Inicializar Google Sheets
     const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
 
-    // 4. Buscar aba do analista
-    const sheetMeta = await sheets.spreadsheets.get({
-      spreadsheetId: process.env.SHEET_ID
-    });
+    console.log(`Buscando metadados da planilha com ID: ${sheetId} para o analista: ${analystId}`);
 
-    const sheetName = sheetMeta.data.sheets
-      .find(sheet => sheet.properties.title.startsWith(`#${userData.user_id}`))
-      ?.properties.title;
+    // Obter as informações da planilha (metadados)
+    const sheetMeta = await getSheetMetaData();
+
+    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
+    const sheetName = sheetMeta.data.sheets.find((sheet) => {
+      return sheet.properties.title.startsWith(`#${analystId}`);
+    })?.properties.title;
 
     if (!sheetName) {
-      console.log(`Erro: Aba não encontrada para o ID '${userData.user_id}'`);
-      return res.status(404).json({ error: 'Aba não encontrada para este usuário' });
+      console.log(`Erro: A aba correspondente ao ID '${analystId}' não existe na planilha.`);
+      return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
     }
 
-    // 5. Obter registros da planilha
+    console.log(`Aba localizada: ${sheetName}`);
+
+    // Caso a aba seja encontrada, prosseguir para obter os valores
     const rows = await getSheetValues(sheetName, 'A:F');
 
     if (!rows || rows.length === 0) {
-      return res.status(200).json({ categories: [] });
+      console.log('Nenhum registro encontrado na aba especificada.');
+      return res.status(200).json({ rows: [] });
     }
 
-    // 6. Configurar período atual
+    console.log(`Total de registros encontrados: ${rows.length}`);
+
+    // Filtrar todos os registros do mês atual para o ranking das categorias
     const currentDate = new Date();
     const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
     const currentMonth = brtDate.getMonth();
     const currentYear = brtDate.getFullYear();
 
-    // 7. Filtrar registros do mês atual
     const currentMonthRows = rows.filter((row, index) => {
       if (index === 0) return false; // Pular cabeçalho
 
@@ -68,9 +55,9 @@ export default async function handler(req, res) {
       return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
     });
 
-    // 8. Processar categorias
+    // Contar categorias
     const categoryCounts = currentMonthRows.reduce((acc, row) => {
-      const category = row[4]?.trim(); // Categoria está na coluna E (índice 4)
+      const category = row[4];
 
       if (category) {
         acc[category] = (acc[category] || 0) + 1;
@@ -79,40 +66,17 @@ export default async function handler(req, res) {
       return acc;
     }, {});
 
-    // 9. Ordenar e formatar categorias
+    // Ordenar e pegar as top 10 categorias
     const sortedCategories = Object.entries(categoryCounts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
-      .map(([name, count]) => ({
-        name,
-        count,
-        percentage: Math.round((count / currentMonthRows.length) * 100)
-      }));
+      .map(([name, count]) => ({ name, count }));
 
-    // 10. Preparar resposta
-    const response = {
-      categories: sortedCategories,
-      metadata: {
-        totalRecords: currentMonthRows.length,
-        periodStart: `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`,
-        periodEnd: brtDate.toISOString().split('T')[0],
-        uniqueCategories: Object.keys(categoryCounts).length,
-        analystInfo: {
-          name: userData.name,
-          role: userData.role,
-          squad: userData.squad || null
-        }
-      }
-    };
+    console.log('Categorias no ranking:', sortedCategories);
 
-    console.log('Ranking de categorias processado com sucesso');
-    return res.status(200).json(response);
-
+    return res.status(200).json({ categories: sortedCategories });
   } catch (error) {
-    console.error('Erro ao processar ranking de categorias:', error);
-    return res.status(500).json({ 
-      error: 'Erro ao processar ranking de categorias',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    console.error('Erro ao obter registros das categorias:', error);
+    res.status(500).json({ error: 'Erro ao obter registros das categorias.' });
   }
 }

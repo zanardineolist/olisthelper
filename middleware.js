@@ -1,3 +1,4 @@
+// middleware.js
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
@@ -8,33 +9,35 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Definir papéis permitidos por rota
-  const routePermissions = {
-    '/profile-analyst': ['analyst', 'tax'],
-    '/dashboard-analyst': ['analyst', 'tax', 'super'],
+  const analystRoles = ['analyst', 'tax'];
+  const allowedRoles = [...analystRoles, 'super', 'dev', 'support+', 'support', 'partner', 'other'];
+
+  // Verificar acesso permitido
+  const routesWithAllowedRoles = {
+    '/profile-analyst': analystRoles,
+    '/dashboard-analyst': [...analystRoles, 'super'],
     '/dashboard-super': ['super'],
-    '/registro': ['analyst', 'tax', 'super'],
-    '/manager': ['analyst', 'tax', 'super'],
+    '/registro': [...analystRoles],
+    '/manager': [...analystRoles, 'super'],
     '/admin-notifications': ['dev'],
     '/remote': ['support+', 'super'],
-    '/tools': ['support', 'analyst', 'tax']
+    '/profile': ['support', 'support+']
   };
 
-  // Verificar permissões da rota atual
-  const route = Object.keys(routePermissions).find(path => 
-    req.nextUrl.pathname.startsWith(path)
+  const matchedRoute = Object.keys(routesWithAllowedRoles).find(route => 
+    req.nextUrl.pathname.startsWith(route)
   );
 
-  if (route && !routePermissions[route].includes(token.role)) {
+  if (matchedRoute && !routesWithAllowedRoles[matchedRoute].includes(token.role)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Adicionar informações do usuário como cookies temporários
+  // Adicionar informações do usuário aos cookies
   const response = NextResponse.next();
   response.cookies.set('user-id', token.id);
-  response.cookies.set('user-email', token.email);
   response.cookies.set('user-name', token.name);
   response.cookies.set('user-role', token.role);
+  response.cookies.set('user-email', token.email);
 
   return response;
 }
@@ -48,9 +51,8 @@ export const config = {
     '/dashboard-super',
     '/profile-analyst',
     '/manager',
-    '/api/manage-user',
+    '/api/manage-category',
     '/admin-notifications',
     '/remote',
-    '/tools'
   ],
 };

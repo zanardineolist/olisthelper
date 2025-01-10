@@ -1,4 +1,4 @@
-import { supabase } from '../../utils/supabase';
+import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,36 +6,27 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Buscar todos os usuários ativos
-    const { data: users, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('active', true)
-      .order('name');
+    const sheets = await getAuthenticatedGoogleSheets();
+    const rows = await getSheetValues('Usuários', 'A2:I');
 
-    if (error) {
-      throw error;
+    if (rows && rows.length > 0) {
+      const users = rows.map(row => ({
+        id: row[0],
+        name: row[1],
+        email: row[2],
+        role: row[3],
+        squad: row[4] || null,
+        chamado: row[5] === 'TRUE',
+        telefone: row[6] === 'TRUE',
+        chat: row[7] === 'TRUE',
+        remoto: row[8] === 'TRUE',
+      }));
+      return res.status(200).json({ users });
     }
 
-    // Formatar os dados para manter compatibilidade com a interface existente
-    const formattedUsers = users.map(user => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      squad: user.squad || null,
-      chamado: user.chamado || false,
-      telefone: user.telefone || false,
-      chat: user.chat || false,
-      remoto: user.remoto || false,
-      active: user.active
-    }));
-
-    return res.status(200).json({ users: formattedUsers });
+    return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
   } catch (error) {
     console.error('Erro ao buscar usuários:', error);
-    return res.status(500).json({ 
-      error: 'Erro ao buscar usuários. Verifique suas credenciais e a configuração do Supabase.' 
-    });
+    return res.status(500).json({ error: 'Erro ao buscar usuários. Verifique suas credenciais e a configuração do Google Sheets.' });
   }
 }
