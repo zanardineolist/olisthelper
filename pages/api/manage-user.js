@@ -1,5 +1,5 @@
-import { supabase } from '../../../utils/supabase';
-import { logAction } from '../../../utils/firebase/firebaseLogging';
+import { supabase } from '../../utils/supabase';
+import { logAction } from '../../utils/firebase/firebaseLogging';
 
 export default async function handler(req, res) {
   const { method } = req;
