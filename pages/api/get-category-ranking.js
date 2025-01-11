@@ -14,14 +14,44 @@ const validateAnalyst = async (userCode) => {
   console.log(`[VALIDATE ANALYST] Iniciando validação para userCode: ${userCode}`);
 
   try {
+    // Primeiro, vamos fazer um log da query para debug
+    const query = supabase
+      .from('users')
+      .select('*');
+    
+    console.log('[VALIDATE ANALYST] Query básica executada');
+
+    // Vamos verificar todos os usuários primeiro
+    const { data: allUsers, error: allUsersError } = await query;
+    
+    if (allUsersError) {
+      console.error('[VALIDATE ANALYST] Erro ao buscar todos usuários:', allUsersError);
+      throw new Error('Erro ao acessar banco de dados');
+    }
+
+    console.log('[VALIDATE ANALYST] Total de usuários encontrados:', allUsers?.length);
+    console.log('[VALIDATE ANALYST] user_codes disponíveis:', allUsers?.map(u => u.user_code));
+
+    // Agora vamos buscar o usuário específico
     const { data, error } = await supabase
       .from('users')
-      .select('id, user_code, name, role')
-      .eq('user_code', userCode.toString())  // Converter para string
+      .select('*')
+      .eq('user_code', userCode.toString())
       .single();
 
     if (error) {
       if (error.code === 'PGRST116') {
+        // Vamos fazer uma busca mais detalhada para debug
+        const { data: similarUsers, error: similarError } = await supabase
+          .from('users')
+          .select('*')
+          .like('user_code', `%${userCode}%`);
+
+        console.log('[VALIDATE ANALYST] Busca por user_codes similares:', {
+          searched: userCode,
+          found: similarUsers?.map(u => ({ code: u.user_code, name: u.name }))
+        });
+
         console.error(`[VALIDATE ANALYST] Analista não encontrado para userCode: ${userCode}`);
         throw new Error('Analista não encontrado');
       }
@@ -29,12 +59,12 @@ const validateAnalyst = async (userCode) => {
       throw new Error('Erro ao validar o analista');
     }
 
-    if (!data) {
-      console.error(`[VALIDATE ANALYST] Nenhum dado retornado para userCode: ${userCode}`);
-      throw new Error('Analista não encontrado');
-    }
-
-    console.log(`[VALIDATE ANALYST] Analista encontrado:`, data);
+    console.log(`[VALIDATE ANALYST] Analista encontrado:`, {
+      id: data.id,
+      name: data.name,
+      user_code: data.user_code,
+      role: data.role
+    });
 
     if (!['analyst', 'tax'].includes(data.role)) {
       console.error(`[VALIDATE ANALYST] Role inválida:`, data.role);

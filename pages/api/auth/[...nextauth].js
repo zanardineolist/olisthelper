@@ -139,9 +139,24 @@ export default NextAuth({
 
     async session({ session, token }) {
       try {
-        console.log('[AUTH] Construindo sessão com token:', token);
-
+        console.log('[AUTH] Construindo sessão com token:', {
+          id: token.id,
+          email: token.email,
+          role: token.role,
+          user_code: token.user_code
+        });
+    
         if (session?.user) {
+          // Verificar se temos os dados necessários
+          if (!token.user_code) {
+            console.warn('[AUTH] user_code não encontrado no token, buscando do banco...');
+            const dbUser = await getExistingUser(session.user.email);
+            if (dbUser) {
+              token.user_code = dbUser.user_code;
+              console.log('[AUTH] user_code recuperado do banco:', dbUser.user_code);
+            }
+          }
+    
           // Adicionar todos os dados necessários à sessão
           session.id = token.id;
           session.role = token.role;
@@ -149,10 +164,15 @@ export default NextAuth({
           session.user_code = token.user_code;
           session.user.user_code = token.user_code;
           session.user.squad = token.squad;
-
-          console.log('[AUTH] Sessão construída:', session);
+    
+          console.log('[AUTH] Sessão construída:', {
+            id: session.id,
+            role: session.role,
+            user_code: session.user_code,
+            email: session.user.email
+          });
         }
-
+    
         return session;
       } catch (error) {
         console.error('[AUTH] Erro ao criar sessão:', error);
