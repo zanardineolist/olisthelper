@@ -11,29 +11,41 @@ dayjs.tz.setDefault("America/Sao_Paulo");
  * Função para validar e obter dados do analista pelo user_code
  */
 const validateAnalyst = async (userCode) => {
-  const { data: analyst, error } = await supabase
-    .from('users')
-    .select('id, user_code, name, role')
-    .eq('user_code', userCode)
-    .single();
+  console.log(`[VALIDATE ANALYST] Iniciando validação para userCode: ${userCode}`);
 
-  if (error) {
-    console.error(`[VALIDATE ANALYST] Erro na consulta: ${error.message}`);
-    throw new Error('Erro ao validar o analista.');
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, user_code, name, role')
+      .eq('user_code', userCode.toString())  // Converter para string
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        console.error(`[VALIDATE ANALYST] Analista não encontrado para userCode: ${userCode}`);
+        throw new Error('Analista não encontrado');
+      }
+      console.error(`[VALIDATE ANALYST] Erro na consulta:`, error);
+      throw new Error('Erro ao validar o analista');
+    }
+
+    if (!data) {
+      console.error(`[VALIDATE ANALYST] Nenhum dado retornado para userCode: ${userCode}`);
+      throw new Error('Analista não encontrado');
+    }
+
+    console.log(`[VALIDATE ANALYST] Analista encontrado:`, data);
+
+    if (!['analyst', 'tax'].includes(data.role)) {
+      console.error(`[VALIDATE ANALYST] Role inválida:`, data.role);
+      throw new Error('Usuário não é um analista ou fiscal');
+    }
+
+    return data;
+  } catch (error) {
+    console.error(`[VALIDATE ANALYST] Erro durante validação:`, error);
+    throw error;
   }
-
-  if (!analyst) {
-    console.warn(`[VALIDATE ANALYST] Nenhum analista encontrado para userCode: ${userCode}`);
-    throw new Error('Analista não encontrado');
-  }
-
-  console.log('[VALIDATE ANALYST] Analista encontrado:', analyst);
-
-  if (!['analyst', 'tax'].includes(analyst.role)) {
-    throw new Error('Usuário não é um analista ou fiscal');
-  }
-
-  return analyst;
 };
 
 /**

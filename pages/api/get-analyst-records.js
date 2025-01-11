@@ -12,26 +12,41 @@ dayjs.tz.setDefault("America/Sao_Paulo");
  * Função para validar e obter dados do analista pelo user_code
  */
 const getAnalystData = async (userCode) => {
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('id, user_code, name, email, role')
-    .eq('user_code', userCode)
-    .single();
+  console.log(`[GET ANALYST DATA] Iniciando busca para userCode: ${userCode}`);
 
-  if (error) {
-    console.error(`[VALIDATE ANALYST] Erro na consulta: ${error.message}`);
-    throw new Error('Erro ao validar o analista.');
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, user_code, name, email, role')
+      .eq('user_code', userCode.toString())  // Converter para string
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        console.error(`[GET ANALYST DATA] Analista não encontrado para userCode: ${userCode}`);
+        throw new Error('Analista não encontrado');
+      }
+      console.error(`[GET ANALYST DATA] Erro na consulta:`, error);
+      throw new Error('Erro ao buscar dados do analista');
+    }
+
+    if (!data) {
+      console.error(`[GET ANALYST DATA] Nenhum dado retornado para userCode: ${userCode}`);
+      throw new Error('Analista não encontrado');
+    }
+
+    console.log(`[GET ANALYST DATA] Analista encontrado:`, data);
+
+    if (!['analyst', 'tax'].includes(data.role)) {
+      console.error(`[GET ANALYST DATA] Role inválida:`, data.role);
+      throw new Error('Usuário não é um analista ou fiscal');
+    }
+
+    return data;
+  } catch (error) {
+    console.error(`[GET ANALYST DATA] Erro durante busca:`, error);
+    throw error;
   }
-
-  if (!user) {
-    throw new Error('Analista não encontrado');
-  }
-
-  if (!['analyst', 'tax'].includes(user.role)) {
-    throw new Error('Usuário não é um analista ou fiscal');
-  }
-
-  return user;
 };
 
 /**
@@ -75,6 +90,12 @@ const getPeriodRecords = async (userCode, currentPeriod, previousPeriod) => {
  * Handler principal
  */
 export default async function handler(req, res) {
+  console.log('[HANDLER] Request recebido:', {
+    method: req.method,
+    query: req.query,
+    userCode: req.query.userCode
+  });
+
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Método não permitido. Use GET.' });
   }
@@ -82,13 +103,15 @@ export default async function handler(req, res) {
   const { userCode, filter = '30', viewMode } = req.query;
 
   if (!userCode) {
-    console.warn('[RECORDS] userCode do analista não fornecido.');
+    console.warn('[HANDLER] userCode não fornecido');
     return res.status(400).json({ error: 'userCode do analista não fornecido.' });
   }
 
   try {
     // Validar analista
+    console.log('[HANDLER] Validando analista...');
     const analyst = await getAnalystData(userCode);
+    console.log('[HANDLER] Analista validado:', analyst);
 
     // Configurar períodos
     const now = dayjs();
@@ -102,11 +125,14 @@ export default async function handler(req, res) {
       end: now.subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
     };
 
+    console.log('[HANDLER] Buscando registros...');
     // Buscar registros
     const records = await getPeriodRecords(analyst.user_code, currentPeriod, previousPeriod);
+    console.log(`[HANDLER] ${records.length} registros encontrados`);
 
     // Processar dados com base no viewMode
     if (viewMode === 'profile') {
+      console.log('[HANDLER] Processando modo profile');
       const currentMonthRecords = records.filter(record =>
         dayjs(record.date).isSame(now, 'month')
       );
@@ -115,7 +141,7 @@ export default async function handler(req, res) {
         dayjs(record.date).isSame(now.subtract(1, 'month'), 'month')
       );
 
-      return res.status(200).json({
+      const response = {
         currentMonth: currentMonthRecords.length,
         lastMonth: lastMonthRecords.length,
         analyst: {
@@ -123,7 +149,10 @@ export default async function handler(req, res) {
           name: analyst.name,
           email: analyst.email
         }
-      });
+      };
+
+      console.log('[HANDLER] Resposta profile:', response);
+      return res.status(200).json(response);
     }
 
     // Modo padrão - filtrar por período específico
@@ -162,10 +191,11 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    console.error('[RECORDS] Erro inesperado:', err);
+    console.error('[HANDLER] Erro inesperado:', err);
     return res.status(500).json({
       error: 'Erro inesperado ao buscar registros do analista.',
-      message: err.message
+      message: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
   }
 }
