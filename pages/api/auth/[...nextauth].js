@@ -2,10 +2,10 @@ import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase Client para leitura (usuário comum)
+// Supabase Client para leitura
 import { supabase } from '../../../utils/supabaseClient';
 
-// Supabase Client com Service Role Key para escrita
+// Supabase Client com Service Role Key para escrita (ignora RLS)
 const supabaseService = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -30,11 +30,13 @@ export default NextAuth({
           return false;
         }
 
+        // Verificar ou criar o usuário no Supabase
         const userDetails = await getOrCreateUserInSupabase(user);
         if (!userDetails) {
           console.error("Usuário não autorizado:", user.email);
           return false;
         }
+
         console.log("Usuário autorizado:", userDetails);
         return true;
       } catch (error) {
@@ -78,6 +80,7 @@ export default NextAuth({
 
 async function getOrCreateUserInSupabase(user) {
   try {
+    // Buscar o usuário pelo e-mail
     const { data: existingUser, error: userError } = await supabase
       .from('users')
       .select('*')
@@ -90,11 +93,14 @@ async function getOrCreateUserInSupabase(user) {
     }
 
     if (existingUser) {
+      // Se o usuário já existir, retorna seus dados
       return existingUser;
     }
 
+    // Gerar um user_code único de 4 dígitos
     const newUserCode = await generateUniqueUserCode();
 
+    // Inserir o novo usuário
     const { data: newUser, error: insertError } = await supabaseService
       .from('users')
       .insert({
@@ -118,14 +124,19 @@ async function getOrCreateUserInSupabase(user) {
 }
 
 async function generateUniqueUserCode() {
-  const usedCodes = await supabase
+  const { data: usedCodes, error } = await supabase
     .from('users')
     .select('user_code');
+
+  if (error) {
+    console.error("Erro ao buscar códigos existentes:", error.message);
+    return null;
+  }
 
   let newCode;
   do {
     newCode = Math.floor(1000 + Math.random() * 9000).toString();
-  } while (usedCodes.data.some(user => user.user_code === newCode));
+  } while (usedCodes.some(user => user.user_code === newCode));
 
   return newCode;
 }
