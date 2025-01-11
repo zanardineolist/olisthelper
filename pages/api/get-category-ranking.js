@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
+// Configurações de fuso horário
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("America/Sao_Paulo");
@@ -20,7 +21,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Validar analista
+    // Validação do analista
     const { data: analyst, error: analystError } = await supabase
       .from('users')
       .select('*')
@@ -38,21 +39,16 @@ export default async function handler(req, res) {
     }
 
     const tableName = `analyst_${analystId}`;
-
-    // Definir período (mês atual)
+    
+    // Definir o período (mês atual)
     const now = dayjs();
     const startDate = now.startOf('month').format('YYYY-MM-DD');
     const endDate = now.endOf('month').format('YYYY-MM-DD');
 
-    // Buscar registros da tabela específica do analista
+    // Buscar registros da tabela do analista
     const { data: records, error: recordsError } = await supabase
       .from(tableName)
-      .select(`
-        category,
-        date,
-        user_name,
-        user_email
-      `)
+      .select('category, date, user_name, user_email')
       .gte('date', startDate)
       .lte('date', endDate)
       .order('date', { ascending: true });
@@ -62,7 +58,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Erro ao buscar registros.' });
     }
 
-    // Se não houver registros, retornar array vazio
     if (!records || records.length === 0) {
       return res.status(200).json({
         categories: [],
@@ -84,7 +79,6 @@ export default async function handler(req, res) {
     // Processar e agrupar registros por categoria
     const categoryStats = records.reduce((acc, record) => {
       const category = record.category || 'Sem Categoria';
-      
       if (!acc[category]) {
         acc[category] = {
           count: 0,
@@ -106,19 +100,19 @@ export default async function handler(req, res) {
       return acc;
     }, {});
 
-    // Transformar dados agrupados em array e calcular métricas adicionais
+    // Transformar os dados em array e calcular métricas
     const ranking = Object.entries(categoryStats)
       .map(([name, data]) => ({
         name,
         count: data.count,
         uniqueUsers: data.users.size,
         uniqueDays: data.dates.size,
-        lastUsage: data.lastUsage,
+        lastUsage: dayjs(data.lastUsage).format('DD/MM/YYYY'),
         averagePerUser: +(data.count / data.users.size).toFixed(2),
         averagePerDay: +(data.count / data.dates.size).toFixed(2)
       }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 10); // Limitar aos top 10
+      .slice(0, 10); // Top 10 categorias
 
     // Retornar dados formatados
     return res.status(200).json({

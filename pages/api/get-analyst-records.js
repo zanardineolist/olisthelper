@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Validar analista
+    // Validação do analista
     const { data: analyst, error: analystError } = await supabase
       .from('users')
       .select('*')
@@ -31,56 +31,56 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Usuário não é analista ou fiscal.' });
     }
 
-    // Definir períodos
+    const tableName = `analyst_${analystId}`;
     const now = dayjs();
+
+    // Definir períodos de consulta
     const currentMonthStart = now.startOf('month').format('YYYY-MM-DD');
     const currentMonthEnd = now.endOf('month').format('YYYY-MM-DD');
     const lastMonthStart = now.subtract(1, 'month').startOf('month').format('YYYY-MM-DD');
     const lastMonthEnd = now.subtract(1, 'month').endOf('month').format('YYYY-MM-DD');
 
-    // Buscar registros em paralelo
+    // Consultar registros do mês atual e do mês anterior
     const [currentMonthRecords, lastMonthRecords] = await Promise.all([
-      // Registros do mês atual
       supabase
-        .from(`analyst_${analystId}`)
+        .from(tableName)
         .select(mode === 'profile' ? 'date, category, description' : '*')
         .gte('date', currentMonthStart)
         .lte('date', currentMonthEnd)
         .order('date', { ascending: false }),
 
-      // Registros do mês anterior
       supabase
-        .from(`analyst_${analystId}`)
+        .from(tableName)
         .select('date')
         .gte('date', lastMonthStart)
         .lte('date', lastMonthEnd)
     ]);
 
+    // Verificação de erros nas consultas
     if (currentMonthRecords.error) {
+      console.error('[ANALYST RECORDS] Erro ao buscar registros do mês atual:', currentMonthRecords.error.message);
       throw new Error(`Erro ao buscar registros do mês atual: ${currentMonthRecords.error.message}`);
     }
 
     if (lastMonthRecords.error) {
+      console.error('[ANALYST RECORDS] Erro ao buscar registros do mês anterior:', lastMonthRecords.error.message);
       throw new Error(`Erro ao buscar registros do mês anterior: ${lastMonthRecords.error.message}`);
     }
 
-    // Formatar response de acordo com o mode
+    // Preparar resposta com contagem e registros
     const response = {
       currentMonth: currentMonthRecords.data.length,
-      lastMonth: lastMonthRecords.data.length
+      lastMonth: lastMonthRecords.data.length,
+      records: mode === 'full' 
+        ? currentMonthRecords.data 
+        : currentMonthRecords.data.map(record => ({
+            date: dayjs(record.date).format('DD/MM/YYYY'),
+            category: record.category || 'Sem Categoria',
+            description: record.description || 'Sem descrição'
+          }))
     };
 
-    if (mode === 'full') {
-      response.records = currentMonthRecords.data;
-    } else if (mode === 'profile') {
-      response.records = currentMonthRecords.data.map(record => ({
-        date: dayjs(record.date).format('DD/MM/YYYY'),
-        category: record.category,
-        description: record.description
-      }));
-    }
-
-    // Adicionar metadados
+    // Adicionar metadados sobre o analista
     response.metadata = {
       period: {
         current: {
