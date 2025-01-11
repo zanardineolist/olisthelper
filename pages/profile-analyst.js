@@ -40,22 +40,40 @@ export default function AnalystProfilePage({ user }) {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Verificar se temos o user_code
+        if (!user?.user_code) {
+          console.error('user_code não disponível:', user);
+          throw new Error('user_code não disponível');
+        }
+  
+        console.log('Iniciando busca de dados para user_code:', user.user_code);
+  
+        // Realizar as chamadas em paralelo
         const [helpResponse, categoryResponse] = await Promise.all([
-          fetch(`/api/get-analyst-records?userCode=${user.user_code}&mode=profile`),
-          fetch(`/api/get-category-ranking?userCode=${user.user_code}`)
+          fetch(`/api/get-analyst-records?userCode=${user.user_code}&mode=profile`).then(res => {
+            if (!res.ok) throw new Error(`Erro na resposta de get-analyst-records: ${res.status}`);
+            return res.json();
+          }),
+          fetch(`/api/get-category-ranking?userCode=${user.user_code}`).then(res => {
+            if (!res.ok) throw new Error(`Erro na resposta de get-category-ranking: ${res.status}`);
+            return res.json();
+          })
         ]);
   
-        const helpData = await helpResponse.json();
-        const categoryData = await categoryResponse.json();
+        console.log('Dados recebidos:', { helpResponse, categoryResponse });
   
         setHelpRequests({
-          currentMonth: helpData.currentMonth,
-          lastMonth: helpData.lastMonth,
+          currentMonth: helpResponse.currentMonth || 0,
+          lastMonth: helpResponse.lastMonth || 0,
         });
   
-        setCategoryRanking(categoryData.categories || []);
+        setCategoryRanking(categoryResponse.categories || []);
+  
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
+        // Aqui você pode adicionar uma notificação para o usuário
+        setHelpRequests({ currentMonth: 0, lastMonth: 0 });
+        setCategoryRanking([]);
       } finally {
         setLoading(false);
       }
@@ -64,7 +82,7 @@ export default function AnalystProfilePage({ user }) {
     if (user?.user_code) {
       fetchData();
     }
-  }, [user.user_code]);  
+  }, [user?.user_code]);  
 
   if (initialLoading) {
     // Loader inicial da página
@@ -183,6 +201,7 @@ export default function AnalystProfilePage({ user }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
+  
   if (!session || (session.role !== 'analyst' && session.role !== 'tax')) {
     return {
       redirect: {
@@ -197,6 +216,10 @@ export async function getServerSideProps(context) {
         ...session.user,
         role: session.role,
         id: session.id,
+        user_code: session.user_code, // Garantir que o user_code está sendo passado
+        name: session.user?.name || 'Unknown',
+        email: session.user?.email || '',
+        image: session.user?.image || ''
       },
     },
   };
