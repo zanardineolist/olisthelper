@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 // Supabase Client para leitura
 import { supabase } from '../../../utils/supabaseClient';
 
-// Supabase Client com Service Role Key para escrita (ignora RLS)
+// Supabase Client com Service Role Key para escrita
 const supabaseService = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -30,7 +30,6 @@ export default NextAuth({
           return false;
         }
 
-        // Verificar ou criar o usuário no Supabase
         const userDetails = await getOrCreateUserInSupabase(user);
         if (!userDetails) {
           console.error("Usuário não autorizado:", user.email);
@@ -80,7 +79,6 @@ export default NextAuth({
 
 async function getOrCreateUserInSupabase(user) {
   try {
-    // Buscar o usuário pelo e-mail
     const { data: existingUser, error: userError } = await supabase
       .from('users')
       .select('*')
@@ -93,14 +91,11 @@ async function getOrCreateUserInSupabase(user) {
     }
 
     if (existingUser) {
-      // Se o usuário já existir, retorna seus dados
       return existingUser;
     }
 
-    // Gerar um user_code único de 4 dígitos
     const newUserCode = await generateUniqueUserCode();
 
-    // Inserir o novo usuário
     const { data: newUser, error: insertError } = await supabaseService
       .from('users')
       .insert({
@@ -108,6 +103,11 @@ async function getOrCreateUserInSupabase(user) {
         email: user.email,
         role: 'support',
         user_code: newUserCode,
+        squad: 'Squad',          // Valor padrão para squad
+        chamado: false,          // Valor padrão para chamado
+        telefone: false,         // Valor padrão para telefone
+        chat: false,             // Valor padrão para chat
+        remote: false            // Valor padrão para acesso remoto
       })
       .single();
 
