@@ -3,7 +3,6 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 
-// Configurar dayjs para trabalhar com timezone
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("America/Sao_Paulo");
@@ -18,8 +17,17 @@ const validateAnalyst = async (analystId) => {
     .eq('id', analystId)
     .single();
 
-  if (error || !analyst) {
+  if (error) {
+    console.error(`[VALIDATE ANALYST] Erro na consulta: ${error.message}`);
+    throw new Error('Erro ao validar o analista.');
+  }
+
+  if (!analyst) {
     throw new Error('Analista não encontrado');
+  }
+
+  if (!analyst.user_code) {
+    throw new Error('Código do usuário não encontrado');
   }
 
   if (!['analyst', 'tax'].includes(analyst.role)) {
@@ -33,13 +41,16 @@ const validateAnalyst = async (analystId) => {
  * Função para verificar se a tabela analyst_{user_code} existe
  */
 const checkAnalystTableExists = async (userCode) => {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from(`analyst_${userCode}`)
     .select('id')
     .limit(1);
 
-  if (error && error.message.includes('relation')) {
-    throw new Error(`Tabela analyst_${userCode} não encontrada.`);
+  if (error) {
+    if (error.message.includes('relation')) {
+      throw new Error(`Tabela analyst_${userCode} não encontrada.`);
+    }
+    throw new Error(`Erro ao verificar a tabela: ${error.message}`);
   }
 };
 
@@ -65,7 +76,6 @@ const calculateRanking = async (userCode, dateRange) => {
     throw new Error(`Erro ao buscar registros: ${error.message}`);
   }
 
-  // Contagem por categoria
   const categoryCount = records.reduce((acc, record) => {
     const category = record.category || 'Sem Categoria';
     if (!acc[category]) {
