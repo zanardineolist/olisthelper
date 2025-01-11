@@ -9,16 +9,21 @@ dayjs.extend(timezone);
 dayjs.tz.setDefault("America/Sao_Paulo");
 
 /**
- * Função para validar e obter dados do analista
+ * Função para validar e obter dados do analista pelo user_code
  */
-const getAnalystData = async (analystId) => {
+const getAnalystData = async (userCode) => {
   const { data: user, error } = await supabase
     .from('users')
     .select('id, user_code, name, email, role')
-    .eq('id', analystId)
+    .eq('user_code', userCode)
     .single();
 
-  if (error || !user) {
+  if (error) {
+    console.error(`[VALIDATE ANALYST] Erro na consulta: ${error.message}`);
+    throw new Error('Erro ao validar o analista.');
+  }
+
+  if (!user) {
     throw new Error('Analista não encontrado');
   }
 
@@ -30,9 +35,28 @@ const getAnalystData = async (analystId) => {
 };
 
 /**
+ * Função para verificar se a tabela analyst_{user_code} existe
+ */
+const checkAnalystTableExists = async (userCode) => {
+  const { error } = await supabase
+    .from(`analyst_${userCode}`)
+    .select('id')
+    .limit(1);
+
+  if (error) {
+    if (error.message.includes('relation')) {
+      throw new Error(`Tabela analyst_${userCode} não encontrada.`);
+    }
+    throw new Error(`Erro ao verificar a tabela: ${error.message}`);
+  }
+};
+
+/**
  * Função para buscar registros do período atual e anterior
  */
 const getPeriodRecords = async (userCode, currentPeriod, previousPeriod) => {
+  await checkAnalystTableExists(userCode);
+
   const { data, error } = await supabase
     .from(`analyst_${userCode}`)
     .select('*')
@@ -55,24 +79,24 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Método não permitido. Use GET.' });
   }
 
-  const { analystId, filter = '30', viewMode } = req.query;
+  const { userCode, filter = '30', viewMode } = req.query;
 
-  if (!analystId) {
-    console.warn('[RECORDS] ID do analista não fornecido.');
-    return res.status(400).json({ error: 'ID do analista não fornecido.' });
+  if (!userCode) {
+    console.warn('[RECORDS] userCode do analista não fornecido.');
+    return res.status(400).json({ error: 'userCode do analista não fornecido.' });
   }
 
   try {
     // Validar analista
-    const analyst = await getAnalystData(analystId);
-    
+    const analyst = await getAnalystData(userCode);
+
     // Configurar períodos
     const now = dayjs();
     const currentPeriod = {
       start: now.startOf('month').format('YYYY-MM-DD'),
       end: now.endOf('month').format('YYYY-MM-DD')
     };
-    
+
     const previousPeriod = {
       start: now.subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
       end: now.subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
@@ -83,7 +107,7 @@ export default async function handler(req, res) {
 
     // Processar dados com base no viewMode
     if (viewMode === 'profile') {
-      const currentMonthRecords = records.filter(record => 
+      const currentMonthRecords = records.filter(record =>
         dayjs(record.date).isSame(now, 'month')
       );
 
@@ -105,7 +129,7 @@ export default async function handler(req, res) {
     // Modo padrão - filtrar por período específico
     const filterDays = parseInt(filter, 10);
     const filterDate = now.subtract(filterDays, 'day').startOf('day');
-    
+
     const filteredRecords = records.filter(record =>
       dayjs(record.date).isAfter(filterDate)
     );
@@ -119,7 +143,7 @@ export default async function handler(req, res) {
     }, {});
 
     // Preparar dados para o gráfico
-    const dates = Object.keys(dateGroups).sort((a, b) => 
+    const dates = Object.keys(dateGroups).sort((a, b) =>
       dayjs(a, 'DD/MM/YYYY').unix() - dayjs(b, 'DD/MM/YYYY').unix()
     );
 
@@ -139,7 +163,7 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error('[RECORDS] Erro inesperado:', err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Erro inesperado ao buscar registros do analista.',
       message: err.message
     });
