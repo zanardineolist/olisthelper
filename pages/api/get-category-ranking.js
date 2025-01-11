@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Primeiro validar o analista
+    // Validar analista
     const { data: analyst, error: analystError } = await supabase
       .from('users')
       .select('*')
@@ -37,14 +37,16 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Usuário não é analista ou fiscal.' });
     }
 
+    const tableName = `analyst_${analystId}`;
+
     // Definir período (mês atual)
     const now = dayjs();
     const startDate = now.startOf('month').format('YYYY-MM-DD');
     const endDate = now.endOf('month').format('YYYY-MM-DD');
 
-    // Buscar registros do analista
+    // Buscar registros da tabela específica do analista
     const { data: records, error: recordsError } = await supabase
-      .from(`analyst_${analystId}`)
+      .from(tableName)
       .select(`
         category,
         date,
@@ -52,56 +54,87 @@ export default async function handler(req, res) {
         user_email
       `)
       .gte('date', startDate)
-      .lte('date', endDate);
+      .lte('date', endDate)
+      .order('date', { ascending: true });
 
     if (recordsError) {
       console.error('[CATEGORY RANKING] Erro ao buscar registros:', recordsError);
       return res.status(500).json({ error: 'Erro ao buscar registros.' });
     }
 
+    // Se não houver registros, retornar array vazio
     if (!records || records.length === 0) {
-      return res.status(200).json({ categories: [] });
+      return res.status(200).json({
+        categories: [],
+        metadata: {
+          analyst: {
+            id: analystId,
+            name: analyst.name,
+            role: analyst.role
+          },
+          period: {
+            start: startDate,
+            end: endDate
+          },
+          tableName: tableName
+        }
+      });
     }
 
-    // Processar registros por categoria
+    // Processar e agrupar registros por categoria
     const categoryStats = records.reduce((acc, record) => {
       const category = record.category || 'Sem Categoria';
       
       if (!acc[category]) {
         acc[category] = {
           count: 0,
-          users: new Set()
+          users: new Set(),
+          dates: new Set(),
+          lastUsage: null
         };
       }
 
       acc[category].count++;
       acc[category].users.add(record.user_email);
+      acc[category].dates.add(record.date);
+
+      const recordDate = dayjs(record.date);
+      if (!acc[category].lastUsage || recordDate.isAfter(dayjs(acc[category].lastUsage))) {
+        acc[category].lastUsage = record.date;
+      }
 
       return acc;
     }, {});
 
-    // Formatar e ordenar resultados
+    // Transformar dados agrupados em array e calcular métricas adicionais
     const ranking = Object.entries(categoryStats)
       .map(([name, data]) => ({
         name,
         count: data.count,
-        uniqueUsers: data.users.size
+        uniqueUsers: data.users.size,
+        uniqueDays: data.dates.size,
+        lastUsage: data.lastUsage,
+        averagePerUser: +(data.count / data.users.size).toFixed(2),
+        averagePerDay: +(data.count / data.dates.size).toFixed(2)
       }))
       .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+      .slice(0, 10); // Limitar aos top 10
 
+    // Retornar dados formatados
     return res.status(200).json({
       categories: ranking,
       metadata: {
+        analyst: {
+          id: analystId,
+          name: analyst.name,
+          role: analyst.role
+        },
         period: {
           start: startDate,
           end: endDate
         },
-        analyst: {
-          id: analyst.id,
-          name: analyst.name,
-          role: analyst.role
-        }
+        tableName: tableName,
+        generatedAt: new Date().toISOString()
       }
     });
 
@@ -109,7 +142,7 @@ export default async function handler(req, res) {
     console.error('[CATEGORY RANKING] Erro inesperado:', err);
     return res.status(500).json({
       error: 'Erro ao gerar ranking de categorias.',
-      details: err.message
+      message: err.message
     });
   }
 }

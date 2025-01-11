@@ -38,101 +38,104 @@ export default function AnalystProfilePage({ user }) {
   }, []);
 
   // Efeito para buscar dados do analista
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        if (!user?.id) {
-          console.error('ID do usuário não disponível');
-          throw new Error('ID do usuário não disponível');
-        }
-
-        // Definir períodos
-        const now = dayjs();
-        const currentMonthStart = now.startOf('month').format('YYYY-MM-DD');
-        const currentMonthEnd = now.endOf('month').format('YYYY-MM-DD');
-        const lastMonthStart = now.subtract(1, 'month').startOf('month').format('YYYY-MM-DD');
-        const lastMonthEnd = now.subtract(1, 'month').endOf('month').format('YYYY-MM-DD');
-
-        // Buscar dados em paralelo
-        const [currentMonthData, lastMonthData, categoryData] = await Promise.all([
-          // Dados do mês atual
-          supabase
-            .from(`analyst_${user.id}`)
-            .select('*')
-            .gte('date', currentMonthStart)
-            .lte('date', currentMonthEnd),
-          
-          // Dados do mês anterior
-          supabase
-            .from(`analyst_${user.id}`)
-            .select('*')
-            .gte('date', lastMonthStart)
-            .lte('date', lastMonthEnd),
-
-          // Dados para ranking de categorias
-          supabase
-            .from(`analyst_${user.id}`)
-            .select('category, user_name, user_email')
-            .gte('date', currentMonthStart)
-            .lte('date', currentMonthEnd)
-        ]);
-
-        // Verificar erros
-        if (currentMonthData.error) throw new Error(`Erro mês atual: ${currentMonthData.error.message}`);
-        if (lastMonthData.error) throw new Error(`Erro mês anterior: ${lastMonthData.error.message}`);
-        if (categoryData.error) throw new Error(`Erro categorias: ${categoryData.error.message}`);
-
-        // Atualizar contadores de ajuda
-        setHelpRequests({
-          currentMonth: currentMonthData.data.length,
-          lastMonth: lastMonthData.data.length
-        });
-
-        // Processar ranking de categorias
-        const categoryCount = categoryData.data.reduce((acc, record) => {
-          const category = record.category || 'Sem Categoria';
-          if (!acc[category]) {
-            acc[category] = {
-              count: 0,
-              users: new Set(),
-            };
-          }
-          acc[category].count++;
-          acc[category].users.add(record.user_email);
-          return acc;
-        }, {});
-
-        // Formatar e ordenar ranking
-        const ranking = Object.entries(categoryCount)
-          .map(([name, data]) => ({
-            name,
-            count: data.count,
-            uniqueUsers: data.users.size
-          }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 10);
-
-        setCategoryRanking(ranking);
-
-      } catch (error) {
-        console.error('Erro ao buscar dados:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro ao carregar dados',
-          text: 'Não foi possível carregar os dados do perfil.'
-        });
-        setHelpRequests({ currentMonth: 0, lastMonth: 0 });
-        setCategoryRanking([]);
-      } finally {
-        setLoading(false);
+  // Part of profile-analyst.js that needs fixing
+useEffect(() => {
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      if (!user?.id) {
+        console.error('ID do usuário não disponível');
+        throw new Error('ID do usuário não disponível');
       }
-    };
 
-    if (user?.id) {
-      fetchData();
+      const tableName = `analyst_${user.id}`;
+
+      // Definir períodos
+      const now = dayjs();
+      const currentMonthStart = now.startOf('month').format('YYYY-MM-DD');
+      const currentMonthEnd = now.endOf('month').format('YYYY-MM-DD');
+      const lastMonthStart = now.subtract(1, 'month').startOf('month').format('YYYY-MM-DD');
+      const lastMonthEnd = now.subtract(1, 'month').endOf('month').format('YYYY-MM-DD');
+
+      // Buscar dados em paralelo da tabela específica do analista
+      const [currentMonthData, lastMonthData, categoryData] = await Promise.all([
+        // Dados do mês atual
+        supabase
+          .from(tableName)
+          .select('*')
+          .gte('date', currentMonthStart)
+          .lte('date', currentMonthEnd),
+          
+        // Dados do mês anterior
+        supabase
+          .from(tableName)
+          .select('*')
+          .gte('date', lastMonthStart)
+          .lte('date', lastMonthEnd),
+
+        // Dados para ranking de categorias
+        supabase
+          .from(tableName)
+          .select('category, user_name, user_email')
+          .gte('date', currentMonthStart)
+          .lte('date', currentMonthEnd)
+      ]);
+
+      // Verificar erros
+      if (currentMonthData.error) throw new Error(`Erro mês atual: ${currentMonthData.error.message}`);
+      if (lastMonthData.error) throw new Error(`Erro mês anterior: ${lastMonthData.error.message}`);
+      if (categoryData.error) throw new Error(`Erro categorias: ${categoryData.error.message}`);
+
+      // Atualizar contadores de ajuda
+      setHelpRequests({
+        currentMonth: currentMonthData.data.length,
+        lastMonth: lastMonthData.data.length
+      });
+
+      // Processar ranking de categorias
+      const categoryCount = categoryData.data.reduce((acc, record) => {
+        const category = record.category || 'Sem Categoria';
+        if (!acc[category]) {
+          acc[category] = {
+            count: 0,
+            users: new Set()
+          };
+        }
+        acc[category].count++;
+        acc[category].users.add(record.user_email);
+        return acc;
+      }, {});
+
+      // Formatar e ordenar ranking
+      const ranking = Object.entries(categoryCount)
+        .map(([name, data]) => ({
+          name,
+          count: data.count,
+          uniqueUsers: data.users.size
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
+      setCategoryRanking(ranking);
+
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao carregar dados',
+        text: 'Não foi possível carregar os dados do perfil.'
+      });
+      setHelpRequests({ currentMonth: 0, lastMonth: 0 });
+      setCategoryRanking([]);
+    } finally {
+      setLoading(false);
     }
-  }, [user?.id]);
+  };
+
+  if (user?.id) {
+    fetchData();
+  }
+}, [user?.id]);
 
   // Loader inicial
   if (initialLoading) {
