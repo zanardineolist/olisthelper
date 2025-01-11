@@ -1,9 +1,5 @@
 import { google } from 'googleapis';
-import { supabase } from '../../utils/supabaseClient';
 
-/**
- * Autentica com a API do Google Sheets
- */
 async function getAuthenticatedGoogleSheets() {
   const auth = new google.auth.JWT(
     process.env.GOOGLE_CLIENT_EMAIL,
@@ -14,9 +10,6 @@ async function getAuthenticatedGoogleSheets() {
   return google.sheets({ version: 'v4', auth });
 }
 
-/**
- * Busca valores de uma aba específica do Google Sheets
- */
 async function getSheetValues(sheets, spreadsheetId, sheetName, range) {
   try {
     const response = await sheets.spreadsheets.values.get({
@@ -30,9 +23,6 @@ async function getSheetValues(sheets, spreadsheetId, sheetName, range) {
   }
 }
 
-/**
- * Função para interpretar valores com porcentagem, tempo ou vazios
- */
 const parseValue = (value) => {
   if (typeof value === 'string') {
     if (value.includes('%')) {
@@ -59,7 +49,10 @@ const formatTime = (minutes) => {
 };
 
 const formatHours = (value) => {
-  return value !== null ? `${value}h` : "-";
+  if (value === null) {
+    return "-";
+  }
+  return `${value}h`;
 };
 
 const getColorForValue = (value, threshold, isGreaterBetter = true) => {
@@ -69,9 +62,6 @@ const getColorForValue = (value, threshold, isGreaterBetter = true) => {
   return (isGreaterBetter ? value >= threshold : value <= threshold) ? '#779E3D' : '#E64E36';
 };
 
-/**
- * Handler principal da API
- */
 export default async function handler(req, res) {
   const { userEmail } = req.query;
 
@@ -80,53 +70,57 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Validação do usuário pelo Supabase
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', userEmail)
-      .single();
-
-    if (userError || !user) {
-      return res.status(404).json({ error: 'Usuário não encontrado.' });
-    }
-
     // Autenticação com o Google Sheets API
     const sheets = await getAuthenticatedGoogleSheets();
-    const sheetIdUsuarios = process.env.SHEET_ID_USUARIOS;
-    const sheetIdDesempenho = process.env.SHEET_ID_DESEMPENHO;
+    const sheetIdUsuarios = "1U6M-un3ozKnQXa2LZEzGIYibYBXRuoWBDkiEaMBrU34"; // ID da planilha de usuários
+    const sheetIdDesempenho = "1mQQvwJrCg6_ymYIo-bpJUSsJUub4DrhNaZmP_u5C6nI"; // ID da planilha de desempenho
 
-    // Buscar informações do usuário
+    // Buscar Nome do Usuário e Preferências Usando o E-mail
     const usersRows = await getSheetValues(sheets, sheetIdUsuarios, 'Usuários', 'A:H');
-    const userRow = usersRows.find(row => row[2]?.toLowerCase() === userEmail.toLowerCase());
+    if (!usersRows || usersRows.length === 0) {
+      return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
+    }
 
+    // Encontrar o nome do usuário usando o e-mail e obter preferências
+    const userRow = usersRows.find(row => row[2]?.toLowerCase() === userEmail.toLowerCase());
     if (!userRow) {
       return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
-
     const userProfile = userRow[3]?.toLowerCase();
+
+    // Verificar se o perfil do usuário é "support", "analyst" ou "tax"
     if (!['support', 'support+', 'analyst', 'tax'].includes(userProfile)) {
       return res.status(403).json({ error: 'Usuário não autorizado a visualizar os dados de desempenho.' });
     }
 
     const squad = userRow[4];
-    const hasChamado = ['support', 'support+', 'tax'].includes(userProfile) ? userRow[5] === 'TRUE' : true;
+    const hasChamado = (userProfile === 'support' || userProfile ==='support+' || userProfile === 'tax') ? userRow[5] === 'TRUE' : true;
     const hasTelefone = userRow[6] === 'TRUE';
     const hasChat = userRow[7] === 'TRUE';
 
-    const responsePayload = { squad, chamado: hasChamado, telefone: hasTelefone, chat: hasChat };
+    // Estrutura de retorno dos dados de desempenho
+    const responsePayload = {
+      squad,
+      chamado: hasChamado,
+      telefone: hasTelefone,
+      chat: hasChat,
+    };
 
-    // Buscar dados de desempenho
+    // Buscar Dados de Desempenho Usando o E-mail do Usuário
     const performanceRows = await getSheetValues(sheets, sheetIdDesempenho, 'Principal', 'A:V');
-    const performanceRow = performanceRows.find(row => row[0]?.toLowerCase() === userEmail.toLowerCase());
-
-    if (!performanceRow) {
+    if (!performanceRows || performanceRows.length === 0) {
       return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado.' });
     }
 
-    responsePayload.atualizadoAte = performanceRow[21] || "Data não disponível";
+    // Encontrar a linha do desempenho usando o e-mail
+    const performanceRow = performanceRows.find(row => row[0]?.toLowerCase() === userEmail.toLowerCase());
+    if (!performanceRow) {
+      return res.status(404).json({ error: 'Nenhum dado de desempenho encontrado para o e-mail fornecido.' });
+    }
 
-    // Chamados
+    // Atribuir a data de atualização corretamente
+    responsePayload.atualizadoAte = performanceRow[21] && performanceRow[21].trim() !== "" ? performanceRow[21] : "Data não disponível";
+
     if (hasChamado) {
       const mediaPorDia = parseValue(performanceRow[9]);
       const tma = parseValue(performanceRow[10]);
@@ -145,7 +139,6 @@ export default async function handler(req, res) {
       };
     }
 
-    // Telefone
     if (hasTelefone) {
       const tma = parseValue(performanceRow[14]);
       const csat = parseValue(performanceRow[15]);
@@ -163,7 +156,6 @@ export default async function handler(req, res) {
       };
     }
 
-    // Chat
     if (hasChat) {
       const tma = parseValue(performanceRow[19]);
       const csat = parseValue(performanceRow[20]);
@@ -171,8 +163,8 @@ export default async function handler(req, res) {
       responsePayload.chat = {
         totalChats: performanceRow[17],
         mediaPorDia: parseValue(performanceRow[18]),
-        tma: formatTime(tma),
-        csat,
+        tma: tma !== null ? formatTime(tma) : "-",
+        csat: csat !== null ? csat : "-",
         colors: {
           tma: getColorForValue(tma, 20, false),
           csat: getColorForValue(csat, 95),

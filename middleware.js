@@ -8,11 +8,11 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Papéis permitidos
+  // Ajustar os papéis permitidos
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super', 'dev', 'support+'];
 
-  // Controle de rotas por perfil
+  // Verificar acesso permitido e evitar redirecionamento indesejado
   const routesWithAllowedRoles = {
     '/profile-analyst': analystRoles,
     '/dashboard-analyst': allowedRoles,
@@ -20,19 +20,15 @@ export async function middleware(req) {
     '/registro': allowedRoles,
     '/manager': allowedRoles,
     '/admin-notifications': ['dev'],
-    '/remote': ['support+', 'super'],
+    '/remote': ['support+', 'super']
   };
 
-  // Verificar permissões de acesso
-  const matchedRoute = Object.keys(routesWithAllowedRoles).find(route =>
-    req.nextUrl.pathname.startsWith(route)
-  );
-
+  const matchedRoute = Object.keys(routesWithAllowedRoles).find(route => req.nextUrl.pathname.startsWith(route));
   if (matchedRoute && !routesWithAllowedRoles[matchedRoute].includes(token.role)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Definir cookies com detalhes do usuário
+  // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
   const response = NextResponse.next();
   response.cookies.set('user-id', token.id);
   response.cookies.set('user-name', token.name);

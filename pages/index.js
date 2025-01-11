@@ -1,3 +1,4 @@
+// pages/index.js
 import Head from 'next/head';
 import { getSession, signIn } from 'next-auth/react';
 import Image from 'next/image';
@@ -8,65 +9,31 @@ import styles from '../styles/Login.module.css';
 export default function LoginPage() {
   const router = useRouter();
   const [theme, setTheme] = useState('dark');
-  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    const checkSession = async () => {
+      const session = await getSession();
+      if (session) {
+        if (session.role === 'analyst' || session.role === 'tax') {
+          router.push('/profile-analyst');
+        } else if (session.role === 'super') {
+          router.push('/dashboard-super');
+        } else if (session.role === 'dev') {
+          router.push('/admin-notifications');
+        } else {
+          router.push('/profile');
+        }
+      }
+    };
+    checkSession();
+  }, [router]);  
+
+  // Recuperar tema do localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
-
-  useEffect(() => {
-    async function checkAuthentication() {
-      try {
-        const session = await getSession();
-        if (session?.user) {
-          console.log('[AUTH] Sessão existente encontrada:', session.role);
-          
-          // Redirecionar baseado no role
-          switch (session.role) {
-            case 'analyst':
-            case 'tax':
-              router.replace('/profile-analyst');
-              break;
-            case 'super':
-              router.replace('/dashboard-super');
-              break;
-            case 'dev':
-              router.replace('/admin-notifications');
-              break;
-            default:
-              router.replace('/profile');
-          }
-        } else {
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error('[AUTH] Erro ao verificar sessão:', error);
-        setIsLoading(false);
-      }
-    }
-
-    checkAuthentication();
-  }, [router]);
-
-  const handleLogin = async () => {
-    try {
-      setIsLoading(true);
-      await signIn('google', { callbackUrl: '/' });
-    } catch (error) {
-      console.error('[AUTH] Erro no login:', error);
-      setIsLoading(false);
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -82,19 +49,14 @@ export default function LoginPage() {
               alt="Olist Helper Logo"
               width={270}
               height={75}
-              priority
             />
           </div>
           <h1 className={styles.welcomeText}>Seja bem-vindo(a)</h1>
           <p className={styles.description}>
             O Olist Helper é uma ferramenta para ajudar você a registrar e gerenciar suas dúvidas tiradas com os analistas no dia a dia.
           </p>
-          <button 
-            onClick={handleLogin} 
-            className={styles.loginButton}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Carregando...' : 'Login com Google'}
+          <button onClick={() => signIn('google')} className={styles.loginButton}>
+            Login com Google
           </button>
           <p className={styles.description}>
             Acesse com seu e-mail <br />
@@ -107,34 +69,17 @@ export default function LoginPage() {
   );
 }
 
-// Server-side props para verificação inicial de autenticação
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  
   if (session) {
-    const destination = (() => {
-      switch (session.role) {
-        case 'analyst':
-        case 'tax':
-          return '/profile-analyst';
-        case 'super':
-          return '/dashboard-super';
-        case 'dev':
-          return '/admin-notifications';
-        default:
-          return '/profile';
-      }
-    })();
-
     return {
       redirect: {
-        destination,
+        destination: (session.role === 'analyst' || session.role === 'tax') ? '/profile-analyst' : session.role === 'super' ? '/dashboard-super' : session.role === 'dev' ? '/admin-notifications' : '/profile',
         permanent: false,
-      }
+      },
     };
   }
-
   return {
-    props: {}
+    props: {},
   };
 }

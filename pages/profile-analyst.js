@@ -1,25 +1,24 @@
 import Head from 'next/head';
-import { getSession } from 'next-auth/react';
+import { getSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import { supabase } from '../utils/supabaseClient';
 import Navbar from '../components/Navbar';
+import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
-import dayjs from 'dayjs';
-import Swal from 'sweetalert2';
 
 export default function AnalystProfilePage({ user }) {
   const router = useRouter();
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true); // Estado para carregamento inicial da página
+  const [loading, setLoading] = useState(true); // Estado para carregamento dos dados
 
-  // Efeito para configurar saudação inicial e loader
   useEffect(() => {
+    // Simulando um pequeno atraso para exibir o loader inicial da página
     setTimeout(() => {
+      // Definir saudação com base na hora do dia
       const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
       const currentHour = new Date(brtDate).getHours();
       let greetingMessage = '';
@@ -37,108 +36,44 @@ export default function AnalystProfilePage({ user }) {
     }, 500);
   }, []);
 
-  // Efeito para buscar dados do analista
-  // Part of profile-analyst.js that needs fixing
-useEffect(() => {
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      if (!user?.id) {
-        console.error('ID do usuário não disponível');
-        throw new Error('ID do usuário não disponível');
-      }
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
+        const [helpResponse, categoryResponse] = await Promise.all([
+          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
+          fetch(`/api/get-category-ranking?analystId=${user.id}`)
+        ]);
 
-      const tableName = `analyst_${user.id}`;
-
-      // Definir períodos
-      const now = dayjs();
-      const currentMonthStart = now.startOf('month').format('YYYY-MM-DD');
-      const currentMonthEnd = now.endOf('month').format('YYYY-MM-DD');
-      const lastMonthStart = now.subtract(1, 'month').startOf('month').format('YYYY-MM-DD');
-      const lastMonthEnd = now.subtract(1, 'month').endOf('month').format('YYYY-MM-DD');
-
-      // Buscar dados em paralelo da tabela específica do analista
-      const [currentMonthData, lastMonthData, categoryData] = await Promise.all([
-        // Dados do mês atual
-        supabase
-          .from(tableName)
-          .select('*')
-          .gte('date', currentMonthStart)
-          .lte('date', currentMonthEnd),
-          
-        // Dados do mês anterior
-        supabase
-          .from(tableName)
-          .select('*')
-          .gte('date', lastMonthStart)
-          .lte('date', lastMonthEnd),
-
-        // Dados para ranking de categorias
-        supabase
-          .from(tableName)
-          .select('category, user_name, user_email')
-          .gte('date', currentMonthStart)
-          .lte('date', currentMonthEnd)
-      ]);
-
-      // Verificar erros
-      if (currentMonthData.error) throw new Error(`Erro mês atual: ${currentMonthData.error.message}`);
-      if (lastMonthData.error) throw new Error(`Erro mês anterior: ${lastMonthData.error.message}`);
-      if (categoryData.error) throw new Error(`Erro categorias: ${categoryData.error.message}`);
-
-      // Atualizar contadores de ajuda
-      setHelpRequests({
-        currentMonth: currentMonthData.data.length,
-        lastMonth: lastMonthData.data.length
-      });
-
-      // Processar ranking de categorias
-      const categoryCount = categoryData.data.reduce((acc, record) => {
-        const category = record.category || 'Sem Categoria';
-        if (!acc[category]) {
-          acc[category] = {
-            count: 0,
-            users: new Set()
-          };
+        if (!helpResponse.ok || !categoryResponse.ok) {
+          throw new Error('Erro ao buscar dados do analista.');
         }
-        acc[category].count++;
-        acc[category].users.add(record.user_email);
-        return acc;
-      }, {});
 
-      // Formatar e ordenar ranking
-      const ranking = Object.entries(categoryCount)
-        .map(([name, data]) => ({
-          name,
-          count: data.count,
-          uniqueUsers: data.users.size
-        }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
+        // Ajudas Solicitadas
+        const helpData = await helpResponse.json();
+        setHelpRequests({
+          currentMonth: helpData.currentMonth,
+          lastMonth: helpData.lastMonth,
+        });
 
-      setCategoryRanking(ranking);
+        // Ranking de Categorias
+        const categoryData = await categoryResponse.json();
+        setCategoryRanking(categoryData.categories || []);
+      } catch (error) {
+        console.error('Erro ao buscar dados:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    } catch (error) {
-      console.error('Erro ao buscar dados:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro ao carregar dados',
-        text: 'Não foi possível carregar os dados do perfil.'
-      });
-      setHelpRequests({ currentMonth: 0, lastMonth: 0 });
-      setCategoryRanking([]);
-    } finally {
-      setLoading(false);
+    if (user?.id) {
+      fetchData();
     }
-  };
+  }, [user.id]);
 
-  if (user?.id) {
-    fetchData();
-  }
-}, [user?.id]);
-
-  // Loader inicial
   if (initialLoading) {
+    // Loader inicial da página
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
@@ -146,7 +81,6 @@ useEffect(() => {
     );
   }
 
-  // Cálculos para exibição
   const firstName = user.name.split(' ')[0];
   const { currentMonth, lastMonth } = helpRequests;
   let percentageChange = 0;
@@ -170,7 +104,7 @@ useEffect(() => {
       <main className={styles.main}>
         <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
 
-        {/* Container para Dados de Perfil e Ajudas Prestadas */}
+        {/* Container para Dados de Perfil e Ajudas Solicitadas */}
         <div className={styles.profileAndHelpContainer}>
           <div className={styles.profileContainer}>
             <img src={user.image} alt={user.name} className={styles.profileImage} />
@@ -255,7 +189,6 @@ useEffect(() => {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  
   if (!session || (session.role !== 'analyst' && session.role !== 'tax')) {
     return {
       redirect: {
@@ -264,16 +197,12 @@ export async function getServerSideProps(context) {
       },
     };
   }
-
   return {
     props: {
       user: {
         ...session.user,
         role: session.role,
         id: session.id,
-        name: session.user?.name || 'Unknown',
-        email: session.user?.email || '',
-        image: session.user?.image || ''
       },
     },
   };
