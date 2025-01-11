@@ -1,6 +1,15 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import { createClient } from '@supabase/supabase-js';
+
+// Supabase Client para leitura (usuário comum)
 import { supabase } from '../../../utils/supabaseClient';
+
+// Supabase Client com Service Role Key para escrita
+const supabaseService = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export default NextAuth({
   providers: [
@@ -86,7 +95,7 @@ async function getOrCreateUserInSupabase(user) {
 
     const newUserCode = await generateUniqueUserCode();
 
-    const { data: newUser, error: insertError } = await supabase
+    const { data: newUser, error: insertError } = await supabaseService
       .from('users')
       .insert({
         name: user.name,
