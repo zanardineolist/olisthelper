@@ -23,8 +23,11 @@ const validateAnalyst = async (userCode) => {
   }
 
   if (!analyst) {
+    console.warn(`[VALIDATE ANALYST] Nenhum analista encontrado para userCode: ${userCode}`);
     throw new Error('Analista não encontrado');
   }
+
+  console.log('[VALIDATE ANALYST] Analista encontrado:', analyst);
 
   if (!['analyst', 'tax'].includes(analyst.role)) {
     throw new Error('Usuário não é um analista ou fiscal');
@@ -33,22 +36,24 @@ const validateAnalyst = async (userCode) => {
   return analyst;
 };
 
-
 /**
  * Função para verificar se a tabela analyst_{user_code} existe
  */
 const checkAnalystTableExists = async (userCode) => {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from(`analyst_${userCode}`)
     .select('id')
     .limit(1);
 
   if (error) {
-    if (error.message.includes('relation')) {
+    console.error(`[CHECK TABLE] Erro ao verificar a tabela analyst_${userCode}: ${error.message}`);
+    if (error.message.includes('relation') || error.code === '42P01') {
       throw new Error(`Tabela analyst_${userCode} não encontrada.`);
     }
     throw new Error(`Erro ao verificar a tabela: ${error.message}`);
   }
+
+  console.log(`[CHECK TABLE] Tabela analyst_${userCode} existe.`);
 };
 
 /**
