@@ -43,27 +43,24 @@ export default function AnalystProfilePage({ user }) {
         console.log('Dados do usuário disponíveis:', {
           id: user.id,
           email: user.email,
-          role: user.role,
-          user_code: user.user_code
+          role: user.role
         });
   
-        if (!user?.user_code) {
-          console.error('user_code não disponível:', user);
-          throw new Error('user_code não disponível');
+        if (!user?.id) {
+          console.error('ID do usuário não disponível:', user);
+          throw new Error('ID do usuário não disponível');
         }
-  
-        console.log('Iniciando busca de dados para user_code:', user.user_code);
   
         // Realizar as chamadas em paralelo
         const [helpResponse, categoryResponse] = await Promise.all([
-          fetch(`/api/get-analyst-records?userCode=${user.user_code}&mode=profile`).then(res => {
+          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`).then(res => {
             if (!res.ok) {
               console.error('Erro na resposta de get-analyst-records:', res.status);
               return res.json().then(err => Promise.reject(err));
             }
             return res.json();
           }),
-          fetch(`/api/get-category-ranking?userCode=${user.user_code}`).then(res => {
+          fetch(`/api/get-category-ranking?analystId=${user.id}`).then(res => {
             if (!res.ok) {
               console.error('Erro na resposta de get-category-ranking:', res.status);
               return res.json().then(err => Promise.reject(err));
@@ -71,8 +68,6 @@ export default function AnalystProfilePage({ user }) {
             return res.json();
           })
         ]);
-  
-        console.log('Dados recebidos:', { helpResponse, categoryResponse });
   
         setHelpRequests({
           currentMonth: helpResponse.currentMonth || 0,
@@ -90,10 +85,10 @@ export default function AnalystProfilePage({ user }) {
       }
     };
   
-    if (user?.user_code) {
+    if (user?.id) {
       fetchData();
     }
-  }, [user?.user_code]);
+  }, [user?.id]);
 
   if (initialLoading) {
     // Loader inicial da página
