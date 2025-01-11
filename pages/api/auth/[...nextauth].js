@@ -31,38 +31,41 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       try {
-        // Verificar domínios permitidos
+        // 1. Verificar domínios permitidos
         const allowedDomains = ['@olist.com', '@tiny.com.br'];
         const isAllowedDomain = allowedDomains.some(domain => user.email.endsWith(domain));
 
         if (!isAllowedDomain) {
-          console.warn("Domínio não autorizado:", user.email);
+          console.warn(`[AUTH] Domínio não autorizado: ${user.email}`);
           return false;
         }
 
-        // Buscar usuário existente
-        const { data: existingUser, error: fetchError } = await supabase
+        // 2. Buscar usuário existente
+        const { data: existingUser, error: searchError } = await supabase
           .from('users')
           .select('*')
           .eq('email', user.email)
-          .single();
+          .maybeSingle();
 
-        if (fetchError && fetchError.code !== 'PGRST116') {
-          console.error("Erro ao buscar usuário:", fetchError);
+        // Se houver um erro na busca (que não seja de registro não encontrado)
+        if (searchError && searchError.code !== 'PGRST116') {
+          console.error(`[AUTH] Erro ao buscar usuário: ${searchError.message}`);
           return false;
         }
 
-        // Se o usuário já existe, retornar true
+        // 3. Se o usuário existe, permitir o login
         if (existingUser) {
-          console.log("Usuário existente encontrado:", existingUser.email);
+          console.log(`[AUTH] Usuário existente autenticado: ${user.email}`);
           return true;
         }
 
-        // Se não existe, criar novo usuário
+        // 4. Se não existe e o domínio é permitido, criar novo usuário
+        console.log(`[AUTH] Criando novo usuário: ${user.email}`);
         const newUserCode = await generateUniqueUserCode();
+        
         const { error: insertError } = await supabaseAdmin
           .from('users')
-          .insert([{
+          .insert({
             name: user.name,
             email: user.email,
             role: 'support',
@@ -71,45 +74,26 @@ export default NextAuth({
             chamado: false,
             telefone: false,
             chat: false,
-            remote: false
-          }]);
+            remote: false,
+            created_at: new Date().toISOString()
+          });
 
         if (insertError) {
-          console.error("Erro ao criar usuário:", insertError);
+          console.error(`[AUTH] Erro ao criar usuário: ${insertError.message}`);
           return false;
         }
 
-        console.log("Novo usuário criado com sucesso:", user.email);
+        console.log(`[AUTH] Novo usuário criado com sucesso: ${user.email}`);
         return true;
+
       } catch (error) {
-        console.error("Erro durante o processo de sign in:", error);
+        console.error(`[AUTH] Erro no processo de autenticação: ${error.message}`);
         return false;
       }
     },
 
-    async session({ session, token }) {
-      if (token) {
-        try {
-          const { data: user, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', session.user.email)
-            .single();
-
-          if (!error && user) {
-            session.id = user.id;
-            session.role = user.role;
-            session.user_code = user.user_code;
-          }
-        } catch (error) {
-          console.error("Erro ao buscar dados da sessão:", error);
-        }
-      }
-      return session;
-    },
-
-    async jwt({ token, user, account }) {
-      if (account && user) {
+    async jwt({ token, user }) {
+      if (user) {
         try {
           const { data: userData, error } = await supabase
             .from('users')
@@ -123,10 +107,31 @@ export default NextAuth({
             token.user_code = userData.user_code;
           }
         } catch (error) {
-          console.error("Erro ao buscar dados para JWT:", error);
+          console.error(`[AUTH] Erro ao gerar JWT: ${error.message}`);
         }
       }
       return token;
+    },
+
+    async session({ session, token }) {
+      if (session?.user) {
+        try {
+          const { data: userData, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', session.user.email)
+            .single();
+
+          if (!error && userData) {
+            session.id = userData.id;
+            session.role = userData.role;
+            session.user_code = userData.user_code;
+          }
+        } catch (error) {
+          console.error(`[AUTH] Erro ao criar sessão: ${error.message}`);
+        }
+      }
+      return session;
     }
   },
   pages: {
@@ -143,7 +148,7 @@ async function generateUniqueUserCode() {
       .select('user_code');
 
     if (error) {
-      console.error("Erro ao buscar códigos existentes:", error);
+      console.error(`[AUTH] Erro ao buscar códigos: ${error.message}`);
       return Math.floor(1000 + Math.random() * 9000).toString();
     }
 
@@ -154,7 +159,7 @@ async function generateUniqueUserCode() {
 
     return newCode;
   } catch (error) {
-    console.error("Erro ao gerar código único:", error);
+    console.error(`[AUTH] Erro ao gerar código: ${error.message}`);
     return Math.floor(1000 + Math.random() * 9000).toString();
   }
 }
