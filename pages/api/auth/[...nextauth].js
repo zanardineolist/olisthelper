@@ -3,12 +3,21 @@ import GoogleProvider from 'next-auth/providers/google';
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase Client para leitura
-import { supabase } from '../../../utils/supabaseClient';
-
-// Supabase Client com Service Role Key para escrita
-const supabaseService = createClient(
+const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
+// Supabase Admin Client para operações privilegiadas
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
 );
 
 export default NextAuth({
@@ -22,121 +31,130 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       try {
+        // Verificar domínios permitidos
         const allowedDomains = ['@olist.com', '@tiny.com.br'];
         const isAllowedDomain = allowedDomains.some(domain => user.email.endsWith(domain));
 
         if (!isAllowedDomain) {
-          console.error("Domínio não autorizado:", user.email);
+          console.warn("Domínio não autorizado:", user.email);
           return false;
         }
 
-        const userDetails = await getOrCreateUserInSupabase(user);
-        if (!userDetails) {
-          console.error("Usuário não autorizado:", user.email);
+        // Buscar usuário existente
+        const { data: existingUser, error: fetchError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', user.email)
+          .single();
+
+        if (fetchError && fetchError.code !== 'PGRST116') {
+          console.error("Erro ao buscar usuário:", fetchError);
           return false;
         }
 
-        console.log("Usuário autorizado:", userDetails);
+        // Se o usuário já existe, retornar true
+        if (existingUser) {
+          console.log("Usuário existente encontrado:", existingUser.email);
+          return true;
+        }
+
+        // Se não existe, criar novo usuário
+        const newUserCode = await generateUniqueUserCode();
+        const { error: insertError } = await supabaseAdmin
+          .from('users')
+          .insert([{
+            name: user.name,
+            email: user.email,
+            role: 'support',
+            user_code: newUserCode,
+            squad: 'Squad',
+            chamado: false,
+            telefone: false,
+            chat: false,
+            remote: false
+          }]);
+
+        if (insertError) {
+          console.error("Erro ao criar usuário:", insertError);
+          return false;
+        }
+
+        console.log("Novo usuário criado com sucesso:", user.email);
         return true;
       } catch (error) {
-        console.error("Erro durante a verificação do login:", error);
+        console.error("Erro durante o processo de sign in:", error);
         return false;
       }
     },
+
     async session({ session, token }) {
       if (token) {
-        session.id = token.id;
-        session.role = token.role;
-        session.user_code = token.user_code;
+        try {
+          const { data: user, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', session.user.email)
+            .single();
+
+          if (!error && user) {
+            session.id = user.id;
+            session.role = user.role;
+            session.user_code = user.user_code;
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dados da sessão:", error);
+        }
       }
       return session;
     },
-    async jwt({ token, user }) {
-      if (user) {
+
+    async jwt({ token, user, account }) {
+      if (account && user) {
         try {
-          const userDetails = await getOrCreateUserInSupabase(user);
-          if (userDetails) {
-            token.id = userDetails.id;
-            token.role = userDetails.role;
-            token.user_code = userDetails.user_code;
+          const { data: userData, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', user.email)
+            .single();
+
+          if (!error && userData) {
+            token.id = userData.id;
+            token.role = userData.role;
+            token.user_code = userData.user_code;
           }
         } catch (error) {
-          console.error("Erro ao obter detalhes do usuário:", error);
+          console.error("Erro ao buscar dados para JWT:", error);
         }
       }
       return token;
-    },
+    }
   },
   pages: {
     signIn: '/',
     signOut: '/',
     error: '/auth/error',
-  },
-  jwt: {
-    secret: process.env.NEXTAUTH_SECRET,
-  },
+  }
 });
 
-async function getOrCreateUserInSupabase(user) {
-  try {
-    const { data: existingUser, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('email', user.email)
-      .single();
-
-    if (userError && userError.code !== 'PGRST116') {
-      console.error("Erro ao buscar usuário:", userError.message);
-      return null;
-    }
-
-    if (existingUser) {
-      return existingUser;
-    }
-
-    const newUserCode = await generateUniqueUserCode();
-
-    const { data: newUser, error: insertError } = await supabaseService
-      .from('users')
-      .insert({
-        name: user.name,
-        email: user.email,
-        role: 'support',
-        user_code: newUserCode,
-        squad: 'Squad',          // Valor padrão para squad
-        chamado: false,          // Valor padrão para chamado
-        telefone: false,         // Valor padrão para telefone
-        chat: false,             // Valor padrão para chat
-        remote: false            // Valor padrão para acesso remoto
-      })
-      .single();
-
-    if (insertError) {
-      console.error("Erro ao criar usuário:", insertError.message);
-      return null;
-    }
-
-    return newUser;
-  } catch (error) {
-    console.error("Erro ao verificar ou criar usuário:", error.message);
-    return null;
-  }
-}
-
 async function generateUniqueUserCode() {
-  const { data: usedCodes, error } = await supabase
-    .from('users')
-    .select('user_code');
+  try {
+    const { data: usedCodes, error } = await supabase
+      .from('users')
+      .select('user_code');
 
-  if (error) {
-    console.error("Erro ao buscar códigos existentes:", error.message);
-    return null;
+    if (error) {
+      console.error("Erro ao buscar códigos existentes:", error);
+      return Math.floor(1000 + Math.random() * 9000).toString();
+    }
+
+    let newCode;
+    do {
+      newCode = Math.floor(1000 + Math.random() * 9000).toString();
+    } while (usedCodes.some(user => user.user_code === newCode));
+
+    return newCode;
+  } catch (error) {
+    console.error("Erro ao gerar código único:", error);
+    return Math.floor(1000 + Math.random() * 9000).toString();
   }
-
-  let newCode;
-  do {
-    newCode = Math.floor(1000 + Math.random() * 9000).toString();
-  } while (usedCodes.some(user => user.user_code === newCode));
-
-  return newCode;
 }
