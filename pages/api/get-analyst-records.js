@@ -1,65 +1,147 @@
 import { supabase } from '../../utils/supabaseClient';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+// Configurar dayjs para trabalhar com timezone
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("America/Sao_Paulo");
 
 /**
- * Handler para buscar registros detalhados de um analista
+ * Função para validar e obter dados do analista
+ */
+const getAnalystData = async (analystId) => {
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('id, user_code, name, email, role')
+    .eq('id', analystId)
+    .single();
+
+  if (error || !user) {
+    throw new Error('Analista não encontrado');
+  }
+
+  if (!['analyst', 'tax'].includes(user.role)) {
+    throw new Error('Usuário não é um analista ou fiscal');
+  }
+
+  return user;
+};
+
+/**
+ * Função para buscar registros do período atual e anterior
+ */
+const getPeriodRecords = async (userCode, currentPeriod, previousPeriod) => {
+  const { data, error } = await supabase
+    .from(`analyst_${userCode}`)
+    .select('*')
+    .gte('date', previousPeriod.start)
+    .lte('date', currentPeriod.end)
+    .order('date', { ascending: false });
+
+  if (error) {
+    throw new Error(`Erro ao buscar registros: ${error.message}`);
+  }
+
+  return data || [];
+};
+
+/**
+ * Handler principal
  */
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Método não permitido. Use GET.' });
   }
 
-  const { analystId, startDate, endDate, viewMode } = req.query;
+  const { analystId, filter = '30', viewMode } = req.query;
 
-  // 🔎 Validação: Verifica se o ID do analista foi fornecido
   if (!analystId) {
     console.warn('[RECORDS] ID do analista não fornecido.');
     return res.status(400).json({ error: 'ID do analista não fornecido.' });
   }
 
   try {
-    // 📅 Definir intervalo de datas (padrão: mês atual)
-    const start = startDate || dayjs().startOf('month').format('YYYY-MM-DD');
-    const end = endDate || dayjs().endOf('month').format('YYYY-MM-DD');
+    // Validar analista
+    const analyst = await getAnalystData(analystId);
+    
+    // Configurar períodos
+    const now = dayjs();
+    const currentPeriod = {
+      start: now.startOf('month').format('YYYY-MM-DD'),
+      end: now.endOf('month').format('YYYY-MM-DD')
+    };
+    
+    const previousPeriod = {
+      start: now.subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
+      end: now.subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
+    };
 
-    // 🔍 Buscar registros com filtro de datas
-    const { data: records, error } = await supabase
-      .from(`analyst_${analystId}`)
-      .select('date, time, user_name, user_email, category, description')
-      .gte('date', start)
-      .lte('date', end)
-      .order('date', { ascending: false });
+    // Buscar registros
+    const records = await getPeriodRecords(analyst.user_code, currentPeriod, previousPeriod);
 
-    // 📛 Tratamento de erro da consulta
-    if (error) {
-      console.error(`[RECORDS] Erro ao buscar registros: ${error.message}`);
-      return res.status(500).json({ error: 'Erro ao buscar registros do analista.' });
-    }
-
-    // 🔎 Validação: Verificar se há registros
-    if (!records || records.length === 0) {
-      console.warn(`[RECORDS] Nenhum registro encontrado para o analista ID: ${analystId}`);
-      return res.status(404).json({ error: 'Nenhum registro encontrado para este analista.' });
-    }
-
-    // 🎨 Formatação personalizada dos dados conforme viewMode
-    let formattedData;
+    // Processar dados com base no viewMode
     if (viewMode === 'profile') {
-      // Exibição compacta para o perfil
-      formattedData = records.map((record) => ({
-        date: dayjs(record.date).format('DD/MM/YYYY'),
-        category: record.category,
-        description: record.description,
-      }));
-    } else {
-      // Exibição completa
-      formattedData = records;
+      const currentMonthRecords = records.filter(record => 
+        dayjs(record.date).isSame(now, 'month')
+      );
+
+      const lastMonthRecords = records.filter(record =>
+        dayjs(record.date).isSame(now.subtract(1, 'month'), 'month')
+      );
+
+      return res.status(200).json({
+        currentMonth: currentMonthRecords.length,
+        lastMonth: lastMonthRecords.length,
+        analyst: {
+          id: analyst.id,
+          name: analyst.name,
+          email: analyst.email
+        }
+      });
     }
 
-    // ✅ Retornar os registros formatados
-    return res.status(200).json({ records: formattedData });
+    // Modo padrão - filtrar por período específico
+    const filterDays = parseInt(filter, 10);
+    const filterDate = now.subtract(filterDays, 'day').startOf('day');
+    
+    const filteredRecords = records.filter(record =>
+      dayjs(record.date).isAfter(filterDate)
+    );
+
+    // Agrupar por data para contagem
+    const dateGroups = filteredRecords.reduce((acc, record) => {
+      const date = dayjs(record.date).format('DD/MM/YYYY');
+      if (!acc[date]) acc[date] = 0;
+      acc[date]++;
+      return acc;
+    }, {});
+
+    // Preparar dados para o gráfico
+    const dates = Object.keys(dateGroups).sort((a, b) => 
+      dayjs(a, 'DD/MM/YYYY').unix() - dayjs(b, 'DD/MM/YYYY').unix()
+    );
+
+    return res.status(200).json({
+      count: filteredRecords.length,
+      dates,
+      counts: dates.map(date => dateGroups[date]),
+      records: filteredRecords.map(record => ({
+        date: dayjs(record.date).format('DD/MM/YYYY'),
+        time: record.time,
+        user_name: record.user_name,
+        user_email: record.user_email,
+        category: record.category,
+        description: record.description
+      }))
+    });
+
   } catch (err) {
     console.error('[RECORDS] Erro inesperado:', err);
-    return res.status(500).json({ error: 'Erro inesperado ao buscar registros do analista.' });
+    return res.status(500).json({ 
+      error: 'Erro inesperado ao buscar registros do analista.',
+      message: err.message
+    });
   }
 }
