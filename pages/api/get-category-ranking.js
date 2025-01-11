@@ -30,9 +30,25 @@ const validateAnalyst = async (analystId) => {
 };
 
 /**
+ * Função para verificar se a tabela analyst_{user_code} existe
+ */
+const checkAnalystTableExists = async (userCode) => {
+  const { error } = await supabase
+    .from(`analyst_${userCode}`)
+    .select('id')
+    .limit(1);
+
+  if (error && error.message.includes('relation')) {
+    throw new Error(`Tabela analyst_${userCode} não encontrada.`);
+  }
+};
+
+/**
  * Função para buscar registros e calcular o ranking
  */
 const calculateRanking = async (userCode, dateRange) => {
+  await checkAnalystTableExists(userCode);
+
   const { data: records, error } = await supabase
     .from(`analyst_${userCode}`)
     .select(`
@@ -61,17 +77,15 @@ const calculateRanking = async (userCode, dateRange) => {
     }
     acc[category].count++;
     acc[category].users.add(record.user_email);
-    
-    // Atualizar data do último uso se necessário
+
     const recordDate = dayjs(record.date);
     if (!acc[category].lastUsage || recordDate.isAfter(acc[category].lastUsage)) {
       acc[category].lastUsage = record.date;
     }
-    
+
     return acc;
   }, {});
 
-  // Converter para array e ordenar
   return Object.entries(categoryCount)
     .map(([name, data]) => ({
       name,
@@ -99,10 +113,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Validar analista
     const analyst = await validateAnalyst(analystId);
 
-    // Definir intervalo de datas
     const now = dayjs();
     let dateRange;
 
@@ -119,49 +131,28 @@ export default async function handler(req, res) {
           end: now.endOf('year').format('YYYY-MM-DD')
         };
         break;
-      default: // month
+      default:
         dateRange = {
           start: now.startOf('month').format('YYYY-MM-DD'),
           end: now.endOf('month').format('YYYY-MM-DD')
         };
     }
 
-    // Calcular ranking
     const fullRanking = await calculateRanking(analyst.user_code, dateRange);
-
-    // Separar top 10 e estatísticas gerais
     const topCategories = fullRanking.slice(0, 10);
-    const totalRecords = fullRanking.reduce((sum, cat) => sum + cat.count, 0);
-    const totalCategories = fullRanking.length;
-
-    // Calcular métricas adicionais
-    const statistics = {
-      totalRecords,
-      totalCategories,
-      averagePerCategory: +(totalRecords / totalCategories).toFixed(2),
-      topCategoryPercentage: topCategories[0] 
-        ? +((topCategories[0].count / totalRecords) * 100).toFixed(2)
-        : 0
-    };
 
     return res.status(200).json({
       categories: topCategories,
-      statistics,
       metadata: {
         analyst: {
           id: analyst.id,
           name: analyst.name,
           user_code: analyst.user_code
         },
-        period: {
-          type: period,
-          start: dateRange.start,
-          end: dateRange.end
-        },
+        period: dateRange,
         generatedAt: new Date().toISOString()
       }
     });
-
   } catch (err) {
     console.error('[CATEGORY RANKING] Erro inesperado:', err);
     return res.status(500).json({
