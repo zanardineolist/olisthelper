@@ -8,33 +8,22 @@ dayjs.extend(timezone);
 dayjs.tz.setDefault("America/Sao_Paulo");
 
 /**
- * Função para validar e obter dados do analista
+ * Função para validar e obter dados do analista pelo user_code
  */
-const validateAnalyst = async (analystId) => {
-  const { data: analysts, error } = await supabase
+const validateAnalyst = async (userCode) => {
+  const { data: analyst, error } = await supabase
     .from('users')
     .select('id, user_code, name, role')
-    .eq('id', analystId)
-    .limit(2);  // Ajuste para capturar múltiplos resultados
+    .eq('user_code', userCode)
+    .single();
 
   if (error) {
     console.error(`[VALIDATE ANALYST] Erro na consulta: ${error.message}`);
     throw new Error('Erro ao validar o analista.');
   }
 
-  if (!analysts || analysts.length === 0) {
+  if (!analyst) {
     throw new Error('Analista não encontrado');
-  }
-
-  if (analysts.length > 1) {
-    console.error(`[VALIDATE ANALYST] Mais de um analista encontrado para o ID: ${analystId}`, analysts);
-    throw new Error('Múltiplos analistas encontrados. Verifique a base de dados.');
-  }
-
-  const analyst = analysts[0];
-
-  if (!analyst.user_code) {
-    throw new Error('Código do usuário não encontrado');
   }
 
   if (!['analyst', 'tax'].includes(analyst.role)) {
@@ -43,6 +32,7 @@ const validateAnalyst = async (analystId) => {
 
   return analyst;
 };
+
 
 /**
  * Função para verificar se a tabela analyst_{user_code} existe
@@ -122,15 +112,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Método não permitido. Use GET.' });
   }
 
-  const { analystId, period = 'month' } = req.query;
+  const { userCode, period = 'month' } = req.query;
 
-  if (!analystId) {
-    console.warn('[CATEGORY RANKING] ID do analista não fornecido.');
-    return res.status(400).json({ error: 'ID do analista não fornecido.' });
+  if (!userCode) {
+    console.warn('[CATEGORY RANKING] userCode do analista não fornecido.');
+    return res.status(400).json({ error: 'userCode do analista não fornecido.' });
   }
 
   try {
-    const analyst = await validateAnalyst(analystId);
+    const analyst = await validateAnalyst(userCode);
 
     const now = dayjs();
     let dateRange;
@@ -155,7 +145,7 @@ export default async function handler(req, res) {
         };
     }
 
-    const fullRanking = await calculateRanking(analyst.user_code, dateRange);
+    const fullRanking = await calculateRanking(userCode, dateRange);
     const topCategories = fullRanking.slice(0, 10);
 
     return res.status(200).json({

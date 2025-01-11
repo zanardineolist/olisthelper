@@ -40,24 +40,22 @@ export default function AnalystProfilePage({ user }) {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
+        // Usar o user_code ao invés do id
         const [helpResponse, categoryResponse] = await Promise.all([
-          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
-          fetch(`/api/get-category-ranking?analystId=${user.id}`)
+          fetch(`/api/get-analyst-records?userCode=${user.user_code}&mode=profile`),
+          fetch(`/api/get-category-ranking?userCode=${user.user_code}`)
         ]);
-
+  
         if (!helpResponse.ok || !categoryResponse.ok) {
           throw new Error('Erro ao buscar dados do analista.');
         }
-
-        // Ajudas Solicitadas
+  
         const helpData = await helpResponse.json();
         setHelpRequests({
           currentMonth: helpData.currentMonth,
           lastMonth: helpData.lastMonth,
         });
-
-        // Ranking de Categorias
+  
         const categoryData = await categoryResponse.json();
         setCategoryRanking(categoryData.categories || []);
       } catch (error) {
@@ -66,11 +64,11 @@ export default function AnalystProfilePage({ user }) {
         setLoading(false);
       }
     };
-
-    if (user?.id) {
+  
+    if (user?.user_code) {
       fetchData();
     }
-  }, [user.id]);
+  }, [user.user_code]);
 
   if (initialLoading) {
     // Loader inicial da página
