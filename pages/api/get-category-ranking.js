@@ -11,20 +11,27 @@ dayjs.tz.setDefault("America/Sao_Paulo");
  * Função para validar e obter dados do analista
  */
 const validateAnalyst = async (analystId) => {
-  const { data: analyst, error } = await supabase
+  const { data: analysts, error } = await supabase
     .from('users')
     .select('id, user_code, name, role')
     .eq('id', analystId)
-    .single();
+    .limit(2);  // Ajuste para capturar múltiplos resultados
 
   if (error) {
     console.error(`[VALIDATE ANALYST] Erro na consulta: ${error.message}`);
     throw new Error('Erro ao validar o analista.');
   }
 
-  if (!analyst) {
+  if (!analysts || analysts.length === 0) {
     throw new Error('Analista não encontrado');
   }
+
+  if (analysts.length > 1) {
+    console.error(`[VALIDATE ANALYST] Mais de um analista encontrado para o ID: ${analystId}`, analysts);
+    throw new Error('Múltiplos analistas encontrados. Verifique a base de dados.');
+  }
+
+  const analyst = analysts[0];
 
   if (!analyst.user_code) {
     throw new Error('Código do usuário não encontrado');
