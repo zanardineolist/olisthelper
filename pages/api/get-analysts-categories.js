@@ -1,26 +1,48 @@
-import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
+import { supabase } from '../../utils/supabaseClient';
 
+/**
+ * Handler para listar todas as categorias e analistas
+ */
 export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Método não permitido. Use GET.' });
+  }
+
   try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
+    // Consulta todas as categorias
+    const { data: categories, error: categoriesError } = await supabase
+      .from('categories')
+      .select('id, name')
+      .order('name', { ascending: true });
 
-    // Obter categorias
-    const categoriesResponse = await getSheetValues('Categorias', 'A2:A');
-    const categories = categoriesResponse.flat();
+    if (categoriesError) {
+      console.error(`[CATEGORIES] Erro ao buscar categorias: ${categoriesError.message}`);
+      return res.status(500).json({ error: 'Erro ao buscar categorias.' });
+    }
 
-    // Obter analistas
-    const rows = await getSheetValues('Usuários', 'A:D');
-    const analysts = rows
-      .filter((row) => row[3] === 'analyst')
-      .map((row) => ({
-        id: row[0],
-        name: row[1],
-      }));
+    // Consulta todos os analistas
+    const { data: analysts, error: analystsError } = await supabase
+      .from('users')
+      .select('id, name, email')
+      .eq('role', 'analyst')
+      .order('name', { ascending: true });
 
-    res.status(200).json({ analysts, categories });
-  } catch (error) {
-    console.error('Erro ao obter analistas e categorias:', error);
-    res.status(500).json({ error: 'Erro ao carregar dados.' });
+    if (analystsError) {
+      console.error(`[ANALYSTS] Erro ao buscar analistas: ${analystsError.message}`);
+      return res.status(500).json({ error: 'Erro ao buscar analistas.' });
+    }
+
+    if (!categories.length && !analysts.length) {
+      console.warn('[CATEGORIES & ANALYSTS] Nenhuma categoria ou analista encontrado.');
+      return res.status(404).json({ error: 'Nenhuma categoria ou analista encontrado.' });
+    }
+
+    return res.status(200).json({
+      categories,
+      analysts,
+    });
+  } catch (err) {
+    console.error('[CATEGORIES & ANALYSTS] Erro inesperado:', err);
+    return res.status(500).json({ error: 'Erro inesperado ao buscar categorias e analistas.' });
   }
 }

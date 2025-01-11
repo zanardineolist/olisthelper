@@ -1,79 +1,58 @@
-import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
+import { supabase } from '../../utils/supabaseClient';
+import dayjs from 'dayjs';
 
+/**
+ * Handler para retornar o ranking de categorias utilizadas por um usuário
+ */
 export default async function handler(req, res) {
-  const { userEmail } = req.query;
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Método não permitido. Use GET.' });
+  }
 
-  if (!userEmail || userEmail === 'undefined') {
-    console.log('Erro: E-mail do usuário não fornecido ou inválido.');
-    return res.status(400).json({ error: 'E-mail do usuário é obrigatório e deve ser válido.' });
+  const { userId } = req.query;
+
+  if (!userId) {
+    console.warn('[USER CATEGORY RANKING] ID do usuário não fornecido.');
+    return res.status(400).json({ error: 'ID do usuário não fornecido.' });
   }
 
   try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
+    const startOfMonth = dayjs().startOf('month').format('YYYY-MM-DD');
+    const endOfMonth = dayjs().endOf('month').format('YYYY-MM-DD');
 
-    console.log(`Buscando metadados da planilha com ID: ${sheetId} para o usuário: ${userEmail}`);
+    // Buscar registros de ajuda do usuário no mês atual
+    const { data: helpRecords, error } = await supabase
+      .from('help_records')
+      .select('category_id, date')
+      .eq('user_id', userId)
+      .gte('date', startOfMonth)
+      .lte('date', endOfMonth);
 
-    // Obter as informações da planilha (metadados)
-    const sheetMeta = await getSheetMetaData();
-
-    // Filtrar apenas as abas que representam analistas ou usuários "tax" com o formato esperado: "#id - Nome"
-    const sheetNames = sheetMeta.data.sheets
-      .map(sheet => sheet.properties.title)
-      .filter(name => /^#\d+ - .+$/.test(name)); // Apenas abas que começam com "#" seguido por números e um nome
-
-    let rows = [];
-
-    // Iterar sobre as abas filtradas para buscar os dados
-    for (const sheetName of sheetNames) {
-      const response = await getSheetValues(sheetName, 'A:F');
-      rows = rows.concat(response);
+    if (error) {
+      console.error(`[USER CATEGORY RANKING] Erro ao buscar registros: ${error.message}`);
+      return res.status(500).json({ error: 'Erro ao buscar registros do usuário.' });
     }
 
-    if (!rows || rows.length === 0) {
-      console.log('Nenhum registro encontrado.');
-      return res.status(200).json({ categories: [] });
+    if (!helpRecords || helpRecords.length === 0) {
+      console.warn(`[USER CATEGORY RANKING] Nenhum registro encontrado para o usuário ID: ${userId}`);
+      return res.status(404).json({ error: 'Nenhum registro encontrado para este usuário.' });
     }
 
-    // Filtrar registros do mês atual e do usuário especificado
-    const currentDate = new Date();
-    const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
-    const currentMonth = brtDate.getMonth();
-    const currentYear = brtDate.getFullYear();
-
-    const currentMonthRows = rows.filter((row, index) => {
-      if (index === 0) return false; // Pular cabeçalho
-      const [dateStr, , , email, category] = row;
-      if (email !== userEmail) return false;
-
-      const [day, month, year] = dateStr.split('/').map(Number);
-      const date = new Date(year, month - 1, day);
-
-      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    // Contagem de categorias
+    const categoryCount = {};
+    helpRecords.forEach((record) => {
+      const category = record.category_id || 'Sem Categoria';
+      categoryCount[category] = (categoryCount[category] || 0) + 1;
     });
 
-    // Contar categorias
-    const categoryCounts = currentMonthRows.reduce((acc, row) => {
-      const category = row[4];
-
-      if (category) {
-        acc[category] = (acc[category] || 0) + 1;
-      }
-
-      return acc;
-    }, {});
-
-    // Ordenar e pegar as top 10 categorias
-    const sortedCategories = Object.entries(categoryCounts)
+    // Ordenação do ranking
+    const ranking = Object.entries(categoryCount)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([name, count]) => ({ name, count }));
+      .map(([category, count]) => ({ category, count }));
 
-    console.log('Categorias no ranking:', sortedCategories);
-
-    return res.status(200).json({ categories: sortedCategories });
-  } catch (error) {
-    console.error('Erro ao obter registros das categorias:', error);
-    res.status(500).json({ error: 'Erro ao obter registros das categorias.' });
+    return res.status(200).json({ ranking });
+  } catch (err) {
+    console.error('[USER CATEGORY RANKING] Erro inesperado:', err);
+    return res.status(500).json({ error: 'Erro inesperado ao gerar ranking de categorias.' });
   }
 }

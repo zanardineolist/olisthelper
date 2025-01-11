@@ -1,186 +1,119 @@
-import { getSheetValues, updateSheetRow, deleteSheetRow, getSheetMetaData } from '../../utils/googleSheets';
-import { logAction } from '../../utils/firebase/firebaseLogging';
+import { supabase } from '../../utils/supabaseClient';
 
+/**
+ * Handler para gerenciar operações de CRUD na tabela de registros de ajuda
+ */
 export default async function handler(req, res) {
   const { method } = req;
-  const { userId } = req.query;
 
-  // Extraindo informações do usuário dos cookies (passados pelo middleware)
-  const requesterId = req.cookies['user-id'];
-  const requesterName = req.cookies['user-name'];
-  const requesterRole = req.cookies['user-role'];
+  switch (method) {
+    case 'GET':
+      await getHelpRecords(req, res);
+      break;
 
-  req.user = {
-    id: requesterId,
-    name: requesterName,
-    role: requesterRole,
-  };
+    case 'POST':
+      await createHelpRecord(req, res);
+      break;
 
-  console.log('Detalhes do usuário extraídos dos cookies:', req.user);
+    case 'PUT':
+      await updateHelpRecord(req, res);
+      break;
 
-  const isUserValid = req.user && req.user.id && req.user.name && req.user.role;
-  console.log('Usuário é válido:', isUserValid);
+    case 'DELETE':
+      await deleteHelpRecord(req, res);
+      break;
 
-  if (!userId) {
-    return res.status(400).json({ error: 'User ID não fornecido ou inválido.' });
+    default:
+      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+      res.status(405).end(`Método ${method} não permitido.`);
+  }
+}
+
+// Listar todos os registros de ajuda
+async function getHelpRecords(req, res) {
+  try {
+    const { data, error } = await supabase
+      .from('help_records')
+      .select('*')
+      .order('date', { ascending: false });
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: 'Nenhum registro de ajuda encontrado.' });
+    }
+
+    return res.status(200).json({ records: data });
+  } catch (error) {
+    console.error('[GET HELP RECORDS] Erro ao listar registros:', error.message);
+    return res.status(500).json({ error: 'Erro ao listar registros de ajuda.' });
+  }
+}
+
+// Criar novo registro de ajuda
+async function createHelpRecord(req, res) {
+  const { user_id, analyst_id, category_id, description, date, time } = req.body;
+
+  if (!user_id || !analyst_id || !category_id || !date || !time) {
+    return res.status(400).json({ error: 'Todos os campos obrigatórios devem ser preenchidos.' });
   }
 
   try {
-    // Obtém os metadados de todas as abas disponíveis na planilha
-    const sheetsMetaData = await getSheetMetaData();
-    if (!sheetsMetaData || !sheetsMetaData.data || !Array.isArray(sheetsMetaData.data.sheets)) {
-      return res.status(500).json({ error: 'Nenhuma aba encontrada nos metadados da planilha.' });
-    }
+    const { data, error } = await supabase
+      .from('help_records')
+      .insert([{ user_id, analyst_id, category_id, description, date, time }]);
 
-    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
-    const matchingSheet = sheetsMetaData.data.sheets.find(sheet => 
-      sheet.properties.title.startsWith(`#${userId}`)
-    );
+    if (error) throw error;
 
-    if (!matchingSheet) {
-      return res.status(404).json({ error: `Aba correspondente ao ID "${userId}" não encontrada.` });
-    }
-
-    const sheetName = matchingSheet.properties.title;
-
-    switch (method) {
-      case 'GET':
-        console.log('Método GET chamado - Carregando registros...');
-        try {
-          const records = await getSheetValues(sheetName, 'A:F');
-          if (records && records.length > 1) {
-            const formattedRecords = records.slice(1).map((row, index) => ({
-              index,
-              date: row[0],
-              time: row[1],
-              name: row[2],
-              email: row[3],
-              category: row[4],
-              description: row[5],
-            }));
-            return res.status(200).json({ records: formattedRecords });
-          }
-          return res.status(404).json({ error: 'Nenhum registro encontrado.' });
-        } catch (error) {
-          console.error('Erro ao buscar registros:', error);
-          return res.status(500).json({ error: 'Erro ao buscar registros.' });
-        }
-
-      case 'PUT':
-        console.log('Método PUT chamado - Atualizando registro...');
-        try {
-          const { record } = req.body;
-          const rowIndex = parseInt(req.query.index, 10);
-
-          if (!record || rowIndex == null) {
-            return res.status(400).json({ error: 'Dados do registro ou índice não fornecidos.' });
-          }
-
-          // Obter valores atuais antes da atualização
-          const allRows = await getSheetValues(sheetName, 'A:F');
-          if (rowIndex < 0 || rowIndex >= allRows.length - 1) {
-            return res.status(404).json({ error: 'Registro não encontrado.' });
-          }
-
-          const previousData = allRows[rowIndex + 1]; // Obter linha anterior (índice ajustado)
-
-          // Validação antes de atualizar
-          if (!previousData || previousData.length < 6) {
-            return res.status(400).json({ error: 'Dados atuais do registro não correspondem ao esperado.' });
-          }
-
-          // Atualizar o registro na planilha
-          await updateSheetRow(sheetName, rowIndex + 2, [
-            record.date,
-            record.time,
-            record.name,
-            record.email,
-            record.category,
-            record.description,
-          ], previousData);
-
-          if (isUserValid) {
-            console.log('Registrando ação de atualização no Firebase...');
-            await logAction(req.user.id, req.user.name, req.user.role, 'update_record', 'Registro', {
-              date: previousData[0],
-              time: previousData[1],
-              name: previousData[2],
-              email: previousData[3],
-              category: previousData[4],
-              description: previousData[5],
-            }, {
-              date: record.date,
-              time: record.time,
-              name: record.name,
-              email: record.email,
-              category: record.category,
-              description: record.description,
-            }, 'manage-records');
-            console.log('Ação de atualização registrada com sucesso.');
-          }
-
-          // Atualizando o cache após editar o registro
-          await getSheetValues(sheetName, 'A:F', true); // Forçando atualização do cache
-
-          return res.status(200).json({ message: 'Registro atualizado com sucesso.' });
-        } catch (error) {
-          console.error('Erro ao atualizar registro:', error);
-          return res.status(500).json({ error: 'Erro ao atualizar registro.' });
-        }
-
-      case 'DELETE':
-        console.log('Método DELETE chamado - Excluindo registro...');
-        try {
-          const index = req.query.index;
-          if (!index) {
-            return res.status(400).json({ error: 'Índice do registro não fornecido.' });
-          }
-
-          // Obter valores antes da exclusão
-          const allRows = await getSheetValues(sheetName, 'A:F');
-          const deleteIndex = parseInt(index, 10);
-          if (deleteIndex < 0 || deleteIndex >= allRows.length - 1) {
-            return res.status(404).json({ error: 'Registro não encontrado.' });
-          }
-
-          const deletedData = allRows[deleteIndex + 1]; // Obter linha a ser excluída
-
-          // Validação antes de excluir
-          if (!deletedData || deletedData.length < 6) {
-            return res.status(400).json({ error: 'Dados do registro não correspondem ao esperado.' });
-          }
-
-          // Excluir a linha na planilha
-          await deleteSheetRow(sheetName, deleteIndex + 2, deletedData);
-
-          if (isUserValid) {
-            console.log('Registrando ação de exclusão no Firebase...');
-            await logAction(req.user.id, req.user.name, req.user.role, 'delete_record', 'Registro', {
-              date: deletedData[0],
-              time: deletedData[1],
-              name: deletedData[2],
-              email: deletedData[3],
-              category: deletedData[4],
-              description: deletedData[5],
-            }, null, 'manage-records');
-            console.log('Ação de exclusão registrada com sucesso.');
-          }
-
-          // Atualizando o cache após excluir o registro
-          await getSheetValues(sheetName, 'A:F', true); // Forçando atualização do cache
-
-          return res.status(200).json({ message: 'Registro excluído com sucesso.' });
-        } catch (error) {
-          console.error('Erro ao excluir registro:', error);
-          return res.status(500).json({ error: 'Erro ao excluir registro.' });
-        }
-
-      default:
-        res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
-        return res.status(405).end(`Método ${method} não permitido.`);
-    }
+    return res.status(201).json({ message: 'Registro de ajuda criado com sucesso.', record: data });
   } catch (error) {
-    console.error('Erro ao processar requisição de registros:', error);
-    return res.status(500).json({ error: 'Erro ao processar requisição.' });
+    console.error('[CREATE HELP RECORD] Erro ao criar registro:', error.message);
+    return res.status(500).json({ error: 'Erro ao criar registro de ajuda.' });
+  }
+}
+
+// Atualizar registro de ajuda existente
+async function updateHelpRecord(req, res) {
+  const { id, ...updates } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: 'ID do registro não fornecido.' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('help_records')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return res.status(200).json({ message: 'Registro de ajuda atualizado com sucesso.', record: data });
+  } catch (error) {
+    console.error('[UPDATE HELP RECORD] Erro ao atualizar registro:', error.message);
+    return res.status(500).json({ error: 'Erro ao atualizar registro de ajuda.' });
+  }
+}
+
+// Deletar registro de ajuda
+async function deleteHelpRecord(req, res) {
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: 'ID do registro não fornecido.' });
+  }
+
+  try {
+    const { error } = await supabase
+      .from('help_records')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return res.status(200).json({ message: 'Registro de ajuda deletado com sucesso.' });
+  } catch (error) {
+    console.error('[DELETE HELP RECORD] Erro ao deletar registro:', error.message);
+    return res.status(500).json({ error: 'Erro ao deletar registro de ajuda.' });
   }
 }

@@ -1,37 +1,56 @@
-import { getAuthenticatedGoogleSheets, getSheetMetaData, appendValuesToSheet } from '../../utils/googleSheets';
+import { supabase } from '../../utils/supabaseClient';
 
+/**
+ * Handler para registrar uma dúvida de um usuário
+ */
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Método não permitido. Use POST.' });
   }
 
-  const { analyst, category, description, userName, userEmail } = req.body;
+  const { user_id, category_id, description, date, time } = req.body;
 
-  if (!analyst || !category || !description || !userName || !userEmail) {
-    return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+  // Validação dos campos obrigatórios
+  if (!user_id || !category_id || !description || !date || !time) {
+    return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
   }
 
   try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetMeta = await getSheetMetaData();
-    const sheetName = sheetMeta.data.sheets.find(sheet => sheet.properties.title.startsWith(`#${analyst}`))?.properties.title;
+    // Verificar se o usuário existe
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', user_id)
+      .single();
 
-    if (!sheetName) {
-      return res.status(400).json({ error: `A aba correspondente ao ID '${analyst}' não existe na planilha.` });
+    if (userError || !user) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
     }
 
-    // Formatar a data e hora atuais para o horário de Brasília (UTC-3)
-    const date = new Date();
-    const brtDate = new Date(date.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
-    const formattedDate = brtDate.toLocaleDateString('pt-BR');
-    const formattedTime = brtDate.toLocaleTimeString('pt-BR');
+    // Verificar se a categoria existe
+    const { data: category, error: categoryError } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('id', category_id)
+      .single();
 
-    // Adicionar os dados na aba do analista
-    await appendValuesToSheet(sheetName, [[formattedDate, formattedTime, userName, userEmail, category, description]]);
+    if (categoryError || !category) {
+      return res.status(404).json({ error: 'Categoria não encontrada.' });
+    }
 
-    res.status(200).json({ message: 'Dúvida registrada com sucesso.' });
+    // Inserir a dúvida
+    const { data, error } = await supabase
+      .from('doubt_records')
+      .insert([{ user_id, category_id, description, date, time }]);
+
+    if (error) {
+      console.error('[REGISTER DOUBT] Erro ao registrar dúvida:', error.message);
+      return res.status(500).json({ error: 'Erro ao registrar dúvida.' });
+    }
+
+    return res.status(201).json({ message: 'Dúvida registrada com sucesso.', doubt: data });
   } catch (error) {
-    console.error('Erro ao registrar dúvida:', error);
-    res.status(500).json({ error: 'Erro ao registrar a dúvida. Verifique suas credenciais e a configuração do Google Sheets.' });
+    console.error('[REGISTER DOUBT] Erro inesperado:', error.message);
+    return res.status(500).json({ error: 'Erro inesperado ao registrar dúvida.' });
   }
 }

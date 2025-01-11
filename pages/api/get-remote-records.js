@@ -1,52 +1,44 @@
-import { getSheetValues } from '../../utils/googleSheets';
+import { supabase } from '../../utils/supabaseClient';
+import dayjs from 'dayjs';
 
+/**
+ * Handler para buscar registros de acessos remotos
+ */
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Método não permitido. Use GET.' });
   }
 
-  const { userEmail, filterByMonth } = req.query;
+  const { currentMonth } = req.query;
 
   try {
-    // Obter todos os registros
-    const records = await getSheetValues('Remoto', 'A:G');
-    const dataWithoutHeader = records.slice(1); // Ignora a primeira linha (cabeçalho)
-    console.log('Registros obtidos do Google Sheets:', records);
+    let query = supabase
+      .from('remote_access')
+      .select('id, user_id, chamado, tema, description, date, time, created_at')
+      .order('date', { ascending: false });
 
-    if (userEmail) {
-      const filteredRecords = dataWithoutHeader.filter(record => record[3] === userEmail);
-      console.log(`Registros filtrados para o usuário ${userEmail}:`, filteredRecords);
-
-      if (filterByMonth === 'true') {
-        const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-        const currentMonth = new Date(today).getMonth();
-        const currentYear = new Date(today).getFullYear();
-
-        const isFromCurrentMonth = (record) => {
-          const [day, month, year] = record[0].split('/');
-          const recordDate = new Date(year, month - 1, day);
-          return (
-            recordDate.getMonth() === currentMonth &&
-            recordDate.getFullYear() === currentYear
-          );
-        };
-        
-        const monthRecords = filteredRecords.filter(isFromCurrentMonth);
-        console.log('Registros do mês atual:', monthRecords);        
-
-        return res.status(200).json({ monthRecords, allRecords: filteredRecords });
-      }
-
-      // Se não for solicitado apenas registros do mês, retornar todos os registros do usuário
-      return res.status(200).json({ allRecords: filteredRecords });
+    // Se currentMonth for verdadeiro, filtra pelo mês atual
+    if (currentMonth === 'true') {
+      const startOfMonth = dayjs().startOf('month').format('YYYY-MM-DD');
+      const endOfMonth = dayjs().endOf('month').format('YYYY-MM-DD');
+      query = query.gte('date', startOfMonth).lte('date', endOfMonth);
     }
 
-    // Caso não seja uma requisição de usuário específico, retornar todos os registros (a partir da linha 2)
-    console.log('Todos os registros:', dataWithoutHeader);
-    return res.status(200).json({ allRecords: dataWithoutHeader });
+    const { data, error } = await query;
 
-  } catch (error) {
-    console.error('Erro ao buscar registros:', error);
-    res.status(500).json({ error: 'Erro ao buscar registros. Tente novamente.' });
+    if (error) {
+      console.error(`[REMOTE RECORDS] Erro ao buscar registros remotos: ${error.message}`);
+      return res.status(500).json({ error: 'Erro ao buscar registros remotos.' });
+    }
+
+    if (!data || data.length === 0) {
+      console.warn('[REMOTE RECORDS] Nenhum registro remoto encontrado.');
+      return res.status(404).json({ error: 'Nenhum registro remoto encontrado.' });
+    }
+
+    return res.status(200).json({ records: data });
+  } catch (err) {
+    console.error('[REMOTE RECORDS] Erro inesperado:', err);
+    return res.status(500).json({ error: 'Erro inesperado ao buscar registros remotos.' });
   }
 }
