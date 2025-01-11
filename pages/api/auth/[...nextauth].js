@@ -37,6 +37,7 @@ export default NextAuth({
       if (token) {
         session.id = token.id;
         session.role = token.role;
+        session.user_code = token.user_code;
       }
       return session;
     },
@@ -47,6 +48,7 @@ export default NextAuth({
           if (userDetails) {
             token.id = userDetails.id;
             token.role = userDetails.role;
+            token.user_code = userDetails.user_code;
           }
         } catch (error) {
           console.error("Erro ao obter detalhes do usuário:", error);
@@ -82,15 +84,15 @@ async function getOrCreateUserInSupabase(user) {
       return existingUser;
     }
 
-    const newUserId = await generateUniqueId();
+    const newUserCode = await generateUniqueUserCode();
 
     const { data: newUser, error: insertError } = await supabase
       .from('users')
       .insert({
-        id: newUserId,
         name: user.name,
         email: user.email,
         role: 'support',
+        user_code: newUserCode,
       })
       .single();
 
@@ -106,15 +108,15 @@ async function getOrCreateUserInSupabase(user) {
   }
 }
 
-async function generateUniqueId() {
-  const usedIds = await supabase
+async function generateUniqueUserCode() {
+  const usedCodes = await supabase
     .from('users')
-    .select('id');
+    .select('user_code');
 
-  let newId;
+  let newCode;
   do {
-    newId = Math.floor(1000 + Math.random() * 9000).toString();
-  } while (usedIds.data.some(user => user.id === newId));
+    newCode = Math.floor(1000 + Math.random() * 9000).toString();
+  } while (usedCodes.data.some(user => user.user_code === newCode));
 
-  return newId;
+  return newCode;
 }
