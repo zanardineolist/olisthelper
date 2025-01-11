@@ -13,7 +13,14 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       try {
-        // Verificar ou criar usuário no Supabase
+        const allowedDomains = ['@olist.com', '@tiny.com.br'];
+        const isAllowedDomain = allowedDomains.some(domain => user.email.endsWith(domain));
+
+        if (!isAllowedDomain) {
+          console.error("Domínio não autorizado:", user.email);
+          return false;
+        }
+
         const userDetails = await getOrCreateUserInSupabase(user);
         if (!userDetails) {
           console.error("Usuário não autorizado:", user.email);
@@ -58,12 +65,8 @@ export default NextAuth({
   },
 });
 
-/**
- * Verifica ou cria o usuário no Supabase
- */
 async function getOrCreateUserInSupabase(user) {
   try {
-    // Verificar se o usuário já existe
     const { data: existingUser, error: userError } = await supabase
       .from('users')
       .select('*')
@@ -75,18 +78,19 @@ async function getOrCreateUserInSupabase(user) {
       return null;
     }
 
-    // Se o usuário já existe, retorna seus dados
     if (existingUser) {
       return existingUser;
     }
 
-    // Caso não exista, cria o novo usuário
+    const newUserId = await generateUniqueId();
+
     const { data: newUser, error: insertError } = await supabase
       .from('users')
       .insert({
+        id: newUserId,
         name: user.name,
         email: user.email,
-        role: 'user',
+        role: 'support',
       })
       .single();
 
@@ -100,4 +104,17 @@ async function getOrCreateUserInSupabase(user) {
     console.error("Erro ao verificar ou criar usuário:", error.message);
     return null;
   }
+}
+
+async function generateUniqueId() {
+  const usedIds = await supabase
+    .from('users')
+    .select('id');
+
+  let newId;
+  do {
+    newId = Math.floor(1000 + Math.random() * 9000).toString();
+  } while (usedIds.data.some(user => user.id === newId));
+
+  return newId;
 }
