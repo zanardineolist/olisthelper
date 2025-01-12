@@ -45,39 +45,36 @@ export default function AnalystProfilePage({ user }) {
       setLoading(true);
       setError(null);
       
+      console.log('ID do usuário logado:', user.id); // Log para debug
+      
       try {
         // Buscar dados de ajudas prestadas
         const helpResponse = await fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`);
         const helpData = await helpResponse.json();
-
+  
+        console.log('Resposta dos registros:', helpData); // Log para debug
+  
         if (!helpResponse.ok) {
           throw new Error(helpData.error || 'Erro ao buscar dados de ajudas');
         }
-
-        if (helpData.status === 'success') {
-          setHelpRequests({
-            currentMonth: helpData.currentMonth,
-            lastMonth: helpData.lastMonth,
-          });
-        }
-
+  
+        setHelpRequests({
+          currentMonth: helpData.currentMonth || 0,
+          lastMonth: helpData.lastMonth || 0,
+        });
+  
         // Buscar ranking de categorias
         const categoryResponse = await fetch(`/api/get-category-ranking?analystId=${user.id}`);
         const categoryData = await categoryResponse.json();
-
+  
+        console.log('Resposta das categorias:', categoryData); // Log para debug
+  
         if (!categoryResponse.ok) {
           throw new Error(categoryData.error || 'Erro ao buscar ranking de categorias');
         }
-
-        if (categoryData.status === 'success') {
-          // Usar diretamente as categorias retornadas, sem necessidade de busca adicional
-          setCategoryRanking(categoryData.categories.map(category => ({
-            name: category.name,
-            count: category.count,
-            alertThreshold: category.alertThreshold
-          })));
-        }
-
+  
+        setCategoryRanking(categoryData.categories || []);
+  
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
         setError(error.message);
@@ -85,7 +82,7 @@ export default function AnalystProfilePage({ user }) {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [user?.id]);
 

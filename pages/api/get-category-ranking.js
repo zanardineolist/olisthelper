@@ -15,7 +15,10 @@ export default async function handler(req, res) {
     const { data: helpRequests, error: helpError } = await supabase
       .from('help_requests')
       .select('category_id, request_date')
-      .eq('analyst_id', analystId);
+      .eq('analyst_id', analystId.trim()); // Garantir que não há espaços
+
+    // Console.log para debug
+    console.log('Total de registros para categorias:', helpRequests?.length || 0);
 
     if (helpError) throw helpError;
 

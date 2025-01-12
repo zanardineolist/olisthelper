@@ -15,7 +15,11 @@ export default async function handler(req, res) {
     const { data: helpRequests, error } = await supabase
       .from('help_requests')
       .select('*')
-      .eq('analyst_id', analystId);
+      .eq('analyst_id', analystId.trim());
+
+    // Console.log para debug
+    console.log('Buscando registros para analista:', analystId);
+    console.log('Registros encontrados:', helpRequests?.length || 0);
 
     if (error) throw error;
 
