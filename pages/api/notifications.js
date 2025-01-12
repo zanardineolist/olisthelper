@@ -1,113 +1,126 @@
-// pages/api/notifications.js
-import { db } from '../../utils/firebase/firebaseConfig';
-import { collection, setDoc, doc, getDocs, query, where } from "firebase/firestore";
-import { getSheetValues } from '../../utils/googleSheets';
-import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '../../utils/supabaseClient';
 
+/**
+ * Handler para gerenciar operações de CRUD na tabela de notificações
+ */
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    try {
-      const { title, message, profiles, notificationType, notificationStyle } = req.body; // Adicione notificationStyle aqui
+  const { method } = req;
 
-      if (!title || !message || !profiles || profiles.length === 0 || !notificationType || !notificationStyle) {
-        return res.status(400).json({ error: 'Todos os campos são obrigatórios e ao menos um perfil deve ser selecionado.' });
-      }
+  switch (method) {
+    case 'GET':
+      await getNotifications(req, res);
+      break;
 
-      // Buscar usuários da aba "Usuários" do Google Sheets, colunas A2:D (ID, Nome, Email, Perfil)
-      let users;
-      try {
-        users = await getSheetValues('Usuários', 'A2:D');
-      } catch (sheetError) {
-        console.error('Erro ao buscar usuários do Google Sheets:', sheetError);
-        return res.status(500).json({ error: 'Erro ao buscar usuários do Google Sheets.' });
-      }
+    case 'POST':
+      await createNotification(req, res);
+      break;
 
-      if (!users || users.length === 0) {
-        return res.status(400).json({ error: 'Nenhum usuário encontrado.' });
-      }
+    case 'PUT':
+      await markNotificationAsRead(req, res);
+      break;
 
-      // Filtrar usuários com base nos perfis selecionados
-      const targetUsers = users.filter(user => profiles.includes(user[3]));
+    case 'DELETE':
+      await deleteNotification(req, res);
+      break;
 
-      if (targetUsers.length === 0) {
-        return res.status(400).json({ error: 'Nenhum usuário elegível encontrado. Verifique os perfis selecionados.' });
-      }
+    default:
+      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+      res.status(405).end(`Método ${method} não permitido.`);
+  }
+}
 
-      // Adiciona notificação ao Firestore para cada usuário alvo
-      const notificationsCollection = collection(db, 'notifications');
-      const promises = targetUsers.map(async (user) => {
-        const [userId, userName, userEmail, userRole] = user;
+// Listar notificações de um usuário
+async function getNotifications(req, res) {
+  const { userId } = req.query;
 
-        // Função auxiliar para adicionar uma notificação
-        const addNotification = async (type) => {
-          const normalizedTitle = title.replace(/\s+/g, '_').toLowerCase();
-          const uniqueId = uuidv4();
-          const notificationId = `${type}_${normalizedTitle}_${userId}_${uniqueId}`;
+  if (!userId) {
+    return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+  }
 
-          try {
-            const notificationDoc = doc(notificationsCollection, notificationId);
-            await setDoc(notificationDoc, {
-              userId,
-              userEmail,
-              userRole,
-              title,
-              message,
-              notificationStyle, // Usando o valor recebido do req.body
-              read: false,
-              timestamp: new Date().getTime(),
-              notificationType: type,
-            });
-          } catch (notificationError) {
-            console.error(`Erro ao adicionar notificação para o usuário ${userEmail}:`, notificationError);
-            throw notificationError;
-          }
-        };
+  try {
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
 
-        if (notificationType === 'both') {
-          // Enviar notificações separadas para 'bell' e 'top'
-          await addNotification('bell');
-          await addNotification('top');
-        } else {
-          // Enviar notificação única para 'bell' ou 'top'
-          await addNotification(notificationType);
-        }
-      });
+    if (error) throw error;
 
-      await Promise.all(promises);
-
-      res.status(201).json({ message: 'Notificação enviada para todos os usuários elegíveis!' });
-    } catch (error) {
-      console.error('Erro ao adicionar notificações:', error);
-      res.status(500).json({ error: 'Erro ao adicionar notificações.' });
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: 'Nenhuma notificação encontrada.' });
     }
-  } else if (req.method === 'GET') {
-    try {
-      const { userId, userRole, limit: limitParam } = req.query;
 
-      if (!userId || !userRole) {
-        return res.status(400).json({ error: 'ID do usuário e perfil são obrigatórios.' });
-      }
+    return res.status(200).json({ notifications: data });
+  } catch (error) {
+    console.error('[GET NOTIFICATIONS] Erro ao listar notificações:', error.message);
+    return res.status(500).json({ error: 'Erro ao listar notificações.' });
+  }
+}
 
-      const limitValue = limitParam ? parseInt(limitParam, 10) : 10;
+// Criar nova notificação
+async function createNotification(req, res) {
+  const { user_id, title, message, notification_type } = req.body;
 
-      // Buscar notificações do usuário no Firestore com limitação e baseadas no perfil do usuário
-      const notificationsCollection = collection(db, 'notifications');
-      const q = query(
-        notificationsCollection,
-        where("userId", "==", userId),
-        where("userRole", "==", userRole),
-        limit(limitValue)
-      );
-      const querySnapshot = await getDocs(q);
+  if (!user_id || !title || !message || !notification_type) {
+    return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+  }
 
-      const notifications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  try {
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert([{ user_id, title, message, notification_type, read: false }]);
 
-      res.status(200).json({ notifications });
-    } catch (error) {
-      console.error('Erro ao buscar notificações:', error);
-      res.status(500).json({ error: 'Erro ao buscar notificações.' });
-    }
-  } else {
-    res.status(405).json({ error: 'Método não permitido' });
+    if (error) throw error;
+
+    return res.status(201).json({ message: 'Notificação criada com sucesso.', notification: data });
+  } catch (error) {
+    console.error('[CREATE NOTIFICATION] Erro ao criar notificação:', error.message);
+    return res.status(500).json({ error: 'Erro ao criar notificação.' });
+  }
+}
+
+// Marcar notificação como lida
+async function markNotificationAsRead(req, res) {
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: 'ID da notificação não fornecido.' });
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('notifications')
+      .update({ read: true })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return res.status(200).json({ message: 'Notificação marcada como lida.', notification: data });
+  } catch (error) {
+    console.error('[MARK AS READ] Erro ao marcar notificação como lida:', error.message);
+    return res.status(500).json({ error: 'Erro ao marcar notificação como lida.' });
+  }
+}
+
+// Deletar notificação
+async function deleteNotification(req, res) {
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: 'ID da notificação não fornecido.' });
+  }
+
+  try {
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+
+    return res.status(200).json({ message: 'Notificação deletada com sucesso.' });
+  } catch (error) {
+    console.error('[DELETE NOTIFICATION] Erro ao deletar notificação:', error.message);
+    return res.status(500).json({ error: 'Erro ao deletar notificação.' });
   }
 }

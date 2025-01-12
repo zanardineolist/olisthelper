@@ -1,79 +1,189 @@
-import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
+import { supabase } from '../../utils/supabaseClient';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
+// Configurar dayjs para trabalhar com timezone
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("America/Sao_Paulo");
+
+/**
+ * Função para validar e obter dados do usuário
+ */
+const validateUser = async (userId) => {
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error || !user) {
+    throw new Error('Usuário não encontrado');
+  }
+
+  return user;
+};
+
+/**
+ * Função para buscar registros de ajuda e calcular ranking
+ */
+const calculateCategoryRanking = async (userId, dateRange) => {
+  const { data: helpRecords, error } = await supabase
+    .from('help_records')
+    .select(`
+      id,
+      analyst_id,
+      category_id,
+      description,
+      date,
+      time,
+      analysts:users!help_records_analyst_id_fkey (
+        name,
+        email,
+        role
+      ),
+      categories (
+        id,
+        name
+      )
+    `)
+    .eq('user_id', userId)
+    .gte('date', dateRange.start)
+    .lte('date', dateRange.end)
+    .order('date', { ascending: false });
+
+  if (error) {
+    throw new Error(`Erro ao buscar registros de ajuda: ${error.message}`);
+  }
+
+  if (!helpRecords?.length) {
+    return {
+      ranking: [],
+      stats: {
+        totalRequests: 0,
+        uniqueCategories: 0,
+        uniqueAnalysts: 0
+      }
+    };
+  }
+
+  // Calcular contagem por categoria
+  const categoryData = helpRecords.reduce((acc, record) => {
+    const categoryId = record.category_id;
+    const categoryName = record.categories?.name || 'Sem Categoria';
+    
+    if (!acc[categoryId]) {
+      acc[categoryId] = {
+        id: categoryId,
+        name: categoryName,
+        count: 0,
+        analysts: new Set(),
+        lastUsage: null,
+        descriptions: new Set(),
+        firstOccurrence: record.date
+      };
+    }
+
+    acc[categoryId].count++;
+    acc[categoryId].analysts.add(record.analyst_id);
+    acc[categoryId].descriptions.add(record.description);
+    
+    // Atualizar último uso
+    const recordDate = dayjs(record.date);
+    if (!acc[categoryId].lastUsage || recordDate.isAfter(dayjs(acc[categoryId].lastUsage))) {
+      acc[categoryId].lastUsage = record.date;
+    }
+
+    // Atualizar primeira ocorrência
+    if (recordDate.isBefore(dayjs(acc[categoryId].firstOccurrence))) {
+      acc[categoryId].firstOccurrence = record.date;
+    }
+
+    return acc;
+  }, {});
+
+  // Converter para array e ordenar
+  const ranking = Object.values(categoryData)
+    .map(category => ({
+      id: category.id,
+      name: category.name,
+      count: category.count,
+      uniqueAnalysts: category.analysts.size,
+      uniqueDescriptions: category.descriptions.size,
+      lastUsage: category.lastUsage,
+      firstOccurrence: category.firstOccurrence,
+      averagePerAnalyst: +(category.count / category.analysts.size).toFixed(2)
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  // Calcular estatísticas gerais
+  const stats = {
+    totalRequests: helpRecords.length,
+    uniqueCategories: ranking.length,
+    uniqueAnalysts: new Set(helpRecords.map(r => r.analyst_id)).size,
+    averageRequestsPerCategory: +(helpRecords.length / ranking.length).toFixed(2)
+  };
+
+  return { ranking, stats };
+};
+
+/**
+ * Handler principal
+ */
 export default async function handler(req, res) {
-  const { userEmail } = req.query;
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Método não permitido. Use GET.' });
+  }
 
-  if (!userEmail || userEmail === 'undefined') {
-    console.log('Erro: E-mail do usuário não fornecido ou inválido.');
-    return res.status(400).json({ error: 'E-mail do usuário é obrigatório e deve ser válido.' });
+  const { userId } = req.query;
+
+  if (!userId) {
+    console.warn('[USER CATEGORY RANKING] ID do usuário não fornecido.');
+    return res.status(400).json({ error: 'ID do usuário não fornecido.' });
   }
 
   try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
+    // Validar usuário
+    const user = await validateUser(userId);
 
-    console.log(`Buscando metadados da planilha com ID: ${sheetId} para o usuário: ${userEmail}`);
+    // Definir período (mês atual)
+    const now = dayjs();
+    const dateRange = {
+      start: now.startOf('month').format('YYYY-MM-DD'),
+      end: now.endOf('month').format('YYYY-MM-DD')
+    };
 
-    // Obter as informações da planilha (metadados)
-    const sheetMeta = await getSheetMetaData();
+    // Calcular ranking
+    const { ranking, stats } = await calculateCategoryRanking(userId, dateRange);
 
-    // Filtrar apenas as abas que representam analistas ou usuários "tax" com o formato esperado: "#id - Nome"
-    const sheetNames = sheetMeta.data.sheets
-      .map(sheet => sheet.properties.title)
-      .filter(name => /^#\d+ - .+$/.test(name)); // Apenas abas que começam com "#" seguido por números e um nome
+    // Pegar top 10 categorias
+    const topCategories = ranking.slice(0, 10);
 
-    let rows = [];
-
-    // Iterar sobre as abas filtradas para buscar os dados
-    for (const sheetName of sheetNames) {
-      const response = await getSheetValues(sheetName, 'A:F');
-      rows = rows.concat(response);
-    }
-
-    if (!rows || rows.length === 0) {
-      console.log('Nenhum registro encontrado.');
-      return res.status(200).json({ categories: [] });
-    }
-
-    // Filtrar registros do mês atual e do usuário especificado
-    const currentDate = new Date();
-    const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
-    const currentMonth = brtDate.getMonth();
-    const currentYear = brtDate.getFullYear();
-
-    const currentMonthRows = rows.filter((row, index) => {
-      if (index === 0) return false; // Pular cabeçalho
-      const [dateStr, , , email, category] = row;
-      if (email !== userEmail) return false;
-
-      const [day, month, year] = dateStr.split('/').map(Number);
-      const date = new Date(year, month - 1, day);
-
-      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    return res.status(200).json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      },
+      categories: topCategories,
+      stats,
+      metadata: {
+        period: {
+          start: dateRange.start,
+          end: dateRange.end
+        },
+        generatedAt: new Date().toISOString(),
+        totalCategories: ranking.length
+      }
     });
 
-    // Contar categorias
-    const categoryCounts = currentMonthRows.reduce((acc, row) => {
-      const category = row[4];
-
-      if (category) {
-        acc[category] = (acc[category] || 0) + 1;
-      }
-
-      return acc;
-    }, {});
-
-    // Ordenar e pegar as top 10 categorias
-    const sortedCategories = Object.entries(categoryCounts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([name, count]) => ({ name, count }));
-
-    console.log('Categorias no ranking:', sortedCategories);
-
-    return res.status(200).json({ categories: sortedCategories });
-  } catch (error) {
-    console.error('Erro ao obter registros das categorias:', error);
-    res.status(500).json({ error: 'Erro ao obter registros das categorias.' });
+  } catch (err) {
+    console.error('[USER CATEGORY RANKING] Erro inesperado:', err);
+    return res.status(500).json({
+      error: 'Erro inesperado ao gerar ranking de categorias.',
+      message: err.message
+    });
   }
 }
