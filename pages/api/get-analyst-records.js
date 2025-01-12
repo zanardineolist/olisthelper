@@ -4,7 +4,10 @@ export default async function handler(req, res) {
   const { analystId, mode, filter } = req.query;
 
   if (!analystId) {
-    return res.status(400).json({ error: 'ID do analista é obrigatório e deve ser válido.' });
+    return res.status(400).json({ 
+      error: 'ID do analista é obrigatório e deve ser válido.',
+      status: 'error' 
+    });
   }
 
   try {
@@ -17,71 +20,106 @@ export default async function handler(req, res) {
     if (error) throw error;
 
     if (!helpRequests || helpRequests.length === 0) {
-      return res.status(200).json({ currentMonth: 0, lastMonth: 0, rows: [] });
+      return res.status(200).json({ 
+        currentMonth: 0, 
+        lastMonth: 0, 
+        rows: [],
+        status: 'success' 
+      });
     }
 
+    // Configuração da data atual no timezone BRT
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentDate = new Date(brtDate);
-
-    const currentMonth = currentDate.getMonth() + 1;
+    
+    // Cálculo do mês atual
     const currentYear = currentDate.getFullYear();
-    const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
-    const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+    const currentMonth = currentDate.getMonth() + 1;
+
+    // Cálculo do mês anterior considerando virada de ano
+    const lastMonthDate = new Date(currentDate);
+    lastMonthDate.setMonth(currentDate.getMonth() - 1);
+    const lastMonth = lastMonthDate.getMonth() + 1;
+    const lastMonthYear = lastMonthDate.getFullYear();
 
     let currentMonthCount = 0;
     let lastMonthCount = 0;
 
-    // Correção da interpretação da data (YYYY-MM-DD)
+    // Processamento das requisições de ajuda
     helpRequests.forEach(({ request_date }) => {
       if (!request_date) return;
 
-      const [year, month, day] = request_date.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-
-      if (year === currentYear && month === currentMonth) {
-        currentMonthCount++;
-      } else if (year === lastMonthYear && month === lastMonth) {
-        lastMonthCount++;
+      try {
+        // Parse da data no formato YYYY-MM-DD
+        const [year, month, day] = request_date.split('-').map(Number);
+        
+        // Validação dos componentes da data
+        if (!year || !month || !day) return;
+        
+        if (year === currentYear && month === currentMonth) {
+          currentMonthCount++;
+        } else if (year === lastMonthYear && month === lastMonth) {
+          lastMonthCount++;
+        }
+      } catch (dateError) {
+        console.error('Erro ao processar data:', dateError);
+        // Continua o processamento mesmo se uma data específica falhar
       }
     });
 
-    // Caso seja solicitado o modo 'profile'
+    // Retorno para o modo profile
     if (mode === 'profile') {
       return res.status(200).json({
         currentMonth: currentMonthCount,
         lastMonth: lastMonthCount,
-        rows: helpRequests
+        rows: helpRequests,
+        status: 'success'
       });
     }
 
-    // Filtro de registros baseado no parâmetro 'filter'
+    // Processamento para o modo filter
     const filteredRows = helpRequests.filter(({ request_date }) => {
       if (!request_date) return false;
 
-      const [year, month, day] = request_date.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
-      const diffTime = currentDate - date;
-      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+      try {
+        const [year, month, day] = request_date.split('-').map(Number);
+        if (!year || !month || !day) return false;
 
-      return diffDays <= (filter ? parseInt(filter, 10) : 30);
+        const date = new Date(year, month - 1, day);
+        const diffTime = currentDate - date;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        const filterDays = filter ? parseInt(filter, 10) : 30;
+
+        return !isNaN(diffDays) && diffDays <= filterDays;
+      } catch (dateError) {
+        console.error('Erro ao processar data para filtro:', dateError);
+        return false;
+      }
     });
 
-    const count = filteredRows.length;
-    const dates = filteredRows.map(({ request_date }) => request_date);
-    const countsObj = dates.reduce((acc, date) => {
-      acc[date] = (acc[date] || 0) + 1;
+    // Agregação dos dados filtrados
+    const dateCountMap = filteredRows.reduce((acc, { request_date }) => {
+      if (request_date) {
+        acc[request_date] = (acc[request_date] || 0) + 1;
+      }
       return acc;
     }, {});
 
-    res.status(200).json({
-      count,
-      dates: Object.keys(countsObj),
-      counts: Object.values(countsObj),
+    // Retorno para o modo filter
+    return res.status(200).json({
+      count: filteredRows.length,
+      dates: Object.keys(dateCountMap),
+      counts: Object.values(dateCountMap),
       rows: filteredRows,
+      status: 'success'
     });
 
   } catch (error) {
     console.error('Erro ao obter registros do analista:', error);
-    res.status(500).json({ error: 'Erro ao obter registros.' });
+    return res.status(500).json({ 
+      error: 'Erro ao obter registros do analista.',
+      details: error.message,
+      status: 'error'
+    });
   }
 }

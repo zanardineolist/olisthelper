@@ -12,75 +12,85 @@ export default function AnalystProfilePage({ user }) {
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
-  const [initialLoading, setInitialLoading] = useState(true); // Estado para carregamento inicial da página
-  const [loading, setLoading] = useState(true); // Estado para carregamento dos dados
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Efeito para definir saudação
   useEffect(() => {
-    // Simulando um pequeno atraso para exibir o loader inicial da página
-    setTimeout(() => {
-      // Definir saudação com base na hora do dia
+    try {
       const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
       const currentHour = new Date(brtDate).getHours();
-      let greetingMessage = '';
-
-      if (currentHour >= 5 && currentHour < 12) {
-        greetingMessage = 'Bom dia';
-      } else if (currentHour >= 12 && currentHour < 18) {
-        greetingMessage = 'Boa tarde';
-      } else {
-        greetingMessage = 'Boa noite';
-      }
+      
+      const greetingMessage = currentHour >= 5 && currentHour < 12 
+        ? 'Bom dia'
+        : currentHour >= 12 && currentHour < 18 
+          ? 'Boa tarde' 
+          : 'Boa noite';
 
       setGreeting(greetingMessage);
       setInitialLoading(false);
-    }, 500);
+    } catch (error) {
+      console.error('Erro ao definir saudação:', error);
+      setGreeting('Olá');
+      setInitialLoading(false);
+    }
   }, []);
 
+  // Efeito para buscar dados
   useEffect(() => {
     const fetchData = async () => {
+      if (!user?.id) return;
+      
       setLoading(true);
+      setError(null);
+      
       try {
-        // Buscar dados de ajudas solicitadas
+        // Buscar dados de ajudas prestadas
         const helpResponse = await fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`);
         const helpData = await helpResponse.json();
-  
-        if (!helpResponse.ok) throw new Error(helpData.error);
-  
-        setHelpRequests({
-          currentMonth: helpData.currentMonth,
-          lastMonth: helpData.lastMonth,
-        });
-  
+
+        if (!helpResponse.ok) {
+          throw new Error(helpData.error || 'Erro ao buscar dados de ajudas');
+        }
+
+        if (helpData.status === 'success') {
+          setHelpRequests({
+            currentMonth: helpData.currentMonth,
+            lastMonth: helpData.lastMonth,
+          });
+        }
+
         // Buscar ranking de categorias
         const categoryResponse = await fetch(`/api/get-category-ranking?analystId=${user.id}`);
         const categoryData = await categoryResponse.json();
-  
-        if (!categoryResponse.ok) throw new Error(categoryData.error);
-  
-        // Mapear IDs de categorias para nomes (opcional)
-        const categoriesWithNames = await Promise.all(
-          categoryData.categories.map(async (item) => {
-            const categoryDetail = await fetch(`/api/get-category-details?id=${item.id}`);
-            const categoryInfo = await categoryDetail.json();
-            return { name: categoryInfo.name, count: item.count };
-          })
-        );
-  
-        setCategoryRanking(categoriesWithNames);
+
+        if (!categoryResponse.ok) {
+          throw new Error(categoryData.error || 'Erro ao buscar ranking de categorias');
+        }
+
+        if (categoryData.status === 'success') {
+          // Usar diretamente as categorias retornadas, sem necessidade de busca adicional
+          setCategoryRanking(categoryData.categories.map(category => ({
+            name: category.name,
+            count: category.count,
+            alertThreshold: category.alertThreshold
+          })));
+        }
+
       } catch (error) {
-        console.error('Erro ao buscar dados:', error.message);
+        console.error('Erro ao buscar dados:', error);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-  
-    if (user?.id) {
-      fetchData();
-    }
-  }, [user.id]);
-  
+
+    fetchData();
+  }, [user?.id]);
+
+  // Renderização do loader inicial
   if (initialLoading) {
-    // Loader inicial da página
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
@@ -88,7 +98,8 @@ export default function AnalystProfilePage({ user }) {
     );
   }
 
-  const firstName = user.name.split(' ')[0];
+  // Cálculos para exibição
+  const firstName = user.name?.split(' ')[0] || 'Usuário';
   const { currentMonth, lastMonth } = helpRequests;
   let percentageChange = 0;
 
@@ -111,10 +122,24 @@ export default function AnalystProfilePage({ user }) {
       <main className={styles.main}>
         <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
 
-        {/* Container para Dados de Perfil e Ajudas Solicitadas */}
+        {error && (
+          <div className={styles.errorMessage}>
+            {error}
+          </div>
+        )}
+
+        {/* Container para Dados de Perfil e Ajudas Prestadas */}
         <div className={styles.profileAndHelpContainer}>
           <div className={styles.profileContainer}>
-            <img src={user.image} alt={user.name} className={styles.profileImage} />
+            <img 
+              src={user.image || '/default-avatar.png'} 
+              alt={user.name} 
+              className={styles.profileImage}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/default-avatar.png';
+              }}
+            />
             <div className={styles.profileInfo}>
               <h2>{user.name}</h2>
               <p>{user.email}</p>
@@ -159,13 +184,13 @@ export default function AnalystProfilePage({ user }) {
                   <div
                     className={styles.progressBarCategory}
                     style={{
-                      width: `${category.count * 10}px`,
-                      backgroundColor: category.count > 50 ? 'orange' : '',
+                      width: `${Math.min(category.count * 10, 300)}px`, // Limitando o tamanho máximo
+                      backgroundColor: category.alertThreshold ? 'orange' : '',
                     }}
                   />
                   <span className={styles.count}>
                     {category.count} pedidos de ajuda
-                    {category.count > 50 && (
+                    {category.alertThreshold && (
                       <div className="tooltip">
                         <i
                           className="fa-solid fa-circle-exclamation"
@@ -196,6 +221,7 @@ export default function AnalystProfilePage({ user }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
+  
   if (!session || (session.role !== 'analyst' && session.role !== 'tax')) {
     return {
       redirect: {
@@ -204,6 +230,7 @@ export async function getServerSideProps(context) {
       },
     };
   }
+
   return {
     props: {
       user: {

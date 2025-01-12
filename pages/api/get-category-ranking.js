@@ -1,10 +1,13 @@
 import { supabase } from '../../utils/supabaseClient';
 
 export default async function handler(req, res) {
-  const { analystId } = req.query;
+  const { analystId, period } = req.query;
 
   if (!analystId) {
-    return res.status(400).json({ error: 'ID do analista é obrigatório e deve ser válido.' });
+    return res.status(400).json({ 
+      error: 'ID do analista é obrigatório e deve ser válido.',
+      status: 'error' 
+    });
   }
 
   try {
@@ -17,7 +20,10 @@ export default async function handler(req, res) {
     if (helpError) throw helpError;
 
     if (!helpRequests || helpRequests.length === 0) {
-      return res.status(200).json({ categories: [] });
+      return res.status(200).json({ 
+        categories: [],
+        status: 'success'
+      });
     }
 
     // Consulta todas as categorias para mapear ID -> Nome
@@ -27,24 +33,47 @@ export default async function handler(req, res) {
 
     if (categoryError) throw categoryError;
 
-    const categoryMap = Object.fromEntries(categories.map(cat => [cat.id, cat.name]));
+    if (!categories || categories.length === 0) {
+      return res.status(200).json({ 
+        categories: [],
+        message: 'Nenhuma categoria encontrada',
+        status: 'success'
+      });
+    }
 
-    // Ajuste de timezone
+    // Criar mapa de categorias com validação
+    const categoryMap = Object.fromEntries(
+      categories.map(cat => [cat.id, cat.name || 'Categoria sem nome'])
+    );
+
+    // Ajuste de timezone e datas
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentDate = new Date(brtDate);
 
-    const currentMonth = currentDate.getMonth() + 1;
-    const currentYear = currentDate.getFullYear();
+    // Calcular período de filtro (padrão: últimos 30 dias)
+    const filterDays = period ? parseInt(period, 10) : 30;
+    const filterDate = new Date(currentDate);
+    filterDate.setDate(filterDate.getDate() - filterDays);
 
-    // Contagem de categorias no mês atual
+    // Contagem de todas as categorias dentro do período
     const categoryCounts = helpRequests.reduce((acc, { category_id, request_date }) => {
       if (!request_date || !category_id) return acc;
 
-      const [year, month, day] = request_date.split('-').map(Number);
-      const date = new Date(year, month - 1, day);
+      try {
+        const [year, month, day] = request_date.split('-').map(Number);
+        
+        // Validar componentes da data
+        if (!year || !month || !day) return acc;
+        
+        const requestDate = new Date(year, month - 1, day);
 
-      if (date.getMonth() + 1 === currentMonth && date.getFullYear() === currentYear) {
-        acc[category_id] = (acc[category_id] || 0) + 1;
+        // Verificar se a data está dentro do período de filtro
+        if (requestDate >= filterDate && requestDate <= currentDate) {
+          acc[category_id] = (acc[category_id] || 0) + 1;
+        }
+
+      } catch (dateError) {
+        console.error('Erro ao processar data:', dateError, 'para categoria:', category_id);
       }
 
       return acc;
@@ -55,14 +84,32 @@ export default async function handler(req, res) {
       .sort(([, a], [, b]) => b - a)
       .slice(0, 10)
       .map(([id, count]) => ({
+        id,
         name: categoryMap[id] || 'Categoria não encontrada',
         count,
+        alertThreshold: count > 50 // Flag para alertas de knowledge base
       }));
 
-    res.status(200).json({ categories: sortedCategories });
+    // Adicionar metadados à resposta
+    const response = {
+      categories: sortedCategories,
+      metadata: {
+        totalCategories: Object.keys(categoryCounts).length,
+        periodDays: filterDays,
+        periodStart: filterDate.toISOString(),
+        periodEnd: currentDate.toISOString()
+      },
+      status: 'success'
+    };
+
+    res.status(200).json(response);
 
   } catch (error) {
     console.error('Erro ao obter ranking de categorias:', error);
-    res.status(500).json({ error: 'Erro ao obter ranking de categorias.' });
+    return res.status(500).json({ 
+      error: 'Erro ao obter ranking de categorias.',
+      details: error.message,
+      status: 'error'
+    });
   }
 }
