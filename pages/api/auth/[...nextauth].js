@@ -70,22 +70,18 @@ export default NextAuth({
         // 2. Buscar usuário existente no Supabase
         const existingUser = await getExistingUser(user.email);
         
-        // 3. Se o usuário existe, atualizar dados e permitir login
+        // 3. Se o usuário existe, permitir login
         if (existingUser) {
-          // Atualizar dados do usuário se necessário
-          const { data: updatedUser, error: updateError } = await supabaseAdmin
-            .from('users')
-            .update({
-              name: user.name,
-              image: user.image,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', existingUser.id)
-            .select()
-            .single();
+          // Atualizar apenas o nome se necessário
+          if (existingUser.name !== user.name) {
+            const { error: updateError } = await supabaseAdmin
+              .from('users')
+              .update({ name: user.name })
+              .eq('id', existingUser.id);
 
-          if (updateError) {
-            console.error('[AUTH] Erro ao atualizar usuário:', updateError);
+            if (updateError) {
+              console.error('[AUTH] Erro ao atualizar nome do usuário:', updateError);
+            }
           }
 
           console.log(`[AUTH] Login bem-sucedido para usuário existente:`, {
@@ -108,7 +104,6 @@ export default NextAuth({
             telefone: false,
             chat: false,
             remote: false,
-            image: user.image,
             created_at: new Date().toISOString()
           }])
           .select()
@@ -141,7 +136,8 @@ export default NextAuth({
             token.role = dbUser.role;
             token.squad = dbUser.squad;
             token.name = dbUser.name;
-            token.image = dbUser.image;
+            // Manter a imagem do Google
+            token.picture = user?.image || token.picture;
           }
         }
 
@@ -161,14 +157,14 @@ export default NextAuth({
         });
     
         if (session?.user) {
-          // Adicionar todos os dados necessários à sessão
           session.id = token.id;
           session.role = token.role;
-          session.user.id = token.id; // Adicionar ID também ao objeto user
+          session.user.id = token.id;
           session.user.role = token.role;
           session.user.squad = token.squad;
           session.user.name = token.name;
-          session.user.image = token.image;
+          // Usar a imagem do Google diretamente
+          session.user.image = token.picture;
     
           console.log('[AUTH] Sessão construída:', {
             id: session.id,
