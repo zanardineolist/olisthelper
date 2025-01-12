@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-  if (!token) {
+  if (!token || !token.id) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
@@ -34,9 +34,12 @@ export async function middleware(req) {
 
   // Definir cookies com detalhes do usuário
   const response = NextResponse.next();
-  response.cookies.set('user-id', token.id);
-  response.cookies.set('user-name', token.name);
-  response.cookies.set('user-role', token.role);
+  
+  // Garantir que todos os valores existem antes de definir os cookies
+  if (token.id) response.cookies.set('user-id', token.id);
+  if (token.name) response.cookies.set('user-name', token.name);
+  if (token.role) response.cookies.set('user-role', token.role);
+  if (token.squad) response.cookies.set('user-squad', token.squad);
 
   return response;
 }

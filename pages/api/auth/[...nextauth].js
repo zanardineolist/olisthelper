@@ -70,31 +70,45 @@ export default NextAuth({
         // 2. Buscar usuário existente no Supabase
         const existingUser = await getExistingUser(user.email);
         
-        // 3. Se o usuário existe, permitir login
+        // 3. Se o usuário existe, atualizar dados e permitir login
         if (existingUser) {
+          // Atualizar dados do usuário se necessário
+          const { data: updatedUser, error: updateError } = await supabaseAdmin
+            .from('users')
+            .update({
+              name: user.name,
+              image: user.image,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existingUser.id)
+            .select()
+            .single();
+
+          if (updateError) {
+            console.error('[AUTH] Erro ao atualizar usuário:', updateError);
+          }
+
           console.log(`[AUTH] Login bem-sucedido para usuário existente:`, {
             email: user.email,
             role: existingUser.role,
-            user_code: existingUser.user_code
+            id: existingUser.id
           });
           return true;
         }
 
         // 4. Se não existe, criar novo (apenas para domínios permitidos)
-        const userCode = Math.floor(1000 + Math.random() * 9000).toString();
-        
         const { data: newUser, error: insertError } = await supabaseAdmin
           .from('users')
           .insert([{
             name: user.name,
             email: user.email,
             role: 'support',
-            user_code: userCode,
             squad: 'Squad',
             chamado: false,
             telefone: false,
             chat: false,
             remote: false,
+            image: user.image,
             created_at: new Date().toISOString()
           }])
           .select()
@@ -119,14 +133,15 @@ export default NextAuth({
         console.log('[AUTH] Gerando JWT para:', token?.email || user?.email);
         
         // Atualizar o token com dados do usuário
-        if (trigger === 'signIn' || !token.user_code) {
+        if (trigger === 'signIn' || !token.id) {
           const dbUser = await getExistingUser(token.email || user.email);
           if (dbUser) {
             console.log('[AUTH] Dados do usuário recuperados para JWT:', dbUser);
             token.id = dbUser.id;
             token.role = dbUser.role;
-            token.user_code = dbUser.user_code;
             token.squad = dbUser.squad;
+            token.name = dbUser.name;
+            token.image = dbUser.image;
           }
         }
 
@@ -142,33 +157,22 @@ export default NextAuth({
         console.log('[AUTH] Construindo sessão com token:', {
           id: token.id,
           email: token.email,
-          role: token.role,
-          user_code: token.user_code
+          role: token.role
         });
     
         if (session?.user) {
-          // Verificar se temos os dados necessários
-          if (!token.user_code) {
-            console.warn('[AUTH] user_code não encontrado no token, buscando do banco...');
-            const dbUser = await getExistingUser(session.user.email);
-            if (dbUser) {
-              token.user_code = dbUser.user_code;
-              console.log('[AUTH] user_code recuperado do banco:', dbUser.user_code);
-            }
-          }
-    
           // Adicionar todos os dados necessários à sessão
           session.id = token.id;
           session.role = token.role;
+          session.user.id = token.id; // Adicionar ID também ao objeto user
           session.user.role = token.role;
-          session.user_code = token.user_code;
-          session.user.user_code = token.user_code;
           session.user.squad = token.squad;
+          session.user.name = token.name;
+          session.user.image = token.image;
     
           console.log('[AUTH] Sessão construída:', {
             id: session.id,
             role: session.role,
-            user_code: session.user_code,
             email: session.user.email
           });
         }
