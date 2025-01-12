@@ -1,111 +1,54 @@
 import { supabase } from '../../utils/supabaseClient';
-import dayjs from 'dayjs';
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Método não permitido. Use GET.' });
-  }
-
-  const { analystId, mode = 'full' } = req.query;
+  const { analystId, mode, filter } = req.query;
 
   if (!analystId) {
-    console.warn('[ANALYST RECORDS] ID do analista não fornecido.');
-    return res.status(400).json({ error: 'ID do analista é obrigatório.' });
+    return res.status(400).json({ error: 'ID do analista é obrigatório e deve ser válido.' });
   }
 
   try {
-    // Validação do analista
-    const { data: analyst, error: analystError } = await supabase
-      .from('users')
+    // Consulta ao Supabase para buscar os registros de ajuda do analista
+    const { data: helpRequests, error } = await supabase
+      .from('help_requests')
       .select('*')
-      .eq('id', analystId)
-      .single();
+      .eq('analyst_id', analystId);
 
-    if (analystError || !analyst) {
-      console.error('[ANALYST RECORDS] Erro ao buscar analista:', analystError);
-      return res.status(404).json({ error: 'Analista não encontrado.' });
-    }
+    if (error) throw error;
 
-    if (!['analyst', 'tax'].includes(analyst.role)) {
-      console.error('[ANALYST RECORDS] Role inválida:', analyst.role);
-      return res.status(403).json({ error: 'Usuário não é analista ou fiscal.' });
-    }
+    if (mode === 'profile') {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+      const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
-    const tableName = `analyst_${analystId}`;
-    const now = dayjs();
+      let currentMonthCount = 0;
+      let lastMonthCount = 0;
 
-    // Definir períodos de consulta
-    const currentMonthStart = now.startOf('month').format('YYYY-MM-DD');
-    const currentMonthEnd = now.endOf('month').format('YYYY-MM-DD');
-    const lastMonthStart = now.subtract(1, 'month').startOf('month').format('YYYY-MM-DD');
-    const lastMonthEnd = now.subtract(1, 'month').endOf('month').format('YYYY-MM-DD');
+      // Contagem de registros do mês atual e mês anterior
+      helpRequests.forEach(({ request_date }) => {
+        const date = new Date(request_date);
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
 
-    // Consultar registros do mês atual e do mês anterior
-    const [currentMonthRecords, lastMonthRecords] = await Promise.all([
-      supabase
-        .from(tableName)
-        .select(mode === 'profile' ? 'date, category, description' : '*')
-        .gte('date', currentMonthStart)
-        .lte('date', currentMonthEnd)
-        .order('date', { ascending: false }),
-
-      supabase
-        .from(tableName)
-        .select('date')
-        .gte('date', lastMonthStart)
-        .lte('date', lastMonthEnd)
-    ]);
-
-    // Verificação de erros nas consultas
-    if (currentMonthRecords.error) {
-      console.error('[ANALYST RECORDS] Erro ao buscar registros do mês atual:', currentMonthRecords.error.message);
-      throw new Error(`Erro ao buscar registros do mês atual: ${currentMonthRecords.error.message}`);
-    }
-
-    if (lastMonthRecords.error) {
-      console.error('[ANALYST RECORDS] Erro ao buscar registros do mês anterior:', lastMonthRecords.error.message);
-      throw new Error(`Erro ao buscar registros do mês anterior: ${lastMonthRecords.error.message}`);
-    }
-
-    // Preparar resposta com contagem e registros
-    const response = {
-      currentMonth: currentMonthRecords.data.length,
-      lastMonth: lastMonthRecords.data.length,
-      records: mode === 'full' 
-        ? currentMonthRecords.data 
-        : currentMonthRecords.data.map(record => ({
-            date: dayjs(record.date).format('DD/MM/YYYY'),
-            category: record.category || 'Sem Categoria',
-            description: record.description || 'Sem descrição'
-          }))
-    };
-
-    // Adicionar metadados sobre o analista
-    response.metadata = {
-      period: {
-        current: {
-          start: currentMonthStart,
-          end: currentMonthEnd
-        },
-        last: {
-          start: lastMonthStart,
-          end: lastMonthEnd
+        if (year === currentYear && month === currentMonth) {
+          currentMonthCount++;
+        } else if (year === lastMonthYear && month === lastMonth) {
+          lastMonthCount++;
         }
-      },
-      analyst: {
-        id: analyst.id,
-        name: analyst.name,
-        role: analyst.role
-      }
-    };
+      });
 
-    return res.status(200).json(response);
+      return res.status(200).json({
+        currentMonth: currentMonthCount,
+        lastMonth: lastMonthCount,
+      });
+    }
 
-  } catch (err) {
-    console.error('[ANALYST RECORDS] Erro inesperado:', err);
-    return res.status(500).json({
-      error: 'Erro ao buscar registros do analista.',
-      details: err.message
-    });
+    // Resposta padrão com os registros
+    res.status(200).json({ rows: helpRequests });
+  } catch (error) {
+    console.error('Erro ao obter registros do analista:', error);
+    res.status(500).json({ error: 'Erro ao obter registros.' });
   }
 }
