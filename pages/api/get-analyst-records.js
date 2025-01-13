@@ -1,85 +1,61 @@
-import { supabase } from '../../utils/supabaseClient';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-
-// Configurar o timezone corretamente
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.tz.setDefault("America/Sao_Paulo");
+// pages/api/get-analyst-records.js
+import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   const { analystId, mode, filter } = req.query;
 
   if (!analystId || analystId === 'undefined') {
-    console.log('Erro: ID do analista não fornecido.');
-    return res.status(400).json({ error: 'ID do analista é obrigatório.' });
+    console.log('Erro: ID do analista não fornecido ou inválido.');
+    return res.status(400).json({ error: 'ID do analista é obrigatório e deve ser válido.' });
   }
 
   try {
-    // Buscar analista por ID ou email
-    const { data: analyst, error: analystError } = await supabase
-      .from('users')
-      .select('id, name, email')
-      .or(`id.eq.${analystId},email.eq.${req.query.email}`)
-      .single();
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
 
-    if (analystError) {
-      console.error('Erro ao buscar analista:', analystError);
-      throw analystError;
+    console.log(`Buscando metadados da planilha com ID: ${sheetId} para o analista: ${analystId}`);
+
+    // Obter as informações da planilha (metadados)
+    const sheetMeta = await getSheetMetaData();
+
+    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
+    const sheetName = sheetMeta.data.sheets.find((sheet) => {
+      return sheet.properties.title.startsWith(`#${analystId}`);
+    })?.properties.title;
+
+    if (!sheetName) {
+      console.log(`Erro: A aba correspondente ao ID '${analystId}' não existe na planilha.`);
+      return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
     }
 
-    if (!analyst) {
-      console.log(`Analista não encontrado. ID: ${analystId}, Email: ${req.query.email}`);
-      return res.status(404).json({ error: 'Analista não encontrado.' });
+    console.log(`Aba localizada: ${sheetName}`);
+
+    // Caso a aba seja encontrada, prosseguir para obter os valores
+    const rows = await getSheetValues(sheetName, 'A:F');
+
+    if (!rows || rows.length === 0) {
+      console.log('Nenhum registro encontrado na aba especificada.');
+      return res.status(200).json({ count: 0, rows: [] });
     }
 
-    console.log(`Buscando registros para o analista ${analyst.name} (${analyst.id})`);
+    console.log(`Total de registros encontrados: ${rows.length}`);
 
-    // Usar o ID correto do analista para buscar os registros
-    const { data: helpRequests, error: requestsError } = await supabase
-      .from('help_requests')
-      .select(`
-        *,
-        categories (
-          id,
-          name
-        )
-      `)
-      .eq('analyst_id', analyst.id)
-      .order('request_date', { ascending: false });
-
-    if (requestsError) {
-      console.error('Erro na consulta:', requestsError);
-      throw requestsError;
-    }
-
-    if (!helpRequests || helpRequests.length === 0) {
-      return res.status(200).json({ 
-        count: 0, 
-        rows: [],
-        metadata: {
-          analyst: analyst.name,
-          totalRequests: 0
-        }
-      });
-    }
-
-    // Lógica para o modo "profile" (mês atual e mês anterior)
+    // Filtrar registros para o perfil do analista (current month e last month)
     if (mode === 'profile') {
-      const now = dayjs().tz("America/Sao_Paulo");
-      const currentMonth = now.month() + 1;
-      const currentYear = now.year();
-      const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1; // Mês atual (1-12)
+      const currentYear = currentDate.getFullYear();
+      const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1; // Mês anterior
       const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
       let currentMonthCount = 0;
       let lastMonthCount = 0;
 
-      helpRequests.forEach(request => {
-        if (!request.request_date) return;
-        
-        const [year, month] = request.request_date.split('-').map(num => parseInt(num, 10));
+      rows.forEach((row, index) => {
+        if (index === 0) return; // Pular cabeçalho
+
+        const [dateStr] = row;
+        const [day, month, year] = dateStr.split('/').map(Number);
         
         if (year === currentYear && month === currentMonth) {
           currentMonthCount++;
@@ -91,63 +67,49 @@ export default async function handler(req, res) {
       return res.status(200).json({
         currentMonth: currentMonthCount,
         lastMonth: lastMonthCount,
-        rows: helpRequests.map(request => ({
-          ...request,
-          category_name: request.categories?.name || 'Categoria não encontrada',
-          full_date: request.request_date 
-            ? dayjs(request.request_date).tz("America/Sao_Paulo").format('DD/MM/YYYY')
-            : 'Data não disponível'
-        })),
-        metadata: {
-          analyst: analyst.name,
-          totalRequests: helpRequests.length
-        }
+        rows,
       });
     }
 
-    // Lógica padrão com filtro
-    const currentDate = dayjs().tz("America/Sao_Paulo");
-    const filterDays = filter ? parseInt(filter, 10) : 30;
+    // Lógica padrão (com filtro para registros gerais)
+    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+    const currentDate = new Date(brtDate);
 
-    const filteredRows = helpRequests.filter(request => {
-      if (!request.request_date) return false;
-      
-      const requestDate = dayjs(request.request_date).tz("America/Sao_Paulo");
-      return currentDate.diff(requestDate, 'day') <= filterDays;
+    const filteredRows = rows.filter((row, index) => {
+      if (index === 0) return false;
+
+      const [dateStr] = row;
+      const [day, month, year] = dateStr.split('/').map(Number);
+      const date = new Date(year, month - 1, day);
+
+      const diffTime = currentDate - date;
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+      return diffDays <= (filter ? parseInt(filter, 10) : 30);
     });
 
-    const datesCount = filteredRows.reduce((acc, request) => {
-      const formattedDate = dayjs(request.request_date)
-        .tz("America/Sao_Paulo")
-        .format('YYYY-MM-DD');
-      acc[formattedDate] = (acc[formattedDate] || 0) + 1;
+    if (!filteredRows || filteredRows.length === 0) {
+      console.log('Nenhum registro encontrado após o filtro aplicado.');
+      return res.status(200).json({ count: 0, dates: [], counts: [], rows: [] });
+    }
+
+    console.log(`Total de registros após o filtro: ${filteredRows.length}`);
+
+    const count = filteredRows.length;
+    const dates = filteredRows.map((row) => row[0]);
+    const countsObj = dates.reduce((acc, date) => {
+      acc[date] = (acc[date] || 0) + 1;
       return acc;
     }, {});
 
-    return res.status(200).json({
-      count: filteredRows.length,
-      dates: Object.keys(datesCount),
-      counts: Object.values(datesCount),
-      rows: filteredRows.map(request => ({
-        ...request,
-        category_name: request.categories?.name || 'Categoria não encontrada',
-        full_date: request.request_date 
-          ? dayjs(request.request_date).tz("America/Sao_Paulo").format('DD/MM/YYYY')
-          : 'Data não disponível'
-      })),
-      metadata: {
-        analyst: analyst.name,
-        totalRequests: helpRequests.length,
-        filteredRequests: filteredRows.length,
-        period: `Últimos ${filterDays} dias`
-      }
+    res.status(200).json({
+      count,
+      dates: Object.keys(countsObj),
+      counts: Object.values(countsObj),
+      rows: filteredRows,
     });
-
   } catch (error) {
-    console.error('Erro ao processar registros:', error);
-    return res.status(500).json({ 
-      error: 'Erro ao processar registros do analista.', 
-      details: error.message 
-    });
+    console.error('Erro ao obter registros do analista:', error);
+    res.status(500).json({ error: 'Erro ao obter registros.' });
   }
 }

@@ -1,157 +1,71 @@
-import { supabase } from '../../utils/supabaseClient';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
+import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
 
-// Configurar dayjs para trabalhar com timezone
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.tz.setDefault("America/Sao_Paulo");
-
-/**
- * Função para validar e obter dados do usuário
- */
-const validateUser = async (userId) => {
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', userId)
-    .single();
-
-  if (error || !user) {
-    throw new Error('Usuário não encontrado');
-  }
-
-  return user;
-};
-
-/**
- * Função para buscar solicitações de ajuda por período
- */
-const getHelpRequestsForPeriod = async (userId, period) => {
-  const { data, error } = await supabase
-    .from('help_records')
-    .select(`
-      id,
-      analyst_id,
-      category_id,
-      description,
-      date,
-      time,
-      analysts:users!help_records_analyst_id_fkey (
-        name,
-        email,
-        role
-      ),
-      categories (
-        name
-      )
-    `)
-    .eq('user_id', userId)
-    .gte('date', period.start)
-    .lte('date', period.end)
-    .order('date', { ascending: false });
-
-  if (error) {
-    throw new Error(`Erro ao buscar solicitações de ajuda: ${error.message}`);
-  }
-
-  return data || [];
-};
-
-/**
- * Handler principal
- */
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Método não permitido. Use GET.' });
+    return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { userId } = req.query;
+  const { userEmail } = req.query;
 
-  if (!userId) {
-    console.warn('[USER HELP REQUESTS] ID do usuário não fornecido.');
-    return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+  if (!userEmail) {
+    return res.status(400).json({ error: 'E-mail do usuário é obrigatório' });
   }
 
   try {
-    // Validar usuário
-    const user = await validateUser(userId);
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
 
-    // Definir períodos
-    const now = dayjs();
-    const currentPeriod = {
-      start: now.startOf('month').format('YYYY-MM-DD'),
-      end: now.endOf('month').format('YYYY-MM-DD')
-    };
+    // Obter metadados da planilha
+    const sheetMeta = await getSheetMetaData();
+    const sheetNames = sheetMeta.data.sheets.map(sheet => sheet.properties.title);
 
-    const lastPeriod = {
-      start: now.subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
-      end: now.subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
-    };
+    // Filtrar apenas as abas que representam analistas
+    const analystSheetNames = sheetNames.filter(name => name.startsWith('#'));
 
-    // Buscar dados em paralelo
-    const [currentMonthRequests, lastMonthRequests] = await Promise.all([
-      getHelpRequestsForPeriod(userId, currentPeriod),
-      getHelpRequestsForPeriod(userId, lastPeriod)
-    ]);
+    let currentMonthCount = 0;
+    let lastMonthCount = 0;
 
-    // Calcular métricas adicionais
-    const currentMonthAnalysts = new Set(currentMonthRequests.map(r => r.analyst_id));
-    const currentMonthCategories = new Set(currentMonthRequests.map(r => r.category_id));
+    // Data atual
+    const today = new Date();
+    const brtDate = new Date(today.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const currentMonth = brtDate.getMonth();
+    const currentYear = brtDate.getFullYear();
 
-    const metrics = {
-      currentMonth: {
-        total: currentMonthRequests.length,
-        uniqueAnalysts: currentMonthAnalysts.size,
-        uniqueCategories: currentMonthCategories.size,
-        averagePerDay: +(currentMonthRequests.length / now.daysInMonth()).toFixed(2)
-      },
-      lastMonth: {
-        total: lastMonthRequests.length
-      },
-      trend: {
-        difference: currentMonthRequests.length - lastMonthRequests.length,
-        percentage: lastMonthRequests.length 
-          ? +((currentMonthRequests.length - lastMonthRequests.length) / lastMonthRequests.length * 100).toFixed(2)
-          : null
-      }
-    };
+    // Iterar sobre todas as abas de analistas para obter os registros de ajuda
+    for (const sheetName of analystSheetNames) {
+      const rows = await getSheetValues(sheetName, 'A:F');
 
-    return res.status(200).json({
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      },
-      metrics,
-      currentMonthRequests: currentMonthRequests.map(request => ({
-        id: request.id,
-        date: request.date,
-        time: request.time,
-        category: request.categories?.name,
-        description: request.description,
-        analyst: {
-          name: request.analysts?.name,
-          email: request.analysts?.email,
-          role: request.analysts?.role
+      if (rows.length > 0) {
+        // Ignorar o cabeçalho
+        rows.shift();
+
+        for (const row of rows) {
+          const [dateString, , , email] = row;
+
+          if (email === userEmail) {
+            const [day, month, year] = dateString.split('/').map(Number);
+            const recordDate = new Date(year, month - 1, day);
+
+            // Verificar se o registro pertence ao mês atual ou ao anterior
+            if (recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear) {
+              currentMonthCount++;
+            } else if (
+              (recordDate.getMonth() === currentMonth - 1 && recordDate.getFullYear() === currentYear) ||
+              (currentMonth === 0 && recordDate.getMonth() === 11 && recordDate.getFullYear() === currentYear - 1)
+            ) {
+              lastMonthCount++;
+            }
+          }
         }
-      })),
-      metadata: {
-        periods: {
-          current: currentPeriod,
-          last: lastPeriod
-        },
-        generatedAt: new Date().toISOString()
       }
-    });
+    }
 
-  } catch (err) {
-    console.error('[USER HELP REQUESTS] Erro inesperado:', err);
-    return res.status(500).json({
-      error: 'Erro inesperado ao buscar solicitações de ajuda.',
-      message: err.message
+    res.status(200).json({
+      currentMonth: currentMonthCount,
+      lastMonth: lastMonthCount,
     });
+  } catch (error) {
+    console.error('Erro ao obter ajudas solicitadas:', error);
+    res.status(500).json({ error: 'Erro ao obter as ajudas solicitadas. Verifique suas credenciais e a configuração do Google Sheets.' });
   }
 }

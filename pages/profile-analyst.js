@@ -12,82 +12,68 @@ export default function AnalystProfilePage({ user }) {
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [initialLoading, setInitialLoading] = useState(true); // Estado para carregamento inicial da página
+  const [loading, setLoading] = useState(true); // Estado para carregamento dos dados
 
-  // Efeito para definir saudação
   useEffect(() => {
-    try {
+    // Simulando um pequeno atraso para exibir o loader inicial da página
+    setTimeout(() => {
+      // Definir saudação com base na hora do dia
       const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
       const currentHour = new Date(brtDate).getHours();
-      
-      const greetingMessage = currentHour >= 5 && currentHour < 12 
-        ? 'Bom dia'
-        : currentHour >= 12 && currentHour < 18 
-          ? 'Boa tarde' 
-          : 'Boa noite';
+      let greetingMessage = '';
+
+      if (currentHour >= 5 && currentHour < 12) {
+        greetingMessage = 'Bom dia';
+      } else if (currentHour >= 12 && currentHour < 18) {
+        greetingMessage = 'Boa tarde';
+      } else {
+        greetingMessage = 'Boa noite';
+      }
 
       setGreeting(greetingMessage);
       setInitialLoading(false);
-    } catch (error) {
-      console.error('Erro ao definir saudação:', error);
-      setGreeting('Olá');
-      setInitialLoading(false);
-    }
+    }, 500);
   }, []);
 
-  // Efeito para buscar dados
   useEffect(() => {
     const fetchData = async () => {
-      if (!user?.id) return;
-      
       setLoading(true);
-      setError(null);
-      
-      console.log('ID do usuário logado:', user.id); // Log para debug
-      
       try {
-        // Buscar dados de ajudas prestadas
-        const helpResponse = await fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`);
+        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
+        const [helpResponse, categoryResponse] = await Promise.all([
+          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
+          fetch(`/api/get-category-ranking?analystId=${user.id}`)
+        ]);
+
+        if (!helpResponse.ok || !categoryResponse.ok) {
+          throw new Error('Erro ao buscar dados do analista.');
+        }
+
+        // Ajudas Solicitadas
         const helpData = await helpResponse.json();
-  
-        console.log('Resposta dos registros:', helpData); // Log para debug
-  
-        if (!helpResponse.ok) {
-          throw new Error(helpData.error || 'Erro ao buscar dados de ajudas');
-        }
-  
         setHelpRequests({
-          currentMonth: helpData.currentMonth || 0,
-          lastMonth: helpData.lastMonth || 0,
+          currentMonth: helpData.currentMonth,
+          lastMonth: helpData.lastMonth,
         });
-  
-        // Buscar ranking de categorias
-        const categoryResponse = await fetch(`/api/get-category-ranking?analystId=${user.id}`);
+
+        // Ranking de Categorias
         const categoryData = await categoryResponse.json();
-  
-        console.log('Resposta das categorias:', categoryData); // Log para debug
-  
-        if (!categoryResponse.ok) {
-          throw new Error(categoryData.error || 'Erro ao buscar ranking de categorias');
-        }
-  
         setCategoryRanking(categoryData.categories || []);
-  
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
-        setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchData();
-  }, [user?.id]);
 
-  // Renderização do loader inicial
+    if (user?.id) {
+      fetchData();
+    }
+  }, [user.id]);
+
   if (initialLoading) {
+    // Loader inicial da página
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
@@ -95,8 +81,7 @@ export default function AnalystProfilePage({ user }) {
     );
   }
 
-  // Cálculos para exibição
-  const firstName = user.name?.split(' ')[0] || 'Usuário';
+  const firstName = user.name.split(' ')[0];
   const { currentMonth, lastMonth } = helpRequests;
   let percentageChange = 0;
 
@@ -119,24 +104,10 @@ export default function AnalystProfilePage({ user }) {
       <main className={styles.main}>
         <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
 
-        {error && (
-          <div className={styles.errorMessage}>
-            {error}
-          </div>
-        )}
-
-        {/* Container para Dados de Perfil e Ajudas Prestadas */}
+        {/* Container para Dados de Perfil e Ajudas Solicitadas */}
         <div className={styles.profileAndHelpContainer}>
           <div className={styles.profileContainer}>
-            <img 
-              src={user.image || '/default-avatar.png'} 
-              alt={user.name} 
-              className={styles.profileImage}
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = '/default-avatar.png';
-              }}
-            />
+            <img src={user.image} alt={user.name} className={styles.profileImage} />
             <div className={styles.profileInfo}>
               <h2>{user.name}</h2>
               <p>{user.email}</p>
@@ -181,13 +152,13 @@ export default function AnalystProfilePage({ user }) {
                   <div
                     className={styles.progressBarCategory}
                     style={{
-                      width: `${Math.min(category.count * 10, 300)}px`, // Limitando o tamanho máximo
-                      backgroundColor: category.alertThreshold ? 'orange' : '',
+                      width: `${category.count * 10}px`,
+                      backgroundColor: category.count > 50 ? 'orange' : '',
                     }}
                   />
                   <span className={styles.count}>
                     {category.count} pedidos de ajuda
-                    {category.alertThreshold && (
+                    {category.count > 50 && (
                       <div className="tooltip">
                         <i
                           className="fa-solid fa-circle-exclamation"
@@ -218,7 +189,6 @@ export default function AnalystProfilePage({ user }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  
   if (!session || (session.role !== 'analyst' && session.role !== 'tax')) {
     return {
       redirect: {
@@ -227,7 +197,6 @@ export async function getServerSideProps(context) {
       },
     };
   }
-
   return {
     props: {
       user: {

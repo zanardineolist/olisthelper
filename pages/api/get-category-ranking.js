@@ -1,126 +1,82 @@
-import { supabase } from '../../utils/supabaseClient';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-
-// Configurar o timezone
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.tz.setDefault("America/Sao_Paulo");
+import { getAuthenticatedGoogleSheets, getSheetMetaData, getSheetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   const { analystId } = req.query;
 
-  if (!analystId || analystId.trim() === '') {
-    console.log('Erro: ID do analista não fornecido.');
-    return res.status(400).json({ error: 'ID do analista é obrigatório.' });
+  if (!analystId || analystId === 'undefined') {
+    console.log('Erro: ID do analista não fornecido ou inválido.');
+    return res.status(400).json({ error: 'ID do analista é obrigatório e deve ser válido.' });
   }
 
   try {
-    // Verificar se o analista existe
-    const { data: analyst, error: analystError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('id', analystId.trim())
-      .single();
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
 
-    if (analystError || !analyst) {
-      console.log('Erro: Analista não encontrado.');
-      return res.status(404).json({ error: 'Analista não encontrado.' });
+    console.log(`Buscando metadados da planilha com ID: ${sheetId} para o analista: ${analystId}`);
+
+    // Obter as informações da planilha (metadados)
+    const sheetMeta = await getSheetMetaData();
+
+    // Buscar a aba que começa com o ID do analista (por exemplo, "#8487")
+    const sheetName = sheetMeta.data.sheets.find((sheet) => {
+      return sheet.properties.title.startsWith(`#${analystId}`);
+    })?.properties.title;
+
+    if (!sheetName) {
+      console.log(`Erro: A aba correspondente ao ID '${analystId}' não existe na planilha.`);
+      return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
     }
 
-    console.log(`Buscando ranking de categorias para o analista: ${analystId}`);
+    console.log(`Aba localizada: ${sheetName}`);
 
-    // Buscar TODOS os registros do analista (sem filtro de data)
-    const { data: helpRequests, error } = await supabase
-      .from('help_requests')
-      .select(`
-        *,
-        categories (
-          id,
-          name
-        )
-      `)
-      .eq('analyst_id', analystId.trim());
+    // Caso a aba seja encontrada, prosseguir para obter os valores
+    const rows = await getSheetValues(sheetName, 'A:F');
 
-    if (error) {
-      console.error('Erro na consulta:', error);
-      throw error;
+    if (!rows || rows.length === 0) {
+      console.log('Nenhum registro encontrado na aba especificada.');
+      return res.status(200).json({ rows: [] });
     }
 
-    if (!helpRequests || helpRequests.length === 0) {
-      console.log('Nenhum registro encontrado.');
-      return res.status(200).json({
-        categories: [],
-        metadata: {
-          totalCategories: 0,
-          totalRequests: 0,
-          currentMonthRequests: 0
-        }
-      });
-    }
+    console.log(`Total de registros encontrados: ${rows.length}`);
 
-    // Separar registros do mês atual para metadata
-    const now = dayjs().tz("America/Sao_Paulo");
-    const currentMonth = now.month() + 1;
-    const currentYear = now.year();
+    // Filtrar todos os registros do mês atual para o ranking das categorias
+    const currentDate = new Date();
+    const brtDate = new Date(currentDate.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+    const currentMonth = brtDate.getMonth();
+    const currentYear = brtDate.getFullYear();
 
-    const currentMonthRequests = helpRequests.filter(({ request_date }) => {
-      if (!request_date) return false;
-      const [year, month] = request_date.split('-').map(num => parseInt(num, 10));
-      return year === currentYear && month === currentMonth;
+    const currentMonthRows = rows.filter((row, index) => {
+      if (index === 0) return false; // Pular cabeçalho
+
+      const [dateStr] = row;
+      const [day, month, year] = dateStr.split('/').map(Number);
+      const date = new Date(year, month - 1, day);
+
+      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
     });
 
-    // Contar todas as categorias
-    const categoryCounts = helpRequests.reduce((acc, request) => {
-      const categoryId = request.category_id;
-      const categoryName = request.categories?.name || 'Categoria não encontrada';
-      
-      if (!categoryId) return acc;
-      
-      if (!acc[categoryId]) {
-        acc[categoryId] = {
-          id: categoryId,
-          name: categoryName,
-          count: 0,
-          currentMonthCount: 0
-        };
-      }
-      
-      acc[categoryId].count++;
+    // Contar categorias
+    const categoryCounts = currentMonthRows.reduce((acc, row) => {
+      const category = row[4];
 
-      // Contar também ocorrências do mês atual
-      if (request.request_date) {
-        const [year, month] = request.request_date.split('-').map(num => parseInt(num, 10));
-        if (year === currentYear && month === currentMonth) {
-          acc[categoryId].currentMonthCount++;
-        }
+      if (category) {
+        acc[category] = (acc[category] || 0) + 1;
       }
-      
+
       return acc;
     }, {});
 
-    // Ordenar e pegar top 10
-    const sortedCategories = Object.values(categoryCounts)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
+    // Ordenar e pegar as top 10 categorias
+    const sortedCategories = Object.entries(categoryCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
+      .map(([name, count]) => ({ name, count }));
 
-    console.log(`Processado ranking de ${sortedCategories.length} categorias`);
+    console.log('Categorias no ranking:', sortedCategories);
 
-    return res.status(200).json({
-      categories: sortedCategories,
-      metadata: {
-        totalCategories: Object.keys(categoryCounts).length,
-        totalRequests: helpRequests.length,
-        currentMonthRequests: currentMonthRequests.length
-      }
-    });
-
+    return res.status(200).json({ categories: sortedCategories });
   } catch (error) {
-    console.error('Erro ao processar ranking:', error);
-    return res.status(500).json({
-      error: 'Erro ao processar ranking de categorias.',
-      details: error.message
-    });
+    console.error('Erro ao obter registros das categorias:', error);
+    res.status(500).json({ error: 'Erro ao obter registros das categorias.' });
   }
 }
