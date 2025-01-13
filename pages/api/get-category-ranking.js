@@ -13,11 +13,11 @@ export default async function handler(req, res) {
   try {
     console.log('Iniciando busca de categorias para analista:', analystId);
 
-    // Usar ilike para correspondência case-insensitive
+    // Usar eq para UUID
     const { data: helpRequests, error: helpError } = await supabase
       .from('help_requests')
       .select('category_id, request_date')
-      .ilike('analyst_id', analystId.trim());
+      .eq('analyst_id', analystId.trim());
 
     console.log('Total de registros encontrados:', helpRequests?.length || 0);
 
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Buscar todas as categorias
+    // Buscar categorias
     const { data: categories, error: categoryError } = await supabase
       .from('categories')
       .select('id, name');
@@ -43,17 +43,21 @@ export default async function handler(req, res) {
       throw categoryError;
     }
 
-    const categoryMap = Object.fromEntries(
-      categories.map(cat => [cat.id, cat.name || 'Categoria sem nome'])
-    );
-
-    // Contagem simples de todas as categorias (sem filtro de data)
-    const categoryCounts = helpRequests.reduce((acc, { category_id }) => {
-      if (category_id) {
-        acc[category_id] = (acc[category_id] || 0) + 1;
+    // Criar mapa de categorias
+    const categoryMap = {};
+    categories?.forEach(cat => {
+      if (cat.id) {
+        categoryMap[cat.id] = cat.name || 'Categoria sem nome';
       }
-      return acc;
-    }, {});
+    });
+
+    // Contar ocorrências de cada categoria
+    const categoryCounts = {};
+    helpRequests.forEach(({ category_id }) => {
+      if (category_id) {
+        categoryCounts[category_id] = (categoryCounts[category_id] || 0) + 1;
+      }
+    });
 
     // Ordenar e pegar top 10
     const sortedCategories = Object.entries(categoryCounts)
@@ -70,6 +74,10 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       categories: sortedCategories,
+      metadata: {
+        totalCategories: Object.keys(categoryCounts).length,
+        totalRequests: helpRequests.length
+      },
       status: 'success'
     });
 

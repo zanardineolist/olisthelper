@@ -13,11 +13,12 @@ export default async function handler(req, res) {
   try {
     console.log('Iniciando busca para analista:', analystId);
 
-    // Modificar a consulta para usar .ilike para correspondência case-insensitive
+    // Usar eq para UUID
     const { data: helpRequests, error } = await supabase
       .from('help_requests')
       .select('*')
-      .ilike('analyst_id', analystId.trim());
+      .eq('analyst_id', analystId.trim())
+      .order('request_date', { ascending: false }); // Ordenar por data
 
     console.log('Query executada:', error ? 'com erro' : 'com sucesso');
     console.log('Total de registros encontrados:', helpRequests?.length || 0);
@@ -37,41 +38,45 @@ export default async function handler(req, res) {
       });
     }
 
-    // Configuração da data atual no timezone BRT
+    // Data atual em BRT
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentDate = new Date(brtDate);
     
-    // Cálculo dos meses (mantendo ambos os formatos para garantir compatibilidade)
+    // Mês atual e anterior
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth() + 1;
-    const currentMonthStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-
+    
     const lastMonthDate = new Date(currentDate);
     lastMonthDate.setMonth(currentDate.getMonth() - 1);
     const lastMonth = lastMonthDate.getMonth() + 1;
     const lastMonthYear = lastMonthDate.getFullYear();
-    const lastMonthStr = `${lastMonthYear}-${String(lastMonth).padStart(2, '0')}`;
 
-    // Contagem de registros
     let currentMonthCount = 0;
     let lastMonthCount = 0;
 
     helpRequests.forEach(({ request_date }) => {
       if (!request_date) return;
 
-      // Usar substring para comparar apenas ano-mês
-      const requestYearMonth = request_date.substring(0, 7);
-      
-      if (requestYearMonth === currentMonthStr) {
-        currentMonthCount++;
-      } else if (requestYearMonth === lastMonthStr) {
-        lastMonthCount++;
+      try {
+        const [year, month] = request_date.split('-').map(Number);
+        
+        if (year === currentYear && month === currentMonth) {
+          currentMonthCount++;
+        } else if (year === lastMonthYear && month === lastMonth) {
+          lastMonthCount++;
+        }
+      } catch (dateError) {
+        console.error('Erro ao processar data:', dateError);
       }
     });
 
-    console.log('Contagens calculadas:', { currentMonth: currentMonthCount, lastMonth: lastMonthCount });
+    console.log('Contagens calculadas:', { 
+      currentMonth: currentMonthCount, 
+      lastMonth: lastMonthCount,
+      currentYearMonth: `${currentYear}-${currentMonth}`,
+      lastYearMonth: `${lastMonthYear}-${lastMonth}`
+    });
 
-    // Retorno para o modo profile
     if (mode === 'profile') {
       return res.status(200).json({
         currentMonth: currentMonthCount,
@@ -81,16 +86,13 @@ export default async function handler(req, res) {
       });
     }
 
-    // Processamento para o modo filter
+    // Processamento para modo filter
     const filteredRows = helpRequests.filter(({ request_date }) => {
       if (!request_date) return false;
 
       try {
-        const [year, month, day] = request_date.split('-').map(Number);
-        if (!year || !month || !day) return false;
-
-        const date = new Date(year, month - 1, day);
-        const diffTime = currentDate - date;
+        const requestDate = new Date(request_date);
+        const diffTime = currentDate - requestDate;
         const diffDays = diffTime / (1000 * 60 * 60 * 24);
         const filterDays = filter ? parseInt(filter, 10) : 30;
 
@@ -101,19 +103,9 @@ export default async function handler(req, res) {
       }
     });
 
-    // Agregação dos dados filtrados
-    const dateCountMap = filteredRows.reduce((acc, { request_date }) => {
-      if (request_date) {
-        acc[request_date] = (acc[request_date] || 0) + 1;
-      }
-      return acc;
-    }, {});
-
-    // Retorno para o modo filter
     return res.status(200).json({
       count: filteredRows.length,
-      dates: Object.keys(dateCountMap),
-      counts: Object.values(dateCountMap),
+      dates: [...new Set(filteredRows.map(row => row.request_date))].sort(),
       rows: filteredRows,
       status: 'success'
     });
