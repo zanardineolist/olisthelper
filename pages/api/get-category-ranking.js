@@ -8,13 +8,10 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("America/Sao_Paulo");
 
-// Função para validar se o analystId é um UUID válido
-const isValidUUID = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id);
-
 export default async function handler(req, res) {
   const { analystId } = req.query;
 
-  if (!analystId || !isValidUUID(analystId.trim())) {
+  if (!analystId || analystId.trim() === '') {
     console.log('Erro: ID do analista não fornecido ou inválido.');
     return res.status(400).json({ error: 'ID do analista é obrigatório e deve ser válido.' });
   }
@@ -32,6 +29,7 @@ export default async function handler(req, res) {
       .select(`
         category_id,
         categories (
+          id,
           name
         )
       `)
@@ -46,22 +44,34 @@ export default async function handler(req, res) {
 
     if (!helpRequests || helpRequests.length === 0) {
       console.log('Nenhum registro encontrado.');
-      return res.status(200).json({ categories: [] });
+      return res.status(200).json({ 
+        categories: [],
+        metadata: {
+          totalCategories: 0,
+          totalRequests: 0
+        }
+      });
     }
 
     console.log(`Total de registros encontrados: ${helpRequests.length}`);
 
     // Contar ocorrências por categoria
-    const categoryCounts = {};
-    helpRequests.forEach(({ category_id, categories }) => {
+    const categoryCounts = helpRequests.reduce((acc, { category_id, categories }) => {
+      if (!category_id) return acc;
+      
       const categoryName = categories?.name || 'Categoria não encontrada';
-      if (category_id) {
-        if (!categoryCounts[category_id]) {
-          categoryCounts[category_id] = { id: category_id, name: categoryName, count: 0 };
-        }
-        categoryCounts[category_id].count++;
+      
+      if (!acc[category_id]) {
+        acc[category_id] = {
+          id: category_id,
+          name: categoryName,
+          count: 0
+        };
       }
-    });
+      
+      acc[category_id].count++;
+      return acc;
+    }, {});
 
     // Ordenar e pegar as top 10 categorias
     const sortedCategories = Object.values(categoryCounts)
@@ -80,6 +90,9 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Erro ao obter ranking de categorias:', error);
-    return res.status(500).json({ error: 'Erro ao obter ranking de categorias.', details: error.message });
+    return res.status(500).json({ 
+      error: 'Erro ao obter ranking de categorias.', 
+      details: error.message 
+    });
   }
 }

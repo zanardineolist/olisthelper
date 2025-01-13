@@ -25,6 +25,7 @@ export default async function handler(req, res) {
       .select(`
         *,
         categories (
+          id,
           name
         )
       `)
@@ -46,9 +47,9 @@ export default async function handler(req, res) {
     // Lógica para o modo "profile" (mês atual e mês anterior)
     if (mode === 'profile') {
       const now = dayjs();
-      const currentMonth = now.month() + 1; // Mês atual (0-11)
+      const currentMonth = now.month() + 1;
       const currentYear = now.year();
-
+      
       const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
       const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
@@ -58,11 +59,13 @@ export default async function handler(req, res) {
       helpRequests.forEach(({ request_date }) => {
         if (!request_date) return;
 
-        const [year, month] = request_date.split('-').map(Number);
+        const requestDateObj = dayjs(request_date);
+        const requestMonth = requestDateObj.month() + 1;
+        const requestYear = requestDateObj.year();
 
-        if (year === currentYear && month === currentMonth) {
+        if (requestYear === currentYear && requestMonth === currentMonth) {
           currentMonthCount++;
-        } else if (year === lastMonthYear && month === lastMonth) {
+        } else if (requestYear === lastMonthYear && requestMonth === lastMonth) {
           lastMonthCount++;
         }
       });
@@ -79,11 +82,14 @@ export default async function handler(req, res) {
 
     // Lógica padrão com filtro de data
     const currentDate = dayjs();
+    const filterDays = filter ? parseInt(filter, 10) : 30;
+
     const filteredRows = helpRequests.filter(({ request_date }) => {
       if (!request_date) return false;
-
-      const diffDays = currentDate.diff(dayjs(request_date), 'day');
-      return diffDays <= (filter ? parseInt(filter, 10) : 30);
+      
+      const requestDate = dayjs(request_date);
+      const diffDays = currentDate.diff(requestDate, 'day');
+      return diffDays <= filterDays;
     });
 
     if (!filteredRows || filteredRows.length === 0) {
@@ -93,16 +99,18 @@ export default async function handler(req, res) {
 
     console.log(`Total de registros após o filtro: ${filteredRows.length}`);
 
-    const dates = filteredRows.map(({ request_date }) => request_date);
-    const countsObj = dates.reduce((acc, date) => {
-      acc[date] = (acc[date] || 0) + 1;
+    // Agrupar por data
+    const datesCount = filteredRows.reduce((acc, { request_date }) => {
+      const formattedDate = dayjs(request_date).format('YYYY-MM-DD');
+      acc[formattedDate] = (acc[formattedDate] || 0) + 1;
       return acc;
     }, {});
 
+    // Prepara o resultado final
     return res.status(200).json({
       count: filteredRows.length,
-      dates: Object.keys(countsObj),
-      counts: Object.values(countsObj),
+      dates: Object.keys(datesCount),
+      counts: Object.values(datesCount),
       rows: filteredRows.map(request => ({
         ...request,
         category_name: request.categories?.name || 'Categoria não encontrada'
@@ -111,6 +119,9 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Erro ao obter registros do analista:', error);
-    return res.status(500).json({ error: 'Erro ao obter registros.' });
+    return res.status(500).json({ 
+      error: 'Erro ao obter registros.', 
+      details: error.message 
+    });
   }
 }
