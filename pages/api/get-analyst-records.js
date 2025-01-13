@@ -1,11 +1,14 @@
 import { supabase } from '../../utils/supabaseClient';
 
+// Função para validar se o analystId é um UUID válido
+const isValidUUID = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id);
+
 export default async function handler(req, res) {
   const { analystId, mode, filter } = req.query;
 
-  if (!analystId) {
+  if (!analystId || !isValidUUID(analystId.trim())) {
     return res.status(400).json({ 
-      error: 'ID do analista é obrigatório e deve ser válido.',
+      error: 'ID do analista é inválido ou não informado.',
       status: 'error' 
     });
   }
@@ -13,14 +16,13 @@ export default async function handler(req, res) {
   try {
     console.log('Iniciando busca para analista:', analystId);
 
-    // Usar eq para UUID
+    // Buscar registros de ajuda no Supabase
     const { data: helpRequests, error } = await supabase
       .from('help_requests')
       .select('*')
       .eq('analyst_id', analystId.trim())
-      .order('request_date', { ascending: false }); // Ordenar por data
+      .order('request_date', { ascending: false });
 
-    console.log('Query executada:', error ? 'com erro' : 'com sucesso');
     console.log('Total de registros encontrados:', helpRequests?.length || 0);
 
     if (error) {
@@ -29,7 +31,7 @@ export default async function handler(req, res) {
     }
 
     if (!helpRequests || helpRequests.length === 0) {
-      console.log('Nenhum registro encontrado');
+      console.log('⚠️ Nenhum registro encontrado');
       return res.status(200).json({ 
         currentMonth: 0, 
         lastMonth: 0, 
@@ -38,14 +40,13 @@ export default async function handler(req, res) {
       });
     }
 
-    // Data atual em BRT
+    // Obter a data atual no timezone America/Sao_Paulo
     const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
     const currentDate = new Date(brtDate);
     
-    // Mês atual e anterior
     const currentYear = currentDate.getFullYear();
     const currentMonth = currentDate.getMonth() + 1;
-    
+
     const lastMonthDate = new Date(currentDate);
     lastMonthDate.setMonth(currentDate.getMonth() - 1);
     const lastMonth = lastMonthDate.getMonth() + 1;
@@ -54,12 +55,14 @@ export default async function handler(req, res) {
     let currentMonthCount = 0;
     let lastMonthCount = 0;
 
+    // Correção da interpretação da data no formato YYYY-MM-DD
     helpRequests.forEach(({ request_date }) => {
       if (!request_date) return;
 
       try {
-        const [year, month] = request_date.split('-').map(Number);
-        
+        const [year, month, day] = request_date.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+
         if (year === currentYear && month === currentMonth) {
           currentMonthCount++;
         } else if (year === lastMonthYear && month === lastMonth) {
@@ -72,9 +75,7 @@ export default async function handler(req, res) {
 
     console.log('Contagens calculadas:', { 
       currentMonth: currentMonthCount, 
-      lastMonth: lastMonthCount,
-      currentYearMonth: `${currentYear}-${currentMonth}`,
-      lastYearMonth: `${lastMonthYear}-${lastMonth}`
+      lastMonth: lastMonthCount
     });
 
     if (mode === 'profile') {
@@ -86,12 +87,13 @@ export default async function handler(req, res) {
       });
     }
 
-    // Processamento para modo filter
+    // Filtro de registros pelo parâmetro 'filter'
     const filteredRows = helpRequests.filter(({ request_date }) => {
       if (!request_date) return false;
 
       try {
-        const requestDate = new Date(request_date);
+        const [year, month, day] = request_date.split('-').map(Number);
+        const requestDate = new Date(year, month - 1, day);
         const diffTime = currentDate - requestDate;
         const diffDays = diffTime / (1000 * 60 * 60 * 24);
         const filterDays = filter ? parseInt(filter, 10) : 30;
