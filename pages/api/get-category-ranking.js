@@ -14,11 +14,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('Iniciando busca de categorias para analista:', analystId);
+    console.log('Iniciando busca de ranking de categorias para analista:', analystId);
 
+    // Buscar registros de ajuda com associação direta à tabela de categorias
     const { data: helpRequests, error: helpError } = await supabase
       .from('help_requests')
-      .select('category_id, request_date')
+      .select(`
+        category_id,
+        categories (
+          name
+        )
+      `)
       .eq('analyst_id', analystId.trim());
 
     if (helpError) {
@@ -34,39 +40,28 @@ export default async function handler(req, res) {
       });
     }
 
-    const { data: categories, error: categoryError } = await supabase
-      .from('categories')
-      .select('id, name');
-
-    if (categoryError) {
-      console.error('Erro na consulta de categories:', categoryError);
-      throw categoryError;
-    }
-
-    const categoryMap = {};
-    categories.forEach(cat => {
-      if (cat.id) {
-        categoryMap[cat.id] = cat.name || 'Categoria sem nome';
-      }
-    });
-
+    // Contar ocorrências por categoria
     const categoryCounts = {};
-    helpRequests.forEach(({ category_id, request_date }) => {
+    helpRequests.forEach(({ category_id, categories }) => {
+      const categoryName = categories?.name || 'Categoria não encontrada';
       if (category_id) {
-        categoryCounts[category_id] = (categoryCounts[category_id] || 0) + 1;
+        if (!categoryCounts[category_id]) {
+          categoryCounts[category_id] = {
+            id: category_id,
+            name: categoryName,
+            count: 0
+          };
+        }
+        categoryCounts[category_id].count++;
       }
     });
 
-    const sortedCategories = Object.entries(categoryCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10)
-      .map(([id, count]) => ({
-        id,
-        name: categoryMap[id] || 'Categoria não encontrada',
-        count
-      }));
+    // Ordenar categorias pela contagem e limitar ao Top 10
+    const sortedCategories = Object.values(categoryCounts)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
 
-    console.log('Categorias processadas:', sortedCategories.length);
+    console.log('Ranking de categorias processado:', sortedCategories);
 
     return res.status(200).json({
       categories: sortedCategories,

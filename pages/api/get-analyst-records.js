@@ -16,10 +16,15 @@ export default async function handler(req, res) {
   try {
     console.log('Iniciando busca para analista:', analystId);
 
-    // Buscar registros de ajuda no Supabase
+    // Buscar registros de ajuda com nome da categoria associado
     const { data: helpRequests, error } = await supabase
       .from('help_requests')
-      .select('*')
+      .select(`
+        *,
+        categories (
+          name
+        )
+      `)
       .eq('analyst_id', analystId.trim())
       .order('request_date', { ascending: false });
 
@@ -31,7 +36,7 @@ export default async function handler(req, res) {
     }
 
     if (!helpRequests || helpRequests.length === 0) {
-      console.log('⚠️ Nenhum registro encontrado');
+      console.log('Nenhum registro encontrado');
       return res.status(200).json({ 
         currentMonth: 0, 
         lastMonth: 0, 
@@ -82,7 +87,10 @@ export default async function handler(req, res) {
       return res.status(200).json({
         currentMonth: currentMonthCount,
         lastMonth: lastMonthCount,
-        rows: helpRequests,
+        rows: helpRequests.map(request => ({
+          ...request,
+          category_name: request.categories?.name || 'Categoria não encontrada'
+        })),
         status: 'success'
       });
     }
@@ -108,7 +116,10 @@ export default async function handler(req, res) {
     return res.status(200).json({
       count: filteredRows.length,
       dates: [...new Set(filteredRows.map(row => row.request_date))].sort(),
-      rows: filteredRows,
+      rows: filteredRows.map(request => ({
+        ...request,
+        category_name: request.categories?.name || 'Categoria não encontrada'
+      })),
       status: 'success'
     });
 
