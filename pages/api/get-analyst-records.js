@@ -17,39 +17,36 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Verificar se o analista existe
+    // Buscar analista por ID ou email
     const { data: analyst, error: analystError } = await supabase
       .from('users')
-      .select('id, name')
-      .eq('id', analystId.trim())
+      .select('id, name, email')
+      .or(`id.eq.${analystId},email.eq.${req.query.email}`)
       .single();
 
-    if (analystError || !analyst) {
-      console.log('Erro: Analista não encontrado.');
+    if (analystError) {
+      console.error('Erro ao buscar analista:', analystError);
+      throw analystError;
+    }
+
+    if (!analyst) {
+      console.log(`Analista não encontrado. ID: ${analystId}, Email: ${req.query.email}`);
       return res.status(404).json({ error: 'Analista não encontrado.' });
     }
 
-    console.log(`Buscando registros para o analista ${analyst.name} (${analystId})`);
+    console.log(`Buscando registros para o analista ${analyst.name} (${analyst.id})`);
 
-    // Buscar todos os registros de ajuda do analista
+    // Usar o ID correto do analista para buscar os registros
     const { data: helpRequests, error: requestsError } = await supabase
       .from('help_requests')
       .select(`
-        id,
-        analyst_id,
-        requester_name,
-        requester_email,
-        category_id,
-        description,
-        request_date,
-        request_time,
-        created_at,
+        *,
         categories (
           id,
           name
         )
       `)
-      .eq('analyst_id', analystId.trim())
+      .eq('analyst_id', analyst.id)
       .order('request_date', { ascending: false });
 
     if (requestsError) {
@@ -58,7 +55,6 @@ export default async function handler(req, res) {
     }
 
     if (!helpRequests || helpRequests.length === 0) {
-      console.log('Nenhum registro encontrado para o analista.');
       return res.status(200).json({ 
         count: 0, 
         rows: [],
@@ -69,9 +65,7 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log(`Total de registros encontrados: ${helpRequests.length}`);
-
-    // Mode "profile": contagem de mês atual e anterior
+    // Lógica para o modo "profile" (mês atual e mês anterior)
     if (mode === 'profile') {
       const now = dayjs().tz("America/Sao_Paulo");
       const currentMonth = now.month() + 1;
@@ -94,18 +88,16 @@ export default async function handler(req, res) {
         }
       });
 
-      const formattedRows = helpRequests.map(request => ({
-        ...request,
-        category_name: request.categories?.name || 'Categoria não encontrada',
-        full_date: request.request_date 
-          ? dayjs(request.request_date).tz("America/Sao_Paulo").format('DD/MM/YYYY')
-          : 'Data não disponível'
-      }));
-
       return res.status(200).json({
         currentMonth: currentMonthCount,
         lastMonth: lastMonthCount,
-        rows: formattedRows,
+        rows: helpRequests.map(request => ({
+          ...request,
+          category_name: request.categories?.name || 'Categoria não encontrada',
+          full_date: request.request_date 
+            ? dayjs(request.request_date).tz("America/Sao_Paulo").format('DD/MM/YYYY')
+            : 'Data não disponível'
+        })),
         metadata: {
           analyst: analyst.name,
           totalRequests: helpRequests.length
@@ -113,58 +105,36 @@ export default async function handler(req, res) {
       });
     }
 
-    // Lógica padrão com filtro de dias
+    // Lógica padrão com filtro
     const currentDate = dayjs().tz("America/Sao_Paulo");
     const filterDays = filter ? parseInt(filter, 10) : 30;
 
-    // Filtrar registros pelo período especificado
     const filteredRows = helpRequests.filter(request => {
       if (!request.request_date) return false;
       
-      const [year, month, day] = request.request_date.split('-').map(num => parseInt(num, 10));
-      const requestDate = dayjs(new Date(year, month - 1, day)).tz("America/Sao_Paulo");
+      const requestDate = dayjs(request.request_date).tz("America/Sao_Paulo");
       return currentDate.diff(requestDate, 'day') <= filterDays;
     });
 
-    if (filteredRows.length === 0) {
-      console.log('Nenhum registro encontrado para o período filtrado.');
-      return res.status(200).json({ 
-        count: 0, 
-        dates: [], 
-        counts: [], 
-        rows: [],
-        metadata: {
-          analyst: analyst.name,
-          totalRequests: helpRequests.length,
-          filteredRequests: 0,
-          period: `Últimos ${filterDays} dias`
-        }
-      });
-    }
-
-    // Agrupar contagens por data
     const datesCount = filteredRows.reduce((acc, request) => {
-      if (!request.request_date) return acc;
-      
-      const formattedDate = request.request_date.split('T')[0];
+      const formattedDate = dayjs(request.request_date)
+        .tz("America/Sao_Paulo")
+        .format('YYYY-MM-DD');
       acc[formattedDate] = (acc[formattedDate] || 0) + 1;
       return acc;
     }, {});
-
-    // Preparar rows com informações formatadas
-    const formattedRows = filteredRows.map(request => ({
-      ...request,
-      category_name: request.categories?.name || 'Categoria não encontrada',
-      full_date: request.request_date 
-        ? dayjs(request.request_date).tz("America/Sao_Paulo").format('DD/MM/YYYY')
-        : 'Data não disponível'
-    }));
 
     return res.status(200).json({
       count: filteredRows.length,
       dates: Object.keys(datesCount),
       counts: Object.values(datesCount),
-      rows: formattedRows,
+      rows: filteredRows.map(request => ({
+        ...request,
+        category_name: request.categories?.name || 'Categoria não encontrada',
+        full_date: request.request_date 
+          ? dayjs(request.request_date).tz("America/Sao_Paulo").format('DD/MM/YYYY')
+          : 'Data não disponível'
+      })),
       metadata: {
         analyst: analyst.name,
         totalRequests: helpRequests.length,
