@@ -1,22 +1,25 @@
 import { supabase } from '../../utils/supabaseClient';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
-// Função para validar se o analystId é um UUID válido
-const isValidUUID = (id) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id);
+// Configurar o timezone corretamente
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("America/Sao_Paulo");
 
 export default async function handler(req, res) {
   const { analystId, mode, filter } = req.query;
 
-  if (!analystId || !isValidUUID(analystId.trim())) {
-    return res.status(400).json({ 
-      error: 'ID do analista é inválido ou não informado.',
-      status: 'error' 
-    });
+  if (!analystId || analystId === 'undefined') {
+    console.log('Erro: ID do analista não fornecido ou inválido.');
+    return res.status(400).json({ error: 'ID do analista é obrigatório e deve ser válido.' });
   }
 
   try {
-    console.log('Iniciando busca para analista:', analystId);
+    console.log(`Buscando registros no Supabase para o analista: ${analystId}`);
 
-    // Buscar registros de ajuda com nome da categoria associado
+    // Buscar registros de ajuda relacionados ao analista
     const { data: helpRequests, error } = await supabase
       .from('help_requests')
       .select(`
@@ -28,62 +31,42 @@ export default async function handler(req, res) {
       .eq('analyst_id', analystId.trim())
       .order('request_date', { ascending: false });
 
-    console.log('Total de registros encontrados:', helpRequests?.length || 0);
-
     if (error) {
-      console.error('Erro na consulta:', error);
+      console.error('Erro na consulta ao Supabase:', error);
       throw error;
     }
 
     if (!helpRequests || helpRequests.length === 0) {
-      console.log('Nenhum registro encontrado');
-      return res.status(200).json({ 
-        currentMonth: 0, 
-        lastMonth: 0, 
-        rows: [],
-        status: 'success' 
-      });
+      console.log('Nenhum registro encontrado.');
+      return res.status(200).json({ count: 0, rows: [] });
     }
 
-    // Obter a data atual no timezone America/Sao_Paulo
-    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-    const currentDate = new Date(brtDate);
-    
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1;
+    console.log(`Total de registros encontrados: ${helpRequests.length}`);
 
-    const lastMonthDate = new Date(currentDate);
-    lastMonthDate.setMonth(currentDate.getMonth() - 1);
-    const lastMonth = lastMonthDate.getMonth() + 1;
-    const lastMonthYear = lastMonthDate.getFullYear();
+    // Lógica para o modo "profile" (mês atual e mês anterior)
+    if (mode === 'profile') {
+      const now = dayjs();
+      const currentMonth = now.month() + 1; // Mês atual (0-11)
+      const currentYear = now.year();
 
-    let currentMonthCount = 0;
-    let lastMonthCount = 0;
+      const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+      const lastMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
-    // Correção da interpretação da data no formato YYYY-MM-DD
-    helpRequests.forEach(({ request_date }) => {
-      if (!request_date) return;
+      let currentMonthCount = 0;
+      let lastMonthCount = 0;
 
-      try {
-        const [year, month, day] = request_date.split('-').map(Number);
-        const date = new Date(year, month - 1, day);
+      helpRequests.forEach(({ request_date }) => {
+        if (!request_date) return;
+
+        const [year, month] = request_date.split('-').map(Number);
 
         if (year === currentYear && month === currentMonth) {
           currentMonthCount++;
         } else if (year === lastMonthYear && month === lastMonth) {
           lastMonthCount++;
         }
-      } catch (dateError) {
-        console.error('Erro ao processar data:', dateError);
-      }
-    });
+      });
 
-    console.log('Contagens calculadas:', { 
-      currentMonth: currentMonthCount, 
-      lastMonth: lastMonthCount
-    });
-
-    if (mode === 'profile') {
       return res.status(200).json({
         currentMonth: currentMonthCount,
         lastMonth: lastMonthCount,
@@ -91,44 +74,43 @@ export default async function handler(req, res) {
           ...request,
           category_name: request.categories?.name || 'Categoria não encontrada'
         })),
-        status: 'success'
       });
     }
 
-    // Filtro de registros pelo parâmetro 'filter'
+    // Lógica padrão com filtro de data
+    const currentDate = dayjs();
     const filteredRows = helpRequests.filter(({ request_date }) => {
       if (!request_date) return false;
 
-      try {
-        const [year, month, day] = request_date.split('-').map(Number);
-        const requestDate = new Date(year, month - 1, day);
-        const diffTime = currentDate - requestDate;
-        const diffDays = diffTime / (1000 * 60 * 60 * 24);
-        const filterDays = filter ? parseInt(filter, 10) : 30;
-
-        return !isNaN(diffDays) && diffDays <= filterDays;
-      } catch (dateError) {
-        console.error('Erro ao processar data para filtro:', dateError);
-        return false;
-      }
+      const diffDays = currentDate.diff(dayjs(request_date), 'day');
+      return diffDays <= (filter ? parseInt(filter, 10) : 30);
     });
+
+    if (!filteredRows || filteredRows.length === 0) {
+      console.log('Nenhum registro encontrado após o filtro.');
+      return res.status(200).json({ count: 0, dates: [], counts: [], rows: [] });
+    }
+
+    console.log(`Total de registros após o filtro: ${filteredRows.length}`);
+
+    const dates = filteredRows.map(({ request_date }) => request_date);
+    const countsObj = dates.reduce((acc, date) => {
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {});
 
     return res.status(200).json({
       count: filteredRows.length,
-      dates: [...new Set(filteredRows.map(row => row.request_date))].sort(),
+      dates: Object.keys(countsObj),
+      counts: Object.values(countsObj),
       rows: filteredRows.map(request => ({
         ...request,
         category_name: request.categories?.name || 'Categoria não encontrada'
       })),
-      status: 'success'
     });
 
   } catch (error) {
-    console.error('Erro ao obter registros:', error);
-    return res.status(500).json({ 
-      error: 'Erro ao obter registros do analista.',
-      details: error.message,
-      status: 'error'
-    });
+    console.error('Erro ao obter registros do analista:', error);
+    return res.status(500).json({ error: 'Erro ao obter registros.' });
   }
 }
