@@ -430,7 +430,7 @@ export default function DashboardData({ user }) {
                     <div className={styles.performanceContainer}>
                         <h2>Indicadores Chamados</h2>
                         <p className={styles.lastUpdated}>
-                        Atualizado até: {performanceData?.atualizadoAte || 'Data não disponível'}
+                        Período: {performanceData?.atualizadoAte || 'Data não disponível'}
                         </p>
                         <div className={styles.performanceInfo}>
                         <div className={styles.performanceItem}>

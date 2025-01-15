@@ -168,7 +168,7 @@ export default function MyPage({ user }) {
           {performanceData?.chamados && (
             <div className={styles.performanceContainer}>
               <h2>Indicadores Chamados</h2>
-              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+              <p className={styles.lastUpdated}>Período: {performanceData?.atualizadoAte || "Data não disponível"}</p>
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Chamados:</span>
