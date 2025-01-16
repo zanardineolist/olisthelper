@@ -192,7 +192,7 @@ export default function MyPage({ user }) {
           {performanceData?.telefone && (
             <div className={styles.performanceContainer}>
               <h2>Indicadores Telefone</h2>
-              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+              <p className={styles.lastUpdated}>Período: {performanceData?.atualizadoAte || "Data não disponível"}</p>
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Telefone:</span>
@@ -216,7 +216,7 @@ export default function MyPage({ user }) {
           {performanceData?.chat && (
             <div className={styles.performanceContainer}>
               <h2>Indicadores Chat</h2>
-              <p className={styles.lastUpdated}>Atualizado até: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+              <p className={styles.lastUpdated}>Período: {performanceData?.atualizadoAte || "Data não disponível"}</p>
               <div className={styles.performanceInfo}>
                 <div className={styles.performanceItem}>
                   <span>Total Chats:</span>
