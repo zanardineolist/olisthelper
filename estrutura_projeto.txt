@@ -1,7 +1,6 @@
 E:.
 |   .gitignore
-|   estrutura_20250129.txt
-|   export_estrutura.bat
+|   estrutura_20250130.txt
 |   middleware.js
 |   package.json
 |   README.txt
@@ -92,10 +91,12 @@ E:.
 |       
 \---utils
     |   googleSheets.js
-    |   supabaseClient.js
     |   
-    \---firebase
-            firebaseConfig.js
-            firebaseLogging.js
-            firebaseNotifications.js
+    +---firebase
+    |       firebaseConfig.js
+    |       firebaseLogging.js
+    |       firebaseNotifications.js
+    |       
+    \---supabase
+            supabaseClient.js
             

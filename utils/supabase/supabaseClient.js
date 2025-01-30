@@ -161,6 +161,104 @@ export async function getAllActiveUsers() {
  * @param {string} userId - ID do usuário
  * @returns {Promise<Object>} - Objeto com as permissões
  */
+/**
+ * Busca todas as categorias ativas
+ * @returns {Promise<Array>} - Lista de categorias
+ */
+export async function getAllCategories() {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .select('*')
+      .eq('active', true)
+      .order('name');
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Erro ao buscar categorias:', error);
+    return [];
+  }
+}
+
+/**
+ * Cria uma nova categoria
+ * @param {string} name - Nome da categoria
+ * @param {string} userId - ID do usuário que está criando
+ * @returns {Promise<Object|null>} - Categoria criada ou null em caso de erro
+ */
+export async function createCategory(name, userId) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .insert([{
+        name,
+        created_by: userId,
+        updated_by: userId
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Erro ao criar categoria:', error);
+    return null;
+  }
+}
+
+/**
+ * Atualiza uma categoria existente
+ * @param {string} categoryId - ID da categoria
+ * @param {string} name - Novo nome da categoria
+ * @param {string} userId - ID do usuário que está atualizando
+ * @returns {Promise<Object|null>} - Categoria atualizada ou null
+ */
+export async function updateCategory(categoryId, name, userId) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .update({
+        name,
+        updated_at: new Date(),
+        updated_by: userId
+      })
+      .eq('id', categoryId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Erro ao atualizar categoria:', error);
+    return null;
+  }
+}
+
+/**
+ * Marca uma categoria como inativa
+ * @param {string} categoryId - ID da categoria
+ * @param {string} userId - ID do usuário que está deletando
+ * @returns {Promise<boolean>} - Sucesso da operação
+ */
+export async function deleteCategory(categoryId, userId) {
+  try {
+    const { error } = await supabaseAdmin
+      .from('categories')
+      .update({
+        active: false,
+        updated_at: new Date(),
+        updated_by: userId
+      })
+      .eq('id', categoryId);
+
+    return !error;
+  } catch (error) {
+    console.error('Erro ao deletar categoria:', error);
+    return false;
+  }
+}
+
 export async function getUserPermissions(userId) {
   try {
     const { data, error } = await supabaseAdmin
