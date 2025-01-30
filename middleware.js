@@ -28,7 +28,8 @@ export async function middleware(req) {
     '/registro': allowedRoles,
     '/manager': allowedRoles,
     '/admin-notifications': ['dev'],
-    '/remote': ['support+', 'super']
+    '/remote': ['support+', 'super'],
+    '/tools': ['support', 'support+', 'analyst']
   };
 
   // Verificar acesso à rota atual
@@ -68,5 +69,6 @@ export const config = {
     '/api/manage-category',
     '/admin-notifications',
     '/remote',
+    '/tools',
   ],
 };
