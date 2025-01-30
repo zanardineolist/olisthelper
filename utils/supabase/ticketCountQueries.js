@@ -6,20 +6,8 @@ import { supabaseAdmin } from './supabaseClient';
  */
 export async function getTicketCountHistory(userId, startDate, endDate, page = 1, pageSize = 10) {
   try {
-    // Primeiro, buscar o total de registros para calcular a paginação
-    const { count: totalRecords } = await supabaseAdmin
-      .from('ticket_counts')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .gte('count_date', startDate)
-      .lte('count_date', endDate);
-
-    // Calcular total de páginas
-    const totalPages = Math.ceil(totalRecords / pageSize);
-    const offset = (page - 1) * pageSize;
-
-    // Buscar registros agrupados por data
-    const { data, error } = await supabaseAdmin
+    // Primeiro, buscar todos os registros para o gráfico (sem paginação)
+    const { data: allData, error: allDataError } = await supabaseAdmin
       .from('ticket_counts')
       .select('count_date')
       .eq('user_id', userId)
@@ -27,10 +15,10 @@ export async function getTicketCountHistory(userId, startDate, endDate, page = 1
       .lte('count_date', endDate)
       .order('count_date', { ascending: false });
 
-    if (error) throw error;
+    if (allDataError) throw allDataError;
 
-    // Agrupar registros por data e contar
-    const groupedData = data.reduce((acc, curr) => {
+    // Agrupar todos os dados para o gráfico
+    const groupedData = allData.reduce((acc, curr) => {
       const date = curr.count_date;
       if (!acc[date]) {
         acc[date] = 0;
@@ -39,18 +27,24 @@ export async function getTicketCountHistory(userId, startDate, endDate, page = 1
       return acc;
     }, {});
 
+    // Calcular total de páginas apenas se houver registros
+    const totalRecords = Object.keys(groupedData).length;
+    const totalPages = totalRecords > 0 ? Math.ceil(totalRecords / pageSize) : 1;
+
     // Converter para array e ordenar
-    const records = Object.entries(groupedData)
+    const allRecords = Object.entries(groupedData)
       .map(([count_date, total_count]) => ({
         count_date,
         total_count
       }))
-      .sort((a, b) => new Date(b.count_date) - new Date(a.count_date))
-      // Aplicar paginação no array final
-      .slice(offset, offset + pageSize);
+      .sort((a, b) => new Date(b.count_date) - new Date(a.count_date));
+
+    // Aplicar paginação apenas para a tabela
+    const paginatedRecords = allRecords.slice((page - 1) * pageSize, page * pageSize);
 
     return {
-      records,
+      records: paginatedRecords,
+      allRecords, // Adicionando todos os registros para o gráfico
       totalPages,
       totalCount: totalRecords,
       currentPage: page
@@ -153,7 +147,8 @@ export async function clearTodayCounts(userId) {
       .from('ticket_counts')
       .delete()
       .eq('user_id', userId)
-      .gte('count_date', today.toISOString());
+      .gte('count_date', today.toISOString())
+      .lte('count_date', new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString());
 
     if (error) throw error;
     return true;

@@ -125,57 +125,28 @@ export default function TicketCounter() {
       if (!res.ok) throw new Error('Erro ao carregar histórico');
       
       const data = await res.json();
-      setHistory(data.records);
+      setHistory(data.records); // Dados paginados para a tabela
       setTotalPages(data.totalPages);
       setTotalCount(data.totalCount);
       
-      // Preparar dados para o gráfico
-      setChartData(data.records.map(record => ({
+      // Usar todos os registros para o gráfico
+      setChartData(data.allRecords.map(record => ({
         date: dayjs(record.count_date).format('DD/MM/YYYY'),
         count: record.total_count
       })));
-
+  
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
-      // Não mostrar erro ao usuário quando não houver dados
       if (!error.message.includes('no data')) {
         Swal.fire('Erro', 'Erro ao carregar histórico', 'error');
       }
       setHistory([]);
       setChartData(null);
+      setTotalPages(1);
+      setTotalCount(0);
     }
   };
-
-  const handleIncrement = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/ticket-count', { method: 'POST' });
-      if (!res.ok) throw new Error('Erro ao incrementar contagem');
-      setCount(prev => prev + 1);
-      await loadHistoryData();
-    } catch (error) {
-      console.error('Erro ao incrementar:', error);
-      Swal.fire('Erro', 'Erro ao adicionar contagem', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDecrement = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/ticket-count', { method: 'DELETE' });
-      if (!res.ok) throw new Error('Erro ao decrementar contagem');
-      setCount(prev => Math.max(0, prev - 1));
-      await loadHistoryData();
-    } catch (error) {
-      console.error('Erro ao decrementar:', error);
-      Swal.fire('Erro', 'Erro ao remover contagem', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  
   const handleClear = async () => {
     const result = await Swal.fire({
       title: 'Limpar contagem do dia?',
@@ -185,15 +156,21 @@ export default function TicketCounter() {
       confirmButtonText: 'Sim, limpar',
       cancelButtonText: 'Cancelar'
     });
-
+  
     if (result.isConfirmed) {
       try {
         setLoading(true);
         const res = await fetch('/api/ticket-count?action=clear', { method: 'DELETE' });
-        if (!res.ok) throw new Error('Erro ao limpar contagem');
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.message || 'Erro ao limpar contagem');
+        }
         setCount(0);
         await loadHistoryData();
-        Swal.fire('Erro', 'Erro ao limpar contagem', 'error');
+        Swal.fire('Sucesso', 'Contagem do dia removida com sucesso', 'success');
+      } catch (error) {
+        console.error('Erro ao limpar:', error);
+        Swal.fire('Erro', error.message || 'Erro ao limpar contagem', 'error');
       } finally {
         setLoading(false);
       }
@@ -334,25 +311,27 @@ export default function TicketCounter() {
         {/* Paginação */}
         <div className={styles.pagination}>
           <span>Total de registros: {totalCount}</span>
-          <div>
-            <button
-              onClick={() => setPage(prev => Math.max(1, prev - 1))}
-              disabled={page === 1}
-              className={styles.paginationButton}
-            >
-              Anterior
-            </button>
-            <span style={{ margin: '0 1rem' }}>
-              Página {page} de {totalPages}
-            </span>
-            <button
-              onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={page === totalPages}
-              className={styles.paginationButton}
-            >
-              Próxima
-            </button>
-          </div>
+          {totalCount > 0 && (
+            <div>
+              <button
+                onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                disabled={page === 1}
+                className={styles.paginationButton}
+              >
+                Anterior
+              </button>
+              <span style={{ margin: '0 1rem' }}>
+                Página {page} de {Math.max(1, totalPages)}
+              </span>
+              <button
+                onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={page === totalPages || totalPages === 0}
+                className={styles.paginationButton}
+              >
+                Próxima
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
