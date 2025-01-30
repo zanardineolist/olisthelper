@@ -29,10 +29,15 @@ export default async function handler(req, res) {
       case 'GET':
         console.log('Método GET chamado - Carregando categorias...');
         const categories = await getAllCategories();
-        return res.status(200).json({ categories: categories.map(cat => ({
-          id: cat.id,
-          name: cat.name
-        })) });
+        
+        // Mapear UUIDs para IDs incrementais para manter compatibilidade com frontend
+        return res.status(200).json({ 
+          categories: categories.map((cat, index) => ({
+            id: index + 2, // Mantém a compatibilidade com a numeração antiga
+            name: cat.name,
+            uuid: cat.id // Armazena o UUID real para operações futuras
+          }))
+        });
 
       case 'POST':
         console.log('Método POST chamado - Adicionando nova categoria...');
@@ -64,19 +69,19 @@ export default async function handler(req, res) {
 
       case 'PUT':
         console.log('Método PUT chamado - Atualizando categoria...');
-        const { name: updatedName, index: categoryId } = req.body;
+        const { name: updatedName, uuid: categoryUuid } = req.body;
 
-        if (!updatedName || !categoryId) {
+        if (!updatedName || !categoryUuid) {
           return res.status(400).json({ error: 'Nome ou ID da categoria não fornecido.' });
         }
 
         // Buscar categoria atual para registro no log
-        const existingCategory = await getCategoryById(categoryId);
+        const existingCategory = await getCategoryById(categoryUuid);
         if (!existingCategory) {
           return res.status(404).json({ error: 'Categoria não encontrada.' });
         }
 
-        const updatedCategory = await updateCategory(categoryId, updatedName, userId);
+        const updatedCategory = await updateCategory(categoryUuid, updatedName, userId);
         if (!updatedCategory) {
           return res.status(400).json({ error: 'Erro ao atualizar categoria.' });
         }
@@ -98,19 +103,22 @@ export default async function handler(req, res) {
 
       case 'DELETE':
         console.log('Método DELETE chamado - Excluindo categoria...');
-        const deleteCategoryId = req.query.index;
+        const deleteId = req.query.index;
 
-        if (!deleteCategoryId) {
-          return res.status(400).json({ error: 'ID da categoria não fornecido.' });
+        // Primeiro obtemos todas as categorias para mapear o ID incremental para UUID
+        const allCategories = await getAllCategories();
+        const categoryIndex = parseInt(deleteId) - 2; // Ajusta o índice baseado na numeração do frontend
+        
+        if (categoryIndex < 0 || categoryIndex >= allCategories.length) {
+          return res.status(404).json({ error: 'Categoria não encontrada.' });
         }
 
-        // Buscar categoria atual para registro no log
-        const categoryToDelete = await getCategoryById(deleteCategoryId);
+        const categoryToDelete = allCategories[categoryIndex];
         if (!categoryToDelete) {
           return res.status(404).json({ error: 'Categoria não encontrada.' });
         }
 
-        const deleted = await deleteCategory(deleteCategoryId, userId);
+        const deleted = await deleteCategory(categoryToDelete.id, userId);
         if (!deleted) {
           return res.status(400).json({ error: 'Erro ao deletar categoria.' });
         }
@@ -140,11 +148,6 @@ export default async function handler(req, res) {
   }
 }
 
-/**
- * Busca uma categoria por ID
- * @param {string} categoryId - ID da categoria
- * @returns {Promise<Object|null>} - Categoria encontrada ou null
- */
 async function getCategoryById(categoryId) {
   try {
     const { data, error } = await supabaseAdmin

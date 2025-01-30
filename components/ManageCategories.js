@@ -12,7 +12,7 @@ export default function ManageCategories() {
   const [newCategory, setNewCategory] = useState('');
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [currentCategoryId, setCurrentCategoryId] = useState(null);
+  const [currentCategory, setCurrentCategory] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
   useEffect(() => {
@@ -46,12 +46,12 @@ export default function ManageCategories() {
 
   const handleEditCategory = (category) => {
     setNewCategory(category.name);
-    setCurrentCategoryId(category.id);
+    setCurrentCategory(category);
     setIsEditing(true);
     setModalIsOpen(true);
   };
 
-  const handleDeleteCategory = async (categoryIndex) => {
+  const handleDeleteCategory = async (categoryId) => {
     const isConfirmed = await Swal.fire({
       title: 'Tem certeza?',
       text: 'Deseja realmente excluir esta categoria? Esta ação não pode ser desfeita.',
@@ -68,15 +68,12 @@ export default function ManageCategories() {
 
     try {
       setLoading(true);
-      const res = await fetch(`/api/manage-category?index=${categoryIndex}`, {
+      const res = await fetch(`/api/manage-category?index=${categoryId}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Erro ao deletar categoria');
 
-      // Remover a categoria do estado atual
-      setCategories((prevCategories) =>
-        prevCategories.filter((category) => category.id !== categoryIndex)
-      );
+      await loadCategories(); // Recarrega a lista completa após deletar
 
       Swal.fire({
         icon: 'success',
@@ -153,10 +150,10 @@ export default function ManageCategories() {
 
       // Adicionar ou Editar a Categoria
       const method = isEditing ? 'PUT' : 'POST';
-      const body = { name: newCategory };
-      if (isEditing) {
-        body.index = currentCategoryId;
-      }
+      const body = { 
+        name: newCategory,
+        ...(isEditing && { uuid: currentCategory.uuid }) // Inclui o UUID apenas na edição
+      };
 
       const res = await fetch('/api/manage-category', {
         method,
@@ -168,22 +165,7 @@ export default function ManageCategories() {
 
       if (!res.ok) throw new Error('Erro ao salvar categoria');
 
-      if (isEditing) {
-        // Atualizar a categoria no estado atual, mantendo a posição atual
-        setCategories((prevCategories) => {
-          const updatedCategories = prevCategories.map((category) =>
-            category.id === currentCategoryId ? { ...category, name: newCategory } : category
-          );
-          return updatedCategories;  // Não reordena ao atualizar
-        });
-      } else {
-        // Adicionar nova categoria ao estado atual
-        const newCategoryId = categories.length + 2; // Definir ID de forma incremental
-        setCategories((prevCategories) => [
-          ...prevCategories,
-          { id: newCategoryId, name: newCategory },
-        ].sort((a, b) => a.name.localeCompare(b.name)));
-      }
+      await loadCategories(); // Recarrega a lista para ter os IDs corretos
 
       setNewCategory('');
       setIsEditing(false);
@@ -214,6 +196,7 @@ export default function ManageCategories() {
 
   const handleOpenModal = () => {
     setNewCategory('');
+    setCurrentCategory(null);
     setIsEditing(false);
     setModalIsOpen(true);
   };
