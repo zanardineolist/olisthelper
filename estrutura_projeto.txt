@@ -1,6 +1,5 @@
 E:.
 |   .gitignore
-|   estrutura_20250130.txt
 |   middleware.js
 |   package.json
 |   README.txt
@@ -98,5 +97,7 @@ E:.
     |       firebaseNotifications.js
     |       
     \---supabase
+            helpQueries.js
+            helpRequests.js
             supabaseClient.js
             

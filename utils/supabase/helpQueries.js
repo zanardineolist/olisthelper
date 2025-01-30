@@ -167,3 +167,96 @@ export async function getCategoryRanking(analystId) {
     throw error;
   }
 }
+
+/**
+ * Busca a contagem de ajudas solicitadas por um usuário nos últimos dois meses
+ */
+export async function getUserHelpRequests(userEmail) {
+  try {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    // Calcular primeiro dia do mês atual
+    const startOfCurrentMonth = new Date(currentYear, currentMonth, 1);
+    
+    // Calcular primeiro dia do mês anterior
+    const startOfLastMonth = new Date(currentYear, currentMonth - 1, 1);
+    
+    // Calcular primeiro dia do próximo mês (para usar como limite)
+    const startOfNextMonth = new Date(currentYear, currentMonth + 1, 1);
+
+    // Buscar contagem do mês atual
+    const { data: currentMonthData, error: currentError } = await supabaseAdmin
+      .from('help_records')
+      .select('id', { count: 'exact' })
+      .eq('requester_email', userEmail)
+      .gte('created_at', startOfCurrentMonth.toISOString())
+      .lt('created_at', startOfNextMonth.toISOString());
+
+    if (currentError) throw currentError;
+
+    // Buscar contagem do mês anterior
+    const { data: lastMonthData, error: lastError } = await supabaseAdmin
+      .from('help_records')
+      .select('id', { count: 'exact' })
+      .eq('requester_email', userEmail)
+      .gte('created_at', startOfLastMonth.toISOString())
+      .lt('created_at', startOfCurrentMonth.toISOString());
+
+    if (lastError) throw lastError;
+
+    return {
+      currentMonth: currentMonthData.length,
+      lastMonth: lastMonthData.length
+    };
+  } catch (error) {
+    console.error('Erro ao buscar ajudas solicitadas:', error);
+    throw error;
+  }
+}
+
+/**
+ * Busca o ranking de categorias mais frequentes nas solicitações de ajuda do usuário
+ */
+export async function getUserCategoryRanking(userEmail) {
+  try {
+    // Definir primeiro dia do mês atual
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const { data, error } = await supabaseAdmin
+      .from('help_records')
+      .select(`
+        categories:category_id (
+          id,
+          name
+        )
+      `)
+      .eq('requester_email', userEmail)
+      .gte('created_at', startOfMonth.toISOString())
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Agrupar e contar ocorrências por categoria
+    const categoryCounts = data.reduce((acc, record) => {
+      const categoryName = record.categories?.name;
+      if (categoryName) {
+        acc[categoryName] = (acc[categoryName] || 0) + 1;
+      }
+      return acc;
+    }, {});
+
+    // Converter para array, ordenar e pegar top 10
+    const sortedCategories = Object.entries(categoryCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    return { categories: sortedCategories };
+  } catch (error) {
+    console.error('Erro ao buscar ranking de categorias:', error);
+    throw error;
+  }
+}
