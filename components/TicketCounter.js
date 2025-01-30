@@ -84,6 +84,66 @@ export default function TicketCounter() {
     }
   };
 
+  const handleIncrement = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/ticket-count', { method: 'POST' });
+      if (!res.ok) throw new Error('Erro ao incrementar contagem');
+      setCount(prev => prev + 1);
+      await loadHistoryData();
+    } catch (error) {
+      console.error('Erro ao incrementar:', error);
+      Swal.fire('Erro', 'Erro ao adicionar contagem', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDecrement = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/ticket-count', { method: 'DELETE' });
+      if (!res.ok) throw new Error('Erro ao decrementar contagem');
+      setCount(prev => Math.max(0, prev - 1));
+      await loadHistoryData();
+    } catch (error) {
+      console.error('Erro ao decrementar:', error);
+      Swal.fire('Erro', 'Erro ao remover contagem', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClear = async () => {
+    const result = await Swal.fire({
+      title: 'Limpar contagem do dia?',
+      text: 'Esta ação irá zerar todas as contagens registradas hoje. Deseja continuar?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sim, limpar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        setLoading(true);
+        const res = await fetch('/api/ticket-count?action=clear', { method: 'DELETE' });
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.message || 'Erro ao limpar contagem');
+        }
+        setCount(0);
+        await loadHistoryData();
+        Swal.fire('Sucesso', 'Contagem do dia removida com sucesso', 'success');
+      } catch (error) {
+        console.error('Erro ao limpar:', error);
+        Swal.fire('Erro', error.message || 'Erro ao limpar contagem', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   const loadHistoryData = async () => {
     try {
       let startDate, endDate;
@@ -125,8 +185,8 @@ export default function TicketCounter() {
       if (!res.ok) throw new Error('Erro ao carregar histórico');
       
       const data = await res.json();
-      setHistory(data.records); // Dados paginados para a tabela
-      setTotalPages(data.totalPages);
+      setHistory(data.records);
+      setTotalPages(Math.max(1, data.totalPages));
       setTotalCount(data.totalCount);
       
       // Usar todos os registros para o gráfico
@@ -134,7 +194,7 @@ export default function TicketCounter() {
         date: dayjs(record.count_date).format('DD/MM/YYYY'),
         count: record.total_count
       })));
-  
+
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
       if (!error.message.includes('no data')) {
@@ -144,36 +204,6 @@ export default function TicketCounter() {
       setChartData(null);
       setTotalPages(1);
       setTotalCount(0);
-    }
-  };
-  
-  const handleClear = async () => {
-    const result = await Swal.fire({
-      title: 'Limpar contagem do dia?',
-      text: 'Esta ação irá zerar todas as contagens registradas hoje. Deseja continuar?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sim, limpar',
-      cancelButtonText: 'Cancelar'
-    });
-  
-    if (result.isConfirmed) {
-      try {
-        setLoading(true);
-        const res = await fetch('/api/ticket-count?action=clear', { method: 'DELETE' });
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.message || 'Erro ao limpar contagem');
-        }
-        setCount(0);
-        await loadHistoryData();
-        Swal.fire('Sucesso', 'Contagem do dia removida com sucesso', 'success');
-      } catch (error) {
-        console.error('Erro ao limpar:', error);
-        Swal.fire('Erro', error.message || 'Erro ao limpar contagem', 'error');
-      } finally {
-        setLoading(false);
-      }
     }
   };
 
