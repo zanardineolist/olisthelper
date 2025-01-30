@@ -2,6 +2,66 @@
 import { supabaseAdmin } from './supabaseClient';
 
 /**
+ * Buscar registros com paginação e agrupamento por data
+ */
+export async function getTicketCountHistory(userId, startDate, endDate, page = 1, pageSize = 10) {
+  try {
+    // Primeiro, buscar o total de registros para calcular a paginação
+    const { count: totalRecords } = await supabaseAdmin
+      .from('ticket_counts')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .gte('count_date', startDate)
+      .lte('count_date', endDate);
+
+    // Calcular total de páginas
+    const totalPages = Math.ceil(totalRecords / pageSize);
+    const offset = (page - 1) * pageSize;
+
+    // Buscar registros agrupados por data
+    const { data, error } = await supabaseAdmin
+      .from('ticket_counts')
+      .select('count_date')
+      .eq('user_id', userId)
+      .gte('count_date', startDate)
+      .lte('count_date', endDate)
+      .order('count_date', { ascending: false });
+
+    if (error) throw error;
+
+    // Agrupar registros por data e contar
+    const groupedData = data.reduce((acc, curr) => {
+      const date = curr.count_date;
+      if (!acc[date]) {
+        acc[date] = 0;
+      }
+      acc[date]++;
+      return acc;
+    }, {});
+
+    // Converter para array e ordenar
+    const records = Object.entries(groupedData)
+      .map(([count_date, total_count]) => ({
+        count_date,
+        total_count
+      }))
+      .sort((a, b) => new Date(b.count_date) - new Date(a.count_date))
+      // Aplicar paginação no array final
+      .slice(offset, offset + pageSize);
+
+    return {
+      records,
+      totalPages,
+      totalCount: totalRecords,
+      currentPage: page
+    };
+  } catch (error) {
+    console.error('Erro ao buscar histórico:', error);
+    throw error;
+  }
+}
+
+/**
  * Adiciona uma nova contagem de chamado
  */
 export async function addTicketCount(userId) {
@@ -77,38 +137,6 @@ export async function getTodayCount(userId) {
     return data ? data.length : 0;
   } catch (error) {
     console.error('Erro ao buscar contagem do dia:', error);
-    throw error;
-  }
-}
-
-/**
- * Busca contagens por período
- */
-export async function getCountsByPeriod(userId, startDate, endDate) {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('ticket_counts')
-      .select('count_date, count_value')
-      .eq('user_id', userId)
-      .gte('count_date', startDate)
-      .lte('count_date', endDate)
-      .order('count_date');
-
-    if (error) throw error;
-
-    // Agrupar contagens por data
-    const groupedCounts = data.reduce((acc, curr) => {
-      const date = new Date(curr.count_date).toISOString().split('T')[0];
-      acc[date] = (acc[date] || 0) + curr.count_value;
-      return acc;
-    }, {});
-
-    return {
-      labels: Object.keys(groupedCounts),
-      values: Object.values(groupedCounts)
-    };
-  } catch (error) {
-    console.error('Erro ao buscar contagens por período:', error);
     throw error;
   }
 }
