@@ -1,5 +1,4 @@
 // pages/api/register-analyst-help.js
-import { createAnalystHelp } from '../../utils/supabase/helpRequests';
 import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
 
 export default async function handler(req, res) {
@@ -26,21 +25,22 @@ export default async function handler(req, res) {
       throw new Error('Categoria não encontrada');
     }
 
-    const success = await createAnalystHelp({
-      analystId,
-      userName,
-      userEmail,
-      categoryId: categoryData.id,
-      description
-    });
+    // Registrar a ajuda
+    const { error: insertError } = await supabaseAdmin
+      .from('help_records')
+      .insert([{
+        analyst_id: analystId,
+        requester_name: userName,
+        requester_email: userEmail,
+        category_id: categoryData.id,
+        description
+      }]);
 
-    if (!success) {
-      throw new Error('Erro ao registrar ajuda');
-    }
+    if (insertError) throw insertError;
 
     res.status(200).json({ message: 'Ajuda registrada com sucesso.' });
   } catch (error) {
     console.error('Erro ao registrar ajuda:', error);
-    res.status(500).json({ error: 'Erro ao registrar a ajuda. Verifique suas credenciais e a configuração do banco de dados.' });
+    res.status(500).json({ error: 'Erro ao registrar a ajuda. Por favor, tente novamente.' });
   }
 }

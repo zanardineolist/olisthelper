@@ -1,5 +1,4 @@
 // pages/api/register-doubt.js
-import { createHelpRequest } from '../../utils/supabase/helpRequests';
 import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
 
 export default async function handler(req, res) {
@@ -26,28 +25,18 @@ export default async function handler(req, res) {
       throw new Error('Categoria não encontrada');
     }
 
-    // Buscar o ID do usuário solicitante pelo email
-    const { data: requesterData, error: requesterError } = await supabaseAdmin
-      .from('users')
-      .select('id')
-      .eq('email', userEmail)
-      .eq('active', true)
-      .single();
+    // Registrar o pedido de ajuda
+    const { error: insertError } = await supabaseAdmin
+      .from('help_records')
+      .insert([{
+        analyst_id: analyst,
+        requester_name: userName,
+        requester_email: userEmail,
+        category_id: categoryData.id,
+        description
+      }]);
 
-    if (requesterError || !requesterData) {
-      throw new Error('Usuário solicitante não encontrado');
-    }
-
-    const success = await createHelpRequest({
-      requesterId: requesterData.id,
-      analystId: analyst, // Já deve vir o ID
-      categoryId: categoryData.id,
-      description
-    });
-
-    if (!success) {
-      throw new Error('Erro ao registrar dúvida');
-    }
+    if (insertError) throw insertError;
 
     res.status(200).json({ message: 'Dúvida registrada com sucesso.' });
   } catch (error) {
