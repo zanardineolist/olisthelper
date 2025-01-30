@@ -1,49 +1,229 @@
-/* Container principal da página */
+/* styles/Tools.module.css */
+/* Estilos gerais da página */
 .main {
-    padding: 20px;
-    margin-top: 50px;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: calc(100vh - 120px);
-  }
-  
-  /* Container para as tabs */
-  .tabsContainer {
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-  
-  /* Conteúdo das tabs */
-  .tabContent {
-    width: 100%;
-    max-width: 1400px;
-    margin: 20px auto;
-    background-color: var(--box-color);
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Estilo para estados de carregamento */
-  .loadingContainer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 200px;
-    width: 100%;
-  }
-  
-  /* Responsividade */
-  @media (max-width: 768px) {
-    .main {
-      padding: 10px;
-    }
-  
-    .tabContent {
-      padding: 15px;
-    }
-  }
+  padding: 20px;
+  margin-top: 50px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Container das tabs */
+.tabsContainer {
+  width: 100%;
+  max-width: 1400px;
+  background-color: var(--tab-menu-bg);
+  border-radius: 5px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+/* Conteúdo das tabs */
+.tabContent {
+  width: 100%;
+  max-width: 1400px;
+  margin: 20px auto;
+}
+
+/* Estilos específicos do contador */
+.counterContainer {
+  background-color: var(--box-color);
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.counterHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--title-color);
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.counterDisplay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background-color: var(--box-color2);
+  border-radius: 12px;
+}
+
+.counterButton {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: none;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.decrementButton {
+  background-color: var(--color-accent1);
+  color: var(--color-white);
+}
+
+.decrementButton:hover:not(:disabled) {
+  background-color: #d43d25;
+  transform: scale(1.05);
+}
+
+.incrementButton {
+  background-color: var(--color-accent3);
+  color: var(--color-white);
+}
+
+.incrementButton:hover:not(:disabled) {
+  background-color: #688c34;
+  transform: scale(1.05);
+}
+
+.counterValue {
+  font-size: 4rem;
+  font-weight: bold;
+  min-width: 200px;
+  text-align: center;
+  color: var(--title-color);
+}
+
+.clearButton {
+  background-color: var(--color-accent2);
+  color: var(--color-white);
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 0 auto;
+  display: block;
+}
+
+.clearButton:hover:not(:disabled) {
+  background-color: #e09017;
+}
+
+/* Estilos do histórico */
+.historyContainer {
+  margin-top: 2rem;
+  background-color: var(--box-color);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filterContainer {
+  flex: 1;
+  min-width: 250px;
+}
+
+.dateRangeContainer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.dateInput {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--modals-inputs);
+  color: var(--text-color);
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.historyTable th,
+.historyTable td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.historyTable th {
+  background-color: var(--color-thead);
+  color: var(--text-th);
+  font-weight: bold;
+}
+
+.historyTable tr:nth-child(odd) {
+  background-color: var(--color-trodd);
+}
+
+.historyTable tr:nth-child(even) {
+  background-color: var(--color-treven);
+}
+
+/* Paginação */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.paginationButton {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Gráfico */
+.chartContainer {
+  margin-top: 2rem;
+  background-color: var(--box-color);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  height: 400px;
+}
+
+/* Estilos do Select */
+.selectFilter {
+  width: 100%;
+}
+
+.customSelect {
+  width: 100%;
+}

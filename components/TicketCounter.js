@@ -3,13 +3,17 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import Select from 'react-select';
+import styles from '../styles/Tools.module.css';
 
 export default function TicketCounter() {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState(null);
   const [dateFilter, setDateFilter] = useState({ value: 'today', label: 'Hoje' });
-  const [customRange, setCustomRange] = useState({ startDate: '', endDate: '' });
+  const [customRange, setCustomRange] = useState({
+    startDate: dayjs().format('YYYY-MM-DD'),
+    endDate: dayjs().format('YYYY-MM-DD')
+  });
   const [history, setHistory] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -23,6 +27,43 @@ export default function TicketCounter() {
     { value: 'year', label: 'Este ano' },
     { value: 'custom', label: 'Período específico' }
   ];
+
+  // Estilos do Select baseados no GraphData
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: 'var(--modals-inputs)',
+      borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
+      color: 'var(--text-color)',
+      borderRadius: '5px',
+      padding: '5px',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: 'var(--color-primary)',
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--modals-inputs)',
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused
+        ? 'var(--color-trodd)'
+        : state.isSelected
+        ? 'var(--color-primary)'
+        : 'var(--box-color)',
+      color: 'var(--text-color)',
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: 'var(--text-color)',
+    }),
+    input: (provided) => ({
+      ...provided,
+      color: 'var(--text-color)',
+    }),
+  };
 
   useEffect(() => {
     loadTodayCount();
@@ -49,8 +90,8 @@ export default function TicketCounter() {
       
       switch (dateFilter.value) {
         case 'today':
-          startDate = dayjs().startOf('day').format('YYYY-MM-DD');
-          endDate = dayjs().endOf('day').format('YYYY-MM-DD');
+          startDate = dayjs().format('YYYY-MM-DD');
+          endDate = dayjs().format('YYYY-MM-DD');
           break;
         case '7days':
           startDate = dayjs().subtract(7, 'days').format('YYYY-MM-DD');
@@ -69,12 +110,18 @@ export default function TicketCounter() {
           endDate = dayjs().endOf('year').format('YYYY-MM-DD');
           break;
         case 'custom':
-          startDate = customRange.startDate;
-          endDate = customRange.endDate;
+          startDate = customRange.startDate || dayjs().format('YYYY-MM-DD');
+          endDate = customRange.endDate || dayjs().format('YYYY-MM-DD');
           break;
+        default:
+          startDate = dayjs().format('YYYY-MM-DD');
+          endDate = dayjs().format('YYYY-MM-DD');
       }
 
-      const res = await fetch(`/api/ticket-count?period=true&startDate=${startDate}&endDate=${endDate}&page=${page}`);
+      const res = await fetch(
+        `/api/ticket-count?period=true&startDate=${startDate}&endDate=${endDate}&page=${page}`
+      );
+      
       if (!res.ok) throw new Error('Erro ao carregar histórico');
       
       const data = await res.json();
@@ -90,7 +137,12 @@ export default function TicketCounter() {
 
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
-      Swal.fire('Erro', 'Erro ao carregar histórico', 'error');
+      // Não mostrar erro ao usuário quando não houver dados
+      if (!error.message.includes('no data')) {
+        Swal.fire('Erro', 'Erro ao carregar histórico', 'error');
+      }
+      setHistory([]);
+      setChartData(null);
     }
   };
 
@@ -141,9 +193,6 @@ export default function TicketCounter() {
         if (!res.ok) throw new Error('Erro ao limpar contagem');
         setCount(0);
         await loadHistoryData();
-        Swal.fire('Sucesso', 'Contagem do dia removida com sucesso', 'success');
-      } catch (error) {
-        console.error('Erro ao limpar:', error);
         Swal.fire('Erro', 'Erro ao limpar contagem', 'error');
       } finally {
         setLoading(false);
@@ -152,74 +201,72 @@ export default function TicketCounter() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-6xl mx-auto p-8 bg-white rounded-lg shadow-lg">
-      {/* Data atual e contador */}
-      <div className="flex flex-col items-center mb-12 p-8 bg-gray-50 rounded-xl w-full">
-        <div className="text-3xl font-bold mb-8 text-gray-700">
-          {dayjs().format('DD/MM/YYYY')}
-        </div>
+    <div className={styles.counterContainer}>
+      {/* Data atual e Contador */}
+      <div className={styles.counterHeader}>
+        {dayjs().format('DD/MM/YYYY')}
+      </div>
 
-        <div className="flex items-center gap-8">
-          <button
-            onClick={handleDecrement}
-            disabled={loading || count === 0}
-            className="w-24 h-24 rounded-full bg-red-500 text-white text-4xl font-bold hover:bg-red-600 disabled:opacity-50 shadow-lg transition-transform active:scale-95"
-          >
-            -
-          </button>
+      <div className={styles.counterDisplay}>
+        <button
+          onClick={handleDecrement}
+          disabled={loading || count === 0}
+          className={`${styles.counterButton} ${styles.decrementButton}`}
+        >
+          -
+        </button>
 
-          <div className="flex flex-col items-center">
-            <div className="text-8xl font-bold min-w-[200px] text-center text-gray-800">
-              {loading ? '...' : count}
-            </div>
-            <div className="text-xl text-gray-500 mt-2">chamados respondidos</div>
-          </div>
-
-          <button
-            onClick={handleIncrement}
-            disabled={loading}
-            className="w-24 h-24 rounded-full bg-green-500 text-white text-4xl font-bold hover:bg-green-600 disabled:opacity-50 shadow-lg transition-transform active:scale-95"
-          >
-            +
-          </button>
+        <div className={styles.counterValue}>
+          {loading ? '...' : count}
         </div>
 
         <button
-          onClick={handleClear}
-          disabled={loading || count === 0}
-          className="mt-8 px-8 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:opacity-50 font-semibold shadow-md transition-colors"
+          onClick={handleIncrement}
+          disabled={loading}
+          className={`${styles.counterButton} ${styles.incrementButton}`}
         >
-          Limpar Contagem do Dia
+          +
         </button>
       </div>
 
-      {/* Filtros e Histórico */}
-      <div className="w-full bg-white p-6 rounded-xl shadow-md">
-        <div className="flex gap-4 mb-8">
-          <Select
-            value={dateFilter}
-            onChange={(option) => {
-              setDateFilter(option);
-              setPage(1);
-            }}
-            options={filterOptions}
-            className="w-64"
-            isSearchable={false}
-          />
+      <button
+        onClick={handleClear}
+        disabled={loading || count === 0}
+        className={styles.clearButton}
+      >
+        Limpar Contagem do Dia
+      </button>
+
+      {/* Histórico */}
+      <div className={styles.historyContainer}>
+        <div className={styles.historyHeader}>
+          <div className={styles.filterContainer}>
+            <Select
+              value={dateFilter}
+              onChange={(option) => {
+                setDateFilter(option);
+                setPage(1);
+              }}
+              options={filterOptions}
+              styles={customSelectStyles}
+              className={styles.selectFilter}
+              isSearchable={false}
+            />
+          </div>
 
           {dateFilter.value === 'custom' && (
-            <div className="flex gap-4">
+            <div className={styles.dateRangeContainer}>
               <input
                 type="date"
                 value={customRange.startDate}
                 onChange={(e) => setCustomRange(prev => ({ ...prev, startDate: e.target.value }))}
-                className="px-4 py-2 border rounded"
+                className={styles.dateInput}
               />
               <input
                 type="date"
                 value={customRange.endDate}
                 onChange={(e) => setCustomRange(prev => ({ ...prev, endDate: e.target.value }))}
-                className="px-4 py-2 border rounded"
+                className={styles.dateInput}
               />
             </div>
           )}
@@ -227,67 +274,81 @@ export default function TicketCounter() {
 
         {/* Gráfico */}
         {chartData && chartData.length > 0 && (
-          <div className="h-[400px] mb-8">
+          <div className={styles.chartContainer}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="#4CAF50" strokeWidth={2} />
+                <XAxis 
+                  dataKey="date"
+                  tick={{ fill: 'var(--text-color)' }}
+                />
+                <YAxis 
+                  tick={{ fill: 'var(--text-color)' }}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'var(--box-color)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--text-color)'
+                  }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="count" 
+                  stroke="var(--color-accent3)" 
+                  strokeWidth={2}
+                  dot={{ fill: 'var(--color-accent3)', strokeWidth: 2 }}
+                  activeDot={{ r: 6, fill: 'var(--color-accent3)' }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
         )}
 
-        {/* Histórico */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Data
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total de Chamados
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {history.map((record, index) => (
+        {/* Tabela de Histórico */}
+        <table className={styles.historyTable}>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Total de Chamados</th>
+            </tr>
+          </thead>
+          <tbody>
+            {history.length > 0 ? (
+              history.map((record, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {dayjs(record.count_date).format('DD/MM/YYYY')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {record.total_count}
-                  </td>
+                  <td>{dayjs(record.count_date).format('DD/MM/YYYY')}</td>
+                  <td>{record.total_count}</td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="2" style={{ textAlign: 'center' }}>
+                  Nenhum registro encontrado
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
 
         {/* Paginação */}
-        <div className="flex justify-between items-center mt-4">
-          <div className="text-sm text-gray-700">
-            Total de registros: {totalCount}
-          </div>
-          <div className="flex gap-2">
+        <div className={styles.pagination}>
+          <span>Total de registros: {totalCount}</span>
+          <div>
             <button
               onClick={() => setPage(prev => Math.max(1, prev - 1))}
               disabled={page === 1}
-              className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+              className={styles.paginationButton}
             >
               Anterior
             </button>
-            <span className="px-4 py-2">
+            <span style={{ margin: '0 1rem' }}>
               Página {page} de {totalPages}
             </span>
             <button
               onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
               disabled={page === totalPages}
-              className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+              className={styles.paginationButton}
             >
               Próxima
             </button>
