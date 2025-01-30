@@ -1,5 +1,7 @@
+// middleware.js
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
+import { getUserPermissions } from './utils/supabase/supabaseClient';
 
 export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -8,11 +10,17 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Ajustar os papéis permitidos
+  // Buscar permissões atualizadas do usuário no Supabase
+  const permissions = await getUserPermissions(token.id);
+  if (!permissions) {
+    console.error('Erro ao buscar permissões do usuário:', token.id);
+    return NextResponse.redirect(new URL('/', req.url));
+  }
+
+  // Mapear papéis e rotas permitidas
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super', 'dev', 'support+'];
 
-  // Verificar acesso permitido e evitar redirecionamento indesejado
   const routesWithAllowedRoles = {
     '/profile-analyst': analystRoles,
     '/dashboard-analyst': allowedRoles,
@@ -23,16 +31,27 @@ export async function middleware(req) {
     '/remote': ['support+', 'super']
   };
 
-  const matchedRoute = Object.keys(routesWithAllowedRoles).find(route => req.nextUrl.pathname.startsWith(route));
-  if (matchedRoute && !routesWithAllowedRoles[matchedRoute].includes(token.role)) {
+  // Verificar acesso à rota atual
+  const matchedRoute = Object.keys(routesWithAllowedRoles).find(route => 
+    req.nextUrl.pathname.startsWith(route)
+  );
+
+  if (matchedRoute && !routesWithAllowedRoles[matchedRoute].includes(permissions.profile)) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Criar a resposta, adicionar os detalhes do usuário como cookies temporários
+  // Criar resposta com cookies atualizados
   const response = NextResponse.next();
+  
+  // Definir cookies com informações do usuário e suas permissões
   response.cookies.set('user-id', token.id);
   response.cookies.set('user-name', token.name);
-  response.cookies.set('user-role', token.role);
+  response.cookies.set('user-role', permissions.profile);
+  response.cookies.set('user-permissions', JSON.stringify({
+    can_ticket: permissions.can_ticket,
+    can_phone: permissions.can_phone,
+    can_chat: permissions.can_chat
+  }));
 
   return response;
 }

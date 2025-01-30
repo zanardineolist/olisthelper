@@ -1,0 +1,101 @@
+E:.
+|   .gitignore
+|   estrutura_20250129.txt
+|   export_estrutura.bat
+|   middleware.js
+|   package.json
+|   README.txt
+|   
++---components
+|       AllAccessRecords.js
+|       DashboardData.js
+|       Footer.js
+|       GoogleCalendar.js
+|       GraphData.js
+|       Layout.js
+|       ManageCategories.js
+|       ManageRecords.js
+|       ManageUsers.js
+|       MyAccessRecords.js
+|       Navbar.js
+|       RegisterAccess.js
+|       
++---pages
+|   |   admin-notifications.js
+|   |   dashboard-analyst.js
+|   |   dashboard-super.js
+|   |   index.js
+|   |   manager.js
+|   |   profile-analyst.js
+|   |   profile.js
+|   |   registrar.js
+|   |   registro.js
+|   |   remote.js
+|   |   _app.js
+|   |   _document.js
+|   |   
+|   \---api
+|       |   get-analyst-leaderboard.js
+|       |   get-analyst-records.js
+|       |   get-analysts-categories.js
+|       |   get-category-ranking.js
+|       |   get-remote-records.js
+|       |   get-super-dashboard-data.js
+|       |   get-user-category-ranking.js
+|       |   get-user-help-requests.js
+|       |   get-user-performance.js
+|       |   get-users.js
+|       |   manage-category.js
+|       |   manage-records.js
+|       |   manage-user.js
+|       |   notifications.js
+|       |   register-analyst-help.js
+|       |   register-doubt.js
+|       |   remote-record.js
+|       |   
+|       \---auth
+|               [...nextauth].js
+|               
++---public
+|   \---images
+|       +---icons
+|       |       olist_helper_favicon.png
+|       |       
+|       \---logos
+|               olist_helper_dark_logo.png
+|               olist_helper_logo.png
+|               OpenAI_logo.png
+|               
++---styles
+|       AddMessageModal.module.css
+|       AdminNotifications.module.css
+|       commonStyles.module.css
+|       DashboardAnalyst.module.css
+|       DashboardSuper.module.css
+|       Footer.module.css
+|       globals.css
+|       GraphData.module.css
+|       Layout.module.css
+|       Login.module.css
+|       ManageCategories.module.css
+|       Manager.module.css
+|       ManageRecords.module.css
+|       ManageUsers.module.css
+|       MessageCard.module.css
+|       MessageList.module.css
+|       MessagesManager.module.css
+|       MyPage.module.css
+|       Navbar.module.css
+|       Registrar.module.css
+|       Remote.module.css
+|       Tools.module.css
+|       
+\---utils
+    |   googleSheets.js
+    |   supabaseClient.js
+    |   
+    \---firebase
+            firebaseConfig.js
+            firebaseLogging.js
+            firebaseNotifications.js
+            

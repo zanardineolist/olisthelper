@@ -15,6 +15,7 @@ export default function ManageUsers({ user }) {
     email: '',
     profile: '',
     squad: '',
+    // Mantendo os nomes antigos para compatibilidade com o resto da aplicação
     chamado: false,
     telefone: false,
     chat: false,
@@ -41,15 +42,20 @@ export default function ManageUsers({ user }) {
     try {
       setLoading(true);
       const res = await fetch('/api/manage-user');
-      if (!res.ok) throw new Error('Erro ao carregar usuários');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao carregar usuários');
+      }
       const data = await res.json();
-      setUsers(data.users);
+      // Filtrar apenas usuários ativos
+      const activeUsers = data.users.filter(u => u.active !== false);
+      setUsers(activeUsers);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao carregar usuários.',
+        text: err.message,
         timer: 2000,
         showConfirmButton: false,
         allowOutsideClick: true,
@@ -97,7 +103,11 @@ export default function ManageUsers({ user }) {
       const res = await fetch(`/api/manage-user?id=${userId}`, {
         method: 'DELETE',
       });
-      if (!res.ok) throw new Error('Erro ao deletar usuário');
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao deletar usuário');
+      }
 
       await loadUsers();
 
@@ -114,7 +124,7 @@ export default function ManageUsers({ user }) {
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao deletar usuário.',
+        text: err.message,
         timer: 2000,
         showConfirmButton: false,
         allowOutsideClick: true,
@@ -129,7 +139,7 @@ export default function ManageUsers({ user }) {
       setLoading(true);
 
       if (!isEditing) {
-        // Validação: verificar se o nome ou e-mail já existem apenas ao adicionar novo usuário
+        // Validações apenas para novos usuários
         const lowerCaseNewName = newUser.name.trim().toLowerCase();
         const lowerCaseNewEmail = newUser.email.trim().toLowerCase();
 
@@ -150,7 +160,7 @@ export default function ManageUsers({ user }) {
           return;
         }
 
-        // Verificar similaridade de nomes usando string-similarity
+        // Verificar similaridade de nomes
         const userNames = users.map((user) => user.name.toLowerCase());
         const similarityThreshold = 0.7;
         const similarName = stringSimilarity.findBestMatch(lowerCaseNewName, userNames);
@@ -177,7 +187,6 @@ export default function ManageUsers({ user }) {
         }
       }
 
-      // Caso não existam conflitos ou seja uma edição, prosseguir com o salvamento
       const method = isEditing ? 'PUT' : 'POST';
       const res = await fetch('/api/manage-user', {
         method,
@@ -186,11 +195,23 @@ export default function ManageUsers({ user }) {
         },
         body: JSON.stringify(newUser),
       });
-      if (!res.ok) throw new Error('Erro ao salvar usuário');
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao salvar usuário');
+      }
 
       await loadUsers();
 
-      setNewUser({ name: '', email: '', profile: '', squad: '', chamado: false, telefone: false, chat: false });
+      setNewUser({ 
+        name: '', 
+        email: '', 
+        profile: '', 
+        squad: '', 
+        chamado: false, 
+        telefone: false, 
+        chat: false 
+      });
       setIsEditing(false);
       setModalIsOpen(false);
 
@@ -207,7 +228,7 @@ export default function ManageUsers({ user }) {
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao salvar usuário.',
+        text: err.message,
         timer: 2000,
         showConfirmButton: false,
         allowOutsideClick: true,
@@ -218,7 +239,15 @@ export default function ManageUsers({ user }) {
   };
 
   const handleOpenModal = () => {
-    setNewUser({ name: '', email: '', profile: '', squad: '', chamado: false, telefone: false, chat: false });
+    setNewUser({ 
+      name: '', 
+      email: '', 
+      profile: '', 
+      squad: '', 
+      chamado: false, 
+      telefone: false, 
+      chat: false 
+    });
     setIsEditing(false);
     setModalIsOpen(true);
   };
