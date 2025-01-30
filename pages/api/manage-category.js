@@ -3,7 +3,8 @@ import {
   getAllCategories,
   createCategory,
   updateCategory,
-  deleteCategory
+  deleteCategory,
+  supabaseAdmin
 } from '../../utils/supabase/supabaseClient';
 import { logAction } from '../../utils/firebase/firebaseLogging';
 
@@ -139,6 +140,11 @@ export default async function handler(req, res) {
   }
 }
 
+/**
+ * Busca uma categoria por ID
+ * @param {string} categoryId - ID da categoria
+ * @returns {Promise<Object|null>} - Categoria encontrada ou null
+ */
 async function getCategoryById(categoryId) {
   try {
     const { data, error } = await supabaseAdmin
