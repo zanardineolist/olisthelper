@@ -7,12 +7,13 @@ import { supabaseAdmin } from './supabaseClient';
 export async function getAnalystRecords(analystId, days = 30, mode = 'standard') {
   try {
     let query = supabaseAdmin
-      .from('analyst_help')
+      .from('help_records')
       .select(`
         *,
         categories:category_id(name)
       `)
-      .eq('analyst_id', analystId);
+      .eq('analyst_id', analystId)
+      .order('created_at', { ascending: false });
 
     // Se não for modo profile, aplica filtro de data
     if (mode !== 'profile') {
@@ -45,7 +46,14 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard')
       return {
         currentMonth: currentMonthCount,
         lastMonth: lastMonthCount,
-        rows: data
+        rows: data.map(row => [
+          new Date(row.created_at).toLocaleDateString('pt-BR'),
+          new Date(row.created_at).toLocaleTimeString('pt-BR'),
+          row.requester_name,
+          row.requester_email,
+          row.categories?.name || '',
+          row.description
+        ])
       };
     }
 
@@ -60,12 +68,19 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard')
       count: data.length,
       dates: Object.keys(dateGroups),
       counts: Object.values(dateGroups),
-      rows: data
+      rows: data.map(row => [
+        new Date(row.created_at).toLocaleDateString('pt-BR'),
+        new Date(row.created_at).toLocaleTimeString('pt-BR'),
+        row.requester_name,
+        row.requester_email,
+        row.categories?.name || '',
+        row.description
+      ])
     };
 
   } catch (error) {
     console.error('Erro ao buscar registros do analista:', error);
-    return null;
+    throw error;
   }
 }
 
@@ -80,7 +95,7 @@ export async function getAnalystLeaderboard(analystId) {
     startOfMonth.setHours(0, 0, 0, 0);
 
     const { data, error } = await supabaseAdmin
-      .from('analyst_help')
+      .from('help_records')
       .select('requester_name, requester_email')
       .eq('analyst_id', analystId)
       .gte('created_at', startOfMonth.toISOString());
@@ -95,18 +110,18 @@ export async function getAnalystLeaderboard(analystId) {
     }, {});
 
     // Formatar para retorno
-    const leaderboard = Object.entries(userCounts)
+    const rows = Object.entries(userCounts)
       .map(([key, count]) => {
         const [name, email] = key.split('|');
-        return { name, email, count };
+        return [new Date().toLocaleDateString('pt-BR'), '', name, email, count.toString(), ''];
       })
-      .sort((a, b) => b.count - a.count)
+      .sort((a, b) => parseInt(b[4]) - parseInt(a[4]))
       .slice(0, 5);
 
-    return { rows: leaderboard };
+    return { rows };
   } catch (error) {
     console.error('Erro ao buscar leaderboard:', error);
-    return { rows: [] };
+    throw error;
   }
 }
 
@@ -121,7 +136,7 @@ export async function getCategoryRanking(analystId) {
     startOfMonth.setHours(0, 0, 0, 0);
 
     const { data, error } = await supabaseAdmin
-      .from('analyst_help')
+      .from('help_records')
       .select(`
         *,
         categories:category_id(name)
@@ -149,6 +164,6 @@ export async function getCategoryRanking(analystId) {
     return { categories: ranking };
   } catch (error) {
     console.error('Erro ao buscar ranking de categorias:', error);
-    return { categories: [] };
+    throw error;
   }
 }

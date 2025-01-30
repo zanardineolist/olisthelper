@@ -7,30 +7,7 @@ import { supabaseAdmin } from './supabaseClient';
 export async function createHelpRequest(data) {
   try {
     const { error } = await supabaseAdmin
-      .from('help_requests')
-      .insert([{
-        requester_id: data.requesterId,
-        analyst_id: data.analystId,
-        category_id: data.categoryId,
-        description: data.description,
-        status: 'created'
-      }]);
-
-    if (error) throw error;
-    return true;
-  } catch (error) {
-    console.error('Erro ao registrar pedido de ajuda:', error);
-    return false;
-  }
-}
-
-/**
- * Registra uma ajuda prestada pelo analista
- */
-export async function createAnalystHelp(data) {
-  try {
-    const { error } = await supabaseAdmin
-      .from('analyst_help')
+      .from('help_records')
       .insert([{
         analyst_id: data.analystId,
         requester_name: data.userName,
@@ -42,7 +19,7 @@ export async function createAnalystHelp(data) {
     if (error) throw error;
     return true;
   } catch (error) {
-    console.error('Erro ao registrar ajuda do analista:', error);
-    return false;
+    console.error('Erro ao registrar pedido de ajuda:', error);
+    throw error;
   }
 }
