@@ -1,4 +1,6 @@
-import { getAuthenticatedGoogleSheets, getSheetMetaData, appendValuesToSheet } from '../../utils/googleSheets';
+// pages/api/register-doubt.js
+import { createHelpRequest } from '../../utils/supabase/helpRequests';
+import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,26 +14,44 @@ export default async function handler(req, res) {
   }
 
   try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetMeta = await getSheetMetaData();
-    const sheetName = sheetMeta.data.sheets.find(sheet => sheet.properties.title.startsWith(`#${analyst}`))?.properties.title;
-
-    if (!sheetName) {
-      return res.status(400).json({ error: `A aba correspondente ao ID '${analyst}' não existe na planilha.` });
+    // Buscar o ID da categoria pelo nome
+    const { data: categoryData, error: categoryError } = await supabaseAdmin
+      .from('categories')
+      .select('id')
+      .eq('name', category)
+      .eq('active', true)
+      .single();
+    
+    if (categoryError || !categoryData) {
+      throw new Error('Categoria não encontrada');
     }
 
-    // Formatar a data e hora atuais para o horário de Brasília (UTC-3)
-    const date = new Date();
-    const brtDate = new Date(date.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
-    const formattedDate = brtDate.toLocaleDateString('pt-BR');
-    const formattedTime = brtDate.toLocaleTimeString('pt-BR');
+    // Buscar o ID do usuário solicitante pelo email
+    const { data: requesterData, error: requesterError } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('email', userEmail)
+      .eq('active', true)
+      .single();
 
-    // Adicionar os dados na aba do analista
-    await appendValuesToSheet(sheetName, [[formattedDate, formattedTime, userName, userEmail, category, description]]);
+    if (requesterError || !requesterData) {
+      throw new Error('Usuário solicitante não encontrado');
+    }
+
+    const success = await createHelpRequest({
+      requesterId: requesterData.id,
+      analystId: analyst, // Já deve vir o ID
+      categoryId: categoryData.id,
+      description
+    });
+
+    if (!success) {
+      throw new Error('Erro ao registrar dúvida');
+    }
 
     res.status(200).json({ message: 'Dúvida registrada com sucesso.' });
   } catch (error) {
     console.error('Erro ao registrar dúvida:', error);
-    res.status(500).json({ error: 'Erro ao registrar a dúvida. Verifique suas credenciais e a configuração do Google Sheets.' });
+    res.status(500).json({ error: 'Erro ao registrar a dúvida. Por favor, tente novamente.' });
   }
 }

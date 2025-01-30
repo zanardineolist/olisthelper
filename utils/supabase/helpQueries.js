@@ -1,0 +1,154 @@
+// utils/supabase/helpQueries.js
+import { supabaseAdmin } from './supabaseClient';
+
+/**
+ * Busca os registros de ajuda de um analista com filtro de data
+ */
+export async function getAnalystRecords(analystId, days = 30, mode = 'standard') {
+  try {
+    let query = supabaseAdmin
+      .from('analyst_help')
+      .select(`
+        *,
+        categories:category_id(name)
+      `)
+      .eq('analyst_id', analystId);
+
+    // Se não for modo profile, aplica filtro de data
+    if (mode !== 'profile') {
+      const filterDate = new Date();
+      filterDate.setDate(filterDate.getDate() - parseInt(days));
+      query = query.gte('created_at', filterDate.toISOString());
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    // Se for modo profile, calcular contagens por mês
+    if (mode === 'profile') {
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+      const currentMonthCount = data.filter(record => {
+        const date = new Date(record.created_at);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      }).length;
+
+      const lastMonthCount = data.filter(record => {
+        const date = new Date(record.created_at);
+        return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
+      }).length;
+
+      return {
+        currentMonth: currentMonthCount,
+        lastMonth: lastMonthCount,
+        rows: data
+      };
+    }
+
+    // Agrupar por data para o gráfico
+    const dateGroups = data.reduce((acc, record) => {
+      const date = new Date(record.created_at).toLocaleDateString('pt-BR');
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {});
+
+    return {
+      count: data.length,
+      dates: Object.keys(dateGroups),
+      counts: Object.values(dateGroups),
+      rows: data
+    };
+
+  } catch (error) {
+    console.error('Erro ao buscar registros do analista:', error);
+    return null;
+  }
+}
+
+/**
+ * Busca o leaderboard de usuários ajudados por um analista
+ */
+export async function getAnalystLeaderboard(analystId) {
+  try {
+    // Buscar dados do mês atual
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const { data, error } = await supabaseAdmin
+      .from('analyst_help')
+      .select('requester_name, requester_email')
+      .eq('analyst_id', analystId)
+      .gte('created_at', startOfMonth.toISOString());
+
+    if (error) throw error;
+
+    // Agrupar e contar ajudas por usuário
+    const userCounts = data.reduce((acc, record) => {
+      const key = `${record.requester_name}|${record.requester_email}`;
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Formatar para retorno
+    const leaderboard = Object.entries(userCounts)
+      .map(([key, count]) => {
+        const [name, email] = key.split('|');
+        return { name, email, count };
+      })
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    return { rows: leaderboard };
+  } catch (error) {
+    console.error('Erro ao buscar leaderboard:', error);
+    return { rows: [] };
+  }
+}
+
+/**
+ * Busca o ranking de categorias de um analista
+ */
+export async function getCategoryRanking(analystId) {
+  try {
+    // Buscar dados do mês atual
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const { data, error } = await supabaseAdmin
+      .from('analyst_help')
+      .select(`
+        *,
+        categories:category_id(name)
+      `)
+      .eq('analyst_id', analystId)
+      .gte('created_at', startOfMonth.toISOString());
+
+    if (error) throw error;
+
+    // Agrupar e contar por categoria
+    const categoryCounts = data.reduce((acc, record) => {
+      const categoryName = record.categories?.name;
+      if (categoryName) {
+        acc[categoryName] = (acc[categoryName] || 0) + 1;
+      }
+      return acc;
+    }, {});
+
+    // Formatar para retorno
+    const ranking = Object.entries(categoryCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    return { categories: ranking };
+  } catch (error) {
+    console.error('Erro ao buscar ranking de categorias:', error);
+    return { categories: [] };
+  }
+}

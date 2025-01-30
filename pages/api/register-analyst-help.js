@@ -1,4 +1,6 @@
-import { getAuthenticatedGoogleSheets, getSheetMetaData, appendValuesToSheet } from '../../utils/googleSheets';
+// pages/api/register-analyst-help.js
+import { createAnalystHelp } from '../../utils/supabase/helpRequests';
+import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,26 +14,33 @@ export default async function handler(req, res) {
   }
 
   try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetMeta = await getSheetMetaData();
-    const sheetName = sheetMeta.data.sheets.find(sheet => sheet.properties.title.startsWith(`#${analystId}`))?.properties.title;
-
-    if (!sheetName) {
-      return res.status(400).json({ error: `A aba correspondente ao ID '${analystId}' não existe na planilha.` });
+    // Buscar o ID da categoria pelo nome
+    const { data: categoryData, error: categoryError } = await supabaseAdmin
+      .from('categories')
+      .select('id')
+      .eq('name', category)
+      .eq('active', true)
+      .single();
+    
+    if (categoryError || !categoryData) {
+      throw new Error('Categoria não encontrada');
     }
 
-    // Formatar a data e hora atuais para o horário de Brasília (UTC-3)
-    const date = new Date();
-    const brtDate = new Date(date.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
-    const formattedDate = brtDate.toLocaleDateString('pt-BR');
-    const formattedTime = brtDate.toLocaleTimeString('pt-BR');
+    const success = await createAnalystHelp({
+      analystId,
+      userName,
+      userEmail,
+      categoryId: categoryData.id,
+      description
+    });
 
-    // Adicionar os dados na aba do analista
-    await appendValuesToSheet(sheetName, [[formattedDate, formattedTime, userName, userEmail, category, description]]);
+    if (!success) {
+      throw new Error('Erro ao registrar ajuda');
+    }
 
     res.status(200).json({ message: 'Ajuda registrada com sucesso.' });
   } catch (error) {
     console.error('Erro ao registrar ajuda:', error);
-    res.status(500).json({ error: 'Erro ao registrar a ajuda. Verifique suas credenciais e a configuração do Google Sheets.' });
+    res.status(500).json({ error: 'Erro ao registrar a ajuda. Verifique suas credenciais e a configuração do banco de dados.' });
   }
 }
