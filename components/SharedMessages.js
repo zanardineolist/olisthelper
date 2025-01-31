@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { Tab, Tabs } from '@mui/material';
-import { FaHeart, FaRegHeart, FaCopy, FaEdit, FaTrash, FaPlus, FaMagic, FaUser, FaClock, FaGlobe, FaTag, FaLock, FaStar, FaInbox } from 'react-icons/fa';
+import MessageActions from './MessageActions';
+import { FaHeart, FaCopy, FaPlus, FaUser, FaClock, FaGlobe, FaTag, FaLock, FaStar, FaInbox } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import styles from '../styles/SharedMessages.module.css';
 
