@@ -34,23 +34,24 @@ export default function SharedMessages({ user }) {
       let endpoint = '/api/shared-messages';
       
       if (currentTab === 1) {
-        endpoint += '/user';
+        endpoint = '/api/shared-messages/user';
       } else if (currentTab === 2) {
-        endpoint += '/favorites';
+        endpoint = '/api/shared-messages/favorites';
       }
-
+  
       const queryParams = new URLSearchParams({
         searchTerm,
         tags: selectedTags.map(tag => tag.value).join(',')
       });
-
+  
       const response = await fetch(`${endpoint}?${queryParams}`);
+      if (!response.ok) throw new Error('Erro ao carregar mensagens');
+      
       const data = await response.json();
-
       setMessages(data.messages);
       
-      // Atualizar tags disponíveis
-      const allTags = new Set(data.messages.flatMap(msg => msg.tags));
+      // Atualizar tags disponíveis - excluir duplicatas
+      const allTags = new Set(data.messages.flatMap(msg => msg.tags || []));
       setAvailableTags(Array.from(allTags).map(tag => ({
         value: tag,
         label: tag
@@ -67,9 +68,22 @@ export default function SharedMessages({ user }) {
     setCurrentTab(newValue);
   };
 
-  const handleCopyMessage = async (content) => {
+  const handleCopyMessage = async (content, messageId) => {
     try {
       await navigator.clipboard.writeText(content);
+      
+      // Incrementar contador de cópias
+      await fetch(`/api/shared-messages/${messageId}/copy`, {
+        method: 'POST'
+      });
+  
+      // Atualizar o estado local
+      setMessages(messages.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, copy_count: (msg.copy_count || 0) + 1 }
+          : msg
+      ));
+  
       Swal.fire({
         icon: 'success',
         title: 'Copiado!',
@@ -106,6 +120,44 @@ export default function SharedMessages({ user }) {
       if (!formData.title || !formData.content) {
         Swal.fire('Erro', 'Título e conteúdo são obrigatórios', 'error');
         return;
+      }
+  
+      // Se for mensagem pública, verificar duplicatas
+      if (formData.isPublic) {
+        // Calcular similaridade do título
+        const similarMessages = await fetch('/api/shared-messages/check-similar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: formData.title,
+            content: formData.content
+          })
+        });
+  
+        const { similar } = await similarMessages.json();
+        
+        if (similar.length > 0) {
+          const result = await Swal.fire({
+            title: 'Mensagens Similares Encontradas',
+            html: `
+              <div>Encontramos mensagens parecidas:</div>
+              <ul style="text-align: left; margin-top: 10px;">
+                ${similar.map(msg => `
+                  <li>${msg.title} (${msg.similarity}% similar)</li>
+                `).join('')}
+              </ul>
+              <div style="margin-top: 10px;">Deseja continuar mesmo assim?</div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, publicar mesmo assim',
+            cancelButtonText: 'Não, vou revisar'
+          });
+  
+          if (!result.isConfirmed) {
+            return;
+          }
+        }
       }
 
       const tags = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
@@ -200,6 +252,73 @@ export default function SharedMessages({ user }) {
     setShowAddModal(true);
   };
 
+  const handleGeminiSuggestion = async (messageId, currentContent) => {
+    try {
+      // Mostrar modal com opções de prompt
+      const { value: promptType } = await Swal.fire({
+        title: 'Como você quer melhorar o texto?',
+        input: 'select',
+        inputOptions: {
+          formal: 'Tornar mais formal',
+          informal: 'Tornar mais informal',
+          shorter: 'Resumir',
+          detailed: 'Adicionar mais detalhes',
+          clarity: 'Melhorar clareza',
+          fix: 'Corrigir gramática e pontuação'
+        },
+        showCancelButton: true,
+        inputPlaceholder: 'Selecione uma opção'
+      });
+  
+      if (!promptType) return;
+  
+      // Mostrar loader
+      Swal.fire({
+        title: 'Gerando sugestão...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+  
+      const response = await fetch('/api/shared-messages/gemini-suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: currentContent,
+          promptType
+        })
+      });
+  
+      const { suggestion } = await response.json();
+  
+      // Mostrar preview com opção de substituir
+      const result = await Swal.fire({
+        title: 'Sugestão do Gemini',
+        html: `
+          <div class="gemini-preview">
+            <h4>Texto Original:</h4>
+            <div class="original-text">${currentContent}</div>
+            <h4>Sugestão:</h4>
+            <div class="suggested-text">${suggestion}</div>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Usar esta sugestão',
+        cancelButtonText: 'Manter original',
+        width: '800px'
+      });
+  
+      if (result.isConfirmed) {
+        // Atualizar o texto
+        handleUpdateContent(messageId, suggestion);
+      }
+    } catch (error) {
+      console.error('Erro ao gerar sugestão:', error);
+      Swal.fire('Erro', 'Não foi possível gerar a sugestão', 'error');
+    }
+  };
+
   // Estilos customizados para o Select
   const customSelectStyles = {
     control: (provided, state) => ({
@@ -288,75 +407,125 @@ export default function SharedMessages({ user }) {
       </Tabs>
 
       <div className={styles.messageGrid}>
-        {loading ? (
-          <div className={styles.loading}>Carregando...</div>
-        ) : messages.length > 0 ? (
-          messages.map((message) => (
-            <div
-              key={message.id}
-              className={`${styles.messageCard} ${
-                message.favorites_count > 0 ? styles.popular : ''
-              }`}
-            >
-              <div className={styles.messageHeader}>
-                <h3>{message.title}</h3>
-                <div className={styles.actions}>
-                  <button
-                    onClick={() => handleToggleFavorite(message.id)}
-                    className={styles.favoriteButton}
-                  >
-                    {message.isFavorite ? (
-                      <FaHeart className={styles.favoriteIcon} />
-                    ) : (
-                      <FaRegHeart />
+          {loading ? (
+            <div className={styles.loading}>Carregando...</div>
+          ) : messages.length > 0 ? (
+            messages.map((message) => (
+              <div
+                key={message.id}
+                className={`${styles.messageCard} ${
+                  message.favorites_count > 0 ? styles.popular : ''
+                }`}
+              >
+                <div className={styles.messageHeader}>
+                  <h3>{message.title}</h3>
+                  <div className={styles.actions}>
+                    <button
+                      onClick={() => handleToggleFavorite(message.id)}
+                      className={styles.favoriteButton}
+                      title="Favoritar"
+                    >
+                      {message.isFavorite ? (
+                        <FaHeart className={styles.favoriteIcon} />
+                      ) : (
+                        <FaRegHeart />
+                      )}
+                      <span>{message.favorites_count}</span>
+                    </button>
+                    {message.user_id === user.id && (
+                      <>
+                        <button
+                          onClick={() => handleEditMessage(message)}
+                          className={styles.editButton}
+                          title="Editar"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMessage(message.id)}
+                          className={styles.deleteButton}
+                          title="Excluir"
+                        >
+                          <FaTrash />
+                        </button>
+                      </>
                     )}
-                    <span>{message.favorites_count}</span>
-                  </button>
-                  {message.user_id === user.id && (
-                    <>
-                      <button
-                        onClick={() => handleEditMessage(message)}
-                        className={styles.editButton}
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteMessage(message.id)}
-                        className={styles.deleteButton}
-                      >
-                        <FaTrash />
-                      </button>
-                    </>
+                    <button
+                      onClick={() => handleCopyMessage(message.content, message.id)}
+                      className={styles.copyButton}
+                      title="Copiar"
+                    >
+                      <FaCopy />
+                      {message.copy_count > 0 && <span>{message.copy_count}</span>}
+                    </button>
+                    <button
+                      onClick={() => handleGeminiSuggestion(message.id, message.content)}
+                      className={styles.geminiButton}
+                      title="Melhorar com IA"
+                    >
+                      <FaMagic />
+                    </button>
+                  </div>
+                </div>
+                <div className={styles.messageContent}>
+                  <p>{message.content}</p>
+                </div>
+                <div className={styles.messageInfo}>
+                  <div className={styles.authorInfo}>
+                    <span className={styles.author}>
+                      <FaUser className={styles.authorIcon} /> {message.author_name}
+                    </span>
+                    <span className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
+                      <FaClock /> {formatRelativeTime(message.created_at)}
+                    </span>
+                    {message.updated_at !== message.created_at && (
+                      <span className={styles.edited} title={`Atualizado em ${new Date(message.updated_at).toLocaleString()}`}>
+                        (editado)
+                      </span>
+                    )}
+                  </div>
+                  <div className={styles.accessibility}>
+                    {message.is_public ? (
+                      <span className={styles.public} title="Mensagem pública">
+                        <FaGlobe /> Pública
+                      </span>
+                    ) : (
+                      <span className={styles.private} title="Mensagem privada">
+                        <FaLock /> Privada
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className={styles.messageTags}>
+                  {message.favorites_count > 0 && (
+                    <span className={styles.popularTag}>
+                      <FaStar /> Popular
+                    </span>
                   )}
-                  <button
-                    onClick={() => handleCopyMessage(message.content)}
-                    className={styles.copyButton}
-                  >
-                    <FaCopy />
-                  </button>
+                  {message.tags.map((tag) => (
+                    <span key={tag} className={styles.tag}>
+                      <FaTag className={styles.tagIcon} />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className={styles.messageMetrics}>
+                  <span className={styles.metric} title="Total de cópias">
+                    <FaCopy /> {message.copy_count || 0}
+                  </span>
+                  <span className={styles.metric} title="Total de favoritos">
+                    <FaHeart /> {message.favorites_count}
+                  </span>
                 </div>
               </div>
-              <div className={styles.messageContent}>
-                <p>{message.content}</p>
-              </div>
-              <div className={styles.messageTags}>
-                {message.favorites_count > 0 && (
-                  <span className={styles.popularTag}>Popular</span>
-                )}
-                {message.tags.map((tag) => (
-                  <span key={tag} className={styles.tag}>
-                    {tag}
-                  </span>
-                ))}
-              </div>
+            ))
+          ) : (
+            <div className={styles.noMessages}>
+              <FaInbox className={styles.emptyIcon} />
+              <p>Nenhuma mensagem encontrada</p>
             </div>
-          ))
-        ) : (
-          <div className={styles.noMessages}>
-            Nenhuma mensagem encontrada
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
       {showAddModal && (
         <div className={styles.modal}>

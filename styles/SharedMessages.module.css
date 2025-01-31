@@ -66,11 +66,15 @@
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
   }
   
   .messageCard:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
   
   .messageCard.popular {
@@ -81,18 +85,20 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 10px;
+    gap: 10px;
   }
   
   .messageHeader h3 {
     margin: 0;
     color: var(--title-color);
     font-size: 1.2em;
+    word-break: break-word;
   }
   
   .actions {
     display: flex;
     gap: 8px;
+    flex-shrink: 0;
   }
   
   .actions button {
@@ -102,6 +108,9 @@
     cursor: pointer;
     padding: 4px;
     border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
     transition: all 0.2s ease;
   }
   
@@ -109,6 +118,10 @@
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+
+  .favoriteButton:hover {
+    color: var(--color-accent1);
   }
   
   .favoriteIcon {
@@ -126,33 +139,85 @@
   .copyButton:hover {
     color: var(--color-accent3);
   }
+
+  .geminiButton {
+    color: var(--color-accent2) !important;
+  }
+  
+  .geminiButton:hover {
+    color: var(--color-primary) !important;
+  }
   
   .messageContent {
-    margin-bottom: 15px;
     color: var(--text-color);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  
+  .messageInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+    color: var(--text-color2);
+  }
+  
+  .authorInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .author, .timestamp, .edited {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .accessibility span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9em;
   }
   
   .messageTags {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    margin-top: auto;
+  }
+  
+  .tag, .popularTag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
   }
   
   .tag {
     background-color: var(--color-primary);
     color: var(--color-white);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.9em;
   }
   
   .popularTag {
     background-color: var(--color-accent2);
     color: var(--color-white);
-    padding: 4px 8px;
-    border-radius: 4px;
+  }
+
+  .messageMetrics {
+    display: flex;
+    gap: 15px;
+    color: var(--text-color2);
     font-size: 0.9em;
-    font-weight: bold;
+  }
+  
+  .metric {
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
   
   .modal {
@@ -245,18 +310,26 @@
   }
   
   .loading {
+    grid-column: 1 / -1;
     text-align: center;
     padding: 40px;
     color: var(--text-color);
-    font-size: 1.2em;
+  }
+
+  .emptyIcon {
+    font-size: 2em;
+    opacity: 0.5;
   }
   
   .noMessages {
+    grid-column: 1 / -1;
     text-align: center;
     padding: 40px;
-    color: var(--text-color);
-    font-size: 1.2em;
-    grid-column: 1 / -1;
+    color: var(--text-color2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   }
   
   /* Responsividade */

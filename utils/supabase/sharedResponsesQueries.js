@@ -14,9 +14,11 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
       .from('shared_responses')
       .select(`
         *,
-        user_favorites!inner(user_id)
+        user_favorites (
+          user_id
+        )
       `)
-      .or(`is_public.eq.true,user_id.eq.${userId}`)
+      .or(`is_public.eq.true, user_id.eq.${userId}`)
       .order('favorites_count', { ascending: false });
 
     if (searchTerm) {
@@ -29,7 +31,12 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data;
+
+    // Processar os dados para incluir a flag isFavorite
+    return data.map(message => ({
+      ...message,
+      isFavorite: message.user_favorites?.some(fav => fav.user_id === userId) || false
+    }));
   } catch (error) {
     console.error('Erro ao buscar respostas:', error);
     return [];
@@ -76,16 +83,22 @@ export async function getUserResponses(userId, searchTerm = '', tags = []) {
 export async function getFavoriteResponses(userId) {
   try {
     const { data, error } = await supabaseAdmin
-      .from('shared_responses')
+      .from('user_favorites')
       .select(`
-        *,
-        user_favorites!inner(user_id)
+        response_id,
+        shared_responses (*)
       `)
-      .eq('user_favorites.user_id', userId)
-      .order('favorites_count', { ascending: false });
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+
+    return data
+      .filter(item => item.shared_responses)
+      .map(item => ({
+        ...item.shared_responses,
+        isFavorite: true
+      }));
   } catch (error) {
     console.error('Erro ao buscar favoritos:', error);
     return [];
