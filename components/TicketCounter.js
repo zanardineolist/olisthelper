@@ -295,6 +295,9 @@ export default function TicketCounter() {
         Limpar Contagem do Dia
       </button>
 
+      {/* Barra de Progresso */}
+      <ProgressBar count={count} />
+
       {/* Histórico */}
       <div className={styles.historyContainer}>
         <div className={styles.historyHeader}>
