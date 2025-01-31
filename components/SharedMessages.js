@@ -302,10 +302,10 @@ export default function SharedMessages({ user }) {
       title: message.title,
       content: message.content,
       tags: message.tags.join(', '),
-      isPublic: message.is_public,
-    });
+      isPublic: message.isPublic,
+    });    
     setShowAddModal(true);
-  };  
+  };
 
   const handleGeminiSuggestion = async (messageId, currentContent) => {
     try {

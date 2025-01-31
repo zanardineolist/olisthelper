@@ -17,8 +17,8 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
         users (name),
         user_favorites (user_id)
       `)
-      .eq('users.id', 'shared_responses.user_id')
-      .or(`is_public.eq.true, user_id.eq.${userId}`)
+      .leftJoin('users', 'users.id', 'shared_responses.user_id')
+      .or(`is_public.eq.true,user_id.eq.${userId}`)
       .order('favorites_count', { ascending: false });
 
     if (searchTerm) {
@@ -168,12 +168,22 @@ export async function updateResponse(responseId, updates) {
  */
 export async function deleteResponse(responseId) {
   try {
-    const { error } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
+      .from('shared_responses')
+      .select('id')
+      .eq('id', responseId)
+      .single();
+
+    if (!data) {
+      return false; // Retorna falso se a mensagem não existir
+    }
+
+    const { error: deleteError } = await supabaseAdmin
       .from('shared_responses')
       .delete()
       .eq('id', responseId);
 
-    return !error;
+    return !deleteError;
   } catch (error) {
     console.error('Erro ao deletar resposta:', error);
     return false;
