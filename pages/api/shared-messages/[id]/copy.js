@@ -9,11 +9,23 @@ export default async function handler(req, res) {
   const { id } = req.query;
 
   try {
+    // Busca o valor atual de copy_count
+    const { data: currentData, error: fetchError } = await supabaseAdmin
+      .from('shared_responses')
+      .select('copy_count')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    // Incrementa o contador
+    const newCount = (currentData?.copy_count || 0) + 1;
+
     const { data, error } = await supabaseAdmin
       .from('shared_responses')
-      .update({ copy_count: supabaseAdmin.rpc('increment') })
+      .update({ copy_count: newCount })
       .eq('id', id)
-      .select('copy_count')
+      .select()
       .single();
 
     if (error) throw error;

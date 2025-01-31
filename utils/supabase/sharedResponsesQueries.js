@@ -14,12 +14,15 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
       .from('shared_responses')
       .select(`
         *,
-        users (name),
-        user_favorites (user_id)
+        author:user_id (
+          name
+        ),
+        user_favorites (
+          user_id
+        )
       `)
-      .eq('users.id', 'shared_responses.user_id')
-      .or(`is_public.eq.true, user_id.eq.${userId}`)
-      .order('favorites_count', { ascending: false });
+      .or(`is_public.eq.true,user_id.eq.${userId}`)
+      .order('created_at', { ascending: false });
 
     if (searchTerm) {
       query = query.or(`title.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%`);
@@ -32,10 +35,11 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
     const { data, error } = await query;
     if (error) throw error;
 
-    // Processar os dados para incluir a flag isFavorite
+    // Processar os dados para incluir a flag isFavorite e o nome do autor
     return data.map(message => ({
       ...message,
-      isFavorite: message.user_favorites?.some(fav => fav.user_id === userId) || false
+      author_name: message.author_name || message.author?.name || 'Usuário desconhecido',
+      isFavorite: message.user_favorites?.some(fav => fav.user_id === userId) || false,
     }));
   } catch (error) {
     console.error('Erro ao buscar respostas:', error);
@@ -168,12 +172,29 @@ export async function updateResponse(responseId, updates) {
  */
 export async function deleteResponse(responseId) {
   try {
+    // Primeiro, remove os favoritos relacionados
+    const { error: favoritesError } = await supabaseAdmin
+      .from('user_favorites')
+      .delete()
+      .eq('response_id', responseId);
+
+    if (favoritesError) {
+      console.error('Erro ao remover favoritos:', favoritesError);
+      return false;
+    }
+
+    // Então remove a resposta
     const { error } = await supabaseAdmin
       .from('shared_responses')
       .delete()
       .eq('id', responseId);
 
-    return !error;
+    if (error) {
+      console.error('Erro ao deletar resposta:', error);
+      return false;
+    }
+
+    return true;
   } catch (error) {
     console.error('Erro ao deletar resposta:', error);
     return false;
