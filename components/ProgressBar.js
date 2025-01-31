@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
-import styles from './ProgressBar.module.css';
+import styles from '../styles/ProgressBar.module.css';
 
 const ProgressBar = ({ count }) => {
   const [progress, setProgress] = useState(0);
