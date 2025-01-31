@@ -14,9 +14,13 @@ E:.
 |       ManageCategories.js
 |       ManageRecords.js
 |       ManageUsers.js
+|       MessageActions.js
 |       MyAccessRecords.js
 |       Navbar.js
+|       ProgressBar.js
 |       RegisterAccess.js
+|       SharedMessages.js
+|       TagInput.js
 |       TicketCounter.js
 |       
 +---pages
@@ -54,9 +58,21 @@ E:.
 |       |   remote-record.js
 |       |   ticket-count.js
 |       |   
-|       \---auth
-|               [...nextauth].js
-|               
+|       +---auth
+|       |       [...nextauth].js
+|       |       
+|       \---shared-messages
+|           |   check-similar.js
+|           |   favorite.js
+|           |   favorites.js
+|           |   gemini-suggest.js
+|           |   index.js
+|           |   user.js
+|           |   [id].js
+|           |   
+|           \---[id]
+|                   copy.js
+|                   
 +---public
 |   \---images
 |       +---icons
@@ -87,8 +103,11 @@ E:.
 |       MessagesManager.module.css
 |       MyPage.module.css
 |       Navbar.module.css
+|       ProgressBar.module.css
 |       Registrar.module.css
 |       Remote.module.css
+|       SharedMessages.module.css
+|       TagInput.module.css
 |       Tools.module.css
 |       
 \---utils
@@ -102,6 +121,7 @@ E:.
     \---supabase
             helpQueries.js
             helpRequests.js
+            sharedResponsesQueries.js
             supabaseClient.js
             ticketCountQueries.js
             
