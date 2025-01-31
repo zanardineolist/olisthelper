@@ -9,19 +9,29 @@ export default async function handler(req, res) {
   const { id } = req.query;
 
   try {
-    // Fazer uma única transação para incrementar o contador
-    const { data, error } = await supabaseAdmin
+    // Primeiro busca o valor atual
+    const { data: currentData, error: readError } = await supabaseAdmin
       .from('shared_responses')
-      .update({ 
-        copy_count: supabaseAdmin.raw('copy_count + 1')
-      })
+      .select('copy_count')
+      .eq('id', id)
+      .single();
+
+    if (readError) throw readError;
+
+    // Incrementa usando o valor atual
+    const newCount = (currentData.copy_count || 0) + 1;
+
+    // Atualiza com o novo valor
+    const { data, error: updateError } = await supabaseAdmin
+      .from('shared_responses')
+      .update({ copy_count: newCount })
       .eq('id', id)
       .select('copy_count')
       .single();
 
-    if (error) throw error;
+    if (updateError) throw updateError;
 
-    return res.status(200).json({ copy_count: data.copy_count });
+    return res.status(200).json(data);
   } catch (error) {
     console.error('Erro ao incrementar contador:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
