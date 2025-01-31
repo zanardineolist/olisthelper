@@ -7,6 +7,7 @@ import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import TicketCounter from '../components/TicketCounter';
+import SharedMessages from '../components/SharedMessages';
 import styles from '../styles/Tools.module.css';
 
 const theme = createTheme({
@@ -54,8 +55,9 @@ export default function ToolsPage({ user }) {
       const hash = window.location.hash;
       if (hash === '#TicketCounter') {
         setCurrentTab(0);
+      } else if (hash === '#SharedMessages') {
+        setCurrentTab(1);
       }
-      // Adicionar mais condições aqui para futuras ferramentas
       setLoading(false);
     }, 500);
   }, []);
@@ -67,7 +69,9 @@ export default function ToolsPage({ user }) {
       case 0:
         hash = '#TicketCounter';
         break;
-      // Adicionar mais cases aqui para futuras ferramentas
+      case 1:
+        hash = '#SharedMessages';
+        break;
       default:
         break;
     }
@@ -94,11 +98,10 @@ export default function ToolsPage({ user }) {
         <ThemeProvider theme={theme}>
           <div className={styles.tabsContainer}>
             <Tabs value={currentTab} onChange={handleTabChange} centered>
-              {/* Apenas usuários support, support+ e analyst podem ver o contador de chamados */}
               {['support', 'support+', 'analyst'].includes(user.role) && (
                 <Tab label="Contador de Chamados" />
               )}
-              {/* Adicionar mais tabs aqui para futuras ferramentas */}
+              <Tab label="Respostas Compartilhadas" />
             </Tabs>
           </div>
         </ThemeProvider>
@@ -107,7 +110,7 @@ export default function ToolsPage({ user }) {
           {currentTab === 0 && ['support', 'support+', 'analyst'].includes(user.role) && (
             <TicketCounter />
           )}
-          {/* Adicionar mais conteúdos de tab aqui para futuras ferramentas */}
+          {currentTab === 1 && <SharedMessages user={user} />}
         </div>
       </main>
 

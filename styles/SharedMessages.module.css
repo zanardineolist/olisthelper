@@ -1,0 +1,291 @@
+/* styles/SharedMessages.module.css */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .searchContainer {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+    margin-right: 20px;
+  }
+  
+  .searchInput {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    background-color: var(--modals-inputs);
+    color: var(--text-color);
+  }
+  
+  .tagSelect {
+    min-width: 200px;
+  }
+  
+  .addButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background-color: var(--color-accent3);
+    color: var(--color-white);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .addButton:hover {
+    background-color: var(--color-primary-hover);
+  }
+  
+  .tabs {
+    margin-bottom: 20px;
+  }
+  
+  .messageGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .messageCard {
+    background-color: var(--box-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .messageCard:hover {
+    transform: translateY(-2px);
+  }
+  
+  .messageCard.popular {
+    border: 2px solid var(--color-accent2);
+  }
+  
+  .messageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  
+  .messageHeader h3 {
+    margin: 0;
+    color: var(--title-color);
+    font-size: 1.2em;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .actions button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+  
+  .favoriteButton {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .favoriteIcon {
+    color: var(--color-accent1);
+  }
+  
+  .editButton:hover {
+    color: var(--color-primary);
+  }
+  
+  .deleteButton:hover {
+    color: var(--color-accent1);
+  }
+  
+  .copyButton:hover {
+    color: var(--color-accent3);
+  }
+  
+  .messageContent {
+    margin-bottom: 15px;
+    color: var(--text-color);
+  }
+  
+  .messageTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .tag {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  
+  .popularTag {
+    background-color: var(--color-accent2);
+    color: var(--color-white);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: bold;
+  }
+  
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modalContent {
+    background-color: var(--box-color);
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+  }
+  
+  .modalContent h2 {
+    color: var(--title-color);
+    margin-bottom: 20px;
+  }
+  
+  .modalInput,
+  .modalTextarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    background-color: var(--modals-inputs);
+    color: var(--text-color);
+  }
+  
+  .modalTextarea {
+    min-height: 150px;
+    resize: vertical;
+  }
+  
+  .modalCheckbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: var(--text-color);
+  }
+  
+  .modalCheckbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .modalButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  
+  .saveButton,
+  .cancelButton {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+  }
+  
+  .saveButton {
+    background-color: var(--color-accent3);
+    color: var(--color-white);
+  }
+  
+  .saveButton:hover {
+    background-color: var(--color-primary-hover);
+  }
+  
+  .cancelButton {
+    background-color: var(--color-accent1);
+    color: var(--color-white);
+  }
+  
+  .cancelButton:hover {
+    background-color: #E25547;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-color);
+    font-size: 1.2em;
+  }
+  
+  .noMessages {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-color);
+    font-size: 1.2em;
+    grid-column: 1 / -1;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      gap: 15px;
+    }
+  
+    .searchContainer {
+      flex-direction: column;
+      margin-right: 0;
+    }
+  
+    .tagSelect {
+      width: 100%;
+    }
+  
+    .addButton {
+      width: 100%;
+      justify-content: center;
+    }
+  
+    .messageGrid {
+      grid-template-columns: 1fr;
+    }
+  
+    .modalContent {
+      width: 95%;
+      padding: 20px;
+    }
+  }
