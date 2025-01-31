@@ -499,59 +499,19 @@ export default function SharedMessages({ user }) {
                 message.favorites_count > 0 ? styles.popular : ''
               }`}
             >
-              {/* Cabeçalho com título e ações */}
               <div className={styles.messageHeader}>
                 <h3>{message.title}</h3>
-                <div className={styles.actions}>
-                  <button
-                    onClick={() => handleToggleFavorite(message.id)}
-                    className={styles.favoriteButton}
-                    title="Favoritar"
-                  >
-                    {message.isFavorite ? (
-                      <FaHeart className={styles.favoriteIcon} />
-                    ) : (
-                      <FaRegHeart />
-                    )}
-                    <span>{message.favorites_count}</span>
-                  </button>
-                  {message.user_id === user.id && (
-                    <>
-                      <button
-                        onClick={() => handleEditMessage(message)}
-                        className={styles.editButton}
-                        title="Editar"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteMessage(message.id)}
-                        className={styles.deleteButton}
-                        title="Excluir"
-                      >
-                        <FaTrash />
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onClick={() => handleCopyMessage(message.content, message.id)}
-                    className={styles.copyButton}
-                    title="Copiar"
-                  >
-                    <FaCopy />
-                    {message.copy_count > 0 && <span>{message.copy_count}</span>}
-                  </button>
-                  <button
-                    onClick={() => handleGeminiSuggestion(message.id, message.content)}
-                    className={styles.geminiButton}
-                    title="Melhorar com IA"
-                  >
-                    <FaMagic />
-                  </button>
-                </div>
+                <MessageActions 
+                  message={message}
+                  user={user}
+                  onToggleFavorite={handleToggleFavorite}
+                  onCopy={handleCopyMessage}
+                  onEdit={handleEditMessage}
+                  onDelete={handleDeleteMessage}
+                  onGeminiSuggestion={handleGeminiSuggestion}
+                />
               </div>
 
-              {/* Informações do autor e status */}
               <div className={styles.authorSection}>
                 <div className={styles.authorPrimary}>
                   <span className={styles.author}>
@@ -579,12 +539,10 @@ export default function SharedMessages({ user }) {
                 </div>
               </div>
 
-              {/* Conteúdo da mensagem */}
               <div className={styles.messageBody}>
                 <MessageContent content={message.content} />
               </div>
 
-              {/* Rodapé com tags e métricas */}
               <div className={styles.messageFooter}>
                 <div className={styles.messageTags}>
                   {message.favorites_count > 0 && (
