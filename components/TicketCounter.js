@@ -6,6 +6,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Select from 'react-select';
 import styles from '../styles/Tools.module.css';
+import ProgressBar from './ProgressBar';
 
 // Configurar dayjs para trabalhar com timezone
 dayjs.extend(utc);
@@ -25,6 +26,7 @@ export default function TicketCounter() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [totalTickets, setTotalTickets] = useState(0);
   const [lastResetDate, setLastResetDate] = useState(dayjs().tz().format('YYYY-MM-DD'));
 
   const filterOptions = [
@@ -202,6 +204,10 @@ export default function TicketCounter() {
       setTotalPages(Math.max(1, data.totalPages));
       setTotalCount(data.totalCount + (todayRecord ? 0 : count > 0 ? 1 : 0));
 
+      // Calcular total de chamados do período
+      const totalTickets = sortedRecords.reduce((sum, record) => sum + record.total_count, 0);
+      setTotalTickets(totalTickets);
+
       // Preparar dados para o gráfico
       const chartData = sortedRecords.map(record => ({
         date: dayjs(record.count_date).format('DD/MM/YYYY'),
@@ -218,6 +224,7 @@ export default function TicketCounter() {
       setChartData(null);
       setTotalPages(1);
       setTotalCount(0);
+      setTotalTickets(0);
     }
   };
 
@@ -394,7 +401,10 @@ export default function TicketCounter() {
 
         {/* Paginação */}
         <div className={styles.pagination}>
-          <span>Total de registros: {totalCount}</span>
+          <div className={styles.paginationInfo}>
+            <span>Total de registros: {totalCount}</span>
+            <span>Total de chamados: {totalTickets}</span>
+          </div>
           {totalCount > 0 && (
             <div>
               <button
