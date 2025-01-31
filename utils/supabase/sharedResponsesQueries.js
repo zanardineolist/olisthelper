@@ -188,9 +188,10 @@ export async function updateResponse(responseId, updates) {
  */
 export async function incrementCopyCount(responseId) {
   try {
-    const { data, error } = await supabaseAdmin.rpc('increment_copy_count', {
-      message_id: responseId
-    });
+    const { data, error } = await supabaseAdmin.rpc(
+      'update_message_copy_count',
+      { message_id: responseId }
+    );
 
     if (error) throw error;
     return true;
