@@ -64,15 +64,14 @@ const ProgressBar = ({ count }) => {
       </div>
       
       <div className={styles.markerContainer}>
-        <span>0</span>
         <div className={styles.marker + ' ' + styles.minMarker}>
           <span className={styles.markerLabel + ' ' + styles.minLabel}>
-            Min: {minTarget}
+            Min {minTarget}
           </span>
         </div>
         <div className={styles.marker + ' ' + styles.maxMarker}>
           <span className={styles.markerLabel + ' ' + styles.maxLabel}>
-            Meta: {maxTarget}
+            Meta {maxTarget}
           </span>
         </div>
       </div>
@@ -80,15 +79,15 @@ const ProgressBar = ({ count }) => {
       <div className={styles.message}>
         {count >= maxTarget ? (
           <div className={styles.messageSuccess}>
-            🎉 Parabéns! Meta atingida! 🎉
+            🎉 Parabéns! Você bateu os 30 hoje!!! 🎉
           </div>
         ) : count >= minTarget ? (
           <div className={styles.messageWarning}>
-            Ótimo! Você já atingiu o mínimo. Continue assim!
+            Ótimo! Você chegou nos 25 chamados. Continue assim!
           </div>
         ) : (
           <div className={styles.messageInfo}>
-            Faltam {minTarget - count} chamados para atingir o mínimo
+            Faltam {minTarget - count} chamados para atingir os 25.
           </div>
         )}
       </div>
