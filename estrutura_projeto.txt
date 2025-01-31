@@ -17,6 +17,7 @@ E:.
 |       MyAccessRecords.js
 |       Navbar.js
 |       RegisterAccess.js
+|       TicketCounter.js
 |       
 +---pages
 |   |   admin-notifications.js
@@ -29,6 +30,7 @@ E:.
 |   |   registrar.js
 |   |   registro.js
 |   |   remote.js
+|   |   tools.js
 |   |   _app.js
 |   |   _document.js
 |   |   
@@ -50,6 +52,7 @@ E:.
 |       |   register-analyst-help.js
 |       |   register-doubt.js
 |       |   remote-record.js
+|       |   ticket-count.js
 |       |   
 |       \---auth
 |               [...nextauth].js
@@ -100,4 +103,5 @@ E:.
             helpQueries.js
             helpRequests.js
             supabaseClient.js
+            ticketCountQueries.js
             
