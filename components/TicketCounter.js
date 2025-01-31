@@ -168,12 +168,12 @@ export default function TicketCounter() {
           endDate = today;
           break;
         case '7days':
-          startDate = dayjs().subtract(7, 'days').format('YYYY-MM-DD');
-          endDate = dayjs().format('YYYY-MM-DD');
+          startDate = dayjs().subtract(6, 'days').format('YYYY-MM-DD');
+          endDate = today;
           break;
         case '30days':
-          startDate = dayjs().subtract(30, 'days').format('YYYY-MM-DD');
-          endDate = dayjs().format('YYYY-MM-DD');
+          startDate = dayjs().subtract(29, 'days').format('YYYY-MM-DD');
+          endDate = today;
           break;
         case 'month':
           startDate = dayjs().startOf('month').format('YYYY-MM-DD');
@@ -184,12 +184,12 @@ export default function TicketCounter() {
           endDate = dayjs().endOf('year').format('YYYY-MM-DD');
           break;
         case 'custom':
-          startDate = customRange.startDate || dayjs().format('YYYY-MM-DD');
-          endDate = customRange.endDate || dayjs().format('YYYY-MM-DD');
+          startDate = customRange.startDate || today;
+          endDate = customRange.endDate || today;
           break;
         default:
-          startDate = dayjs().format('YYYY-MM-DD');
-          endDate = dayjs().format('YYYY-MM-DD');
+          startDate = today;
+          endDate = today;
       }
 
       const res = await fetch(
