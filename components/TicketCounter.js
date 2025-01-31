@@ -68,7 +68,7 @@ export default function TicketCounter() {
   useEffect(() => {
     loadTodayCount();
     loadHistoryData();
-  }, [dateFilter, page, customRange]);
+  }, [dateFilter, page, customRange, count]);
 
   const loadTodayCount = async () => {
     try {
@@ -89,8 +89,12 @@ export default function TicketCounter() {
       setLoading(true);
       const res = await fetch('/api/ticket-count', { method: 'POST' });
       if (!res.ok) throw new Error('Erro ao incrementar contagem');
-      await loadHistoryData(); // Recarrega o histórico
       setCount(prev => prev + 1);
+      
+      // Se o filtro atual é 'today', recarrega o histórico
+      if (dateFilter.value === 'today') {
+        await loadHistoryData();
+      }
     } catch (error) {
       console.error('Erro ao incrementar:', error);
       Swal.fire('Erro', 'Erro ao adicionar contagem', 'error');
@@ -104,8 +108,12 @@ export default function TicketCounter() {
       setLoading(true);
       const res = await fetch('/api/ticket-count', { method: 'DELETE' });
       if (!res.ok) throw new Error('Erro ao decrementar contagem');
-      await loadHistoryData(); // Recarrega o histórico
       setCount(prev => Math.max(0, prev - 1));
+      
+      // Se o filtro atual é 'today', recarrega o histórico
+      if (dateFilter.value === 'today') {
+        await loadHistoryData();
+      }
     } catch (error) {
       console.error('Erro ao decrementar:', error);
       Swal.fire('Erro', 'Erro ao remover contagem', 'error');
@@ -132,8 +140,13 @@ export default function TicketCounter() {
           const error = await res.json();
           throw new Error(error.message || 'Erro ao limpar contagem');
         }
-        await loadHistoryData(); // Recarrega o histórico
         setCount(0);
+        
+        // Se o filtro atual é 'today', recarrega o histórico
+        if (dateFilter.value === 'today') {
+          await loadHistoryData();
+        }
+        
         Swal.fire('Sucesso', 'Contagem do dia removida com sucesso', 'success');
       } catch (error) {
         console.error('Erro ao limpar:', error);
@@ -147,11 +160,12 @@ export default function TicketCounter() {
   const loadHistoryData = async () => {
     try {
       let startDate, endDate;
-      
+      const today = dayjs().format('YYYY-MM-DD');
+  
       switch (dateFilter.value) {
         case 'today':
-          startDate = dayjs().format('YYYY-MM-DD');
-          endDate = dayjs().format('YYYY-MM-DD');
+          startDate = today;
+          endDate = today;
           break;
         case '7days':
           startDate = dayjs().subtract(7, 'days').format('YYYY-MM-DD');
@@ -185,16 +199,29 @@ export default function TicketCounter() {
       if (!res.ok) throw new Error('Erro ao carregar histórico');
       
       const data = await res.json();
-      setHistory(data.records);
-      setTotalPages(Math.max(1, data.totalPages));
-      setTotalCount(data.totalCount);
-      
-      // Usar todos os registros para o gráfico
-      setChartData(data.allRecords.map(record => ({
-        date: dayjs(record.count_date).format('DD/MM/YYYY'),
-        count: record.total_count
-      })));
-
+  
+      // Se for o dia atual, garantir que o registro aparece mesmo que ainda não exista no banco
+      if (dateFilter.value === 'today' && data.records.length === 0 && count > 0) {
+        const todayRecord = {
+          count_date: today,
+          total_count: count
+        };
+        setHistory([todayRecord]);
+        setChartData([{
+          date: dayjs(today).format('DD/MM/YYYY'),
+          count: count
+        }]);
+        setTotalPages(1);
+        setTotalCount(1);
+      } else {
+        setHistory(data.records);
+        setTotalPages(Math.max(1, data.totalPages));
+        setTotalCount(data.totalCount);
+        setChartData(data.allRecords.map(record => ({
+          date: dayjs(record.count_date).format('DD/MM/YYYY'),
+          count: record.total_count
+        })));
+      }
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
       if (!error.message.includes('no data')) {
