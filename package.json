@@ -34,7 +34,8 @@
     "lodash": "^4.17.21",
     "dayjs": "^1.11.0",
     "@supabase/supabase-js": "^2.39.0",
-    "recharts": "^2.10.3"
+    "recharts": "^2.10.3",
+    "@google/generative-ai": "^0.4.0"
   },
   "devDependencies": {
     "eslint": "8.0.1",
