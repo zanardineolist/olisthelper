@@ -10,6 +10,7 @@ import { supabaseAdmin } from './supabaseClient';
  */
 export async function getAllResponses(userId, searchTerm = '', tags = []) {
   try {
+    // Base query para selecionar apenas mensagens públicas
     let query = supabaseAdmin
       .from('shared_responses')
       .select(`
@@ -21,9 +22,10 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
           user_id
         )
       `)
-      .or(`and(is_public.eq.true),and(user_id.eq.${userId})`)
+      .eq('is_public', true)  // Seleciona apenas mensagens públicas
       .order('created_at', { ascending: false });
 
+    // Aplica filtros de busca se existirem
     if (searchTerm) {
       query = query.or(`title.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%`);
     }
@@ -35,7 +37,7 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
     const { data, error } = await query;
     if (error) throw error;
 
-    // Processar os dados para incluir a flag isFavorite e o nome do autor
+    // Processa os dados para incluir flag de favorito e nome do autor
     return data.map(message => ({
       ...message,
       author_name: message.author_name || message.author?.name || 'Usuário desconhecido',
