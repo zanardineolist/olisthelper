@@ -40,25 +40,39 @@ export default function SharedMessages({ user }) {
 
   const handleUpdateContent = async (messageId, newContent) => {
     try {
+      // Buscar a mensagem original antes de atualizar
+      const messageToUpdate = messages.find(msg => msg.id === messageId);
+      if (!messageToUpdate) throw new Error('Mensagem não encontrada');
+  
       const response = await fetch(`/api/shared-messages/${messageId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newContent }),
+        body: JSON.stringify({
+          title: messageToUpdate.title,
+          content: newContent,
+          isPublic: messageToUpdate.isPublic,
+          tags: messageToUpdate.tags,
+        }),
       });
   
-      if (!response.ok) throw new Error('Erro ao atualizar mensagem');
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.error || 'Erro ao atualizar mensagem');
+      }
   
       // Atualiza localmente o estado das mensagens
-      setMessages(messages.map(msg =>
-        msg.id === messageId ? { ...msg, content: newContent } : msg
-      ));
+      setMessages(prevMessages =>
+        prevMessages.map(msg =>
+          msg.id === messageId ? { ...msg, content: newContent } : msg
+        )
+      );
   
       Swal.fire('Sucesso', 'Mensagem atualizada com sucesso!', 'success');
     } catch (error) {
       console.error('Erro ao atualizar conteúdo:', error);
-      Swal.fire('Erro', 'Erro ao atualizar mensagem', 'error');
+      Swal.fire('Erro', error.message || 'Erro ao atualizar mensagem', 'error');
     }
-  };
+  };  
 
   useEffect(() => {
     loadMessages();
