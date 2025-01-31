@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   try {
     const { data, error } = await supabaseAdmin
       .from('shared_responses')
-      .update({ copy_count: supabaseAdmin.sql('copy_count + 1') })
+      .update({ copy_count: supabaseAdmin.rpc('increment') })
       .eq('id', id)
       .select('copy_count')
       .single();

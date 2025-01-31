@@ -98,11 +98,7 @@ export default function SharedMessages({ user }) {
       if (!response.ok) throw new Error('Erro ao carregar mensagens');
       
       const data = await response.json();
-      
-      setMessages(data.messages.map(message => ({
-        ...message,
-        userName: message.users?.name || message.userName || 'Desconhecido'
-      })));
+      setMessages(data.messages);
       
       // Atualizar tags disponíveis - excluir duplicatas
       const allTags = new Set(data.messages.flatMap(msg => msg.tags || []));
@@ -126,22 +122,17 @@ export default function SharedMessages({ user }) {
     try {
       await navigator.clipboard.writeText(content);
       
-      const response = await fetch(`/api/shared-messages/${messageId}/copy`, { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+      // Incrementar contador de cópias
+      await fetch(`/api/shared-messages/${messageId}/copy`, {
+        method: 'POST'
       });
-      
-      if (!response.ok) {
-        throw new Error('Erro ao incrementar cópias');
-      }
-      
-      const updatedMessage = await response.json();
-      
-      setMessages(prevMessages =>
-        prevMessages.map(msg =>
-          msg.id === messageId ? { ...msg, copy_count: updatedMessage.copy_count } : msg
-        )
-      );      
+  
+      // Atualizar o estado local
+      setMessages(messages.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, copy_count: (msg.copy_count || 0) + 1 }
+          : msg
+      ));
   
       Swal.fire({
         icon: 'success',
@@ -264,55 +255,41 @@ export default function SharedMessages({ user }) {
     }
   };
 
-  // No handleDeleteMessage, adicione mais verificações
-const handleDeleteMessage = async (messageId) => {
-  try {
-    // Verificação adicional de permissão
-    const messageToDelete = messages.find(msg => msg.id === messageId);
-    
-    if (messageToDelete.user_id !== user.id) {
-      Swal.fire('Erro', 'Você não tem permissão para excluir esta mensagem', 'error');
-      return;
-    }
+  const handleDeleteMessage = async (messageId) => {
+    try {
+      const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: 'Esta ação não pode ser desfeita',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar'
+      });
 
-    const result = await Swal.fire({
-      title: 'Tem certeza?',
-      text: 'Esta ação não pode ser desfeita',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sim, excluir',
-      cancelButtonText: 'Cancelar'
-    });
+      if (result.isConfirmed) {
+        const response = await fetch(`/api/shared-messages/${messageId}`, {
+          method: 'DELETE'
+        });
 
-    if (result.isConfirmed) {
-      const response = await fetch(`/api/shared-messages/${messageId}`, {
-        method: 'DELETE',
-        headers: {
-          // Adicionar cabeçalho de autorização, se necessário
-          'Authorization': `Bearer ${user.token}` // Ajuste conforme sua autenticação
+        if (!response.ok) {
+          throw new Error('Erro ao excluir mensagem');
         }
-      });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro ao excluir mensagem');
+        await loadMessages();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Excluída!',
+          text: 'Mensagem excluída com sucesso',
+          timer: 1500,
+          showConfirmButton: false
+        });
       }
-
-      await loadMessages();
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Excluída!',
-        text: 'Mensagem excluída com sucesso',
-        timer: 1500,
-        showConfirmButton: false
-      });
+    } catch (error) {
+      console.error('Erro ao excluir mensagem:', error);
+      Swal.fire('Erro', 'Erro ao excluir mensagem', 'error');
     }
-  } catch (error) {
-    console.error('Erro ao excluir mensagem:', error);
-    Swal.fire('Erro', error.message || 'Erro ao excluir mensagem', 'error');
-  }
-};
+  };
 
   const handleEditMessage = (message) => {
     setEditingMessage(message);
@@ -320,8 +297,8 @@ const handleDeleteMessage = async (messageId) => {
       title: message.title,
       content: message.content,
       tags: message.tags.join(', '),
-      isPublic: message.isPublic,
-    });    
+      isPublic: message.isPublic
+    });
     setShowAddModal(true);
   };
 
@@ -545,9 +522,9 @@ const handleDeleteMessage = async (messageId) => {
                 </div>
                 <div className={styles.messageInfo}>
                   <div className={styles.authorInfo}>
-                  <span className={styles.author}>
-                    <FaUser className={styles.authorIcon} /> {message.userName || 'Desconhecido'}
-                  </span>
+                    <span className={styles.author}>
+                      <FaUser className={styles.authorIcon} /> {message.author_name}
+                    </span>
                     <span className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
                       <FaClock /> {formatRelativeTime(message.created_at)}
                     </span>
