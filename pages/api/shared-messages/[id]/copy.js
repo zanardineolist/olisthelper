@@ -1,13 +1,17 @@
 // pages/api/shared-messages/[id]/copy.js
 import { supabaseAdmin } from '../../../../utils/supabase/supabaseClient';
 
-// pages/api/shared-messages/[id]/copy.js
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { id } = req.query;
+  const { copied } = req.body; // Adiciona verificação se a cópia foi bem sucedida
+
+  if (!copied) {
+    return res.status(400).json({ error: 'Copy confirmation required' });
+  }
 
   try {
     // Busca o valor atual antes de atualizar

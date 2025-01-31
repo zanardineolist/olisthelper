@@ -7,6 +7,16 @@ import { FaHeart, FaCopy, FaPlus, FaUser, FaClock, FaGlobe, FaTag, FaLock, FaSta
 import Swal from 'sweetalert2';
 import styles from '../styles/SharedMessages.module.css';
 
+// Define o limiar para mensagens populares
+const POPULAR_THRESHOLD = 5;
+
+// Função para separar mensagens populares
+const separateMessages = (messages) => {
+  const popular = messages.filter(msg => msg.favorites_count >= POPULAR_THRESHOLD);
+  const regular = messages.filter(msg => msg.favorites_count < POPULAR_THRESHOLD);
+  return { popular, regular };
+};
+
 // Função para formatar tempo relativo
 function formatRelativeTime(dateString) {
   const date = new Date(dateString);
@@ -489,93 +499,173 @@ export default function SharedMessages({ user }) {
         <Tab label="Favoritas" />
       </Tabs>
 
-      <div className={styles.messageGrid}>
-        {loading ? (
-          <div className={styles.loading}>Carregando...</div>
-        ) : messages.length > 0 ? (
-          messages.map((message) => (
-            <div
-              key={message.id}
-              className={`${styles.messageCard} ${
-                message.favorites_count > 0 ? styles.popular : ''
-              }`}
-            >
-              <div className={styles.messageHeader}>
-                <h3>{message.title}</h3>
-                <MessageActions 
-                  message={message}
-                  user={user}
-                  onToggleFavorite={handleToggleFavorite}
-                  onCopy={handleCopyMessage}
-                  onEdit={handleEditMessage}
-                  onDelete={handleDeleteMessage}
-                  onGeminiSuggestion={handleGeminiSuggestion}
-                />
-              </div>
+      {loading ? (
+        <div className={styles.loading}>Carregando...</div>
+      ) : messages.length > 0 ? (
+        <>
+          {/* Seção de Mensagens Populares */}
+            {separateMessages(messages).popular.length > 0 && (
+              <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>Mensagens Populares</h2>
+                <div className={styles.messageGrid}>
+                  {separateMessages(messages).popular.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`${styles.messageCard} ${styles.popular}`}
+                    >
+                      <div className={styles.messageHeader}>
+                        <h3>{message.title}</h3>
+                        <MessageActions 
+                          message={message}
+                          user={user}
+                          onToggleFavorite={handleToggleFavorite}
+                          onCopy={handleCopyMessage}
+                          onEdit={handleEditMessage}
+                          onDelete={handleDeleteMessage}
+                          onGeminiSuggestion={handleGeminiSuggestion}
+                        />
+                      </div>
 
-              <div className={styles.authorSection}>
-                <div className={styles.authorPrimary}>
-                  <span className={styles.author}>
-                    <FaUser className={styles.authorIcon} /> {message.author_name}
-                  </span>
-                  {message.is_public ? (
-                    <span className={styles.public} title="Mensagem pública">
-                      <FaGlobe /> Pública
-                    </span>
-                  ) : (
-                    <span className={styles.private} title="Mensagem privada">
-                      <FaLock /> Privada
-                    </span>
-                  )}
-                </div>
-                <div className={styles.authorSecondary}>
-                  <span className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
-                    <FaClock /> {formatRelativeTime(message.created_at)}
-                  </span>
-                  {message.updated_at !== message.created_at && (
-                    <span className={styles.edited} title={`Atualizado em ${new Date(message.updated_at).toLocaleString()}`}>
-                      (editado)
-                    </span>
-                  )}
-                </div>
-              </div>
+                      <div className={styles.authorSection}>
+                        <div className={styles.authorPrimary}>
+                          <span className={styles.author}>
+                            <FaUser className={styles.authorIcon} /> {message.author_name}
+                          </span>
+                          {message.is_public ? (
+                            <span className={styles.public} title="Mensagem pública">
+                              <FaGlobe /> Pública
+                            </span>
+                          ) : (
+                            <span className={styles.private} title="Mensagem privada">
+                              <FaLock /> Privada
+                            </span>
+                          )}
+                        </div>
+                        <div className={styles.authorSecondary}>
+                          <span className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
+                            <FaClock /> {formatRelativeTime(message.created_at)}
+                          </span>
+                          {message.updated_at !== message.created_at && (
+                            <span className={styles.edited} title={`Atualizado em ${new Date(message.updated_at).toLocaleString()}`}>
+                              (editado)
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-              <div className={styles.messageBody}>
-                <MessageContent content={message.content} />
-              </div>
+                      <div className={styles.messageBody}>
+                        <MessageContent content={message.content} />
+                      </div>
 
-              <div className={styles.messageFooter}>
-                <div className={styles.messageTags}>
-                  {message.favorites_count > 0 && (
-                    <span className={styles.popularTag}>
-                      <FaStar /> Popular
-                    </span>
-                  )}
-                  {message.tags.map((tag) => (
-                    <span key={tag} className={styles.tag}>
-                      <FaTag className={styles.tagIcon} />
-                      {tag}
-                    </span>
+                      <div className={styles.messageFooter}>
+                        <div className={styles.messageTags}>
+                          <span className={styles.popularTag}>
+                            <FaStar /> Popular
+                          </span>
+                          {message.tags.map((tag) => (
+                            <span key={tag} className={styles.tag}>
+                              <FaTag className={styles.tagIcon} />
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <div className={styles.messageMetrics}>
+                          <span className={styles.metric} title="Total de cópias">
+                            <FaCopy /> {message.copy_count || 0}
+                          </span>
+                          <span className={styles.metric} title="Total de favoritos">
+                            <FaHeart /> {message.favorites_count}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
-                <div className={styles.messageMetrics}>
-                  <span className={styles.metric} title="Total de cópias">
-                    <FaCopy /> {message.copy_count || 0}
-                  </span>
-                  <span className={styles.metric} title="Total de favoritos">
-                    <FaHeart /> {message.favorites_count}
-                  </span>
-                </div>
               </div>
+            )}
+
+            {/* Seção de Mensagens Regulares */}
+            <div className={styles.section}>
+              <h2 className={styles.sectionTitle}>Todas as Mensagens</h2>
+              <div className={styles.messageGrid}>
+                {separateMessages(messages).regular.map((message) => (
+                  <div
+                    key={message.id}
+                    className={styles.messageCard}
+                  >
+                    <div className={styles.messageHeader}>
+                      <h3>{message.title}</h3>
+                      <MessageActions 
+                        message={message}
+                        user={user}
+                        onToggleFavorite={handleToggleFavorite}
+                        onCopy={handleCopyMessage}
+                        onEdit={handleEditMessage}
+                        onDelete={handleDeleteMessage}
+                        onGeminiSuggestion={handleGeminiSuggestion}
+                      />
+                    </div>
+
+                    <div className={styles.authorSection}>
+                      <div className={styles.authorPrimary}>
+                        <span className={styles.author}>
+                          <FaUser className={styles.authorIcon} /> {message.author_name}
+                        </span>
+                        {message.is_public ? (
+                          <span className={styles.public} title="Mensagem pública">
+                            <FaGlobe /> Pública
+                          </span>
+                        ) : (
+                          <span className={styles.private} title="Mensagem privada">
+                            <FaLock /> Privada
+                          </span>
+                        )}
+                      </div>
+                      <div className={styles.authorSecondary}>
+                        <span className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
+                          <FaClock /> {formatRelativeTime(message.created_at)}
+                        </span>
+                        {message.updated_at !== message.created_at && (
+                          <span className={styles.edited} title={`Atualizado em ${new Date(message.updated_at).toLocaleString()}`}>
+                            (editado)
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className={styles.messageBody}>
+                      <MessageContent content={message.content} />
+                    </div>
+
+                    <div className={styles.messageFooter}>
+                      <div className={styles.messageTags}>
+                        {message.tags.map((tag) => (
+                          <span key={tag} className={styles.tag}>
+                            <FaTag className={styles.tagIcon} />
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <div className={styles.messageMetrics}>
+                        <span className={styles.metric} title="Total de cópias">
+                          <FaCopy /> {message.copy_count || 0}
+                        </span>
+                        <span className={styles.metric} title="Total de favoritos">
+                          <FaHeart /> {message.favorites_count}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
-          ))
-        ) : (
-          <div className={styles.noMessages}>
-            <FaInbox className={styles.emptyIcon} />
-            <p>Nenhuma mensagem encontrada</p>
           </div>
-        )}
-      </div>
+        </>
+      ) : (
+        <div className={styles.noMessages}>
+          <FaInbox className={styles.emptyIcon} />
+          <p>Nenhuma mensagem encontrada</p>
+        </div>
+      )}
 
       {showAddModal && (
         <div className={styles.modal}>

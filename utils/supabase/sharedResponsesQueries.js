@@ -3,29 +3,24 @@ import { supabaseAdmin } from './supabaseClient';
 
 /**
  * Busca todas as respostas públicas e as privadas do usuário
- * @param {string} userId - ID do usuário atual
- * @param {string} searchTerm - Termo de busca (opcional)
- * @param {Array} tags - Array de tags para filtrar (opcional)
- * @returns {Promise<Array>} - Lista de respostas
  */
 export async function getAllResponses(userId, searchTerm = '', tags = []) {
   try {
-    // Base query para selecionar apenas mensagens públicas
     let query = supabaseAdmin
       .from('shared_responses')
       .select(`
         *,
-        author:user_id (
+        users (
           name
         ),
-        user_favorites (
+        favorites:user_favorites!left (
           user_id
-        )
+        ),
+        favorites_count:user_favorites(count)
       `)
-      .eq('is_public', true)  // Seleciona apenas mensagens públicas
+      .eq('is_public', true)
       .order('created_at', { ascending: false });
 
-    // Aplica filtros de busca se existirem
     if (searchTerm) {
       query = query.or(`title.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%`);
     }
@@ -37,11 +32,13 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
     const { data, error } = await query;
     if (error) throw error;
 
-    // Processa os dados para incluir flag de favorito e nome do autor
     return data.map(message => ({
       ...message,
-      author_name: message.author_name || message.author?.name || 'Usuário desconhecido',
-      isFavorite: message.user_favorites?.some(fav => fav.user_id === userId) || false,
+      author_name: message.users?.name || 'Usuário desconhecido',
+      // Verifica se o usuário favoritou esta mensagem
+      isFavorite: message.favorites?.some(fav => fav.user_id === userId) || false,
+      // Calcula o total de favoritos
+      favorites_count: message.favorites_count?.[0]?.count || 0
     }));
   } catch (error) {
     console.error('Erro ao buscar respostas:', error);
@@ -51,16 +48,21 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
 
 /**
  * Busca apenas as respostas do usuário
- * @param {string} userId - ID do usuário
- * @param {string} searchTerm - Termo de busca (opcional)
- * @param {Array} tags - Array de tags para filtrar (opcional)
- * @returns {Promise<Array>} - Lista de respostas do usuário
  */
 export async function getUserResponses(userId, searchTerm = '', tags = []) {
   try {
     let query = supabaseAdmin
       .from('shared_responses')
-      .select('*')
+      .select(`
+        *,
+        users (
+          name
+        ),
+        favorites:user_favorites!left (
+          user_id
+        ),
+        favorites_count:user_favorites(count)
+      `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
@@ -74,7 +76,13 @@ export async function getUserResponses(userId, searchTerm = '', tags = []) {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data;
+
+    return data.map(message => ({
+      ...message,
+      author_name: message.users?.name || 'Usuário desconhecido',
+      isFavorite: message.favorites?.some(fav => fav.user_id === userId) || false,
+      favorites_count: message.favorites_count?.[0]?.count || 0
+    }));
   } catch (error) {
     console.error('Erro ao buscar respostas do usuário:', error);
     return [];
@@ -83,8 +91,6 @@ export async function getUserResponses(userId, searchTerm = '', tags = []) {
 
 /**
  * Busca as respostas favoritas do usuário
- * @param {string} userId - ID do usuário
- * @returns {Promise<Array>} - Lista de respostas favoritas
  */
 export async function getFavoriteResponses(userId) {
   try {
@@ -92,7 +98,16 @@ export async function getFavoriteResponses(userId) {
       .from('user_favorites')
       .select(`
         response_id,
-        shared_responses (*)
+        shared_responses (
+          *,
+          users (
+            name
+          ),
+          favorites:user_favorites!left (
+            user_id
+          ),
+          favorites_count:user_favorites(count)
+        )
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
@@ -103,7 +118,9 @@ export async function getFavoriteResponses(userId) {
       .filter(item => item.shared_responses)
       .map(item => ({
         ...item.shared_responses,
-        isFavorite: true
+        author_name: item.shared_responses.users?.name || 'Usuário desconhecido',
+        isFavorite: true, // Já sabemos que é favorito pois está nesta lista
+        favorites_count: item.shared_responses.favorites_count?.[0]?.count || 0
       }));
   } catch (error) {
     console.error('Erro ao buscar favoritos:', error);
@@ -113,8 +130,6 @@ export async function getFavoriteResponses(userId) {
 
 /**
  * Adiciona uma nova resposta
- * @param {Object} response - Dados da resposta
- * @returns {Promise<Object>} - Resposta criada
  */
 export async function addResponse(response) {
   try {
@@ -125,7 +140,10 @@ export async function addResponse(response) {
         title: response.title,
         content: response.content,
         tags: response.tags,
-        is_public: response.isPublic
+        is_public: response.isPublic,
+        copy_count: 0, // Inicializa contagem de cópias
+        created_at: new Date(),
+        updated_at: new Date()
       }])
       .select()
       .single();
@@ -140,9 +158,6 @@ export async function addResponse(response) {
 
 /**
  * Atualiza uma resposta existente
- * @param {string} responseId - ID da resposta
- * @param {Object} updates - Campos a serem atualizados
- * @returns {Promise<Object>} - Resposta atualizada
  */
 export async function updateResponse(responseId, updates) {
   try {
@@ -168,34 +183,40 @@ export async function updateResponse(responseId, updates) {
 }
 
 /**
+ * Incrementa o contador de cópias
+ */
+export async function incrementCopyCount(responseId) {
+  try {
+    const { data, error } = await supabaseAdmin.rpc('increment_copy_count', {
+      message_id: responseId
+    });
+
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Erro ao incrementar contagem de cópias:', error);
+    return false;
+  }
+}
+
+/**
  * Remove uma resposta
- * @param {string} responseId - ID da resposta
- * @returns {Promise<boolean>} - Sucesso da operação
  */
 export async function deleteResponse(responseId) {
   try {
-    // Primeiro, remove os favoritos relacionados
-    const { error: favoritesError } = await supabaseAdmin
+    // Primeiro remove os favoritos
+    await supabaseAdmin
       .from('user_favorites')
       .delete()
       .eq('response_id', responseId);
 
-    if (favoritesError) {
-      console.error('Erro ao remover favoritos:', favoritesError);
-      return false;
-    }
-
-    // Então remove a resposta
+    // Depois remove a mensagem
     const { error } = await supabaseAdmin
       .from('shared_responses')
       .delete()
       .eq('id', responseId);
 
-    if (error) {
-      console.error('Erro ao deletar resposta:', error);
-      return false;
-    }
-
+    if (error) throw error;
     return true;
   } catch (error) {
     console.error('Erro ao deletar resposta:', error);
@@ -205,51 +226,35 @@ export async function deleteResponse(responseId) {
 
 /**
  * Adiciona/Remove um favorito
- * @param {string} userId - ID do usuário
- * @param {string} responseId - ID da resposta
- * @param {boolean} isFavorite - Se deve adicionar ou remover
- * @returns {Promise<boolean>} - Sucesso da operação
  */
-export async function toggleFavorite(userId, responseId, isFavorite) {
+export async function toggleFavorite(userId, responseId) {
   try {
-    if (isFavorite) {
-      const { error } = await supabaseAdmin
-        .from('user_favorites')
-        .insert([{ user_id: userId, response_id: responseId }]);
-      return !error;
-    } else {
-      const { error } = await supabaseAdmin
-        .from('user_favorites')
-        .delete()
-        .eq('user_id', userId)
-        .eq('response_id', responseId);
-      return !error;
-    }
-  } catch (error) {
-    console.error('Erro ao alterar favorito:', error);
-    return false;
-  }
-}
-
-/**
- * Verifica se uma resposta é favorita do usuário
- * @param {string} userId - ID do usuário
- * @param {string} responseId - ID da resposta
- * @returns {Promise<boolean>} - Se é favorita ou não
- */
-export async function isFavorite(userId, responseId) {
-  try {
-    const { data, error } = await supabaseAdmin
+    const { data: existingFavorite } = await supabaseAdmin
       .from('user_favorites')
       .select('id')
       .eq('user_id', userId)
       .eq('response_id', responseId)
       .single();
 
-    if (error) return false;
-    return !!data;
+    if (existingFavorite) {
+      // Remove o favorito
+      const { error } = await supabaseAdmin
+        .from('user_favorites')
+        .delete()
+        .eq('user_id', userId)
+        .eq('response_id', responseId);
+
+      return { success: !error, isFavorite: false };
+    } else {
+      // Adiciona o favorito
+      const { error } = await supabaseAdmin
+        .from('user_favorites')
+        .insert([{ user_id: userId, response_id: responseId }]);
+
+      return { success: !error, isFavorite: true };
+    }
   } catch (error) {
-    console.error('Erro ao verificar favorito:', error);
-    return false;
+    console.error('Erro ao alterar favorito:', error);
+    return { success: false, isFavorite: null };
   }
 }

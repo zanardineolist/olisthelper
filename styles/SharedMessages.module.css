@@ -170,6 +170,32 @@
   color: var(--color-primary-hover);
 }
 
+.section {
+  margin-bottom: 40px;
+}
+
+.sectionTitle {
+  color: var(--title-color);
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.section:first-child .messageCard {
+  border: 2px solid var(--color-accent2);
+  background-color: var(--box-color2);
+}
+
+.section:first-child .messageCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.section + .section {
+  margin-top: 60px;
+}
+
 /* Rodapé da Mensagem */
 .messageFooter {
   display: flex;
