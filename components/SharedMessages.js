@@ -6,6 +6,20 @@ import { FaHeart, FaRegHeart, FaCopy, FaEdit, FaTrash, FaPlus, FaMagic, FaUser, 
 import Swal from 'sweetalert2';
 import styles from '../styles/SharedMessages.module.css';
 
+// Função para formatar tempo relativo
+function formatRelativeTime(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diff = Math.floor((now - date) / 1000); // diferença em segundos
+
+  if (diff < 60) return `${diff} segundos atrás`;
+  if (diff < 3600) return `${Math.floor(diff / 60)} minutos atrás`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} horas atrás`;
+  if (diff < 2592000) return `${Math.floor(diff / 86400)} dias atrás`;
+
+  return date.toLocaleDateString(); // Exibe a data se for muito antiga
+}
+
 export default function SharedMessages({ user }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
