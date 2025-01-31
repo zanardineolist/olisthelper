@@ -159,7 +159,6 @@ export default function SharedMessages({ user }) {
       // Primeiro tenta copiar o conteúdo
       await navigator.clipboard.writeText(content);
       
-      // Após copiar com sucesso, incrementa o contador
       const response = await fetch(`/api/shared-messages/${messageId}/copy`, {
         method: 'POST',
         headers: {
@@ -171,13 +170,13 @@ export default function SharedMessages({ user }) {
         throw new Error('Erro ao atualizar contador de cópias');
       }
   
-      const data = await response.json();
+      const { copy_count } = await response.json();
       
-      // Atualiza o estado local
+      // Atualiza o estado local com o novo contador retornado pelo servidor
       setMessages(prevMessages => 
         prevMessages.map(msg => 
           msg.id === messageId 
-            ? { ...msg, copy_count: data.copy_count }
+            ? { ...msg, copy_count }
             : msg
         )
       );
@@ -208,16 +207,18 @@ export default function SharedMessages({ user }) {
         throw new Error(error.message || 'Erro ao atualizar favorito');
       }
   
-      // Atualiza apenas a mensagem específica
+      const { isFavorite } = await response.json();
+  
+      // Atualiza o estado local
       setMessages(prevMessages => 
         prevMessages.map(msg => 
           msg.id === messageId 
             ? { 
                 ...msg, 
-                isFavorite: !msg.isFavorite,
-                favorites_count: msg.isFavorite 
-                  ? msg.favorites_count - 1 
-                  : msg.favorites_count + 1
+                isFavorite,
+                favorites_count: isFavorite 
+                  ? (msg.favorites_count || 0) + 1
+                  : (msg.favorites_count || 1) - 1
               }
             : msg
         )

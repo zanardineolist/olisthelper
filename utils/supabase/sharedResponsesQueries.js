@@ -161,6 +161,13 @@ export async function addResponse(response) {
  */
 export async function updateResponse(responseId, updates) {
   try {
+    // Primeiro busca o registro atual para manter os contadores
+    const { data: currentMessage } = await supabaseAdmin
+      .from('shared_responses')
+      .select('copy_count')
+      .eq('id', responseId)
+      .single();
+
     const { data, error } = await supabaseAdmin
       .from('shared_responses')
       .update({
@@ -168,6 +175,7 @@ export async function updateResponse(responseId, updates) {
         content: updates.content,
         tags: updates.tags,
         is_public: updates.isPublic,
+        copy_count: currentMessage.copy_count, // Mantém o contador atual
         updated_at: new Date()
       })
       .eq('id', responseId)
