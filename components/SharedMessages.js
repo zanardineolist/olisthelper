@@ -159,9 +159,12 @@ export default function SharedMessages({ user }) {
       // Primeiro tenta copiar o conteúdo
       await navigator.clipboard.writeText(content);
       
-      // Só depois de confirmar a cópia, incrementa o contador
+      // Após copiar com sucesso, incrementa o contador
       const response = await fetch(`/api/shared-messages/${messageId}/copy`, {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
   
       if (!response.ok) {
@@ -170,14 +173,16 @@ export default function SharedMessages({ user }) {
   
       const data = await response.json();
       
-      // Atualiza o estado local apenas se a operação no servidor foi bem sucedida
-      setMessages(messages.map(msg => 
-        msg.id === messageId 
-          ? { ...msg, copy_count: data.copy_count }
-          : msg
-      ));
+      // Atualiza o estado local
+      setMessages(prevMessages => 
+        prevMessages.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, copy_count: data.copy_count }
+            : msg
+        )
+      );
   
-      Swal.fire({
+      await Swal.fire({
         icon: 'success',
         title: 'Copiado!',
         text: 'Mensagem copiada para a área de transferência',
@@ -197,14 +202,29 @@ export default function SharedMessages({ user }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messageId })
       });
-
-      if (!response.ok) throw new Error('Erro ao atualizar favorito');
-      
-      // Recarregar mensagens para atualizar contadores
-      loadMessages();
+  
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erro ao atualizar favorito');
+      }
+  
+      // Atualiza apenas a mensagem específica
+      setMessages(prevMessages => 
+        prevMessages.map(msg => 
+          msg.id === messageId 
+            ? { 
+                ...msg, 
+                isFavorite: !msg.isFavorite,
+                favorites_count: msg.isFavorite 
+                  ? msg.favorites_count - 1 
+                  : msg.favorites_count + 1
+              }
+            : msg
+        )
+      );
     } catch (error) {
       console.error('Erro ao atualizar favorito:', error);
-      Swal.fire('Erro', 'Erro ao atualizar favorito', 'error');
+      Swal.fire('Erro', error.message, 'error');
     }
   };
 
@@ -217,8 +237,7 @@ export default function SharedMessages({ user }) {
   
       // Se for mensagem pública, verificar duplicatas
       if (formData.isPublic) {
-        // Calcular similaridade do título
-        const similarMessages = await fetch('/api/shared-messages/check-similar', {
+        const similarResponse = await fetch('/api/shared-messages/check-similar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -227,7 +246,11 @@ export default function SharedMessages({ user }) {
           })
         });
   
-        const { similar } = await similarMessages.json();
+        if (!similarResponse.ok) {
+          throw new Error('Erro ao verificar mensagens similares');
+        }
+  
+        const { similar } = await similarResponse.json();
         
         if (similar.length > 0) {
           const result = await Swal.fire({
@@ -252,30 +275,54 @@ export default function SharedMessages({ user }) {
           }
         }
       }
-
+  
+      // Preparar tags e preservar contadores existentes
       const tags = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
       
+      const messageData = {
+        title: formData.title,
+        content: formData.content,
+        tags,
+        isPublic: formData.isPublic
+      };
+  
+      // Se for edição, preservar os contadores existentes
+      if (editingMessage) {
+        messageData.copy_count = editingMessage.copy_count;
+        messageData.favorites_count = editingMessage.favorites_count;
+      }
+  
       const method = editingMessage ? 'PUT' : 'POST';
       const endpoint = editingMessage 
         ? `/api/shared-messages/${editingMessage.id}`
         : '/api/shared-messages';
-
+  
       const response = await fetch(endpoint, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: formData.title,
-          content: formData.content,
-          tags,
-          isPublic: formData.isPublic
-        })
+        body: JSON.stringify(messageData)
       });
-
+  
       if (!response.ok) {
-        throw new Error('Erro ao salvar mensagem');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao salvar mensagem');
       }
-
+  
+      // Atualizar estado local antes de recarregar
+      if (editingMessage) {
+        setMessages(prevMessages => 
+          prevMessages.map(msg => 
+            msg.id === editingMessage.id 
+              ? { ...msg, ...messageData }
+              : msg
+          )
+        );
+      }
+  
+      // Recarregar mensagens do servidor
       await loadMessages();
+  
+      // Limpar formulário e fechar modal
       setShowAddModal(false);
       setEditingMessage(null);
       setFormData({
@@ -284,17 +331,24 @@ export default function SharedMessages({ user }) {
         tags: '',
         isPublic: false
       });
-
-      Swal.fire({
+  
+      // Feedback para o usuário
+      await Swal.fire({
         icon: 'success',
         title: 'Sucesso!',
         text: editingMessage ? 'Mensagem atualizada com sucesso' : 'Mensagem adicionada com sucesso',
         timer: 1500,
         showConfirmButton: false
       });
+  
     } catch (error) {
       console.error('Erro ao salvar mensagem:', error);
-      Swal.fire('Erro', 'Erro ao salvar mensagem', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: error.message || 'Erro ao salvar mensagem',
+        showConfirmButton: true
+      });
     }
   };
 

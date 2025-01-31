@@ -228,14 +228,18 @@ export async function deleteResponse(responseId) {
  * Adiciona/Remove um favorito
  */
 export async function toggleFavorite(userId, responseId) {
-  try {
-    const { data: existingFavorite } = await supabaseAdmin
-      .from('user_favorites')
-      .select('id')
-      .eq('user_id', userId)
-      .eq('response_id', responseId)
-      .single();
+  const { data: existingFavorite, error: checkError } = await supabaseAdmin
+    .from('user_favorites')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('response_id', responseId)
+    .single();
 
+  if (checkError && checkError.code !== 'PGRST116') {
+    throw checkError;
+  }
+
+  try {
     if (existingFavorite) {
       // Remove o favorito
       const { error } = await supabaseAdmin
@@ -244,17 +248,23 @@ export async function toggleFavorite(userId, responseId) {
         .eq('user_id', userId)
         .eq('response_id', responseId);
 
-      return { success: !error, isFavorite: false };
+      if (error) throw error;
+      return false; // não é mais favorito
     } else {
       // Adiciona o favorito
       const { error } = await supabaseAdmin
         .from('user_favorites')
-        .insert([{ user_id: userId, response_id: responseId }]);
+        .insert([{ 
+          user_id: userId, 
+          response_id: responseId,
+          created_at: new Date()
+        }]);
 
-      return { success: !error, isFavorite: true };
+      if (error) throw error;
+      return true; // agora é favorito
     }
   } catch (error) {
     console.error('Erro ao alterar favorito:', error);
-    return { success: false, isFavorite: null };
+    throw error;
   }
 }
