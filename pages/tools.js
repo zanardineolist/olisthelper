@@ -99,7 +99,7 @@ export default function ToolsPage({ user }) {
         <ThemeProvider theme={theme}>
           <div className={styles.tabsContainer}>
             <Tabs value={currentTab} onChange={handleTabChange} centered>
-              {['support', 'support+', 'analyst'].includes(user.role) && (
+              {['support', 'support+', 'analyst', 'super'].includes(user.role) && (
                 <Tab label="Contador de Chamados" />
               )}
               <Tab label="Respostas Compartilhadas" />
@@ -108,7 +108,7 @@ export default function ToolsPage({ user }) {
         </ThemeProvider>
 
         <div className={styles.tabContent}>
-          {currentTab === 0 && ['support', 'support+', 'analyst'].includes(user.role) && (
+          {currentTab === 0 && ['support', 'support+', 'analyst', 'super'].includes(user.role) && (
             <TicketCounter />
           )}
           {currentTab === 1 && <SharedMessages user={user} />}
