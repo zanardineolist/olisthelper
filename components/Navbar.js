@@ -289,9 +289,14 @@ export default function Navbar({ user }) {
             </>
             )}
             {user.role === 'super' && (
+              <>
               <button onClick={() => handleNavigation('/dashboard-super')} className={styles.menuButton}>
                 Dashboard
               </button>
+              <button onClick={() => handleNavigation('/tools')} className={styles.menuButton}>
+                Ferramentas
+              </button>
+            </>
             )}
             {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
               <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
