@@ -1,6 +1,7 @@
 // pages/api/shared-messages/[id]/copy.js
 import { supabaseAdmin } from '../../../../utils/supabase/supabaseClient';
 
+// pages/api/shared-messages/[id]/copy.js
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -9,8 +10,8 @@ export default async function handler(req, res) {
   const { id } = req.query;
 
   try {
-    // Busca o valor atual de copy_count
-    const { data: currentData, error: fetchError } = await supabaseAdmin
+    // Busca o valor atual antes de atualizar
+    const { data: current, error: fetchError } = await supabaseAdmin
       .from('shared_responses')
       .select('copy_count')
       .eq('id', id)
@@ -19,13 +20,13 @@ export default async function handler(req, res) {
     if (fetchError) throw fetchError;
 
     // Incrementa o contador
-    const newCount = (currentData?.copy_count || 0) + 1;
-
+    const newCount = (current?.copy_count || 0) + 1;
+    
     const { data, error } = await supabaseAdmin
       .from('shared_responses')
       .update({ copy_count: newCount })
       .eq('id', id)
-      .select()
+      .select('copy_count')
       .single();
 
     if (error) throw error;

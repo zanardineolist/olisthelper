@@ -120,17 +120,24 @@ export default function SharedMessages({ user }) {
 
   const handleCopyMessage = async (content, messageId) => {
     try {
+      // Primeiro tenta copiar o conteúdo
       await navigator.clipboard.writeText(content);
       
-      // Incrementar contador de cópias
-      await fetch(`/api/shared-messages/${messageId}/copy`, {
+      // Só depois de confirmar a cópia, incrementa o contador
+      const response = await fetch(`/api/shared-messages/${messageId}/copy`, {
         method: 'POST'
       });
   
-      // Atualizar o estado local
+      if (!response.ok) {
+        throw new Error('Erro ao atualizar contador de cópias');
+      }
+  
+      const data = await response.json();
+      
+      // Atualiza o estado local apenas se a operação no servidor foi bem sucedida
       setMessages(messages.map(msg => 
         msg.id === messageId 
-          ? { ...msg, copy_count: (msg.copy_count || 0) + 1 }
+          ? { ...msg, copy_count: data.copy_count }
           : msg
       ));
   
@@ -297,7 +304,7 @@ export default function SharedMessages({ user }) {
       title: message.title,
       content: message.content,
       tags: message.tags.join(', '),
-      isPublic: message.isPublic
+      isPublic: message.is_public
     });
     setShowAddModal(true);
   };
@@ -457,95 +464,103 @@ export default function SharedMessages({ user }) {
       </Tabs>
 
       <div className={styles.messageGrid}>
-          {loading ? (
-            <div className={styles.loading}>Carregando...</div>
-          ) : messages.length > 0 ? (
-            messages.map((message) => (
-              <div
-                key={message.id}
-                className={`${styles.messageCard} ${
-                  message.favorites_count > 0 ? styles.popular : ''
-                }`}
-              >
-                <div className={styles.messageHeader}>
-                  <h3>{message.title}</h3>
-                  <div className={styles.actions}>
-                    <button
-                      onClick={() => handleToggleFavorite(message.id)}
-                      className={styles.favoriteButton}
-                      title="Favoritar"
-                    >
-                      {message.isFavorite ? (
-                        <FaHeart className={styles.favoriteIcon} />
-                      ) : (
-                        <FaRegHeart />
-                      )}
-                      <span>{message.favorites_count}</span>
-                    </button>
-                    {message.user_id === user.id && (
-                      <>
-                        <button
-                          onClick={() => handleEditMessage(message)}
-                          className={styles.editButton}
-                          title="Editar"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteMessage(message.id)}
-                          className={styles.deleteButton}
-                          title="Excluir"
-                        >
-                          <FaTrash />
-                        </button>
-                      </>
-                    )}
-                    <button
-                      onClick={() => handleCopyMessage(message.content, message.id)}
-                      className={styles.copyButton}
-                      title="Copiar"
-                    >
-                      <FaCopy />
-                      {message.copy_count > 0 && <span>{message.copy_count}</span>}
-                    </button>
-                    <button
-                      onClick={() => handleGeminiSuggestion(message.id, message.content)}
-                      className={styles.geminiButton}
-                      title="Melhorar com IA"
-                    >
-                      <FaMagic />
-                    </button>
-                  </div>
-                </div>
-                <div className={styles.messageContent}>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{message.content}</p>
-                </div>
-                <div className={styles.messageInfo}>
-                  <div className={styles.authorInfo}>
-                    <span className={styles.author}>
-                      <FaUser className={styles.authorIcon} /> {message.author_name}
-                    </span>
-                    <span className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
-                      <FaClock /> {formatRelativeTime(message.created_at)}
-                    </span>
-                    {message.updated_at !== message.created_at && (
-                      <span className={styles.edited} title={`Atualizado em ${new Date(message.updated_at).toLocaleString()}`}>
-                        (editado)
-                      </span>
-                    )}
-                  </div>
-                  <div className={styles.accessibility}>
-                    {message.is_public ? (
-                      <span className={styles.public} title="Mensagem pública">
-                        <FaGlobe /> Pública
-                      </span>
+        {loading ? (
+          <div className={styles.loading}>Carregando...</div>
+        ) : messages.length > 0 ? (
+          messages.map((message) => (
+            <div
+              key={message.id}
+              className={`${styles.messageCard} ${
+                message.favorites_count > 0 ? styles.popular : ''
+              }`}
+            >
+              {/* Cabeçalho com título e ações */}
+              <div className={styles.messageHeader}>
+                <h3>{message.title}</h3>
+                <div className={styles.actions}>
+                  <button
+                    onClick={() => handleToggleFavorite(message.id)}
+                    className={styles.favoriteButton}
+                    title="Favoritar"
+                  >
+                    {message.isFavorite ? (
+                      <FaHeart className={styles.favoriteIcon} />
                     ) : (
-                      <span className={styles.private} title="Mensagem privada">
-                        <FaLock /> Privada
-                      </span>
+                      <FaRegHeart />
                     )}
-                  </div>
+                    <span>{message.favorites_count}</span>
+                  </button>
+                  {message.user_id === user.id && (
+                    <>
+                      <button
+                        onClick={() => handleEditMessage(message)}
+                        className={styles.editButton}
+                        title="Editar"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteMessage(message.id)}
+                        className={styles.deleteButton}
+                        title="Excluir"
+                      >
+                        <FaTrash />
+                      </button>
+                    </>
+                  )}
+                  <button
+                    onClick={() => handleCopyMessage(message.content, message.id)}
+                    className={styles.copyButton}
+                    title="Copiar"
+                  >
+                    <FaCopy />
+                    {message.copy_count > 0 && <span>{message.copy_count}</span>}
+                  </button>
+                  <button
+                    onClick={() => handleGeminiSuggestion(message.id, message.content)}
+                    className={styles.geminiButton}
+                    title="Melhorar com IA"
+                  >
+                    <FaMagic />
+                  </button>
                 </div>
+              </div>
+
+              {/* Informações do autor e status */}
+              <div className={styles.authorSection}>
+                <div className={styles.authorPrimary}>
+                  <span className={styles.author}>
+                    <FaUser className={styles.authorIcon} /> {message.author_name}
+                  </span>
+                  {message.is_public ? (
+                    <span className={styles.public} title="Mensagem pública">
+                      <FaGlobe /> Pública
+                    </span>
+                  ) : (
+                    <span className={styles.private} title="Mensagem privada">
+                      <FaLock /> Privada
+                    </span>
+                  )}
+                </div>
+                <div className={styles.authorSecondary}>
+                  <span className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
+                    <FaClock /> {formatRelativeTime(message.created_at)}
+                  </span>
+                  {message.updated_at !== message.created_at && (
+                    <span className={styles.edited} title={`Atualizado em ${new Date(message.updated_at).toLocaleString()}`}>
+                      (editado)
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Conteúdo da mensagem */}
+              <div className={styles.messageBody}>
+                <p style={{ whiteSpace: 'pre-wrap' }}>{message.content}</p>
+              </div>
+
+              {/* Rodapé com tags e métricas */}
+              <div className={styles.messageFooter}>
                 <div className={styles.messageTags}>
                   {message.favorites_count > 0 && (
                     <span className={styles.popularTag}>
@@ -568,14 +583,15 @@ export default function SharedMessages({ user }) {
                   </span>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className={styles.noMessages}>
-              <FaInbox className={styles.emptyIcon} />
-              <p>Nenhuma mensagem encontrada</p>
             </div>
-          )}
-        </div>
+          ))
+        ) : (
+          <div className={styles.noMessages}>
+            <FaInbox className={styles.emptyIcon} />
+            <p>Nenhuma mensagem encontrada</p>
+          </div>
+        )}
+      </div>
 
       {showAddModal && (
         <div className={styles.modal}>
