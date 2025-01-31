@@ -9,21 +9,14 @@ export default async function handler(req, res) {
   const { id } = req.query;
 
   try {
-    // Buscar valor atual primeiro
-    const { data: current } = await supabaseAdmin
-      .from('shared_responses')
-      .select('copy_count')
-      .eq('id', id)
-      .single();
-
-    const newCount = (current?.copy_count || 0) + 1;
-
-    // Atualizar o contador
+    // Fazer uma única transação para incrementar o contador
     const { data, error } = await supabaseAdmin
       .from('shared_responses')
-      .update({ copy_count: newCount })
+      .update({ 
+        copy_count: supabaseAdmin.raw('copy_count + 1')
+      })
       .eq('id', id)
-      .select()
+      .select('copy_count')
       .single();
 
     if (error) throw error;

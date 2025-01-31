@@ -159,11 +159,9 @@ export default function SharedMessages({ user }) {
       // Primeiro tenta copiar o conteúdo
       await navigator.clipboard.writeText(content);
       
+      // Só incrementa o contador se a cópia foi bem sucedida
       const response = await fetch(`/api/shared-messages/${messageId}/copy`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        method: 'POST'
       });
   
       if (!response.ok) {
@@ -172,7 +170,7 @@ export default function SharedMessages({ user }) {
   
       const { copy_count } = await response.json();
       
-      // Atualiza o estado local com o novo contador retornado pelo servidor
+      // Atualiza apenas o contador de cópias localmente
       setMessages(prevMessages => 
         prevMessages.map(msg => 
           msg.id === messageId 
@@ -236,8 +234,8 @@ export default function SharedMessages({ user }) {
         return;
       }
   
-      // Se for mensagem pública, verificar duplicatas
-      if (formData.isPublic) {
+      // Verificar duplicatas apenas para novas mensagens públicas
+      if (!editingMessage && formData.isPublic) {
         const similarResponse = await fetch('/api/shared-messages/check-similar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -277,7 +275,6 @@ export default function SharedMessages({ user }) {
         }
       }
   
-      // Preparar tags e preservar contadores existentes
       const tags = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
       
       const messageData = {
@@ -287,7 +284,7 @@ export default function SharedMessages({ user }) {
         isPublic: formData.isPublic
       };
   
-      // Se for edição, preservar os contadores existentes
+      // Para mensagens existentes, preservar os contadores
       if (editingMessage) {
         messageData.copy_count = editingMessage.copy_count;
         messageData.favorites_count = editingMessage.favorites_count;
@@ -309,21 +306,26 @@ export default function SharedMessages({ user }) {
         throw new Error(errorData.error || 'Erro ao salvar mensagem');
       }
   
-      // Atualizar estado local antes de recarregar
+      const savedMessage = await response.json();
+  
+      // Atualizar o estado local mantendo os contadores originais
       if (editingMessage) {
         setMessages(prevMessages => 
           prevMessages.map(msg => 
             msg.id === editingMessage.id 
-              ? { ...msg, ...messageData }
+              ? {
+                  ...msg,
+                  ...savedMessage,
+                  copy_count: editingMessage.copy_count,
+                  favorites_count: editingMessage.favorites_count
+                }
               : msg
           )
         );
+      } else {
+        await loadMessages(); // Recarrega para novas mensagens
       }
   
-      // Recarregar mensagens do servidor
-      await loadMessages();
-  
-      // Limpar formulário e fechar modal
       setShowAddModal(false);
       setEditingMessage(null);
       setFormData({
@@ -333,7 +335,6 @@ export default function SharedMessages({ user }) {
         isPublic: false
       });
   
-      // Feedback para o usuário
       await Swal.fire({
         icon: 'success',
         title: 'Sucesso!',
