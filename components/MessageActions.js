@@ -1,59 +1,64 @@
 import { FaHeart, FaRegHeart, FaCopy, FaEdit, FaTrash, FaMagic } from 'react-icons/fa';
+import styles from '../styles/SharedMessages.module.css'; // ✅ IMPORTANDO OS ESTILOS
 
 const MessageActions = ({ message, user, onToggleFavorite, onCopy, onEdit, onDelete, onGeminiSuggestion }) => {
   const isAuthor = message.user_id === user.id;
 
   return (
-    <div className="flex gap-2">
-      {/* Ações disponíveis para todos os usuários */}
+    <div className={styles.actions}>
+      {/* Botão de Favoritar */}
       <button
         onClick={() => onToggleFavorite(message.id)}
-        className="text-gray-400 hover:text-red-500 transition-colors"
+        className={styles.favoriteButton}
         title="Favoritar"
       >
         {message.isFavorite ? (
-          <FaHeart className="text-red-500" />
+          <FaHeart className={styles.favoriteIcon} />
         ) : (
           <FaRegHeart />
         )}
         {message.favorites_count > 0 && (
-          <span className="ml-1 text-sm">{message.favorites_count}</span>
+          <span className={styles.favoriteCount}>{message.favorites_count}</span>
         )}
       </button>
 
+      {/* Botão de Copiar */}
       <button
         onClick={() => onCopy(message.content, message.id)}
-        className="text-gray-400 hover:text-blue-500 transition-colors"
+        className={styles.copyButton}
         title="Copiar"
       >
         <FaCopy />
         {message.copy_count > 0 && (
-          <span className="ml-1 text-sm">{message.copy_count}</span>
+          <span className={styles.copyCount}>{message.copy_count}</span>
         )}
       </button>
 
-      {/* Ações disponíveis apenas para o autor */}
+      {/* Ações exclusivas do autor */}
       {isAuthor && (
         <>
+          {/* Botão de Editar */}
           <button
             onClick={() => onEdit(message)}
-            className="text-gray-400 hover:text-green-500 transition-colors"
+            className={styles.editButton}
             title="Editar"
           >
             <FaEdit />
           </button>
-          
+
+          {/* Botão de Excluir */}
           <button
             onClick={() => onDelete(message.id)}
-            className="text-gray-400 hover:text-red-500 transition-colors"
+            className={styles.deleteButton}
             title="Excluir"
           >
             <FaTrash />
           </button>
-          
+
+          {/* Botão de Melhorar com IA */}
           <button
             onClick={() => onGeminiSuggestion(message.id, message.content)}
-            className="text-yellow-500 hover:text-yellow-600 transition-colors"
+            className={styles.geminiButton} 
             title="Melhorar com IA"
           >
             <FaMagic />
