@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
+import styles from './ProgressBar.module.css';
 
 const ProgressBar = ({ count }) => {
   const [progress, setProgress] = useState(0);
@@ -51,10 +52,10 @@ const ProgressBar = ({ count }) => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-2xl mx-auto mt-8 px-4">
-      <div className="w-full bg-gray-700 rounded-full h-6 mb-2">
+    <div className={styles.progressContainer}>
+      <div className={styles.progressBar}>
         <div
-          className="h-full rounded-full transition-all duration-500 ease-out"
+          className={styles.progressFill}
           style={{
             width: `${progress}%`,
             backgroundColor: getProgressColor(),
@@ -62,42 +63,31 @@ const ProgressBar = ({ count }) => {
         />
       </div>
       
-      <div className="w-full flex justify-between text-sm">
+      <div className={styles.markerContainer}>
         <span>0</span>
-        <div className="relative">
-          <span 
-            className="absolute -top-6 w-0.5 h-3 bg-yellow-500"
-            style={{ left: `${(minTarget/maxTarget) * 100}%` }}
-          />
-          <span 
-            className="absolute -top-10 transform -translate-x-1/2 text-yellow-500"
-            style={{ left: `${(minTarget/maxTarget) * 100}%` }}
-          >
+        <div className={styles.marker + ' ' + styles.minMarker}>
+          <span className={styles.markerLabel + ' ' + styles.minLabel}>
             Min: {minTarget}
           </span>
         </div>
-        <div className="relative">
-          <span 
-            className="absolute -top-6 w-0.5 h-3 bg-green-500"
-            style={{ right: 0 }}
-          />
-          <span className="absolute -top-10 transform -translate-x-1/2 text-green-500" style={{ right: 0 }}>
+        <div className={styles.marker + ' ' + styles.maxMarker}>
+          <span className={styles.markerLabel + ' ' + styles.maxLabel}>
             Meta: {maxTarget}
           </span>
         </div>
       </div>
 
-      <div className="mt-4 text-center">
+      <div className={styles.message}>
         {count >= maxTarget ? (
-          <div className="text-green-500 font-bold">
+          <div className={styles.messageSuccess}>
             🎉 Parabéns! Meta atingida! 🎉
           </div>
         ) : count >= minTarget ? (
-          <div className="text-yellow-500">
+          <div className={styles.messageWarning}>
             Ótimo! Você já atingiu o mínimo. Continue assim!
           </div>
         ) : (
-          <div className="text-gray-400">
+          <div className={styles.messageInfo}>
             Faltam {minTarget - count} chamados para atingir o mínimo
           </div>
         )}
