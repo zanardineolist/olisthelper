@@ -89,8 +89,8 @@ export default function TicketCounter() {
       setLoading(true);
       const res = await fetch('/api/ticket-count', { method: 'POST' });
       if (!res.ok) throw new Error('Erro ao incrementar contagem');
+      await loadHistoryData(); // Recarrega o histórico
       setCount(prev => prev + 1);
-      await loadHistoryData();
     } catch (error) {
       console.error('Erro ao incrementar:', error);
       Swal.fire('Erro', 'Erro ao adicionar contagem', 'error');
@@ -98,14 +98,14 @@ export default function TicketCounter() {
       setLoading(false);
     }
   };
-
+  
   const handleDecrement = async () => {
     try {
       setLoading(true);
       const res = await fetch('/api/ticket-count', { method: 'DELETE' });
       if (!res.ok) throw new Error('Erro ao decrementar contagem');
+      await loadHistoryData(); // Recarrega o histórico
       setCount(prev => Math.max(0, prev - 1));
-      await loadHistoryData();
     } catch (error) {
       console.error('Erro ao decrementar:', error);
       Swal.fire('Erro', 'Erro ao remover contagem', 'error');
@@ -113,7 +113,7 @@ export default function TicketCounter() {
       setLoading(false);
     }
   };
-
+  
   const handleClear = async () => {
     const result = await Swal.fire({
       title: 'Limpar contagem do dia?',
@@ -123,7 +123,7 @@ export default function TicketCounter() {
       confirmButtonText: 'Sim, limpar',
       cancelButtonText: 'Cancelar'
     });
-
+  
     if (result.isConfirmed) {
       try {
         setLoading(true);
@@ -132,8 +132,8 @@ export default function TicketCounter() {
           const error = await res.json();
           throw new Error(error.message || 'Erro ao limpar contagem');
         }
+        await loadHistoryData(); // Recarrega o histórico
         setCount(0);
-        await loadHistoryData();
         Swal.fire('Sucesso', 'Contagem do dia removida com sucesso', 'success');
       } catch (error) {
         console.error('Erro ao limpar:', error);
