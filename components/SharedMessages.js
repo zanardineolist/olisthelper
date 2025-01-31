@@ -122,17 +122,22 @@ export default function SharedMessages({ user }) {
     try {
       await navigator.clipboard.writeText(content);
       
-      // Incrementar contador de cópias
-      await fetch(`/api/shared-messages/${messageId}/copy`, {
-        method: 'POST'
+      const response = await fetch(`/api/shared-messages/${messageId}/copy`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
       });
-  
-      // Atualizar o estado local
-      setMessages(messages.map(msg => 
-        msg.id === messageId 
-          ? { ...msg, copy_count: (msg.copy_count || 0) + 1 }
-          : msg
-      ));
+      
+      if (!response.ok) {
+        throw new Error('Erro ao incrementar cópias');
+      }
+      
+      const updatedMessage = await response.json();
+      
+      setMessages(prevMessages =>
+        prevMessages.map(msg =>
+          msg.id === messageId ? { ...msg, copy_count: updatedMessage.copy_count } : msg
+        )
+      );      
   
       Swal.fire({
         icon: 'success',
