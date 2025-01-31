@@ -168,24 +168,28 @@ export default function TicketCounter() {
           endDate = today;
           break;
         case '7days':
+          // Inclui o dia atual e os 6 dias anteriores (totalizando 7 dias)
           startDate = dayjs().subtract(6, 'days').format('YYYY-MM-DD');
           endDate = today;
           break;
         case '30days':
+          // Inclui o dia atual e os 29 dias anteriores (totalizando 30 dias)
           startDate = dayjs().subtract(29, 'days').format('YYYY-MM-DD');
           endDate = today;
           break;
         case 'month':
+          // Garantindo que o intervalo vá do primeiro dia do mês até hoje
           startDate = dayjs().startOf('month').format('YYYY-MM-DD');
-          endDate = dayjs().endOf('month').format('YYYY-MM-DD');
+          endDate = today;
           break;
         case 'year':
+          // Garantindo que o intervalo vá do primeiro dia do ano até hoje
           startDate = dayjs().startOf('year').format('YYYY-MM-DD');
-          endDate = dayjs().endOf('year').format('YYYY-MM-DD');
+          endDate = today;
           break;
         case 'custom':
-          startDate = customRange.startDate || today;
-          endDate = customRange.endDate || today;
+          startDate = customRange.startDate ? dayjs(customRange.startDate).format('YYYY-MM-DD') : today;
+          endDate = customRange.endDate ? dayjs(customRange.endDate).format('YYYY-MM-DD') : today;
           break;
         default:
           startDate = today;
