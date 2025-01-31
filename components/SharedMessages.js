@@ -98,7 +98,11 @@ export default function SharedMessages({ user }) {
       if (!response.ok) throw new Error('Erro ao carregar mensagens');
       
       const data = await response.json();
-      setMessages(data.messages);
+      
+      setMessages(data.messages.map(message => ({
+        ...message,
+        userName: message.users?.name || message.userName || 'Desconhecido'
+      })));
       
       // Atualizar tags disponíveis - excluir duplicatas
       const allTags = new Set(data.messages.flatMap(msg => msg.tags || []));
@@ -260,41 +264,55 @@ export default function SharedMessages({ user }) {
     }
   };
 
-  const handleDeleteMessage = async (messageId) => {
-    try {
-      const result = await Swal.fire({
-        title: 'Tem certeza?',
-        text: 'Esta ação não pode ser desfeita',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sim, excluir',
-        cancelButtonText: 'Cancelar'
+  // No handleDeleteMessage, adicione mais verificações
+const handleDeleteMessage = async (messageId) => {
+  try {
+    // Verificação adicional de permissão
+    const messageToDelete = messages.find(msg => msg.id === messageId);
+    
+    if (messageToDelete.user_id !== user.id) {
+      Swal.fire('Erro', 'Você não tem permissão para excluir esta mensagem', 'error');
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'Tem certeza?',
+      text: 'Esta ação não pode ser desfeita',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sim, excluir',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      const response = await fetch(`/api/shared-messages/${messageId}`, {
+        method: 'DELETE',
+        headers: {
+          // Adicionar cabeçalho de autorização, se necessário
+          'Authorization': `Bearer ${user.token}` // Ajuste conforme sua autenticação
+        }
       });
 
-      if (result.isConfirmed) {
-        const response = await fetch(`/api/shared-messages/${messageId}`, {
-          method: 'DELETE'
-        });
-
-        if (!response.ok) {
-          throw new Error('Erro ao excluir mensagem');
-        }
-
-        await loadMessages();
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Excluída!',
-          text: 'Mensagem excluída com sucesso',
-          timer: 1500,
-          showConfirmButton: false
-        });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao excluir mensagem');
       }
-    } catch (error) {
-      console.error('Erro ao excluir mensagem:', error);
-      Swal.fire('Erro', 'Erro ao excluir mensagem', 'error');
+
+      await loadMessages();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Excluída!',
+        text: 'Mensagem excluída com sucesso',
+        timer: 1500,
+        showConfirmButton: false
+      });
     }
-  };
+  } catch (error) {
+    console.error('Erro ao excluir mensagem:', error);
+    Swal.fire('Erro', error.message || 'Erro ao excluir mensagem', 'error');
+  }
+};
 
   const handleEditMessage = (message) => {
     setEditingMessage(message);
@@ -528,7 +546,7 @@ export default function SharedMessages({ user }) {
                 <div className={styles.messageInfo}>
                   <div className={styles.authorInfo}>
                   <span className={styles.author}>
-                    <FaUser className={styles.authorIcon} /> {message.users?.name || 'Desconhecido'}
+                    <FaUser className={styles.authorIcon} /> {message.userName || 'Desconhecido'}
                   </span>
                     <span className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
                       <FaClock /> {formatRelativeTime(message.created_at)}

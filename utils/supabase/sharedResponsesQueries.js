@@ -112,19 +112,35 @@ export async function getFavoriteResponses(userId) {
  */
 export async function addResponse(response) {
   try {
+    // Validações de entrada
+    if (!response.userId) {
+      throw new Error('ID do usuário é obrigatório');
+    }
+
+    const sanitizedResponse = {
+      user_id: response.userId,
+      title: response.title?.trim(),
+      content: response.content?.trim(),
+      tags: Array.isArray(response.tags) ? response.tags : [],
+      is_public: !!response.isPublic
+    };
+
+    // Verificação de campos obrigatórios
+    if (!sanitizedResponse.title || !sanitizedResponse.content) {
+      throw new Error('Título e conteúdo são obrigatórios');
+    }
+
     const { data, error } = await supabaseAdmin
       .from('shared_responses')
-      .insert([{
-        user_id: response.userId,
-        title: response.title,
-        content: response.content,
-        tags: response.tags,
-        is_public: response.isPublic
-      }])
+      .insert([sanitizedResponse])
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Erro detalhado ao adicionar:', error);
+      throw error;
+    }
+
     return data;
   } catch (error) {
     console.error('Erro ao adicionar resposta:', error);
@@ -140,20 +156,36 @@ export async function addResponse(response) {
  */
 export async function updateResponse(responseId, updates) {
   try {
+    // Validações adicionais
+    if (!responseId) {
+      throw new Error('ID da resposta é obrigatório');
+    }
+
+    const sanitizedUpdates = {
+      title: updates.title?.trim(),
+      content: updates.content?.trim(),
+      tags: Array.isArray(updates.tags) ? updates.tags : [],
+      is_public: !!updates.isPublic,
+      updated_at: new Date()
+    };
+
+    // Verificação de campos obrigatórios
+    if (!sanitizedUpdates.title || !sanitizedUpdates.content) {
+      throw new Error('Título e conteúdo são obrigatórios');
+    }
+
     const { data, error } = await supabaseAdmin
       .from('shared_responses')
-      .update({
-        title: updates.title,
-        content: updates.content,
-        tags: updates.tags,
-        is_public: updates.isPublic,
-        updated_at: new Date()
-      })
+      .update(sanitizedUpdates)
       .eq('id', responseId)
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Erro detalhado ao atualizar:', error);
+      throw error;
+    }
+
     return data;
   } catch (error) {
     console.error('Erro ao atualizar resposta:', error);
@@ -168,24 +200,42 @@ export async function updateResponse(responseId, updates) {
  */
 export async function deleteResponse(responseId) {
   try {
+    console.log(`Tentando deletar resposta com ID: ${responseId}`);
+
+    // Verificação de existência da mensagem com mais detalhes
     const { data, error } = await supabaseAdmin
       .from('shared_responses')
-      .select('id')
+      .select('id, user_id') // Adicionei user_id para verificações futuras
       .eq('id', responseId)
       .single();
 
-    if (!data) {
-      return false; // Retorna falso se a mensagem não existir
+    if (error) {
+      console.error('Erro ao buscar mensagem:', error);
+      return false;
     }
+
+    if (!data) {
+      console.warn(`Resposta com ID ${responseId} não encontrada`);
+      return false;
+    }
+
+    // Log adicional do usuário da mensagem
+    console.log(`Mensagem encontrada. Usuário: ${data.user_id}`);
 
     const { error: deleteError } = await supabaseAdmin
       .from('shared_responses')
       .delete()
       .eq('id', responseId);
 
-    return !deleteError;
+    if (deleteError) {
+      console.error('Erro ao deletar resposta:', deleteError);
+      return false;
+    }
+
+    console.log(`Resposta ${responseId} deletada com sucesso`);
+    return true;
   } catch (error) {
-    console.error('Erro ao deletar resposta:', error);
+    console.error('Erro inesperado ao deletar resposta:', error);
     return false;
   }
 }
