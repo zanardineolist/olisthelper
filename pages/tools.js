@@ -16,8 +16,6 @@ const theme = createTheme({
     MuiTabs: {
       styleOverrides: {
         root: {
-          width: '100%',
-          maxWidth: '1400px',
           backgroundColor: 'var(--tab-menu-bg)',
           borderRadius: '5px',
           marginBottom: '20px',
