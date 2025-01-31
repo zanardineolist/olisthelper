@@ -41,7 +41,7 @@ export default function SharedMessages({ user }) {
 
   const MessageContent = ({ content }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const previewLength = 200;
+    const previewLength = 100;
     const needsExpansion = content.length > previewLength;
 
     return (
