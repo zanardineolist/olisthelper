@@ -38,6 +38,28 @@ export default function SharedMessages({ user }) {
     isPublic: false
   });
 
+  const handleUpdateContent = async (messageId, newContent) => {
+    try {
+      const response = await fetch(`/api/shared-messages/${messageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newContent }),
+      });
+  
+      if (!response.ok) throw new Error('Erro ao atualizar mensagem');
+  
+      // Atualiza localmente o estado das mensagens
+      setMessages(messages.map(msg =>
+        msg.id === messageId ? { ...msg, content: newContent } : msg
+      ));
+  
+      Swal.fire('Sucesso', 'Mensagem atualizada com sucesso!', 'success');
+    } catch (error) {
+      console.error('Erro ao atualizar conteúdo:', error);
+      Swal.fire('Erro', 'Erro ao atualizar mensagem', 'error');
+    }
+  };
+
   useEffect(() => {
     loadMessages();
   }, [currentTab, searchTerm, selectedTags]);
@@ -325,7 +347,7 @@ export default function SharedMessages({ user }) {
   
       if (result.isConfirmed) {
         // Atualizar o texto
-        handleUpdateContent(messageId, suggestion);
+        await handleUpdateContent(messageId, suggestion);
       }
     } catch (error) {
       console.error('Erro ao gerar sugestão:', error);
