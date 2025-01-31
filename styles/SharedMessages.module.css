@@ -63,6 +63,8 @@
 .messageCard {
   background-color: var(--box-color);
   border-radius: 10px;
+  min-height: 200px;
+  max-height: fit-content;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -134,12 +136,38 @@
 
 /* Conteúdo da Mensagem */
 .messageBody {
-  flex: 1;
-  padding: 10px 0;
-  color: var(--text-color);
-  white-space: pre-wrap;
-  word-break: break-word;
-  line-height: 1.5;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.messageBody p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.fadeOut {
+  display: inline;
+  color: var(--text-color2);
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 5px 0;
+  font-size: 0.9em;
+  display: block;
+  margin-top: 8px;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+  width: 100%;
+  text-align: left;
+}
+
+.expandButton:hover {
+  color: var(--color-primary-hover);
 }
 
 /* Rodapé da Mensagem */

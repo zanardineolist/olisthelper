@@ -38,6 +38,31 @@ export default function SharedMessages({ user }) {
     isPublic: false
   });
 
+  const MessageContent = ({ content }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const previewLength = 200;
+    const needsExpansion = content.length > previewLength;
+
+    return (
+      <div className={styles.messageBody}>
+        <p style={{ whiteSpace: 'pre-wrap' }}>
+          {isExpanded ? content : content.slice(0, previewLength)}
+          {!isExpanded && needsExpansion && (
+            <span className={styles.fadeOut}>...</span>
+          )}
+        </p>
+        {needsExpansion && (
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)} 
+            className={styles.expandButton}
+          >
+            {isExpanded ? 'Ver menos' : 'Ver mais'}
+          </button>
+        )}
+      </div>
+    );
+  };
+
   const handleUpdateContent = async (messageId, newContent) => {
     try {
       // Buscar a mensagem original antes de atualizar
@@ -556,7 +581,7 @@ export default function SharedMessages({ user }) {
 
               {/* Conteúdo da mensagem */}
               <div className={styles.messageBody}>
-                <p style={{ whiteSpace: 'pre-wrap' }}>{message.content}</p>
+                <MessageContent content={message.content} />
               </div>
 
               {/* Rodapé com tags e métricas */}

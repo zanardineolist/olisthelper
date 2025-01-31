@@ -21,7 +21,7 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
           user_id
         )
       `)
-      .or(`is_public.eq.true,user_id.eq.${userId}`)
+      .or(`and(is_public.eq.true),and(user_id.eq.${userId})`)
       .order('created_at', { ascending: false });
 
     if (searchTerm) {

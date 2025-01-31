@@ -10,11 +10,14 @@ import TicketCounter from '../components/TicketCounter';
 import SharedMessages from '../components/SharedMessages';
 import styles from '../styles/Tools.module.css';
 
+// pages/tools.js
 const theme = createTheme({
   components: {
     MuiTabs: {
       styleOverrides: {
         root: {
+          width: '100%',
+          maxWidth: '1400px',
           backgroundColor: 'var(--tab-menu-bg)',
           borderRadius: '5px',
           marginBottom: '20px',
