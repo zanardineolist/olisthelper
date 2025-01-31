@@ -14,10 +14,10 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
       .from('shared_responses')
       .select(`
         *,
-        user_favorites (
-          user_id
-        )
+        users (name),
+        user_favorites (user_id)
       `)
+      .eq('users.id', 'shared_responses.user_id')
       .or(`is_public.eq.true, user_id.eq.${userId}`)
       .order('favorites_count', { ascending: false });
 

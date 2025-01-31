@@ -297,10 +297,10 @@ export default function SharedMessages({ user }) {
       title: message.title,
       content: message.content,
       tags: message.tags.join(', '),
-      isPublic: message.isPublic
+      isPublic: message.is_public,
     });
     setShowAddModal(true);
-  };
+  };  
 
   const handleGeminiSuggestion = async (messageId, currentContent) => {
     try {
@@ -518,13 +518,13 @@ export default function SharedMessages({ user }) {
                   </div>
                 </div>
                 <div className={styles.messageContent}>
-                  <p>{message.content}</p>
+                <p style={{ whiteSpace: 'pre-wrap' }}>{message.content}</p>
                 </div>
                 <div className={styles.messageInfo}>
                   <div className={styles.authorInfo}>
-                    <span className={styles.author}>
-                      <FaUser className={styles.authorIcon} /> {message.author_name}
-                    </span>
+                  <span className={styles.author}>
+                    <FaUser className={styles.authorIcon} /> {message.users?.name || 'Desconhecido'}
+                  </span>
                     <span className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
                       <FaClock /> {formatRelativeTime(message.created_at)}
                     </span>

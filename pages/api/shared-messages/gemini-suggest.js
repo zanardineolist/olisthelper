@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
     const result = await model.generateContent(prompt + '\n\n' + content);
-    const response = result.response.text().replace(/\n/g, '<br>');
+    const response = result.response.text();
 
     return res.status(200).json({ suggestion: response });
   } catch (error) {
