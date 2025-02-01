@@ -420,12 +420,12 @@
 }
 
 .tabs :global(.MuiTab-root) {
-  color: var(--color-white) !important;
+  color: var(--text-color2) !important;
   opacity: 0.7;
 }
 
 .tabs :global(.MuiTab-root.Mui-selected) {
-  color: var(--color-white) !important;
+  color: var(--color-primary-hover) !important;
   opacity: 1;
 }
 
