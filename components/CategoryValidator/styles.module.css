@@ -1,0 +1,212 @@
+/* components/CategoryValidator/styles.module.css */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.searchCard {
+  margin-bottom: 20px;
+  background-color: var(--background-secondary);
+}
+
+.searchContainer {
+  position: relative;
+  width: 100%;
+}
+
+.searchInput {
+  background-color: var(--background-primary);
+  border-radius: 8px;
+}
+
+.searchInput input {
+  padding: 15px;
+  color: var(--text-primary);
+}
+
+.suggestionsList {
+  margin-top: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 8px;
+  background-color: var(--background-primary);
+}
+
+.suggestionItem {
+  padding: 12px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.suggestionItem:hover {
+  background-color: var(--background-hover);
+}
+
+.suggestionItem:last-child {
+  border-bottom: none;
+}
+
+.categoryId {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.alert {
+  margin-top: 10px;
+}
+
+.detailsCard {
+  margin-top: 20px;
+  background-color: var(--background-secondary);
+}
+
+.detailsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.detailsItem {
+  background-color: var(--background-primary);
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.detailsLabel {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  margin-bottom: 5px;
+}
+
+.detailsValue {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.badge {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.badgeActive {
+  background-color: var(--success);
+  color: white;
+}
+
+.badgeInactive {
+  background-color: var(--error);
+  color: white;
+}
+
+/* Modal Styles */
+.modalPaper {
+  background-color: var(--background-primary);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  color: var(--text-primary);
+}
+
+.closeButton {
+  color: var(--text-secondary);
+}
+
+.valuesList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.valueItem {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.valueItem:last-child {
+  border-bottom: none;
+}
+
+.noValues {
+  padding: 20px;
+  text-align: center;
+}
+
+/* Loading and Feedback Styles */
+.loadingOverlay {
+  z-index: 1300;
+  color: var(--text-primary);
+}
+
+.loadingContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.loadingText {
+  color: var(--text-primary);
+}
+
+.statusMessage {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1400;
+  min-width: 300px;
+}
+
+.noResults {
+  padding: 32px;
+  text-align: center;
+  background-color: var(--background-secondary);
+}
+
+.noResultsIcon {
+  font-size: 48px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.errorBoundary {
+  margin: 16px;
+}
+
+/* Animation Classes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.slideIn {
+  animation: slideIn 0.3s ease-out;
+}

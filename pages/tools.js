@@ -8,9 +8,9 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import TicketCounter from '../components/TicketCounter';
 import SharedMessages from '../components/SharedMessages';
+import CategoryValidator from '../components/CategoryValidator';
 import styles from '../styles/Tools.module.css';
 
-// pages/tools.js
 const theme = createTheme({
   components: {
     MuiTabs: {
@@ -58,6 +58,8 @@ export default function ToolsPage({ user }) {
         setCurrentTab(0);
       } else if (hash === '#SharedMessages') {
         setCurrentTab(1);
+      } else if (hash === '#CategoryValidator') {
+        setCurrentTab(2);
       }
       setLoading(false);
     }, 500);
@@ -72,6 +74,9 @@ export default function ToolsPage({ user }) {
         break;
       case 1:
         hash = '#SharedMessages';
+        break;
+      case 2:
+        hash = '#CategoryValidator';
         break;
       default:
         break;
@@ -103,6 +108,7 @@ export default function ToolsPage({ user }) {
                 <Tab label="Contador de Chamados" />
               )}
               <Tab label="Respostas Compartilhadas" />
+              <Tab label="Validador de Categorias ML" />
             </Tabs>
           </div>
         </ThemeProvider>
@@ -112,6 +118,7 @@ export default function ToolsPage({ user }) {
             <TicketCounter />
           )}
           {currentTab === 1 && <SharedMessages user={user} />}
+          {currentTab === 2 && <CategoryValidator />}
         </div>
       </main>
 
