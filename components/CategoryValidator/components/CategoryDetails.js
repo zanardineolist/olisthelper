@@ -1,4 +1,4 @@
-// components/CategoryValidator/CategoryDetails.js
+// components/CategoryValidator/components/CategoryDetails.js
 import { useState } from 'react';
 import { 
   Card,
@@ -11,11 +11,9 @@ import {
   AccordionDetails,
   IconButton
 } from '@mui/material';
-import { 
-  ExpandMore as ExpandMoreIcon,
-  Close as CloseIcon
-} from '@mui/icons-material';
-import styles from './styles.module.css';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CloseIcon from '@mui/icons-material/Close';
+import styles from '../styles.module.css';
 
 export default function CategoryDetails({ category, onClose }) {
   const [expandedAttribute, setExpandedAttribute] = useState(null);

@@ -1,5 +1,5 @@
-// components/CategoryValidator/VariationModal.js
-import {
+// components/CategoryValidator/components/VariationModal.js
+  import {
     Dialog,
     DialogTitle,
     DialogContent,
@@ -11,9 +11,9 @@ import {
     Typography,
     IconButton
   } from '@mui/material';
-  import { Close as CloseIcon } from '@mui/icons-material';
-  import styles from './styles.module.css';
-  
+  import CloseIcon from '@mui/icons-material/Close';
+  import styles from '../styles.module.css';
+
   export default function VariationModal({ variation, open, onClose }) {
     if (!variation) return null;
   

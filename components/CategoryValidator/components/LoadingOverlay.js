@@ -1,4 +1,4 @@
-// components/CategoryValidator/feedback/LoadingOverlay.js
+// components/CategoryValidator/components/LoadingOverlay.js
 import { CircularProgress, Backdrop, Typography } from '@mui/material';
 import styles from '../styles.module.css';
 

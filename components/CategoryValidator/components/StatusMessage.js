@@ -1,4 +1,4 @@
-// components/CategoryValidator/feedback/StatusMessage.js
+// components/CategoryValidator/components/StatusMessage.js
 import { Alert, Slide } from '@mui/material';
 import styles from '../styles.module.css';
 

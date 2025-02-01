@@ -3,9 +3,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, TextField } from '@mui/material';
 import { debounce } from 'lodash';
 import { CategoryCache } from './services/indexedDB';
-import CategoryDetails from './CategoryDetails';
-import VariationModal from './VariationModal';
-import { LoadingOverlay, StatusMessage, NoResults } from './feedback';
+import { LoadingOverlay, StatusMessage, NoResults } from './components';
+import CategoryDetails from './components/CategoryDetails';
+import VariationModal from './components/VariationModal';
 import styles from './styles.module.css';
 
 const cache = new CategoryCache();

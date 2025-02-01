@@ -1,12 +1,12 @@
-// components/CategoryValidator/feedback/NoResults.js
+// components/CategoryValidator/components/NoResults.js
 import { Paper, Typography } from '@mui/material';
-import { SearchOff } from '@mui/icons-material';
+import SearchOffIcon from '@mui/icons-material/SearchOff';
 import styles from '../styles.module.css';
 
 export function NoResults({ message = 'Nenhum resultado encontrado' }) {
   return (
     <Paper className={styles.noResults}>
-      <SearchOff className={styles.noResultsIcon} />
+      <SearchOffIcon className={styles.noResultsIcon} />
       <Typography variant="body1" color="textSecondary">
         {message}
       </Typography>
