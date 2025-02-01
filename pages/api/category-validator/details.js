@@ -1,5 +1,4 @@
 // pages/api/category-validator/details.js
-import fetch from 'node-fetch';
 import { supabase } from '../../../utils/supabase/supabaseClient';
 
 export default async function handler(req, res) {
@@ -9,41 +8,57 @@ export default async function handler(req, res) {
 
   const { categoryId } = req.query;
 
+  if (!categoryId) {
+    return res.status(400).json({ message: 'ID da categoria é obrigatório' });
+  }
+
   try {
-    // Buscar dados do Supabase
+    // Busca dados da categoria no Supabase
     const { data: categoryData, error: categoryError } = await supabase
       .from('ml_categories')
       .select('*')
       .eq('id', categoryId)
       .single();
 
-    if (categoryError) throw categoryError;
-    if (!categoryData) {
-      return res.status(404).json({ message: 'Categoria não encontrada' });
+    if (categoryError) {
+      console.error('Erro ao buscar categoria:', categoryError);
+      return res.status(500).json({
+        message: 'Erro ao buscar categoria no banco de dados'
+      });
     }
 
-    // Buscar dados da API do Mercado Livre
-    const mlApiUrl = `https://api.mercadolibre.com/categories/${categoryId}/technical_specs/input`;
-    const mlResponse = await fetch(mlApiUrl);
+    if (!categoryData) {
+      return res.status(404).json({
+        message: `Categoria ${categoryId} não encontrada.`
+      });
+    }
+
+    // Busca dados técnicos da API do Mercado Livre
+    const mlUrl = `https://api.mercadolibre.com/categories/${categoryId}/technical_specs/input`;
+    const mlResponse = await fetch(mlUrl);
     
     if (!mlResponse.ok) {
-      throw new Error(`Erro na API do ML: ${mlResponse.status}`);
+      return res.status(mlResponse.status).json({
+        message: `Erro ao consultar API do Mercado Livre: ${mlResponse.statusText}`
+      });
     }
 
     const mlData = await mlResponse.json();
 
-    // Processar atributos
+    // Processa atributos e variações
     const { attributes, variations } = processMLData(mlData);
 
+    // Retorna dados combinados
     return res.status(200).json({
       ...categoryData,
       attributes,
-      variations,
+      variations
     });
+
   } catch (error) {
-    console.error('Erro ao buscar detalhes:', error);
+    console.error('Erro ao processar requisição:', error);
     return res.status(500).json({
-      message: 'Erro ao buscar detalhes da categoria',
+      message: 'Erro interno ao processar requisição',
       error: error.message
     });
   }
@@ -53,8 +68,8 @@ function processMLData(mlData) {
   const attributes = [];
   const variations = [];
 
-  mlData.groups.forEach(group => {
-    group.components.forEach(component => {
+  mlData.groups?.forEach(group => {
+    group.components?.forEach(component => {
       if (component.attributes) {
         component.attributes.forEach(attr => {
           if (attr.tags?.includes('required')) {
