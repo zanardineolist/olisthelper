@@ -144,6 +144,36 @@
 .messageBody p {
   margin: 0;
   line-height: 1.6;
+  max-height: 100px; /* Altura inicial quando fechado */
+  overflow: hidden;
+}
+
+/* Estilo quando o conteúdo está expandido */
+.messageBody p.expanded {
+  max-height: 300px; /* Altura máxima quando expandido */
+  overflow-y: auto;
+  padding-right: 10px; /* Espaço para a scrollbar */
+}
+
+/* Estilização da scrollbar */
+.messageBody p.expanded::-webkit-scrollbar {
+  width: 4px;
+}
+
+.messageBody p.expanded::-webkit-scrollbar-track {
+  background: var(--scroll-bg);
+  border-radius: 4px;
+}
+
+.messageBody p.expanded::-webkit-scrollbar-thumb {
+  background: var(--scroll);
+  border-radius: 4px;
+}
+
+/* Firefox */
+.messageBody p.expanded {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll) var(--scroll-bg);
 }
 
 .fadeOut {

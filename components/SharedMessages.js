@@ -53,10 +53,13 @@ export default function SharedMessages({ user }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const previewLength = 100;
     const needsExpansion = content.length > previewLength;
-
+  
     return (
       <div className={styles.messageBody}>
-        <p style={{ whiteSpace: 'pre-wrap' }}>
+        <p 
+          style={{ whiteSpace: 'pre-wrap' }}
+          className={isExpanded ? styles.expanded : undefined}
+        >
           {isExpanded ? content : content.slice(0, previewLength)}
           {!isExpanded && needsExpansion && (
             <span className={styles.fadeOut}>...</span>
