@@ -38,7 +38,6 @@ export default function TicketCounter() {
     { value: 'custom', label: 'Período específico' }
   ];
 
-  // Verificar reset diário
   useEffect(() => {
     const checkDayReset = () => {
       const currentDate = dayjs().tz().format('YYYY-MM-DD');
