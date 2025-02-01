@@ -2,10 +2,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, TextField } from '@mui/material';
 import { debounce } from 'lodash';
-import { CategoryCache } from './services/indexedDB';
-import { LoadingOverlay, StatusMessage, NoResults } from './components';
+import { CategoryCache } from './services/storage';
 import CategoryDetails from './components/CategoryDetails';
 import VariationModal from './components/VariationModal';
+import { LoadingOverlay, StatusMessage, NoResults } from './components';
 import styles from './styles.module.css';
 
 const cache = new CategoryCache();
@@ -35,10 +35,11 @@ export default function CategoryValidator() {
       setLoading(true);
       
       // Tenta buscar do cache primeiro
-      const cachedCategory = await cache.getCategory(categoryId);
+      const cachedCategory = cache.getCategory(categoryId);
       if (cachedCategory) {
         setSelectedCategory(cachedCategory);
         showStatus('Dados carregados do cache', 'success');
+        setLoading(false);
         return;
       }
 
@@ -48,8 +49,7 @@ export default function CategoryValidator() {
       
       if (res.ok) {
         setSelectedCategory(data);
-        // Salva no cache
-        await cache.saveCategory(data);
+        cache.saveCategory(data);
         showStatus('Dados atualizados com sucesso', 'success');
       } else {
         throw new Error(data.message);
@@ -74,9 +74,10 @@ export default function CategoryValidator() {
         setLoading(true);
         
         // Tenta buscar sugestões do cache primeiro
-        const cachedResults = await cache.searchCategories(term);
+        const cachedResults = cache.searchCategories(term);
         if (cachedResults.length > 0) {
           setSuggestions(cachedResults);
+          setLoading(false);
           return;
         }
 
