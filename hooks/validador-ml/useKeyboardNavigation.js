@@ -1,53 +1,43 @@
 // hooks/validador-ml/useKeyboardNavigation.js
 import { useState, useEffect, useCallback } from 'react';
 
-export const useKeyboardNavigation = (suggestions, onSelect) => {
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+export const useKeyboardNavigation = (suggestions, onSelect, showSuggestions) => {
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
   const handleKeyDown = useCallback((event) => {
-    if (!suggestions.length) return;
+    if (!showSuggestions || !suggestions.length) return;
 
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
-        setHighlightedIndex(prev => 
-          prev < suggestions.length - 1 ? prev + 1 : prev
-        );
+        setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : prev));
         break;
-
       case 'ArrowUp':
         event.preventDefault();
-        setHighlightedIndex(prev => 
-          prev > 0 ? prev - 1 : prev
-        );
+        setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev));
         break;
-
       case 'Enter':
         event.preventDefault();
-        if (highlightedIndex >= 0) {
-          onSelect(suggestions[highlightedIndex].id);
+        if (selectedIndex >= 0) {
+          onSelect(suggestions[selectedIndex].id);
         }
         break;
-
       case 'Escape':
-        setHighlightedIndex(-1);
+        event.preventDefault();
+        setSelectedIndex(-1);
         break;
     }
-  }, [suggestions, highlightedIndex, onSelect]);
+  }, [suggestions, selectedIndex, onSelect, showSuggestions]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // Reset selection when suggestions change
   useEffect(() => {
-    if (suggestions.length === 0) {
-      setHighlightedIndex(-1);
-    }
+    setSelectedIndex(-1);
   }, [suggestions]);
 
-  return {
-    highlightedIndex,
-    setHighlightedIndex
-  };
+  return [selectedIndex, setSelectedIndex];
 };

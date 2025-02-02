@@ -1,36 +1,21 @@
 // hooks/validador-ml/useInfiniteScroll.js
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 
-export const useInfiniteScroll = (onLoadMore, hasMore, loading) => {
-  const observerRef = useRef();
-  const containerRef = useRef();
+export const useInfiniteScroll = (containerRef, onLoadMore, hasMore, loading) => {
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current || loading || !hasMore) return;
 
-  const handleObserver = useCallback(entries => {
-    const target = entries[0];
-    if (target.isIntersecting && hasMore && !loading) {
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    if (scrollTop + clientHeight >= scrollHeight - 50) {
       onLoadMore();
     }
   }, [onLoadMore, hasMore, loading]);
 
   useEffect(() => {
-    const options = {
-      root: null,
-      rootMargin: '20px',
-      threshold: 1.0
-    };
-
-    observerRef.current = new IntersectionObserver(handleObserver, options);
-    
-    if (containerRef.current) {
-      observerRef.current.observe(containerRef.current);
+    const currentContainer = containerRef.current;
+    if (currentContainer) {
+      currentContainer.addEventListener('scroll', handleScroll);
+      return () => currentContainer.removeEventListener('scroll', handleScroll);
     }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-    };
-  }, [handleObserver]);
-
-  return containerRef;
+  }, [handleScroll]);
 };

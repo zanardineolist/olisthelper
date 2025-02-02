@@ -1,55 +1,39 @@
 // components/validador-ml/Suggestions.js
-import React from 'react';
-import { useKeyboardNavigation } from '../../hooks/validador-ml/useKeyboardNavigation';
+import React, { useRef } from 'react';
 import { useInfiniteScroll } from '../../hooks/validador-ml/useInfiniteScroll';
 import styles from '../../styles/ValidadorML.module.css';
 
-export const Suggestions = ({ 
-  suggestions, 
-  onSelect, 
-  totalCount, 
+export const Suggestions = ({
+  suggestions,
+  onSelect,
+  totalCount,
   onLoadMore,
   hasMore,
-  loading 
+  loading,
+  selectedIndex
 }) => {
-  const { highlightedIndex, setHighlightedIndex } = useKeyboardNavigation(
-    suggestions,
-    onSelect
-  );
-
-  const containerRef = useInfiniteScroll(onLoadMore, hasMore, loading);
+  const containerRef = useRef(null);
+  useInfiniteScroll(containerRef, onLoadMore, hasMore, loading);
 
   return (
-    <div className={styles.suggestionsContainer}>
+    <div className={styles.suggestionsContainer} ref={containerRef}>
       <p className={styles.suggestionsInfo}>{totalCount} categorias encontradas</p>
-      
       {suggestions.map((suggestion, index) => (
         <div
           key={suggestion.id}
           className={`${styles.suggestionItem} ${
-            index === highlightedIndex ? styles.highlighted : ''
+            index === selectedIndex ? styles.highlighted : ''
           }`}
           onClick={() => onSelect(suggestion.id)}
-          onMouseEnter={() => setHighlightedIndex(index)}
-          onMouseLeave={() => setHighlightedIndex(-1)}
         >
-          <strong className={styles.suggestionTitle}>
-            {suggestion.hierarquia_completa}
-          </strong>
-          <span className={styles.suggestionId}>
-            ID: {suggestion.id} | Último Nível: {suggestion.is_ultimo_nivel ? 'Sim' : 'Não'}
-          </span>
+          <span className={styles.suggestionId}>{suggestion.id}</span>
+          <span className={styles.suggestionPath}>{suggestion.hierarquia_completa}</span>
         </div>
       ))}
-
-      {hasMore && (
-        <div ref={containerRef} className={styles.loadingMore}>
-          {loading && (
-            <div className={styles.spinnerContainer}>
-              <div className={styles.spinner} />
-              <span>Carregando mais categorias...</span>
-            </div>
-          )}
+      {loading && hasMore && (
+        <div className={styles.loadingMore}>
+          <div className={styles.spinner} />
+          <span>Carregando mais...</span>
         </div>
       )}
     </div>
