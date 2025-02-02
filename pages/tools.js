@@ -8,7 +8,6 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import TicketCounter from '../components/TicketCounter';
 import SharedMessages from '../components/SharedMessages';
-import ValidadorML from '../components/validador-ml/ValidadorML';
 import styles from '../styles/Tools.module.css';
 
 const theme = createTheme({
@@ -58,8 +57,6 @@ export default function ToolsPage({ user }) {
         setCurrentTab(0);
       } else if (hash === '#SharedMessages') {
         setCurrentTab(1);
-      } else if (hash === '#ValidadorML') {
-        setCurrentTab(2);
       }
       setLoading(false);
     }, 500);
@@ -74,9 +71,6 @@ export default function ToolsPage({ user }) {
         break;
       case 1:
         hash = '#SharedMessages';
-        break;
-      case 2:
-        hash = '#ValidadorML';
         break;
       default:
         break;
@@ -96,10 +90,6 @@ export default function ToolsPage({ user }) {
     <>
       <Head>
         <title>Ferramentas</title>
-        <link 
-          rel="stylesheet" 
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" 
-        />
       </Head>
 
       <Navbar user={user} />
@@ -112,7 +102,6 @@ export default function ToolsPage({ user }) {
                 <Tab label="Contador de Chamados" />
               )}
               <Tab label="Respostas Compartilhadas" />
-              <Tab label="Validador ML" />
             </Tabs>
           </div>
         </ThemeProvider>
@@ -122,7 +111,6 @@ export default function ToolsPage({ user }) {
             <TicketCounter />
           )}
           {currentTab === 1 && <SharedMessages user={user} />}
-          {currentTab === 2 && <ValidadorML user={user} />}
         </div>
       </main>
 
