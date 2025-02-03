@@ -1,85 +1,133 @@
+.progressWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: linear-gradient(145deg, var(--box-color), var(--box-color2));
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 .progressContainer {
-    width: 100%;
-    max-width: 600px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-  }
-  
-  .progressBar {
-    width: 100%;
-    height: 24px;
-    background-color: var(--box-color2);
-    border-radius: 12px;
-    margin-bottom: 0.5rem;
-    overflow: hidden;
-  }
-  
-  .progressFill {
-    height: 100%;
-    border-radius: 12px;
-    transition: all 0.5s ease-out;
-  }
-  
-  .markerContainer {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    margin-top: 1rem;
-    padding: 0 0.5rem;
-  }
-  
-  .marker {
-    position: absolute;
-    width: 2px;
-    height: 12px;
-    top: -16px;
-  }
-  
-  .markerLabel {
-    position: absolute;
-    top: -40px;
-    transform: translateX(-50%);
-    font-size: 0.875rem;
-    font-weight: bold;
-  }
-  
-  .minMarker {
-    background-color: #FFA726;
-    left: calc(83.33% - 1px); /* 25/30 * 100% */
-  }
-  
-  .minLabel {
-    color: #FFA726;
-    left: 83.33%;
-  }
-  
-  .maxMarker {
-    background-color: #4CAF50;
-    right: -1px;
-  }
-  
-  .maxLabel {
-    color: #4CAF50;
-    right: 0;
-  }
-  
-  .message {
-    text-align: center;
-    margin-top: 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-  
-  .messageSuccess {
-    color: #4CAF50;
-  }
-  
-  .messageWarning {
-    color: #FFA726;
-  }
-  
-  .messageInfo {
-    color: var(--text-color2);
-  }
+  position: relative;
+  width: 100%;
+  height: 30px;
+  background: var(--box-color2);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progressFill {
+  height: 100%;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  border-radius: 15px;
+}
+
+.progressFill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1) 25%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmerEffect 2s infinite linear;
+}
+
+.markerContainer {
+  position: relative;
+  width: 100%;
+  height: 40px;
+  margin-top: 10px;
+}
+
+.marker {
+  position: absolute;
+  width: 3px;
+  height: 20px;
+  background: var(--text-color2);
+  transition: all 0.3s ease;
+}
+
+.markerLabel {
+  position: absolute;
+  top: -25px;
+  transform: translateX(-50%);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+}
+
+.minMarker {
+  background: linear-gradient(180deg, #FFA726, #FB8C00);
+  left: 83.33%;
+  box-shadow: 0 2px 4px rgba(255, 167, 38, 0.3);
+}
+
+.minLabel {
+  background: linear-gradient(45deg, #FFA726, #FB8C00);
+  color: white;
+  left: 83.33%;
+}
+
+.maxMarker {
+  background: linear-gradient(180deg, #4CAF50, #388E3C);
+  right: 0;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.maxLabel {
+  background: linear-gradient(45deg, #4CAF50, #388E3C);
+  color: white;
+  right: 0;
+}
+
+.message {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1rem;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.messageSuccess {
+  background: linear-gradient(45deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.2));
+  color: #4CAF50;
+  animation: successPulse 2s infinite;
+}
+
+.messageWarning {
+  background: linear-gradient(45deg, rgba(255, 167, 38, 0.1), rgba(255, 167, 38, 0.2));
+  color: #FFA726;
+}
+
+.messageInfo {
+  background: linear-gradient(45deg, rgba(66, 165, 245, 0.1), rgba(66, 165, 245, 0.2));
+  color: #42A5F5;
+}
+
+@keyframes shimmerEffect {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes successPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
