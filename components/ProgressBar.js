@@ -1,19 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import confetti from 'canvas-confetti';
 import styles from '../styles/ProgressBar.module.css';
+import confetti from 'canvas-confetti';
 
 const ProgressBar = ({ count }) => {
   const [progress, setProgress] = useState(0);
   const [previousCount, setPreviousCount] = useState(count);
+  const [scale, setScale] = useState(1);
   const minTarget = 25;
   const maxTarget = 30;
 
   useEffect(() => {
-    // Atualizar progresso quando a contagem mudar
-    const percentage = (count / maxTarget) * 100;
-    setProgress(Math.min(percentage, 100));
+    // Calcular o progresso baseado na contagem atual
+    let newProgress;
+    let newScale = 1;
 
-    // Verificar se atingiu a meta agora
+    if (count <= maxTarget) {
+      newProgress = (count / maxTarget) * 100;
+    } else {
+      // Quando ultrapassar a meta, ajustar a escala e o progresso
+      newScale = maxTarget / count;
+      newProgress = 100; // Manter a barra cheia
+    }
+
+    setProgress(newProgress);
+    setScale(newScale);
+
+    // Verificar se acabou de atingir ou ultrapassar a meta
     if (count >= maxTarget && previousCount < maxTarget) {
       celebrateSuccess();
     }
@@ -55,39 +67,46 @@ const ProgressBar = ({ count }) => {
     <div className={styles.progressWrapper}>
       <div className={styles.progressContainer}>
         <div
-          className={styles.progressFill}
+          className={styles.progressBar}
           style={{
-            width: `${progress}%`,
-            backgroundColor: getProgressColor(),
+            transform: count > maxTarget ? `scaleX(${scale})` : 'none'
           }}
-        />
-      </div>
-      
-      <div className={styles.markerContainer}>
-        <div className={styles.marker + ' ' + styles.minMarker}>
-          <span className={styles.markerLabel + ' ' + styles.minLabel}>
-            Min {minTarget}
-          </span>
+        >
+          <div
+            className={`${styles.progressFill} ${count > maxTarget ? styles.boostEffect : ''}`}
+            style={{
+              width: `${progress}%`,
+              backgroundColor: getProgressColor(),
+            }}
+          />
         </div>
-        <div className={styles.marker + ' ' + styles.maxMarker}>
-          <span className={styles.markerLabel + ' ' + styles.maxLabel}>
-            Meta {maxTarget}
-          </span>
+
+        <div className={styles.markersContainer}>
+          <div className={`${styles.marker} ${styles.minMarker}`}>
+            <span className={`${styles.markerLabel} ${styles.minLabel}`}>
+              Min {minTarget}
+            </span>
+          </div>
+          <div className={`${styles.marker} ${styles.maxMarker}`}>
+            <span className={`${styles.markerLabel} ${styles.maxLabel}`}>
+              Meta {maxTarget}
+            </span>
+          </div>
         </div>
       </div>
-  
+
       <div className={styles.message}>
         {count >= maxTarget ? (
           <div className={styles.messageSuccess}>
-            🎉 Parabéns! Você bateu os 30 hoje!!! 🎉
+            🎉 Parabéns! {count > maxTarget ? `Você superou a meta! (${count}/${maxTarget})` : 'Você bateu a meta!'} 🎉
           </div>
         ) : count >= minTarget ? (
           <div className={styles.messageWarning}>
-            Ótimo! Você chegou nos 25 chamados. Continue assim!
+            Ótimo! Você chegou nos {minTarget} chamados. Continue assim!
           </div>
         ) : (
           <div className={styles.messageInfo}>
-            Faltam {minTarget - count} chamados para atingir os 25.
+            Faltam {minTarget - count} chamados para atingir os {minTarget}.
           </div>
         )}
       </div>

@@ -6,50 +6,53 @@
 }
 
 .progressContainer {
+  position: relative;
+  padding-top: 30px;
+  margin-bottom: 20px;
+}
+
+.progressBar {
   width: 100%;
   height: 24px;
-  background: var(--box-color2);
+  background-color: var(--box-color2);
   border-radius: 12px;
   overflow: hidden;
   position: relative;
+  transition: transform 0.5s ease;
 }
 
 .progressFill {
   height: 100%;
-  transition: width 0.5s ease;
+  transition: width 0.5s ease, background-color 0.3s ease;
   border-radius: 12px;
+  position: relative;
 }
 
-.progressFill::after {
+/* Efeito de boost quando ultrapassa a meta */
+.boostEffect::after {
   content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3));
+  animation: boost 1.5s ease-in-out infinite;
+}
+
+.markersContainer {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.1) 25%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(255, 255, 255, 0.1) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmerEffect 2s infinite linear;
-}
-
-.markerContainer {
-  position: relative;
-  width: 100%;
-  height: 40px;
-  margin-top: 10px;
+  height: 100%;
 }
 
 .marker {
   position: absolute;
   width: 3px;
   height: 20px;
-  background: var(--text-color2);
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .markerLabel {
@@ -113,13 +116,29 @@
   color: #42A5F5;
 }
 
-@keyframes shimmerEffect {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+@keyframes boost {
+  0% {
+    opacity: 0.7;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 0.3;
+    transform: translateX(-10px);
+  }
+  100% {
+    opacity: 0.7;
+    transform: translateX(0);
+  }
 }
 
 @keyframes successPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
