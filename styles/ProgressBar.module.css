@@ -68,9 +68,9 @@
   right: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   background: linear-gradient(135deg, #8BC34A, #689F38);
-  padding: 4px 12px;
+  padding: 6px 16px;
   border-radius: 20px;
   color: white;
   font-weight: 600;
@@ -78,13 +78,18 @@
   z-index: 1;
 }
 
-.multiplierText {
-  font-size: 0.9rem;
-  opacity: 0.9;
+.boostLevel {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .boostCount {
-  font-size: 1.1rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  padding-left: 12px;
+  border-left: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 @keyframes boost {

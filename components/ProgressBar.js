@@ -6,7 +6,7 @@ import styles from '../styles/ProgressBar.module.css';
 const ProgressBar = ({ count }) => {
   const [progress, setProgress] = useState(0);
   const [previousCount, setPreviousCount] = useState(count);
-  const [boostMultiplier, setBoostMultiplier] = useState(1);
+  const [boostLevel, setBoostLevel] = useState(0);
   const minTarget = 25;
   const maxTarget = 30;
 
@@ -15,11 +15,11 @@ const ProgressBar = ({ count }) => {
     let baseProgress = (count / maxTarget) * 100;
     if (count > maxTarget) {
       const extraCount = count - maxTarget;
-      const multiplier = 1 + (extraCount / maxTarget);
-      setBoostMultiplier(multiplier);
+      const boostLevelCalc = Math.floor(extraCount / 5) + 1; // A cada 5 chamados extras, sobe um nível
+      setBoostLevel(boostLevelCalc);
       baseProgress = 100; // Manter a barra cheia
     } else {
-      setBoostMultiplier(1);
+      setBoostLevel(0);
     }
     setProgress(Math.min(baseProgress, 100));
 
@@ -123,6 +123,11 @@ const ProgressBar = ({ count }) => {
     }
   };
 
+  const getBoostEmoji = (level) => {
+    const emojis = ['🔥', '⚡', '💫', '✨', '💥'];
+    return emojis[Math.min(level - 1, emojis.length - 1)];
+  };
+
   return (
     <motion.div 
       className={styles.progressWrapper}
@@ -138,11 +143,11 @@ const ProgressBar = ({ count }) => {
             initial="initial"
             animate="animate"
           >
-            <span className={styles.multiplierText}>
-              x{boostMultiplier.toFixed(1)}
+            <span className={styles.boostLevel}>
+              {getBoostEmoji(boostLevel)} Nível {boostLevel}
             </span>
             <span className={styles.boostCount}>
-              +{count - maxTarget}
+              +{count - maxTarget} chamados
             </span>
           </motion.div>
         )}
@@ -172,21 +177,23 @@ const ProgressBar = ({ count }) => {
           </motion.div>
         </div>
         
-        <div className={styles.markersContainer}>
-          <div className={`${styles.marker} ${styles.minMarker}`}>
-            <div className={styles.markerLine} />
-            <div className={`${styles.markerLabel} ${styles.minLabel}`}>
-              Min 25
+        {count <= maxTarget && (
+          <div className={styles.markersContainer}>
+            <div className={`${styles.marker} ${styles.minMarker}`}>
+              <div className={styles.markerLine} />
+              <div className={`${styles.markerLabel} ${styles.minLabel}`}>
+                Min 25
+              </div>
             </div>
-          </div>
 
-          <div className={`${styles.marker} ${styles.maxMarker}`}>
-            <div className={styles.markerLine} />
-            <div className={`${styles.markerLabel} ${styles.maxLabel}`}>
-              Meta 30
+            <div className={`${styles.marker} ${styles.maxMarker}`}>
+              <div className={styles.markerLine} />
+              <div className={`${styles.markerLabel} ${styles.maxLabel}`}>
+                Meta 30
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <AnimatePresence mode="wait">
           <motion.div 
@@ -214,9 +221,9 @@ const ProgressBar = ({ count }) => {
                   ease: "easeInOut"
                 }}
               >
-                <span className={styles.messageIcon}>🚀</span>
-                Incrível! Você ultrapassou a meta em {count - maxTarget} chamados!
-                <span className={styles.messageIcon}>🔥</span>
+                <span className={styles.messageIcon}>{getBoostEmoji(boostLevel)}</span>
+                Incrível! Nível {boostLevel} alcançado com {count - maxTarget} chamados extras!
+                <span className={styles.messageIcon}>{getBoostEmoji(boostLevel)}</span>
               </motion.div>
             ) : count >= maxTarget ? (
               <motion.div 
