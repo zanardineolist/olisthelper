@@ -195,70 +195,72 @@ const ProgressBar = ({ count }) => {
           </div>
         )}
 
-        <AnimatePresence mode="wait">
-          <motion.div 
-            key={count > maxTarget ? 'boost' : count >= maxTarget ? 'max' : count >= minTarget ? 'min' : 'progress'}
-            className={styles.messageContainer}
-            variants={messageVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-          >
-            {count > maxTarget ? (
-              <motion.div 
-                className={styles.messageBoost}
-                animate={{
-                  scale: [1, 1.02, 1],
-                  boxShadow: [
-                    '0 0 0 0 rgba(139, 195, 74, 0.4)',
-                    '0 0 0 10px rgba(139, 195, 74, 0)',
-                    '0 0 0 0 rgba(139, 195, 74, 0)'
-                  ]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                <span className={styles.messageIcon}>{getBoostEmoji(boostLevel)}</span>
-                Incrível! Nível {boostLevel} alcançado com {count - maxTarget} chamados extras!
-                <span className={styles.messageIcon}>{getBoostEmoji(boostLevel)}</span>
-              </motion.div>
-            ) : count >= maxTarget ? (
-              <motion.div 
-                className={styles.messageSuccess}
-                animate={{
-                  scale: [1, 1.02, 1],
-                  boxShadow: [
-                    '0 0 0 0 rgba(76, 175, 80, 0.4)',
-                    '0 0 0 10px rgba(76, 175, 80, 0)',
-                    '0 0 0 0 rgba(76, 175, 80, 0)'
-                  ]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                <span className={styles.messageIcon}>🎉</span>
-                Parabéns! Você bateu os 30 hoje!!!
-                <span className={styles.messageIcon}>🎉</span>
-              </motion.div>
-            ) : count >= minTarget ? (
-              <div className={styles.messageWarning}>
-                <span className={styles.messageIcon}>🎯</span>
-                Ótimo! Você chegou nos 25 chamados. Continue assim!
-              </div>
-            ) : (
-              <div className={styles.messageInfo}>
-                <span className={styles.messageIcon}>💪</span>
-                Faltam {minTarget - count} chamados para atingir os 25
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
+        {count > 0 && (
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={count > maxTarget ? 'boost' : count >= maxTarget ? 'max' : count >= minTarget ? 'min' : 'progress'}
+              className={styles.messageContainer}
+              variants={messageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              {count > maxTarget ? (
+                <motion.div 
+                  className={styles.messageBoost}
+                  animate={{
+                    scale: [1, 1.02, 1],
+                    boxShadow: [
+                      '0 0 0 0 rgba(139, 195, 74, 0.4)',
+                      '0 0 0 10px rgba(139, 195, 74, 0)',
+                      '0 0 0 0 rgba(139, 195, 74, 0)'
+                    ]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <span className={styles.messageIcon}>{getBoostEmoji(boostLevel)}</span>
+                  Incrível! Nível {boostLevel} alcançado com {count - maxTarget} chamados extras!
+                  <span className={styles.messageIcon}>{getBoostEmoji(boostLevel)}</span>
+                </motion.div>
+              ) : count >= maxTarget ? (
+                <motion.div 
+                  className={styles.messageSuccess}
+                  animate={{
+                    scale: [1, 1.02, 1],
+                    boxShadow: [
+                      '0 0 0 0 rgba(76, 175, 80, 0.4)',
+                      '0 0 0 10px rgba(76, 175, 80, 0)',
+                      '0 0 0 0 rgba(76, 175, 80, 0)'
+                    ]
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <span className={styles.messageIcon}>🎉</span>
+                  Parabéns! Você bateu os 30 hoje!!!
+                  <span className={styles.messageIcon}>🎉</span>
+                </motion.div>
+              ) : count >= minTarget ? (
+                <div className={styles.messageWarning}>
+                  <span className={styles.messageIcon}>🎯</span>
+                  Ótimo! Você chegou nos 25 chamados. Continue assim!
+                </div>
+              ) : (
+                <div className={styles.messageInfo}>
+                  <span className={styles.messageIcon}>💪</span>
+                  Faltam {minTarget - count} chamados para atingir os 25
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        )}
       </div>
     </motion.div>
   );
