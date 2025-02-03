@@ -3,7 +3,8 @@ import styles from '../styles/Navbar.module.css';
 import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FaSignOutAlt, FaMoon, FaSun, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaSignOutAlt, FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { markNotificationAsRead, markMultipleNotificationsAsRead } from '../utils/firebase/firebaseNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -30,7 +31,7 @@ export default function Navbar({ user }) {
         setMenuOpen(false);
         setShowNotifications(false);
       }
-    }, 200); // 200 ms debounce
+    }, 200);
 
     document.addEventListener('click', handleClickOutsideDebounced);
     return () => {
@@ -54,7 +55,7 @@ export default function Navbar({ user }) {
     localStorage.setItem('theme', newTheme);
   };
 
-  // Real-time notifications with Firestore (combined `bell` and `top` notifications logic)
+  // Real-time notifications with Firestore
   useEffect(() => {
     if (!user?.id) return;
 
@@ -67,9 +68,10 @@ export default function Navbar({ user }) {
         ...doc.data()
       }));
 
-      // Filtrar notificações para navbar (bell) e banner (top)
       setNotifications(updatedNotifications.filter(notification => notification.notificationType === 'bell'));
-      const topNotif = updatedNotifications.find(notification => notification.notificationType === 'top' && !notification.read);
+      const topNotif = updatedNotifications.find(notification => 
+        notification.notificationType === 'top' && !notification.read
+      );
       setTopNotification(topNotif);
       setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
     });
@@ -77,20 +79,25 @@ export default function Navbar({ user }) {
     return () => unsubscribe();
   }, [user?.id]);
 
-  // Load more notifications when needed
-  const loadMoreNotifications = () => {
+  // Load more notifications
+  const loadMoreNotifications = async () => {
     if (!lastVisible || isLoadingMore) return;
 
     setIsLoadingMore(true);
     const notificationsCollection = collection(db, "notifications");
-    const q = query(notificationsCollection, where("userId", "==", user.id), startAfter(lastVisible), limit(10));
+    const q = query(
+      notificationsCollection,
+      where("userId", "==", user.id),
+      startAfter(lastVisible),
+      limit(10)
+    );
 
     onSnapshot(q, (querySnapshot) => {
       const moreNotifications = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      setNotifications((prev) => [...prev, ...moreNotifications]);
+      setNotifications(prev => [...prev, ...moreNotifications]);
       setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
       setIsLoadingMore(false);
     });
@@ -103,18 +110,18 @@ export default function Navbar({ user }) {
     setShowNotifications(false);
   };
 
-  // Toggle notifications box visibility
+  // Toggle notifications box
   const toggleNotifications = () => {
-    setShowNotifications((prev) => !prev);
+    setShowNotifications(prev => !prev);
     setMenuOpen(false);
   };
 
-  // Mark a single notification as read
+  // Mark notification as read
   const handleMarkAsRead = async (notificationId) => {
     try {
       await markNotificationAsRead(notificationId);
-      setNotifications((prevNotifications) =>
-        prevNotifications.map((notification) =>
+      setNotifications(prevNotifications =>
+        prevNotifications.map(notification =>
           notification.id === notificationId ? { ...notification, read: true } : notification
         )
       );
@@ -123,13 +130,16 @@ export default function Navbar({ user }) {
     }
   };
 
-  // Mark all visible notifications as read
+  // Mark all notifications as read
   const markAllAsRead = async () => {
-    const unreadNotificationsIds = notifications.filter(notification => !notification.read).map(notification => notification.id);
+    const unreadNotificationsIds = notifications
+      .filter(notification => !notification.read)
+      .map(notification => notification.id);
+
     if (unreadNotificationsIds.length > 0) {
       try {
         await markMultipleNotificationsAsRead(unreadNotificationsIds);
-        setNotifications((prevNotifications) =>
+        setNotifications(prevNotifications =>
           prevNotifications.map(notification => ({ ...notification, read: true }))
         );
       } catch (error) {
@@ -146,19 +156,11 @@ export default function Navbar({ user }) {
 
   // Format timestamp to time ago
   const getTimeAgo = (timestamp) => {
-    if (typeof timestamp !== 'number') {
-      return 'Desconhecido';
-    }
-
-    const notificationTime = new Date(timestamp);
-    if (isNaN(notificationTime)) {
-      return 'Desconhecido';
-    }
-
-    return formatDistanceToNow(notificationTime, { addSuffix: true, locale: ptBR });
+    if (!timestamp) return 'Desconhecido';
+    return formatDistanceToNow(new Date(timestamp), { addSuffix: true, locale: ptBR });
   };
 
-  // Function to handle closing the top notification banner
+  // Handle closing top notification
   const handleCloseTopNotification = async () => {
     if (topNotification) {
       try {
@@ -172,153 +174,305 @@ export default function Navbar({ user }) {
 
   return (
     <div className={`${styles.navbarWrapper} ${topNotification ? styles.withBanner : ''}`}>
-      {topNotification && (
-        <div
-          className={`${styles.notificationBanner} ${
-            topNotification.notificationStyle === 'informacao' ? styles.informacaoBanner : styles.avisoBanner
-          }`}
-        >
-          <p>{topNotification.message}</p>
-          <button onClick={handleCloseTopNotification} className={styles.closeButton}>✕</button>
-        </div>
-      )}
+      <AnimatePresence>
+        {topNotification && (
+          <motion.div
+            initial={{ y: -100 }}
+            animate={{ y: 0 }}
+            exit={{ y: -100 }}
+            className={`${styles.notificationBanner} ${
+              topNotification.notificationStyle === 'informacao' 
+                ? styles.informacaoBanner 
+                : styles.avisoBanner
+            }`}
+          >
+            <p>{topNotification.message}</p>
+            <button onClick={handleCloseTopNotification} className={styles.closeButton}>✕</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <nav ref={navbarRef} className={styles.navbar}>
-        <div className={styles.logo}>
-          <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'}>
-            <img 
-              src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
-              alt="Novo Logo" 
-            />
-          </Link>
-        </div>
+      <motion.nav 
+        ref={navbarRef} 
+        className={styles.navbar}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 100 }}
+      >
+        <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'} className={styles.logo}>
+          <motion.img 
+            src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
+            alt="Logo"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400 }}
+          />
+        </Link>
 
         <div className={styles.rightSection}>
-          <button onClick={toggleTheme} className={styles.themeToggle} aria-label="Alternar tema">
-            {theme === 'dark' ? <FaSun /> : <FaMoon />}
-          </button>
+          {/* Theme Toggle Button */}
+          <motion.button
+            onClick={toggleTheme}
+            className={styles.themeToggle}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className={styles.themeToggleWrapper}>
+              <motion.div 
+                className={styles.themeIcon}
+                initial={false}
+                animate={{ rotate: theme === 'dark' ? 0 : 180 }}
+              >
+                {theme === 'dark' ? '🌙' : '☀️'}
+              </motion.div>
+            </div>
+          </motion.button>
 
+          {/* Notifications */}
           {['analyst', 'tax', 'super', 'support+', 'dev'].includes(user.role) && (
-            <>
-              <div className={styles.notificationToggle} onClick={toggleNotifications} aria-label="Notificações">
+            <div className={styles.notificationsWrapper}>
+              <motion.div
+                className={styles.notificationToggle}
+                onClick={toggleNotifications}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <FaBell />
                 {unreadNotificationsCount > 0 && (
-                  <span className={styles.notificationCount}>{unreadNotificationsCount}</span>
+                  <motion.span
+                    className={styles.notificationCount}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 500 }}
+                  >
+                    {unreadNotificationsCount}
+                  </motion.span>
                 )}
-              </div>
+              </motion.div>
 
-              {showNotifications && (
-                <div ref={notificationRef} className={styles.notificationsBox}>
-                  {sortedNotifications.length === 0 ? (
-                    <p className={styles.noNotifications}>Nenhuma notificação disponível</p>
-                  ) : (
-                    <ul className={styles.notificationsList}>
-                      {sortedNotifications.map((notification) => (
-                        <li
-                          key={notification.id}
-                          className={`${styles.notificationItem} ${notification.read ? styles.read : ''}`}
-                        >
-                          <div className={styles.notificationContent}>
-                            <strong>{notification.title}</strong>
-                            <p>{notification.message}</p>
-                            <span className={styles.timestamp}>
-                              {getTimeAgo(notification.timestamp)}
-                            </span>
-                          </div>
-                          <div className={styles.markAsReadIndicator}>
-                            {notification.read ? (
-                              <FaCheckDouble 
-                                className={`${styles.checkIconDouble}`} 
-                                title="Lido"
-                              />
-                            ) : (
-                              <div onClick={() => handleMarkAsRead(notification.id)} className={styles.markAsReadWrapper}>
-                                <span className={styles.markAsReadText}>Marcar como lido</span>
-                                <FaCheck className={`${styles.checkIcon}`} />
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div
+                    ref={notificationRef}
+                    className={styles.notificationsBox}
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    {sortedNotifications.length === 0 ? (
+                      <p className={styles.noNotifications}>Nenhuma notificação disponível</p>
+                    ) : (
+                      <>
+                        <ul className={styles.notificationsList}>
+                          {sortedNotifications.map((notification) => (
+                            <motion.li
+                              key={notification.id}
+                              className={`${styles.notificationItem} ${notification.read ? styles.read : ''}`}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ type: "spring", stiffness: 300 }}
+                            >
+                              <div className={styles.notificationContent}>
+                                <strong>{notification.title}</strong>
+                                <p>{notification.message}</p>
+                                <span className={styles.timestamp}>
+                                  {getTimeAgo(notification.timestamp)}
+                                </span>
                               </div>
-                            )}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <button onClick={markAllAsRead} className={styles.markAllReadButton}>
-                    Marcar todas como lidas
-                  </button>
-                  {lastVisible && (
-                    <button onClick={loadMoreNotifications} disabled={isLoadingMore} className={styles.loadMoreButton}>
-                      {isLoadingMore ? 'Carregando...' : 'Carregar mais'}
-                    </button>
-                  )}
-                </div>
-              )}
-            </>
+                              <div className={styles.markAsReadIndicator}>
+                                {notification.read ? (
+                                  <FaCheckDouble className={styles.checkIconDouble} title="Lido" />
+                                ) : (
+                                  <motion.div 
+                                    onClick={() => handleMarkAsRead(notification.id)}
+                                    className={styles.markAsReadWrapper}
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                  >
+                                    <span className={styles.markAsReadText}>Marcar como lido</span>
+                                    <FaCheck className={styles.checkIcon} />
+                                  </motion.div>
+                                )}
+                              </div>
+                            </motion.li>
+                          ))}
+                        </ul>
+                        <motion.button
+                          onClick={markAllAsRead}
+                          className={styles.markAllReadButton}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          Marcar todas como lidas
+                        </motion.button>
+                        {lastVisible && (
+                          <motion.button
+                            onClick={loadMoreNotifications}
+                            disabled={isLoadingMore}
+                            className={styles.loadMoreButton}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            {isLoadingMore ? 'Carregando...' : 'Carregar mais'}
+                          </motion.button>
+                        )}
+                      </>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           )}
 
-          <button onClick={() => setMenuOpen(!menuOpen)} className={styles.menuToggle} aria-label="Menu">
-            ☰
-          </button>
+          {/* Menu Toggle */}
+          <motion.button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className={styles.menuToggle}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className={`${styles.hamburger} ${menuOpen ? styles.active : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </motion.button>
         </div>
 
-        {menuOpen && (
-          <div className={styles.menu}>
-            {(user.role === 'support' || user.role === 'support+') && (
-              <>
-              <button onClick={() => handleNavigation('/profile')} className={styles.menuButton}>
-                Meu Perfil
-              </button>
-              <button onClick={() => handleNavigation('/tools')} className={styles.menuButton}>
-                Ferramentas
-              </button>
-            </>
-            )}
-            {(user.role === 'analyst' || user.role === 'tax') && (
-              <>
-              <button onClick={() => handleNavigation('/profile-analyst')} className={styles.menuButton}>
-                Meu Perfil
-              </button>
-              <button onClick={() => handleNavigation('/registro')} className={styles.menuButton}>
-                Registrar Ajuda
-              </button>
-              <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
-                Dashboard
-              </button>
-              <button onClick={() => handleNavigation('/tools')} className={styles.menuButton}>
-                Ferramentas
-              </button>
-            </>
-            )}
-            {user.role === 'super' && (
-              <>
-              <button onClick={() => handleNavigation('/dashboard-super')} className={styles.menuButton}>
-                Dashboard
-              </button>
-              <button onClick={() => handleNavigation('/tools')} className={styles.menuButton}>
-                Ferramentas
-              </button>
-            </>
-            )}
-            {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
-              <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
-                Gerenciador
-              </button>
-            )}
-            {(user.role === 'support+' || user.role === 'super') && (
-              <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
-                Acesso Remoto
-              </button>
-            )}
-            {user.role === 'dev' && (
-              <button onClick={() => handleNavigation('/admin-notifications')} className={styles.menuButton}>
-                Admin Notificações
-              </button>
-            )}
-            <button onClick={() => signOut({ callbackUrl: '/' })} className={`${styles.menuButton} ${styles.logoutButton}`}>
-              <FaSignOutAlt style={{ marginRight: '8px', fontSize: '20px' }} /> Logout
-            </button>
-          </div>
-        )}
-      </nav>
+        {/* Menu Dropdown */}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              className={styles.menu}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              {(user.role === 'support' || user.role === 'support+') && (
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleNavigation('/profile')}
+                    className={styles.menuButton}
+                  >
+                    Meu Perfil
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleNavigation('/tools')}
+                    className={styles.menuButton}
+                  >
+                    Ferramentas
+                  </motion.button>
+                </>
+              )}
+
+              {(user.role === 'analyst' || user.role === 'tax') && (
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleNavigation('/profile-analyst')}
+                    className={styles.menuButton}
+                  >
+                    Meu Perfil
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleNavigation('/registro')}
+                    className={styles.menuButton}
+                  >
+                    Registrar Ajuda
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleNavigation('/dashboard-analyst')}
+                    className={styles.menuButton}
+                  >
+                    Dashboard
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleNavigation('/tools')}
+                    className={styles.menuButton}
+                  >
+                    Ferramentas
+                  </motion.button>
+                </>
+              )}
+
+              {user.role === 'super' && (
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleNavigation('/dashboard-super')}
+                    className={styles.menuButton}
+                  >
+                    Dashboard
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleNavigation('/tools')}
+                    className={styles.menuButton}
+                  >
+                    Ferramentas
+                  </motion.button>
+                </>
+              )}
+
+              {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleNavigation('/manager')}
+                  className={styles.menuButton}
+                >
+                  Gerenciador
+                </motion.button>
+              )}
+
+              {(user.role === 'support+' || user.role === 'super') && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleNavigation('/remote')}
+                  className={styles.menuButton}
+                >
+                  Acesso Remoto
+                </motion.button>
+              )}
+
+              {user.role === 'dev' && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleNavigation('/admin-notifications')}
+                  className={styles.menuButton}
+                >
+                  Admin Notificações
+                </motion.button>
+              )}
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className={`${styles.menuButton} ${styles.logoutButton}`}
+              >
+                <FaSignOutAlt style={{ marginRight: '8px', fontSize: '20px' }} /> Logout
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.nav>
     </div>
   );
 }

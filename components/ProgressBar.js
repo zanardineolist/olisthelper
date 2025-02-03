@@ -244,7 +244,7 @@ const ProgressBar = ({ count }) => {
                   }}
                 >
                   <span className={styles.messageIcon}>🎉</span>
-                  Parabéns! Você bateu os 30 hoje!!!
+                  Parabéns! Você alcançou os 30 chamados!!!
                   <span className={styles.messageIcon}>🎉</span>
                 </motion.div>
               ) : count >= minTarget ? (
