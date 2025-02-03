@@ -2,7 +2,6 @@ import React from 'react';
 import { Trophy, Flame } from 'lucide-react';
 
 const StatusBadge = ({ count }) => {
-  // Definição dos estilos base para o wrapper
   const wrapperStyle = {
     display: 'inline-flex',
     alignItems: 'center',
@@ -15,7 +14,6 @@ const StatusBadge = ({ count }) => {
     transition: 'all 0.3s ease',
   };
 
-  // Definições específicas para cada status
   const statusConfigs = {
     above: {
       style: {
@@ -39,7 +37,6 @@ const StatusBadge = ({ count }) => {
     },
   };
 
-  // Determina o status baseado na contagem
   const getStatus = (count) => {
     if (count > 30) return 'above';
     if (count === 30) return 'met';

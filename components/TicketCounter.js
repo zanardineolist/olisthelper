@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import Swal from 'sweetalert2';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Minus, Trash2 } from 'lucide-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Select from 'react-select';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import Swal from 'sweetalert2';
 import styles from '../styles/Tools.module.css';
 import tableStyles from '../styles/HistoryTable.module.css';
 import ProgressBar from './ProgressBar';
@@ -15,7 +17,7 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("America/Sao_Paulo");
 
-export default function TicketCounter() {
+function TicketCounter() {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState(null);
@@ -56,7 +58,6 @@ export default function TicketCounter() {
     return () => clearInterval(interval);
   }, [lastResetDate]);
 
-  // Carregar dados iniciais e histórico
   useEffect(() => {
     const loadInitialData = async () => {
       await loadTodayCount();
@@ -86,7 +87,7 @@ export default function TicketCounter() {
       const res = await fetch('/api/ticket-count', { method: 'POST' });
       if (!res.ok) throw new Error('Erro ao incrementar contagem');
       setCount(prev => prev + 1);
-      await loadHistoryData(); // Sempre atualiza o histórico ao incrementar
+      await loadHistoryData();
     } catch (error) {
       console.error('Erro ao incrementar:', error);
       Swal.fire('Erro', 'Erro ao adicionar contagem', 'error');
@@ -101,7 +102,7 @@ export default function TicketCounter() {
       const res = await fetch('/api/ticket-count', { method: 'DELETE' });
       if (!res.ok) throw new Error('Erro ao decrementar contagem');
       setCount(prev => Math.max(0, prev - 1));
-      await loadHistoryData(); // Sempre atualiza o histórico ao decrementar
+      await loadHistoryData();
     } catch (error) {
       console.error('Erro ao decrementar:', error);
       Swal.fire('Erro', 'Erro ao remover contagem', 'error');
@@ -213,7 +214,7 @@ export default function TicketCounter() {
       const chartData = sortedRecords.map(record => ({
         date: dayjs(record.count_date).format('DD/MM/YYYY'),
         count: record.total_count
-      })).reverse(); // Reverter para exibição cronológica no gráfico
+      })).reverse();
 
       setChartData(chartData);
     } catch (error) {
@@ -229,7 +230,6 @@ export default function TicketCounter() {
     }
   };
 
-  // Estilos do Select
   const customSelectStyles = {
     control: (provided, state) => ({
       ...provided,
@@ -268,40 +268,68 @@ export default function TicketCounter() {
 
   return (
     <div className={styles.counterContainer}>
-      {/* Data atual e Contador */}
-      <div className={styles.counterHeader}>
+      {/* Data atual com animação suave */}
+      <motion.div 
+        className={styles.counterHeader}
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         {dayjs().tz().format('DD/MM/YYYY')}
-      </div>
+      </motion.div>
 
-      <div className={styles.counterDisplay}>
-        <button
+      {/* Container do contador com efeito de hover */}
+      <motion.div 
+        className={styles.counterDisplay}
+        whileHover={{ scale: 1.02 }}
+        transition={{ type: "spring", stiffness: 300 }}
+      >
+        <motion.button
+          className={`${styles.counterButton} ${styles.decrementButton}`}
           onClick={handleDecrement}
           disabled={loading || count === 0}
-          className={`${styles.counterButton} ${styles.decrementButton}`}
+          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.1 }}
         >
-          -
-        </button>
+          <Minus size={32} />
+        </motion.button>
 
-        <div className={styles.counterValue}>
-          {loading ? '...' : count}
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={count}
+            className={styles.counterValue}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 500 }}
+          >
+            {loading ? '...' : count}
+          </motion.div>
+        </AnimatePresence>
 
-        <button
+        <motion.button
+          className={`${styles.counterButton} ${styles.incrementButton}`}
           onClick={handleIncrement}
           disabled={loading}
-          className={`${styles.counterButton} ${styles.incrementButton}`}
+          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.1 }}
         >
-          +
-        </button>
-      </div>
+          <Plus size={32} />
+        </motion.button>
+      </motion.div>
 
-      <button
+      <motion.button
+        className={styles.clearButton}
         onClick={handleClear}
         disabled={loading || count === 0}
-        className={styles.clearButton}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
       >
-        Limpar Contagem do Dia
-      </button>
+        <div className={styles.clearButtonContent}>
+          <Trash2 size={20} />
+          <span>Limpar Contagem do Dia</span>
+        </div>
+      </motion.button>
 
       {/* Barra de Progresso */}
       <ProgressBar count={count} />
@@ -375,40 +403,40 @@ export default function TicketCounter() {
         )}
 
         {/* Tabela de Histórico */}
-          <div className={tableStyles.tableWrapper}>
-            <table className={tableStyles.modernTable}>
-              <thead>
-                <tr className={tableStyles.tableHeader}>
-                  <th className={tableStyles.tableHeaderCell}>Data</th>
-                  <th className={tableStyles.tableHeaderCell}>Total de Chamados</th>
-                  <th className={tableStyles.tableHeaderCell}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.length > 0 ? (
-                  history.map((record, index) => (
-                    <tr key={index} className={tableStyles.tableRow}>
-                      <td className={`${tableStyles.tableCell} ${tableStyles.dateCell}`}>
-                        {dayjs(record.count_date).format('DD/MM/YYYY')}
-                      </td>
-                      <td className={`${tableStyles.tableCell} ${tableStyles.countCell}`}>
-                        {record.total_count}
-                      </td>
-                      <td className={`${tableStyles.tableCell} ${tableStyles.statusCell}`}>
-                        <StatusBadge count={record.total_count} />
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="3" className={tableStyles.emptyMessage}>
-                      Nenhum registro encontrado
+        <div className={tableStyles.tableWrapper}>
+          <table className={tableStyles.modernTable}>
+            <thead>
+              <tr className={tableStyles.tableHeader}>
+                <th className={tableStyles.tableHeaderCell}>Data</th>
+                <th className={tableStyles.tableHeaderCell}>Total de Chamados</th>
+                <th className={tableStyles.tableHeaderCell}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.length > 0 ? (
+                history.map((record, index) => (
+                  <tr key={index} className={tableStyles.tableRow}>
+                    <td className={`${tableStyles.tableCell} ${tableStyles.dateCell}`}>
+                      {dayjs(record.count_date).format('DD/MM/YYYY')}
+                    </td>
+                    <td className={`${tableStyles.tableCell} ${tableStyles.countCell}`}>
+                      {record.total_count}
+                    </td>
+                    <td className={`${tableStyles.tableCell} ${tableStyles.statusCell}`}>
+                      <StatusBadge count={record.total_count} />
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className={tableStyles.emptyMessage}>
+                    Nenhum registro encontrado
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {/* Paginação */}
         <div className={styles.pagination}>
@@ -442,3 +470,5 @@ export default function TicketCounter() {
     </div>
   );
 }
+
+export default TicketCounter;
