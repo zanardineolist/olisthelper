@@ -1,31 +1,23 @@
 .progressWrapper {
-  position: relative;
   width: 100%;
   max-width: 800px;
-  margin: 3rem auto;
-  padding: 2rem;
-  background: linear-gradient(145deg, var(--box-color), var(--box-color2));
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 2rem auto;
+  padding: 1rem;
 }
 
 .progressContainer {
-  position: relative;
   width: 100%;
-  height: 30px;
+  height: 24px;
   background: var(--box-color2);
-  border-radius: 15px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .progressFill {
   height: 100%;
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  border-radius: 15px;
+  transition: width 0.5s ease;
+  border-radius: 12px;
 }
 
 .progressFill::after {

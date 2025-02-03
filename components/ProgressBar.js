@@ -52,8 +52,8 @@ const ProgressBar = ({ count }) => {
   };
 
   return (
-    <div className={styles.progressContainer}>
-      <div className={styles.progressBar}>
+    <div className={styles.progressWrapper}>
+      <div className={styles.progressContainer}>
         <div
           className={styles.progressFill}
           style={{
@@ -75,7 +75,7 @@ const ProgressBar = ({ count }) => {
           </span>
         </div>
       </div>
-
+  
       <div className={styles.message}>
         {count >= maxTarget ? (
           <div className={styles.messageSuccess}>
