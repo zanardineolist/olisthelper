@@ -49,7 +49,7 @@
   align-items: center;
   gap: 3rem;
   padding: 3rem;
-  background-color: var(--box-color2);
+  background-color: var(--box-color4);
   border-radius: 20px;
 }
 
@@ -119,7 +119,7 @@
 /* Estilos do histórico */
 .historyContainer {
   margin-top: 2rem;
-  background-color: var(-- box-color);
+  background-color: var(--box-color);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -192,7 +192,7 @@
 /* Gráfico */
 .chartContainer {
   margin-top: 2rem;
-  background-color: var(--box-color);
+  background-color: var(--box-color2);
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);

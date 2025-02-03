@@ -27,7 +27,7 @@
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    background: var(--box-color);
+    background: var(--box-color2);
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
