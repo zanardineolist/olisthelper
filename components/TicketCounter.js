@@ -6,6 +6,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Select from 'react-select';
 import styles from '../styles/Tools.module.css';
+import tableStyles from '../styles/HistoryTable.module.css';
 import ProgressBar from './ProgressBar';
 import StatusBadge from './StatusBadge';
 
@@ -374,34 +375,40 @@ export default function TicketCounter() {
         )}
 
         {/* Tabela de Histórico */}
-          <table className={styles.historyTable}>
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Total de Chamados</th>
-                <th></th> {/* Nova coluna para o status */}
-              </tr>
-            </thead>
-            <tbody>
-              {history.length > 0 ? (
-                history.map((record, index) => (
-                  <tr key={index}>
-                    <td>{dayjs(record.count_date).format('DD/MM/YYYY')}</td>
-                    <td>{record.total_count}</td>
-                    <td>
-                      <StatusBadge count={record.total_count} />
+          <div className={tableStyles.tableWrapper}>
+            <table className={tableStyles.modernTable}>
+              <thead>
+                <tr className={tableStyles.tableHeader}>
+                  <th className={tableStyles.tableHeaderCell}>Data</th>
+                  <th className={tableStyles.tableHeaderCell}>Total de Chamados</th>
+                  <th className={tableStyles.tableHeaderCell}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.length > 0 ? (
+                  history.map((record, index) => (
+                    <tr key={index} className={tableStyles.tableRow}>
+                      <td className={`${tableStyles.tableCell} ${tableStyles.dateCell}`}>
+                        {dayjs(record.count_date).format('DD/MM/YYYY')}
+                      </td>
+                      <td className={`${tableStyles.tableCell} ${tableStyles.countCell}`}>
+                        {record.total_count}
+                      </td>
+                      <td className={`${tableStyles.tableCell} ${tableStyles.statusCell}`}>
+                        <StatusBadge count={record.total_count} />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className={tableStyles.emptyMessage}>
+                      Nenhum registro encontrado
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" style={{ textAlign: 'center' }}>
-                    Nenhum registro encontrado
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
 
         {/* Paginação */}
         <div className={styles.pagination}>

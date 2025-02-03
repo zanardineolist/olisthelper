@@ -6,11 +6,13 @@ const StatusBadge = ({ count }) => {
   const wrapperStyle = {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '4px',
-    padding: '4px 8px',
-    borderRadius: '12px',
-    fontWeight: 'bold',
-    animation: 'fadeIn 0.3s ease-in',
+    gap: '8px',
+    padding: '6px 12px',
+    borderRadius: '20px',
+    fontWeight: '600',
+    fontSize: '0.875rem',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    transition: 'all 0.3s ease',
   };
 
   // Definições específicas para cada status
@@ -18,21 +20,22 @@ const StatusBadge = ({ count }) => {
     above: {
       style: {
         ...wrapperStyle,
-        backgroundColor: '#FF6B6B20',
-        color: '#FF6B6B',
+        background: 'linear-gradient(45deg, #FF6B6B, #FF8787)',
+        color: '#fff',
       },
       icon: Flame,
       text: 'Meta Superada!',
-      iconClass: 'animate-bounce',
+      iconClass: 'animate-flicker',
     },
     met: {
       style: {
         ...wrapperStyle,
-        backgroundColor: '#4CAF5020',
-        color: '#4CAF50',
+        background: 'linear-gradient(45deg, #4CAF50, #81C784)',
+        color: '#fff',
       },
       icon: Trophy,
       text: 'Meta Atingida!',
+      iconClass: 'animate-shine',
     },
   };
 
@@ -50,32 +53,38 @@ const StatusBadge = ({ count }) => {
   const Icon = config.icon;
 
   return (
-    <div style={config.style} className="ml-2">
+    <div style={config.style} className="transform hover:scale-105 transition-transform duration-200">
       <Icon 
-        size={16}
+        size={18}
         className={config.iconClass}
-        style={status === 'above' ? { animation: 'flicker 1s infinite' } : {}}
+        strokeWidth={2.5}
       />
-      <span className="text-sm">{config.text}</span>
+      <span>{config.text}</span>
 
       <style jsx global>{`
         @keyframes flicker {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
+          0% { opacity: 1; transform: scale(1); }
+          25% { opacity: 0.8; transform: scale(1.1); }
+          50% { opacity: 1; transform: scale(1); }
+          75% { opacity: 0.8; transform: scale(1.2); }
+          100% { opacity: 1; transform: scale(1); }
         }
 
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        @keyframes shine {
+          0% { transform: scale(1) rotate(0deg); }
+          25% { transform: scale(1.1) rotate(-5deg); }
+          50% { transform: scale(1) rotate(0deg); }
+          75% { transform: scale(1.1) rotate(5deg); }
+          100% { transform: scale(1) rotate(0deg); }
         }
 
-        .animate-bounce {
-          animation: bounce 1s infinite;
+        .animate-flicker {
+          animation: flicker 2s infinite;
         }
 
-        @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-25%); }
+        .animate-shine {
+          animation: shine 2s infinite;
+          transform-origin: center;
         }
       `}</style>
     </div>
