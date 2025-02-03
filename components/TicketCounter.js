@@ -7,6 +7,7 @@ import timezone from 'dayjs/plugin/timezone';
 import Select from 'react-select';
 import styles from '../styles/Tools.module.css';
 import ProgressBar from './ProgressBar';
+import StatusBadge from './StatusBadge';
 
 // Configurar dayjs para trabalhar com timezone
 dayjs.extend(utc);
@@ -373,30 +374,34 @@ export default function TicketCounter() {
         )}
 
         {/* Tabela de Histórico */}
-        <table className={styles.historyTable}>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Total de Chamados</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.length > 0 ? (
-              history.map((record, index) => (
-                <tr key={index}>
-                  <td>{dayjs(record.count_date).format('DD/MM/YYYY')}</td>
-                  <td>{record.total_count}</td>
-                </tr>
-              ))
-            ) : (
+          <table className={styles.historyTable}>
+            <thead>
               <tr>
-                <td colSpan="2" style={{ textAlign: 'center' }}>
-                  Nenhum registro encontrado
-                </td>
+                <th>Data</th>
+                <th>Total de Chamados</th>
+                <th></th> {/* Nova coluna para o status */}
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {history.length > 0 ? (
+                history.map((record, index) => (
+                  <tr key={index}>
+                    <td>{dayjs(record.count_date).format('DD/MM/YYYY')}</td>
+                    <td>{record.total_count}</td>
+                    <td>
+                      <StatusBadge count={record.total_count} />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" style={{ textAlign: 'center' }}>
+                    Nenhum registro encontrado
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
 
         {/* Paginação */}
         <div className={styles.pagination}>
