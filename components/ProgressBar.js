@@ -1,196 +1,172 @@
 import React, { useEffect, useState } from 'react';
+import confetti from 'canvas-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Target } from 'lucide-react';
+import styles from '../styles/ProgressBar.module.css';
 
 const ProgressBar = ({ count }) => {
   const [progress, setProgress] = useState(0);
+  const [previousCount, setPreviousCount] = useState(count);
   const minTarget = 25;
   const maxTarget = 30;
 
   useEffect(() => {
-    setProgress((count / maxTarget) * 100);
+    const percentage = (count / maxTarget) * 100;
+    setProgress(Math.min(percentage, 100));
+
+    if (count >= maxTarget && previousCount < maxTarget) {
+      celebrateSuccess();
+    }
+    setPreviousCount(count);
   }, [count]);
 
-  const progressBarVariants = {
-    initial: { width: 0 },
+  const getProgressColor = () => {
+    if (count >= maxTarget) return '#4CAF50';
+    if (count >= minTarget) return '#FFA726';
+    if (count >= minTarget * 0.7) return '#42A5F5';
+    return '#EF5350';
+  };
+
+  const celebrateSuccess = () => {
+    const duration = 15000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+      });
+    }, 250);
+  };
+
+  const progressVariants = {
+    initial: { width: 0, scale: 0.95 },
     animate: { 
-      width: `${Math.min(progress, 100)}%`,
-      transition: { duration: 0.3, ease: "easeOut" }
+      width: `${progress}%`,
+      scale: 1,
+      transition: { 
+        width: { type: "spring", stiffness: 50, damping: 15 },
+        scale: { duration: 0.3 }
+      }
     }
   };
 
-  const pulseVariants = {
-    initial: { scale: 1 },
-    animate: {
-      scale: [1, 1.02, 1],
-      transition: { duration: 1, repeat: Infinity }
+  const messageVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15
+      }
+    },
+    exit: { 
+      opacity: 0,
+      y: -20,
+      transition: { duration: 0.2 }
+    }
+  };
+
+  const markerVariants = {
+    initial: { scale: 0 },
+    animate: { 
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 200,
+        damping: 20,
+        delay: 0.2
+      }
     }
   };
 
   return (
-    <div className="progress-wrapper">
-      <motion.div 
-        className="progress-container"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="progress-track">
-          {/* Marcadores de meta */}
-          <div className="markers">
-            <motion.div 
-              className="marker min-marker"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Target size={16} />
-              <span>{minTarget}</span>
-            </motion.div>
-            <motion.div 
-              className="marker max-marker"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Trophy size={16} />
-              <span>{maxTarget}</span>
-            </motion.div>
-          </div>
-
-          {/* Barra de progresso animada */}
-          <motion.div 
-            className="progress-fill"
-            variants={progressBarVariants}
+    <motion.div 
+      className={styles.progressWrapper}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className={styles.progressContainer}>
+        <div className={styles.progressBar}>
+          <motion.div
+            className={`${styles.progressFill} ${count >= maxTarget ? styles.boostEffect : ''}`}
+            variants={progressVariants}
             initial="initial"
             animate="animate"
-            style={{
-              background: count >= maxTarget 
-                ? 'linear-gradient(90deg, #4CAF50, #81C784)'
-                : count >= minTarget
-                ? 'linear-gradient(90deg, #FFA726, #FFB74D)'
-                : 'linear-gradient(90deg, #42A5F5, #64B5F6)'
-            }}
+            style={{ backgroundColor: getProgressColor() }}
+          />
+        </div>
+        
+        <div className={styles.markersContainer}>
+          <motion.div 
+            className={`${styles.marker} ${styles.minMarker}`}
+            variants={markerVariants}
+            initial="initial"
+            animate="animate"
           >
-            {count > maxTarget && (
-              <motion.div 
-                className="shine-effect"
-                animate={{
-                  x: ['0%', '100%'],
-                  opacity: [0, 0.5, 0]
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-            )}
+            <span className={`${styles.markerLabel} ${styles.minLabel}`}>
+              Min {minTarget}
+            </span>
+          </motion.div>
+          <motion.div 
+            className={`${styles.marker} ${styles.maxMarker}`}
+            variants={markerVariants}
+            initial="initial"
+            animate="animate"
+          >
+            <span className={`${styles.markerLabel} ${styles.maxLabel}`}>
+              Meta {maxTarget}
+            </span>
           </motion.div>
         </div>
 
-        {/* Mensagem de status animada */}
         <AnimatePresence mode="wait">
           <motion.div 
-            key={count >= maxTarget ? 'success' : count >= minTarget ? 'warning' : 'info'}
-            className={`status-message ${count >= maxTarget ? 'success' : count >= minTarget ? 'warning' : 'info'}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            variants={count >= maxTarget ? pulseVariants : {}}
+            key={count >= maxTarget ? 'max' : count >= minTarget ? 'min' : 'progress'}
+            className={styles.message}
+            variants={messageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
           >
             {count >= maxTarget ? (
-              <span>🎉 Meta atingida! Excelente trabalho! 🎉</span>
+              <div className={styles.messageSuccess}>
+                🎉 Parabéns! Você bateu os 30 hoje!!! 🎉
+              </div>
             ) : count >= minTarget ? (
-              <span>Ótimo progresso! Próximo objetivo: {maxTarget}</span>
+              <div className={styles.messageWarning}>
+                Ótimo! Você chegou nos 25 chamados. Continue assim!
+              </div>
             ) : (
-              <span>Faltam {minTarget - count} para o primeiro objetivo</span>
+              <div className={styles.messageInfo}>
+                Faltam {minTarget - count} chamados para atingir os 25.
+              </div>
             )}
           </motion.div>
         </AnimatePresence>
-      </motion.div>
-
-      <style jsx>{`
-        .progress-wrapper {
-          margin: 2rem 0;
-          padding: 1rem;
-        }
-
-        .progress-container {
-          position: relative;
-          padding: 2rem 0;
-        }
-
-        .progress-track {
-          height: 24px;
-          background: var(--box-color2);
-          border-radius: 12px;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .progress-fill {
-          height: 100%;
-          border-radius: 12px;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .shine-effect {
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 50%;
-          height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.3),
-            transparent
-          );
-        }
-
-        .markers {
-          position: absolute;
-          top: -30px;
-          width: 100%;
-          display: flex;
-          justify-content: space-between;
-          padding: 0 10px;
-        }
-
-        .marker {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          color: var(--text-color);
-          font-weight: 600;
-        }
-
-        .status-message {
-          text-align: center;
-          margin-top: 1rem;
-          padding: 0.75rem;
-          border-radius: 8px;
-          font-weight: 600;
-        }
-
-        .success {
-          color: #4CAF50;
-          background: rgba(76, 175, 80, 0.1);
-        }
-
-        .warning {
-          color: #FFA726;
-          background: rgba(255, 167, 38, 0.1);
-        }
-
-        .info {
-          color: #42A5F5;
-          background: rgba(66, 165, 245, 0.1);
-        }
-      `}</style>
-    </div>
+      </div>
+    </motion.div>
   );
 };
 
