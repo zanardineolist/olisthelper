@@ -62,6 +62,31 @@
   filter: blur(2px);
 }
 
+.boostCounter {
+  position: absolute;
+  top: -15px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #8BC34A, #689F38);
+  padding: 4px 12px;
+  border-radius: 20px;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(139, 195, 74, 0.3);
+  z-index: 1;
+}
+
+.multiplierText {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.boostCount {
+  font-size: 1.1rem;
+}
+
 @keyframes boost {
   from {
     background-position: 1rem 0;
@@ -80,18 +105,11 @@
   pointer-events: none;
 }
 
-.markerWrapper {
-  position: absolute;
-  top: 0;
-  height: 100%;
-}
-
 .marker {
   position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: translateX(-50%);
 }
 
 .markerLine {
@@ -113,6 +131,7 @@
 
 .minMarker {
   left: 83.33%;
+  transform: translateX(-50%);
 }
 
 .minMarker .markerLine {
@@ -127,6 +146,7 @@
 
 .maxMarker {
   left: 100%;
+  transform: translateX(-50%);
 }
 
 .maxMarker .markerLine {
@@ -147,7 +167,8 @@
 
 .messageSuccess,
 .messageWarning,
-.messageInfo {
+.messageInfo,
+.messageBoost {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -174,6 +195,12 @@
   background: linear-gradient(135deg, rgba(66, 165, 245, 0.1), rgba(66, 165, 245, 0.2));
   color: #42A5F5;
   border: 1px solid rgba(66, 165, 245, 0.2);
+}
+
+.messageBoost {
+  background: linear-gradient(135deg, rgba(139, 195, 74, 0.1), rgba(139, 195, 74, 0.2));
+  color: #8BC34A;
+  border: 1px solid rgba(139, 195, 74, 0.2);
 }
 
 .messageIcon {

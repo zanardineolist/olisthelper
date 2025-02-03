@@ -6,12 +6,22 @@ import styles from '../styles/ProgressBar.module.css';
 const ProgressBar = ({ count }) => {
   const [progress, setProgress] = useState(0);
   const [previousCount, setPreviousCount] = useState(count);
+  const [boostMultiplier, setBoostMultiplier] = useState(1);
   const minTarget = 25;
   const maxTarget = 30;
 
   useEffect(() => {
-    const percentage = (count / maxTarget) * 100;
-    setProgress(Math.min(percentage, 100));
+    // Calcular progresso base e boost
+    let baseProgress = (count / maxTarget) * 100;
+    if (count > maxTarget) {
+      const extraCount = count - maxTarget;
+      const multiplier = 1 + (extraCount / maxTarget);
+      setBoostMultiplier(multiplier);
+      baseProgress = 100; // Manter a barra cheia
+    } else {
+      setBoostMultiplier(1);
+    }
+    setProgress(Math.min(baseProgress, 100));
 
     if (count >= maxTarget && previousCount < maxTarget) {
       celebrateSuccess();
@@ -20,6 +30,7 @@ const ProgressBar = ({ count }) => {
   }, [count]);
 
   const getProgressColor = () => {
+    if (count > maxTarget) return '#8BC34A'; // Verde mais brilhante para boost
     if (count >= maxTarget) return '#4CAF50';
     if (count >= minTarget) return '#FFA726';
     if (count >= minTarget * 0.7) return '#42A5F5';
@@ -61,10 +72,14 @@ const ProgressBar = ({ count }) => {
     initial: { width: 0, scale: 0.95 },
     animate: { 
       width: `${progress}%`,
-      scale: 1,
+      scale: count > maxTarget ? [1, 0.98, 1] : 1,
       transition: { 
         width: { type: "spring", stiffness: 50, damping: 15 },
-        scale: { duration: 0.3 }
+        scale: count > maxTarget ? {
+          duration: 1.5,
+          repeat: Infinity,
+          ease: "easeInOut"
+        } : { duration: 0.3 }
       }
     }
   };
@@ -95,7 +110,7 @@ const ProgressBar = ({ count }) => {
     }
   };
 
-  const markerVariants = {
+  const boostCounterVariants = {
     initial: { scale: 0, opacity: 0 },
     animate: { 
       scale: 1,
@@ -103,7 +118,7 @@ const ProgressBar = ({ count }) => {
       transition: {
         type: "spring",
         stiffness: 200,
-        damping: 20
+        damping: 15
       }
     }
   };
@@ -116,6 +131,22 @@ const ProgressBar = ({ count }) => {
       transition={{ duration: 0.5 }}
     >
       <div className={styles.progressContainer}>
+        {count > maxTarget && (
+          <motion.div 
+            className={styles.boostCounter}
+            variants={boostCounterVariants}
+            initial="initial"
+            animate="animate"
+          >
+            <span className={styles.multiplierText}>
+              x{boostMultiplier.toFixed(1)}
+            </span>
+            <span className={styles.boostCount}>
+              +{count - maxTarget}
+            </span>
+          </motion.div>
+        )}
+
         <div className={styles.progressBar}>
           <motion.div
             className={`${styles.progressFill} ${count > maxTarget ? styles.boostEffect : ''}`}
@@ -142,45 +173,52 @@ const ProgressBar = ({ count }) => {
         </div>
         
         <div className={styles.markersContainer}>
-          <motion.div 
-            className={styles.markerWrapper}
-            variants={markerVariants}
-            initial="initial"
-            animate="animate"
-          >
-            <div className={`${styles.marker} ${styles.minMarker}`}>
-              <div className={styles.markerLine} />
-              <div className={`${styles.markerLabel} ${styles.minLabel}`}>
-                Min 25
-              </div>
+          <div className={`${styles.marker} ${styles.minMarker}`}>
+            <div className={styles.markerLine} />
+            <div className={`${styles.markerLabel} ${styles.minLabel}`}>
+              Min 25
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div 
-            className={styles.markerWrapper}
-            variants={markerVariants}
-            initial="initial"
-            animate="animate"
-          >
-            <div className={`${styles.marker} ${styles.maxMarker}`}>
-              <div className={styles.markerLine} />
-              <div className={`${styles.markerLabel} ${styles.maxLabel}`}>
-                Meta 30
-              </div>
+          <div className={`${styles.marker} ${styles.maxMarker}`}>
+            <div className={styles.markerLine} />
+            <div className={`${styles.markerLabel} ${styles.maxLabel}`}>
+              Meta 30
             </div>
-          </motion.div>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
           <motion.div 
-            key={count >= maxTarget ? 'max' : count >= minTarget ? 'min' : 'progress'}
+            key={count > maxTarget ? 'boost' : count >= maxTarget ? 'max' : count >= minTarget ? 'min' : 'progress'}
             className={styles.messageContainer}
             variants={messageVariants}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            {count >= maxTarget ? (
+            {count > maxTarget ? (
+              <motion.div 
+                className={styles.messageBoost}
+                animate={{
+                  scale: [1, 1.02, 1],
+                  boxShadow: [
+                    '0 0 0 0 rgba(139, 195, 74, 0.4)',
+                    '0 0 0 10px rgba(139, 195, 74, 0)',
+                    '0 0 0 0 rgba(139, 195, 74, 0)'
+                  ]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <span className={styles.messageIcon}>🚀</span>
+                Incrível! Você ultrapassou a meta em {count - maxTarget} chamados!
+                <span className={styles.messageIcon}>🔥</span>
+              </motion.div>
+            ) : count >= maxTarget ? (
               <motion.div 
                 className={styles.messageSuccess}
                 animate={{
