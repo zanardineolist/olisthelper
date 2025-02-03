@@ -15,15 +15,15 @@ const ProgressBar = ({ count }) => {
     initial: { width: 0 },
     animate: { 
       width: `${Math.min(progress, 100)}%`,
-      transition: { duration: 0.5, ease: "easeOut" }
+      transition: { duration: 0.3, ease: "easeOut" }
     }
   };
 
   const pulseVariants = {
     initial: { scale: 1 },
     animate: {
-      scale: [1, 1.05, 1],
-      transition: { duration: 1.5, repeat: Infinity }
+      scale: [1, 1.02, 1],
+      transition: { duration: 1, repeat: Infinity }
     }
   };
 
@@ -33,7 +33,7 @@ const ProgressBar = ({ count }) => {
         className="progress-container"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.3 }}
       >
         <div className="progress-track">
           {/* Marcadores de meta */}
@@ -42,7 +42,7 @@ const ProgressBar = ({ count }) => {
               className="marker min-marker"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.2 }}
             >
               <Target size={16} />
               <span>{minTarget}</span>
@@ -51,7 +51,7 @@ const ProgressBar = ({ count }) => {
               className="marker max-marker"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.3 }}
             >
               <Trophy size={16} />
               <span>{maxTarget}</span>

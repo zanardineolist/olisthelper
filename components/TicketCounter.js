@@ -273,7 +273,7 @@ function TicketCounter() {
         className={styles.counterHeader}
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.3 }}
       >
         {dayjs().tz().format('DD/MM/YYYY')}
       </motion.div>
@@ -281,15 +281,16 @@ function TicketCounter() {
       {/* Container do contador com efeito de hover */}
       <motion.div 
         className={styles.counterDisplay}
-        whileHover={{ scale: 1.02 }}
-        transition={{ type: "spring", stiffness: 300 }}
+        whileHover={{ scale: 1.01 }}
+        transition={{ type: "spring", stiffness: 400 }}
       >
         <motion.button
           className={`${styles.counterButton} ${styles.decrementButton}`}
           onClick={handleDecrement}
           disabled={loading || count === 0}
           whileTap={{ scale: 0.95 }}
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 0.2 }}
         >
           <Minus size={32} />
         </motion.button>
@@ -298,10 +299,10 @@ function TicketCounter() {
           <motion.div 
             key={count}
             className={styles.counterValue}
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 500 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.2 }}
           >
             {loading ? '...' : count}
           </motion.div>
@@ -312,7 +313,8 @@ function TicketCounter() {
           onClick={handleIncrement}
           disabled={loading}
           whileTap={{ scale: 0.95 }}
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 0.2 }}
         >
           <Plus size={32} />
         </motion.button>
@@ -322,8 +324,9 @@ function TicketCounter() {
         className={styles.clearButton}
         onClick={handleClear}
         disabled={loading || count === 0}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ duration: 0.2 }}
       >
         <div className={styles.clearButtonContent}>
           <Trash2 size={20} />
