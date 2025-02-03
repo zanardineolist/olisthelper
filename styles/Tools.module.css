@@ -151,33 +151,6 @@
   color: var(--text-color);
 }
 
-.historyTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-.historyTable th,
-.historyTable td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.historyTable th {
-  background-color: var(--color-thead);
-  color: var(--text-th);
-  font-weight: bold;
-}
-
-.historyTable tr:nth-child(odd) {
-  background-color: var(--color-trodd);
-}
-
-.historyTable tr:nth-child(even) {
-  background-color: var(--color-treven);
-}
-
 /* Paginação */
 .pagination {
   display: flex;
