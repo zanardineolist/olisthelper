@@ -70,32 +70,40 @@ const ProgressBar = ({ count }) => {
   };
 
   const messageVariants = {
-    initial: { opacity: 0, y: 20 },
+    initial: { 
+      opacity: 0,
+      y: 20,
+      scale: 0.9
+    },
     animate: { 
-      opacity: 1, 
+      opacity: 1,
       y: 0,
+      scale: 1,
       transition: {
         type: "spring",
-        stiffness: 100,
-        damping: 15
+        stiffness: 200,
+        damping: 20
       }
     },
     exit: { 
       opacity: 0,
       y: -20,
-      transition: { duration: 0.2 }
+      scale: 0.9,
+      transition: {
+        duration: 0.2
+      }
     }
   };
 
   const markerVariants = {
-    initial: { scale: 0 },
+    initial: { scale: 0, opacity: 0 },
     animate: { 
       scale: 1,
+      opacity: 1,
       transition: {
         type: "spring",
         stiffness: 200,
-        damping: 20,
-        delay: 0.2
+        damping: 20
       }
     }
   };
@@ -110,57 +118,98 @@ const ProgressBar = ({ count }) => {
       <div className={styles.progressContainer}>
         <div className={styles.progressBar}>
           <motion.div
-            className={`${styles.progressFill} ${count >= maxTarget ? styles.boostEffect : ''}`}
+            className={`${styles.progressFill} ${count > maxTarget ? styles.boostEffect : ''}`}
             variants={progressVariants}
             initial="initial"
             animate="animate"
             style={{ backgroundColor: getProgressColor() }}
-          />
+          >
+            {count > maxTarget && (
+              <motion.div 
+                className={styles.boostParticles}
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.7, 1, 0.7]
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            )}
+          </motion.div>
         </div>
         
         <div className={styles.markersContainer}>
           <motion.div 
-            className={`${styles.marker} ${styles.minMarker}`}
+            className={styles.markerWrapper}
             variants={markerVariants}
             initial="initial"
             animate="animate"
           >
-            <span className={`${styles.markerLabel} ${styles.minLabel}`}>
-              Min {minTarget}
-            </span>
+            <div className={`${styles.marker} ${styles.minMarker}`}>
+              <div className={styles.markerLine} />
+              <div className={`${styles.markerLabel} ${styles.minLabel}`}>
+                Min 25
+              </div>
+            </div>
           </motion.div>
+
           <motion.div 
-            className={`${styles.marker} ${styles.maxMarker}`}
+            className={styles.markerWrapper}
             variants={markerVariants}
             initial="initial"
             animate="animate"
           >
-            <span className={`${styles.markerLabel} ${styles.maxLabel}`}>
-              Meta {maxTarget}
-            </span>
+            <div className={`${styles.marker} ${styles.maxMarker}`}>
+              <div className={styles.markerLine} />
+              <div className={`${styles.markerLabel} ${styles.maxLabel}`}>
+                Meta 30
+              </div>
+            </div>
           </motion.div>
         </div>
 
         <AnimatePresence mode="wait">
           <motion.div 
             key={count >= maxTarget ? 'max' : count >= minTarget ? 'min' : 'progress'}
-            className={styles.message}
+            className={styles.messageContainer}
             variants={messageVariants}
             initial="initial"
             animate="animate"
             exit="exit"
           >
             {count >= maxTarget ? (
-              <div className={styles.messageSuccess}>
-                🎉 Parabéns! Você bateu os 30 hoje!!! 🎉
-              </div>
+              <motion.div 
+                className={styles.messageSuccess}
+                animate={{
+                  scale: [1, 1.02, 1],
+                  boxShadow: [
+                    '0 0 0 0 rgba(76, 175, 80, 0.4)',
+                    '0 0 0 10px rgba(76, 175, 80, 0)',
+                    '0 0 0 0 rgba(76, 175, 80, 0)'
+                  ]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <span className={styles.messageIcon}>🎉</span>
+                Parabéns! Você bateu os 30 hoje!!!
+                <span className={styles.messageIcon}>🎉</span>
+              </motion.div>
             ) : count >= minTarget ? (
               <div className={styles.messageWarning}>
+                <span className={styles.messageIcon}>🎯</span>
                 Ótimo! Você chegou nos 25 chamados. Continue assim!
               </div>
             ) : (
               <div className={styles.messageInfo}>
-                Faltam {minTarget - count} chamados para atingir os 25.
+                <span className={styles.messageIcon}>💪</span>
+                Faltam {minTarget - count} chamados para atingir os 25
               </div>
             )}
           </motion.div>
