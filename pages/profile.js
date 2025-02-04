@@ -137,28 +137,43 @@ export default function MyPage({ user }) {
         <div className={styles.workMetricsContainer}>
           <div className={styles.workMetric}>
             <h3>Dias Trabalhados</h3>
-            <p className={styles.metricValue}>{performanceData?.dias_trabalhados || 0}</p>
-            <p className={styles.metricSubtext}>/ {performanceData?.dias_uteis || 0} dias úteis</p>
+            <div className={styles.metricContent}>
+              <span className={styles.metricValue}>{performanceData?.dias_trabalhados || 0}</span>
+              <span className={styles.metricSubtext}>/ {performanceData?.dias_uteis || 0} dias úteis</span>
+            </div>
           </div>
           <div className={styles.workMetric}>
             <h3>Absenteísmo</h3>
-            <p className={styles.metricValue}>{performanceData?.absente_percentage || 0}%</p>
-            <p className={styles.metricSubtext}>Meta: 5%</p>
+            <div className={styles.metricContent}>
+              <span className={styles.metricValue}>{performanceData?.absente_percentage || 0}%</span>
+              <span className={styles.metricSubtext}>Meta: 5%</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Lado Direito - Ajudas Solicitadas */}
       <div className={styles.rightSide}>
-        <h2>Ajudas Solicitadas</h2>
-        <div className={styles.helpRequestsInfo}>
-          <div className={styles.monthsInfo}>
-            <p><strong>Mês Atual:</strong> {currentMonth}</p>
-            <p><strong>Mês Anterior:</strong> {lastMonth}</p>
-          </div>
-          <div className={styles.percentageChange} style={{ color: arrowColor }}>
-            <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
-            <span>{formattedPercentage}%</span>
+        <div className={styles.helpRequestsContainer}>
+          <h2>Ajudas Solicitadas</h2>
+          <div className={styles.helpRequestsContent}>
+            <div className={styles.monthsInfo}>
+              <div className={styles.monthMetric}>
+                <span className={styles.monthLabel}>Mês Atual:</span>
+                <span className={styles.monthValue}>{currentMonth}</span>
+              </div>
+              <div className={styles.monthMetric}>
+                <span className={styles.monthLabel}>Mês Anterior:</span>
+                <span className={styles.monthValue}>{lastMonth}</span>
+              </div>
+            </div>
+            <div className={styles.percentageContainer}>
+              <div className={styles.percentageChange} style={{ color: arrowColor }}>
+                <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
+                <span className={styles.percentageValue}>{formattedPercentage}%</span>
+              </div>
+              <span className={styles.percentageLabel}>Variação</span>
+            </div>
           </div>
         </div>
       </div>
@@ -175,22 +190,21 @@ export default function MyPage({ user }) {
               <span>Total Chamados:</span>
               <span>{performanceData.chamados.totalChamados}</span>
             </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia }}>
+            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
               <span>Média/Dia:</span>
               <span>{performanceData.chamados.mediaPorDia}</span>
             </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma }}>
+            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
               <span>TMA:</span>
               <span>{performanceData.chamados.tma}</span>
             </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat }}>
+            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
               <span>CSAT:</span>
               <span>{performanceData.chamados.csat}</span>
             </div>
           </div>
         </div>
       )}
-
       {performanceData?.telefone && (
         <div className={styles.performanceContainer}>
           <h2>Indicadores Telefone</h2>
@@ -200,11 +214,11 @@ export default function MyPage({ user }) {
               <span>Total Telefone:</span>
               <span>{performanceData.telefone.totalTelefone}</span>
             </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma }}>
+            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
               <span>TMA:</span>
               <span>{performanceData.telefone.tma}</span>
             </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat }}>
+            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
               <span>CSAT:</span>
               <span>{performanceData.telefone.csat}</span>
             </div>
@@ -215,7 +229,6 @@ export default function MyPage({ user }) {
           </div>
         </div>
       )}
-
       {performanceData?.chat && (
         <div className={styles.performanceContainer}>
           <h2>Indicadores Chat</h2>
@@ -225,11 +238,11 @@ export default function MyPage({ user }) {
               <span>Total Chats:</span>
               <span>{performanceData.chat.totalChats}</span>
             </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma }}>
+            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
               <span>TMA:</span>
               <span>{performanceData.chat.tma}</span>
             </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat }}>
+            <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
               <span>CSAT:</span>
               <span>{performanceData.chat.csat}</span>
             </div>
