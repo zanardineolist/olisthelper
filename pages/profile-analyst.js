@@ -11,6 +11,7 @@ export default function AnalystProfilePage({ user }) {
   const router = useRouter();
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
+  const [performanceData, setPerformanceData] = useState(null);
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -38,36 +39,45 @@ export default function AnalystProfilePage({ user }) {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [helpResponse, categoryResponse] = await Promise.all([
+        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
           fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
-          fetch(`/api/get-category-ranking?analystId=${user.id}`)
+          fetch(`/api/get-category-ranking?analystId=${user.id}`),
+          (user.role === 'analyst' || user.role === 'tax') ? 
+            fetch(`/api/get-user-performance?userEmail=${user.email}`) : 
+            Promise.resolve({ json: () => null })
         ]);
-
+  
         if (!helpResponse.ok || !categoryResponse.ok) {
           throw new Error('Erro ao buscar dados do analista.');
         }
-
+  
         // Ajudas Prestadas
         const helpData = await helpResponse.json();
         setHelpRequests({
           currentMonth: helpData.currentMonth,
           lastMonth: helpData.lastMonth,
         });
-
+  
         // Ranking de Categorias
         const categoryData = await categoryResponse.json();
         setCategoryRanking(categoryData.categories || []);
+  
+        // Performance Data
+        if (user.role === 'analyst' || user.role === 'tax') {
+          const performanceData = await performanceResponse.json();
+          setPerformanceData(performanceData);
+        }
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     if (user?.id) {
       fetchData();
     }
-  }, [user.id]);
+  }, [user.id, user.email, user.role]);
 
   if (initialLoading) {
     return (
