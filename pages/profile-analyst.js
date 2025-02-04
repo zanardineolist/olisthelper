@@ -133,22 +133,6 @@ export default function AnalystProfilePage({ user }) {
             </div>
 
             {/* Métricas de Trabalho */}
-            <div className={`${styles.workMetricsContainer} ${styles.analystMetrics}`}>
-              <div className={styles.workMetric}>
-                <h3>Total de RFC</h3>
-                <div className={styles.metricContent}>
-                  <span className={styles.metricValue}>{performanceData?.totalRFC || 0}</span>
-                </div>
-              </div>
-              <div className={styles.workMetric}>
-                <h3>Total de Ajudas</h3>
-                <div className={styles.metricContent}>
-                  <span className={styles.metricValue}>{currentMonth}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Métricas de Trabalho */}
             <div className={styles.workMetricsContainer}>
               <div className={styles.workMetric}>
                 <h3>Dias Trabalhados</h3>
@@ -161,6 +145,22 @@ export default function AnalystProfilePage({ user }) {
                 <h3>Absenteísmo</h3>
                 <div className={styles.metricContent}>
                   <span className={styles.metricValue}>{performanceData?.absenteismo || 0}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Métricas de Trabalho */}
+            <div className={`${styles.workMetricsContainer} ${styles.analystMetrics}`}>
+              <div className={styles.workMetric}>
+                <h3>Total de RFC</h3>
+                <div className={styles.metricContent}>
+                  <span className={styles.metricValue}>{performanceData?.totalRFC || 0}</span>
+                </div>
+              </div>
+              <div className={styles.workMetric}>
+                <h3>Total de Ajudas</h3>
+                <div className={styles.metricContent}>
+                  <span className={styles.metricValue}>{currentMonth}</span>
                 </div>
               </div>
             </div>
