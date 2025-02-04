@@ -90,7 +90,7 @@ export default function AnalystProfilePage({ user }) {
   }
 
   const arrowClass = percentageChange > 0 ? 'fa-circle-up' : 'fa-circle-down';
-  const arrowColor = percentageChange > 0 ? 'red' : 'green';
+  const arrowColor = percentageChange > 0 ? 'green' : 'red';
   const formattedPercentage = Math.abs(percentageChange).toFixed(1);
 
   return (
@@ -104,35 +104,61 @@ export default function AnalystProfilePage({ user }) {
       <main className={styles.main}>
         <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
 
-        {/* Container para Dados de Perfil e Ajudas Solicitadas */}
         <div className={styles.profileAndHelpContainer}>
-          <div className={styles.profileContainer}>
-            <img src={user.image} alt={user.name} className={styles.profileImage} />
-            <div className={styles.profileInfo}>
-              <h2>{user.name}</h2>
-              <p>{user.email}</p>
-            </div>
-          </div>
-          <div className={styles.profileContainer}>
-            {loading ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-              </div>
-            ) : (
+          {/* Lado Esquerdo - Perfil e Métricas */}
+          <div className={styles.leftSide}>
+            <div className={styles.profileContainer}>
+              <img src={user.image} alt={user.name} className={styles.profileImage} />
               <div className={styles.profileInfo}>
-                <h2>Ajudas prestadas</h2>
-                <div className={styles.helpRequestsInfo}>
-                  <div className={styles.monthsInfo}>
-                    <p><strong>Mês Atual:</strong> {currentMonth}</p>
-                    <p><strong>Mês Anterior:</strong> {lastMonth}</p>
-                  </div>
-                  <div className={styles.percentageChange} style={{ color: arrowColor }}>
-                    <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
-                    <span>{formattedPercentage}%</span>
-                  </div>
+                <h2>{user.name}</h2>
+                <p>{user.email}</p>
+              </div>
+            </div>
+
+            <div className={styles.workMetricsContainer}>
+              <div className={styles.workMetric}>
+                <h3>Total de RFC</h3>
+                <div className={styles.metricContent}>
+                  <span className={styles.metricValue}>{performanceData?.totalChamados || 0}</span>
+                  <span className={styles.metricSubtext}>Período: {performanceData?.atualizadoAte || 'Data não disponível'}</span>
                 </div>
               </div>
-            )}
+              <div className={styles.workMetric}>
+                <h3>Total de Ajudas</h3>
+                <div className={styles.metricContent}>
+                  <span className={styles.metricValue}>
+                    {Number(helpRequests.currentMonth) + Number(performanceData?.totalChamados || 0)}
+                  </span>
+                  <span className={styles.metricSubtext}>(ajudas prestadas atual + total de rfc)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Lado Direito - Ajudas Prestadas */}
+          <div className={styles.rightSide}>
+            <div className={styles.helpRequestsContainer}>
+              <h2>Ajudas prestadas</h2>
+              <div className={styles.helpRequestsContent}>
+                <div className={styles.monthsInfo}>
+                  <div className={styles.monthMetric}>
+                    <span className={styles.monthLabel}>Mês Atual:</span>
+                    <span className={styles.monthValue}>{currentMonth}</span>
+                  </div>
+                  <div className={styles.monthMetric}>
+                    <span className={styles.monthLabel}>Mês Anterior:</span>
+                    <span className={styles.monthValue}>{lastMonth}</span>
+                  </div>
+                </div>
+                <div className={styles.percentageContainer}>
+                  <div className={styles.percentageChange} style={{ color: arrowColor }}>
+                    <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
+                    <span className={styles.percentageValue}>{formattedPercentage}%</span>
+                  </div>
+                  <span className={styles.percentageLabel}>Variação</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
