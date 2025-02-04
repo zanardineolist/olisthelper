@@ -1,17 +1,3 @@
-/* Container principal para a página */
-.container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--box-color);
-  padding: 10px 20px;
-  z-index: 1000;
-}
-
 /* Área principal da página */
 .main {
   max-width: 1400px;
@@ -60,6 +46,8 @@
   gap: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+  min-height: 280px;
+  height: 100%;
 }
 
 .profileContainer:hover {
@@ -129,6 +117,11 @@
   padding: 24px;
   text-align: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.workMetric:hover {
+  transform: translateY(-5px);
 }
 
 .workMetric h3 {
@@ -154,13 +147,16 @@
   color: var(--text-color2);
 }
 
-/* Container para ajudas solicitadas */
+/* Container para ajudas solicitadas/prestadas */
 .helpRequestsContainer {
   background: linear-gradient(145deg, var(--box-color), var(--box-color2));
   border-radius: 16px;
   padding: 30px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  min-height: 280px;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .helpRequestsContainer h2 {
@@ -170,8 +166,10 @@
 }
 
 .helpRequestsContent {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
   gap: 30px;
 }
 
@@ -188,6 +186,11 @@
   padding: 12px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
+  transition: transform 0.2s ease;
+}
+
+.monthMetric:hover {
+  transform: translateX(5px);
 }
 
 .monthLabel {
@@ -208,6 +211,7 @@
   justify-content: center;
   padding-left: 30px;
   border-left: 2px solid var(--color-border);
+  min-width: 150px;
 }
 
 .percentageChange {
@@ -275,6 +279,8 @@
   flex-direction: column;
   gap: 8px;
   transition: transform 0.2s ease;
+  min-height: 90px;
+  justify-content: center;
 }
 
 .performanceItem:hover {
@@ -309,7 +315,7 @@
   border-radius: 12px;
   padding: 16px 20px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 20px;
   transition: transform 0.3s ease;
@@ -323,6 +329,7 @@
   color: var(--color-primary);
   font-size: 1.2rem;
   font-weight: bold;
+  min-width: 30px;
 }
 
 .categoryName {
@@ -334,7 +341,6 @@
   height: 8px;
   background-color: var(--color-primary);
   border-radius: 4px;
-  margin: 0 20px;
   min-width: 50px;
   max-width: 200px;
   transition: width 0.3s ease;
@@ -380,6 +386,20 @@
   }
 }
 
+/* Ajustes específicos para o perfil do analista */
+.analystMetrics .workMetric {
+  padding: 20px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.analystMetrics .metricValue {
+  font-size: 2.5rem;
+  margin: 10px 0;
+}
+
 /* Media Queries */
 @media (max-width: 1400px) {
   .main {
@@ -403,8 +423,9 @@
     grid-column: span 12;
   }
 
-  .workMetricsContainer {
-    grid-template-columns: repeat(2, 1fr);
+  .profileContainer,
+  .helpRequestsContainer {
+    min-height: auto;
   }
 }
 
@@ -417,21 +438,26 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
+    padding: 25px;
   }
 
   .helpRequestsContent {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .monthsInfo {
+    width: 100%;
   }
 
   .percentageContainer {
+    width: 100%;
+    padding: 20px 0 0;
     border-left: none;
     border-top: 2px solid var(--color-border);
-    padding-top: 20px;
-    padding-left: 0;
   }
 
   .listItem {
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto 1fr auto;
   }
 
   .progressBarCategory {
@@ -440,11 +466,49 @@
 }
 
 @media (max-width: 576px) {
+  .greeting {
+    font-size: 1.5rem;
+  }
+
   .workMetricsContainer {
     grid-template-columns: 1fr;
   }
 
-  .greeting {
+  .profileInfo h2 {
+    font-size: 1.3em;
+  }
+
+  .profileInfo p {
+    font-size: 0.9em;
+  }
+
+  .tag {
+    font-size: 0.8em;
+    padding: 5px 12px;
+  }
+
+  .monthMetric {
+    padding: 10px;
+  }
+
+  .monthLabel {
+    font-size: 0.9rem;
+  }
+
+  .monthValue {
+    font-size: 1.1rem;
+  }
+
+  .percentageChange {
     font-size: 1.5rem;
+  }
+
+  .performanceContainer {
+    padding: 20px;
+  }
+
+  .performanceItem {
+    padding: 12px;
+    min-height: 80px;
   }
 }

@@ -90,20 +90,23 @@ export default function MyPage({ user }) {
   const arrowColor = percentageChange > 0 ? 'red' : 'green';
   const formattedPercentage = Math.abs(percentageChange).toFixed(1);
 
+  // O código permanece o mesmo até o return
+
   return (
     <>
       <Head>
         <title>Meus Dados</title>
       </Head>
-  
+
       <Navbar user={user} />
-  
+
       <main className={styles.main}>
         <h1 className={styles.greeting}>{greeting}, {firstName}!</h1>
-  
+
         <div className={styles.profileAndHelpContainer}>
-          {/* Lado Esquerdo */}
+          {/* Lado Esquerdo - Perfil e Métricas */}
           <div className={styles.leftSide}>
+            {/* Card de Perfil */}
             <div className={styles.profileContainer}>
               <img src={user.image} alt={user.name} className={styles.profileImage} />
               <div className={styles.profileInfo}>
@@ -133,7 +136,8 @@ export default function MyPage({ user }) {
                 </div>
               </div>
             </div>
-  
+
+            {/* Métricas de Trabalho */}
             <div className={styles.workMetricsContainer}>
               <div className={styles.workMetric}>
                 <h3>Dias Trabalhados</h3>
@@ -150,8 +154,8 @@ export default function MyPage({ user }) {
               </div>
             </div>
           </div>
-  
-          {/* Lado Direito */}
+
+          {/* Lado Direito - Ajudas Solicitadas */}
           <div className={styles.rightSide}>
             <div className={styles.helpRequestsContainer}>
               <h2>Ajudas Solicitadas</h2>
@@ -177,7 +181,7 @@ export default function MyPage({ user }) {
             </div>
           </div>
         </div>
-  
+
         {/* Grid de Performance */}
         <div className={styles.performanceWrapper}>
           {performanceData?.chamados && (
@@ -204,7 +208,7 @@ export default function MyPage({ user }) {
               </div>
             </div>
           )}
-  
+
           {performanceData?.telefone && (
             <div className={styles.performanceContainer}>
               <h2>Indicadores Telefone</h2>
@@ -229,7 +233,7 @@ export default function MyPage({ user }) {
               </div>
             </div>
           )}
-  
+
           {performanceData?.chat && (
             <div className={styles.performanceContainer}>
               <h2>Indicadores Chat</h2>
@@ -251,7 +255,7 @@ export default function MyPage({ user }) {
             </div>
           )}
         </div>
-  
+
         {/* Ranking de Categorias */}
         <div className={styles.categoryRanking}>
           <h3>Top 10 - Temas de maior dúvida</h3>
@@ -282,7 +286,7 @@ export default function MyPage({ user }) {
                           onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
                         ></i>
                         <span className="tooltipText">
-                          Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone abaixo.
+                          Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone.
                         </span>
                       </div>
                     )}

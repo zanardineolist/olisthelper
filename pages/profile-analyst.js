@@ -89,6 +89,8 @@ export default function AnalystProfilePage({ user }) {
   const arrowColor = percentageChange > 0 ? 'green' : 'red';
   const formattedPercentage = Math.abs(percentageChange).toFixed(1);
 
+  // O código permanece o mesmo até o return
+
   return (
     <>
       <Head>
@@ -98,30 +100,34 @@ export default function AnalystProfilePage({ user }) {
       <Navbar user={user} />
 
       <main className={styles.main}>
-        <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
+        <h1 className={styles.greeting}>{greeting}, {firstName}!</h1>
 
         <div className={styles.profileAndHelpContainer}>
-          {/* Lado Esquerdo - Perfil */}
-          <div className={styles.leftSide}>
+          {/* Lado Esquerdo - Perfil e Métricas */}
+          <div className={`${styles.leftSide}`}>
+            {/* Card de Perfil */}
             <div className={styles.profileContainer}>
               <img src={user.image} alt={user.name} className={styles.profileImage} />
               <div className={styles.profileInfo}>
                 <h2>{user.name}</h2>
                 <p>{user.email}</p>
                 <div className={styles.tagsContainer}>
-                  <div className={styles.tag} style={{ backgroundColor: user.role === 'analyst' ? '#0A4EE4' : '#8A2BE2' }}>
+                  <div 
+                    className={styles.tag} 
+                    style={{ backgroundColor: user.role === 'analyst' ? '#0A4EE4' : '#8A2BE2' }}
+                  >
                     #{user.role === 'analyst' ? 'Analista' : 'Fiscal'}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Container de Métricas de Trabalho */}
-            <div className={styles.workMetricsContainer}>
+            {/* Métricas de Trabalho */}
+            <div className={`${styles.workMetricsContainer} ${styles.analystMetrics}`}>
               <div className={styles.workMetric}>
                 <h3>Total de RFC</h3>
                 <div className={styles.metricContent}>
-                  <span className={styles.metricValue}>0</span>
+                  <span className={styles.metricValue}>{performanceData?.totalRFC || 0}</span>
                 </div>
               </div>
               <div className={styles.workMetric}>
@@ -150,8 +156,8 @@ export default function AnalystProfilePage({ user }) {
                 </div>
                 <div className={styles.percentageContainer}>
                   <div className={styles.percentageChange} style={{ color: arrowColor }}>
-                    <i className={`fa-regular ${arrowClass}`} style={{ color: arrowColor }}></i>
-                    <span className={styles.percentageValue}>{formattedPercentage}%</span>
+                    <i className={`fa-regular ${arrowClass}`}></i>
+                    <span>{formattedPercentage}%</span>
                   </div>
                   <span className={styles.percentageLabel}>Variação</span>
                 </div>
@@ -160,54 +166,127 @@ export default function AnalystProfilePage({ user }) {
           </div>
         </div>
 
-        {/* Container para Ranking de Categorias */}
-        <div className={styles.categoryRanking}>
-          <h3>Top 10 - Temas mais auxiliados</h3>
-          {loading ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
-          ) : categoryRanking.length > 0 ? (
-            <ul className={styles.list}>
-              {categoryRanking.map((category, index) => (
-                <li key={index} className={styles.listItem}>
-                  <span className={styles.rank}>{index + 1}.</span>
-                  <span className={styles.categoryName}>{category.name}</span>
-                  <div
-                    className={styles.progressBarCategory}
-                    style={{
-                      width: `${category.count * 10}px`,
-                      backgroundColor: category.count > 50 ? 'orange' : '',
-                    }}
-                  />
-                  <span className={styles.count}>
-                    {category.count} pedidos de ajuda
-                    {category.count > 50 && (
-                      <div className="tooltip">
-                        <i
-                          className="fa-solid fa-circle-exclamation"
-                          style={{ color: 'orange', cursor: 'pointer' }}
-                          onClick={() => window.open('https://olisterp.wixsite.com/knowledge/inicio', '_blank')}
-                        ></i>
-                        <span className="tooltipText">
-                          Você já ajudou neste tema mais de 50 vezes. Que tal criar um material sobre, e publicar em nosso knowledge?
-                        </span>
-                      </div>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className={styles.noData}>
-              Nenhum dado disponível no momento.
+        {/* Grid de Performance */}
+        <div className={styles.performanceWrapper}>
+          {performanceData?.chamados && (
+            <div className={styles.performanceContainer}>
+              <h2>Indicadores Chamados</h2>
+              <p className={styles.lastUpdated}>Período: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+              <div className={styles.performanceInfo}>
+                <div className={styles.performanceItem}>
+                  <span>Total Chamados</span>
+                  <span>{performanceData.chamados.totalChamados}</span>
+                </div>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
+                  <span>Média/Dia</span>
+                  <span>{performanceData.chamados.mediaPorDia}</span>
+                </div>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
+                  <span>TMA</span>
+                  <span>{performanceData.chamados.tma}</span>
+                </div>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
+                  <span>CSAT</span>
+                  <span>{performanceData.chamados.csat}</span>
+                </div>
+              </div>
             </div>
           )}
-        </div>
-      </main>
 
-      <Footer />
-    </>
+          {performanceData?.telefone && (
+            <div className={styles.performanceContainer}>
+            <h2>Indicadores Telefone</h2>
+            <p className={styles.lastUpdated}>Período: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+            <div className={styles.performanceInfo}>
+              <div className={styles.performanceItem}>
+                <span>Total Telefone</span>
+                <span>{performanceData.telefone.totalTelefone}</span>
+              </div>
+              <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
+                <span>TMA</span>
+                <span>{performanceData.telefone.tma}</span>
+              </div>
+              <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
+                <span>CSAT</span>
+                <span>{performanceData.telefone.csat}</span>
+              </div>
+              <div className={styles.performanceItem}>
+                <span>Perdidas</span>
+                <span>{performanceData.telefone.perdidas}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {performanceData?.chat && (
+          <div className={styles.performanceContainer}>
+            <h2>Indicadores Chat</h2>
+            <p className={styles.lastUpdated}>Período: {performanceData?.atualizadoAte || "Data não disponível"}</p>
+            <div className={styles.performanceInfo}>
+              <div className={styles.performanceItem}>
+                <span>Total Chats</span>
+                <span>{performanceData.chat.totalChats}</span>
+              </div>
+              <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
+                <span>TMA</span>
+                <span>{performanceData.chat.tma}</span>
+              </div>
+              <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
+                <span>CSAT</span>
+                <span>{performanceData.chat.csat}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Ranking de Categorias */}
+      <div className={styles.categoryRanking}>
+        <h3>Top 10 - Temas mais auxiliados</h3>
+        {loading ? (
+          <div className={styles.loadingContainer}>
+            <div className="standardBoxLoader"></div>
+          </div>
+        ) : categoryRanking.length > 0 ? (
+          <ul className={styles.list}>
+            {categoryRanking.map((category, index) => (
+              <li key={index} className={styles.listItem}>
+                <span className={styles.rank}>{index + 1}.</span>
+                <span className={styles.categoryName}>{category.name}</span>
+                <div
+                  className={styles.progressBarCategory}
+                  style={{
+                    width: `${Math.min((category.count / 50) * 100, 100)}%`,
+                    backgroundColor: category.count > 50 ? '#F0A028' : '',
+                  }}
+                />
+                <span className={styles.count}>
+                  {category.count} pedidos de ajuda
+                  {category.count > 50 && (
+                    <div className="tooltip">
+                      <i
+                        className="fa-solid fa-circle-exclamation"
+                        style={{ color: '#F0A028', cursor: 'pointer' }}
+                        onClick={() => window.open('https://olisterp.wixsite.com/knowledge/inicio', '_blank')}
+                      ></i>
+                      <span className="tooltipText">
+                        Você já ajudou neste tema mais de 50 vezes. Que tal criar um material sobre, e publicar em nosso knowledge?
+                      </span>
+                    </div>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className={styles.noData}>
+            Nenhum dado disponível no momento.
+          </div>
+        )}
+      </div>
+    </main>
+    <Footer />
+  </>
   );
 }
 
