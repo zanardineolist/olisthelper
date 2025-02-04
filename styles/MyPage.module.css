@@ -491,24 +491,275 @@
 }
 
 /* Media Queries para Responsividade */
+@media (max-width: 1400px) {
+  .main {
+    padding: 20px;
+  }
+
+  .profileAndHelpContainer {
+    width: 95%;
+    max-width: 1100px;
+  }
+
+  .categoryRanking {
+    width: 95%;
+    max-width: 1100px;
+  }
+}
+
 @media (max-width: 1200px) {
+  .profileAndHelpContainer {
+    gap: 15px;
+  }
+
+  .leftSide, .rightSide {
+    width: 48%;
+  }
+
+  .workMetricsContainer {
+    gap: 15px;
+  }
+
   .performanceWrapper {
-    grid-template-columns: repeat(2, 1fr);
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .performanceContainer {
+    width: 48%;
+    margin-bottom: 15px;
   }
 }
 
 @media (max-width: 992px) {
   .profileAndHelpContainer {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: center;
   }
-  
+
+  .leftSide, .rightSide {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .profileContainer, .helpRequestsContainer {
+    width: 100%;
+  }
+
+  .workMetricsContainer {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+
+  .workMetric {
+    width: 48%;
+  }
+
   .performanceWrapper {
-    grid-template-columns: 1fr;
+    justify-content: center;
+  }
+
+  .performanceContainer {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .categoryRanking {
+    margin-top: 30px;
   }
 }
 
 @media (max-width: 768px) {
+  .greeting {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .profileContainer {
+    flex-direction: column;
+    text-align: center;
+    padding: 15px;
+  }
+
+  .profileImage {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 15px;
+  }
+
+  .profileInfo {
+    align-items: center;
+  }
+
+  .tagsContainer {
+    justify-content: center;
+  }
+
   .workMetricsContainer {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .workMetric {
+    width: 100%;
+  }
+
+  .helpRequestsContainer {
+    padding: 15px;
+  }
+
+  .helpRequestsContent {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .monthsInfo {
+    width: 100%;
+  }
+
+  .monthMetric {
+    justify-content: space-between;
+    padding: 10px;
+  }
+
+  .percentageContainer {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .listItem {
+    flex-wrap: wrap;
+    padding: 12px;
+  }
+
+  .categoryName {
+    width: 100%;
+    margin: 5px 0;
+  }
+
+  .progressBarCategory {
+    max-width: 200px;
+  }
+
+  .count {
+    width: 100%;
+    text-align: right;
+    margin-top: 5px;
+  }
+}
+
+@media (max-width: 576px) {
+  .main {
+    padding: 15px;
+  }
+
+  .profileAndHelpContainer {
+    width: 100%;
+  }
+
+  .profileContainer, .helpRequestsContainer {
+    border-radius: 8px;
+  }
+
+  .monthMetric {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .monthLabel {
+    margin-bottom: 5px;
+  }
+
+  .percentageChange {
+    font-size: 1.2rem;
+  }
+
+  .categoryRanking {
+    width: 100%;
+    padding: 15px;
+  }
+
+  .listItem {
+    margin-bottom: 10px;
+  }
+
+  .rank {
+    width: 30px;
+  }
+
+  .progressBarCategory {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 400px) {
+  .greeting {
+    font-size: 1.2rem;
+  }
+
+  .profileInfo h2 {
+    font-size: 1.2rem;
+  }
+
+  .profileInfo p {
+    font-size: 0.9rem;
+  }
+
+  .tag {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
+
+  .monthMetric {
+    font-size: 0.9rem;
+  }
+
+  .percentageChange {
+    font-size: 1rem;
+  }
+
+  .categoryName {
+    font-size: 0.9rem;
+  }
+
+  .count {
+    font-size: 0.8rem;
+  }
+}
+
+/* Ajustes para telas muito grandes */
+@media (min-width: 1600px) {
+  .profileAndHelpContainer {
+    max-width: 1400px;
+  }
+
+  .categoryRanking {
+    max-width: 1400px;
+  }
+
+  .performanceWrapper {
+    max-width: 1400px;
+  }
+}
+
+/* Ajustes para altura da tela */
+@media (max-height: 800px) {
+  .main {
+    padding-top: 10px;
+  }
+
+  .greeting {
+    margin-bottom: 10px;
+  }
+
+  .profileContainer, .helpRequestsContainer {
+    padding: 15px;
+  }
+
+  .categoryRanking {
+    margin-top: 20px;
   }
 }
