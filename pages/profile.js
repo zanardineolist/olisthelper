@@ -138,15 +138,14 @@ export default function MyPage({ user }) {
           <div className={styles.workMetric}>
             <h3>Dias Trabalhados</h3>
             <div className={styles.metricContent}>
-              <span className={styles.metricValue}>{performanceData?.dias_trabalhados || 0}</span>
-              <span className={styles.metricSubtext}>/ {performanceData?.dias_uteis || 0} dias úteis</span>
+              <span className={styles.metricValue}>{performanceData?.diasTrabalhados || 0}</span>
+              <span className={styles.metricSubtext}>/ {performanceData?.diasUteis || 0} dias úteis</span>
             </div>
           </div>
           <div className={styles.workMetric}>
             <h3>Absenteísmo</h3>
             <div className={styles.metricContent}>
-              <span className={styles.metricValue}>{performanceData?.absente_percentage || 0}%</span>
-              <span className={styles.metricSubtext}>Meta: 5%</span>
+              <span className={styles.metricValue}>{performanceData?.absenteismo || 0}%</span>
             </div>
           </div>
         </div>

@@ -94,7 +94,7 @@
 
 .workMetric {
   flex: 1;
-  background-color: var(--box-color2);
+  background: linear-gradient(145deg, var(--box-color), var(--box-color2));
   padding: 20px;
   border-radius: 10px;
   text-align: center;
@@ -202,7 +202,7 @@
 
 /* Ajustes para o container de ajudas solicitadas */
 .helpRequestsContainer {
-  background-color: var(--box-color2);
+  background: linear-gradient(145deg, var(--box-color), var(--box-color2));
   padding: 20px;
   border-radius: 10px;
   width: 100%;
