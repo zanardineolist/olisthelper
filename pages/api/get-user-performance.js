@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '../../../utils/supabase/supabaseClient';
+import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
 
 const formatTime = (time) => {
   if (!time) return "-";
