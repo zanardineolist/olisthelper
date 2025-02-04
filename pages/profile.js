@@ -13,11 +13,10 @@ export default function MyPage({ user }) {
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
-  const [initialLoading, setInitialLoading] = useState(true); // Estado para carregamento inicial da página
-  const [loading, setLoading] = useState(true); // Estado para carregamento dos dados
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulando um pequeno atraso para exibir o loader inicial da página
     setTimeout(() => {
       const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
       const currentHour = new Date(brtDate).getHours();
@@ -36,7 +35,6 @@ export default function MyPage({ user }) {
     }, 500);
   }, []);
 
-  // Buscar dados do usuário
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -47,18 +45,15 @@ export default function MyPage({ user }) {
           (user.role === 'support' || user.role === 'support+') ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
         ]);
   
-        // Ajudas Solicitadas
         const helpData = await helpResponse.json();
         setHelpRequests({
           currentMonth: helpData.currentMonth,
           lastMonth: helpData.lastMonth,
         });
   
-        // Ranking de Categorias
         const categoryData = await categoryResponse.json();
         setCategoryRanking(categoryData.categories || []);
   
-        // Desempenho do Usuário (apenas para suporte)
         if (user.role === 'support' || user.role === 'support+') {
           const performanceData = await performanceResponse.json();
           setPerformanceData(performanceData);
@@ -76,7 +71,6 @@ export default function MyPage({ user }) {
   }, [user.email, user.role]);  
 
   if (initialLoading) {
-    // Loader inicial da página
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
@@ -102,13 +96,12 @@ export default function MyPage({ user }) {
         <title>Meus Dados</title>
       </Head>
 
-      {/* Navbar reutilizável */}
       <Navbar user={user} />
 
       <main className={styles.main}>
         <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
 
-        {/* Container para Dados de Perfil e Ajudas Solicitadas */}
+        {/* Container para Dados de Perfil e Ajuda Solicitada */}
         <div className={styles.profileAndHelpContainer}>
           <div className={styles.profileContainer}>
             <img src={user.image} alt={user.name} className={styles.profileImage} />
@@ -116,7 +109,6 @@ export default function MyPage({ user }) {
               <h2>{user.name}</h2>
               <p>{user.email}</p>
               <div className={styles.tagsContainer}>
-                {/* Tags de Desempenho */}
                 {performanceData?.squad && (
                   <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
                     #{performanceData.squad}
@@ -140,6 +132,27 @@ export default function MyPage({ user }) {
               </div>
             </div>
           </div>
+
+          {/* Nova seção de Dias Trabalhados e Absenteísmo */}
+          {performanceData && (
+            <div className={styles.workMetricsContainer}>
+              <div className={styles.workMetric}>
+                <h3>Dias Trabalhados</h3>
+                <div className={styles.metricValue}>
+                  <span className={styles.mainValue}>{performanceData.diasTrabalhados}</span>
+                  <span className={styles.subValue}>/ {performanceData.diasUteis} dias úteis</span>
+                </div>
+              </div>
+              <div className={styles.workMetric}>
+                <h3>Absenteísmo</h3>
+                <div className={`${styles.metricValue} ${performanceData.absenteismo > 5 ? styles.alert : ''}`}>
+                  <span className={styles.mainValue}>{performanceData.absenteismo}%</span>
+                  <span className={styles.subValue}>Meta: 5%</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className={styles.profileContainer}>
             {loading ? (
               <div className={styles.loadingContainer}>
@@ -174,21 +187,22 @@ export default function MyPage({ user }) {
                   <span>Total Chamados:</span>
                   <span>{performanceData.chamados.totalChamados}</span>
                 </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia }}>
                   <span>Média/Dia:</span>
                   <span>{performanceData.chamados.mediaPorDia}</span>
                 </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma }}>
                   <span>TMA:</span>
                   <span>{performanceData.chamados.tma}</span>
                 </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat }}>
                   <span>CSAT:</span>
-                  <span>{performanceData.chamados.csat}</span>
+                  <span>{performanceData.chamados.csat}%</span>
                 </div>
               </div>
             </div>
           )}
+
           {performanceData?.telefone && (
             <div className={styles.performanceContainer}>
               <h2>Indicadores Telefone</h2>
@@ -198,11 +212,11 @@ export default function MyPage({ user }) {
                   <span>Total Telefone:</span>
                   <span>{performanceData.telefone.totalTelefone}</span>
                 </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma }}>
                   <span>TMA:</span>
                   <span>{performanceData.telefone.tma}</span>
                 </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat }}>
                   <span>CSAT:</span>
                   <span>{performanceData.telefone.csat}</span>
                 </div>
@@ -213,6 +227,7 @@ export default function MyPage({ user }) {
               </div>
             </div>
           )}
+
           {performanceData?.chat && (
             <div className={styles.performanceContainer}>
               <h2>Indicadores Chat</h2>
@@ -222,11 +237,11 @@ export default function MyPage({ user }) {
                   <span>Total Chats:</span>
                   <span>{performanceData.chat.totalChats}</span>
                 </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma }}>
                   <span>TMA:</span>
                   <span>{performanceData.chat.tma}</span>
                 </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
+                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat }}>
                   <span>CSAT:</span>
                   <span>{performanceData.chat.csat}</span>
                 </div>
