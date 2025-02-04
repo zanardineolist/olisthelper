@@ -46,7 +46,7 @@
   gap: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
-  min-height: 200px;
+  min-height: 215px;
   height: 100%;
 }
 
@@ -161,6 +161,7 @@
 .helpRequestsContainer h2 {
   color: var(--title-color);
   font-size: 1.4rem;
+  margin-top:0px;
   margin-bottom: 20px;
 }
 

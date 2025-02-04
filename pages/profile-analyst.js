@@ -147,6 +147,23 @@ export default function AnalystProfilePage({ user }) {
                 </div>
               </div>
             </div>
+
+            {/* Métricas de Trabalho */}
+            <div className={styles.workMetricsContainer}>
+              <div className={styles.workMetric}>
+                <h3>Dias Trabalhados</h3>
+                <div className={styles.metricContent}>
+                  <span className={styles.metricValue}>{performanceData?.diasTrabalhados || 0}</span>
+                  <span className={styles.metricSubtext}>/ {performanceData?.diasUteis || 0} dias úteis</span>
+                </div>
+              </div>
+              <div className={styles.workMetric}>
+                <h3>Absenteísmo</h3>
+                <div className={styles.metricContent}>
+                  <span className={styles.metricValue}>{performanceData?.absenteismo || 0}%</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Lado Direito - Ajudas Prestadas */}
