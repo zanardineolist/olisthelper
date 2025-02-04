@@ -15,27 +15,45 @@ const syncPerformanceData = async () => {
       }
     );
 
-    // Autenticar com Google Sheets
+    // Autenticar com Google Sheets usando as novas variáveis
     const auth = new google.auth.JWT(
-      process.env.GOOGLE_CLIENT_EMAIL,
+      process.env.PERFORMANCE_SHEET_CLIENT_EMAIL,
       null,
-      process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      process.env.PERFORMANCE_SHEET_PRIVATE_KEY.replace(/\\n/g, '\n'),
       ['https://www.googleapis.com/auth/spreadsheets.readonly']
     );
     
     const sheets = google.sheets({ version: 'v4', auth });
+
+    // Primeiro, verificar se a aba existe
+    console.log('Verificando metadados da planilha...');
+    const spreadsheet = await sheets.spreadsheets.get({
+      spreadsheetId: process.env.PERFORMANCE_SHEET_ID,
+    });
+
+    const metricasSheet = spreadsheet.data.sheets.find(
+      sheet => sheet.properties.title === 'Metricas'
+    );
+
+    if (!metricasSheet) {
+      throw new Error('Aba "Metricas" não encontrada na planilha');
+    }
+
+    console.log('Aba "Metricas" encontrada, buscando dados...');
     
     // Buscar dados da planilha
     const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.SHEET_ID,
-      range: 'Metricas!A2:S', // Ajustado para a nova aba e colunas
-      valueRenderOption: 'UNFORMATTED_VALUE', // Retorna valores brutos sem formatação
+      spreadsheetId: process.env.PERFORMANCE_SHEET_ID,
+      range: "'Metricas'!A2:S",
+      valueRenderOption: 'FORMATTED_VALUE',
     });
     
     const rows = response.data.values;
     if (!rows || rows.length === 0) {
       throw new Error('Nenhum dado encontrado na planilha');
     }
+
+    console.log(`Encontrados ${rows.length} registros para processar`);
 
     // Primeiro, buscar todos os usuários do Supabase para mapear emails para user_ids
     const { data: users, error: usersError } = await supabase
@@ -46,15 +64,46 @@ const syncPerformanceData = async () => {
     if (usersError) throw usersError;
 
     const userMap = new Map(users.map(user => [user.email.toLowerCase(), user.id]));
+    console.log(`Mapeados ${users.length} usuários ativos`);
 
     // Processar dados em lotes de 100 registros
     const batchSize = 100;
+    let processedCount = 0;
+    let successCount = 0;
+
     for (let i = 0; i < rows.length; i += batchSize) {
       const batch = rows.slice(i, i + batchSize).map(row => {
         const email = (row[0] || '').toLowerCase();
         const userId = userMap.get(email);
 
-        if (!userId || !email) return null;
+        if (!userId || !email) {
+          console.log(`Ignorando registro para email ${email} - usuário não encontrado`);
+          return null;
+        }
+
+        // Função auxiliar para converter tempo
+        const parseTime = (timeStr) => {
+          if (!timeStr) return null;
+          const parts = timeStr.toString().split(':');
+          if (parts.length >= 2) {
+            return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}:${parts[2] ? parts[2].padStart(2, '0') : '00'}`;
+          }
+          return null;
+        };
+
+        // Função auxiliar para converter porcentagem
+        const parsePercentage = (value) => {
+          if (!value) return 0;
+          const str = value.toString().replace(',', '.').replace('%', '');
+          return parseFloat(str) || 0;
+        };
+
+        // Função auxiliar para converter número
+        const parseNumber = (value) => {
+          if (!value) return 0;
+          const str = value.toString().replace(',', '.');
+          return parseFloat(str) || 0;
+        };
 
         return {
           user_id: userId,
@@ -62,40 +111,51 @@ const syncPerformanceData = async () => {
           nome: row[1] || '',
           dias_trabalhados: parseInt(row[2]) || 0,
           dias_uteis: parseInt(row[3]) || 0,
-          absente_percentage: parseFloat(row[4]?.toString().replace('%', '')) || 0,
+          absente_percentage: parsePercentage(row[4]),
           total_chamados: parseInt(row[5]) || 0,
-          chamados_media_dia: parseFloat(row[6]) || 0,
-          chamados_tma: parseFloat(row[7]) || 0,
-          chamados_csat: parseFloat(row[8]?.toString().replace('%', '')) || 0,
+          chamados_media_dia: parseNumber(row[6]),
+          chamados_tma: parseNumber(row[7]),
+          chamados_csat: parsePercentage(row[8]),
           total_telefone: parseInt(row[9]) || 0,
-          telefone_media_dia: parseFloat(row[10]) || 0,
-          telefone_tma: row[11] ? row[11].toString() : null,
-          telefone_csat: parseFloat(row[12]) || 0,
+          telefone_media_dia: parseNumber(row[10]),
+          telefone_tma: parseTime(row[11]),
+          telefone_csat: parseNumber(row[12]),
           telefone_perdidas: parseInt(row[13]) || 0,
           total_chats: parseInt(row[14]) || 0,
-          chat_media_dia: parseFloat(row[15]) || 0,
-          chat_tma: row[16] ? row[16].toString() : null,
-          chat_csat: parseFloat(row[17]) || 0,
+          chat_media_dia: parseNumber(row[15]),
+          chat_tma: parseTime(row[16]),
+          chat_csat: parseNumber(row[17]),
           atualizado_ate: row[18] || '',
           last_sheets_sync: new Date().toISOString()
         };
-      }).filter(Boolean); // Remove registros nulos
+      }).filter(Boolean);
 
       if (batch.length > 0) {
-        const { error: upsertError } = await supabase
-          .from('user_performance')
-          .upsert(batch, {
-            onConflict: 'user_id',
-            ignoreDuplicates: false
-          });
+        try {
+          const { error: upsertError } = await supabase
+            .from('user_performance')
+            .upsert(batch, {
+              onConflict: 'user_id',
+              ignoreDuplicates: false
+            });
 
-        if (upsertError) {
-          console.error('Erro ao atualizar lote:', upsertError);
-          throw upsertError;
+          if (upsertError) {
+            console.error('Erro ao atualizar lote:', upsertError);
+            throw upsertError;
+          }
+
+          successCount += batch.length;
+        } catch (error) {
+          console.error(`Erro ao processar lote ${i/batchSize + 1}:`, error);
+          throw error;
         }
       }
+
+      processedCount += batch.length;
+      console.log(`Processados ${processedCount}/${rows.length} registros`);
     }
 
+    console.log(`Sincronização concluída com sucesso. ${successCount} registros atualizados.`);
     return true;
   } catch (error) {
     console.error('Erro durante a sincronização:', error);
