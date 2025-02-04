@@ -1,9 +1,9 @@
+// pages/profile-analyst.js
 import Head from 'next/head';
-import { getSession, signOut } from 'next-auth/react';
+import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/MyPage.module.css';
 import Footer from '../components/Footer';
 
@@ -12,13 +12,11 @@ export default function AnalystProfilePage({ user }) {
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
-  const [initialLoading, setInitialLoading] = useState(true); // Estado para carregamento inicial da página
-  const [loading, setLoading] = useState(true); // Estado para carregamento dos dados
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulando um pequeno atraso para exibir o loader inicial da página
     setTimeout(() => {
-      // Definir saudação com base na hora do dia
       const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
       const currentHour = new Date(brtDate).getHours();
       let greetingMessage = '';
@@ -40,7 +38,6 @@ export default function AnalystProfilePage({ user }) {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Buscar dados de ajudas solicitadas e ranking de categorias do analista logado
         const [helpResponse, categoryResponse] = await Promise.all([
           fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
           fetch(`/api/get-category-ranking?analystId=${user.id}`)
@@ -50,7 +47,7 @@ export default function AnalystProfilePage({ user }) {
           throw new Error('Erro ao buscar dados do analista.');
         }
 
-        // Ajudas Solicitadas
+        // Ajudas Prestadas
         const helpData = await helpResponse.json();
         setHelpRequests({
           currentMonth: helpData.currentMonth,
@@ -73,7 +70,6 @@ export default function AnalystProfilePage({ user }) {
   }, [user.id]);
 
   if (initialLoading) {
-    // Loader inicial da página
     return (
       <div className="loaderOverlay">
         <div className="loader"></div>
@@ -105,31 +101,33 @@ export default function AnalystProfilePage({ user }) {
         <h1 className={styles.greeting}>Olá, {greeting} {firstName}!</h1>
 
         <div className={styles.profileAndHelpContainer}>
-          {/* Lado Esquerdo - Perfil e Métricas */}
+          {/* Lado Esquerdo - Perfil */}
           <div className={styles.leftSide}>
             <div className={styles.profileContainer}>
               <img src={user.image} alt={user.name} className={styles.profileImage} />
               <div className={styles.profileInfo}>
                 <h2>{user.name}</h2>
                 <p>{user.email}</p>
+                <div className={styles.tagsContainer}>
+                  <div className={styles.tag} style={{ backgroundColor: user.role === 'analyst' ? '#0A4EE4' : '#8A2BE2' }}>
+                    #{user.role === 'analyst' ? 'Analista' : 'Fiscal'}
+                  </div>
+                </div>
               </div>
             </div>
 
+            {/* Container de Métricas de Trabalho */}
             <div className={styles.workMetricsContainer}>
               <div className={styles.workMetric}>
                 <h3>Total de RFC</h3>
                 <div className={styles.metricContent}>
-                  <span className={styles.metricValue}>{performanceData?.totalChamados || 0}</span>
-                  <span className={styles.metricSubtext}>Período: {performanceData?.atualizadoAte || 'Data não disponível'}</span>
+                  <span className={styles.metricValue}>0</span>
                 </div>
               </div>
               <div className={styles.workMetric}>
                 <h3>Total de Ajudas</h3>
                 <div className={styles.metricContent}>
-                  <span className={styles.metricValue}>
-                    {Number(helpRequests.currentMonth) + Number(performanceData?.totalChamados || 0)}
-                  </span>
-                  <span className={styles.metricSubtext}>(ajudas prestadas atual + total de rfc)</span>
+                  <span className={styles.metricValue}>{currentMonth}</span>
                 </div>
               </div>
             </div>
@@ -138,7 +136,7 @@ export default function AnalystProfilePage({ user }) {
           {/* Lado Direito - Ajudas Prestadas */}
           <div className={styles.rightSide}>
             <div className={styles.helpRequestsContainer}>
-              <h2>Ajudas prestadas</h2>
+              <h2>Ajudas Prestadas</h2>
               <div className={styles.helpRequestsContent}>
                 <div className={styles.monthsInfo}>
                   <div className={styles.monthMetric}>
