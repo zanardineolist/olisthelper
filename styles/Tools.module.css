@@ -1,0 +1,209 @@
+.main {
+  padding: 20px;
+  margin-top: 50px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Container das tabs */
+.tabsContainer {
+  width: 100%;
+  max-width: 1400px;
+  display: flex;
+  justify-content: center;
+  margin: 20px auto;
+}
+
+/* Conteúdo das tabs */
+.tabContent {
+  width: 100%;
+  max-width: 1400px;
+  margin: 20px auto;
+}
+
+/* Estilos específicos do contador */
+.counterWrapper {
+  position: relative;
+  background-color: var(--box-color);
+  padding: 2rem;
+  border-radius: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.counterHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--title-color);
+}
+
+.counterDisplay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  padding: 3rem;
+  background-color: var(--box-color4);
+  border-radius: 20px;
+}
+
+.counterButton {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-white);
+  transition: all 0.3s ease;
+}
+
+.decrementButton {
+  background: linear-gradient(135deg, #FF5252, #FF1744);
+  box-shadow: 0 4px 15px rgba(255, 23, 68, 0.3);
+}
+
+.incrementButton {
+  background: linear-gradient(135deg, #4CAF50, #43A047);
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.counterValue {
+  font-size: 5rem;
+  font-weight: 700;
+  min-width: 200px;
+  text-align: center;
+  color: var(--title-color);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.clearButton {
+  margin: 2rem auto;
+  background: linear-gradient(135deg, #FF9800, #F57C00);
+  color: var(--color-white);
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
+}
+
+.clearButtonContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clearButton:hover:not(:disabled) {
+  background-color: #e09017;
+}
+
+.clearButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Estilos do histórico */
+.historyContainer {
+  margin-top: 2rem;
+  background-color: var(--box-color);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filterContainer {
+  flex: 1;
+  min-width: 250px;
+}
+
+.dateRangeContainer {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.dateInput {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--modals-inputs);
+  color: var(--text-color);
+}
+
+/* Paginação */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.paginationInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--text-color);
+}
+
+.paginationButton {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Gráfico */
+.chartContainer {
+  margin-top: 2rem;
+  background-color: var(--box-color2);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  height: 400px;
+}
+
+/* Estilos do Select */
+.selectFilter {
+  width: 100%;
+}
+
+.customSelect {
+  width: 100%;
+}

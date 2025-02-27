@@ -1,0 +1,65 @@
+/* styles/Login.module.css */
+.loginContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+  background-color: var(--background-color);
+}
+
+.loginBox {
+  text-align: center;
+  max-width: 450px;
+  width: 100%;
+  background-color: var(--box-color);
+  border-radius: 10px;
+  padding: 40px;
+  margin-bottom: 20px;
+}
+
+.logoContainer {
+  margin-bottom: 20px;
+}
+
+.welcomeText {
+  font-size: 1.8em;
+  color: var(--title-color);
+  margin-bottom: 10px;
+}
+
+.description {
+  font-size: 1em;
+  color: var(--text-color);
+  margin-bottom: 30px;
+}
+
+.loginTitle {
+  color: var(--color-primary);
+  margin-bottom: 20px;
+}
+
+.loginButton {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 15px 30px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.loginButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.credits {
+  color: #888;
+  font-size: 0.9em;
+  text-align: center;
+  margin-top: 10px;
+}

@@ -1,0 +1,164 @@
+/* styles/DashboardAnalyst.module.css */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 40px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+}
+
+.dashboardContainer {
+  flex: 1;
+  margin: 100px auto 50px;
+  width: 100%;
+  max-width: 1600px;
+  padding: 20px;
+  background-color: var(--box-color);
+  border-radius: 10px;
+  color: var(--text-color);
+}
+
+.summary {
+  margin-bottom: 20px;
+  font-size: 1.2em;
+  text-align: center;
+  font-weight: bold;
+}
+
+.filterButtonContainer {
+  position: relative;
+  display: inline-block;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.filterButton {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.filterButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.filterButton:active {
+  transform: scale(0.98);
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--manager-menu-bg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  margin-top: 5px;
+  z-index: 1000;
+  min-width: 150px;
+}
+
+.dropdown button {
+  background: none;
+  color: var(--text-color);
+  border: none;
+  width: 100%;
+  padding: 10px 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropdown button:hover {
+  background-color: var(--manager-menu-bg-hover);
+}
+
+.chartContainer {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.noData, .loading {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-color);
+}
+
+.rankingContainer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-top: 50px;
+  gap: 20px;
+}
+
+.leaderboard, .categoryRanking {
+  width: 48%;
+  padding: 30px;
+  background-color: var(--box-color2);
+  border-radius: 10px;
+}
+
+.leaderboard h3,
+.categoryRanking h3 {
+  color: var(--title-color);
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+}
+
+.listItem {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-list);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.rank {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-right: 10px;
+}
+
+.userName, .categoryName {
+  flex-grow: 1;
+  margin-left: 10px;
+  font-size: 1em;
+}
+
+.progressBar, .progressBarRanking, .progressBarCategory {
+  flex-grow: 2;
+  height: 20px;
+  border-radius: 5px;
+}
+
+.progressBar {
+  background-color: rgba(119, 158, 61, 1);
+}
+
+.progressBarRanking {
+  background-color: rgba(141, 215, 215, 1);
+}
+
+.progressBarCategory {
+  background-color: rgba(223, 159, 199, 1);
+}
+
+.count {
+  margin-left: 10px;
+  font-weight: bold;
+  font-size: 1em;
+}

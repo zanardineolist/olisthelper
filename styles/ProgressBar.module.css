@@ -1,0 +1,213 @@
+.progressWrapper {
+  width: 100%;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+  position: relative;
+}
+
+.progressContainer {
+  position: relative;
+  padding-top: 30px;
+  margin-bottom: 20px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 24px;
+  background-color: var(--box-color4);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 12px;
+  position: relative;
+  transform-origin: left;
+  will-change: width, background-color;
+}
+
+.boostEffect {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+  animation: boost 1s linear infinite;
+}
+
+.boostParticles {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 50px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  filter: blur(2px);
+}
+
+.boostCounter {
+  position: absolute;
+  top: -15px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #8BC34A, #689F38);
+  padding: 6px 16px;
+  border-radius: 20px;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(139, 195, 74, 0.3);
+  z-index: 1;
+}
+
+.boostLevel {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.boostCount {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  padding-left: 12px;
+  border-left: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+@keyframes boost {
+  from {
+    background-position: 1rem 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+.markersContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  pointer-events: none;
+}
+
+.marker {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.markerLine {
+  width: 2px;
+  height: 16px;
+  margin-bottom: 4px;
+  border-radius: 1px;
+}
+
+.markerLabel {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-24px);
+}
+
+.minMarker {
+  left: 83.33%;
+  transform: translateX(-50%);
+}
+
+.minMarker .markerLine {
+  background: linear-gradient(180deg, #FFA726, #FB8C00);
+  box-shadow: 0 2px 4px rgba(255, 167, 38, 0.3);
+}
+
+.minLabel {
+  background: linear-gradient(45deg, #FFA726, #FB8C00);
+  color: white;
+}
+
+.maxMarker {
+  left: 100%;
+  transform: translateX(-50%);
+}
+
+.maxMarker .markerLine {
+  background: linear-gradient(180deg, #4CAF50, #388E3C);
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.maxLabel {
+  background: linear-gradient(45deg, #4CAF50, #388E3C);
+  color: white;
+}
+
+.messageContainer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.messageSuccess,
+.messageWarning,
+.messageInfo,
+.messageBoost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.messageSuccess {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.2));
+  color: #4CAF50;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+}
+
+.messageWarning {
+  background: linear-gradient(135deg, rgba(255, 167, 38, 0.1), rgba(255, 167, 38, 0.2));
+  color: #FFA726;
+  border: 1px solid rgba(255, 167, 38, 0.2);
+}
+
+.messageInfo {
+  background: linear-gradient(135deg, rgba(66, 165, 245, 0.1), rgba(66, 165, 245, 0.2));
+  color: #42A5F5;
+  border: 1px solid rgba(66, 165, 245, 0.2);
+}
+
+.messageBoost {
+  background: linear-gradient(135deg, rgba(139, 195, 74, 0.1), rgba(139, 195, 74, 0.2));
+  color: #8BC34A;
+  border: 1px solid rgba(139, 195, 74, 0.2);
+}
+
+.messageIcon {
+  font-size: 1.2em;
+}

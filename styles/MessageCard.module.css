@@ -1,0 +1,102 @@
+.card {
+  background-color: var(--box-color2);
+  border-radius: 10px;
+  padding: 15px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 200px;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.title {
+  font-size: 1.1em;
+  color: var(--title-color);
+  margin: 0;
+  flex: 1;
+  word-break: break-word;
+}
+
+.visibility {
+  display: flex;
+  gap: 8px;
+  color: var(--text-color2);
+}
+
+.visibilityIcon {
+  font-size: 0.9em;
+}
+
+.content {
+  flex: 1;
+  cursor: pointer;
+  padding: 10px 0;
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+.content p {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.tag {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  color: var(--text-color2);
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s ease;
+}
+
+.actionButton:hover {
+  color: var(--color-primary);
+}
+
+.actionButton.liked {
+  color: var(--color-accent1);
+}
+
+.actionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

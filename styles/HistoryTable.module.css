@@ -1,0 +1,110 @@
+.tableWrapper {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+    border-radius: 12px;
+  }
+  
+  .tableWrapper::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .tableWrapper::-webkit-scrollbar-track {
+    background: var(--scroll-bg);
+    border-radius: 4px;
+  }
+  
+  .tableWrapper::-webkit-scrollbar-thumb {
+    background: var(--scroll);
+    border-radius: 4px;
+  }
+  
+  .tableWrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary);
+  }
+  
+  .modernTable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--box-color2);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+  }
+  
+  .tableHeader {
+    background: linear-gradient(45deg, var(--color-primary), var(--color-primary-hover));
+  }
+  
+  .tableHeaderCell {
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+    padding: 16px;
+    text-align: left;
+  }
+  
+  .tableRow {
+    transition: all 0.2s ease;
+  }
+  
+  .tableRow:nth-child(odd) {
+    background-color: var(--color-trodd);
+  }
+  
+  .tableRow:hover {
+    background-color: var(--color-list2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tableCell {
+    padding: 16px;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .dateCell {
+    font-weight: 500;
+  }
+  
+  .countCell {
+    font-weight: 600;
+    color: var(--color-accent3);
+  }
+  
+  .statusCell {
+    text-align: right;
+    padding-right: 24px;
+  }
+  
+  .emptyMessage {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-color2);
+    font-style: italic;
+  }
+  
+  @media (max-width: 768px) {
+    .modernTable {
+      border-radius: 8px;
+    }
+  
+    .tableHeaderCell,
+    .tableCell {
+      padding: 12px;
+    }
+  
+    .tableHeaderCell {
+      font-size: 0.8rem;
+    }
+  
+    .tableCell {
+      font-size: 0.9rem;
+    }
+  }

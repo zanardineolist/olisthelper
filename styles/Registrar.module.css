@@ -1,0 +1,130 @@
+/* Estilos principais para o container da página */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+/* Conteúdo principal da página */
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Container para o formulário, com espaçamento */
+.formContainerWithSpacing {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: var(--box-color);
+  border-radius: 10px;
+  color: var(--text-color);
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Estilo do título do formulário */
+.formTitle {
+  color: var(--title-color);
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+/* Estilo do grupo de campos do formulário */
+.formGroup {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Estilo para os rótulos dos campos do formulário */
+.formGroup label {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+/* Efeito de foco e hover para caixas de texto */
+.formFieldHover:focus,
+.formFieldHover:hover {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+/* Remover o box-shadow padrão azul ao focar no React-Select */
+.react-select__control:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Estilo para a caixa de texto de descrição */
+.formTextarea {
+  width: 100%;
+  max-width: 500px;
+  min-width: 500px;
+  max-height: 200px;
+  resize: vertical;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--labels-border);
+  background-color: var(--labels-bg);
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.formTextarea:focus,
+.formTextarea:hover {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+/* Container para o botão do formulário */
+.formButtonContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Estilo para o botão de envio */
+.submitButton {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  padding: 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 200px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-size: 1rem;
+}
+
+.submitButton:hover {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-2px);
+}
+
+/* Estilos responsivos para telas menores */
+@media (max-width: 600px) {
+  .formContainer {
+    padding: 15px;
+  }
+
+  .formTitle {
+    font-size: 1.25rem;
+  }
+
+  .submitButton {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+}

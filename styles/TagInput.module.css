@@ -1,0 +1,59 @@
+/* styles/TagInput.module.css */
+.tagInputContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    background-color: var(--modals-inputs);
+    cursor: text;
+    min-height: 42px;
+  }
+  
+  .tagList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  
+  .removeTag {
+    background: none;
+    border: none;
+    color: var(--color-white);
+    padding: 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  
+  .removeTag:hover {
+    opacity: 1;
+  }
+  
+  .tagInput {
+    flex: 1;
+    min-width: 120px;
+    border: none;
+    outline: none;
+    background: none;
+    color: var(--text-color);
+    font-size: 1em;
+  }
+  
+  .tagInput::placeholder {
+    color: var(--text-color2);
+  }

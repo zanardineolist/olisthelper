@@ -1,0 +1,153 @@
+/* Estilos principais para o container da página */
+  .container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+  
+  /* Conteúdo principal da página */
+  .mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  /* Container para o formulário de notificações */
+  .formContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinhar à esquerda */
+    padding: 20px;
+    background-color: var(--box-color);
+    border-radius: 10px;
+    color: var(--text-color);
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Estilo do título do formulário */
+  .formTitle {
+    color: var(--title-color);
+    text-align: left; /* Alinhar à esquerda */
+    margin-bottom: 20px;
+    font-size: 1.75rem;
+    width: 100%; /* Ocupa toda a largura */
+  }
+  
+  /* Estilo para o grupo de campos do formulário */
+  .formGroup {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  /* Estilo para os rótulos dos campos do formulário */
+  .formGroup label {
+    margin-bottom: 8px;
+    font-weight: bold;
+    text-align: left; /* Alinhar à esquerda */
+  }
+  
+  /* Caixa de texto para título e mensagem */
+  .textField {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--labels-border);
+    background-color: var(--labels-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  
+  .textField:focus,
+  .textField:hover {
+    border-color: var(--color-primary);
+    outline: none;
+  }
+  
+  /* Estilo para a área de texto (mensagem) */
+  .textarea {
+    width: 100%; /* Igual ao textField para consistência */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--labels-border);
+    background-color: var(--labels-bg);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    resize: vertical; /* Permitir redimensionamento apenas vertical */
+  }
+  
+  .textarea:focus,
+  .textarea:hover {
+    border-color: var(--color-primary);
+    outline: none;
+  }
+  
+  /* Estilo para os grupos de opções (tipo de notificação e estilo) */
+  .radioGroup {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start; /* Alinhar à esquerda */
+    margin-bottom: 20px;
+  }
+  
+  .radioLabel {
+    margin-right: 20px;
+    font-weight: normal;
+    color: var(--text-color);
+  }
+  
+  /* Container para o botão do formulário */
+  .formButtonContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* Estilo para o botão de envio */
+  .submitButton {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 200px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 1rem;
+  }
+  
+  .submitButton:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-2px);
+  }
+  
+  /* Estilos responsivos para telas menores */
+  @media (max-width: 600px) {
+    .formContainer {
+      padding: 15px;
+    }
+  
+    .formTitle {
+      font-size: 1.5rem;
+    }
+  
+    .submitButton {
+      padding: 12px;
+      font-size: 0.9rem;
+    }
+  
+    .textarea {
+      max-width: 100%;
+      min-width: 100%;
+    }
+  }  

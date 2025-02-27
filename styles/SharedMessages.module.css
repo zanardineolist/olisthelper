@@ -1,0 +1,491 @@
+/* Container e Layout Principal */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Cabeçalho e Busca */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.searchContainer {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  margin-right: 20px;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background-color: var(--modals-inputs);
+  color: var(--text-color);
+}
+
+.tagSelect {
+  min-width: 200px;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: var(--color-accent3);
+  color: var(--color-white);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.addButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+/* Grid de Mensagens */
+.messageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Card de Mensagem */
+.messageCard {
+  background-color: var(--box-color);
+  border-radius: 10px;
+  min-height: 200px;
+  max-height: fit-content;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.messageCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.messageCard.popular {
+  border: 2px solid var(--color-accent2);
+}
+
+/* Cabeçalho da Mensagem */
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.messageHeader h3 {
+  margin: 0;
+  color: var(--title-color);
+  font-size: 1.2em;
+  word-break: break-word;
+}
+
+/* Seção do Autor */
+.authorSection {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 0;
+}
+
+.authorPrimary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.authorSecondary {
+  display: flex;
+  gap: 10px;
+  color: var(--text-color2);
+  font-size: 0.9em;
+}
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  color: var(--title-color);
+}
+
+.timestamp, .edited {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Conteúdo da Mensagem */
+.messageBody {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.messageBody p {
+  margin: 0;
+  line-height: 1.6;
+  max-height: 100px; /* Altura inicial quando fechado */
+  overflow: hidden;
+}
+
+/* Estilo quando o conteúdo está expandido */
+.messageBody p.expanded {
+  max-height: 300px; /* Altura máxima quando expandido */
+  overflow-y: auto;
+  padding-right: 10px; /* Espaço para a scrollbar */
+}
+
+/* Estilização da scrollbar */
+.messageBody p.expanded::-webkit-scrollbar {
+  width: 4px;
+}
+
+.messageBody p.expanded::-webkit-scrollbar-track {
+  background: var(--scroll-bg);
+  border-radius: 4px;
+}
+
+.messageBody p.expanded::-webkit-scrollbar-thumb {
+  background: var(--scroll);
+  border-radius: 4px;
+}
+
+/* Firefox */
+.messageBody p.expanded {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll) var(--scroll-bg);
+}
+
+.fadeOut {
+  display: inline;
+  color: var(--text-color2);
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 5px 0;
+  font-size: 0.9em;
+  display: block;
+  margin-top: 8px;
+  transition: color 0.2s ease;
+  text-decoration: underline;
+  width: 100%;
+  text-align: left;
+}
+
+.expandButton:hover {
+  color: var(--color-primary-hover);
+}
+
+.section {
+  margin-bottom: 40px;
+}
+
+.sectionTitle {
+  color: var(--title-color);
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.section:first-child .messageCard {
+  border: 2px solid var(--color-accent2);
+  background-color: var(--box-color2);
+}
+
+.section:first-child .messageCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.section + .section {
+  margin-top: 60px;
+}
+
+/* Rodapé da Mensagem */
+.messageFooter {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Tags e Status */
+.messageTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag, .popularTag, .public, .private {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: var(--color-white);
+}
+
+.tag {
+  background-color: var(--color-primary);
+}
+
+.popularTag {
+  background-color: var(--color-accent2);
+}
+
+.public {
+  background-color: var(--color-accent3);
+}
+
+.private {
+  background-color: var(--color-accent1);
+}
+
+/* Botões de Ação */
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.actions button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.favoriteButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.favoriteButton:hover, .favoriteIcon {
+  color: var(--color-accent1);
+}
+
+.editButton:hover {
+  color: var(--color-primary);
+}
+
+.deleteButton:hover {
+  color: var(--color-accent1);
+}
+
+.copyButton:hover {
+  color: var(--color-accent3);
+}
+
+.geminiButton {
+  color: var(--color-accent2) !important;
+}
+
+.geminiButton:hover {
+  color: var(--color-primary) !important;
+}
+
+/* Métricas */
+.messageMetrics {
+  display: flex;
+  gap: 15px;
+  color: var(--text-color2);
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9em;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: var(--box-color);
+  padding: 30px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 600px;
+}
+
+.modalContent h2 {
+  color: var(--title-color);
+  margin-bottom: 20px;
+}
+
+.modalInput, .modalTextarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background-color: var(--modals-inputs);
+  color: var(--text-color);
+}
+
+.modalTextarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.modalCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  color: var(--text-color);
+}
+
+.modalCheckbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.saveButton, .cancelButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+
+.saveButton {
+  background-color: var(--color-accent3);
+  color: var(--color-white);
+}
+
+.saveButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.cancelButton {
+  background-color: var(--color-accent1);
+  color: var(--color-white);
+}
+
+.cancelButton:hover {
+  background-color: #E25547;
+}
+
+/* Estados de Loading e Vazio */
+.loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: var(--text-color);
+}
+
+.noMessages {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: var(--text-color2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.emptyIcon {
+  font-size: 2em;
+  opacity: 0.5;
+}
+
+/* Estilo das tabs */
+.tabs {
+  margin-bottom: 20px;
+}
+
+.tabs :global(.MuiTab-root) {
+  color: var(--text-color2) !important;
+  opacity: 0.7;
+}
+
+.tabs :global(.MuiTab-root.Mui-selected) {
+  color: var(--color-primary-hover) !important;
+  opacity: 1;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .searchContainer {
+    flex-direction: column;
+    margin-right: 0;
+  }
+
+  .tagSelect {
+    width: 100%;
+  }
+
+  .addButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .messageGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .modalContent {
+    width: 95%;
+    padding: 20px;
+  }
+}

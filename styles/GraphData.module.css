@@ -1,0 +1,126 @@
+/* styles/GraphData.module.css */
+.graphDataContainer {
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--box-color);
+    border-radius: 10px;
+    color: var(--text-color);
+  }
+  
+  .filterButtonContainer {
+    position: relative;
+    display: inline-flex;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .filterButton {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-right: 10px;
+  }
+  
+  .filterButton:hover {
+    background-color: var(--color-primary-hover);
+  }
+  
+  .filterButton:active {
+    transform: scale(0.98);
+  }
+  
+
+  .activeFilterButton {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-weight: bold;
+  }  
+
+  .chartContainer {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .noData, .loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-color);
+  }
+  
+  .selectUsersContainer {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .selectUsersLabel {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+  }
+  
+  .selectUsers {
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  .loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-overlay);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Standard Box Loader */
+  .standardBoxLoader, .standardBoxLoader:before, .standardBoxLoader:after {
+    border-radius: 50%;
+    width: 2.5em;
+    height: 2.5em;
+    animation-fill-mode: both;
+    animation: bblFadInOut 1.8s infinite ease-in-out;
+  }
+  .standardBoxLoader {
+    color: var(--text-color);
+    font-size: 7px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-indent: -9999em;
+    animation-delay: -0.16s;
+  }
+  .standardBoxLoader:before,
+  .standardBoxLoader:after {
+    content: '';
+    position: absolute;
+    top: 0;
+  }
+  .standardBoxLoader:before {
+    left: -3.5em;
+    animation-delay: -0.32s;
+  }
+  .standardBoxLoader:after {
+    left: 3.5em;
+  }
+  
+  @keyframes bblFadInOut {
+    0%, 80%, 100% { box-shadow: 0 2.5em 0 -1.3em }
+    40% { box-shadow: 0 2.5em 0 0 }
+  }
+  

@@ -1,0 +1,277 @@
+/* Container principal para a página */
+.container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--background-color);
+    padding: 10px 20px;
+    z-index: 1000;
+}
+
+/* Estilo do logo */
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 40px;
+}
+
+/* Área principal da página */
+.main {
+    padding: 20px;
+    margin-top: 0px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .leftAlignContainer {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 0px;
+  }
+
+  .tabsContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+/* Saudação do usuário */
+.greeting {
+    margin-bottom: 20px;
+}
+
+/* Título da página */
+.title {
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: var(--text-color);
+    text-align: center;
+}
+
+/* Container para informações do perfil do supervisor */
+.userInfoContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+/* Container para perfil e ajuda solicitada */
+.profileAndHelpContainer {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0px auto 20px auto;
+}
+
+/* Container de perfil do usuário */
+.profileContainer {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    background-color: var(--box-color);
+    border-radius: 10px;
+    color: var(--text-color);
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    min-height: 150px;
+    position: relative;
+}
+
+.profileImage {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+.profileInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.profileInfo h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.profileInfo p {
+    margin: 5px 0 0;
+    font-size: 1em;
+}
+
+/* Container de desempenho */
+.performanceWrapper {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0px auto;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 20px;
+}
+
+.performanceContainer {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--box-color);
+    border-radius: 10px;
+    color: var(--text-color);
+    width: 100%;
+    max-width: 500px;
+    min-height: 150px;
+    position: relative;
+}
+
+.performanceContainer h2 {
+    margin: -10px 0 -5px 0;
+    font-size: 1.5em;
+}
+
+.lastUpdated {
+    font-size: 0.75em;
+    color: var(--text-color);
+    margin-top: 10px;
+    margin-bottom: 7px;
+    text-align: left;
+}
+
+.performanceInfo {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    justify-items: stretch;
+    align-items: center;
+}
+
+.performanceItem {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: var(--color-white);
+    background-color: var(--box-color3);
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-width: 90px;
+}
+
+/* Container para ranking de categorias */
+.categoryRankingContainer {
+    margin: 20px auto 0px auto;
+    background-color: var(--box-color);
+    padding: 20px;
+    border-radius: 10px;
+    color: var(--text-color);
+    width: 90%;
+    max-width: 1200px;
+    min-height: 200px;
+    position: relative;
+}
+
+.categoryRankingContainer h3 {
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: var(--title-color);
+}
+
+/* Lista de categorias */
+.list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.listItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    background-color: var(--color-list2);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.rank {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.categoryName {
+    flex: 1;
+    margin-right: 10px;
+}
+
+/* Barra de progresso das categorias */
+.progressBarCategory {
+    background-color: var(--color-primary);
+    height: 10px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+/* Contador das categorias */
+.count {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Mensagem de ausência de dados */
+.noData {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: var(--text-color);
+}
+
+/* Container para carregamento padrão */
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+/* Container para as tags na caixa de perfil */
+.tagsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Estilo para cada tag individual */
+.tag {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 15px;
+    color: var(--color-white);
+    font-weight: 600;
+}

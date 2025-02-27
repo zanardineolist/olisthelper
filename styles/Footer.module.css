@@ -1,0 +1,25 @@
+/* styles/Footer.module.css */
+
+.footer {
+  background-color: var(--footer-bg);
+  color: var(--text-color2);
+  text-align: center;
+  padding: 15px 0;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.logoContainer {
+  position: absolute;
+  left: 15px;
+}
+
+.logo {
+  width: 100px;
+  height: auto;
+}

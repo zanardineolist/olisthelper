@@ -1,0 +1,73 @@
+.main {
+  padding: 20px;
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.itemsTable {
+  width: 100%;
+  max-width: 1000px;
+  margin: 20px auto;
+  overflow-x: auto;
+}
+
+.itemsTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.itemsTable thead {
+  background-color: var(--color-thead);
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+.itemsTable th, .itemsTable td {
+  padding: 10px;
+  text-align: left;
+  color: var(--text-th);
+  border-bottom: 1px solid var(--color-border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemsTable th {
+  color: var(--text-th);
+  font-weight: bold;
+}
+
+/* Ajuste específico para as colunas */
+.itemsTable th:nth-child(1),
+.itemsTable td:nth-child(1) {
+  width: 60%; /* Categoria */
+}
+
+.itemsTable th:nth-child(2),
+.itemsTable td:nth-child(2) {
+  width: 7%; /* Ações */
+}
+
+/* Scrollbar para Tabela */
+.itemsTable tbody {
+  display: block;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.itemsTable thead,
+.itemsTable tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.itemsTable tbody tr:nth-child(odd) {
+  background-color: var(--color-trodd); /* Cor mais escura para linhas ímpares */
+}
+
+.itemsTable tbody tr:nth-child(even) {
+  background-color: var(--color-treven); /* Cor mais clara para linhas pares */
+}

@@ -1,0 +1,127 @@
+.main {
+  padding: 20px;
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.itemsTable {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  overflow-x: auto;
+}
+
+.itemsTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.itemsTable thead {
+  background-color: var(--color-thead);
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+.itemsTable th, .itemsTable td {
+  padding: 10px;
+  text-align: left;
+  color: var(--text-th);
+  border-bottom: 1px solid var(--color-border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemsTable th {
+  color: var(--text-th);
+  font-weight: bold;
+}
+
+/* Largura específica das colunas */
+.itemsTable th:nth-child(1),
+.itemsTable td:nth-child(1) {
+  width: 20%; /* Nome */
+}
+
+.itemsTable th:nth-child(2),
+.itemsTable td:nth-child(2) {
+  width: 25%; /* E-mail */
+}
+
+.itemsTable th:nth-child(3),
+.itemsTable td:nth-child(3) {
+  width: 7%; /* Chamado */
+}
+
+.itemsTable th:nth-child(4),
+.itemsTable td:nth-child(4) {
+  width: 7%; /* Telefone */
+}
+
+.itemsTable th:nth-child(5),
+.itemsTable td:nth-child(5) {
+  width: 7%; /* Chat */
+}
+
+.itemsTable th:nth-child(6),
+.itemsTable td:nth-child(6) {
+  width: 7%; /* Ações */
+}
+
+/* Centralizar horizontalmente o conteúdo das células de checkbox */
+.itemsTable td:nth-child(3),
+.itemsTable td:nth-child(4),
+.itemsTable td:nth-child(5),
+.itemsTable td:nth-child(6) {
+  text-align: center;
+}
+
+/* Estilizar checkboxes */
+.itemsTable td input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  appearance: none;
+  border: 2px solid var(--color-border);
+  border-radius: 3px;
+  background-color: var(--color-icons);
+  display: block;
+  margin: auto;
+  text-align: center;
+}
+
+/* Checkbox quando marcado */
+.itemsTable td input[type="checkbox"]:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.itemsTable td input[type="checkbox"]:checked::before {
+  content: "✔";
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Scrollbar para Tabela */
+.itemsTable tbody {
+  display: block;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.itemsTable thead,
+.itemsTable tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.itemsTable tbody tr:nth-child(odd) {
+  background-color: var(--color-trodd); /* Cor mais escura para linhas ímpares */
+}
+
+.itemsTable tbody tr:nth-child(even) {
+  background-color: var(--color-treven); /* Cor mais clara para linhas pares */
+}
