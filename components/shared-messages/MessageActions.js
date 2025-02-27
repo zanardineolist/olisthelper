@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FaHeart, FaRegHeart, FaCopy, FaEdit, FaTrash, FaMagic } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
-import styles from '../../styles/shared-messages/index.module.css';
+import styles from '../../styles/shared-messages/Actions.module.css';
 
 const MessageActions = ({ message }) => {
   const { 

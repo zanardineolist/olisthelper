@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes } from 'react-icons/fa';
-import styles from '../../styles/shared-messages/index.module.css';
+import styles from '../../styles/shared-messages/Tags.module.css';
 
 const TagInput = ({ id, value, onChange }) => {
   const [tags, setTags] = useState([]);

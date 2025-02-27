@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FaThLarge, FaList, FaSortAmountDown, FaSortAmountUp, FaFire } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
-import styles from '../../styles/shared-messages/index.module.css';
+import styles from '../../styles/shared-messages/Search.module.css';
 
 const MessageFilters = () => {
   const { 

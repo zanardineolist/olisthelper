@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaSearch, FaFilter, FaTimes } from 'react-icons/fa';
 import Select from 'react-select';
-import styles from '../../styles/shared-messages/index.module.css';
+import styles from '../../styles/shared-messages/Search.module.css';
 
 const SearchBar = ({ searchTerm, setSearchTerm, selectedTags, setSelectedTags, availableTags }) => {
   const [showTagFilter, setShowTagFilter] = useState(false);

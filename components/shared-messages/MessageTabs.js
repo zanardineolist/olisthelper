@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FaGlobe, FaUser, FaHeart } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
-import styles from '../../styles/shared-messages/index.module.css';
+import styles from '../../styles/shared-messages/Tabs.module.css';
 
 const MessageTabs = () => {
   const { currentTab, handleTabChange, totalMessages } = useMessageContext();

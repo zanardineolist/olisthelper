@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import styles from '../../styles/shared-messages/index.module.css';
+import styles from '../../styles/shared-messages/Utilities.module.css';
 
 const LoadingIndicator = () => {
   const containerVariants = {

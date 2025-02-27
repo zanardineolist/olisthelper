@@ -12,7 +12,9 @@ import EmptyState from './ui/EmptyState';
 import MessageTabs from './shared-messages/MessageTabs';
 import MessageFilters from './shared-messages/MessageFilters';
 
-import styles from '../styles/shared-messages/index.module.css';
+import layoutStyles from '../styles/shared-messages/Layout.module.css';
+import searchStyles from '../styles/shared-messages/Search.module.css';
+import utilityStyles from '../styles/shared-messages/Utilities.module.css';
 
 // Constantes
 const POPULAR_THRESHOLD = 5;

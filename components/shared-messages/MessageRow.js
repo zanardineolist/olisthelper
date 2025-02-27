@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { FaUser, FaClock, FaGlobe, FaLock, FaTag, FaStar, FaHeart, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
 import MessageActions from './MessageActions';
-import styles from '../../styles/shared-messages/index.module.css';
+import styles from '../../styles/shared-messages/Row.module.css';
+import tagStyles from '../../styles/shared-messages/Tags.module.css';
 
 // Formatação relativa de tempo
 function formatRelativeTime(dateString) {
