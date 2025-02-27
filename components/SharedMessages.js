@@ -63,6 +63,7 @@ const SharedMessages = ({ user }) => {
         endpoint = '/api/shared-messages/favorites';
       }
   
+      // Preparar query parameters para a API
       const queryParams = new URLSearchParams({
         searchTerm,
         tags: selectedTags.map(tag => tag.value).join(','),
@@ -75,12 +76,27 @@ const SharedMessages = ({ user }) => {
       if (!response.ok) throw new Error('Erro ao carregar mensagens');
       
       const data = await response.json();
-      setMessages(data.messages || []);
-      setTotalPages(data.totalPages || 1);
-      setTotalMessages(data.totalMessages || data.messages?.length || 0);
+      
+      // Garantir que temos um array de mensagens
+      const messagesArray = data.messages || [];
+      
+      // Ordenar mensagens localmente conforme o sortOrder (caso a API não faça isso)
+      let sortedMessages = [...messagesArray];
+      
+      if (sortOrder === 'newest') {
+        sortedMessages.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      } else if (sortOrder === 'oldest') {
+        sortedMessages.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      } else if (sortOrder === 'popular') {
+        sortedMessages.sort((a, b) => (b.favorites_count || 0) - (a.favorites_count || 0));
+      }
+      
+      setMessages(sortedMessages);
+      setTotalPages(data.totalPages || Math.ceil(sortedMessages.length / ITEMS_PER_PAGE) || 1);
+      setTotalMessages(data.totalMessages || sortedMessages.length || 0);
       
       // Atualizar tags disponíveis - excluir duplicatas
-      const allTags = new Set(data.messages?.flatMap(msg => msg.tags || []) || []);
+      const allTags = new Set(sortedMessages.flatMap(msg => msg.tags || []) || []);
       setAvailableTags(Array.from(allTags).map(tag => ({
         value: tag,
         label: tag
@@ -101,7 +117,7 @@ const SharedMessages = ({ user }) => {
     }
   }, [currentTab, searchTerm, selectedTags, currentPage, sortOrder]);
 
-  // Efeito para carregar mensagens quando os filtros ou a tab mudam
+  // Efeito para resetar a página quando os filtros ou a tab mudam
   useEffect(() => {
     setCurrentPage(1); // Reset page when filters change
   }, [currentTab, searchTerm, selectedTags, sortOrder]);
@@ -119,6 +135,15 @@ const SharedMessages = ({ user }) => {
   // Alternar entre modos de visualização
   const toggleViewMode = () => {
     setViewMode(prev => prev === 'grid' ? 'list' : 'grid');
+  };
+  
+  // Função para mudar a ordenação
+  const handleSortOrderChange = (newOrder) => {
+    if (sortOrder !== newOrder) {
+      setSortOrder(newOrder);
+      // loadMessages será chamado automaticamente pelo useEffect 
+      // quando sortOrder mudar
+    }
   };
 
   // Salvar mensagem (nova ou editada)
@@ -528,7 +553,7 @@ const SharedMessages = ({ user }) => {
     handleGeminiSuggestion,
     setCurrentPage,
     toggleViewMode,
-    setSortOrder
+    setSortOrder: handleSortOrderChange // Usar a função aprimorada
   };
 
   return (

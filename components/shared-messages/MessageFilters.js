@@ -19,6 +19,13 @@ const MessageFilters = () => {
     { id: 'popular', label: 'Mais populares', icon: <FaFire /> }
   ];
 
+  // Aplicar a ordenação selecionada
+  const handleSortChange = (id) => {
+    if (sortOrder !== id) {
+      setSortOrder(id);
+    }
+  };
+
   return (
     <div className={styles.filtersContainer}>
       <div className={styles.filtersWrapper}>
@@ -30,7 +37,7 @@ const MessageFilters = () => {
               <motion.button
                 key={option.id}
                 className={`${styles.sortButton} ${sortOrder === option.id ? styles.activeSort : ''}`}
-                onClick={() => setSortOrder(option.id)}
+                onClick={() => handleSortChange(option.id)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label={option.label}
