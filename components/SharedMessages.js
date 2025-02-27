@@ -1,21 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Tab, Tabs } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
 import Swal from 'sweetalert2';
-import { FaInbox } from 'react-icons/fa';
+import { FaInbox, FaPlus } from 'react-icons/fa';
 
-import MessageContext from './shared-messages/MessageContext';
+import { MessageProvider } from './shared-messages/MessageContext';
 import SearchBar from './shared-messages/SearchBar';
 import MessageList from './shared-messages/MessageList';
 import MessageForm from './shared-messages/MessageForm';
 import LoadingIndicator from './ui/LoadingIndicator';
 import EmptyState from './ui/EmptyState';
 import MessageTabs from './shared-messages/MessageTabs';
+import MessageFilters from './shared-messages/MessageFilters';
 
 import styles from '../styles/SharedMessages.module.css';
 
-// Constante para definir o limiar de mensagens populares
+// Constantes
 const POPULAR_THRESHOLD = 5;
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 8;
 
 const SharedMessages = ({ user }) => {
   // Estados principais
@@ -29,6 +30,9 @@ const SharedMessages = ({ user }) => {
   const [editingMessage, setEditingMessage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalMessages, setTotalMessages] = useState(0);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' ou 'list'
+  const [sortOrder, setSortOrder] = useState('newest'); // 'newest', 'oldest', 'popular'
 
   // Estados para o formulário
   const [formData, setFormData] = useState({
@@ -61,18 +65,20 @@ const SharedMessages = ({ user }) => {
         searchTerm,
         tags: selectedTags.map(tag => tag.value).join(','),
         page: currentPage,
-        limit: ITEMS_PER_PAGE
+        limit: ITEMS_PER_PAGE,
+        sortOrder
       });
   
       const response = await fetch(`${endpoint}?${queryParams}`);
       if (!response.ok) throw new Error('Erro ao carregar mensagens');
       
       const data = await response.json();
-      setMessages(data.messages);
+      setMessages(data.messages || []);
       setTotalPages(data.totalPages || 1);
+      setTotalMessages(data.totalMessages || data.messages?.length || 0);
       
       // Atualizar tags disponíveis - excluir duplicatas
-      const allTags = new Set(data.messages.flatMap(msg => msg.tags || []));
+      const allTags = new Set(data.messages?.flatMap(msg => msg.tags || []) || []);
       setAvailableTags(Array.from(allTags).map(tag => ({
         value: tag,
         label: tag
@@ -83,27 +89,34 @@ const SharedMessages = ({ user }) => {
         icon: 'error',
         title: 'Erro',
         text: 'Erro ao carregar mensagens',
+        confirmButtonColor: 'var(--color-primary)'
       });
+      setMessages([]);
+      setTotalPages(1);
+      setTotalMessages(0);
     } finally {
       setLoading(false);
     }
-  }, [currentTab, searchTerm, selectedTags, currentPage]);
+  }, [currentTab, searchTerm, selectedTags, currentPage, sortOrder]);
 
   // Efeito para carregar mensagens quando os filtros ou a tab mudam
   useEffect(() => {
     setCurrentPage(1); // Reset page when filters change
-    loadMessages();
-  }, [currentTab, searchTerm, selectedTags]);
+  }, [currentTab, searchTerm, selectedTags, sortOrder]);
 
   // Efeito para carregar mensagens quando a página muda
   useEffect(() => {
     loadMessages();
-  }, [currentPage]);
+  }, [loadMessages, currentPage]);
 
   // Alternar entre tabs
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (newValue) => {
     setCurrentTab(newValue);
-    setCurrentPage(1);
+  };
+
+  // Alternar entre modos de visualização
+  const toggleViewMode = () => {
+    setViewMode(prev => prev === 'grid' ? 'list' : 'grid');
   };
 
   // Salvar mensagem (nova ou editada)
@@ -135,7 +148,7 @@ const SharedMessages = ({ user }) => {
               <div>Encontramos mensagens parecidas:</div>
               <ul style="text-align: left; margin-top: 10px;">
                 ${similar.map(msg => `
-                  <li>${msg.title} (${msg.similarity}% similar)</li>
+                  <li>${msg.title} (${msg.similarity.toFixed(0)}% similar)</li>
                 `).join('')}
               </ul>
               <div style="margin-top: 10px;">Deseja continuar mesmo assim?</div>
@@ -143,7 +156,9 @@ const SharedMessages = ({ user }) => {
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Sim, publicar mesmo assim',
-            cancelButtonText: 'Não, vou revisar'
+            cancelButtonText: 'Não, vou revisar',
+            confirmButtonColor: 'var(--color-primary)',
+            cancelButtonColor: 'var(--color-accent1)'
           });
   
           if (!result.isConfirmed) {
@@ -204,7 +219,7 @@ const SharedMessages = ({ user }) => {
         icon: 'error',
         title: 'Erro',
         text: error.message || 'Erro ao salvar mensagem',
-        showConfirmButton: true
+        confirmButtonColor: 'var(--color-primary)'
       });
       return false;
     } finally {
@@ -221,7 +236,9 @@ const SharedMessages = ({ user }) => {
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sim, excluir',
-        cancelButtonText: 'Cancelar'
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: 'var(--color-accent1)',
+        cancelButtonColor: 'var(--box-color3)'
       });
 
       if (result.isConfirmed) {
@@ -231,12 +248,15 @@ const SharedMessages = ({ user }) => {
         });
 
         if (!response.ok) {
-          throw new Error('Erro ao excluir mensagem');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Erro ao excluir mensagem');
         }
 
-        await loadMessages();
+        // Atualizar estado local para melhor UX
+        setMessages(prev => prev.filter(msg => msg.id !== messageId));
+        setTotalMessages(prev => prev - 1);
 
-        Swal.fire({
+        await Swal.fire({
           icon: 'success',
           title: 'Excluída!',
           text: 'Mensagem excluída com sucesso',
@@ -246,7 +266,12 @@ const SharedMessages = ({ user }) => {
       }
     } catch (error) {
       console.error('Erro ao excluir mensagem:', error);
-      Swal.fire('Erro', 'Erro ao excluir mensagem', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: error.message || 'Erro ao excluir mensagem',
+        confirmButtonColor: 'var(--color-primary)'
+      });
     } finally {
       setLoading(false);
     }
@@ -264,9 +289,8 @@ const SharedMessages = ({ user }) => {
     setShowAddModal(true);
   };
 
-  // Outros handlers
+  // Alternar favorito
   const handleToggleFavorite = async (messageId) => {
-    // Implementação existente
     try {
       const response = await fetch('/api/shared-messages/favorite', {
         method: 'POST',
@@ -281,7 +305,7 @@ const SharedMessages = ({ user }) => {
   
       const { isFavorite } = await response.json();
   
-      // Atualiza o estado local
+      // Atualizar estado local
       setMessages(prevMessages => 
         prevMessages.map(msg => 
           msg.id === messageId 
@@ -290,19 +314,24 @@ const SharedMessages = ({ user }) => {
                 isFavorite,
                 favorites_count: isFavorite 
                   ? (msg.favorites_count || 0) + 1
-                  : (msg.favorites_count || 1) - 1
+                  : Math.max((msg.favorites_count || 1) - 1, 0)
               }
             : msg
         )
       );
     } catch (error) {
       console.error('Erro ao atualizar favorito:', error);
-      Swal.fire('Erro', error.message, 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: error.message || 'Erro ao atualizar favorito',
+        confirmButtonColor: 'var(--color-primary)'
+      });
     }
   };
 
+  // Copiar mensagem
   const handleCopyMessage = async (content, messageId) => {
-    // Implementação existente
     try {
       await navigator.clipboard.writeText(content);
       
@@ -316,6 +345,7 @@ const SharedMessages = ({ user }) => {
   
       const { copy_count } = await response.json();
       
+      // Atualizar estado local
       setMessages(prevMessages => 
         prevMessages.map(msg => 
           msg.id === messageId 
@@ -333,12 +363,17 @@ const SharedMessages = ({ user }) => {
       });
     } catch (error) {
       console.error('Erro ao copiar mensagem:', error);
-      Swal.fire('Erro', 'Erro ao copiar mensagem', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Erro ao copiar mensagem',
+        confirmButtonColor: 'var(--color-primary)'
+      });
     }
   };
 
+  // Melhorar com IA
   const handleGeminiSuggestion = async (messageId, currentContent) => {
-    // Implementação existente
     try {
       const { value: promptType } = await Swal.fire({
         title: 'Como você quer melhorar o texto?',
@@ -352,7 +387,9 @@ const SharedMessages = ({ user }) => {
           fix: 'Corrigir gramática e pontuação'
         },
         showCancelButton: true,
-        inputPlaceholder: 'Selecione uma opção'
+        inputPlaceholder: 'Selecione uma opção',
+        confirmButtonColor: 'var(--color-primary)',
+        cancelButtonColor: 'var(--box-color3)'
       });
   
       if (!promptType) return;
@@ -374,6 +411,11 @@ const SharedMessages = ({ user }) => {
         })
       });
   
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao gerar sugestão');
+      }
+  
       const { suggestion } = await response.json();
   
       const result = await Swal.fire({
@@ -381,14 +423,20 @@ const SharedMessages = ({ user }) => {
         html: `
           <div class="gemini-preview">
             <h4>Texto Original:</h4>
-            <div class="original-text">${currentContent}</div>
+            <div class="original-text" style="background: var(--box-color2); padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: left; max-height: 200px; overflow-y: auto;">
+              ${currentContent}
+            </div>
             <h4>Sugestão:</h4>
-            <div class="suggested-text">${suggestion}</div>
+            <div class="suggested-text" style="background: var(--box-color3); padding: 10px; border-radius: 8px; text-align: left; max-height: 200px; overflow-y: auto;">
+              ${suggestion}
+            </div>
           </div>
         `,
         showCancelButton: true,
         confirmButtonText: 'Usar esta sugestão',
         cancelButtonText: 'Manter original',
+        confirmButtonColor: 'var(--color-primary)',
+        cancelButtonColor: 'var(--box-color3)',
         width: '800px'
       });
   
@@ -397,10 +445,16 @@ const SharedMessages = ({ user }) => {
       }
     } catch (error) {
       console.error('Erro ao gerar sugestão:', error);
-      Swal.fire('Erro', 'Não foi possível gerar a sugestão', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: error.message || 'Não foi possível gerar a sugestão',
+        confirmButtonColor: 'var(--color-primary)'
+      });
     }
   };
 
+  // Atualizar conteúdo
   const handleUpdateContent = async (messageId, newContent) => {
     try {
       const messageToUpdate = messages.find(msg => msg.id === messageId);
@@ -422,39 +476,67 @@ const SharedMessages = ({ user }) => {
         throw new Error(errorResponse.error || 'Erro ao atualizar mensagem');
       }
   
+      // Atualizar estado local
       setMessages(prevMessages =>
         prevMessages.map(msg =>
-          msg.id === messageId ? { ...msg, content: newContent } : msg
+          msg.id === messageId 
+            ? { ...msg, content: newContent, updated_at: new Date().toISOString() }
+            : msg
         )
       );
   
-      Swal.fire('Sucesso', 'Mensagem atualizada com sucesso!', 'success');
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso',
+        text: 'Mensagem atualizada com sucesso!',
+        timer: 1500,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error('Erro ao atualizar conteúdo:', error);
-      Swal.fire('Erro', error.message || 'Erro ao atualizar mensagem', 'error');
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: error.message || 'Erro ao atualizar mensagem',
+        confirmButtonColor: 'var(--color-primary)'
+      });
     }
   };
 
-  // Contexto para compartilhar dados e funções com componentes filhos
-  const messageContextValue = {
+  // Valores e funções a serem compartilhadas via Context
+  const contextValue = {
     user,
     messages,
+    loading,
+    currentTab,
+    viewMode,
+    currentPage,
+    totalPages,
+    totalMessages,
+    sortOrder,
+    selectedTags,
+    availableTags,
+    POPULAR_THRESHOLD,
+    separateMessages,
+    handleTabChange,
     handleToggleFavorite,
     handleCopyMessage,
     handleEditMessage,
     handleDeleteMessage,
     handleGeminiSuggestion,
-    separateMessages,
-    availableTags,
-    currentPage,
-    totalPages,
     setCurrentPage,
-    POPULAR_THRESHOLD
+    toggleViewMode,
+    setSortOrder
   };
 
   return (
-    <MessageContext.Provider value={messageContextValue}>
-      <div className={styles.container}>
+    <MessageProvider value={contextValue}>
+      <motion.div 
+        className={styles.container}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
         <div className={styles.header}>
           <SearchBar 
             searchTerm={searchTerm}
@@ -463,7 +545,7 @@ const SharedMessages = ({ user }) => {
             setSelectedTags={setSelectedTags}
             availableTags={availableTags}
           />
-          <button
+          <motion.button
             onClick={() => {
               setEditingMessage(null);
               setFormData({
@@ -475,17 +557,18 @@ const SharedMessages = ({ user }) => {
               setShowAddModal(true);
             }}
             className={styles.addButton}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             aria-label="Adicionar nova mensagem"
           >
-            <span className={styles.addButtonIcon}>+</span>
+            <FaPlus className={styles.addButtonIcon} />
             <span>Nova Mensagem</span>
-          </button>
+          </motion.button>
         </div>
 
-        <MessageTabs 
-          currentTab={currentTab} 
-          handleTabChange={handleTabChange} 
-        />
+        <MessageTabs />
+        
+        <MessageFilters />
 
         {loading ? (
           <LoadingIndicator />
@@ -494,24 +577,30 @@ const SharedMessages = ({ user }) => {
         ) : (
           <EmptyState 
             icon={<FaInbox className={styles.emptyIcon} />}
-            message="Nenhuma mensagem encontrada"
+            message={
+              searchTerm || selectedTags.length > 0 
+                ? "Nenhuma mensagem encontrada com esses filtros" 
+                : "Nenhuma mensagem disponível"
+            }
           />
         )}
 
-        {showAddModal && (
-          <MessageForm
-            formData={formData}
-            setFormData={setFormData}
-            onSave={handleSaveMessage}
-            onCancel={() => {
-              setShowAddModal(false);
-              setEditingMessage(null);
-            }}
-            isEditing={!!editingMessage}
-          />
-        )}
-      </div>
-    </MessageContext.Provider>
+        <AnimatePresence>
+          {showAddModal && (
+            <MessageForm
+              formData={formData}
+              setFormData={setFormData}
+              onSave={handleSaveMessage}
+              onCancel={() => {
+                setShowAddModal(false);
+                setEditingMessage(null);
+              }}
+              isEditing={!!editingMessage}
+            />
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </MessageProvider>
   );
 };
 

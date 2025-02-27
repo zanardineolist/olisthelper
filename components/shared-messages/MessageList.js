@@ -1,6 +1,9 @@
-import React, { useContext } from 'react';
-import MessageContext from './MessageContext';
+import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaStar } from 'react-icons/fa';
+import { useMessageContext } from './MessageContext';
 import MessageCard from './MessageCard';
+import MessageRow from './MessageRow';
 import Pagination from '../ui/Pagination';
 import styles from '../../styles/SharedMessages.module.css';
 
@@ -10,45 +13,128 @@ const MessageList = () => {
     separateMessages, 
     currentPage, 
     totalPages, 
-    setCurrentPage 
-  } = useContext(MessageContext);
+    setCurrentPage,
+    viewMode,
+    POPULAR_THRESHOLD,
+    totalMessages
+  } = useMessageContext();
 
   const { popular, regular } = separateMessages(messages);
 
+  // Animações para transição entre seções
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.05,
+        when: "beforeChildren"
+      }
+    },
+    exit: { 
+      opacity: 0,
+      transition: { staggerChildren: 0.05, staggerDirection: -1 }
+    }
+  };
+
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { type: "spring", stiffness: 300, damping: 30 }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -20,
+      transition: { duration: 0.2 }
+    }
+  };
+
   return (
-    <div className={styles.messageListContainer}>
+    <motion.div 
+      className={styles.messageListContainer}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+    >
       {/* Seção de Mensagens Populares */}
       {popular.length > 0 && (
-        <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>
-            <span className={styles.popularBadge}>⭐</span>
-            Mensagens Populares
-          </h2>
-          <div className={styles.messageGrid}>
-            {popular.map(message => (
-              <MessageCard key={message.id} message={message} isPopular={true} />
-            ))}
+        <motion.div 
+          className={styles.section}
+          variants={sectionVariants}
+        >
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <FaStar className={styles.sectionIcon} />
+              <span>Mensagens Populares</span>
+              <span className={styles.sectionCounter}>({popular.length})</span>
+            </h2>
+            <div className={styles.sectionDescription}>
+              Mensagens com pelo menos {POPULAR_THRESHOLD} favoritos
+            </div>
           </div>
-        </div>
+
+          <div className={viewMode === 'grid' ? styles.messageGrid : styles.messageList}>
+            <AnimatePresence>
+              {popular.map(message => (
+                viewMode === 'grid' ? (
+                  <MessageCard key={message.id} message={message} isPopular={true} />
+                ) : (
+                  <MessageRow key={message.id} message={message} isPopular={true} />
+                )
+              ))}
+            </AnimatePresence>
+          </div>
+        </motion.div>
       )}
 
       {/* Seção de Mensagens Regulares */}
-      <div className={styles.section}>
-        {popular.length > 0 && <h2 className={styles.sectionTitle}>Todas as Mensagens</h2>}
-        <div className={styles.messageGrid}>
-          {regular.map(message => (
-            <MessageCard key={message.id} message={message} isPopular={false} />
-          ))}
+      <motion.div 
+        className={styles.section}
+        variants={sectionVariants}
+      >
+        {popular.length > 0 && (
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <span>Todas as Mensagens</span>
+              <span className={styles.sectionCounter}>({regular.length})</span>
+            </h2>
+          </div>
+        )}
+
+        <div className={viewMode === 'grid' ? styles.messageGrid : styles.messageList}>
+          <AnimatePresence>
+            {regular.map(message => (
+              viewMode === 'grid' ? (
+                <MessageCard key={message.id} message={message} isPopular={false} />
+              ) : (
+                <MessageRow key={message.id} message={message} isPopular={false} />
+              )
+            ))}
+          </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
+
+      {/* Informações de Paginação */}
+      {totalMessages > 0 && (
+        <div className={styles.paginationInfo}>
+          <span>
+            Mostrando {messages.length} de {totalMessages} mensagens
+          </span>
+        </div>
+      )}
 
       {/* Paginação */}
-      <Pagination 
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onChangePage={setCurrentPage}
-      />
-    </div>
+      {totalPages > 1 && (
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onChangePage={setCurrentPage}
+        />
+      )}
+    </motion.div>
   );
 };
 

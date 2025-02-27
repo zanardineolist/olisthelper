@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaCheck, FaGlobe, FaLock, FaTag, FaInfo } from 'react-icons/fa';
 import TagInput from './TagInput';
 import styles from '../../styles/SharedMessages.module.css';
 
@@ -9,6 +9,18 @@ const MessageForm = ({ formData: initialFormData, setFormData: setParentFormData
   const [formData, setFormData] = useState(initialFormData);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState({});
+  const [charCount, setCharCount] = useState({
+    title: initialFormData.title.length,
+    content: initialFormData.content.length
+  });
+
+  // Atualizar contador de caracteres quando formData mudar
+  useEffect(() => {
+    setCharCount({
+      title: formData.title.length,
+      content: formData.content.length
+    });
+  }, [formData.title, formData.content]);
 
   // Validar formulário
   const validateForm = () => {
@@ -16,10 +28,14 @@ const MessageForm = ({ formData: initialFormData, setFormData: setParentFormData
     
     if (!formData.title.trim()) {
       newErrors.title = 'Título é obrigatório';
+    } else if (formData.title.length > 100) {
+      newErrors.title = 'Título deve ter no máximo 100 caracteres';
     }
     
     if (!formData.content.trim()) {
       newErrors.content = 'Conteúdo é obrigatório';
+    } else if (formData.content.length > 5000) {
+      newErrors.content = 'Conteúdo deve ter no máximo 5000 caracteres';
     }
     
     setErrors(newErrors);
@@ -112,24 +128,30 @@ const MessageForm = ({ formData: initialFormData, setFormData: setParentFormData
             </button>
           </div>
           
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className={styles.messageForm}>
             <div className={styles.formGroup}>
               <label htmlFor="title" className={styles.formLabel}>
                 Título
                 <span className={styles.requiredMark} aria-hidden="true">*</span>
               </label>
-              <input
-                id="title"
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={handleChange}
-                className={`${styles.formControl} ${errors.title ? styles.hasError : ''}`}
-                placeholder="Título da mensagem"
-                aria-required="true"
-                aria-invalid={errors.title ? "true" : "false"}
-                aria-describedby={errors.title ? "title-error" : undefined}
-              />
+              <div className={styles.inputWrapper}>
+                <input
+                  id="title"
+                  name="title"
+                  type="text"
+                  value={formData.title}
+                  onChange={handleChange}
+                  className={`${styles.formControl} ${errors.title ? styles.hasError : ''}`}
+                  placeholder="Título da mensagem"
+                  aria-required="true"
+                  aria-invalid={errors.title ? "true" : "false"}
+                  aria-describedby={errors.title ? "title-error" : undefined}
+                  maxLength="100"
+                />
+                <span className={styles.charCount} aria-live="polite">
+                  {charCount.title}/100
+                </span>
+              </div>
               {errors.title && (
                 <div id="title-error" className={styles.errorMessage} role="alert">
                   {errors.title}
@@ -142,18 +164,24 @@ const MessageForm = ({ formData: initialFormData, setFormData: setParentFormData
                 Conteúdo
                 <span className={styles.requiredMark} aria-hidden="true">*</span>
               </label>
-              <textarea
-                id="content"
-                name="content"
-                value={formData.content}
-                onChange={handleChange}
-                className={`${styles.formTextarea} ${errors.content ? styles.hasError : ''}`}
-                placeholder="Conteúdo da mensagem"
-                rows="6"
-                aria-required="true"
-                aria-invalid={errors.content ? "true" : "false"}
-                aria-describedby={errors.content ? "content-error" : undefined}
-              />
+              <div className={styles.textareaWrapper}>
+                <textarea
+                  id="content"
+                  name="content"
+                  value={formData.content}
+                  onChange={handleChange}
+                  className={`${styles.formTextarea} ${errors.content ? styles.hasError : ''}`}
+                  placeholder="Conteúdo da mensagem"
+                  rows="8"
+                  aria-required="true"
+                  aria-invalid={errors.content ? "true" : "false"}
+                  aria-describedby={errors.content ? "content-error" : undefined}
+                  maxLength="5000"
+                />
+                <span className={styles.charCount} aria-live="polite">
+                  {charCount.content}/5000
+                </span>
+              </div>
               {errors.content && (
                 <div id="content-error" className={styles.errorMessage} role="alert">
                   {errors.content}
@@ -170,39 +198,73 @@ const MessageForm = ({ formData: initialFormData, setFormData: setParentFormData
                 value={formData.tags}
                 onChange={(value) => handleChange({ target: { name: 'tags', value }})}
               />
+              <div className={styles.formHint}>
+                <FaInfo className={styles.hintIcon} />
+                <span>Adicione palavras-chave relevantes para facilitar a busca</span>
+              </div>
             </div>
             
             <div className={styles.formGroup}>
-              <label className={styles.checkboxContainer}>
-                <input
-                  type="checkbox"
-                  name="isPublic"
-                  checked={formData.isPublic}
-                  onChange={handleChange}
-                  className={styles.checkbox}
-                />
-                <span className={styles.checkboxLabel}>
-                  Compartilhar com outros usuários
-                </span>
-              </label>
+              <div className={styles.visibilityToggle}>
+                <span className={styles.visibilityLabel}>Visibilidade:</span>
+                
+                <label className={`${styles.visibilityOption} ${formData.isPublic ? styles.active : ''}`}>
+                  <input
+                    type="radio"
+                    name="isPublic"
+                    checked={formData.isPublic}
+                    onChange={() => handleChange({ target: { name: 'isPublic', value: true }})}
+                    className={styles.visibilityRadio}
+                  />
+                  <FaGlobe className={styles.visibilityIcon} />
+                  <span>Pública</span>
+                </label>
+                
+                <label className={`${styles.visibilityOption} ${!formData.isPublic ? styles.active : ''}`}>
+                  <input
+                    type="radio"
+                    name="isPublic"
+                    checked={!formData.isPublic}
+                    onChange={() => handleChange({ target: { name: 'isPublic', value: false }})}
+                    className={styles.visibilityRadio}
+                  />
+                  <FaLock className={styles.visibilityIcon} />
+                  <span>Privada</span>
+                </label>
+              </div>
+              
+              <div className={styles.visibilityHint}>
+                {formData.isPublic ? (
+                  <span>Mensagens públicas podem ser vistas por todos os usuários</span>
+                ) : (
+                  <span>Mensagens privadas são visíveis apenas para você</span>
+                )}
+              </div>
             </div>
             
             <div className={styles.formActions}>
-              <button
+              <motion.button
                 type="button"
                 onClick={onCancel}
                 className={styles.cancelButton}
                 disabled={isSaving}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Cancelar
-              </button>
-              <button
+                <FaTimes className={styles.buttonIcon} />
+                <span>Cancelar</span>
+              </motion.button>
+              
+              <motion.button
                 type="submit"
                 className={styles.saveButton}
                 disabled={isSaving}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {isSaving ? 'Salvando...' : isEditing ? 'Atualizar' : 'Salvar'}
-              </button>
+                <FaCheck className={styles.buttonIcon} />
+                <span>{isSaving ? 'Salvando...' : isEditing ? 'Atualizar' : 'Salvar'}</span>
+              </motion.button>
             </div>
           </form>
         </motion.div>

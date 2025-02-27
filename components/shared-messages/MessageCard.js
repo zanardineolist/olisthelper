@@ -1,9 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaUser, FaClock, FaGlobe, FaLock, FaTag, FaStar, FaHeart } from 'react-icons/fa';
-import MessageContext from './MessageContext';
+import { FaUser, FaClock, FaGlobe, FaLock, FaTag, FaStar, FaHeart, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useMessageContext } from './MessageContext';
 import MessageActions from './MessageActions';
-import styles from '../../styles/MessageCard.module.css';
+import styles from '../../styles/SharedMessages.module.css';
 
 // Formatação relativa de tempo
 function formatRelativeTime(dateString) {
@@ -19,35 +19,17 @@ function formatRelativeTime(dateString) {
   return date.toLocaleDateString(); // Exibe a data se for muito antiga
 }
 
-const MessageContent = ({ content }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const previewLength = 150;
-  const needsExpansion = content.length > previewLength;
-
-  return (
-    <div className={styles.content}>
-      <p className={isExpanded ? styles.expanded : undefined}>
-        {isExpanded ? content : content.slice(0, previewLength)}
-        {!isExpanded && needsExpansion && (
-          <span className={styles.fadeOut}>...</span>
-        )}
-      </p>
-      {needsExpansion && (
-        <button 
-          onClick={() => setIsExpanded(!isExpanded)} 
-          className={styles.expandButton}
-          aria-expanded={isExpanded}
-          aria-controls={`content-${content.substring(0, 10)}`}
-        >
-          {isExpanded ? 'Ver menos' : 'Ver mais'}
-        </button>
-      )}
-    </div>
-  );
-};
-
 const MessageCard = ({ message, isPopular }) => {
-  const { POPULAR_THRESHOLD } = useContext(MessageContext);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { POPULAR_THRESHOLD } = useMessageContext();
+
+  // Verificar se o conteúdo precisa do botão de expandir
+  const needsExpansion = message.content.length > 200;
+  const displayContent = isExpanded 
+    ? message.content 
+    : needsExpansion 
+      ? `${message.content.substring(0, 200)}...` 
+      : message.content;
 
   // Variants para animação com Framer Motion
   const cardVariants = {
@@ -59,7 +41,7 @@ const MessageCard = ({ message, isPopular }) => {
         type: "spring", 
         stiffness: 300, 
         damping: 30,
-        delay: Math.random() * 0.3 // Efeito cascata
+        delay: Math.random() * 0.2 // Efeito cascata
       }
     },
     hover: { 
@@ -69,72 +51,109 @@ const MessageCard = ({ message, isPopular }) => {
     }
   };
 
+  const contentVariants = {
+    collapsed: { height: "7.5em" },
+    expanded: { height: "auto" }
+  };
+
   return (
     <motion.div 
-      className={`${styles.card} ${isPopular ? styles.popular : ''}`}
+      className={`${styles.messageCard} ${isPopular ? styles.popularCard : ''}`}
       initial="hidden"
       animate="visible"
       whileHover="hover"
       variants={cardVariants}
+      layout
     >
-      <div className={styles.header}>
-        <h3 className={styles.title}>{message.title}</h3>
-        <div className={styles.visibility}>
-          {message.is_public ? (
-            <span className={styles.publicBadge} title="Mensagem pública">
-              <FaGlobe className={styles.visibilityIcon} />
-            </span>
-          ) : (
-            <span className={styles.privateBadge} title="Mensagem privada">
-              <FaLock className={styles.visibilityIcon} />
+      <div className={styles.cardHeader}>
+        <h3 className={styles.cardTitle}>{message.title}</h3>
+        
+        <div className={styles.cardBadges}>
+          {/* Indicador de público/privado */}
+          <span 
+            className={styles.visibilityBadge} 
+            title={message.is_public ? "Mensagem pública" : "Mensagem privada"}
+          >
+            {message.is_public ? <FaGlobe /> : <FaLock />}
+          </span>
+          
+          {/* Indicador de popular */}
+          {isPopular && (
+            <span className={styles.popularBadge} title={`Mais de ${POPULAR_THRESHOLD} favoritos`}>
+              <FaStar />
             </span>
           )}
         </div>
       </div>
-
-      <div className={styles.authorInfo}>
-        <span className={styles.author}>
-          <FaUser className={styles.authorIcon} />
-          {message.author_name}
-        </span>
-        <span className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
-          <FaClock />
-          {formatRelativeTime(message.created_at)}
+      
+      <div className={styles.cardMeta}>
+        <div className={styles.author}>
+          <FaUser className={styles.metaIcon} />
+          <span>{message.author_name}</span>
+        </div>
+        
+        <div className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
+          <FaClock className={styles.metaIcon} />
+          <span>{formatRelativeTime(message.created_at)}</span>
           {message.updated_at !== message.created_at && (
-            <span className={styles.edited} title={`Atualizado em ${new Date(message.updated_at).toLocaleString()}`}>
+            <span className={styles.editedMark} title={`Atualizado em ${new Date(message.updated_at).toLocaleString()}`}>
               (editado)
             </span>
           )}
-        </span>
+        </div>
       </div>
-
-      <MessageContent content={message.content} />
-
-      <div className={styles.footer}>
-        <div className={styles.tags}>
-          {isPopular && (
-            <span className={styles.popularTag} title={`Mais de ${POPULAR_THRESHOLD} favoritos`}>
-              <FaStar />
-              Popular
-            </span>
-          )}
+      
+      <motion.div 
+        className={styles.cardContent}
+        variants={contentVariants}
+        animate={isExpanded ? "expanded" : "collapsed"}
+        transition={{ duration: 0.3 }}
+      >
+        <p>{displayContent}</p>
+        
+        {needsExpansion && (
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)} 
+            className={styles.expandButton}
+            aria-expanded={isExpanded}
+          >
+            {isExpanded ? (
+              <>
+                <FaEyeSlash className={styles.expandIcon} />
+                <span>Ver menos</span>
+              </>
+            ) : (
+              <>
+                <FaEye className={styles.expandIcon} />
+                <span>Ver mais</span>
+              </>
+            )}
+          </button>
+        )}
+      </motion.div>
+      
+      {/* Tags */}
+      {message.tags && message.tags.length > 0 && (
+        <div className={styles.cardTags}>
           {message.tags.map((tag) => (
             <span key={tag} className={styles.tag}>
-              <FaTag />
-              {tag}
+              <FaTag className={styles.tagIcon} />
+              <span>{tag}</span>
             </span>
           ))}
         </div>
-
-        <div className={styles.metrics}>
-          <span className={styles.metric} title="Total de favoritos">
-            <FaHeart className={message.isFavorite ? styles.favorited : ''} />
-            {message.favorites_count || 0}
-          </span>
-        </div>
+      )}
+      
+      <div className={styles.cardFooter}>
+        {/* Favoritos */}
+        <span className={styles.favoriteCount}>
+          <FaHeart className={`${styles.heartIcon} ${message.isFavorite ? styles.favorited : ''}`} />
+          <span>{message.favorites_count || 0}</span>
+        </span>
+        
+        {/* Ações */}
+        <MessageActions message={message} />
       </div>
-
-      <MessageActions message={message} />
     </motion.div>
   );
 };
