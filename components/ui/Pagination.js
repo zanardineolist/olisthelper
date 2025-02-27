@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import styles from '../../styles/Pagination.module.css';
 
@@ -44,43 +45,83 @@ const Pagination = ({ currentPage, totalPages, onChangePage }) => {
     return pageNumbers;
   };
 
+  // Variantes de animação para os botões
+  const buttonVariants = {
+    hover: { scale: 1.1, backgroundColor: 'var(--color-primary-hover)' },
+    tap: { scale: 0.95 },
+    disabled: { 
+      opacity: 0.5, 
+      scale: 1, 
+      backgroundColor: 'var(--box-color2)',
+      cursor: 'not-allowed' 
+    }
+  };
+
+  // Variantes para animação dos números de página
+  const pageNumberVariants = {
+    hover: { scale: 1.1, backgroundColor: 'var(--box-color3)' },
+    tap: { scale: 0.95 },
+    active: { 
+      scale: 1.1, 
+      backgroundColor: 'var(--color-primary)',
+      color: 'var(--color-white)',
+      boxShadow: '0 2px 8px rgba(10, 78, 228, 0.3)'
+    }
+  };
+
   return (
-    <nav className={styles.pagination} aria-label="Navegação de página">
-      <button 
+    <nav 
+      className={styles.pagination} 
+      aria-label="Navegação de página"
+      role="navigation"
+    >
+      <motion.button 
         onClick={() => onChangePage(currentPage - 1)}
         disabled={currentPage === 1}
         className={styles.pageButton}
         aria-label="Página anterior"
+        variants={buttonVariants}
+        whileHover={currentPage !== 1 ? "hover" : "disabled"}
+        whileTap={currentPage !== 1 ? "tap" : "disabled"}
+        animate={currentPage === 1 ? "disabled" : ""}
       >
         <FaChevronLeft />
-      </button>
+      </motion.button>
       
       <div className={styles.pageNumbers}>
         {getPageNumbers().map((page, index) => 
           page === '...' ? (
             <span key={`ellipsis-${index}`} className={styles.ellipsis}>...</span>
           ) : (
-            <button
+            <motion.button
               key={`page-${page}`}
               onClick={() => onChangePage(page)}
               className={`${styles.pageNumber} ${currentPage === page ? styles.active : ''}`}
               aria-label={`Página ${page}`}
               aria-current={currentPage === page ? 'page' : undefined}
+              variants={pageNumberVariants}
+              whileHover={currentPage !== page ? "hover" : ""}
+              whileTap={currentPage !== page ? "tap" : ""}
+              animate={currentPage === page ? "active" : ""}
             >
               {page}
-            </button>
+            </motion.button>
           )
         )}
       </div>
       
-      <button 
+      <motion.button 
         onClick={() => onChangePage(currentPage + 1)}
         disabled={currentPage === totalPages}
         className={styles.pageButton}
         aria-label="Próxima página"
+        variants={buttonVariants}
+        whileHover={currentPage !== totalPages ? "hover" : "disabled"}
+        whileTap={currentPage !== totalPages ? "tap" : "disabled"}
+        animate={currentPage === totalPages ? "disabled" : ""}
       >
         <FaChevronRight />
-      </button>
+      </motion.button>
     </nav>
   );
 };

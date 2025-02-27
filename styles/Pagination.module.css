@@ -1,0 +1,92 @@
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 30px 0;
+    gap: 10px;
+  }
+  
+  .pageButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--box-color2);
+    color: var(--text-color);
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .pageButton:hover:not(:disabled) {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    transform: scale(1.1);
+  }
+  
+  .pageButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .pageNumbers {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .pageNumber {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--box-color2);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .pageNumber:hover:not(.active) {
+    background-color: var(--box-color3);
+    transform: scale(1.1);
+  }
+  
+  .pageNumber.active {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-weight: 600;
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(10, 78, 228, 0.3);
+  }
+  
+  .ellipsis {
+    padding: 0 5px;
+    font-weight: bold;
+    color: var(--text-color2);
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .pagination {
+      gap: 5px;
+    }
+    
+    .pageButton,
+    .pageNumber {
+      width: 32px;
+      height: 32px;
+      font-size: 0.8rem;
+    }
+    
+    .pageNumbers {
+      gap: 5px;
+    }
+  }
