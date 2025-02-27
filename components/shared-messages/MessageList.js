@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { FaStar } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
 import MessageCard from './MessageCard';
@@ -21,50 +20,11 @@ const MessageList = () => {
 
   const { popular, regular } = separateMessages(messages);
 
-  // Animações para transição entre seções
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.05,
-        when: "beforeChildren"
-      }
-    },
-    exit: { 
-      opacity: 0,
-      transition: { staggerChildren: 0.05, staggerDirection: -1 }
-    }
-  };
-
-  const sectionVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { type: "spring", stiffness: 300, damping: 30 }
-    },
-    exit: { 
-      opacity: 0, 
-      y: -20,
-      transition: { duration: 0.2 }
-    }
-  };
-
   return (
-    <motion.div 
-      className={styles.messageListContainer}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-    >
+    <div className={styles.messageListContainer}>
       {/* Seção de Mensagens Populares */}
       {popular.length > 0 && (
-        <motion.div 
-          className={styles.section}
-          variants={sectionVariants}
-        >
+        <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
               <FaStar className={styles.sectionIcon} />
@@ -77,24 +37,19 @@ const MessageList = () => {
           </div>
 
           <div className={viewMode === 'grid' ? styles.messageGrid : styles.messageList}>
-            <AnimatePresence>
-              {popular.map(message => (
-                viewMode === 'grid' ? (
-                  <MessageCard key={message.id} message={message} isPopular={true} />
-                ) : (
-                  <MessageRow key={message.id} message={message} isPopular={true} />
-                )
-              ))}
-            </AnimatePresence>
+            {popular.map(message => (
+              viewMode === 'grid' ? (
+                <MessageCard key={message.id} message={message} isPopular={true} />
+              ) : (
+                <MessageRow key={message.id} message={message} isPopular={true} />
+              )
+            ))}
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Seção de Mensagens Regulares */}
-      <motion.div 
-        className={styles.section}
-        variants={sectionVariants}
-      >
+      <div className={styles.section}>
         {popular.length > 0 && (
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
@@ -105,17 +60,15 @@ const MessageList = () => {
         )}
 
         <div className={viewMode === 'grid' ? styles.messageGrid : styles.messageList}>
-          <AnimatePresence>
-            {regular.map(message => (
-              viewMode === 'grid' ? (
-                <MessageCard key={message.id} message={message} isPopular={false} />
-              ) : (
-                <MessageRow key={message.id} message={message} isPopular={false} />
-              )
-            ))}
-          </AnimatePresence>
+          {regular.map(message => (
+            viewMode === 'grid' ? (
+              <MessageCard key={message.id} message={message} isPopular={false} />
+            ) : (
+              <MessageRow key={message.id} message={message} isPopular={false} />
+            )
+          ))}
         </div>
-      </motion.div>
+      </div>
 
       {/* Informações de Paginação */}
       {totalMessages > 0 && (
@@ -134,7 +87,7 @@ const MessageList = () => {
           onChangePage={setCurrentPage}
         />
       )}
-    </motion.div>
+    </div>
   );
 };
 

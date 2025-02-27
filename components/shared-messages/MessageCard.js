@@ -32,34 +32,24 @@ const MessageCard = ({ message, isPopular }) => {
       ? `${message.content.substring(0, 150)}...` 
       : message.content;
 
-  // Variants para animação com Framer Motion
+  // Variantes simplificadas para animação com Framer Motion (mais suaves)
   const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 30,
-        delay: Math.random() * 0.2 // Efeito cascata
-      }
-    },
     hover: { 
-      y: -5, 
-      boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-      transition: { type: "spring", stiffness: 300, damping: 20 }
+      y: -3, 
+      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+      transition: { duration: 0.3 }
     }
   };
 
   return (
     <motion.div 
-      className={`${cardStyles.messageCard} ${isPopular ? cardStyles.popularCard : ''}`}
-      initial="hidden"
-      animate="visible"
+      className={`${cardStyles.messageCard} ${isPopular ? cardStyles.popularCard : ''} ${isExpanded ? cardStyles.expandedCard : ''}`}
       whileHover="hover"
       variants={cardVariants}
-      layout
+      style={{ 
+        height: isExpanded ? 'auto' : undefined,
+        minHeight: isExpanded ? 'auto' : '200px',
+      }}
     >
       <div className={cardStyles.cardHeader}>
         <h3 className={cardStyles.cardTitle}>{message.title}</h3>

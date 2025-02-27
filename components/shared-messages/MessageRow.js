@@ -24,33 +24,19 @@ const MessageRow = ({ message, isPopular }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { POPULAR_THRESHOLD } = useMessageContext();
 
-  // Variants para animação com Framer Motion
+  // Variantes simplificadas para animação
   const rowVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        type: "spring", 
-        stiffness: 300, 
-        damping: 30,
-        delay: Math.random() * 0.2 // Efeito cascata
-      }
-    },
     hover: { 
       backgroundColor: "var(--box-color3)",
-      transition: { duration: 0.2 }
+      transition: { duration: 0.3 }
     }
   };
 
   return (
     <motion.div 
       className={`${styles.messageRow} ${isPopular ? styles.popularRow : ''}`}
-      initial="hidden"
-      animate="visible"
       whileHover="hover"
       variants={rowVariants}
-      layout
     >
       <div className={styles.rowMain}>
         <div className={styles.rowHeader}>
@@ -76,7 +62,7 @@ const MessageRow = ({ message, isPopular }) => {
               )}
             </span>
           </div>
-  
+
           {/* Título */}
           <h3 className={styles.rowTitle}>{message.title}</h3>
           
@@ -90,12 +76,13 @@ const MessageRow = ({ message, isPopular }) => {
             ))}
           </div>
         </div>
-  
+
         {/* Conteúdo */}
         <div className={styles.rowContent}>
           <div className={`${styles.messagePreview} ${isExpanded ? styles.expanded : ''}`}>
             {message.content}
           </div>
+          
           <button 
             onClick={() => setIsExpanded(!isExpanded)} 
             className={styles.expandButton}
@@ -136,7 +123,7 @@ const MessageRow = ({ message, isPopular }) => {
           </span>
         </div>
       </div>
-  
+
       {/* Ações */}
       <div className={styles.rowActions}>
         <MessageActions message={message} />
