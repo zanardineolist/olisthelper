@@ -1,0 +1,137 @@
+/* ===== Estilos para cards de mensagem ===== */
+.messageCard {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 200px;
+    padding: var(--message-card-padding);
+    border-radius: var(--message-card-radius);
+    background-color: var(--box-color2);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform var(--message-transition-speed) ease, 
+                box-shadow var(--message-transition-speed) ease;
+    position: relative;
+  }
+  
+  .messageCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+  
+  .popularCard {
+    border-left: 4px solid var(--color-accent2);
+  }
+  
+  /* ===== Cabeçalho do card ===== */
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 10px;
+  }
+  
+  .cardTitle {
+    font-size: 1.1em;
+    color: var(--title-color);
+    margin: 0;
+    flex: 1;
+    word-break: break-word;
+    font-weight: 600;
+  }
+  
+  /* ===== Metadados (autor, timestamp) ===== */
+  .cardMeta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-color2);
+    margin-bottom: 10px;
+  }
+  
+  .author, .timestamp {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .metaIcon {
+    font-size: 0.8rem;
+  }
+  
+  .editedMark {
+    font-style: italic;
+    margin-left: 4px;
+    opacity: 0.7;
+  }
+  
+  /* ===== Conteúdo do card ===== */
+  .cardContent {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    color: var(--text-color);
+    line-height: 1.5;
+  }
+  
+  .cardContent p {
+    margin: 0;
+    word-break: break-word;
+  }
+  
+  /* ===== Botão expandir/recolher ===== */
+  .expandButton {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 5px 0;
+    transition: color var(--message-transition-speed) ease;
+  }
+  
+  .expandButton:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+  }
+  
+  .expandIcon {
+    font-size: 0.9rem;
+  }
+  
+  /* ===== Rodapé do card ===== */
+  .cardFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+  
+  /* ===== Contador de favoritos ===== */
+  .favoriteCount {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 16px;
+    background-color: var(--box-color);
+    color: var(--text-color2);
+    font-size: 0.8rem;
+  }
+  
+  .heartIcon {
+    color: var(--text-color2);
+  }
+  
+  .favorited {
+    color: var(--color-accent1);
+  }

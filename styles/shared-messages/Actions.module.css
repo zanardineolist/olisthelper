@@ -1,0 +1,78 @@
+/* ===== Botões de ação ===== */
+.actionButtons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .actionButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--box-color3);
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  
+  .actionButton:hover {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    transform: translateY(-2px);
+  }
+  
+  .actionButton:active {
+    transform: translateY(0);
+  }
+  
+  /* ===== Botão de favoritos ===== */
+  .favoriteActive {
+    background-color: var(--color-accent1);
+    color: var(--color-white);
+  }
+  
+  .favoriteActive:hover {
+    background-color: var(--color-accent1);
+    opacity: 0.9;
+  }
+  
+  /* ===== Botão de excluir ===== */
+  .deleteButton:hover {
+    background-color: var(--color-accent1);
+  }
+  
+  /* ===== Botão de melhoria com IA ===== */
+  .geminiButton:hover {
+    background-color: var(--color-accent2);
+  }
+  
+  /* ===== Contador de cópias ===== */
+  .actionCount {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-size: 0.7rem;
+    font-weight: 600;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+  }
+  
+  /* ===== Responsividade ===== */
+  @media (max-width: 768px) {
+    .actionButton {
+      width: 32px;
+      height: 32px;
+    }
+  }

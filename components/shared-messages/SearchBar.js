@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FaSearch, FaFilter, FaTimes } from 'react-icons/fa';
 import Select from 'react-select';
-import styles from '../../styles/SharedMessages.module.css';
+import styles from '../../styles/shared-messages/index.module.css';
 
 const SearchBar = ({ searchTerm, setSearchTerm, selectedTags, setSelectedTags, availableTags }) => {
   const [showTagFilter, setShowTagFilter] = useState(false);
@@ -122,26 +122,20 @@ const SearchBar = ({ searchTerm, setSearchTerm, selectedTags, setSelectedTags, a
           aria-label="Buscar mensagens"
         />
         {localSearchTerm && (
-          <motion.button
+          <button
             className={styles.clearSearchButton}
             onClick={handleClearSearch}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
             aria-label="Limpar busca"
           >
             <FaTimes />
-          </motion.button>
+          </button>
         )}
       </div>
 
       <div className={styles.filterContainer} ref={filterRef}>
-        <motion.button
+        <button
           className={`${styles.filterButton} ${showTagFilter ? styles.activeFilter : ''}`}
           onClick={() => setShowTagFilter(!showTagFilter)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
           aria-expanded={showTagFilter}
           aria-label="Filtrar por tags"
         >
@@ -150,41 +144,43 @@ const SearchBar = ({ searchTerm, setSearchTerm, selectedTags, setSelectedTags, a
           {selectedTags.length > 0 && (
             <span className={styles.filterBadge}>{selectedTags.length}</span>
           )}
-        </motion.button>
+        </button>
 
-        {showTagFilter && (
-          <motion.div
-            className={styles.tagFilterDropdown}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className={styles.tagFilterHeader}>
-              <h3>Filtrar por tags</h3>
-              {selectedTags.length > 0 && (
-                <button 
-                  className={styles.clearTagsButton}
-                  onClick={() => setSelectedTags([])}
-                >
-                  Limpar filtros
-                </button>
-              )}
-            </div>
-            <Select
-              isMulti
-              options={availableTags}
-              value={selectedTags}
-              onChange={setSelectedTags}
-              placeholder="Selecione tags para filtrar..."
-              noOptionsMessage={() => "Nenhuma tag disponível"}
-              className={styles.tagSelect}
-              classNamePrefix="react-select"
-              styles={customSelectStyles}
-              aria-label="Filtrar por tags"
-            />
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {showTagFilter && (
+            <motion.div
+              className={styles.tagFilterDropdown}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className={styles.tagFilterHeader}>
+                <h3>Filtrar por tags</h3>
+                {selectedTags.length > 0 && (
+                  <button 
+                    className={styles.clearTagsButton}
+                    onClick={() => setSelectedTags([])}
+                  >
+                    Limpar filtros
+                  </button>
+                )}
+              </div>
+              <Select
+                isMulti
+                options={availableTags}
+                value={selectedTags}
+                onChange={setSelectedTags}
+                placeholder="Selecione tags para filtrar..."
+                noOptionsMessage={() => "Nenhuma tag disponível"}
+                className={styles.tagSelect}
+                classNamePrefix="react-select"
+                styles={customSelectStyles}
+                aria-label="Filtrar por tags"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

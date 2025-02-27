@@ -1,0 +1,148 @@
+/* ===== Estados vazios e loading ===== */
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+  }
+  
+  .spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .bounce1, .bounce2, .bounce3 {
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-primary);
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+  
+  .bounce1 {
+    animation-delay: -0.32s;
+  }
+  
+  .bounce2 {
+    animation-delay: -0.16s;
+  }
+  
+  @keyframes bounce {
+    0%, 80%, 100% { 
+      transform: scale(0);
+    } 
+    40% { 
+      transform: scale(1.0);
+    }
+  }
+  
+  /* ===== Estado vazio ===== */
+  .emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    background-color: var(--box-color);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .emptyIconContainer {
+    font-size: 3rem;
+    color: var(--text-color2);
+    margin-bottom: 20px;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--box-color2);
+  }
+  
+  .emptyState p {
+    color: var(--text-color2);
+    font-size: 1.1rem;
+    text-align: center;
+    margin: 0;
+  }
+  
+  /* ===== Acessibilidade ===== */
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  /* ===== Tooltip ===== */
+  .tooltip {
+    position: relative;
+  }
+  
+  .tooltip:hover .tooltipText {
+    visibility: visible;
+    opacity: 1;
+  }
+  
+  .tooltipText {
+    visibility: hidden;
+    width: 120px;
+    background-color: var(--box-color3);
+    color: var(--text-color);
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .tooltipText::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--box-color3) transparent transparent transparent;
+  }
+  
+  /* ===== Animation Container ===== */
+  .animationContainer {
+    overflow: hidden;
+    position: relative;
+  }
+  
+  /* ===== Cores de status ===== */
+  .success {
+    color: var(--color-accent3);
+  }
+  
+  .error {
+    color: var(--color-accent1);
+  }
+  
+  .warning {
+    color: var(--color-accent2);
+  }
+  
+  .info {
+    color: var(--color-primary);
+  }

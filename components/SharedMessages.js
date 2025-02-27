@@ -12,7 +12,7 @@ import EmptyState from './ui/EmptyState';
 import MessageTabs from './shared-messages/MessageTabs';
 import MessageFilters from './shared-messages/MessageFilters';
 
-import styles from '../styles/SharedMessages.module.css';
+import styles from '../styles/shared-messages/index.module.css';
 
 // Constantes
 const POPULAR_THRESHOLD = 5;

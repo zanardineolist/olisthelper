@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import styles from '../../styles/SharedMessages.module.css';
+import styles from '../../styles/shared-messages/index.module.css';
 
 const EmptyState = ({ icon, message }) => {
   return (

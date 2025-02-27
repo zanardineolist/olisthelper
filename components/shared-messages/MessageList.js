@@ -5,7 +5,7 @@ import { useMessageContext } from './MessageContext';
 import MessageCard from './MessageCard';
 import MessageRow from './MessageRow';
 import Pagination from '../ui/Pagination';
-import styles from '../../styles/SharedMessages.module.css';
+import styles from '../../styles/shared-messages/index.module.css';
 
 const MessageList = () => {
   const { 

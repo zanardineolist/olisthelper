@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaCheck, FaGlobe, FaLock, FaTag, FaInfo } from 'react-icons/fa';
 import TagInput from './TagInput';
-import styles from '../../styles/SharedMessages.module.css';
+import styles from '../../styles/shared-messages/index.module.css';
 
 const MessageForm = ({ formData: initialFormData, setFormData: setParentFormData, onSave, onCancel, isEditing }) => {
   // Estado local do formulário para melhor controle

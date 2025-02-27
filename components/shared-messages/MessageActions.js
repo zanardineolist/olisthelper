@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FaHeart, FaRegHeart, FaCopy, FaEdit, FaTrash, FaMagic } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
-import styles from '../../styles/SharedMessages.module.css';
+import styles from '../../styles/shared-messages/index.module.css';
 
 const MessageActions = ({ message }) => {
   const { 
@@ -55,9 +55,9 @@ const MessageActions = ({ message }) => {
         title={message.isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
       >
         {message.isFavorite ? (
-          <FaHeart className={styles.actionIcon} />
+          <FaHeart />
         ) : (
-          <FaRegHeart className={styles.actionIcon} />
+          <FaRegHeart />
         )}
       </motion.button>
 
@@ -71,7 +71,7 @@ const MessageActions = ({ message }) => {
         aria-label="Copiar conteúdo"
         title="Copiar conteúdo"
       >
-        <FaCopy className={styles.actionIcon} />
+        <FaCopy />
       </motion.button>
 
       {/* Ações exclusivas do autor */}
@@ -87,7 +87,7 @@ const MessageActions = ({ message }) => {
             aria-label="Editar mensagem"
             title="Editar mensagem"
           >
-            <FaEdit className={styles.actionIcon} />
+            <FaEdit />
           </motion.button>
 
           {/* Botão de Excluir */}
@@ -100,7 +100,7 @@ const MessageActions = ({ message }) => {
             aria-label="Excluir mensagem"
             title="Excluir mensagem"
           >
-            <FaTrash className={styles.actionIcon} />
+            <FaTrash />
           </motion.button>
 
           {/* Botão de Melhorar com IA */}
@@ -113,7 +113,7 @@ const MessageActions = ({ message }) => {
             aria-label="Melhorar com IA"
             title="Melhorar com IA"
           >
-            <FaMagic className={styles.actionIcon} />
+            <FaMagic />
           </motion.button>
         </>
       )}

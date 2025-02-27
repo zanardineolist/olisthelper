@@ -1,0 +1,159 @@
+/* ===== Tags nos cards e linhas ===== */
+.cardTags, .rowTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .cardTags {
+    margin-top: auto;
+    padding-top: 10px;
+  }
+  
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background-color: var(--box-color3);
+    color: var(--text-color);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .tagIcon {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    color: var(--text-color);
+  }
+  
+  .visibilityTag, .popularTag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-white);
+  }
+  
+  .visibilityTag {
+    background-color: var(--color-primary);
+  }
+  
+  .popularTag {
+    background-color: var(--color-accent2);
+  }
+  
+  .tagLabel {
+    white-space: nowrap;
+  }
+  
+  /* ===== Badges ===== */
+  .cardBadges {
+    display: flex;
+    gap: 8px;
+    margin-left: 10px;
+  }
+  
+  .visibilityBadge, .popularBadge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: var(--color-white);
+    font-size: 0.8rem;
+  }
+  
+  .visibilityBadge {
+    background-color: var(--color-primary);
+  }
+  
+  .popularBadge {
+    background-color: var(--color-accent2);
+  }
+  
+  /* ===== Input de tags ===== */
+  .tagInputContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    background-color: var(--modals-inputs);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    cursor: text;
+    min-height: 45px;
+    transition: border-color 0.2s ease;
+  }
+  
+  .tagInputFocused {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(10, 78, 228, 0.2);
+  }
+  
+  .tagsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+  
+  .tagItem {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border-radius: 16px;
+    font-size: 0.9rem;
+  }
+  
+  .tagText {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .removeTagButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--color-white);
+    opacity: 0.7;
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px;
+    transition: opacity 0.2s ease;
+  }
+  
+  .removeTagButton:hover {
+    opacity: 1;
+  }
+  
+  .tagInput {
+    flex: 1;
+    min-width: 120px;
+    border: none;
+    background: none;
+    color: var(--text-color);
+    font-size: 0.95rem;
+    outline: none;
+    padding: 4px 0;
+  }
+  
+  .tagInput::placeholder {
+    color: var(--text-color2);
+    opacity: 0.6;
+  }

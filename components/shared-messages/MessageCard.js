@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { FaUser, FaClock, FaGlobe, FaLock, FaTag, FaStar, FaHeart, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
 import MessageActions from './MessageActions';
-import styles from '../../styles/SharedMessages.module.css';
+import styles from '../../styles/shared-messages/index.module.css';
 
 // Formatação relativa de tempo
 function formatRelativeTime(dateString) {
@@ -24,11 +24,11 @@ const MessageCard = ({ message, isPopular }) => {
   const { POPULAR_THRESHOLD } = useMessageContext();
 
   // Verificar se o conteúdo precisa do botão de expandir
-  const needsExpansion = message.content.length > 200;
+  const needsExpansion = message.content.length > 150;
   const displayContent = isExpanded 
     ? message.content 
     : needsExpansion 
-      ? `${message.content.substring(0, 200)}...` 
+      ? `${message.content.substring(0, 150)}...` 
       : message.content;
 
   // Variants para animação com Framer Motion
@@ -49,11 +49,6 @@ const MessageCard = ({ message, isPopular }) => {
       boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
       transition: { type: "spring", stiffness: 300, damping: 20 }
     }
-  };
-
-  const contentVariants = {
-    collapsed: { height: "7.5em" },
-    expanded: { height: "auto" }
   };
 
   return (
@@ -103,12 +98,7 @@ const MessageCard = ({ message, isPopular }) => {
         </div>
       </div>
       
-      <motion.div 
-        className={styles.cardContent}
-        variants={contentVariants}
-        animate={isExpanded ? "expanded" : "collapsed"}
-        transition={{ duration: 0.3 }}
-      >
+      <div className={styles.cardContent}>
         <p>{displayContent}</p>
         
         {needsExpansion && (
@@ -130,7 +120,7 @@ const MessageCard = ({ message, isPopular }) => {
             )}
           </button>
         )}
-      </motion.div>
+      </div>
       
       {/* Tags */}
       {message.tags && message.tags.length > 0 && (

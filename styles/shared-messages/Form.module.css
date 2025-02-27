@@ -1,0 +1,264 @@
+/* ===== Modal e Formulário ===== */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    overflow-y: auto;
+    backdrop-filter: blur(3px);
+    padding: 20px;
+  }
+  
+  .modalContent {
+    background-color: var(--box-color);
+    border-radius: 16px;
+    padding: 30px;
+    width: 100%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+  
+  .modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+  
+  .modalTitle {
+    color: var(--title-color);
+    font-size: 1.8rem;
+    margin: 0;
+  }
+  
+  .closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--box-color2);
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .closeButton:hover {
+    background-color: var(--color-accent1);
+    color: var(--color-white);
+  }
+  
+  /* ===== Formulário ===== */
+  .messageForm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .formLabel {
+    font-weight: 600;
+    color: var(--title-color);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .requiredMark {
+    color: var(--color-accent1);
+  }
+  
+  .inputWrapper, .textareaWrapper {
+    position: relative;
+  }
+  
+  .formControl, .formTextarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background-color: var(--modals-inputs);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+  
+  .formControl:focus, .formTextarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(10, 78, 228, 0.2);
+  }
+  
+  .formTextarea {
+    min-height: 150px;
+    resize: vertical;
+  }
+  
+  .hasError {
+    border-color: var(--color-accent1);
+  }
+  
+  .errorMessage {
+    color: var(--color-accent1);
+    font-size: 0.9rem;
+  }
+  
+  .charCount {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    font-size: 0.8rem;
+    color: var(--text-color2);
+    background-color: var(--box-color2);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+  
+  .formHint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-color2);
+    font-size: 0.9rem;
+  }
+  
+  .hintIcon {
+    font-size: 0.9rem;
+    color: var(--color-primary);
+  }
+  
+  /* ===== Opções de Visibilidade ===== */
+  .visibilityToggle {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+  
+  .visibilityLabel {
+    color: var(--title-color);
+    font-weight: 600;
+  }
+  
+  .visibilityOption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: var(--box-color2);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .visibilityOption:hover {
+    background-color: var(--box-color3);
+  }
+  
+  .visibilityOption.active {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
+  
+  .visibilityRadio {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .visibilityIcon {
+    font-size: 1rem;
+  }
+  
+  .visibilityHint {
+    color: var(--text-color2);
+    font-size: 0.9rem;
+  }
+  
+  /* ===== Botões ===== */
+  .formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 10px;
+  }
+  
+  .cancelButton, .saveButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  
+  .cancelButton {
+    background-color: var(--box-color2);
+    color: var(--text-color);
+  }
+  
+  .cancelButton:hover {
+    background-color: var(--box-color3);
+  }
+  
+  .saveButton {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+  }
+  
+  .saveButton:hover {
+    background-color: var(--color-primary-hover);
+  }
+  
+  .buttonIcon {
+    font-size: 1rem;
+  }
+  
+  /* ===== Responsividade ===== */
+  @media (max-width: 992px) {
+    .modalContent {
+      padding: 20px;
+      width: 95%;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .formActions {
+      flex-direction: column;
+    }
+    
+    .cancelButton, .saveButton {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .visibilityToggle {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .visibilityOption {
+      width: 100%;
+    }
+  }
