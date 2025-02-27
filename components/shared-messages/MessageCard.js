@@ -46,10 +46,6 @@ const MessageCard = ({ message, isPopular }) => {
       className={`${cardStyles.messageCard} ${isPopular ? cardStyles.popularCard : ''} ${isExpanded ? cardStyles.expandedCard : ''}`}
       whileHover="hover"
       variants={cardVariants}
-      style={{ 
-        height: isExpanded ? 'auto' : undefined,
-        minHeight: isExpanded ? 'auto' : '200px',
-      }}
     >
       <div className={cardStyles.cardHeader}>
         <h3 className={cardStyles.cardTitle}>{message.title}</h3>

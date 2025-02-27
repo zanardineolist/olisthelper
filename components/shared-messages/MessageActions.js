@@ -30,9 +30,6 @@ const MessageActions = ({ message }) => {
         ) : (
           <FaRegHeart />
         )}
-        {message.favorites_count > 0 && (
-          <span className={styles.actionCount}>{message.favorites_count}</span>
-        )}
       </button>
 
       {/* Botão de Copiar */}
