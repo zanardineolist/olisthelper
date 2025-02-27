@@ -57,40 +57,40 @@ const MessageRow = ({ message, isPopular }) => {
           {/* Status indicadores */}
           <div className={styles.rowStatus}>
             {isPopular && (
-              <span className={styles.popularTag} title={`Mais de ${POPULAR_THRESHOLD} favoritos`}>
+              <span className={tagStyles.popularTag} title={`Mais de ${POPULAR_THRESHOLD} favoritos`}>
                 <FaStar />
-                <span className={styles.tagLabel}>Popular</span>
+                <span className={tagStyles.tagLabel}>Popular</span>
               </span>
             )}
-            <span className={styles.visibilityTag} title={message.is_public ? "Mensagem pública" : "Mensagem privada"}>
+            <span className={tagStyles.visibilityTag} title={message.is_public ? "Mensagem pública" : "Mensagem privada"}>
               {message.is_public ? (
                 <>
                   <FaGlobe />
-                  <span className={styles.tagLabel}>Pública</span>
+                  <span className={tagStyles.tagLabel}>Pública</span>
                 </>
               ) : (
                 <>
                   <FaLock />
-                  <span className={styles.tagLabel}>Privada</span>
+                  <span className={tagStyles.tagLabel}>Privada</span>
                 </>
               )}
             </span>
           </div>
-
+  
           {/* Título */}
           <h3 className={styles.rowTitle}>{message.title}</h3>
           
           {/* Tags */}
-          <div className={styles.rowTags}>
+          <div className={tagStyles.rowTags}>
             {message.tags.map((tag) => (
-              <span key={tag} className={styles.tag}>
+              <span key={tag} className={tagStyles.tag}>
                 <FaTag />
-                <span className={styles.tagLabel}>{tag}</span>
+                <span className={tagStyles.tagLabel}>{tag}</span>
               </span>
             ))}
           </div>
         </div>
-
+  
         {/* Conteúdo */}
         <div className={styles.rowContent}>
           <div className={`${styles.messagePreview} ${isExpanded ? styles.expanded : ''}`}>
@@ -136,7 +136,7 @@ const MessageRow = ({ message, isPopular }) => {
           </span>
         </div>
       </div>
-
+  
       {/* Ações */}
       <div className={styles.rowActions}>
         <MessageActions message={message} />

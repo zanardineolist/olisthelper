@@ -12,8 +12,8 @@ import EmptyState from './ui/EmptyState';
 import MessageTabs from './shared-messages/MessageTabs';
 import MessageFilters from './shared-messages/MessageFilters';
 
+// Importar apenas os estilos que realmente são usados neste componente
 import layoutStyles from '../styles/shared-messages/Layout.module.css';
-import searchStyles from '../styles/shared-messages/Search.module.css';
 import utilityStyles from '../styles/shared-messages/Utilities.module.css';
 
 // Constantes
@@ -534,12 +534,12 @@ const SharedMessages = ({ user }) => {
   return (
     <MessageProvider value={contextValue}>
       <motion.div 
-        className={styles.container}
+        className={layoutStyles.container}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <div className={styles.header}>
+        <div className={layoutStyles.header}>
           <SearchBar 
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
@@ -558,12 +558,12 @@ const SharedMessages = ({ user }) => {
               });
               setShowAddModal(true);
             }}
-            className={styles.addButton}
+            className={layoutStyles.addButton}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             aria-label="Adicionar nova mensagem"
           >
-            <FaPlus className={styles.addButtonIcon} />
+            <FaPlus className={layoutStyles.addButtonIcon} />
             <span>Nova Mensagem</span>
           </motion.button>
         </div>
@@ -578,7 +578,7 @@ const SharedMessages = ({ user }) => {
           <MessageList />
         ) : (
           <EmptyState 
-            icon={<FaInbox className={styles.emptyIcon} />}
+            icon={<FaInbox />}
             message={
               searchTerm || selectedTags.length > 0 
                 ? "Nenhuma mensagem encontrada com esses filtros" 

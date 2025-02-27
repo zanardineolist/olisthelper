@@ -54,20 +54,20 @@ const MessageCard = ({ message, isPopular }) => {
 
   return (
     <motion.div 
-      className={`${styles.messageCard} ${isPopular ? styles.popularCard : ''}`}
+      className={`${cardStyles.messageCard} ${isPopular ? cardStyles.popularCard : ''}`}
       initial="hidden"
       animate="visible"
       whileHover="hover"
       variants={cardVariants}
       layout
     >
-      <div className={styles.cardHeader}>
-        <h3 className={styles.cardTitle}>{message.title}</h3>
+      <div className={cardStyles.cardHeader}>
+        <h3 className={cardStyles.cardTitle}>{message.title}</h3>
         
-        <div className={styles.cardBadges}>
+        <div className={cardStyles.cardBadges}>
           {/* Indicador de público/privado */}
           <span 
-            className={styles.visibilityBadge} 
+            className={cardStyles.visibilityBadge} 
             title={message.is_public ? "Mensagem pública" : "Mensagem privada"}
           >
             {message.is_public ? <FaGlobe /> : <FaLock />}
@@ -75,47 +75,47 @@ const MessageCard = ({ message, isPopular }) => {
           
           {/* Indicador de popular */}
           {isPopular && (
-            <span className={styles.popularBadge} title={`Mais de ${POPULAR_THRESHOLD} favoritos`}>
+            <span className={cardStyles.popularBadge} title={`Mais de ${POPULAR_THRESHOLD} favoritos`}>
               <FaStar />
             </span>
           )}
         </div>
       </div>
       
-      <div className={styles.cardMeta}>
-        <div className={styles.author}>
-          <FaUser className={styles.metaIcon} />
+      <div className={cardStyles.cardMeta}>
+        <div className={cardStyles.author}>
+          <FaUser className={cardStyles.metaIcon} />
           <span>{message.author_name}</span>
         </div>
         
-        <div className={styles.timestamp} title={new Date(message.created_at).toLocaleString()}>
-          <FaClock className={styles.metaIcon} />
+        <div className={cardStyles.timestamp} title={new Date(message.created_at).toLocaleString()}>
+          <FaClock className={cardStyles.metaIcon} />
           <span>{formatRelativeTime(message.created_at)}</span>
           {message.updated_at !== message.created_at && (
-            <span className={styles.editedMark} title={`Atualizado em ${new Date(message.updated_at).toLocaleString()}`}>
+            <span className={cardStyles.editedMark} title={`Atualizado em ${new Date(message.updated_at).toLocaleString()}`}>
               (editado)
             </span>
           )}
         </div>
       </div>
       
-      <div className={styles.cardContent}>
+      <div className={cardStyles.cardContent}>
         <p>{displayContent}</p>
         
         {needsExpansion && (
           <button 
             onClick={() => setIsExpanded(!isExpanded)} 
-            className={styles.expandButton}
+            className={cardStyles.expandButton}
             aria-expanded={isExpanded}
           >
             {isExpanded ? (
               <>
-                <FaEyeSlash className={styles.expandIcon} />
+                <FaEyeSlash className={cardStyles.expandIcon} />
                 <span>Ver menos</span>
               </>
             ) : (
               <>
-                <FaEye className={styles.expandIcon} />
+                <FaEye className={cardStyles.expandIcon} />
                 <span>Ver mais</span>
               </>
             )}
@@ -125,20 +125,20 @@ const MessageCard = ({ message, isPopular }) => {
       
       {/* Tags */}
       {message.tags && message.tags.length > 0 && (
-        <div className={styles.cardTags}>
+        <div className={tagStyles.cardTags}>
           {message.tags.map((tag) => (
-            <span key={tag} className={styles.tag}>
-              <FaTag className={styles.tagIcon} />
+            <span key={tag} className={tagStyles.tag}>
+              <FaTag className={tagStyles.tagIcon} />
               <span>{tag}</span>
             </span>
           ))}
         </div>
       )}
       
-      <div className={styles.cardFooter}>
+      <div className={cardStyles.cardFooter}>
         {/* Favoritos */}
-        <span className={styles.favoriteCount}>
-          <FaHeart className={`${styles.heartIcon} ${message.isFavorite ? styles.favorited : ''}`} />
+        <span className={cardStyles.favoriteCount}>
+          <FaHeart className={`${cardStyles.heartIcon} ${message.isFavorite ? cardStyles.favorited : ''}`} />
           <span>{message.favorites_count || 0}</span>
         </span>
         
