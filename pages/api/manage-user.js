@@ -43,7 +43,8 @@ export default async function handler(req, res) {
           squad: user.squad,
           chamado: user.can_ticket,
           telefone: user.can_phone,
-          chat: user.can_chat
+          chat: user.can_chat,
+          active: user.active
         }));
         
         return res.status(200).json({ users: mappedUsers });
@@ -94,6 +95,7 @@ export default async function handler(req, res) {
       case 'PUT':
         console.log('Método PUT chamado - Atualizando usuário...');
         const updatedUser = req.body;
+        const originalEmail = updatedUser.originalEmail; // E-mail original
 
         if (!updatedUser.id) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
@@ -110,11 +112,9 @@ export default async function handler(req, res) {
           return res.status(404).json({ error: 'Usuário não encontrado.' });
         }
 
-        // Validar email
-        if (existingUserToUpdate.email !== updatedUser.email) {
-          return res.status(400).json({ error: 'Email do usuário não corresponde ao registro existente.' });
-        }
-
+        // Iniciar transação para atualizar usuário e registros relacionados
+        let emailChanged = existingUserToUpdate.email !== updatedUser.email;
+        
         // Atualizar usuário
         const { data: updatedRecord, error: updateError } = await supabase
           .from('users')
@@ -134,6 +134,36 @@ export default async function handler(req, res) {
 
         if (updateError) throw updateError;
 
+        // Se o e-mail foi alterado, atualizar registros relacionados
+        if (emailChanged && originalEmail) {
+          // Atualizar email em help_records
+          const { error: helpRecordsError } = await supabase
+            .from('help_records')
+            .update({ requester_email: updatedUser.email })
+            .eq('requester_email', originalEmail);
+
+          if (helpRecordsError) {
+            console.error('Erro ao atualizar email em help_records:', helpRecordsError);
+          }
+
+          // Atualizar outros registros que possam ter referência ao e-mail do usuário
+          // Exemplo: Se houver outras tabelas que usam o e-mail como referência
+
+          // Registrar operação de atualização de email
+          if (isUserValid) {
+            await logAction(
+              reqUser.id, 
+              reqUser.name, 
+              reqUser.role, 
+              'update_email', 
+              'Usuário', 
+              { email: originalEmail }, 
+              { email: updatedUser.email },
+              'update-email'
+            );
+          }
+        }
+
         if (isUserValid) {
           await logAction(reqUser.id, reqUser.name, reqUser.role, 'update_user', 'Usuário', {
             userId: existingUserToUpdate.id,
@@ -149,48 +179,57 @@ export default async function handler(req, res) {
         return res.status(200).json({ message: 'Usuário atualizado com sucesso.' });
 
       case 'DELETE':
-        console.log('Método DELETE chamado - Excluindo usuário...');
+        console.log('Método DELETE chamado - Inativando usuário...');
         const deleteUserId = req.query.id;
 
         if (!deleteUserId) {
           return res.status(400).json({ error: 'ID do usuário não fornecido.' });
         }
       
-      // Verificar se usuário existe
-      const { data: userToDelete } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', deleteUserId)
-      .single();
+        // Verificar se usuário existe
+        const { data: userToDelete } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', deleteUserId)
+          .single();
 
-    if (!userToDelete) {
-      return res.status(404).json({ error: 'Usuário não encontrado.' });
-    }
+        if (!userToDelete) {
+          return res.status(404).json({ error: 'Usuário não encontrado.' });
+        }
 
-    // Em vez de deletar, apenas marca como inativo
-    const { error: deleteError } = await supabase
-      .from('users')
-      .update({ active: false, updated_at: new Date() })
-      .eq('id', deleteUserId);
+        // Marcar como inativo (soft delete)
+        const { error: deleteError } = await supabase
+          .from('users')
+          .update({ 
+            active: false, 
+            updated_at: new Date() 
+          })
+          .eq('id', deleteUserId);
 
-    if (deleteError) throw deleteError;
+        if (deleteError) throw deleteError;
 
-    if (isUserValid) {
-      await logAction(reqUser.id, reqUser.name, reqUser.role, 'delete_user', 'Usuário', {
-        userId: userToDelete.id,
-        name: userToDelete.name,
-        email: userToDelete.email,
-      }, null, 'manage-user');
-    }
+        if (isUserValid) {
+          await logAction(reqUser.id, reqUser.name, reqUser.role, 'inactivate_user', 'Usuário', {
+            userId: userToDelete.id,
+            name: userToDelete.name,
+            email: userToDelete.email,
+            active: true
+          }, {
+            userId: userToDelete.id,
+            name: userToDelete.name,
+            email: userToDelete.email,
+            active: false
+          }, 'manage-user');
+        }
 
-    return res.status(200).json({ message: 'Usuário excluído com sucesso.' });
+        return res.status(200).json({ message: 'Usuário inativado com sucesso.' });
 
-  default:
-    res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
-    return res.status(405).end(`Método ${method} não permitido.`);
-}
+    default:
+      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+      return res.status(405).end(`Método ${method} não permitido.`);
+  }
 } catch (error) {
-console.error('Erro ao processar requisição de usuário:', error);
-return res.status(500).json({ error: 'Erro ao processar requisição.' });
+  console.error('Erro ao processar requisição de usuário:', error);
+  return res.status(500).json({ error: 'Erro ao processar requisição.' });
 }
 }

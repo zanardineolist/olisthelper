@@ -23,6 +23,7 @@ export default function ManageUsers({ user }) {
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [originalEmail, setOriginalEmail] = useState(''); // Para rastrear o e-mail original durante a edição
 
   const profileOptions = [
     { value: 'support', label: 'Suporte' },
@@ -48,7 +49,7 @@ export default function ManageUsers({ user }) {
       }
       const data = await res.json();
       // Filtrar apenas usuários ativos
-      const activeUsers = data.users.filter(u => u.active !== false);
+      const activeUsers = data.users.filter(u => u.active === true);
       setUsers(activeUsers);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
@@ -79,6 +80,7 @@ export default function ManageUsers({ user }) {
 
   const handleEditUser = (user) => {
     setNewUser(user);
+    setOriginalEmail(user.email); // Salvar o e-mail original para comparação posterior
     setIsEditing(true);
     setModalIsOpen(true);
   };
@@ -86,10 +88,10 @@ export default function ManageUsers({ user }) {
   const handleDeleteUser = async (userId) => {
     const isConfirmed = await Swal.fire({
       title: 'Tem certeza?',
-      text: 'Deseja realmente excluir este usuário? Esta ação não pode ser desfeita.',
+      text: 'Deseja realmente inativar este usuário? Ele não aparecerá mais na lista de usuários ativos, mas seus registros serão mantidos.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sim, excluir!',
+      confirmButtonText: 'Sim, inativar!',
       cancelButtonText: 'Cancelar',
       allowOutsideClick: true,
     });
@@ -106,21 +108,21 @@ export default function ManageUsers({ user }) {
       
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error || 'Erro ao deletar usuário');
+        throw new Error(errorData.error || 'Erro ao inativar usuário');
       }
 
       await loadUsers();
 
       Swal.fire({
         icon: 'success',
-        title: 'Excluído!',
-        text: 'O usuário foi excluído com sucesso.',
+        title: 'Inativado!',
+        text: 'O usuário foi inativado com sucesso.',
         timer: 2000,
         showConfirmButton: false,
         allowOutsideClick: true,
       });
     } catch (err) {
-      console.error('Erro ao deletar usuário:', err);
+      console.error('Erro ao inativar usuário:', err);
       Swal.fire({
         icon: 'error',
         title: 'Erro',
@@ -185,15 +187,40 @@ export default function ManageUsers({ user }) {
             return;
           }
         }
+      } else if (isEditing && newUser.email !== originalEmail) {
+        // Confirmação extra quando alterando e-mail durante edição
+        const isEmailChangeConfirmed = await Swal.fire({
+          icon: 'warning',
+          title: 'Alteração de E-mail',
+          html: `
+            Você está alterando o e-mail de <strong>${originalEmail}</strong> para <strong>${newUser.email}</strong>.<br><br>
+            Esta ação atualizará o e-mail em todos os registros relacionados ao usuário.<br><br>
+            Deseja prosseguir com esta alteração?
+          `,
+          showCancelButton: true,
+          confirmButtonText: 'Sim, alterar e-mail',
+          cancelButtonText: 'Cancelar',
+          allowOutsideClick: true,
+        });
+
+        if (!isEmailChangeConfirmed.isConfirmed) {
+          setLoading(false);
+          return;
+        }
       }
 
       const method = isEditing ? 'PUT' : 'POST';
+      const payload = {
+        ...newUser,
+        originalEmail: isEditing ? originalEmail : null // Envia o e-mail original para o backend
+      };
+      
       const res = await fetch('/api/manage-user', {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newUser),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -214,6 +241,7 @@ export default function ManageUsers({ user }) {
       });
       setIsEditing(false);
       setModalIsOpen(false);
+      setOriginalEmail('');
 
       Swal.fire({
         icon: 'success',
@@ -248,12 +276,14 @@ export default function ManageUsers({ user }) {
       telefone: false, 
       chat: false 
     });
+    setOriginalEmail('');
     setIsEditing(false);
     setModalIsOpen(true);
   };
 
   const handleCloseModal = () => {
     setModalIsOpen(false);
+    setOriginalEmail('');
   };
 
   // Estilos personalizados para o React-Select

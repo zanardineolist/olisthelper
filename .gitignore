@@ -4,3 +4,10 @@
 # IDS
 Analyst IDS.txt
 IDS.txt
+
+database_roles.sql
+database_structure.sql
+
+config.toml
+
+.vscode
