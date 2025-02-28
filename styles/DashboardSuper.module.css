@@ -1,6 +1,8 @@
-/* Página principal */
+/* styles/DashboardSuper.module.css */
+
+/* Página principal - AJUSTADO PARA MAIOR LARGURA */
 .dashboardMain {
-    max-width: 1200px;
+    max-width: 1440px; /* Aumentado de 1200px para 1440px */
     margin: 0 auto;
     padding: 30px 20px;
   }
@@ -91,10 +93,10 @@
     min-height: 500px;
   }
   
-  /* Contêiner principal do dashboard */
+  /* Contêiner principal do dashboard - AJUSTADO PARA MAIOR LARGURA */
   .dashboardContainer {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px; /* Aumentado de 1200px para 1400px */
     margin: 0 auto;
     padding: 20px;
   }
@@ -305,7 +307,7 @@
     z-index: 2;
   }
   
-  /* Grid para cards de desempenho */
+  /* Grid para cards de desempenho - AJUSTADO PARA MELHOR EXIBIÇÃO */
   .performanceGridContainer {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -342,9 +344,10 @@
     font-weight: 500;
   }
   
+  /* AJUSTADO PARA MELHOR EXIBIÇÃO DOS INDICADORES */
   .performanceMetrics {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
     gap: 10px;
   }
   
@@ -352,11 +355,28 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 12px 8px;
     background-color: var(--box-color2);
     border-radius: 8px;
     text-align: center;
+    min-width: 70px; /* Garantir largura mínima */
+  }
+  
+  /* Definindo tamanho específico para CSAT e TMA que tendem a ser maiores */
+  .performanceMetric span.metricValue {
+    font-size: 1.2rem; /* Reduzido para acomodar números maiores */
+    font-weight: 600;
+    color: var(--title-color);
+    word-break: break-word; /* Permite quebra de palavras longas */
+    white-space: normal; /* Permite quebra de linha */
+    width: 100%; /* Garante que use toda a largura disponível */
+  }
+  
+  .performanceMetric span.metricLabel {
+    font-size: 0.75rem;
+    color: var(--text-color2);
   }
   
   /* Métricas de analista */
@@ -502,7 +522,20 @@
     margin: 0;
   }
   
-  /* Responsividade */
+  /* Responsividade - AJUSTADA PARA EVITAR PROBLEMAS DE LAYOUT */
+  @media (max-width: 1200px) {
+    .dashboardMainCards,
+    .performanceGridContainer,
+    .analystMetricsContainer {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* Melhor distribuição em telas médias */
+    .performanceMetrics {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
   @media (max-width: 992px) {
     .dashboardMainCards,
     .performanceGridContainer,
@@ -516,6 +549,11 @@
     
     .categoryContent {
       grid-template-columns: 1fr;
+    }
+    
+    /* Melhorias para evitar compressão */
+    .performanceMetrics {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
   
