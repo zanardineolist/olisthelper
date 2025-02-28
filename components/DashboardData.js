@@ -2,27 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import Select, { components as selectComponents } from 'react-select';
 import Swal from 'sweetalert2';
-
-import baseStyles from '../styles/dashboard/base.module.css';
-import cardStyles from '../styles/dashboard/cards.module.css';
-import chartStyles from '../styles/dashboard/charts.module.css';
-import rankingStyles from '../styles/dashboard/rankings.module.css';
-import superStyles from '../styles/dashboard/super.module.css';
-import responsiveStyles from '../styles/dashboard/responsive.module.css';
-
+import styles from '../styles/DashboardSuper.module.css';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
-
-const styles = {
-  ...baseStyles,
-  ...cardStyles,
-  ...chartStyles,
-  ...rankingStyles,
-  ...superStyles,
-  ...responsiveStyles
-};
 
 export default function DashboardData({ user }) {
   // Estados básicos
