@@ -1,12 +1,14 @@
-/* Ajustes responsivos para componentes de dashboard */
+/* Responsive styles for all dashboard components */
+
 @media (max-width: 1200px) {
   .dashboardMainCards,
   .performanceGridContainer,
   .analystMetricsContainer,
-  .rankingsContainer {
+  .comparisonContainer {
     grid-template-columns: repeat(2, 1fr);
   }
   
+  /* Better distribution on medium screens */
   .performanceMetrics {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -16,30 +18,22 @@
   .dashboardMainCards,
   .performanceGridContainer,
   .analystMetricsContainer,
-  .rankingsContainer {
-    grid-template-columns: 1fr;
-  }
-  
-  .summaryContent {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .metricsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
+  .comparisonContainer,
   .categoryContent {
     grid-template-columns: 1fr;
   }
   
+  .metricsGrid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  
+  /* Improve performance metrics layout */
   .performanceMetrics {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .periodFilterControls,
-  .dateRangeContainer {
-    flex-direction: column;
-    align-items: flex-start;
+  .rankingsContainer {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -48,24 +42,22 @@
     padding: 20px 15px;
   }
   
-  .summaryContent {
-    grid-template-columns: 1fr;
+  .periodFilterControls,
+  .customDatePickerContainer,
+  .dateRangeContainer {
+    flex-direction: column;
+    align-items: flex-start;
   }
   
-  .chartWrapper {
-    height: 300px;
+  .dashboardContainer {
+    padding: 10px;
   }
   
-  .leftSide, .rightSide {
-    flex: 100%;
+  .chartWrapper,
+  .chartContainer {
+    height: 250px;
   }
   
-  .metricsGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 576px) {
   .pageHeader {
     flex-direction: column;
   }
@@ -81,7 +73,50 @@
   .summaryHeader {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 10px;
+  }
+  
+  .summary h3,
+  .chartTitle,
+  .rankingTitle,
+  .categoryTitle,
+  .metricsTitle,
+  .activityTitle {
+    font-size: 1rem;
+  }
+  
+  .pagination {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboardMain {
+    padding: 15px 10px;
+  }
+  
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .categoryHeader {
+    flex-wrap: wrap;
+  }
+  
+  .categoryName {
+    order: -1;
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .progressBarContainer {
+    margin-left: 0;
+  }
+  
+  .metricValue, 
+  .variationValue {
+    font-size: 1.2rem;
   }
   
   .rankingItem {
@@ -93,17 +128,11 @@
     width: calc(100% - 85px);
   }
   
-  .categoryHeader {
-    flex-wrap: wrap;
+  .performanceMetrics {
+    grid-template-columns: 1fr;
   }
   
-  .categoryName {
-    order: -1;
-    width: 100%;
-    margin-bottom: 8px;
-  }
-  
-  .progressBarContainer {
-    margin-left: 0;
+  .bigMetricValue {
+    font-size: 2.25rem;
   }
 }

@@ -1,0 +1,65 @@
+:root {
+    /* Base colors */
+    --color-primary: #0A4EE4;
+    --color-primary-hover: #0A42C2;
+    --color-secondary: #779E3D;
+    --color-accent: #F0A028;
+    --color-accent2: #E64E36;
+    --color-accent3: #8DD7D7;
+    --color-trodd: rgba(10, 78, 228, 0.1);
+    
+    /* Text colors */
+    --text-color: #333333;
+    --text-color2: #666666;
+    --title-color: #1a1a1a;
+    
+    /* Background colors */
+    --background-color: #F5F7FA;
+    --box-color: #FFFFFF;
+    --box-color2: #F0F2F5;
+    --box-color3: #E0E5EB;
+    --modals-inputs: #FFFFFF;
+    
+    /* Border colors */
+    --color-border: #DCDFE6;
+    
+    /* Tabs and menu backgrounds */
+    --tab-menu-bg: #F0F2F5;
+    
+    /* Scrollbar colors */
+    --scroll: #C0C4CC;
+    --scroll-bg: #E6EBF2;
+  }
+  
+  [data-theme="dark"] {
+    /* Base colors in dark mode */
+    --color-primary: #3375FF;
+    --color-primary-hover: #5A91FF;
+    --color-secondary: #8AB854;
+    --color-accent: #FFB547;
+    --color-accent2: #FF7A66;
+    --color-accent3: #A6E1E1;
+    --color-trodd: rgba(51, 117, 255, 0.15);
+    
+    /* Text colors in dark mode */
+    --text-color: #E0E0E0;
+    --text-color2: #A0A0A0;
+    --title-color: #FFFFFF;
+    
+    /* Background colors in dark mode */
+    --background-color: #1A1A1A;
+    --box-color: #2A2A2A;
+    --box-color2: #383838;
+    --box-color3: #484848;
+    --modals-inputs: #383838;
+    
+    /* Border colors in dark mode */
+    --color-border: #454545;
+    
+    /* Tabs and menu backgrounds in dark mode */
+    --tab-menu-bg: #383838;
+    
+    /* Scrollbar colors in dark mode */
+    --scroll: #505050;
+    --scroll-bg: #383838;
+  }

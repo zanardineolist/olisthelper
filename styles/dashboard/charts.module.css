@@ -1,46 +1,145 @@
-/* Estilos para containers de gráficos */
+/* Chart containers */
 .chartContainer {
   background-color: var(--box-color);
-  border-radius: 16px;
-  padding: 25px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.chartContainer:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
 .chartTitle {
-  margin: 0 0 25px 0;
-  font-size: 1.2rem;
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
   color: var(--title-color);
-  font-weight: 600;
-  padding-bottom: 15px;
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.chartTitle i {
-  color: var(--color-primary);
 }
 
 .chartWrapper {
-  height: 380px;
-  padding: 10px;
-  background-color: var(--box-color2);
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  margin-top: 10px;
+  height: 350px;
 }
 
-/* Ajustes para modo escuro nos gráficos */
+/* Chart-specific styling for GraphData component */
+.graphDataContainer {
+  width: 100%;
+}
+
+.controlPanel {
+  background-color: var(--box-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.panelSection {
+  margin-bottom: 20px;
+}
+
+.summary {
+  background-color: var(--box-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.summary h3 {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  color: var(--title-color);
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.summaryCard {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.cardHeader {
+  padding: 12px 16px;
+  color: white;
+}
+
+.cardHeader h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.cardBody {
+  padding: 16px;
+  background-color: var(--box-color2);
+}
+
+.metricGroup {
+  display: flex;
+  justify-content: space-between;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.metricLabel {
+  font-size: 0.8rem;
+  color: var(--text-color2);
+  margin-bottom: 5px;
+}
+
+.metricValue {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--title-color);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.paginationInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.paginationButton {
+  background-color: var(--box-color2);
+  border: 1px solid var(--color-border);
+  color: var(--text-color);
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: var(--color-trodd);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dark mode adjustments for charts */
+[data-theme="dark"] .chartContainer canvas,
 [data-theme="dark"] .chartWrapper canvas {
   filter: brightness(0.9) contrast(1.1);
 }
