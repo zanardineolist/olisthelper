@@ -3,8 +3,8 @@
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 20px;
-  }
+    padding: 25px;
+}
   
   .userSelectSection {
     background-color: var(--box-color);
@@ -15,7 +15,7 @@
   }
   
   .tabsContainer {
-    margin: 20px 0;
+    margin: 25px 0;
   }
   
   .tabContent {

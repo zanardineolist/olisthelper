@@ -1,150 +1,236 @@
 /* Container para rankings */
 .rankingsContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    margin-bottom: 25px;
-  }
-  
-  .rankingCard {
-    background-color: var(--box-color);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  }
-  
-  .rankingTitle {
-    margin: 0 0 20px 0;
-    font-size: 1.1rem;
-    color: var(--title-color);
-  }
-  
-  .rankingList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .rankingItem {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-  
-  .rankingPosition {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    background-color: var(--box-color2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--title-color);
-    flex-shrink: 0;
-  }
-  
-  .rankingDetails {
-    flex-grow: 1;
-    min-width: 0;
-  }
-  
-  .rankingName {
-    font-size: 0.9rem;
-    color: var(--text-color);
-    margin-bottom: 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .progressBarContainer {
-    height: 6px;
-    background-color: var(--box-color2);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  
-  .progressBar {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 0.3s ease;
-  }
-  
-  .rankingCount {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--title-color);
-    display: flex;
-    align-items: center;
-    min-width: 30px;
-    justify-content: flex-end;
-  }
-  
-  /* Estilos para ranking de categorias */
-  .categoryRankingCard {
-    background-color: var(--box-color);
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    margin-bottom: 25px;
-    position: relative;
-  }
-  
-  .categoryTitle {
-    margin: 0 0 25px 0;
-    font-size: 1.1rem;
-    color: var(--title-color);
-  }
-  
-  .categoryContent {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-  
-  .categoryList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .categoryItem {
-    margin-bottom: 15px;
-  }
-  
-  .categoryHeader {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  
-  .categoryRank {
-    background-color: var(--box-color2);
-    min-width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--title-color);
-    margin-right: 10px;
-  }
-  
-  .categoryName {
-    flex-grow: 1;
-    font-size: 0.95rem;
-    color: var(--text-color);
-  }
-  
-  .categoryCount {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--title-color);
-    display: flex;
-    align-items: center;
-  }
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.rankingCard {
+  background-color: var(--box-color);
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--color-border);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.rankingCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.rankingCard::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+}
+
+.rankingTitle {
+  margin: 0 0 25px 0;
+  font-size: 1.2rem;
+  color: var(--title-color);
+  font-weight: 600;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rankingTitle i {
+  color: var(--color-primary);
+}
+
+.rankingList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rankingItem {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 18px;
+  padding: 12px 15px;
+  background-color: var(--box-color2);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  transition: transform 0.2s ease;
+}
+
+.rankingItem:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+.rankingPosition {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.rankingDetails {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.rankingName {
+  font-size: 0.95rem;
+  color: var(--text-color);
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.progressBarContainer {
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.rankingCount {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--title-color);
+  display: flex;
+  align-items: center;
+  min-width: 40px;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.rankingCount i {
+  color: #F0A028;
+  font-size: 0.9rem;
+  transition: transform 0.2s ease;
+}
+
+.rankingCount i:hover {
+  transform: scale(1.2);
+}
+
+/* Estilos para ranking de categorias */
+.categoryRankingCard {
+  background-color: var(--box-color);
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--color-border);
+  margin-bottom: 30px;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.categoryRankingCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.categoryRankingCard::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+}
+
+.categoryTitle {
+  margin: 0 0 25px 0;
+  font-size: 1.2rem;
+  color: var(--title-color);
+  font-weight: 600;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.categoryTitle i {
+  color: var(--color-primary);
+}
+
+.categoryContent {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+.categoryList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.categoryItem {
+  margin-bottom: 18px;
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.categoryRank {
+  background-color: var(--color-primary);
+  min-width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: white;
+  margin-right: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.categoryName {
+  flex-grow: 1;
+  font-size: 1rem;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.categoryCount {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--title-color);
+  display: flex;
+  align-items: center;
+  background-color: var(--box-color2);
+  padding: 4px 10px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}

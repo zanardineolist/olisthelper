@@ -1,24 +1,46 @@
 /* Estilos para containers de gráficos */
 .chartContainer {
-    background-color: var(--box-color);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    position: relative;
-  }
-  
-  .chartTitle {
-    margin: 0 0 20px 0;
-    font-size: 1.1rem;
-    color: var(--title-color);
-  }
-  
-  .chartWrapper {
-    height: 600px;
-  }
-  
-  /* Ajustes para modo escuro nos gráficos */
-  [data-theme="dark"] .chartWrapper canvas {
-    filter: brightness(0.9) contrast(1.1);
-  }
+  background-color: var(--box-color);
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--color-border);
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chartContainer:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.chartTitle {
+  margin: 0 0 25px 0;
+  font-size: 1.2rem;
+  color: var(--title-color);
+  font-weight: 600;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chartTitle i {
+  color: var(--color-primary);
+}
+
+.chartWrapper {
+  height: 380px;
+  padding: 10px;
+  background-color: var(--box-color2);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  margin-top: 10px;
+}
+
+/* Ajustes para modo escuro nos gráficos */
+[data-theme="dark"] .chartWrapper canvas {
+  filter: brightness(0.9) contrast(1.1);
+}
