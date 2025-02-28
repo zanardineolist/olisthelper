@@ -14,6 +14,7 @@ import Select from 'react-select';
 import Swal from 'sweetalert2';
 import styles from '../styles/GraphData.module.css';
 import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
 
 // Registrar os elementos necessários do Chart.js
 ChartJS.register(
@@ -27,8 +28,12 @@ ChartJS.register(
 
 export default function GraphData({ users }) {
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [filter, setFilter] = useState('1');
-  const [filterLabel, setFilterLabel] = useState('Hoje');
+  const [periodFilter, setPeriodFilter] = useState({ value: 'last7days', label: 'Últimos 7 dias' });
+  const [customDateRange, setCustomDateRange] = useState({
+    startDate: dayjs().subtract(7, 'day').format('YYYY-MM-DD'),
+    endDate: dayjs().format('YYYY-MM-DD')
+  });
+  const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState(null);
 
@@ -43,11 +48,77 @@ export default function GraphData({ users }) {
     '#DF9FC7',
   ];
 
-  // Função para gerar um array de datas
-  const generateDateRange = (days) => {
+  // Opções de período
+  const periodOptions = [
+    { value: 'today', label: 'Hoje' },
+    { value: 'last7days', label: 'Últimos 7 dias' },
+    { value: 'last30days', label: 'Últimos 30 dias' },
+    { value: 'thisMonth', label: 'Este mês' },
+    { value: 'custom', label: 'Período personalizado' }
+  ];
+
+  // Exibir/ocultar o seletor de datas personalizadas
+  useEffect(() => {
+    setShowCustomDatePicker(periodFilter.value === 'custom');
+  }, [periodFilter]);
+
+  // Função para gerar um array de datas com base no filtro
+  const getDateRange = () => {
     const today = dayjs();
-    return Array.from({ length: days }, (_, i) => today.subtract(i, 'day').format('DD/MM/YYYY')).reverse();
+    let startDate, endDate;
+    
+    switch (periodFilter.value) {
+      case 'today':
+        startDate = today.format('YYYY-MM-DD');
+        endDate = today.format('YYYY-MM-DD');
+        break;
+      case 'last7days':
+        startDate = today.subtract(6, 'day').format('YYYY-MM-DD');
+        endDate = today.format('YYYY-MM-DD');
+        break;
+      case 'last30days':
+        startDate = today.subtract(29, 'day').format('YYYY-MM-DD');
+        endDate = today.format('YYYY-MM-DD');
+        break;
+      case 'thisMonth':
+        startDate = today.startOf('month').format('YYYY-MM-DD');
+        endDate = today.format('YYYY-MM-DD');
+        break;
+      case 'custom':
+        startDate = customDateRange.startDate;
+        endDate = customDateRange.endDate;
+        break;
+      default:
+        startDate = today.subtract(6, 'day').format('YYYY-MM-DD');
+        endDate = today.format('YYYY-MM-DD');
+    }
+    
+    return { startDate, endDate };
   };
+
+  // Gerar um array de datas para exibição no gráfico
+  const generateDateLabels = () => {
+    const { startDate, endDate } = getDateRange();
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
+    const diffDays = end.diff(start, 'day') + 1;
+    
+    const dateLabels = [];
+    for (let i = 0; i < diffDays; i++) {
+      dateLabels.push(start.add(i, 'day').format('DD/MM/YYYY'));
+    }
+    
+    return dateLabels;
+  };
+
+  // Buscar dados dos registros dos usuários selecionados quando mudanças ocorrerem
+  useEffect(() => {
+    if (selectedUsers.length > 0) {
+      fetchRecordsForUsers();
+    } else {
+      setChartData(null);
+    }
+  }, [selectedUsers, periodFilter, customDateRange]);
 
   // Função para buscar dados dos registros dos usuários selecionados
   const fetchRecordsForUsers = async () => {
@@ -59,21 +130,27 @@ export default function GraphData({ users }) {
     try {
       setLoading(true);
       const datasets = [];
-      const labels = generateDateRange(parseInt(filter));
-      let hasData = false; // Flag para verificar se há algum dado
+      const labels = generateDateLabels();
+      let hasData = false;
 
       for (const [index, user] of selectedUsers.entries()) {
-        const res = await fetch(`/api/get-analyst-records?analystId=${user.id}&filter=${filter}`);
+        // Obter período com base no filtro
+        const { startDate, endDate } = getDateRange();
+        
+        // Construir URL com parâmetros de data
+        const url = `/api/get-analyst-records?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}`;
+        
+        const res = await fetch(url);
         if (!res.ok) throw new Error(`Erro ao buscar registros do usuário ${user.name}`);
 
         const data = await res.json();
         const userCounts = labels.map(label => {
-          const dateIndex = data.dates.indexOf(label);
+          const dateIndex = data.dates ? data.dates.indexOf(label) : -1;
           return dateIndex !== -1 ? data.counts[dateIndex] : 0;
         });
 
         if (userCounts.some(count => count > 0)) {
-          hasData = true; // Se houver algum valor maior que zero, marcar como verdadeiro
+          hasData = true;
         }
 
         datasets.push({
@@ -91,7 +168,7 @@ export default function GraphData({ users }) {
           datasets,
         });
       } else {
-        setChartData(null); // Se não houver dados, definir chartData como null
+        setChartData(null);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
@@ -101,23 +178,25 @@ export default function GraphData({ users }) {
     }
   };
 
-  // Atualizar os registros quando o filtro ou usuários mudarem
-  useEffect(() => {
-    fetchRecordsForUsers();
-  }, [selectedUsers, filter]);
+  // Manipulador para mudar o filtro de período
+  const handlePeriodChange = (selectedOption) => {
+    setPeriodFilter(selectedOption);
+  };
 
-  // Manipulador para mudar o filtro de dias
-  const handleFilterChange = (value, label) => {
-    setFilter(value);
-    setFilterLabel(label);
+  const handleStartDateChange = (e) => {
+    setCustomDateRange(prev => ({ ...prev, startDate: e.target.value }));
+  };
+
+  const handleEndDateChange = (e) => {
+    setCustomDateRange(prev => ({ ...prev, endDate: e.target.value }));
   };
 
   // Estilos personalizados para o React-Select
   const customSelectStyles = {
     container: (provided) => ({
       ...provided,
-      width: '800px',
-      margin: '20px auto',
+      width: '100%',
+      marginBottom: '20px',
     }),
     control: (provided, state) => ({
       ...provided,
@@ -142,6 +221,7 @@ export default function GraphData({ users }) {
       backgroundColor: 'var(--modals-inputs)',
       maxHeight: '250px',
       overflowY: 'auto',
+      zIndex: 999
     }),
     menuList: (provided) => ({
       ...provided,
@@ -188,60 +268,229 @@ export default function GraphData({ users }) {
       ...provided,
       backgroundColor: 'var(--color-border)',
     }),
+    multiValue: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--color-primary)',
+    }),
+    multiValueLabel: (provided) => ({
+      ...provided,
+      color: 'white',
+    }),
+    multiValueRemove: (provided) => ({
+      ...provided,
+      color: 'white',
+      '&:hover': {
+        backgroundColor: 'var(--color-primary-hover)',
+        color: 'white',
+      },
+    }),
   };
 
   return (
     <div className={styles.graphDataContainer}>
-      <h2>Gráfico de auxilios Analistas/Fiscal</h2>
+      <div className={styles.controlPanel}>
+        <div className={styles.panelSection}>
+          <h3 className={styles.sectionTitle}>Selecione os Colaboradores</h3>
+          <Select
+            options={users.filter(user => ['analyst', 'tax'].includes(user.role.toLowerCase())).map(user => ({
+              value: user,
+              label: user.name,
+              id: user.id,
+            }))}
+            onChange={(selectedOptions) => {
+              setSelectedUsers(selectedOptions ? selectedOptions.map(option => option.value) : []);
+            }}
+            isMulti
+            placeholder="Selecione analistas ou fiscais"
+            styles={customSelectStyles}
+            classNamePrefix="react-select"
+            noOptionsMessage={() => 'Sem resultados'}
+          />
+        </div>
 
-      <div className={styles.filterButtonContainer}>
-        <button
-          className={`${styles.filterButton} ${filter === '1' ? styles.activeFilterButton : ''}`}
-          onClick={() => handleFilterChange('1', 'Hoje')}
-        >
-          Hoje
-        </button>
-        <button
-          className={`${styles.filterButton} ${filter === '7' ? styles.activeFilterButton : ''}`}
-          onClick={() => handleFilterChange('7', 'Últimos 7 dias')}
-        >
-          Últimos 7 dias
-        </button>
-        <button
-          className={`${styles.filterButton} ${filter === '30' ? styles.activeFilterButton : ''}`}
-          onClick={() => handleFilterChange('30', 'Últimos 30 dias')}
-        >
-          Últimos 30 dias
-        </button>
+        <div className={styles.panelSection}>
+          <h3 className={styles.sectionTitle}>Período de Análise</h3>
+          <div className={styles.periodFilterControls}>
+            <Select
+              options={periodOptions}
+              value={periodFilter}
+              onChange={handlePeriodChange}
+              isSearchable={false}
+              placeholder="Selecione o período"
+              styles={{
+                ...customSelectStyles,
+                container: (provided) => ({
+                  ...provided,
+                  width: '100%',
+                  marginBottom: '10px'
+                })
+              }}
+              classNamePrefix="react-select"
+            />
+            
+            {showCustomDatePicker && (
+              <div className={styles.dateRangeContainer}>
+                <div className={styles.dateInputGroup}>
+                  <label htmlFor="startDate">Data Inicial:</label>
+                  <input
+                    id="startDate"
+                    type="date"
+                    value={customDateRange.startDate}
+                    max={customDateRange.endDate}
+                    onChange={handleStartDateChange}
+                    className={styles.dateInput}
+                  />
+                </div>
+                <div className={styles.dateInputGroup}>
+                  <label htmlFor="endDate">Data Final:</label>
+                  <input
+                    id="endDate"
+                    type="date"
+                    value={customDateRange.endDate}
+                    min={customDateRange.startDate}
+                    max={dayjs().format('YYYY-MM-DD')}
+                    onChange={handleEndDateChange}
+                    className={styles.dateInput}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className={styles.selectedPeriodInfo}>
+            <span className={styles.periodLabel}>Período selecionado:</span>
+            <span className={styles.periodValue}>
+              {periodFilter.value === 'custom' 
+                ? `${dayjs(customDateRange.startDate).format('DD/MM/YYYY')} até ${dayjs(customDateRange.endDate).format('DD/MM/YYYY')}`
+                : periodFilter.label}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <Select
-        options={users.filter(user => ['analyst', 'tax'].includes(user.role.toLowerCase())).map(user => ({
-          value: user,
-          label: user.name,
-          id: user.id,
-        }))}
-        onChange={(selectedOptions) => {
-          setSelectedUsers(selectedOptions ? selectedOptions.map(option => option.value) : []);
-        }}
-        isMulti
-        placeholder="Selecione analistas ou fiscais"
-        styles={customSelectStyles}
-        classNamePrefix="react-select"
-        noOptionsMessage={() => 'Sem resultados'}
-      />
-
-      <div className={styles.chartContainer} style={{ minHeight: '400px' }}>
+      <div className={styles.chartContainer}>
         {loading ? (
-          <div className="standardBoxLoader"></div>
+          <div className={styles.loadingContainer}>
+            <div className="standardBoxLoader"></div>
+          </div>
+        ) : chartData ? (
+          <div className={styles.chartWrapper}>
+            <Bar
+              data={chartData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'top',
+                    labels: {
+                      color: 'var(--text-color)',
+                      font: {
+                        family: "'Plus Jakarta Sans', sans-serif",
+                        size: 12
+                      },
+                      boxWidth: 15,
+                      usePointStyle: true,
+                      pointStyle: 'circle'
+                    }
+                  },
+                  tooltip: {
+                    backgroundColor: 'var(--box-color)',
+                    titleColor: 'var(--title-color)',
+                    bodyColor: 'var(--text-color)',
+                    borderColor: 'var(--color-border)',
+                    borderWidth: 1,
+                    padding: 10,
+                    boxPadding: 5,
+                    bodyFont: {
+                      family: "'Plus Jakarta Sans', sans-serif"
+                    },
+                    titleFont: {
+                      family: "'Plus Jakarta Sans', sans-serif",
+                      weight: 'bold'
+                    }
+                  }
+                },
+                scales: {
+                  x: {
+                    grid: {
+                      color: 'var(--color-border)',
+                      drawBorder: false,
+                      lineWidth: 0.5
+                    },
+                    ticks: {
+                      color: 'var(--text-color)',
+                      font: {
+                        family: "'Plus Jakarta Sans', sans-serif",
+                        size: 11
+                      },
+                      maxRotation: 45,
+                      minRotation: 45
+                    }
+                  },
+                  y: {
+                    beginAtZero: true,
+                    grid: {
+                      color: 'var(--color-border)',
+                      drawBorder: false,
+                      lineWidth: 0.5
+                    },
+                    ticks: {
+                      precision: 0,
+                      color: 'var(--text-color)',
+                      font: {
+                        family: "'Plus Jakarta Sans', sans-serif",
+                        size: 12
+                      }
+                    }
+                  }
+                }
+              }}
+            />
+          </div>
         ) : (
-          chartData ? (
-            <Bar data={chartData} />
-          ) : (
-            <div className={styles.noData}>Nenhum dado disponível para o período selecionado.</div>
-          )
+          <div className={styles.noDataMessage}>
+            <i className="fa-solid fa-chart-simple"></i>
+            <p>
+              {selectedUsers.length === 0 
+                ? 'Selecione pelo menos um colaborador para visualizar os dados.'
+                : 'Nenhum dado disponível para o período selecionado.'}
+            </p>
+          </div>
         )}
       </div>
+
+      {chartData && (
+        <div className={styles.summary}>
+          <h3>Resumo dos Dados</h3>
+          <div className={styles.summaryGrid}>
+            {chartData.datasets.map((dataset, index) => {
+              const totalAjudas = dataset.data.reduce((sum, count) => sum + count, 0);
+              const mediaDiaria = (totalAjudas / chartData.labels.length).toFixed(1);
+              
+              return (
+                <div key={index} className={styles.summaryCard} style={{ borderColor: dataset.backgroundColor }}>
+                  <div className={styles.cardHeader} style={{ backgroundColor: dataset.backgroundColor }}>
+                    <h4>{dataset.label}</h4>
+                  </div>
+                  <div className={styles.cardBody}>
+                    <div className={styles.metricGroup}>
+                      <div className={styles.metric}>
+                        <span className={styles.metricLabel}>Total de Ajudas:</span>
+                        <span className={styles.metricValue}>{totalAjudas}</span>
+                      </div>
+                      <div className={styles.metric}>
+                        <span className={styles.metricLabel}>Média Diária:</span>
+                        <span className={styles.metricValue}>{mediaDiaria}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

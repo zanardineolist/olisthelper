@@ -1,277 +1,570 @@
-/* Container principal para a página */
-.container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--background-color);
-    padding: 10px 20px;
-    z-index: 1000;
-}
-
-/* Estilo do logo */
-.logo {
-    display: flex;
-    align-items: center;
-}
-
-.logo img {
-    height: 40px;
-}
-
-/* Área principal da página */
-.main {
-    padding: 20px;
-    margin-top: 0px;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    display: flex;
-    flex-direction: column;
-  }
-
-  .leftAlignContainer {
-    width: 100%;
-    text-align: left;
-    margin-bottom: 0px;
-  }
-
-  .tabsContainer {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
+/* Página principal */
+.dashboardMain {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
   }
   
-/* Saudação do usuário */
-.greeting {
-    margin-bottom: 20px;
-}
-
-/* Título da página */
-.title {
-    margin-bottom: 20px;
-    font-size: 2em;
-    color: var(--text-color);
-    text-align: center;
-}
-
-/* Container para informações do perfil do supervisor */
-.userInfoContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-bottom: 40px;
-}
-
-/* Container para perfil e ajuda solicitada */
-.profileAndHelpContainer {
+  .pageHeader {
     display: flex;
     justify-content: space-between;
-    width: 90%;
-    max-width: 1200px;
-    margin: 0px auto 20px auto;
-}
-
-/* Container de perfil do usuário */
-.profileContainer {
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    background-color: var(--box-color);
-    border-radius: 10px;
-    color: var(--text-color);
-    width: 100%;
-    max-width: 500px;
-    height: auto;
-    min-height: 150px;
-    position: relative;
-}
-
-.profileImage {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin-right: 20px;
-}
-
-.profileInfo {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.profileInfo h2 {
-    margin: 0;
-    font-size: 1.5em;
-}
-
-.profileInfo p {
-    margin: 5px 0 0;
-    font-size: 1em;
-}
-
-/* Container de desempenho */
-.performanceWrapper {
-    width: 90%;
-    max-width: 1200px;
-    margin: 0px auto;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 20px;
-}
-
-.performanceContainer {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--box-color);
-    border-radius: 10px;
+    margin-bottom: 30px;
+  }
+  
+  .welcomeContainer {
+    max-width: 600px;
+  }
+  
+  .greetingText {
+    font-size: 1.8rem;
     color: var(--text-color);
-    width: 100%;
-    max-width: 500px;
-    min-height: 150px;
-    position: relative;
-}
-
-.performanceContainer h2 {
-    margin: -10px 0 -5px 0;
-    font-size: 1.5em;
-}
-
-.lastUpdated {
-    font-size: 0.75em;
-    color: var(--text-color);
-    margin-top: 10px;
-    margin-bottom: 7px;
-    text-align: left;
-}
-
-.performanceInfo {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    justify-items: stretch;
-    align-items: center;
-}
-
-.performanceItem {
-    font-size: 0.9em;
-    font-weight: bold;
-    color: var(--color-white);
-    background-color: var(--box-color3);
-    padding: 10px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    min-width: 90px;
-}
-
-/* Container para ranking de categorias */
-.categoryRankingContainer {
-    margin: 20px auto 0px auto;
-    background-color: var(--box-color);
-    padding: 20px;
-    border-radius: 10px;
-    color: var(--text-color);
-    width: 90%;
-    max-width: 1200px;
-    min-height: 200px;
-    position: relative;
-}
-
-.categoryRankingContainer h3 {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    font-weight: 400;
+  }
+  
+  .greetingText span {
     font-weight: 600;
     color: var(--title-color);
-}
-
-/* Lista de categorias */
-.list {
-    list-style: none;
-    padding: 0;
+  }
+  
+  .dashboardSubtitle {
+    font-size: 1rem;
+    color: var(--text-color2);
+    line-height: 1.5;
     margin: 0;
-    width: 100%;
-}
-
-.listItem {
+  }
+  
+  .profileSummary {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    background-color: var(--color-list2);
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.rank {
-    font-weight: bold;
-    margin-right: 10px;
-}
-
-.categoryName {
-    flex: 1;
-    margin-right: 10px;
-}
-
-/* Barra de progresso das categorias */
-.progressBarCategory {
+    gap: 15px;
+    background-color: var(--box-color);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .profileImage {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-primary);
+  }
+  
+  .profileInfo {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .profileInfo h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--title-color);
+  }
+  
+  .profileInfo p {
+    margin: 3px 0 8px 0;
+    font-size: 0.85rem;
+    color: var(--text-color2);
+  }
+  
+  .roleBadge {
     background-color: var(--color-primary);
-    height: 10px;
-    border-radius: 5px;
-    margin-right: 10px;
-}
-
-/* Contador das categorias */
-.count {
-    font-weight: bold;
+    color: white;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 100px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+  }
+  
+  .tabsContainer {
+    margin: 20px 0;
+  }
+  
+  .tabContent {
+    min-height: 500px;
+  }
+  
+  /* Contêiner principal do dashboard */
+  .dashboardContainer {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Seção do seletor de usuário */
+  .userSelectSection {
+    background-color: var(--box-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .sectionTitle {
+    font-size: 1rem;
+    color: var(--text-color2);
+    margin-bottom: 15px;
+    font-weight: 500;
+  }
+  
+  /* Seção do filtro de período */
+  .periodFilterSection {
+    background-color: var(--box-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .periodFilterControls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 15px;
+  }
+  
+  .customDatePickerContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+  }
+  
+  .datePickerWrapper {
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-/* Mensagem de ausência de dados */
-.noData {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
+  }
+  
+  .datePickerWrapper label {
+    font-size: 0.9rem;
     color: var(--text-color);
-}
-
-/* Container para carregamento padrão */
-.loadingContainer {
+    white-space: nowrap;
+  }
+  
+  .dateInput {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid var(--color-border);
+    background-color: var(--modals-inputs);
+    color: var(--text-color);
+    font-size: 0.9rem;
+  }
+  
+  .selectedPeriodInfo {
     display: flex;
-    justify-content: center;
     align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background-color: var(--box-color2);
+    border-radius: 8px;
+    margin-top: 10px;
+  }
+  
+  .periodLabel {
+    font-size: 0.85rem;
+    color: var(--text-color2);
+    font-weight: 500;
+  }
+  
+  .periodValue {
+    font-size: 0.9rem;
+    color: var(--title-color);
+    font-weight: 600;
+  }
+  
+  /* Cards principais do dashboard */
+  .dashboardMainCards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+  }
+  
+  /* Card de perfil */
+  .profileCard {
+    background-color: var(--box-color);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     height: 100%;
-    width: 100%;
+    min-height: 150px;
+    position: relative;
+  }
+  
+  .profileHeader {
+    margin-bottom: 15px;
+  }
+  
+  .profileHeader h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--title-color);
+  }
+  
+  .profileHeader p {
+    margin: 5px 0 0 0;
+    color: var(--text-color2);
+    font-size: 0.9rem;
+  }
+  
+  .tagsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .tag {
+    padding: 5px 10px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+  }
+  
+  /* Card de métricas */
+  .metricsCard {
+    background-color: var(--box-color);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    height: 100%;
+    min-height: 150px;
+    position: relative;
+  }
+  
+  .metricsTitle {
+    margin: 0 0 20px 0;
+    font-size: 1.1rem;
+    color: var(--title-color);
+  }
+  
+  .metricsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+  
+  .metricItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--box-color2);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .metricValue {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--title-color);
+    margin-bottom: 5px;
+  }
+  
+  .metricLabel {
+    font-size: 0.8rem;
+    color: var(--text-color2);
+  }
+  
+  .variationWrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
+  .variationValue {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  /* Container de carregamento */
+  .loadingContainer {
     position: absolute;
     top: 0;
     left: 0;
-    bottom: 0;
     right: 0;
-}
-
-/* Container para as tags na caixa de perfil */
-.tagsContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-/* Estilo para cada tag individual */
-.tag {
+    bottom: 0;
     display: flex;
     align-items: center;
-    padding: 5px 10px;
-    border-radius: 15px;
-    color: var(--color-white);
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 12px;
+    z-index: 2;
+  }
+  
+  /* Grid para cards de desempenho */
+  .performanceGridContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+  }
+  
+  .performanceCard {
+    background-color: var(--box-color);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .performanceHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .performanceHeader h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--title-color);
+  }
+  
+  .periodBadge {
+    font-size: 0.8rem;
+    color: var(--text-color2);
+    background-color: var(--box-color2);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+  
+  .performanceMetrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+  }
+  
+  .performanceMetric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 8px;
+    background-color: var(--box-color2);
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  /* Métricas de analista */
+  .analystMetricsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+  }
+  
+  .analystMetricCard {
+    background-color: var(--box-color);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    position: relative;
+  }
+  
+  .analystMetricCard h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+    color: var(--title-color);
+  }
+  
+  .periodInfo {
+    font-size: 0.8rem;
+    color: var(--text-color2);
+    margin: 0 0 15px 0;
+  }
+  
+  .metricHelpText {
+    font-size: 0.8rem;
+    color: var(--text-color2);
+    margin: 0 0 15px 0;
+  }
+  
+  .bigMetricValue {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+  
+  /* Card de ranking de categorias */
+  .categoryRankingCard {
+    background-color: var(--box-color);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 25px;
+    position: relative;
+  }
+  
+  .categoryTitle {
+    margin: 0 0 25px 0;
+    font-size: 1.1rem;
+    color: var(--title-color);
+  }
+  
+  .categoryContent {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .chartContainer {
+    height: 350px;
+    margin-bottom: 15px;
+  }
+  
+  .categoryList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .categoryItem {
+    margin-bottom: 15px;
+  }
+  
+  .categoryHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .categoryRank {
+    background-color: var(--box-color2);
+    min-width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
     font-weight: 600;
-}
+    color: var(--title-color);
+    margin-right: 10px;
+  }
+  
+  .categoryName {
+    flex-grow: 1;
+    font-size: 0.95rem;
+    color: var(--text-color);
+  }
+  
+  .categoryCount {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--title-color);
+    display: flex;
+    align-items: center;
+  }
+  
+  .progressBarContainer {
+    height: 8px;
+    background-color: var(--box-color2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-left: 35px;
+  }
+  
+  .progressBar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+  
+  .noDataMessage {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--text-color2);
+  }
+  
+  .noDataMessage i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+  }
+  
+  .noDataMessage p {
+    font-size: 1rem;
+    margin: 0;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 992px) {
+    .dashboardMainCards,
+    .performanceGridContainer,
+    .analystMetricsContainer {
+      grid-template-columns: 1fr;
+    }
+    
+    .metricsGrid {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    
+    .categoryContent {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .periodFilterControls,
+    .customDatePickerContainer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .performanceMetrics {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .dashboardContainer {
+      padding: 10px;
+    }
+    
+    .chartContainer {
+      height: 250px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .metricsGrid {
+      grid-template-columns: 1fr;
+    }
+    
+    .categoryHeader {
+      flex-wrap: wrap;
+    }
+    
+    .categoryName {
+      order: -1;
+      width: 100%;
+      margin-bottom: 5px;
+    }
+    
+    .progressBarContainer {
+      margin-left: 0;
+    }
+    
+    .metricValue, 
+    .variationValue {
+      font-size: 1.2rem;
+    }
+  }
+  
+  /* Estilos para o gráfico em modo escuro */
+  [data-theme="dark"] .chartContainer canvas {
+    filter: brightness(0.9) contrast(1.1);
+  }

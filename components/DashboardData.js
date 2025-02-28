@@ -3,8 +3,13 @@ import React, { useState, useEffect } from 'react';
 import Select, { components as selectComponents } from 'react-select';
 import Swal from 'sweetalert2';
 import styles from '../styles/DashboardSuper.module.css';
+import { Bar } from 'react-chartjs-2';
+import 'chart.js/auto';
+import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
 
 export default function DashboardData({ user }) {
+  // Estados básicos
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -12,133 +17,209 @@ export default function DashboardData({ user }) {
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
+  
+  // Estados para filtro de período
+  const [periodFilter, setPeriodFilter] = useState({ value: 'thisMonth', label: 'Este mês' });
+  const [customDateRange, setCustomDateRange] = useState({
+    startDate: dayjs().startOf('month').format('YYYY-MM-DD'),
+    endDate: dayjs().format('YYYY-MM-DD')
+  });
+  const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
 
+  // Opções de período
+  const periodOptions = [
+    { value: 'today', label: 'Hoje' },
+    { value: 'last7days', label: 'Últimos 7 dias' },
+    { value: 'last30days', label: 'Últimos 30 dias' },
+    { value: 'thisMonth', label: 'Este mês' },
+    { value: 'custom', label: 'Período personalizado' }
+  ];
+
+  // Carregar lista de usuários
   useEffect(() => {
-    // Carregar lista de usuários
-    const loadUsers = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch('/api/get-users');
-        if (!res.ok) throw new Error('Erro ao carregar usuários');
-        const data = await res.json();
-        setUsers(data.users);
-      } catch (err) {
-        console.error('Erro ao carregar usuários:', err);
-        Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
-      } finally {
-        setLoading(false);
-      }
-    };
     loadUsers();
   }, []);
 
-  // Carregar dados do usuário selecionado
+  // Exibir/ocultar o seletor de datas personalizadas
+  useEffect(() => {
+    setShowCustomDatePicker(periodFilter.value === 'custom');
+  }, [periodFilter]);
+
+  // Carregar dados quando o usuário ou período mudar
   useEffect(() => {
     if (selectedUser) {
-      const fetchData = async () => {
-        try {
-          setLoadingData(true);
-
-          if (selectedUser.role === 'support' || selectedUser.role === 'support+') {
-            // Para suporte, carregar desempenho completo
-            const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-              fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
-              fetch(`/api/get-user-category-ranking?userEmail=${selectedUser.email}`),
-              fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
-            ]);   
-
-            // Ajudas Solicitadas
-            const helpData = await helpResponse.json();
-            setHelpRequests({
-              currentMonth: helpData.currentMonth,
-              lastMonth: helpData.lastMonth,
-            });
-
-            // Ranking de Categorias
-            const categoryData = await categoryResponse.json();
-            setCategoryRanking(categoryData.categories || []);
-
-            // Desempenho do Usuário
-            const performanceData = await performanceResponse.json();
-            setPerformanceData(performanceData);
-            
-          } else if (selectedUser.role === 'analyst') {
-            // Para analyst, carregar dados de ajudas prestadas, ranking de categorias e total de chamados
-            const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-              fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`),
-              fetch(`/api/get-category-ranking?analystId=${selectedUser.id}`),
-              fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
-            ]);
-
-            if (!helpResponse.ok || !categoryResponse.ok || !performanceResponse.ok) {
-              throw new Error('Erro ao buscar dados do analista.');
-            }
-
-            // Ajudas Prestadas
-            const helpData = await helpResponse.json();
-            setHelpRequests({
-              currentMonth: helpData.currentMonth,
-              lastMonth: helpData.lastMonth,
-            });
-
-            // Ranking de Categorias
-            const categoryData = await categoryResponse.json();
-            setCategoryRanking(categoryData.categories || []);
-
-            // Total de Chamados e Data de Atualização
-            const performanceData = await performanceResponse.json();
-            setPerformanceData({
-              totalChamados: performanceData?.chamados?.totalChamados || 0,
-              totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.totalChamados || 0),
-              atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
-            });
-
-          } else if (selectedUser.role === 'tax') {
-            // Para fiscal, combinar dados do suporte e analyst
-            const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-              fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`),
-              fetch(`/api/get-category-ranking?analystId=${selectedUser.id}`),
-              fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
-            ]);
-
-            if (!helpResponse.ok || !categoryResponse.ok || !performanceResponse.ok) {
-              throw new Error('Erro ao buscar dados do fiscal.');
-            }
-
-            // Ajudas Prestadas (similar ao analyst)
-            const helpData = await helpResponse.json();
-            setHelpRequests({
-              currentMonth: helpData.currentMonth,
-              lastMonth: helpData.lastMonth,
-            });
-
-            // Ranking de Categorias (similar ao analyst)
-            const categoryData = await categoryResponse.json();
-            setCategoryRanking(categoryData.categories || []);
-
-            // Indicadores de Desempenho (similar ao suporte)
-            const performanceData = await performanceResponse.json();
-            setPerformanceData({
-              ...performanceData,
-              totalChamados: performanceData?.chamados?.totalChamados || 0,
-              totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.totalChamados || 0),
-              atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
-            });
-          }
-          
-        } catch (error) {
-          console.error('Erro ao buscar dados do usuário:', error);
-          Swal.fire('Erro', 'Erro ao buscar dados do usuário.', 'error');
-        } finally {
-          setLoadingData(false);
-        }
-      };
-      fetchData();
+      fetchUserData();
     }
-  }, [selectedUser]);
+  }, [selectedUser, periodFilter, customDateRange]);
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/get-users');
+      if (!res.ok) throw new Error('Erro ao carregar usuários');
+      const data = await res.json();
+      setUsers(data.users);
+    } catch (err) {
+      console.error('Erro ao carregar usuários:', err);
+      Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Função para buscar dados com base no período selecionado
+  const fetchUserData = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      setLoadingData(true);
+      
+      // Calcular datas com base no filtro selecionado
+      const { startDate, endDate } = getDateRange();
+      
+      if (selectedUser.role === 'support' || selectedUser.role === 'support+') {
+        // Para suporte, carregar desempenho completo
+        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
+          fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
+          fetch(`/api/get-user-category-ranking?userEmail=${selectedUser.email}`),
+          fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
+        ]);   
+
+        // Ajudas Solicitadas
+        const helpData = await helpResponse.json();
+        setHelpRequests({
+          currentMonth: helpData.currentMonth,
+          lastMonth: helpData.lastMonth,
+        });
+
+        // Ranking de Categorias
+        const categoryData = await categoryResponse.json();
+        setCategoryRanking(categoryData.categories || []);
+
+        // Desempenho do Usuário
+        const performanceData = await performanceResponse.json();
+        setPerformanceData(performanceData);
+        
+      } else if (selectedUser.role === 'analyst') {
+        // Para analyst, carregar dados de ajudas prestadas, ranking de categorias e total de chamados
+        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
+          fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`),
+          fetch(`/api/get-category-ranking?analystId=${selectedUser.id}`),
+          fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
+        ]);
+
+        if (!helpResponse.ok || !categoryResponse.ok || !performanceResponse.ok) {
+          throw new Error('Erro ao buscar dados do analista.');
+        }
+
+        // Ajudas Prestadas
+        const helpData = await helpResponse.json();
+        setHelpRequests({
+          currentMonth: helpData.currentMonth,
+          lastMonth: helpData.lastMonth,
+        });
+
+        // Ranking de Categorias
+        const categoryData = await categoryResponse.json();
+        setCategoryRanking(categoryData.categories || []);
+
+        // Total de Chamados e Data de Atualização
+        const performanceData = await performanceResponse.json();
+        setPerformanceData({
+          totalChamados: performanceData?.chamados?.totalChamados || 0,
+          totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.totalChamados || 0),
+          atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
+        });
+
+      } else if (selectedUser.role === 'tax') {
+        // Para fiscal, combinar dados do suporte e analyst
+        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
+          fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`),
+          fetch(`/api/get-category-ranking?analystId=${selectedUser.id}`),
+          fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
+        ]);
+
+        if (!helpResponse.ok || !categoryResponse.ok || !performanceResponse.ok) {
+          throw new Error('Erro ao buscar dados do fiscal.');
+        }
+
+        // Ajudas Prestadas (similar ao analyst)
+        const helpData = await helpResponse.json();
+        setHelpRequests({
+          currentMonth: helpData.currentMonth,
+          lastMonth: helpData.lastMonth,
+        });
+
+        // Ranking de Categorias (similar ao analyst)
+        const categoryData = await categoryResponse.json();
+        setCategoryRanking(categoryData.categories || []);
+
+        // Indicadores de Desempenho (similar ao suporte)
+        const performanceData = await performanceResponse.json();
+        setPerformanceData({
+          ...performanceData,
+          totalChamados: performanceData?.chamados?.totalChamados || 0,
+          totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.totalChamados || 0),
+          atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
+        });
+      }
+      
+    } catch (error) {
+      console.error('Erro ao buscar dados do usuário:', error);
+      Swal.fire('Erro', 'Erro ao buscar dados do usuário.', 'error');
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+  // Função para calcular datas baseadas no filtro selecionado
+  const getDateRange = () => {
+    const today = dayjs();
+    let startDate, endDate;
+    
+    switch (periodFilter.value) {
+      case 'today':
+        startDate = today.format('YYYY-MM-DD');
+        endDate = today.format('YYYY-MM-DD');
+        break;
+      case 'last7days':
+        startDate = today.subtract(6, 'day').format('YYYY-MM-DD');
+        endDate = today.format('YYYY-MM-DD');
+        break;
+      case 'last30days':
+        startDate = today.subtract(29, 'day').format('YYYY-MM-DD');
+        endDate = today.format('YYYY-MM-DD');
+        break;
+      case 'thisMonth':
+        startDate = today.startOf('month').format('YYYY-MM-DD');
+        endDate = today.format('YYYY-MM-DD');
+        break;
+      case 'custom':
+        startDate = customDateRange.startDate;
+        endDate = customDateRange.endDate;
+        break;
+      default:
+        startDate = today.startOf('month').format('YYYY-MM-DD');
+        endDate = today.format('YYYY-MM-DD');
+    }
+    
+    return { startDate, endDate };
+  };
 
   const handleUserSelect = (selectedOption) => {
     setSelectedUser(selectedOption ? selectedOption.value : null);
+  };
+
+  const handlePeriodChange = (selectedOption) => {
+    setPeriodFilter(selectedOption);
+  };
+
+  const handleStartDateChange = (e) => {
+    setCustomDateRange(prev => ({ ...prev, startDate: e.target.value }));
+  };
+
+  const handleEndDateChange = (e) => {
+    setCustomDateRange(prev => ({ ...prev, endDate: e.target.value }));
   };
 
   const getColorForRole = (role) => {
@@ -167,8 +248,9 @@ export default function DashboardData({ user }) {
   const customSelectStyles = {
     container: (provided) => ({
       ...provided,
-      width: '500px',
-      margin: '20px auto',
+      width: '100%',
+      maxWidth: '500px',
+      margin: '0 auto 20px auto',
     }),
     control: (provided, state) => ({
       ...provided,
@@ -308,41 +390,120 @@ export default function DashboardData({ user }) {
     );
   };
 
+  // Calcular variação percentual das ajudas
+  const { currentMonth, lastMonth } = helpRequests;
+  let percentageChange = 0;
+  let arrowColor = 'green';
+  
+  if (lastMonth > 0) {
+    percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
+    arrowColor = percentageChange > 0 ? 'green' : 'red';
+  }
+  
+  const formattedPercentage = Math.abs(percentageChange).toFixed(1);
+  const arrowIcon = percentageChange > 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+
   return (
     <div className={styles.dashboardContainer}>
-      <Select
-        options={users
-          .filter((user) => ['support', 'support+', 'analyst', 'tax'].includes(user.role.toLowerCase()))
-          .map((user) => ({
-            value: user,
-            label: user.name,
-            role: user.role,
-            color: getColorForRole(user.role),
-            chamado: user.chamado,
-            telefone: user.telefone,
-            chat: user.chat,
-          }))}
-        onChange={handleUserSelect}
-        isClearable
-        placeholder="Selecione um colaborador"
-        styles={customSelectStyles}
-        classNamePrefix="react-select"
-        noOptionsMessage={() => 'Sem resultados'}
-        components={{ Option: CustomOption }}
-      />
+      {/* Seleção de usuário */}
+      <div className={styles.userSelectSection}>
+        <h3 className={styles.sectionTitle}>Selecione um Colaborador</h3>
+        <Select
+          options={users
+            .filter((user) => ['support', 'support+', 'analyst', 'tax'].includes(user.role.toLowerCase()))
+            .map((user) => ({
+              value: user,
+              label: user.name,
+              role: user.role,
+              color: getColorForRole(user.role),
+              chamado: user.chamado,
+              telefone: user.telefone,
+              chat: user.chat,
+            }))}
+          onChange={handleUserSelect}
+          isClearable
+          placeholder="Selecione um colaborador"
+          styles={customSelectStyles}
+          classNamePrefix="react-select"
+          noOptionsMessage={() => 'Sem resultados'}
+          components={{ Option: CustomOption }}
+        />
+      </div>
 
       {selectedUser && (
         <>
-          <div className={styles.profileAndHelpContainer}>
-            <div className={styles.profileContainer}>
+          {/* Filtro de período */}
+          <div className={styles.periodFilterSection}>
+            <h3 className={styles.sectionTitle}>Período de Análise</h3>
+            <div className={styles.periodFilterControls}>
+              <Select
+                options={periodOptions}
+                value={periodFilter}
+                onChange={handlePeriodChange}
+                isSearchable={false}
+                placeholder="Selecione o período"
+                styles={{
+                  ...customSelectStyles,
+                  container: (provided) => ({
+                    ...provided,
+                    width: '250px',
+                    margin: '0',
+                  })
+                }}
+                classNamePrefix="react-select"
+              />
+              
+              {showCustomDatePicker && (
+                <div className={styles.customDatePickerContainer}>
+                  <div className={styles.datePickerWrapper}>
+                    <label>De:</label>
+                    <input
+                      type="date"
+                      value={customDateRange.startDate}
+                      max={customDateRange.endDate}
+                      onChange={handleStartDateChange}
+                      className={styles.dateInput}
+                    />
+                  </div>
+                  <div className={styles.datePickerWrapper}>
+                    <label>Até:</label>
+                    <input
+                      type="date"
+                      value={customDateRange.endDate}
+                      min={customDateRange.startDate}
+                      max={dayjs().format('YYYY-MM-DD')}
+                      onChange={handleEndDateChange}
+                      className={styles.dateInput}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className={styles.selectedPeriodInfo}>
+              <span className={styles.periodLabel}>Período selecionado:</span>
+              <span className={styles.periodValue}>
+                {periodFilter.value === 'custom' 
+                  ? `${dayjs(customDateRange.startDate).format('DD/MM/YYYY')} até ${dayjs(customDateRange.endDate).format('DD/MM/YYYY')}`
+                  : periodFilter.label}
+              </span>
+            </div>
+          </div>
+
+          {/* Cards principais */}
+          <div className={styles.dashboardMainCards}>
+            {/* Perfil do usuário */}
+            <div className={styles.profileCard}>
               {loadingData ? (
                 <div className={styles.loadingContainer}>
                   <div className="standardBoxLoader"></div>
                 </div>
               ) : (
-                <div className={styles.profileInfo}>
-                  <h2>{selectedUser.name}</h2>
-                  <p>{selectedUser.email}</p>
+                <>
+                  <div className={styles.profileHeader}>
+                    <h2>{selectedUser.name}</h2>
+                    <p>{selectedUser.email}</p>
+                  </div>
                   <div className={styles.tagsContainer}>
                     {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
                       <>
@@ -374,224 +535,311 @@ export default function DashboardData({ user }) {
                       </div>
                     )}
                   </div>
-                </div>
+                </>
               )}
             </div>
 
-            <div className={styles.profileContainer}>
+            {/* Métricas de ajuda */}
+            <div className={styles.metricsCard}>
               {loadingData ? (
                 <div className={styles.loadingContainer}>
                   <div className="standardBoxLoader"></div>
                 </div>
               ) : (
-                <div className={styles.profileInfo}>
-                  <h2>
-                    {selectedUser.role === 'support' || selectedUser.role === 'support+' ? 'Ajudas Solicitadas' : 'Ajudas Prestadas'}
-                  </h2>
-                  <div className={styles.helpRequestsInfo}>
-                    <div className={styles.monthsInfo}>
-                      <p>
-                        <strong>Mês Atual:</strong> {helpRequests.currentMonth}
-                      </p>
-                      <p>
-                        <strong>Mês Anterior:</strong> {helpRequests.lastMonth}
-                      </p>
+                <>
+                  <h3 className={styles.metricsTitle}>
+                    {selectedUser.role === 'support' || selectedUser.role === 'support+' 
+                      ? 'Ajudas Solicitadas' 
+                      : 'Ajudas Prestadas'}
+                  </h3>
+                  <div className={styles.metricsGrid}>
+                    <div className={styles.metricItem}>
+                      <div className={styles.metricValue}>{currentMonth}</div>
+                      <div className={styles.metricLabel}>Período atual</div>
+                    </div>
+                    <div className={styles.metricItem}>
+                      <div className={styles.metricValue}>{lastMonth}</div>
+                      <div className={styles.metricLabel}>Período anterior</div>
+                    </div>
+                    <div className={styles.metricItem}>
+                      <div className={styles.variationWrapper}>
+                        <div className={styles.variationValue} style={{ color: arrowColor }}>
+                          {formattedPercentage}%
+                        </div>
+                        <i className={`fa-solid ${arrowIcon}`} style={{ color: arrowColor }}></i>
+                      </div>
+                      <div className={styles.metricLabel}>Variação</div>
                     </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
           </div>
 
-          {/* Container para Indicadores de Desempenho (para Suporte e Fiscal) */}
-            {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && (
-            <div className={styles.performanceWrapper}>
-                {loadingData ? (
-                <>
-                    <div className={styles.performanceContainer}>
-                    <div className={styles.loadingContainer}>
-                        <div className="standardBoxLoader"></div>
-                    </div>
-                    </div>
-                    <div className={styles.performanceContainer}>
-                    <div className={styles.loadingContainer}>
-                        <div className="standardBoxLoader"></div>
-                    </div>
-                    </div>
-                    <div className={styles.performanceContainer}>
-                    <div className={styles.loadingContainer}>
-                        <div className="standardBoxLoader"></div>
-                    </div>
-                    </div>
-                </>
-                ) : (
-                <>
-                    {performanceData?.chamados && (
-                    <div className={styles.performanceContainer}>
-                        <h2>Indicadores Chamados</h2>
-                        <p className={styles.lastUpdated}>
-                        Período: {performanceData?.atualizadoAte || 'Data não disponível'}
-                        </p>
-                        <div className={styles.performanceInfo}>
-                        <div className={styles.performanceItem}>
-                            <span>Total Chamados:</span>
-                            <span>{performanceData.chamados.totalChamados}</span>
-                        </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'var(--box-color3)' }}>
-                            <span>Média/Dia:</span>
-                            <span>{performanceData.chamados.mediaPorDia}</span>
-                        </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'var(--box-color3)' }}>
-                            <span>TMA:</span>
-                            <span>{performanceData.chamados.tma}</span>
-                        </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'var(--box-color3)' }}>
-                            <span>CSAT:</span>
-                            <span>{performanceData.chamados.csat}</span>
-                        </div>
-                        </div>
-                    </div>
-                    )}
-
-                    {performanceData?.telefone && (
-                    <div className={styles.performanceContainer}>
-                        <h2>Indicadores Telefone</h2>
-                        <p className={styles.lastUpdated}>
-                        Período: {performanceData?.atualizadoAte || 'Data não disponível'}
-                        </p>
-                        <div className={styles.performanceInfo}>
-                        <div className={styles.performanceItem}>
-                            <span>Total Ligações:</span>
-                            <span>{performanceData.telefone.totalTelefone}</span>
-                        </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.mediaPorDia || 'var(--box-color3)' }}>
-                            <span>Média/Dia:</span>
-                            <span>{performanceData.telefone.mediaPorDia}</span>
-                        </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'var(--box-color3)' }}>
-                            <span>TMA:</span>
-                            <span>{performanceData.telefone.tma}</span>
-                        </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'var(--box-color3)' }}>
-                            <span>CSAT:</span>
-                            <span>{performanceData.telefone.csat}</span>
-                        </div>
-                        <div className={styles.performanceItem}>
-                            <span>Perdidas:</span>
-                            <span>{performanceData.telefone.perdidas}</span>
-                        </div>
-                        </div>
-                    </div>
-                    )}
-
-                    {performanceData?.chat && (
-                    <div className={styles.performanceContainer}>
-                        <h2>Indicadores Chat</h2>
-                        <p className={styles.lastUpdated}>
-                        Período: {performanceData?.atualizadoAte || 'Data não disponível'}
-                        </p>
-                        <div className={styles.performanceInfo}>
-                        <div className={styles.performanceItem}>
-                            <span>Total Chats:</span>
-                            <span>{performanceData.chat.totalChats}</span>
-                        </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.mediaPorDia || 'var(--box-color3)' }}>
-                            <span>Média/Dia:</span>
-                            <span>{performanceData.chat.mediaPorDia}</span>
-                        </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'var(--box-color3)' }}>
-                            <span>TMA:</span>
-                            <span>{performanceData.chat.tma}</span>
-                        </div>
-                        <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'var(--box-color3)' }}>
-                            <span>CSAT:</span>
-                            <span>{performanceData.chat.csat}</span>
-                        </div>
-                        </div>
-                    </div>
-                    )}
-                </>
-                )}
-            </div>
-            )}
-
-            {selectedUser.role === 'analyst' && (
-            <div className={styles.performanceWrapper}>
-                <div className={styles.performanceContainer}>
-                {loadingData ? (
-                    <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
-                    </div>
-                ) : (
-                    <>
-                    <h2>Total de RFC</h2>
-                    <p className={styles.lastUpdated}>
-                      Período: {performanceData?.atualizadoAte || 'Data não disponível'}
-                    </p>
-                    <div className={styles.performanceInfo} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                        <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
-                        {performanceData?.totalChamados}
-                        </span>
-                    </div>
-                    </>
-                )}
-                </div>
-
-                {/* Total de Ajudas */}
-                <div className={styles.performanceContainer}>
-                {loadingData ? (
-                    <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
-                    </div>
-                ) : (
-                    <>
-                    <h2>Total de Ajudas</h2>
-                    <p className={styles.lastUpdated}>
-                        (ajudas prestadas atual + total de rfc)
-                    </p>
-                    <div
-                        className={styles.performanceInfo}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
-                    >
-                        <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
-                        {Number(helpRequests.currentMonth) + Number(performanceData?.totalChamados || 0)}
-                        </span>
-                    </div>
-                    </>
-                )}
-                </div>
-            </div>
-            )}
-
-            {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
-            <div className={styles.categoryRankingContainer}>
-                {loadingData ? (
+          {/* Painel de indicadores */}
+          {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && (
+            <div className={styles.performanceGridContainer}>
+              {loadingData ? (
                 <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
+                  <div className="standardBoxLoader"></div>
                 </div>
-                ) : (
+              ) : (
                 <>
-                    <h3>
-                    {selectedUser.role === 'support' || selectedUser.role === 'support+' ? 'Top 10 - Temas de maior dúvida' : 'Top 10 - Temas mais auxiliados'}
-                    </h3>
-                    {categoryRanking.length > 0 ? (
-                    <ul className={styles.list}>
-                        {categoryRanking.map((category, index) => (
-                        <li key={index} className={styles.listItem}>
-                            <span className={styles.rank}>{index + 1}.</span>
-                            <span className={styles.categoryName}>{category.name}</span>
-                            <div className={styles.progressBarCategory} style={{ width: `${category.count * 10}px` }} />
-                            <span className={styles.count}>{category.count} pedidos de ajuda</span>
-                        </li>
-                        ))}
-                    </ul>
-                    ) : (
-                    <div className={styles.noData}>Nenhum registro de tema localizado.</div>
-                    )}
+                  {performanceData?.chamados && (
+                    <div className={styles.performanceCard}>
+                      <div className={styles.performanceHeader}>
+                        <h3>Indicadores Chamados</h3>
+                        <span className={styles.periodBadge}>
+                          {performanceData?.atualizadoAte || "Data não disponível"}
+                        </span>
+                      </div>
+                      <div className={styles.performanceMetrics}>
+                        <div className={styles.performanceMetric}>
+                          <span className={styles.metricValue}>{performanceData.chamados.totalChamados}</span>
+                          <span className={styles.metricLabel}>Total Chamados</span>
+                        </div>
+                        <div 
+                          className={styles.performanceMetric} 
+                          style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'var(--box-color3)' }}
+                        >
+                          <span className={styles.metricValue}>{performanceData.chamados.mediaPorDia}</span>
+                          <span className={styles.metricLabel}>Média/Dia</span>
+                        </div>
+                        <div 
+                          className={styles.performanceMetric}
+                          style={{ backgroundColor: performanceData.chamados.colors.tma || 'var(--box-color3)' }}
+                        >
+                          <span className={styles.metricValue}>{performanceData.chamados.tma}</span>
+                          <span className={styles.metricLabel}>TMA</span>
+                        </div>
+                        <div 
+                          className={styles.performanceMetric}
+                          style={{ backgroundColor: performanceData.chamados.colors.csat || 'var(--box-color3)' }}
+                        >
+                          <span className={styles.metricValue}>{performanceData.chamados.csat}</span>
+                          <span className={styles.metricLabel}>CSAT</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {performanceData?.telefone && (
+                    <div className={styles.performanceCard}>
+                      <div className={styles.performanceHeader}>
+                        <h3>Indicadores Telefone</h3>
+                        <span className={styles.periodBadge}>
+                          {performanceData?.atualizadoAte || "Data não disponível"}
+                        </span>
+                      </div>
+                      <div className={styles.performanceMetrics}>
+                        <div className={styles.performanceMetric}>
+                          <span className={styles.metricValue}>{performanceData.telefone.totalTelefone}</span>
+                          <span className={styles.metricLabel}>Total Ligações</span>
+                        </div>
+                        <div 
+                          className={styles.performanceMetric}
+                          style={{ backgroundColor: performanceData.telefone.colors.tma || 'var(--box-color3)' }}
+                        >
+                          <span className={styles.metricValue}>{performanceData.telefone.tma}</span>
+                          <span className={styles.metricLabel}>TMA</span>
+                        </div>
+                        <div 
+                          className={styles.performanceMetric}
+                          style={{ backgroundColor: performanceData.telefone.colors.csat || 'var(--box-color3)' }}
+                        >
+                          <span className={styles.metricValue}>{performanceData.telefone.csat}</span>
+                          <span className={styles.metricLabel}>CSAT</span>
+                        </div>
+                        <div className={styles.performanceMetric}>
+                          <span className={styles.metricValue}>{performanceData.telefone.perdidas}</span>
+                          <span className={styles.metricLabel}>Perdidas</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {performanceData?.chat && (
+                    <div className={styles.performanceCard}>
+                      <div className={styles.performanceHeader}>
+                        <h3>Indicadores Chat</h3>
+                        <span className={styles.periodBadge}>
+                          {performanceData?.atualizadoAte || "Data não disponível"}
+                        </span>
+                      </div>
+                      <div className={styles.performanceMetrics}>
+                        <div className={styles.performanceMetric}>
+                          <span className={styles.metricValue}>{performanceData.chat.totalChats}</span>
+                          <span className={styles.metricLabel}>Total Chats</span>
+                        </div>
+                        <div 
+                          className={styles.performanceMetric}
+                          style={{ backgroundColor: performanceData.chat.colors.tma || 'var(--box-color3)' }}
+                        >
+                          <span className={styles.metricValue}>{performanceData.chat.tma}</span>
+                          <span className={styles.metricLabel}>TMA</span>
+                        </div>
+                        <div 
+                          className={styles.performanceMetric}
+                          style={{ backgroundColor: performanceData.chat.colors.csat || 'var(--box-color3)' }}
+                        >
+                          <span className={styles.metricValue}>{performanceData.chat.csat}</span>
+                          <span className={styles.metricLabel}>CSAT</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </>
-                )}
+              )}
             </div>
+          )}
+
+          {/* Métricas de analista */}
+          {selectedUser.role === 'analyst' && (
+            <div className={styles.analystMetricsContainer}>
+              <div className={styles.analystMetricCard}>
+                {loadingData ? (
+                  <div className={styles.loadingContainer}>
+                    <div className="standardBoxLoader"></div>
+                  </div>
+                ) : (
+                  <>
+                    <h3>Total de RFC</h3>
+                    <p className={styles.periodInfo}>
+                      {performanceData?.atualizadoAte || 'Data não disponível'}
+                    </p>
+                    <div className={styles.bigMetricValue}>
+                      {performanceData?.totalChamados || 0}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className={styles.analystMetricCard}>
+                {loadingData ? (
+                  <div className={styles.loadingContainer}>
+                    <div className="standardBoxLoader"></div>
+                  </div>
+                ) : (
+                  <>
+                    <h3>Total de Ajudas</h3>
+                    <p className={styles.metricHelpText}>
+                      (ajudas prestadas + RFC)
+                    </p>
+                    <div className={styles.bigMetricValue}>
+                      {(helpRequests.currentMonth || 0) + (performanceData?.totalChamados || 0)}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Ranking de Categorias */}
+          <div className={styles.categoryRankingCard}>
+            {loadingData ? (
+              <div className={styles.loadingContainer}>
+                <div className="standardBoxLoader"></div>
+              </div>
+            ) : (
+              <>
+                <h3 className={styles.categoryTitle}>
+                  {selectedUser.role === 'support' || selectedUser.role === 'support+' 
+                    ? 'Top 10 - Temas de maior dúvida' 
+                    : 'Top 10 - Temas mais auxiliados'}
+                </h3>
+                
+                {categoryRanking.length > 0 ? (
+                  <div className={styles.categoryContent}>
+                    {/* Gráfico de barras */}
+                    <div className={styles.chartContainer}>
+                      <Bar 
+                        data={{
+                          labels: categoryRanking.map(cat => cat.name),
+                          datasets: [{
+                            label: 'Ocorrências',
+                            data: categoryRanking.map(cat => cat.count),
+                            backgroundColor: categoryRanking.map(cat => 
+                              cat.count > (selectedUser.role === 'support' ? 10 : 50) 
+                                ? '#F0A028' 
+                                : '#0A4EE4'
+                            ),
+                            borderWidth: 0,
+                            borderRadius: 4
+                          }]
+                        }}
+                        options={{
+                          indexAxis: 'y',
+                          plugins: {
+                            legend: {
+                              display: false
+                            },
+                            tooltip: {
+                              callbacks: {
+                                label: function(context) {
+                                  return `${context.raw} pedidos de ajuda`;
+                                }
+                              }
+                            }
+                          },
+                          scales: {
+                            x: {
+                              ticks: {
+                                color: 'var(--text-color)',
+                              },
+                              grid: {
+                                color: 'var(--color-border)',
+                              }
+                            },
+                            y: {
+                              ticks: {
+                                color: 'var(--text-color)',
+                              },
+                              grid: {
+                                display: false
+                              }
+                            }
+                          },
+                          maintainAspectRatio: false
+                        }}
+                      />
+                    </div>
+
+                    {/* Lista de categorias */}
+                    <ul className={styles.categoryList}>
+                      {categoryRanking.map((category, index) => (
+                        <li key={index} className={styles.categoryItem}>
+                          <div className={styles.categoryHeader}>
+                            <span className={styles.categoryRank}>{index + 1}</span>
+                            <span className={styles.categoryName}>{category.name}</span>
+                            <span className={styles.categoryCount}>
+                              {category.count} pedidos
+                              {category.count > (selectedUser.role === 'support' ? 10 : 50) && (
+                                <i className="fa-solid fa-circle-exclamation" style={{ color: '#F0A028', marginLeft: '8px' }}></i>
+                              )}
+                            </span>
+                          </div>
+                          <div className={styles.progressBarContainer}>
+                            <div 
+                              className={styles.progressBar}
+                              style={{
+                                width: `${Math.min((category.count / (selectedUser.role === 'support' ? 20 : 50)) * 100, 100)}%`,
+                                backgroundColor: category.count > (selectedUser.role === 'support' ? 10 : 50) ? '#F0A028' : '#0A4EE4',
+                              }}
+                            />
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <div className={styles.noDataMessage}>
+                    <i className="fa-solid fa-database"></i>
+                    <p>Nenhum registro de tema localizado no período selecionado.</p>
+                  </div>
+                )}
+              </>
             )}
+          </div>
         </>
       )}
     </div>
