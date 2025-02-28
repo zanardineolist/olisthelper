@@ -320,14 +320,13 @@ export async function getUserHelpRequests(userEmail) {
 
 /**
  * Busca o ranking de categorias mais frequentes nas solicitações de ajuda do usuário
+ * @param {string} userEmail - Email do usuário
+ * @param {string} startDate - Data inicial para filtro (opcional)
+ * @param {string} endDate - Data final para filtro (opcional)
  */
-export async function getUserCategoryRanking(userEmail) {
+export async function getUserCategoryRanking(userEmail, startDate = null, endDate = null) {
   try {
-    // Definir primeiro dia do mês atual
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('help_records')
       .select(`
         categories:category_id (
@@ -335,8 +334,33 @@ export async function getUserCategoryRanking(userEmail) {
           name
         )
       `)
-      .eq('requester_email', userEmail)
-      .gte('created_at', startOfMonth.toISOString())
+      .eq('requester_email', userEmail);
+
+    // Aplicar filtro de data se fornecido
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        // Ajustar para início e fim do dia
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        
+        query = query
+          .gte('created_at', start.toISOString())
+          .lte('created_at', end.toISOString());
+      }
+    } else {
+      // Buscar dados do mês atual (comportamento padrão)
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      query = query.gte('created_at', startOfMonth.toISOString());
+    }
+
+    // Executar a query
+    const { data, error } = await query
       .order('created_at', { ascending: false });
 
     if (error) throw error;

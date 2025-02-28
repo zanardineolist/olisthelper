@@ -17,6 +17,7 @@ export default function DashboardData({ user }) {
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
+  const [categoryLoading, setCategoryLoading] = useState(false);
   
   // Estados para filtro de período
   const [periodFilter, setPeriodFilter] = useState({ value: 'thisMonth', label: 'Este mês' });
@@ -79,9 +80,8 @@ export default function DashboardData({ user }) {
       
       if (selectedUser.role === 'support' || selectedUser.role === 'support+') {
         // Para suporte, carregar desempenho completo
-        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
+        const [helpResponse, performanceResponse] = await Promise.all([
           fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
-          fetch(`/api/get-user-category-ranking?userEmail=${selectedUser.email}`),
           fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
         ]);   
 
@@ -92,23 +92,21 @@ export default function DashboardData({ user }) {
           lastMonth: helpData.lastMonth,
         });
 
-        // Ranking de Categorias
-        const categoryData = await categoryResponse.json();
-        setCategoryRanking(categoryData.categories || []);
-
         // Desempenho do Usuário
         const performanceData = await performanceResponse.json();
         setPerformanceData(performanceData);
         
+        // Carrega ranking de categorias separadamente
+        fetchUserCategoryRanking(selectedUser.email, startDate, endDate);
+        
       } else if (selectedUser.role === 'analyst') {
         // Para analyst, carregar dados de ajudas prestadas, ranking de categorias e total de chamados
-        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
+        const [helpResponse, performanceResponse] = await Promise.all([
           fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`),
-          fetch(`/api/get-category-ranking?analystId=${selectedUser.id}`),
           fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
         ]);
 
-        if (!helpResponse.ok || !categoryResponse.ok || !performanceResponse.ok) {
+        if (!helpResponse.ok || !performanceResponse.ok) {
           throw new Error('Erro ao buscar dados do analista.');
         }
 
@@ -119,10 +117,6 @@ export default function DashboardData({ user }) {
           lastMonth: helpData.lastMonth,
         });
 
-        // Ranking de Categorias
-        const categoryData = await categoryResponse.json();
-        setCategoryRanking(categoryData.categories || []);
-
         // Total de Chamados e Data de Atualização
         const performanceData = await performanceResponse.json();
         setPerformanceData({
@@ -131,15 +125,17 @@ export default function DashboardData({ user }) {
           atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
         });
 
+        // Carrega ranking de categorias separadamente
+        fetchAnalystCategoryRanking(selectedUser.id, startDate, endDate);
+
       } else if (selectedUser.role === 'tax') {
         // Para fiscal, combinar dados do suporte e analyst
-        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
+        const [helpResponse, performanceResponse] = await Promise.all([
           fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`),
-          fetch(`/api/get-category-ranking?analystId=${selectedUser.id}`),
           fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
         ]);
 
-        if (!helpResponse.ok || !categoryResponse.ok || !performanceResponse.ok) {
+        if (!helpResponse.ok || !performanceResponse.ok) {
           throw new Error('Erro ao buscar dados do fiscal.');
         }
 
@@ -150,10 +146,6 @@ export default function DashboardData({ user }) {
           lastMonth: helpData.lastMonth,
         });
 
-        // Ranking de Categorias (similar ao analyst)
-        const categoryData = await categoryResponse.json();
-        setCategoryRanking(categoryData.categories || []);
-
         // Indicadores de Desempenho (similar ao suporte)
         const performanceData = await performanceResponse.json();
         setPerformanceData({
@@ -162,6 +154,9 @@ export default function DashboardData({ user }) {
           totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.totalChamados || 0),
           atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
         });
+
+        // Carrega ranking de categorias separadamente
+        fetchAnalystCategoryRanking(selectedUser.id, startDate, endDate);
       }
       
     } catch (error) {
@@ -169,6 +164,47 @@ export default function DashboardData({ user }) {
       Swal.fire('Erro', 'Erro ao buscar dados do usuário.', 'error');
     } finally {
       setLoadingData(false);
+    }
+  };
+
+  // Funções para buscar dados específicos de categoria
+  const fetchUserCategoryRanking = async (userEmail, startDate, endDate) => {
+    try {
+      setCategoryLoading(true);
+      // API atualizada que aceita parâmetros de data
+      const response = await fetch(`/api/get-user-category-ranking?userEmail=${userEmail}&startDate=${startDate}&endDate=${endDate}`);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao buscar ranking de categorias.');
+      }
+      
+      const data = await response.json();
+      setCategoryRanking(data.categories || []);
+    } catch (error) {
+      console.error('Erro ao buscar ranking de categorias do usuário:', error);
+      setCategoryRanking([]);
+    } finally {
+      setCategoryLoading(false);
+    }
+  };
+
+  const fetchAnalystCategoryRanking = async (analystId, startDate, endDate) => {
+    try {
+      setCategoryLoading(true);
+      // Usar a API atualizada com parâmetros de filtro de data
+      const response = await fetch(`/api/get-analyst-records?analystId=${analystId}&includeCategoryDetails=true&startDate=${startDate}&endDate=${endDate}`);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao buscar ranking de categorias.');
+      }
+      
+      const data = await response.json();
+      setCategoryRanking(data.categories || []);
+    } catch (error) {
+      console.error('Erro ao buscar ranking de categorias do analista:', error);
+      setCategoryRanking([]);
+    } finally {
+      setCategoryLoading(false);
     }
   };
 
@@ -736,7 +772,7 @@ export default function DashboardData({ user }) {
 
           {/* Ranking de Categorias */}
           <div className={styles.categoryRankingCard}>
-            {loadingData ? (
+            {categoryLoading ? (
               <div className={styles.loadingContainer}>
                 <div className="standardBoxLoader"></div>
               </div>
