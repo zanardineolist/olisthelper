@@ -18,7 +18,7 @@
     height: 12px;
     background-color: var(--color-primary);
     border-radius: 50%;
-    animation: bounce 1.0s infinite ease-in-out both;
+    animation: bounce 1.4s infinite ease-in-out both;
   }
   
   .bounce1 {

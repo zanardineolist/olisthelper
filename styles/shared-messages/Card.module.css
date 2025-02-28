@@ -9,8 +9,7 @@
   background-color: var(--box-color2);
   border: 1px solid var(--color-border);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, 
-              box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease;
   position: relative;
   overflow: visible; /* Permite que o conteúdo seja visível mesmo quando expandido */
 }
@@ -22,7 +21,6 @@
 }
 
 .messageCard:hover {
-  transform: translateY(-3px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
