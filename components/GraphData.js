@@ -138,7 +138,21 @@ export default function GraphData({ users }) {
         const { startDate, endDate } = getDateRange();
         
         // Construir URL com parâmetros de data
-        const url = `/api/get-analyst-records?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}`;
+        let url = `/api/get-analyst-records?analystId=${user.id}`;
+        
+        // Se o filtro for personalizado, usamos os parâmetros startDate e endDate
+        if (periodFilter.value === 'custom') {
+          url += `&startDate=${startDate}&endDate=${endDate}`;
+        } else {
+          // Caso contrário, usamos o filter correspondente
+          const filterMap = {
+            'today': '1',
+            'last7days': '7',
+            'last30days': '30',
+            'thisMonth': 'month'
+          };
+          url += `&filter=${filterMap[periodFilter.value] || '7'}`;
+        }
         
         const res = await fetch(url);
         if (!res.ok) throw new Error(`Erro ao buscar registros do usuário ${user.name}`);

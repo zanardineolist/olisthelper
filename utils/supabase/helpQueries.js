@@ -1,4 +1,3 @@
-// utils/supabase/helpQueries.js
 import { supabaseAdmin } from './supabaseClient';
 
 /**
@@ -15,11 +14,29 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard')
       .eq('analyst_id', analystId)
       .order('created_at', { ascending: false });
 
-    // Se não for modo profile, aplica filtro de data
+    // Se for modo profile, não aplica filtro de data inicialmente
     if (mode !== 'profile') {
-      const filterDate = new Date();
-      filterDate.setDate(filterDate.getDate() - parseInt(days));
-      query = query.gte('created_at', filterDate.toISOString());
+      // Verifica se days é uma string que contém "-" (indicativo de data ISO)
+      if (typeof days === 'string' && days.includes('-')) {
+        // Provavelmente estamos recebendo uma data específica no formato YYYY-MM-DD
+        const filterDate = new Date(days);
+        
+        // Verifica se a data é válida
+        if (!isNaN(filterDate.getTime())) {
+          query = query.gte('created_at', filterDate.toISOString());
+        } else {
+          // Fallback para o comportamento padrão
+          const defaultDate = new Date();
+          defaultDate.setDate(defaultDate.getDate() - 30);
+          query = query.gte('created_at', defaultDate.toISOString());
+        }
+      } else {
+        // Comportamento original - usando days como número de dias atrás
+        const daysNum = parseInt(days) || 30;
+        const filterDate = new Date();
+        filterDate.setDate(filterDate.getDate() - daysNum);
+        query = query.gte('created_at', filterDate.toISOString());
+      }
     }
 
     const { data, error } = await query;
@@ -59,8 +76,18 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard')
 
     // Agrupar por data para o gráfico
     const dateGroups = data.reduce((acc, record) => {
-      const date = new Date(record.created_at).toLocaleDateString('pt-BR');
-      acc[date] = (acc[date] || 0) + 1;
+      // Verifica se created_at existe e é válido antes de criar um Date
+      if (record.created_at) {
+        try {
+          const date = new Date(record.created_at);
+          if (!isNaN(date.getTime())) {
+            const formattedDate = date.toLocaleDateString('pt-BR');
+            acc[formattedDate] = (acc[formattedDate] || 0) + 1;
+          }
+        } catch (e) {
+          console.error('Erro ao processar data:', e);
+        }
+      }
       return acc;
     }, {});
 
@@ -68,14 +95,29 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard')
       count: data.length,
       dates: Object.keys(dateGroups),
       counts: Object.values(dateGroups),
-      rows: data.map(row => [
-        new Date(row.created_at).toLocaleDateString('pt-BR'),
-        new Date(row.created_at).toLocaleTimeString('pt-BR'),
-        row.requester_name,
-        row.requester_email,
-        row.categories?.name || '',
-        row.description
-      ])
+      rows: data.map(row => {
+        try {
+          const createdAt = new Date(row.created_at);
+          return [
+            createdAt.toLocaleDateString('pt-BR'),
+            createdAt.toLocaleTimeString('pt-BR'),
+            row.requester_name,
+            row.requester_email,
+            row.categories?.name || '',
+            row.description
+          ];
+        } catch (e) {
+          console.error('Erro ao formatar data:', e);
+          return [
+            'Data inválida',
+            'Hora inválida',
+            row.requester_name,
+            row.requester_email,
+            row.categories?.name || '',
+            row.description
+          ];
+        }
+      })
     };
 
   } catch (error) {

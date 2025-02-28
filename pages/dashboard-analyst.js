@@ -127,8 +127,18 @@ export default function DashboardAnalyst({ user }) {
       setLoading(true);
       const { filter, startDate, endDate } = getDateRange();
       
-      // Usar filtro existente para compatibilidade com a API atual
-      const res = await fetch(`/api/get-analyst-records?analystId=${user.id}&filter=${filter}`);
+      // Usar os novos parâmetros startDate e endDate
+      let url = `/api/get-analyst-records?analystId=${user.id}`;
+      
+      // Se o filtro for 'custom', usamos os parâmetros startDate e endDate
+      if (periodFilter.value === 'custom') {
+        url += `&startDate=${startDate}&endDate=${endDate}`;
+      } else {
+        // Caso contrário, mantemos a compatibilidade com o filtro existente
+        url += `&filter=${filter}`;
+      }
+      
+      const res = await fetch(url);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros.');
       }
