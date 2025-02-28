@@ -1,9 +1,16 @@
+// utils/supabase/helpQueries.js
 import { supabaseAdmin } from './supabaseClient';
 
 /**
  * Busca os registros de ajuda de um analista com filtro de data
+ * @param {string} analystId - ID do analista
+ * @param {string} days - Número de dias para filtro ou data inicial no formato YYYY-MM-DD
+ * @param {string} mode - Modo de operação: 'standard', 'profile'
+ * @param {string} endDate - Data final para filtro personalizado
+ * @param {boolean} includeUserDetails - Flag para incluir detalhes do usuário
+ * @param {boolean} includeCategoryDetails - Flag para incluir detalhes da categoria
  */
-export async function getAnalystRecords(analystId, days = 30, mode = 'standard') {
+export async function getAnalystRecords(analystId, days = 30, mode = 'standard', endDate = null, includeUserDetails = false, includeCategoryDetails = false) {
   try {
     let query = supabaseAdmin
       .from('help_records')
@@ -18,12 +25,29 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard')
     if (mode !== 'profile') {
       // Verifica se days é uma string que contém "-" (indicativo de data ISO)
       if (typeof days === 'string' && days.includes('-')) {
-        // Provavelmente estamos recebendo uma data específica no formato YYYY-MM-DD
-        const filterDate = new Date(days);
+        // Estamos recebendo um range de datas
+        const startDate = new Date(days);
+        let endDateTime;
         
-        // Verifica se a data é válida
-        if (!isNaN(filterDate.getTime())) {
-          query = query.gte('created_at', filterDate.toISOString());
+        if (endDate) {
+          // Se temos uma data final, usamos ela
+          endDateTime = new Date(endDate);
+          // Ajustar para o final do dia
+          endDateTime.setHours(23, 59, 59, 999);
+        } else {
+          // Caso contrário, usamos a data atual
+          endDateTime = new Date();
+        }
+        
+        // Verificar se ambas as datas são válidas
+        if (!isNaN(startDate.getTime()) && !isNaN(endDateTime.getTime())) {
+          // Ajustar a data inicial para o início do dia
+          startDate.setHours(0, 0, 0, 0);
+          
+          // Aplicar o filtro de data no range completo
+          query = query
+            .gte('created_at', startDate.toISOString())
+            .lte('created_at', endDateTime.toISOString());
         } else {
           // Fallback para o comportamento padrão
           const defaultDate = new Date();
@@ -129,19 +153,37 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard')
 /**
  * Busca o leaderboard de usuários ajudados por um analista
  */
-export async function getAnalystLeaderboard(analystId) {
+export async function getAnalystLeaderboard(analystId, startDate = null, endDate = null) {
   try {
-    // Buscar dados do mês atual
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('help_records')
       .select('requester_name, requester_email')
-      .eq('analyst_id', analystId)
-      .gte('created_at', startOfMonth.toISOString());
+      .eq('analyst_id', analystId);
 
+    // Aplicar filtro de data se fornecido
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        // Ajustar para início e fim do dia
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        
+        query = query
+          .gte('created_at', start.toISOString())
+          .lte('created_at', end.toISOString());
+      }
+    } else {
+      // Buscar dados do mês atual (comportamento padrão)
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      query = query.gte('created_at', startOfMonth.toISOString());
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
 
     // Agrupar e contar ajudas por usuário
@@ -170,22 +212,40 @@ export async function getAnalystLeaderboard(analystId) {
 /**
  * Busca o ranking de categorias de um analista
  */
-export async function getCategoryRanking(analystId) {
+export async function getCategoryRanking(analystId, startDate = null, endDate = null) {
   try {
-    // Buscar dados do mês atual
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-
-    const { data, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('help_records')
       .select(`
         *,
         categories:category_id(name)
       `)
-      .eq('analyst_id', analystId)
-      .gte('created_at', startOfMonth.toISOString());
+      .eq('analyst_id', analystId);
 
+    // Aplicar filtro de data se fornecido
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        // Ajustar para início e fim do dia
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        
+        query = query
+          .gte('created_at', start.toISOString())
+          .lte('created_at', end.toISOString());
+      }
+    } else {
+      // Buscar dados do mês atual (comportamento padrão)
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      
+      query = query.gte('created_at', startOfMonth.toISOString());
+    }
+
+    const { data, error } = await query;
     if (error) throw error;
 
     // Agrupar e contar por categoria

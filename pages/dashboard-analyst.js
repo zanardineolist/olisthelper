@@ -20,6 +20,8 @@ export default function DashboardAnalyst({ user }) {
   const [leaderboard, setLeaderboard] = useState([]);
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [greeting, setGreeting] = useState('');
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [categoryLoading, setCategoryLoading] = useState(false);
   
   // Estado para os filtros de período
   const [periodFilter, setPeriodFilter] = useState({ value: 'last7days', label: 'Últimos 7 dias' });
@@ -65,16 +67,12 @@ export default function DashboardAnalyst({ user }) {
 
   // Fetch dos dados quando o filtro é alterado
   useEffect(() => {
-    fetchRecords();
-  }, [periodFilter, customDateRange, user]);
-
-  // Carregar leaderboard e ranking de categorias
-  useEffect(() => {
-    if (!initialLoading) {
+    if (!initialLoading && user?.id) {
+      fetchRecords();
       fetchLeaderboard();
       fetchCategoryRanking();
     }
-  }, [initialLoading, user]);
+  }, [initialLoading, periodFilter, customDateRange, user]);
 
   // Função para obter datas com base no filtro
   const getDateRange = () => {
@@ -127,14 +125,14 @@ export default function DashboardAnalyst({ user }) {
       setLoading(true);
       const { filter, startDate, endDate } = getDateRange();
       
-      // Usar os novos parâmetros startDate e endDate
+      // Construir URL com parâmetros de data
       let url = `/api/get-analyst-records?analystId=${user.id}`;
       
-      // Se o filtro for 'custom', usamos os parâmetros startDate e endDate
+      // Para filtro personalizado, usamos os parâmetros startDate e endDate
       if (periodFilter.value === 'custom') {
         url += `&startDate=${startDate}&endDate=${endDate}`;
       } else {
-        // Caso contrário, mantemos a compatibilidade com o filtro existente
+        // Caso contrário, mantemos compatibilidade com o filtro existente
         url += `&filter=${filter}`;
       }
       
@@ -173,7 +171,7 @@ export default function DashboardAnalyst({ user }) {
     }
   };
 
-  // Fetch leaderboard de usuários (sempre com base no mês atual)
+  // Fetch leaderboard de usuários com base no período selecionado
   const fetchLeaderboard = async () => {
     if (!user?.id) {
       console.error("ID do analista não encontrado.");
@@ -181,33 +179,44 @@ export default function DashboardAnalyst({ user }) {
     }
 
     try {
-      const res = await fetch(`/api/get-analyst-leaderboard?analystId=${user.id}`);
+      setLeaderboardLoading(true);
+      const { startDate, endDate } = getDateRange();
+      
+      // Buscar todos os registros do período para processar no frontend
+      const url = `/api/get-analyst-records?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}&includeUserDetails=true`;
+      
+      const res = await fetch(url);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros para o leaderboard.');
       }
 
       const data = await res.json();
-      if (!data || !data.rows || data.rows.length === 0) {
+      
+      if (!data.rows || data.rows.length === 0) {
         setLeaderboard([]);
         return;
       }
 
-      // Processar os dados do leaderboard
-      const formattedLeaderboard = [];
+      // Processar os dados do leaderboard manualmente
       const userMap = new Map();
 
+      // Verificar se temos dados detalhados dos usuários nos rows
       data.rows.forEach(row => {
-        const userName = row[2];
-        const count = parseInt(row[4]) || 1;
+        // Presumindo que os dados do usuário estão nas posições 2 (nome) e 3 (email)
+        const userName = row[2]; // nome do usuário
         
-        if (userName && !userMap.has(userName)) {
-          userMap.set(userName, {
-            name: userName,
-            count: count
-          });
+        if (userName) {
+          if (!userMap.has(userName)) {
+            userMap.set(userName, { name: userName, count: 1 });
+          } else {
+            const user = userMap.get(userName);
+            user.count += 1;
+            userMap.set(userName, user);
+          }
         }
       });
 
+      // Ordenar por contagem e pegar os top 5
       const sortedUsers = Array.from(userMap.values())
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
@@ -216,10 +225,12 @@ export default function DashboardAnalyst({ user }) {
     } catch (err) {
       console.error('Erro ao carregar leaderboard:', err);
       setLeaderboard([]);
+    } finally {
+      setLeaderboardLoading(false);
     }
   };
 
-  // Fetch ranking de categorias (sempre com base no mês atual)
+  // Fetch ranking de categorias com base no período selecionado
   const fetchCategoryRanking = async () => {
     if (!user?.id) {
       console.error("ID do analista não encontrado.");
@@ -227,16 +238,53 @@ export default function DashboardAnalyst({ user }) {
     }
 
     try {
-      const res = await fetch(`/api/get-category-ranking?analystId=${user.id}`);
+      setCategoryLoading(true);
+      const { startDate, endDate } = getDateRange();
+      
+      // Nova API que suporta filtro de período
+      const url = `/api/get-analyst-records?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}&includeCategoryDetails=true`;
+      
+      const res = await fetch(url);
       if (!res.ok) {
         throw new Error('Erro ao buscar registros das categorias.');
       }
 
       const data = await res.json();
-      setCategoryRanking(data.categories || []);
+      
+      if (!data.rows || data.rows.length === 0) {
+        setCategoryRanking([]);
+        return;
+      }
+
+      // Processar os dados das categorias manualmente
+      const categoryMap = new Map();
+
+      // Presumindo que a categoria está na posição 4 dos rows
+      data.rows.forEach(row => {
+        const categoryName = row[4]; // nome da categoria
+        
+        if (categoryName) {
+          if (!categoryMap.has(categoryName)) {
+            categoryMap.set(categoryName, { name: categoryName, count: 1 });
+          } else {
+            const category = categoryMap.get(categoryName);
+            category.count += 1;
+            categoryMap.set(categoryName, category);
+          }
+        }
+      });
+
+      // Ordenar por contagem e pegar os top 10
+      const sortedCategories = Array.from(categoryMap.values())
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+
+      setCategoryRanking(sortedCategories);
     } catch (err) {
       console.error('Erro ao carregar ranking das categorias:', err);
       setCategoryRanking([]);
+    } finally {
+      setCategoryLoading(false);
     }
   };
 
@@ -538,7 +586,11 @@ export default function DashboardAnalyst({ user }) {
           {/* Leaderboard */}
           <div className={styles.rankingCard}>
             <h3 className={styles.rankingTitle}>Top 5 - Usuários com Mais Ajudas</h3>
-            {leaderboard.length > 0 ? (
+            {leaderboardLoading ? (
+              <div className={styles.loadingContainer}>
+                <div className="standardBoxLoader"></div>
+              </div>
+            ) : leaderboard.length > 0 ? (
               <ul className={styles.rankingList}>
                 {leaderboard.map((user, index) => (
                   <li key={index} className={styles.rankingItem}>
@@ -561,7 +613,7 @@ export default function DashboardAnalyst({ user }) {
               </ul>
             ) : (
               <div className={styles.noDataMessage}>
-                <p>Nenhum atendimento registrado este mês.</p>
+                <p>Nenhum atendimento registrado neste período.</p>
               </div>
             )}
           </div>
@@ -569,7 +621,11 @@ export default function DashboardAnalyst({ user }) {
           {/* Ranking de categorias */}
           <div className={styles.rankingCard}>
             <h3 className={styles.rankingTitle}>Top 10 - Temas de Dúvidas</h3>
-            {categoryRanking.length > 0 ? (
+            {categoryLoading ? (
+              <div className={styles.loadingContainer}>
+                <div className="standardBoxLoader"></div>
+              </div>
+            ) : categoryRanking.length > 0 ? (
               <ul className={styles.rankingList}>
                 {categoryRanking.map((category, index) => (
                   <li key={index} className={styles.rankingItem}>
@@ -601,7 +657,7 @@ export default function DashboardAnalyst({ user }) {
               </ul>
             ) : (
               <div className={styles.noDataMessage}>
-                <p>Nenhum tema registrado este mês.</p>
+                <p>Nenhum tema registrado neste período.</p>
               </div>
             )}
           </div>
