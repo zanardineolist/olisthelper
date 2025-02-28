@@ -1,0 +1,101 @@
+/* Ajustes responsivos para componentes de dashboard */
+@media (max-width: 1200px) {
+    .dashboardMainCards,
+    .performanceGridContainer,
+    .analystMetricsContainer,
+    .rankingsContainer {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .performanceMetrics {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .dashboardMainCards,
+    .performanceGridContainer,
+    .analystMetricsContainer,
+    .rankingsContainer {
+      grid-template-columns: 1fr;
+    }
+    
+    .summaryContent {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .categoryContent {
+      grid-template-columns: 1fr;
+    }
+    
+    .performanceMetrics {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .periodFilterControls,
+    .dateRangeContainer {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .summaryContent {
+      grid-template-columns: 1fr;
+    }
+    
+    .chartWrapper {
+      height: 300px;
+    }
+    
+    .dashboardMain {
+      padding: 20px 15px;
+    }
+    
+    .leftSide, .rightSide {
+      flex: 100%;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .pageHeader {
+      flex-direction: column;
+    }
+    
+    .profileSummary {
+      width: 100%;
+    }
+    
+    .greetingText {
+      font-size: 1.5rem;
+    }
+    
+    .summaryHeader {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .rankingItem {
+      flex-wrap: wrap;
+    }
+    
+    .rankingDetails {
+      order: -1;
+      width: calc(100% - 85px);
+    }
+    
+    .categoryHeader {
+      flex-wrap: wrap;
+    }
+    
+    .categoryName {
+      order: -1;
+      width: 100%;
+      margin-bottom: 5px;
+    }
+    
+    .progressBarContainer {
+      margin-left: 0;
+    }
+  }

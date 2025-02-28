@@ -1,0 +1,24 @@
+/* Estilos para containers de gráficos */
+.chartContainer {
+    background-color: var(--box-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    position: relative;
+  }
+  
+  .chartTitle {
+    margin: 0 0 20px 0;
+    font-size: 1.1rem;
+    color: var(--title-color);
+  }
+  
+  .chartWrapper {
+    height: 600px;
+  }
+  
+  /* Ajustes para modo escuro nos gráficos */
+  [data-theme="dark"] .chartWrapper canvas {
+    filter: brightness(0.9) contrast(1.1);
+  }

@@ -9,7 +9,22 @@ import GraphData from '../components/GraphData';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Swal from 'sweetalert2';
-import styles from '../styles/DashboardSuper.module.css';
+
+import baseStyles from '../styles/dashboard/base.module.css';
+import cardStyles from '../styles/dashboard/cards.module.css';
+import chartStyles from '../styles/dashboard/charts.module.css';
+import rankingStyles from '../styles/dashboard/rankings.module.css';
+import superStyles from '../styles/dashboard/super.module.css';
+import responsiveStyles from '../styles/dashboard/responsive.module.css';
+
+const styles = {
+  ...baseStyles,
+  ...cardStyles,
+  ...chartStyles,
+  ...rankingStyles,
+  ...superStyles,
+  ...responsiveStyles
+};
 
 const theme = createTheme({
   components: {

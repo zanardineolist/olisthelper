@@ -12,9 +12,21 @@ import {
 } from 'chart.js';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
-import styles from '../styles/GraphData.module.css';
+
+import baseStyles from '../styles/dashboard/base.module.css';
+import cardStyles from '../styles/dashboard/cards.module.css';
+import chartStyles from '../styles/dashboard/charts.module.css';
+import responsiveStyles from '../styles/dashboard/responsive.module.css';
+
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
+
+const styles = {
+  ...baseStyles,
+  ...cardStyles,
+  ...chartStyles,
+  ...responsiveStyles
+};
 
 // Registrar os elementos necessários do Chart.js
 ChartJS.register(

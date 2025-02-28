@@ -5,12 +5,29 @@ import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import Navbar from '../components/Navbar';
-import styles from '../styles/DashboardAnalyst.module.css';
+
+import baseStyles from '../styles/dashboard/base.module.css';
+import cardStyles from '../styles/dashboard/cards.module.css';
+import chartStyles from '../styles/dashboard/charts.module.css';
+import rankingStyles from '../styles/dashboard/rankings.module.css';
+import analystStyles from '../styles/dashboard/analyst.module.css';
+import responsiveStyles from '../styles/dashboard/responsive.module.css';
+
 import Footer from '../components/Footer';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
+
+// Combinação de todos os estilos para uso no componente 
+const styles = {
+  ...baseStyles,
+  ...cardStyles,
+  ...chartStyles,
+  ...rankingStyles,
+  ...analystStyles,
+  ...responsiveStyles
+};
 
 export default function DashboardAnalyst({ user }) {
   const [loading, setLoading] = useState(true);

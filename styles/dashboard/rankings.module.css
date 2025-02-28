@@ -1,0 +1,150 @@
+/* Container para rankings */
+.rankingsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 25px;
+  }
+  
+  .rankingCard {
+    background-color: var(--box-color);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .rankingTitle {
+    margin: 0 0 20px 0;
+    font-size: 1.1rem;
+    color: var(--title-color);
+  }
+  
+  .rankingList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .rankingItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .rankingPosition {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: var(--box-color2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--title-color);
+    flex-shrink: 0;
+  }
+  
+  .rankingDetails {
+    flex-grow: 1;
+    min-width: 0;
+  }
+  
+  .rankingName {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .progressBarContainer {
+    height: 6px;
+    background-color: var(--box-color2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  
+  .progressBar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+  
+  .rankingCount {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--title-color);
+    display: flex;
+    align-items: center;
+    min-width: 30px;
+    justify-content: flex-end;
+  }
+  
+  /* Estilos para ranking de categorias */
+  .categoryRankingCard {
+    background-color: var(--box-color);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 25px;
+    position: relative;
+  }
+  
+  .categoryTitle {
+    margin: 0 0 25px 0;
+    font-size: 1.1rem;
+    color: var(--title-color);
+  }
+  
+  .categoryContent {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .categoryList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .categoryItem {
+    margin-bottom: 15px;
+  }
+  
+  .categoryHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .categoryRank {
+    background-color: var(--box-color2);
+    min-width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--title-color);
+    margin-right: 10px;
+  }
+  
+  .categoryName {
+    flex-grow: 1;
+    font-size: 0.95rem;
+    color: var(--text-color);
+  }
+  
+  .categoryCount {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--title-color);
+    display: flex;
+    align-items: center;
+  }
