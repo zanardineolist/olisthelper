@@ -5,9 +5,8 @@
 Analyst IDS.txt
 IDS.txt
 
-database_roles.sql
-database_structure.sql
-
 config.toml
 
 .vscode
+database_structure.sql
+database_roles.sql

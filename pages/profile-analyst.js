@@ -10,7 +10,7 @@ import Footer from '../components/Footer';
 export default function AnalystProfilePage({ user }) {
   const router = useRouter();
   const [greeting, setGreeting] = useState('');
-  const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
+  const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0, today: 0 });
   const [performanceData, setPerformanceData] = useState(null);
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -88,7 +88,7 @@ export default function AnalystProfilePage({ user }) {
   }
 
   const firstName = user.name.split(' ')[0];
-  const { currentMonth, lastMonth } = helpRequests;
+  const { currentMonth, lastMonth, today } = helpRequests;
   let percentageChange = 0;
 
   if (lastMonth > 0) {
