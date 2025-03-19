@@ -5,10 +5,10 @@ export default async function handler(req, res) {
     // Obter categorias do Supabase
     const categories = await getAllCategories();
     
-    // Obter analistas do Supabase (usuários com perfil 'analyst')
+    // Obter analistas do Supabase (usuários com perfil 'analyst' ou 'tax')
     const allUsers = await getAllActiveUsers();
     const analysts = allUsers
-      .filter((user) => user.profile === 'analyst')
+      .filter((user) => user.profile === 'analyst' || user.profile === 'tax')
       .map((user) => ({
         id: user.id,
         name: user.name,
