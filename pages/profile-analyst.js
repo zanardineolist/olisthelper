@@ -173,6 +173,10 @@ export default function AnalystProfilePage({ user }) {
               <div className={styles.helpRequestsContent}>
                 <div className={styles.monthsInfo}>
                   <div className={styles.monthMetric}>
+                    <span className={styles.monthLabel}>Hoje:</span>
+                    <span className={styles.monthValue}>{today}</span>
+                  </div>
+                  <div className={styles.monthMetric}>
                     <span className={styles.monthLabel}>Mês Atual:</span>
                     <span className={styles.monthValue}>{currentMonth}</span>
                   </div>

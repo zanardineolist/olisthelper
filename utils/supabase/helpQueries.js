@@ -83,10 +83,19 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
         const date = new Date(record.created_at);
         return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
       }).length;
+      
+      // Calcular contagem de ajudas do dia atual
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayCount = data.filter(record => {
+        const date = new Date(record.created_at);
+        return date >= today;
+      }).length;
 
       return {
         currentMonth: currentMonthCount,
         lastMonth: lastMonthCount,
+        today: todayCount,
         rows: data.map(row => [
           new Date(row.created_at).toLocaleDateString('pt-BR'),
           new Date(row.created_at).toLocaleTimeString('pt-BR'),
