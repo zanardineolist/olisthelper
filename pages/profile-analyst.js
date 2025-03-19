@@ -56,6 +56,7 @@ export default function AnalystProfilePage({ user }) {
         setHelpRequests({
           currentMonth: helpData.currentMonth,
           lastMonth: helpData.lastMonth,
+          today: helpData.today
         });
   
         // Ranking de Categorias
