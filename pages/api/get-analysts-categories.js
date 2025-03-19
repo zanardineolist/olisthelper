@@ -1,24 +1,23 @@
-import { getAuthenticatedGoogleSheets, getSheetValues } from '../../utils/googleSheets';
+import { getAllCategories, getAllActiveUsers } from '../../utils/supabase/supabaseClient';
 
 export default async function handler(req, res) {
   try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
-
-    // Obter categorias
-    const categoriesResponse = await getSheetValues('Categorias', 'A2:A');
-    const categories = categoriesResponse.flat();
-
-    // Obter analistas
-    const rows = await getSheetValues('Usuários', 'A:D');
-    const analysts = rows
-      .filter((row) => row[3] === 'analyst')
-      .map((row) => ({
-        id: row[0],
-        name: row[1],
+    // Obter categorias do Supabase
+    const categories = await getAllCategories();
+    
+    // Obter analistas do Supabase (usuários com perfil 'analyst')
+    const allUsers = await getAllActiveUsers();
+    const analysts = allUsers
+      .filter((user) => user.profile === 'analyst')
+      .map((user) => ({
+        id: user.id,
+        name: user.name,
       }));
+    
+    // Formatar categorias para manter compatibilidade com o frontend
+    const formattedCategories = categories.map(category => category.name);
 
-    res.status(200).json({ analysts, categories });
+    res.status(200).json({ analysts, categories: formattedCategories });
   } catch (error) {
     console.error('Erro ao obter analistas e categorias:', error);
     res.status(500).json({ error: 'Erro ao carregar dados.' });
