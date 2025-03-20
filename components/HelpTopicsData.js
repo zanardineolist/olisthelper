@@ -13,14 +13,12 @@ import {
   Select,
   MenuItem,
   Button,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
-  Grid,
-  Tooltip
+  Grid
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -300,18 +298,56 @@ export default function HelpTopicsData() {
 
   return (
     <Box sx={{ p: 2 }}>
-      <Paper sx={{ p: 3, mb: 3 }}>
+      {/* Seção do filtro de período */}
+      <Paper 
+        sx={{ 
+          p: 3, 
+          mb: 3, 
+          backgroundColor: 'var(--box-color)',
+          borderRadius: '12px',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)'
+        }}
+      >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h5" component="h2" gutterBottom>
+          <Typography 
+            variant="h5" 
+            component="h2" 
+            sx={{ 
+              color: 'var(--title-color)',
+              fontSize: '1.3rem',
+              fontWeight: 600,
+              m: 0
+            }}
+          >
             Temas de Dúvidas
           </Typography>
           
-          <FormControl sx={{ minWidth: 200 }}>
+          <FormControl 
+            sx={{ 
+              minWidth: 200,
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'var(--modals-inputs)',
+                borderColor: 'var(--color-border)',
+                color: 'var(--text-color)'
+              },
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'var(--color-border)'
+              },
+              '& .MuiInputLabel-root': {
+                color: 'var(--text-color)'
+              }
+            }}
+          >
             <Select
               value={period}
               onChange={handlePeriodChange}
               size="small"
               displayEmpty
+              sx={{
+                fontSize: '0.9rem',
+                backgroundColor: 'var(--modals-inputs)',
+                color: 'var(--text-color)'
+              }}
             >
               <MenuItem value="today">Hoje</MenuItem>
               <MenuItem value="last7days">Últimos 7 dias</MenuItem>
@@ -323,14 +359,41 @@ export default function HelpTopicsData() {
         </Box>
 
         {period === 'custom' && (
-          <Box sx={{ display: 'flex', gap: 2, mb: 3, alignItems: 'center' }}>
-            <Typography variant="body2">
-              Período: {formatDateBR(startDate, 'dd/MM/yyyy')} a {formatDateBR(endDate, 'dd/MM/yyyy')}
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              gap: 2, 
+              mb: 3, 
+              alignItems: 'center',
+              padding: '10px 15px',
+              backgroundColor: 'var(--box-color2)',
+              borderRadius: '8px'
+            }}
+          >
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                fontSize: '0.9rem',
+                color: 'var(--text-color)'
+              }}
+            >
+              <span style={{ color: 'var(--text-color2)', fontWeight: 500, marginRight: '5px' }}>Período:</span>
+              <span style={{ color: 'var(--title-color)', fontWeight: 600 }}>
+                {formatDateBR(startDate, 'dd/MM/yyyy')} a {formatDateBR(endDate, 'dd/MM/yyyy')}
+              </span>
             </Typography>
             <Button 
               variant="outlined" 
               size="small" 
               onClick={() => setOpenDateDialog(true)}
+              sx={{
+                borderColor: 'var(--color-primary)',
+                color: 'var(--color-primary)',
+                '&:hover': {
+                  borderColor: 'var(--color-primary-hover)',
+                  backgroundColor: 'rgba(10, 78, 228, 0.05)'
+                }
+              }}
             >
               Alterar período
             </Button>
@@ -338,7 +401,15 @@ export default function HelpTopicsData() {
         )}
         
         <Box sx={{ mb: 3 }}>
-          <Typography variant="subtitle1" gutterBottom>
+          <Typography 
+            variant="subtitle1" 
+            sx={{ 
+              mb: 2, 
+              color: 'var(--text-color)',
+              fontSize: '1rem',
+              fontWeight: 500
+            }}
+          >
             Ranking de Temas
           </Typography>
           
@@ -347,30 +418,131 @@ export default function HelpTopicsData() {
               <div className="loader" style={{ scale: '0.5' }}></div>
             </Box>
           ) : (
-            <TableContainer component={Paper} variant="outlined">
+            <TableContainer 
+              component={Paper} 
+              variant="outlined"
+              sx={{ 
+                backgroundColor: 'var(--box-color4)',
+                borderColor: 'var(--color-border)',
+                borderRadius: '8px',
+                overflow: 'hidden'
+              }}
+            >
               <Table>
                 <TableHead>
-                  <TableRow>
-                    <TableCell>Ranking</TableCell>
-                    <TableCell>Tema</TableCell>
-                    <TableCell align="right">Quantidade</TableCell>
-                    <TableCell align="right">Porcentagem</TableCell>
+                  <TableRow sx={{ backgroundColor: 'var(--color-thead)' }}>
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 600, 
+                        color: 'var(--text-th)', 
+                        borderBottom: '1px solid var(--color-border)' 
+                      }}
+                    >
+                      Ranking
+                    </TableCell>
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 600, 
+                        color: 'var(--text-th)', 
+                        borderBottom: '1px solid var(--color-border)' 
+                      }}
+                    >
+                      Tema
+                    </TableCell>
+                    <TableCell 
+                      align="right" 
+                      sx={{ 
+                        fontWeight: 600, 
+                        color: 'var(--text-th)', 
+                        borderBottom: '1px solid var(--color-border)' 
+                      }}
+                    >
+                      Quantidade
+                    </TableCell>
+                    <TableCell 
+                      align="right"
+                      sx={{ 
+                        fontWeight: 600, 
+                        color: 'var(--text-th)', 
+                        borderBottom: '1px solid var(--color-border)' 
+                      }}
+                    >
+                      Porcentagem
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {topics.length > 0 ? (
                     topics.map((topic, index) => (
-                      <TableRow key={topic.id || index}>
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell>{topic.name}</TableCell>
-                        <TableCell align="right">{topic.count}</TableCell>
-                        <TableCell align="right">{topic.percentage}%</TableCell>
+                      <TableRow 
+                        key={topic.id || index}
+                        sx={{ 
+                          backgroundColor: index % 2 === 0 ? 'var(--color-treven)' : 'var(--color-trodd)',
+                          '&:hover': {
+                            backgroundColor: 'var(--box-color2)'
+                          }
+                        }}
+                      >
+                        <TableCell 
+                          sx={{ 
+                            color: 'var(--text-color)',
+                            borderBottom: '1px solid var(--color-border)'
+                          }}
+                        >
+                          {index + 1}
+                        </TableCell>
+                        <TableCell 
+                          sx={{ 
+                            color: 'var(--title-color)',
+                            fontWeight: 500,
+                            borderBottom: '1px solid var(--color-border)'
+                          }}
+                        >
+                          {topic.name}
+                        </TableCell>
+                        <TableCell 
+                          align="right"
+                          sx={{ 
+                            color: 'var(--color-primary)',
+                            fontWeight: 600,
+                            borderBottom: '1px solid var(--color-border)'
+                          }}
+                        >
+                          {topic.count}
+                        </TableCell>
+                        <TableCell 
+                          align="right"
+                          sx={{ 
+                            color: 'var(--text-color)',
+                            borderBottom: '1px solid var(--color-border)'
+                          }}
+                        >
+                          {topic.percentage}%
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} align="center">
-                        Nenhum tema de dúvida encontrado no período selecionado.
+                      <TableCell 
+                        colSpan={4} 
+                        align="center"
+                        sx={{ 
+                          padding: '30px 20px',
+                          color: 'var(--text-color2)',
+                          borderBottom: '1px solid var(--color-border)'
+                        }}
+                      >
+                        <Box 
+                          sx={{ 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            alignItems: 'center',
+                            gap: 2
+                          }}
+                        >
+                          <i className="fa-solid fa-ban" style={{ fontSize: '24px', color: 'var(--color-accent1)' }}></i>
+                          <Typography>Nenhum tema de dúvida encontrado no período selecionado.</Typography>
+                        </Box>
                       </TableCell>
                     </TableRow>
                   )}
@@ -380,8 +552,25 @@ export default function HelpTopicsData() {
           )}
         </Box>
         
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-          <Typography variant="subtitle2" sx={{ mr: 2, alignSelf: 'center' }}>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            justifyContent: 'flex-end', 
+            gap: 2,
+            borderTop: '1px solid var(--color-border)',
+            paddingTop: 3,
+            marginTop: 3
+          }}
+        >
+          <Typography 
+            variant="subtitle2" 
+            sx={{ 
+              mr: 2, 
+              alignSelf: 'center',
+              color: 'var(--text-color2)',
+              fontSize: '0.9rem'
+            }}
+          >
             Exportar para:
           </Typography>
           <Button 
@@ -389,6 +578,18 @@ export default function HelpTopicsData() {
             onClick={exportToExcel}
             disabled={topics.length === 0 || loading}
             startIcon={<i className="fa-solid fa-file-excel"></i>}
+            sx={{
+              borderColor: 'var(--color-accent3)',
+              color: 'var(--color-accent3)',
+              '&:hover': {
+                backgroundColor: 'rgba(119, 158, 61, 0.05)',
+                borderColor: 'var(--color-accent3)'
+              },
+              '&.Mui-disabled': {
+                borderColor: 'var(--text-color2)',
+                color: 'var(--text-color2)'
+              }
+            }}
           >
             Excel
           </Button>
@@ -397,6 +598,18 @@ export default function HelpTopicsData() {
             onClick={exportToCSV}
             disabled={topics.length === 0 || loading}
             startIcon={<i className="fa-solid fa-file-csv"></i>}
+            sx={{
+              borderColor: 'var(--color-accent2)',
+              color: 'var(--color-accent2)',
+              '&:hover': {
+                backgroundColor: 'rgba(240, 160, 40, 0.05)',
+                borderColor: 'var(--color-accent2)'
+              },
+              '&.Mui-disabled': {
+                borderColor: 'var(--text-color2)',
+                color: 'var(--text-color2)'
+              }
+            }}
           >
             CSV
           </Button>
@@ -405,6 +618,18 @@ export default function HelpTopicsData() {
             onClick={exportToPDF}
             disabled={topics.length === 0 || loading}
             startIcon={<i className="fa-solid fa-file-pdf"></i>}
+            sx={{
+              borderColor: 'var(--color-accent1)',
+              color: 'var(--color-accent1)',
+              '&:hover': {
+                backgroundColor: 'rgba(230, 78, 54, 0.05)',
+                borderColor: 'var(--color-accent1)'
+              },
+              '&.Mui-disabled': {
+                borderColor: 'var(--text-color2)',
+                color: 'var(--text-color2)'
+              }
+            }}
           >
             PDF
           </Button>
@@ -412,8 +637,18 @@ export default function HelpTopicsData() {
       </Paper>
       
       {/* Diálogo para seleção de período personalizado */}
-      <Dialog open={openDateDialog} onClose={handleCloseDateDialog}>
-        <DialogTitle>Selecione o período</DialogTitle>
+      <Dialog 
+        open={openDateDialog} 
+        onClose={handleCloseDateDialog}
+        PaperProps={{
+          style: {
+            backgroundColor: 'var(--box-color)',
+            color: 'var(--text-color)',
+            borderRadius: '12px'
+          }
+        }}
+      >
+        <DialogTitle sx={{ color: 'var(--title-color)' }}>Selecione o período</DialogTitle>
         <DialogContent>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
             <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -422,7 +657,23 @@ export default function HelpTopicsData() {
                   label="Data Inicial"
                   value={startDate}
                   onChange={(newValue) => setStartDate(startOfDayBR(newValue))}
-                  slotProps={{ textField: { fullWidth: true } }}
+                  slotProps={{ 
+                    textField: { 
+                      fullWidth: true,
+                      sx: {
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: 'var(--modals-inputs)',
+                          color: 'var(--text-color)'
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'var(--color-border)'
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'var(--text-color)'
+                        }
+                      } 
+                    } 
+                  }}
                   maxDate={new Date()}
                 />
               </Grid>
@@ -431,16 +682,53 @@ export default function HelpTopicsData() {
                   label="Data Final"
                   value={endDate}
                   onChange={(newValue) => setEndDate(endOfDayBR(newValue))}
-                  slotProps={{ textField: { fullWidth: true } }}
+                  slotProps={{ 
+                    textField: { 
+                      fullWidth: true,
+                      sx: {
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: 'var(--modals-inputs)',
+                          color: 'var(--text-color)'
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'var(--color-border)'
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'var(--text-color)'
+                        }
+                      } 
+                    } 
+                  }}
                   maxDate={new Date()}
                 />
               </Grid>
             </Grid>
           </LocalizationProvider>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDateDialog}>Cancelar</Button>
-          <Button onClick={handleConfirmDateRange} variant="contained">Confirmar</Button>
+        <DialogActions sx={{ padding: '0 24px 20px 24px' }}>
+          <Button 
+            onClick={handleCloseDateDialog}
+            sx={{ 
+              color: 'var(--text-color)',
+              '&:hover': {
+                backgroundColor: 'rgba(93, 93, 93, 0.1)'
+              }
+            }}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleConfirmDateRange} 
+            variant="contained"
+            sx={{
+              backgroundColor: 'var(--color-primary)',
+              '&:hover': {
+                backgroundColor: 'var(--color-primary-hover)'
+              }
+            }}
+          >
+            Confirmar
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
