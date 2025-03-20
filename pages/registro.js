@@ -55,6 +55,7 @@ export default function RegistroPage({ user }) {
       const helpResponse = await fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile&filter=1`);
       if (helpResponse.ok) {
         const helpData = await helpResponse.json();
+        console.log('Dados recebidos da API:', helpData); // Log para debug
         setHelpRequests({
           today: helpData.today || 0
         });
