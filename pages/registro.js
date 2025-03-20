@@ -37,13 +37,7 @@ export default function RegistroPage({ user }) {
         setCategories(categoriesData.categories);
 
         // Buscar dados de ajudas prestadas
-        const helpResponse = await fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`);
-        if (helpResponse.ok) {
-          const helpData = await helpResponse.json();
-          setHelpRequests({
-            today: helpData.today
-          });
-        }
+        await fetchHelpRequests();
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
       } finally {
@@ -53,6 +47,21 @@ export default function RegistroPage({ user }) {
 
     loadUsersAndCategories();
   }, [user.id]);
+
+  // Função para buscar ajudas prestadas
+  const fetchHelpRequests = async () => {
+    try {
+      const helpResponse = await fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`);
+      if (helpResponse.ok) {
+        const helpData = await helpResponse.json();
+        setHelpRequests({
+          today: helpData.today || 0
+        });
+      }
+    } catch (err) {
+      console.error('Erro ao buscar ajudas prestadas:', err);
+    }
+  };
 
   // Gerenciar alterações no formulário
   const handleChange = (selectedOption, actionMeta) => {
@@ -103,13 +112,7 @@ export default function RegistroPage({ user }) {
         setFormData({ user: null, category: null, description: '' });
         
         // Atualizar o contador de ajudas após o registro bem-sucedido
-        const helpResponse = await fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`);
-        if (helpResponse.ok) {
-          const helpData = await helpResponse.json();
-          setHelpRequests({
-            today: helpData.today
-          });
-        }
+        await fetchHelpRequests();
       } else {
         Swal.fire({
           icon: 'error',
@@ -293,7 +296,7 @@ const customSelectStyles = {
         <div className={styles.helpCounterContainer}>
           <div className={styles.helpCounter}>
             <h3>Ajudas prestadas hoje</h3>
-            <div className={styles.counterValue}>{helpRequests.today}</div>
+            <div className={styles.counterValue}>{helpRequests.today || 0}</div>
           </div>
         </div>
       </main>
