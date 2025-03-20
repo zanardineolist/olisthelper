@@ -288,7 +288,7 @@ export default function AnalystProfilePage({ user }) {
                 <div
                   className={styles.progressBarCategory}
                   style={{
-                    width: `${Math.min((category.count / 50) * 100, 100)}%`,
+                    width: `${Math.max((category.count / (categoryRanking[0]?.count || 1)) * 100, 10)}%`,
                     backgroundColor: category.count > 50 ? '#F0A028' : '',
                   }}
                 />

@@ -33,39 +33,43 @@ export function setEndOfDay(date) {
 }
 
 /**
- * Calcula a data de início do mês atual
+ * Calcula a data de início do mês atual considerando o fuso horário do Brasil
  * @returns {Date} Data de início do mês atual
  */
 export function getStartOfCurrentMonth() {
-  const now = new Date();
+  const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+  const now = new Date(brtDate);
   return new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
 }
 
 /**
- * Calcula a data de início do mês anterior
+ * Calcula a data de início do mês anterior considerando o fuso horário do Brasil
  * @returns {Date} Data de início do mês anterior
  */
 export function getStartOfLastMonth() {
-  const now = new Date();
+  const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+  const now = new Date(brtDate);
   return new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0);
 }
 
 /**
- * Calcula a data de início do próximo mês
+ * Calcula a data de início do próximo mês considerando o fuso horário do Brasil
  * @returns {Date} Data de início do próximo mês
  */
 export function getStartOfNextMonth() {
-  const now = new Date();
+  const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+  const now = new Date(brtDate);
   return new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
 }
 
 /**
- * Calcula a data de N dias atrás
+ * Calcula a data de N dias atrás considerando o fuso horário do Brasil
  * @param {number} days - Número de dias para subtrair da data atual
  * @returns {Date} Data de N dias atrás
  */
 export function getDaysAgo(days) {
-  const date = new Date();
+  const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+  const date = new Date(brtDate);
   date.setDate(date.getDate() - days);
   date.setHours(0, 0, 0, 0);
   return date;
@@ -101,7 +105,7 @@ export function applyDateFilters(query, dateField, startDate = null, endDate = n
 }
 
 /**
- * Formata uma data para o formato brasileiro (DD/MM/YYYY)
+ * Formata uma data para o formato brasileiro (DD/MM/YYYY) considerando o fuso horário do Brasil
  * @param {Date|string} date - Data a ser formatada
  * @returns {string} Data formatada
  */
@@ -111,7 +115,7 @@ export function formatDateBR(date) {
     if (isNaN(dateObj.getTime())) {
       return 'Data inválida';
     }
-    return dateObj.toLocaleDateString('pt-BR');
+    return dateObj.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
   } catch (error) {
     console.error('Erro ao formatar data:', error);
     return 'Data inválida';
@@ -119,7 +123,7 @@ export function formatDateBR(date) {
 }
 
 /**
- * Formata uma hora para o formato brasileiro (HH:MM:SS)
+ * Formata uma hora para o formato brasileiro (HH:MM:SS) considerando o fuso horário do Brasil
  * @param {Date|string} date - Data a ser formatada
  * @returns {string} Hora formatada
  */
@@ -129,7 +133,7 @@ export function formatTimeBR(date) {
     if (isNaN(dateObj.getTime())) {
       return 'Hora inválida';
     }
-    return dateObj.toLocaleTimeString('pt-BR');
+    return dateObj.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' });
   } catch (error) {
     console.error('Erro ao formatar hora:', error);
     return 'Hora inválida';
