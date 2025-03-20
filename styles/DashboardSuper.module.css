@@ -376,7 +376,7 @@
   
   .performanceMetric span.metricLabel {
     font-size: 0.75rem;
-    color: var(--text-color2);
+    color: var(--title-color);
   }
   
   /* Métricas de analista */
