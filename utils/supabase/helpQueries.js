@@ -69,8 +69,9 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
         return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
       }).length;
       
-      // Calcular contagem de ajudas do dia atual diretamente do Supabase
-      const today = new Date();
+      // Calcular contagem de ajudas do dia atual diretamente do Supabase usando o fuso horário do Brasil
+      const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+      const today = new Date(brtDate);
       today.setHours(0, 0, 0, 0);
       
       const tomorrow = new Date(today);
