@@ -73,15 +73,23 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
       // Consulta separada para obter contagem precisa do dia atual
       const { data: todayData, error: todayError } = await supabaseAdmin
         .from('help_records')
         .select('id', { count: 'exact' })
         .eq('analyst_id', analystId)
-        .gte('created_at', today.toISOString());
+        .gte('created_at', today.toISOString())
+        .lt('created_at', tomorrow.toISOString());
       
       if (todayError) throw todayError;
       const todayCount = todayData.length;
+      
+      // Log para debug
+      console.log(`Contagem do dia atual para analista ${analystId}: ${todayCount}`);
+      console.log(`Período: ${today.toISOString()} até ${tomorrow.toISOString()}`);
 
       return {
         currentMonth: currentMonthCount,
