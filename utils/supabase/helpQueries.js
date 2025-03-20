@@ -1,6 +1,6 @@
 // utils/supabase/helpQueries.js
 import { supabaseAdmin } from './supabaseClient';
-import { setStartOfDay, setEndOfDay, getDaysAgo, getStartOfCurrentMonth, formatDateBR, formatTimeBR, applyDateFilters } from './dateUtils';
+import { setStartOfDay, setEndOfDay, getDaysAgo, getStartOfCurrentMonth, getStartOfLastMonth, getStartOfNextMonth, formatDateBR, formatTimeBR, applyDateFilters } from './dateUtils';
 
 /**
  * Busca os registros de ajuda de um analista com filtro de data
