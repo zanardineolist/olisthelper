@@ -51,7 +51,7 @@ export default function RegistroPage({ user }) {
   // Função para buscar ajudas prestadas
   const fetchHelpRequests = async () => {
     try {
-      // Usando filter=1 para obter dados do dia atual, similar ao dashboard-analyst.js
+      // Usando filter=1 para obter dados do dia atual
       const helpResponse = await fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile&filter=1`);
       if (helpResponse.ok) {
         const helpData = await helpResponse.json();

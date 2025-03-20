@@ -1,7 +1,7 @@
 // pages/api/get-super-dashboard-data.js
-import { getUserPerformance } from './get-user-performance';
-import { getUserHelpRequests } from './get-user-help-requests';
-import { getUserCategoryRanking } from './get-user-category-ranking';
+import { getUserPerformance } from '../../utils/supabase/performanceQueries';
+import { getUserHelpRequests } from '../../utils/supabase/helpQueries';
+import { getUserCategoryRanking } from '../../utils/supabase/helpQueries';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {

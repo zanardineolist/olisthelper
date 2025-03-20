@@ -8,5 +8,5 @@ IDS.txt
 config.toml
 
 .vscode
-database_structure.sql
 database_roles.sql
+database_structure.sql

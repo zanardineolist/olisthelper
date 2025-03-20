@@ -14,6 +14,24 @@ export default async function handler(req, res) {
   if (!analystId) {
     return res.status(400).json({ error: 'ID do analista é obrigatório' });
   }
+  
+  // Validar datas se fornecidas
+  if ((startDate && !endDate) || (!startDate && endDate)) {
+    return res.status(400).json({ error: 'Se uma data for fornecida, ambas startDate e endDate devem ser informadas' });
+  }
+  
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({ error: 'Formato de data inválido. Use YYYY-MM-DD' });
+    }
+    
+    if (start > end) {
+      return res.status(400).json({ error: 'A data inicial não pode ser posterior à data final' });
+    }
+  }
 
   try {
     // Tratamento específico para solicitações de leaderboard

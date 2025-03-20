@@ -14,9 +14,21 @@ dayjs.tz.setDefault("America/Sao_Paulo");
  */
 export async function getTicketCountHistory(userId, startDate, endDate, page = 1, pageSize = 10) {
   try {
+    if (!startDate || !endDate) {
+      throw new Error('Datas de início e fim são obrigatórias');
+    }
+    
+    if (!userId) {
+      throw new Error('ID do usuário é obrigatório');
+    }
+    
     // Converter datas para o início e fim do dia em SP
     const start = dayjs.tz(startDate, "America/Sao_Paulo").startOf('day');
     const end = dayjs.tz(endDate, "America/Sao_Paulo").endOf('day');
+    
+    if (!start.isValid() || !end.isValid()) {
+      throw new Error('Datas inválidas fornecidas');
+    }
 
     // Buscar registros do período
     const { data: allData, error: allDataError } = await supabaseAdmin
@@ -26,6 +38,11 @@ export async function getTicketCountHistory(userId, startDate, endDate, page = 1
       .gte('count_date', start.toISOString())
       .lte('count_date', end.toISOString())
       .order('count_date', { ascending: false });
+      
+    if (allDataError) {
+      console.error('Erro ao buscar contagens:', allDataError);
+      throw allDataError;
+    }
 
     if (allDataError) throw allDataError;
 

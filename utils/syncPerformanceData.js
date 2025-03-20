@@ -1,8 +1,22 @@
 import { google } from 'googleapis';
 import { createClient } from '@supabase/supabase-js';
 
+/**
+ * Sincroniza dados de performance dos usuários a partir de uma planilha do Google Sheets
+ * @returns {Promise<Object>} Resultado da sincronização
+ */
 const syncPerformanceData = async () => {
   try {
+    console.log('Iniciando sincronização de dados de performance:', new Date().toISOString());
+    
+    // Verificar se todas as variáveis de ambiente necessárias estão definidas
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error('Variáveis de ambiente do Supabase não configuradas');
+    }
+    
+    if (!process.env.PERFORMANCE_SHEET_ID || !process.env.PERFORMANCE_SHEET_CLIENT_EMAIL || !process.env.PERFORMANCE_SHEET_PRIVATE_KEY) {
+      throw new Error('Variáveis de ambiente do Google Sheets não configuradas');
+    }
     // Configurar cliente do Supabase com role de serviço
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -156,10 +170,21 @@ const syncPerformanceData = async () => {
     }
 
     console.log(`Sincronização concluída com sucesso. ${successCount} registros atualizados.`);
-    return true;
+    return {
+      success: true,
+      totalProcessed: rows.length,
+      successCount: successCount,
+      timestamp: new Date().toISOString(),
+      message: `Sincronização concluída com sucesso. ${successCount} registros atualizados.`
+    };
   } catch (error) {
     console.error('Erro durante a sincronização:', error);
-    return false;
+    return {
+      success: false,
+      error: error.message || 'Erro desconhecido durante a sincronização',
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    };
   }
 };
 
