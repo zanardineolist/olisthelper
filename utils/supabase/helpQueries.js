@@ -69,13 +69,19 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
         return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
       }).length;
       
-      // Calcular contagem de ajudas do dia atual
+      // Calcular contagem de ajudas do dia atual diretamente do Supabase
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const todayCount = data.filter(record => {
-        const date = new Date(record.created_at);
-        return date >= today;
-      }).length;
+      
+      // Consulta separada para obter contagem precisa do dia atual
+      const { data: todayData, error: todayError } = await supabaseAdmin
+        .from('help_records')
+        .select('id', { count: 'exact' })
+        .eq('analyst_id', analystId)
+        .gte('created_at', today.toISOString());
+      
+      if (todayError) throw todayError;
+      const todayCount = todayData.length;
 
       return {
         currentMonth: currentMonthCount,
