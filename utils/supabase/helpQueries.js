@@ -337,3 +337,65 @@ export async function getUserCategoryRanking(userEmail, startDate = null, endDat
     throw error;
   }
 }
+
+/**
+ * Obtém o ranking completo de temas de dúvidas em um período de tempo
+ * @param {string} startDate - Data inicial (YYYY-MM-DD)
+ * @param {string} endDate - Data final (YYYY-MM-DD)
+ * @returns {Promise<Array>} - Lista de temas ordenada por contagem
+ */
+export async function getHelpTopicsRanking(startDate = null, endDate = null) {
+  try {
+    // Construir a consulta base
+    let query = supabaseAdmin
+      .from('help_records')
+      .select(`
+        categories:category_id (
+          id,
+          name
+        )
+      `);
+
+    // Aplicar filtros de data
+    query = applyDateFilters(query, 'created_at', startDate, endDate, 30);
+
+    // Executar a consulta
+    const { data, error } = await query;
+    if (error) throw error;
+
+    // Agrupar e contar ocorrências por categoria
+    const categoryCounts = data.reduce((acc, record) => {
+      const categoryName = record.categories?.name;
+      const categoryId = record.categories?.id;
+      
+      if (categoryName && categoryId) {
+        if (!acc[categoryId]) {
+          acc[categoryId] = {
+            id: categoryId,
+            name: categoryName,
+            count: 0
+          };
+        }
+        acc[categoryId].count += 1;
+      }
+      return acc;
+    }, {});
+
+    // Converter para array e ordenar por contagem (maior para menor)
+    const ranking = Object.values(categoryCounts)
+      .sort((a, b) => b.count - a.count);
+    
+    // Calcular o total e adicionar percentagem
+    const total = ranking.reduce((sum, item) => sum + item.count, 0);
+    
+    const rankingWithPercentage = ranking.map(item => ({
+      ...item,
+      percentage: total ? Math.round((item.count / total) * 100 * 10) / 10 : 0
+    }));
+
+    return rankingWithPercentage;
+  } catch (error) {
+    console.error('Erro ao buscar ranking de temas de dúvidas:', error);
+    throw error;
+  }
+}

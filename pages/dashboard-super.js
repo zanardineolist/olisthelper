@@ -6,6 +6,7 @@ import { getSession } from 'next-auth/react';
 import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import DashboardData from '../components/DashboardData';
 import GraphData from '../components/GraphData';
+import HelpTopicsData from '../components/HelpTopicsData';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Swal from 'sweetalert2';
@@ -103,6 +104,8 @@ export default function DashboardSuper({ user }) {
         setCurrentTab(0);
       } else if (hash === '#DataChart') {
         setCurrentTab(1);
+      } else if (hash === '#HelpTopics') {
+        setCurrentTab(2);
       }
     }, 500);
   }, []);
@@ -116,6 +119,9 @@ export default function DashboardSuper({ user }) {
         break;
       case 1:
         hash = '#DataChart';
+        break;
+      case 2:
+        hash = '#HelpTopics';
         break;
       default:
         break;
@@ -180,6 +186,11 @@ export default function DashboardSuper({ user }) {
                 icon={<i className="fa-solid fa-chart-column" style={{marginRight: '8px'}}></i>}
                 iconPosition="start"
               />
+              <Tab 
+                label="Temas de Dúvidas" 
+                icon={<i className="fa-solid fa-question-circle" style={{marginRight: '8px'}}></i>}
+                iconPosition="start"
+              />
             </Tabs>
           </div>
         </ThemeProvider>
@@ -187,6 +198,7 @@ export default function DashboardSuper({ user }) {
         <div className={styles.tabContent}>
           {currentTab === 0 && <DashboardData user={user} />}
           {currentTab === 1 && <GraphData users={users} />}
+          {currentTab === 2 && <HelpTopicsData />}
         </div>
       </main>
 
