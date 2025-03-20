@@ -124,3 +124,370 @@
     40% { box-shadow: 0 2.5em 0 0 }
   }
   
+  .controlPanel {
+    background-color: var(--box-color4);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .panelSection {
+    margin-bottom: 20px;
+  }
+  
+  .sectionTitle {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 15px;
+    font-weight: 500;
+  }
+  
+  .periodFilterControls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .dateRangeContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .dateInputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 160px;
+  }
+  
+  .dateInputGroup label {
+    font-size: 0.9rem;
+    color: var(--text-color);
+  }
+  
+  .dateInput {
+    padding: 8px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    background-color: var(--modals-inputs);
+    color: var(--text-color);
+    font-size: 0.9rem;
+  }
+  
+  .selectedPeriodInfo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: var(--box-color2);
+    border-radius: 5px;
+  }
+  
+  .periodLabel {
+    font-size: 0.9rem;
+    color: var(--text-color2);
+  }
+  
+  .periodValue {
+    font-size: 0.9rem;
+    color: var(--title-color);
+    font-weight: 600;
+  }
+  
+  .chartTypeToggle {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .toggleButton {
+    flex: 1;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--box-color2);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .toggleButton i {
+    font-size: 1rem;
+  }
+  
+  .toggleButton:hover {
+    background-color: var(--color-trodd);
+  }
+  
+  .activeButton {
+    background-color: var(--color-primary);
+    color: white;
+  }
+  
+  .chartContainer {
+    margin-top: 20px;
+    background-color: var(--box-color4);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    min-height: 400px;
+    position: relative;
+  }
+  
+  .chartWrapper {
+    width: 100%;
+    height: 400px;
+  }
+  
+  .loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    width: 100%;
+  }
+  
+  .noDataMessage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    color: var(--text-color2);
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .noDataMessage i {
+    font-size: 3rem;
+    opacity: 0.5;
+  }
+  
+  .noDataMessage p {
+    font-size: 1rem;
+    max-width: 300px;
+  }
+  
+  /* Resumo de dados */
+  .summary {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: var(--box-color4);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .summaryTitle {
+    font-size: 1.2rem;
+    color: var(--title-color);
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  
+  .summaryHelp {
+    font-size: 0.9rem;
+    color: var(--text-color2);
+    margin-bottom: 20px;
+  }
+  
+  .summaryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  
+  .summaryCard {
+    background-color: var(--box-color);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+  
+  .summaryCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .selectedCard {
+    box-shadow: 0 0 0 3px var(--color-primary), 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-3px);
+  }
+  
+  .cardHeader {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .cardHeader h4 {
+    margin: 0;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .cardBody {
+    padding: 15px;
+  }
+  
+  .metricGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  
+  .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .metricLabel {
+    font-size: 0.85rem;
+    color: var(--text-color2);
+  }
+  
+  .metricValue {
+    font-size: 1.1rem;
+    color: var(--title-color);
+    font-weight: 600;
+  }
+  
+  /* Seção de detalhes do usuário */
+  .userDetailSection {
+    margin-top: 30px;
+    background-color: var(--box-color4);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .userDetailHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    color: white;
+  }
+  
+  .userDetailHeader h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  
+  .closeButton {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+  
+  .closeButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .userDetailContent {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .detailTableContainer {
+    overflow-x: auto;
+  }
+  
+  .detailTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  
+  .detailTable th {
+    background-color: var(--color-thead);
+    padding: 10px;
+    text-align: left;
+    color: var(--text-th);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  
+  .detailTable td {
+    padding: 10px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--text-color);
+  }
+  
+  .detailTable tr:nth-child(odd) {
+    background-color: var(--color-trodd);
+  }
+  
+  .detailTable tr:nth-child(even) {
+    background-color: var(--color-treven);
+  }
+  
+  .detailTable tr:hover {
+    background-color: var(--box-color2);
+  }
+  
+  .descriptionCol {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .noDetailData {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    gap: 15px;
+    color: var(--text-color2);
+    text-align: center;
+  }
+  
+  .noDetailData i {
+    font-size: 2rem;
+    opacity: 0.5;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .summaryGrid {
+      grid-template-columns: 1fr;
+    }
+    
+    .chartWrapper {
+      height: 300px;
+    }
+    
+    .metricGrid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
