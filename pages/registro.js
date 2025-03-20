@@ -16,6 +16,7 @@ export default function RegistroPage({ user }) {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [helpRequests, setHelpRequests] = useState({ today: 0 });
   const [formData, setFormData] = useState({
     user: null,
     category: null,
@@ -34,15 +35,24 @@ export default function RegistroPage({ user }) {
         const categoriesRes = await fetch('/api/get-analysts-categories');
         const categoriesData = await categoriesRes.json();
         setCategories(categoriesData.categories);
+
+        // Buscar dados de ajudas prestadas
+        const helpResponse = await fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`);
+        if (helpResponse.ok) {
+          const helpData = await helpResponse.json();
+          setHelpRequests({
+            today: helpData.today
+          });
+        }
       } catch (err) {
-        console.error('Erro ao carregar usuários e categorias:', err);
+        console.error('Erro ao carregar dados:', err);
       } finally {
         setLoading(false);
       }
     };
 
     loadUsersAndCategories();
-  }, []);
+  }, [user.id]);
 
   // Gerenciar alterações no formulário
   const handleChange = (selectedOption, actionMeta) => {
@@ -91,6 +101,15 @@ export default function RegistroPage({ user }) {
           timer: 1500,
         });
         setFormData({ user: null, category: null, description: '' });
+        
+        // Atualizar o contador de ajudas após o registro bem-sucedido
+        const helpResponse = await fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`);
+        if (helpResponse.ok) {
+          const helpData = await helpResponse.json();
+          setHelpRequests({
+            today: helpData.today
+          });
+        }
       } else {
         Swal.fire({
           icon: 'error',
@@ -268,6 +287,14 @@ const customSelectStyles = {
               </button>
             </div>
           </form>
+        </div>
+        
+        {/* Contador de ajudas prestadas no dia */}
+        <div className={styles.helpCounterContainer}>
+          <div className={styles.helpCounter}>
+            <h3>Ajudas prestadas hoje</h3>
+            <div className={styles.counterValue}>{helpRequests.today}</div>
+          </div>
         </div>
       </main>
 
