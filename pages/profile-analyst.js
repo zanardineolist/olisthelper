@@ -40,7 +40,7 @@ export default function AnalystProfilePage({ user }) {
       setLoading(true);
       try {
         const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
-          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile`),
+          fetch(`/api/get-analyst-records?analystId=${user.id}&mode=profile&filter=1`),
           fetch(`/api/get-category-ranking?analystId=${user.id}`),
           (user.role === 'analyst' || user.role === 'tax') ? 
             fetch(`/api/get-user-performance?userEmail=${user.email}`) : 
