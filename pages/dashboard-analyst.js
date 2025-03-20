@@ -182,8 +182,8 @@ export default function DashboardAnalyst({ user }) {
       setLeaderboardLoading(true);
       const { startDate, endDate } = getDateRange();
       
-      // Buscar todos os registros do período para processar no frontend
-      const url = `/api/get-analyst-records?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}&includeUserDetails=true`;
+      // Usar a API específica de leaderboard com os parâmetros de data
+      const url = `/api/get-analyst-leaderboard?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}`;
       
       const res = await fetch(url);
       if (!res.ok) {
@@ -197,22 +197,17 @@ export default function DashboardAnalyst({ user }) {
         return;
       }
 
-      // Processar os dados do leaderboard manualmente
+      // Processar os dados do leaderboard
       const userMap = new Map();
 
-      // Verificar se temos dados detalhados dos usuários nos rows
+      // Processar os dados recebidos da API
       data.rows.forEach(row => {
-        // Presumindo que os dados do usuário estão nas posições 2 (nome) e 3 (email)
+        // Presumindo que os dados do usuário estão nas posições 2 (nome) e 3 (email) e a contagem na posição 4
         const userName = row[2]; // nome do usuário
+        const count = parseInt(row[4]); // contagem de ajudas
         
         if (userName) {
-          if (!userMap.has(userName)) {
-            userMap.set(userName, { name: userName, count: 1 });
-          } else {
-            const user = userMap.get(userName);
-            user.count += 1;
-            userMap.set(userName, user);
-          }
+          userMap.set(userName, { name: userName, count: count });
         }
       });
 
@@ -241,8 +236,8 @@ export default function DashboardAnalyst({ user }) {
       setCategoryLoading(true);
       const { startDate, endDate } = getDateRange();
       
-      // Nova API que suporta filtro de período
-      const url = `/api/get-analyst-records?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}&includeCategoryDetails=true`;
+      // Usar a API específica de ranking de categorias com os parâmetros de data
+      const url = `/api/get-category-ranking?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}`;
       
       const res = await fetch(url);
       if (!res.ok) {
@@ -251,35 +246,13 @@ export default function DashboardAnalyst({ user }) {
 
       const data = await res.json();
       
-      if (!data.rows || data.rows.length === 0) {
+      if (!data.categories || data.categories.length === 0) {
         setCategoryRanking([]);
         return;
       }
 
-      // Processar os dados das categorias manualmente
-      const categoryMap = new Map();
-
-      // Presumindo que a categoria está na posição 4 dos rows
-      data.rows.forEach(row => {
-        const categoryName = row[4]; // nome da categoria
-        
-        if (categoryName) {
-          if (!categoryMap.has(categoryName)) {
-            categoryMap.set(categoryName, { name: categoryName, count: 1 });
-          } else {
-            const category = categoryMap.get(categoryName);
-            category.count += 1;
-            categoryMap.set(categoryName, category);
-          }
-        }
-      });
-
-      // Ordenar por contagem e pegar os top 10
-      const sortedCategories = Array.from(categoryMap.values())
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-
-      setCategoryRanking(sortedCategories);
+      // Usar diretamente os dados formatados da API
+      setCategoryRanking(data.categories);
     } catch (err) {
       console.error('Erro ao carregar ranking das categorias:', err);
       setCategoryRanking([]);
