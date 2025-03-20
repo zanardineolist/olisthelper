@@ -401,17 +401,6 @@ export default function HelpTopicsData() {
         )}
         
         <Box sx={{ mb: 3 }}>
-          <Typography 
-            variant="subtitle1" 
-            sx={{ 
-              mb: 2, 
-              color: 'var(--text-color)',
-              fontSize: '1rem',
-              fontWeight: 500
-            }}
-          >
-            Ranking de Temas
-          </Typography>
           
           {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
