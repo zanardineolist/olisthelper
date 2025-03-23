@@ -18,7 +18,10 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Grid
+  Grid,
+  IconButton,
+  Tooltip,
+  CircularProgress
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -74,6 +77,12 @@ export default function HelpTopicsData() {
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(false);
   const [openDateDialog, setOpenDateDialog] = useState(false);
+  
+  // Estados para o modal de detalhes
+  const [openDetailsModal, setOpenDetailsModal] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [topicDetails, setTopicDetails] = useState([]);
+  const [loadingDetails, setLoadingDetails] = useState(false);
 
   useEffect(() => {
     loadTopics();
@@ -296,6 +305,40 @@ export default function HelpTopicsData() {
     }
   };
 
+  // Função para abrir o modal de detalhes ao clicar em um tema
+  const handleOpenDetails = async (topic) => {
+    try {
+      setSelectedTopic(topic);
+      setOpenDetailsModal(true);
+      setLoadingDetails(true);
+      
+      // Formatando as datas para enviar à API
+      const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
+      const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
+      
+      // Buscar os detalhes do tema
+      const res = await fetch(`/api/get-topic-details?categoryId=${topic.id}&startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
+      
+      if (!res.ok) throw new Error('Erro ao carregar detalhes');
+      
+      const data = await res.json();
+      setTopicDetails(data.details || []);
+    } catch (error) {
+      console.error('Erro ao buscar detalhes do tema:', error);
+      Swal.fire('Erro', 'Não foi possível carregar os detalhes deste tema.', 'error');
+      setTopicDetails([]);
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
+  // Função para fechar o modal de detalhes
+  const handleCloseDetails = () => {
+    setOpenDetailsModal(false);
+    setSelectedTopic(null);
+    setTopicDetails([]);
+  };
+
   return (
     <Box sx={{ p: 2 }}>
       {/* Seção do filtro de período */}
@@ -465,10 +508,12 @@ export default function HelpTopicsData() {
                     topics.map((topic, index) => (
                       <TableRow 
                         key={topic.id || index}
+                        onClick={() => handleOpenDetails(topic)}
                         sx={{ 
                           backgroundColor: index % 2 === 0 ? 'var(--color-treven)' : 'var(--color-trodd)',
                           '&:hover': {
-                            backgroundColor: 'var(--box-color2)'
+                            backgroundColor: 'var(--box-color2)',
+                            cursor: 'pointer'
                           }
                         }}
                       >
@@ -487,7 +532,22 @@ export default function HelpTopicsData() {
                             borderBottom: '1px solid var(--color-border)'
                           }}
                         >
-                          {topic.name}
+                          <Tooltip title="Clique para ver detalhes" arrow>
+                            <Box component="span" sx={{ 
+                              display: 'flex', 
+                              alignItems: 'center',
+                              '&:hover': {
+                                textDecoration: 'underline'
+                              }
+                            }}>
+                              {topic.name}
+                              <i className="fa-solid fa-circle-info" style={{ 
+                                marginLeft: '8px', 
+                                fontSize: '14px',
+                                color: 'var(--color-primary)'
+                              }}></i>
+                            </Box>
+                          </Tooltip>
                         </TableCell>
                         <TableCell 
                           align="right"
@@ -624,6 +684,155 @@ export default function HelpTopicsData() {
           </Button>
         </Box>
       </Paper>
+      
+      {/* Modal de Detalhes do Tema */}
+      <Dialog
+        open={openDetailsModal}
+        onClose={handleCloseDetails}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          style: {
+            backgroundColor: 'var(--box-color)',
+            color: 'var(--text-color)',
+            borderRadius: '12px'
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          borderBottom: '1px solid var(--color-border)',
+          padding: '16px 24px',
+          color: 'var(--title-color)'
+        }}>
+          <span>
+            Detalhes do Tema: <strong>{selectedTopic?.name}</strong>
+            <Typography variant="subtitle2" sx={{ color: 'var(--text-color2)', mt: 0.5 }}>
+              Período: {formatDateBR(startDate, 'dd/MM/yyyy')} a {formatDateBR(endDate, 'dd/MM/yyyy')}
+            </Typography>
+          </span>
+          <IconButton
+            aria-label="Fechar"
+            onClick={handleCloseDetails}
+            sx={{ color: 'var(--text-color)' }}
+          >
+            <i className="fa-solid fa-times"></i>
+          </IconButton>
+        </DialogTitle>
+        
+        <DialogContent dividers sx={{ 
+          backgroundColor: 'var(--box-color4)',
+          padding: 0
+        }}>
+          {loadingDetails ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300 }}>
+              <CircularProgress size={40} sx={{ color: 'var(--color-primary)' }} />
+            </Box>
+          ) : topicDetails.length > 0 ? (
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: 'var(--color-thead)' }}>
+                    <TableCell sx={{ fontWeight: 600, color: 'var(--text-th)' }}>Data</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: 'var(--text-th)' }}>Hora</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: 'var(--text-th)' }}>Requisitante</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: 'var(--text-th)' }}>Analista</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: 'var(--text-th)' }}>Descrição</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {topicDetails.map((item) => (
+                    <TableRow key={item.id} sx={{ 
+                      '&:nth-of-type(odd)': { backgroundColor: 'var(--color-trodd)' },
+                      '&:nth-of-type(even)': { backgroundColor: 'var(--color-treven)' },
+                      '&:hover': { backgroundColor: 'var(--box-color2)' }
+                    }}>
+                      <TableCell sx={{ color: 'var(--text-color)' }}>{item.formattedDate}</TableCell>
+                      <TableCell sx={{ color: 'var(--text-color)' }}>{item.formattedTime}</TableCell>
+                      <TableCell sx={{ color: 'var(--title-color)', fontWeight: 500 }}>{item.requester_name}</TableCell>
+                      <TableCell sx={{ color: 'var(--text-color)' }}>{item.analyst_name}</TableCell>
+                      <TableCell 
+                        sx={{ 
+                          color: 'var(--text-color)',
+                          maxWidth: 300,
+                          whiteSpace: 'normal',
+                          wordBreak: 'break-word'
+                        }}
+                      >
+                        {item.description || "Sem descrição"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              padding: '40px 20px',
+              gap: 2
+            }}>
+              <i className="fa-solid fa-search" style={{ fontSize: '32px', color: 'var(--color-accent2)' }}></i>
+              <Typography sx={{ color: 'var(--text-color2)' }}>
+                Nenhum detalhe encontrado para este tema no período selecionado.
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        
+        <DialogActions sx={{ padding: '16px 24px', borderTop: '1px solid var(--color-border)' }}>
+          <Button 
+            onClick={handleCloseDetails} 
+            variant="outlined"
+            startIcon={<i className="fa-solid fa-times"></i>}
+            sx={{
+              borderColor: 'var(--text-color2)',
+              color: 'var(--text-color2)',
+              '&:hover': {
+                backgroundColor: 'rgba(93, 93, 93, 0.1)',
+                borderColor: 'var(--text-color)'
+              }
+            }}
+          >
+            Fechar
+          </Button>
+          
+          {topicDetails.length > 0 && (
+            <Button 
+              variant="contained"
+              startIcon={<i className="fa-solid fa-file-excel"></i>}
+              onClick={() => {
+                const worksheet = XLSX.utils.json_to_sheet(
+                  topicDetails.map(item => ({
+                    Data: item.formattedDate,
+                    Hora: item.formattedTime,
+                    Tema: selectedTopic?.name,
+                    Requisitante: item.requester_name,
+                    Analista: item.analyst_name,
+                    Descrição: item.description || 'Sem descrição'
+                  }))
+                );
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Detalhes");
+                XLSX.writeFile(workbook, `detalhes-${selectedTopic?.name.replace(/\s+/g, '-').toLowerCase()}.xlsx`);
+              }}
+              sx={{
+                backgroundColor: 'var(--color-accent3)',
+                '&:hover': {
+                  backgroundColor: 'var(--color-accent3-hover)'
+                }
+              }}
+            >
+              Exportar Detalhes
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
       
       {/* Diálogo para seleção de período personalizado */}
       <Dialog 

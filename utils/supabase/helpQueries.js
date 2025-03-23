@@ -399,3 +399,51 @@ export async function getHelpTopicsRanking(startDate = null, endDate = null) {
     throw error;
   }
 }
+
+/**
+ * Busca os detalhes das ajudas relacionadas a uma categoria específica
+ * @param {number} categoryId - ID da categoria/tema
+ * @param {string} startDate - Data inicial (YYYY-MM-DD)
+ * @param {string} endDate - Data final (YYYY-MM-DD)
+ * @returns {Promise<Array>} - Lista de registros de ajuda para o tema específico
+ */
+export async function getHelpTopicDetails(categoryId, startDate = null, endDate = null) {
+  try {
+    // Construir a consulta base
+    let query = supabaseAdmin
+      .from('help_records')
+      .select(`
+        id,
+        created_at,
+        description,
+        requester_name,
+        analyst_name,
+        categories:category_id (
+          id,
+          name
+        )
+      `)
+      .eq('category_id', categoryId)
+      .order('created_at', { ascending: false });
+
+    // Aplicar filtros de data
+    query = applyDateFilters(query, 'created_at', startDate, endDate, 30);
+
+    // Executar a consulta
+    const { data, error } = await query;
+    if (error) throw error;
+
+    // Formatar as datas para exibição
+    const formattedData = data.map(record => ({
+      ...record,
+      formattedDate: formatDateBR(new Date(record.created_at)),
+      formattedTime: formatTimeBR(new Date(record.created_at)),
+      categoryName: record.categories?.name || 'Sem categoria'
+    }));
+
+    return formattedData;
+  } catch (error) {
+    console.error('Erro ao buscar detalhes do tema de dúvidas:', error);
+    throw error;
+  }
+}
