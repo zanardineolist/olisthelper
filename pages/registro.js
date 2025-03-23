@@ -132,32 +132,100 @@ export default function RegistroPage({ user }) {
     try {
       setSavingCategory(true);
       
-      // Verificar se a categoria já existe
-      const lowerCaseNewCategory = newCategory.trim().toLowerCase();
-      const isCategoryExists = categories.some(
-        (cat) => cat.toLowerCase() === lowerCaseNewCategory
-      );
+      // Verificação prévia com o backend para determinar se a categoria existe e seu status
+      const checkRes = await fetch('/api/manage-category/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: newCategory.trim() }),
+      });
       
-      if (isCategoryExists) {
+      const checkData = await checkRes.json();
+      
+      // Se a categoria existir e estiver ativa
+      if (checkData.exists && checkData.active) {
         Swal.fire({
           icon: 'error',
           title: 'Categoria já existe',
-          text: 'Esta categoria já está cadastrada.',
+          text: 'Esta categoria já está cadastrada e ativa no sistema.',
           showConfirmButton: true,
         });
+        setSavingCategory(false);
+        return;
+      }
+      
+      // Se a categoria existir mas estiver inativa
+      if (checkData.exists && !checkData.active) {
+        const result = await Swal.fire({
+          icon: 'warning',
+          title: 'Categoria inativa encontrada',
+          text: `A categoria "${newCategory}" já existe mas está inativa. Deseja reativá-la?`,
+          showCancelButton: true,
+          confirmButtonText: 'Sim, reativar',
+          cancelButtonText: 'Cancelar',
+          showConfirmButton: true,
+        });
+        
+        if (result.isConfirmed) {
+          // Reativar a categoria
+          const reactivateRes = await fetch('/api/manage-category/reactivate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              name: newCategory.trim(),
+              uuid: checkData.uuid // Enviamos o uuid da categoria para reativação
+            }),
+          });
+          
+          if (!reactivateRes.ok) {
+            throw new Error('Erro ao reativar categoria');
+          }
+          
+          // Atualizar a lista de categorias
+          const categoriesRes = await fetch('/api/get-analysts-categories');
+          const categoriesData = await categoriesRes.json();
+          setCategories(categoriesData.categories);
+          
+          // Selecionar a categoria reativada
+          const reactivatedCategoryOption = {
+            value: newCategory.trim(),
+            label: newCategory.trim(),
+          };
+          setFormData(prev => ({
+            ...prev,
+            category: reactivatedCategoryOption
+          }));
+          
+          // Fechar o modal e mostrar mensagem de sucesso
+          setModalIsOpen(false);
+          Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: 'Categoria reativada com sucesso.',
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        }
+        setSavingCategory(false);
         return;
       }
 
-      // Salvar a nova categoria
+      // Se chegou aqui, a categoria não existe, então podemos criar uma nova
       const res = await fetch('/api/manage-category', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: newCategory }),
+        body: JSON.stringify({ name: newCategory.trim() }),
       });
 
-      if (!res.ok) throw new Error('Erro ao salvar categoria');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao salvar categoria');
+      }
 
       // Atualizar a lista de categorias
       const categoriesRes = await fetch('/api/get-analysts-categories');
@@ -166,8 +234,8 @@ export default function RegistroPage({ user }) {
 
       // Selecionar a nova categoria automaticamente
       const newCategoryOption = {
-        value: newCategory,
-        label: newCategory,
+        value: newCategory.trim(),
+        label: newCategory.trim(),
       };
       setFormData(prev => ({
         ...prev,
@@ -188,7 +256,7 @@ export default function RegistroPage({ user }) {
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao salvar categoria.',
+        text: `Erro ao processar a categoria: ${err.message}`,
         showConfirmButton: true,
       });
     } finally {
