@@ -133,15 +133,43 @@ export default function RegistroPage({ user }) {
       setSavingCategory(true);
       
       // Verificação prévia com o backend para determinar se a categoria existe e seu status
-      const checkRes = await fetch('/api/manage-category/check', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: newCategory.trim() }),
-      });
+      let checkData = { exists: false };
       
-      const checkData = await checkRes.json();
+      try {
+        const checkRes = await fetch('/api/manage-category/check', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: newCategory.trim() }),
+        });
+        
+        if (checkRes.ok) {
+          checkData = await checkRes.json();
+        } else {
+          console.warn('Falha na verificação de categoria, status:', checkRes.status);
+          // Verificação local simplificada como fallback
+          const lowerCaseNewCategory = newCategory.trim().toLowerCase();
+          const existsLocally = categories.some(
+            (cat) => cat.toLowerCase() === lowerCaseNewCategory
+          );
+          
+          if (existsLocally) {
+            checkData = { exists: true, active: true };
+          }
+        }
+      } catch (checkError) {
+        console.error('Erro ao verificar categoria:', checkError);
+        // Continuar com verificação local em caso de erro
+        const lowerCaseNewCategory = newCategory.trim().toLowerCase();
+        const existsLocally = categories.some(
+          (cat) => cat.toLowerCase() === lowerCaseNewCategory
+        );
+        
+        if (existsLocally) {
+          checkData = { exists: true, active: true };
+        }
+      }
       
       // Se a categoria existir e estiver ativa
       if (checkData.exists && checkData.active) {
@@ -168,91 +196,151 @@ export default function RegistroPage({ user }) {
         });
         
         if (result.isConfirmed) {
-          // Reativar a categoria
-          const reactivateRes = await fetch('/api/manage-category/reactivate', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ 
-              name: newCategory.trim(),
-              uuid: checkData.uuid // Enviamos o uuid da categoria para reativação
-            }),
-          });
-          
-          if (!reactivateRes.ok) {
-            throw new Error('Erro ao reativar categoria');
+          try {
+            // Reativar a categoria
+            const reactivateRes = await fetch('/api/manage-category/reactivate', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 
+                name: newCategory.trim(),
+                uuid: checkData.uuid // Enviamos o uuid da categoria para reativação
+              }),
+            });
+            
+            if (!reactivateRes.ok) {
+              const errorData = await reactivateRes.json().catch(() => ({}));
+              throw new Error(errorData.error || 'Erro ao reativar categoria');
+            }
+            
+            // Atualizar a lista de categorias
+            const categoriesRes = await fetch('/api/get-analysts-categories');
+            if (categoriesRes.ok) {
+              const categoriesData = await categoriesRes.json();
+              setCategories(categoriesData.categories);
+              
+              // Selecionar a categoria reativada
+              const reactivatedCategoryOption = {
+                value: newCategory.trim(),
+                label: newCategory.trim(),
+              };
+              setFormData(prev => ({
+                ...prev,
+                category: reactivatedCategoryOption
+              }));
+              
+              // Fechar o modal e mostrar mensagem de sucesso
+              setModalIsOpen(false);
+              Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: 'Categoria reativada com sucesso.',
+                timer: 1500,
+                showConfirmButton: false,
+              });
+            } else {
+              console.warn('Falha ao atualizar lista de categorias após reativação');
+              // Fechar o modal e mostrar mensagem mesmo assim
+              setModalIsOpen(false);
+              Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: 'Categoria reativada com sucesso. Atualize a página para ver a categoria.',
+                showConfirmButton: true,
+              });
+            }
+          } catch (reactivateError) {
+            console.error('Erro ao reativar categoria:', reactivateError);
+            Swal.fire({
+              icon: 'error',
+              title: 'Erro',
+              text: `Não foi possível reativar a categoria: ${reactivateError.message}`,
+              showConfirmButton: true,
+            });
           }
-          
-          // Atualizar a lista de categorias
-          const categoriesRes = await fetch('/api/get-analysts-categories');
-          const categoriesData = await categoriesRes.json();
-          setCategories(categoriesData.categories);
-          
-          // Selecionar a categoria reativada
-          const reactivatedCategoryOption = {
-            value: newCategory.trim(),
-            label: newCategory.trim(),
-          };
-          setFormData(prev => ({
-            ...prev,
-            category: reactivatedCategoryOption
-          }));
-          
-          // Fechar o modal e mostrar mensagem de sucesso
-          setModalIsOpen(false);
-          Swal.fire({
-            icon: 'success',
-            title: 'Sucesso!',
-            text: 'Categoria reativada com sucesso.',
-            timer: 1500,
-            showConfirmButton: false,
-          });
         }
         setSavingCategory(false);
         return;
       }
 
       // Se chegou aqui, a categoria não existe, então podemos criar uma nova
-      const res = await fetch('/api/manage-category', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: newCategory.trim() }),
-      });
+      try {
+        const res = await fetch('/api/manage-category', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name: newCategory.trim() }),
+        });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Erro ao salvar categoria');
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          
+          // Verificar se o erro é de categoria duplicada
+          if (errorData.code === '23505' || 
+             (errorData.error && errorData.error.includes('already exists'))) {
+            
+            Swal.fire({
+              icon: 'error',
+              title: 'Categoria já existe',
+              text: 'Esta categoria já está cadastrada no sistema. Tente verificar categorias inativas.',
+              showConfirmButton: true,
+            });
+            setSavingCategory(false);
+            return;
+          }
+          
+          throw new Error(errorData.error || 'Erro ao salvar categoria');
+        }
+
+        // Atualizar a lista de categorias
+        const categoriesRes = await fetch('/api/get-analysts-categories');
+        if (categoriesRes.ok) {
+          const categoriesData = await categoriesRes.json();
+          setCategories(categoriesData.categories);
+
+          // Selecionar a nova categoria automaticamente
+          const newCategoryOption = {
+            value: newCategory.trim(),
+            label: newCategory.trim(),
+          };
+          setFormData(prev => ({
+            ...prev,
+            category: newCategoryOption
+          }));
+
+          // Fechar o modal e mostrar mensagem de sucesso
+          setModalIsOpen(false);
+          Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: 'Categoria adicionada com sucesso.',
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        } else {
+          console.warn('Falha ao atualizar lista de categorias após criação');
+          // Fechar o modal e mostrar mensagem mesmo assim
+          setModalIsOpen(false);
+          Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: 'Categoria adicionada com sucesso. Atualize a página para ver a categoria.',
+            showConfirmButton: true,
+          });
+        }
+      } catch (createError) {
+        console.error('Erro ao criar categoria:', createError);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: `Erro ao processar a categoria: ${createError.message}`,
+          showConfirmButton: true,
+        });
       }
-
-      // Atualizar a lista de categorias
-      const categoriesRes = await fetch('/api/get-analysts-categories');
-      const categoriesData = await categoriesRes.json();
-      setCategories(categoriesData.categories);
-
-      // Selecionar a nova categoria automaticamente
-      const newCategoryOption = {
-        value: newCategory.trim(),
-        label: newCategory.trim(),
-      };
-      setFormData(prev => ({
-        ...prev,
-        category: newCategoryOption
-      }));
-
-      // Fechar o modal e mostrar mensagem de sucesso
-      setModalIsOpen(false);
-      Swal.fire({
-        icon: 'success',
-        title: 'Sucesso!',
-        text: 'Categoria adicionada com sucesso.',
-        timer: 1500,
-        showConfirmButton: false,
-      });
     } catch (err) {
-      console.error('Erro ao salvar categoria:', err);
+      console.error('Erro geral ao processar categoria:', err);
       Swal.fire({
         icon: 'error',
         title: 'Erro',
