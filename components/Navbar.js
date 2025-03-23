@@ -3,7 +3,7 @@ import styles from '../styles/Navbar.module.css';
 import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FaSignOutAlt, FaBell, FaCheckDouble, FaCheck, FaMoon, FaSun } from 'react-icons/fa';
+import { FaSignOutAlt, FaBell, FaCheckDouble, FaCheck, FaMoon, FaSun, FaSpinner } from 'react-icons/fa';
 import { markNotificationAsRead, markMultipleNotificationsAsRead } from '../utils/firebase/firebaseNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -19,6 +19,7 @@ export default function Navbar({ user }) {
   const [lastVisible, setLastVisible] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [topNotification, setTopNotification] = useState(null);
+  const [clickedLinks, setClickedLinks] = useState({});
   const router = useRouter();
   const notificationRef = useRef(null);
   const navbarRef = useRef(null);
@@ -39,6 +40,18 @@ export default function Navbar({ user }) {
     };
   }, []);
 
+  // Resetar estado de clique quando a navegação for concluída
+  useEffect(() => {
+    const handleRouteComplete = () => {
+      setClickedLinks({});
+    };
+
+    router.events.on('routeChangeComplete', handleRouteComplete);
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteComplete);
+    };
+  }, [router]);
+
   // Theme management
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -49,8 +62,45 @@ export default function Navbar({ user }) {
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
+
+  // Função para lidar com o clique em links de navegação
+  const handleNavLinkClick = (e, path) => {
+    // Se o link já foi clicado, impedir a navegação duplicada
+    if (clickedLinks[path]) {
+      e.preventDefault();
+      return;
+    }
+
+    // Marcar o link como clicado
+    setClickedLinks(prev => ({
+      ...prev,
+      [path]: true
+    }));
+
+    // Fechar menu em dispositivos móveis
+    setMenuOpen(false);
+  };
+
+  // Componente NavLink personalizado com feedback visual
+  const NavLink = ({ href, children, className }) => {
+    const isActive = router.pathname === href;
+    const isClicked = clickedLinks[href];
+    
+    return (
+      <Link 
+        href={href} 
+        className={`${className || ''} ${isActive ? styles.active : ''} ${isClicked ? styles.clicked : ''}`}
+        onClick={(e) => handleNavLinkClick(e, href)}
+        tabIndex={isClicked ? -1 : 0}
+        aria-disabled={isClicked}
+      >
+        {children}
+        {isClicked && <FaSpinner className={styles.spinnerIcon} />}
+      </Link>
+    );
   };
 
   // Notifications
@@ -280,65 +330,65 @@ export default function Navbar({ user }) {
           <div className={styles.menu}>
             {(user.role === 'support' || user.role === 'support+') && (
               <>
-                <button onClick={() => handleNavigation('/profile')} className={styles.menuButton}>
+                <NavLink href="/profile" className={styles.menuButton}>
                   Meu Perfil
-                </button>
-                <button onClick={() => handleNavigation('/tools')} className={styles.menuButton}>
+                </NavLink>
+                <NavLink href="/tools" className={styles.menuButton}>
                   Ferramentas
-                </button>
+                </NavLink>
               </>
             )}
 
             {(user.role === 'analyst' || user.role === 'tax') && (
               <>
-                <button onClick={() => handleNavigation('/profile-analyst')} className={styles.menuButton}>
+                <NavLink href="/profile-analyst" className={styles.menuButton}>
                   Meu Perfil
-                </button>
-                <button onClick={() => handleNavigation('/registro')} className={styles.menuButton}>
+                </NavLink>
+                <NavLink href="/registro" className={styles.menuButton}>
                   Registrar Ajuda
-                </button>
-                <button onClick={() => handleNavigation('/dashboard-analyst')} className={styles.menuButton}>
+                </NavLink>
+                <NavLink href="/dashboard-analyst" className={styles.menuButton}>
                   Dashboard
-                </button>
-                <button onClick={() => handleNavigation('/tools')} className={styles.menuButton}>
+                </NavLink>
+                <NavLink href="/tools" className={styles.menuButton}>
                   Ferramentas
-                </button>
+                </NavLink>
               </>
             )}
 
             {user.role === 'super' && (
               <>
-                <button onClick={() => handleNavigation('/dashboard-super')} className={styles.menuButton}>
+                <NavLink href="/dashboard-super" className={styles.menuButton}>
                   Dashboard
-                </button>
-                <button onClick={() => handleNavigation('/tools')} className={styles.menuButton}>
+                </NavLink>
+                <NavLink href="/tools" className={styles.menuButton}>
                   Ferramentas
-                </button>
+                </NavLink>
               </>
             )}
 
             {user.role === 'quality' && (
-              <button onClick={() => handleNavigation('/dashboard-quality')} className={styles.menuButton}>
+              <NavLink href="/dashboard-quality" className={styles.menuButton}>
                 Dashboard Qualidade
-              </button>
+              </NavLink>
             )}
 
             {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
-              <button onClick={() => handleNavigation('/manager')} className={styles.menuButton}>
+              <NavLink href="/manager" className={styles.menuButton}>
                 Gerenciador
-              </button>
+              </NavLink>
             )}
 
             {(user.role === 'support+' || user.role === 'super') && (
-              <button onClick={() => handleNavigation('/remote')} className={styles.menuButton}>
+              <NavLink href="/remote" className={styles.menuButton}>
                 Acesso Remoto
-              </button>
+              </NavLink>
             )}
 
             {user.role === 'dev' && (
-              <button onClick={() => handleNavigation('/admin-notifications')} className={styles.menuButton}>
+              <NavLink href="/admin-notifications" className={styles.menuButton}>
                 Admin Notificações
-              </button>
+              </NavLink>
             )}
 
             <button 
