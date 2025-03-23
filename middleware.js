@@ -19,12 +19,13 @@ export async function middleware(req) {
 
   // Mapear papéis e rotas permitidas
   const analystRoles = ['analyst', 'tax'];
-  const allowedRoles = [...analystRoles, 'super', 'dev', 'support+'];
+  const allowedRoles = [...analystRoles, 'super', 'dev', 'support+', 'quality'];
 
   const routesWithAllowedRoles = {
     '/profile-analyst': analystRoles,
     '/dashboard-analyst': allowedRoles,
     '/dashboard-super': ['super'],
+    '/dashboard-quality': ['quality'],
     '/registro': allowedRoles,
     '/manager': allowedRoles,
     '/admin-notifications': ['dev'],
@@ -64,6 +65,7 @@ export const config = {
     '/profile',
     '/dashboard-analyst',
     '/dashboard-super',
+    '/dashboard-quality',
     '/profile-analyst',
     '/manager',
     '/api/manage-category',

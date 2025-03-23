@@ -14,8 +14,8 @@ export default async function handler(req, res) {
       return res.status(401).json({ message: 'Não autorizado' });
     }
 
-    // Garantir que apenas usuários com role "super" possam acessar
-    if (session.role !== 'super') {
+    // Garantir que apenas usuários com role "super" ou "quality" possam acessar
+    if (session.role !== 'super' && session.role !== 'quality') {
       return res.status(403).json({ message: 'Permissão negada' });
     }
     

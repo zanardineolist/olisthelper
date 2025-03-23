@@ -606,3 +606,26 @@
   [data-theme="dark"] .chartContainer canvas {
     filter: brightness(0.9) contrast(1.1);
   }
+
+.dashboardTitle {
+  margin-bottom: 25px;
+  text-align: center;
+  padding: 15px;
+  background-color: var(--box-color);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.dashboardTitle h1 {
+  color: var(--title-color);
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.dashboardTitle p {
+  color: var(--text-color);
+  font-size: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
