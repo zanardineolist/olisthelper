@@ -146,6 +146,7 @@ export default function RegistroPage({ user }) {
         
         if (checkRes.ok) {
           checkData = await checkRes.json();
+          console.log('Resultado da verificação de categoria:', checkData);
         } else {
           console.warn('Falha na verificação de categoria, status:', checkRes.status);
           // Verificação local simplificada como fallback
@@ -197,7 +198,7 @@ export default function RegistroPage({ user }) {
         
         if (result.isConfirmed) {
           try {
-            // Reativar a categoria
+            // Reativar a categoria usando id em vez de uuid
             const reactivateRes = await fetch('/api/manage-category/reactivate', {
               method: 'POST',
               headers: {
@@ -205,7 +206,7 @@ export default function RegistroPage({ user }) {
               },
               body: JSON.stringify({ 
                 name: newCategory.trim(),
-                uuid: checkData.uuid // Enviamos o uuid da categoria para reativação
+                id: checkData.id // Enviamos o id da categoria para reativação
               }),
             });
             
@@ -276,22 +277,102 @@ export default function RegistroPage({ user }) {
 
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({}));
+          console.error('Erro retornado pelo servidor:', errorData);
           
           // Verificar se o erro é de categoria duplicada
           if (errorData.code === '23505' || 
              (errorData.error && errorData.error.includes('already exists'))) {
             
+            // Tentar verificar se a categoria está inativa
+            try {
+              const verifyRes = await fetch('/api/manage-category/check', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: newCategory.trim() }),
+              });
+              
+              if (verifyRes.ok) {
+                const verifyData = await verifyRes.json();
+                
+                if (verifyData.exists && !verifyData.active) {
+                  // Categoria existe mas está inativa
+                  const activateResult = await Swal.fire({
+                    icon: 'warning',
+                    title: 'Categoria inativa encontrada',
+                    text: `A categoria "${newCategory}" já existe mas está inativa. Deseja reativá-la?`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Sim, reativar',
+                    cancelButtonText: 'Cancelar',
+                    showConfirmButton: true,
+                  });
+                  
+                  if (activateResult.isConfirmed) {
+                    // Reativar a categoria
+                    await fetch('/api/manage-category/reactivate', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ id: verifyData.id }),
+                    });
+                    
+                    // Atualizar a lista e selecionar a categoria
+                    const categoriesRes = await fetch('/api/get-analysts-categories');
+                    const categoriesData = await categoriesRes.json();
+                    setCategories(categoriesData.categories);
+                    
+                    const newCategoryOption = {
+                      value: newCategory.trim(),
+                      label: newCategory.trim(),
+                    };
+                    
+                    setFormData(prev => ({
+                      ...prev,
+                      category: newCategoryOption
+                    }));
+                    
+                    setModalIsOpen(false);
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Sucesso!',
+                      text: 'Categoria reativada com sucesso.',
+                      timer: 1500,
+                      showConfirmButton: false,
+                    });
+                    
+                    setSavingCategory(false);
+                    return;
+                  }
+                } else {
+                  // Categoria existe e está ativa (erro de duplicação normal)
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Categoria já existe',
+                    text: 'Esta categoria já está cadastrada no sistema.',
+                    showConfirmButton: true,
+                  });
+                  setSavingCategory(false);
+                  return;
+                }
+              }
+            } catch (verifyError) {
+              console.error('Erro ao verificar categoria após duplicação:', verifyError);
+            }
+            
+            // Mensagem genérica se não conseguir determinar o status
             Swal.fire({
               icon: 'error',
               title: 'Categoria já existe',
-              text: 'Esta categoria já está cadastrada no sistema. Tente verificar categorias inativas.',
+              text: 'Esta categoria já está cadastrada no sistema. Se desejar usar uma categoria inativa, tente novamente verificando as categorias existentes.',
               showConfirmButton: true,
             });
             setSavingCategory(false);
             return;
           }
           
-          throw new Error(errorData.error || 'Erro ao salvar categoria');
+          throw new Error(errorData.error || errorData.message || 'Erro ao salvar categoria');
         }
 
         // Atualizar a lista de categorias

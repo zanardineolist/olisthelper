@@ -7,11 +7,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Obter o UUID ou nome da categoria a ser reativada
-    const { uuid, name } = req.body;
+    // Obter o ID ou nome da categoria a ser reativada
+    const { id, name } = req.body;
     
-    if (!uuid && !name) {
-      return res.status(400).json({ error: 'UUID ou nome da categoria é obrigatório' });
+    if (!id && !name) {
+      return res.status(400).json({ error: 'ID ou nome da categoria é obrigatório' });
     }
 
     // Verificar a sessão do usuário
@@ -28,9 +28,9 @@ export default async function handler(req, res) {
         .from('categories')
         .update({ active: true, updated_at: new Date() });
       
-      // Priorizar a busca pelo UUID se disponível, caso contrário usar o nome
-      if (uuid) {
-        updateQuery = updateQuery.eq('uuid', uuid);
+      // Priorizar a busca pelo ID se disponível, caso contrário usar o nome
+      if (id) {
+        updateQuery = updateQuery.eq('id', id);
       } else {
         updateQuery = updateQuery.ilike('name', name.trim());
       }
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
 
       if (error) {
         console.error('Erro ao reativar categoria:', error);
-        return res.status(500).json({ error: 'Erro ao reativar categoria' });
+        return res.status(500).json({ error: 'Erro ao reativar categoria', details: error.message });
       }
 
       return res.status(200).json({ 
@@ -55,8 +55,8 @@ export default async function handler(req, res) {
           .from('categories')
           .update({ active: true, updated_at: new Date() });
         
-        if (uuid) {
-          updateQuery = updateQuery.eq('uuid', uuid);
+        if (id) {
+          updateQuery = updateQuery.eq('id', id);
         } else {
           updateQuery = updateQuery.ilike('name', name.trim());
         }
@@ -65,7 +65,7 @@ export default async function handler(req, res) {
 
         if (error) {
           console.error('Erro ao reativar categoria (fallback):', error);
-          return res.status(500).json({ error: 'Erro ao reativar categoria' });
+          return res.status(500).json({ error: 'Erro ao reativar categoria', details: error.message });
         }
 
         return res.status(200).json({ 
@@ -74,11 +74,11 @@ export default async function handler(req, res) {
         });
       } catch (fallbackError) {
         console.error('Erro na reativação de fallback:', fallbackError);
-        return res.status(500).json({ error: 'Erro ao reativar categoria' });
+        return res.status(500).json({ error: 'Erro ao reativar categoria', details: fallbackError.message });
       }
     }
   } catch (error) {
     console.error('Erro ao processar requisição de reativação:', error);
-    return res.status(500).json({ error: 'Erro interno do servidor' });
+    return res.status(500).json({ error: 'Erro interno do servidor', details: error.message });
   }
 } 

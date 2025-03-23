@@ -19,18 +19,14 @@ export default async function handler(req, res) {
       console.log('Status da sessão:', session ? 'Ativa' : 'Inativa');
       
       // Continuar mesmo se a sessão não estiver disponível
-      // Esta é uma solução temporária que permite que o endpoint funcione
-      // mesmo com problemas na verificação da sessão
       if (!session) {
         console.warn('Sessão não encontrada, mas continuando processamento');
-        // Opcionalmente, você pode adicionar uma verificação alternativa aqui
-        // como verificar cabeçalhos personalizados, etc.
       }
 
       // Buscar a categoria no banco de dados pelo nome (insensível a caixa)
       const { data, error } = await supabaseAdmin
         .from('categories')
-        .select('id, uuid, name, active')
+        .select('id, name, active')
         .ilike('name', name.trim())
         .single();
 
@@ -44,7 +40,6 @@ export default async function handler(req, res) {
         return res.status(200).json({
           exists: true,
           active: data.active,
-          uuid: data.uuid,
           id: data.id,
           name: data.name
         });
@@ -55,11 +50,10 @@ export default async function handler(req, res) {
       console.error('Erro ao obter sessão:', sessionError);
       
       // Mesmo com erro na sessão, tentamos verificar a categoria
-      // para manter a funcionalidade do endpoint
       try {
         const { data, error } = await supabaseAdmin
           .from('categories')
-          .select('id, uuid, name, active')
+          .select('id, name, active')
           .ilike('name', name.trim())
           .single();
 
@@ -72,7 +66,6 @@ export default async function handler(req, res) {
           return res.status(200).json({
             exists: true,
             active: data.active,
-            uuid: data.uuid,
             id: data.id,
             name: data.name
           });
