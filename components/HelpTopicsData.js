@@ -535,17 +535,9 @@ export default function HelpTopicsData() {
                           <Tooltip title="Clique para ver detalhes" arrow>
                             <Box component="span" sx={{ 
                               display: 'flex', 
-                              alignItems: 'center',
-                              '&:hover': {
-                                textDecoration: 'underline'
-                              }
+                              alignItems: 'center'
                             }}>
                               {topic.name}
-                              <i className="fa-solid fa-circle-info" style={{ 
-                                marginLeft: '8px', 
-                                fontSize: '14px',
-                                color: 'var(--color-primary)'
-                              }}></i>
                             </Box>
                           </Tooltip>
                         </TableCell>

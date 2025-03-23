@@ -417,7 +417,8 @@ export async function getHelpTopicDetails(categoryId, startDate = null, endDate 
         created_at,
         description,
         requester_name,
-        analyst_name,
+        analyst_id,
+        users:analyst_id(name),
         categories:category_id (
           id,
           name
@@ -438,7 +439,8 @@ export async function getHelpTopicDetails(categoryId, startDate = null, endDate 
       ...record,
       formattedDate: formatDateBR(new Date(record.created_at)),
       formattedTime: formatTimeBR(new Date(record.created_at)),
-      categoryName: record.categories?.name || 'Sem categoria'
+      categoryName: record.categories?.name || 'Sem categoria',
+      analyst_name: record.users?.name || 'Analista desconhecido'
     }));
 
     return formattedData;
