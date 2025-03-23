@@ -17,6 +17,7 @@ export default function RegistroPage({ user }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [helpRequests, setHelpRequests] = useState({ today: 0 });
+  const [recentHelps, setRecentHelps] = useState([]);
   const [formData, setFormData] = useState({
     user: null,
     category: null,
@@ -38,6 +39,9 @@ export default function RegistroPage({ user }) {
 
         // Buscar dados de ajudas prestadas
         await fetchHelpRequests();
+        
+        // Buscar registros recentes
+        await fetchRecentHelps();
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
       } finally {
@@ -61,6 +65,19 @@ export default function RegistroPage({ user }) {
       }
     } catch (err) {
       console.error('Erro ao buscar ajudas prestadas:', err);
+    }
+  };
+  
+  // Função para buscar os registros recentes
+  const fetchRecentHelps = async () => {
+    try {
+      const recentResponse = await fetch(`/api/get-recent-helps?analystId=${user.id}`);
+      if (recentResponse.ok) {
+        const recentData = await recentResponse.json();
+        setRecentHelps(recentData.recentHelps || []);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar registros recentes:', err);
     }
   };
 
@@ -112,8 +129,9 @@ export default function RegistroPage({ user }) {
         });
         setFormData({ user: null, category: null, description: '' });
         
-        // Atualizar o contador de ajudas após o registro bem-sucedido
+        // Atualizar o contador de ajudas e registros recentes após o registro bem-sucedido
         await fetchHelpRequests();
+        await fetchRecentHelps();
       } else {
         Swal.fire({
           icon: 'error',
@@ -293,11 +311,56 @@ const customSelectStyles = {
           </form>
         </div>
         
-        {/* Contador de ajudas prestadas no dia */}
-        <div className={styles.helpCounterContainer}>
+        {/* Seção de estatísticas e registros recentes */}
+        <div className={styles.statsContainer}>
+          {/* Contador de ajudas prestadas no dia */}
           <div className={styles.helpCounter}>
-            <h3>Ajudas prestadas hoje</h3>
+            <div className={styles.counterHeader}>
+              <h3>Ajudas prestadas hoje</h3>
+              <span className={styles.refreshButton} onClick={() => fetchHelpRequests()}>
+                <i className="fa-solid fa-arrows-rotate"></i>
+              </span>
+            </div>
             <div className={styles.counterValue}>{helpRequests.today || 0}</div>
+          </div>
+          
+          {/* Lista de registros recentes */}
+          <div className={styles.recentHelpsContainer}>
+            <div className={styles.recentHelpsHeader}>
+              <h3>Últimos registros</h3>
+              <span className={styles.refreshButton} onClick={() => fetchRecentHelps()}>
+                <i className="fa-solid fa-arrows-rotate"></i>
+              </span>
+            </div>
+            
+            <div className={styles.recentHelpsList}>
+              {recentHelps.length > 0 ? (
+                recentHelps.map((help) => (
+                  <div key={help.id} className={styles.recentHelpCard}>
+                    <div className={styles.recentHelpHeader}>
+                      <div className={styles.recentHelpCategory}>
+                        <i className="fa-solid fa-tag"></i> {help.category}
+                      </div>
+                      <div className={styles.recentHelpTime}>
+                        <i className="fa-regular fa-clock"></i> {help.formattedDate} • {help.formattedTime}
+                      </div>
+                    </div>
+                    <div className={styles.recentHelpUser}>
+                      <i className="fa-regular fa-user"></i> {help.requesterName}
+                    </div>
+                    <div className={styles.recentHelpDescription}>
+                      <div className={styles.descriptionLabel}>Descrição:</div>
+                      <div className={styles.descriptionText}>{help.description}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className={styles.noRecentHelps}>
+                  <i className="fa-solid fa-clipboard-list"></i>
+                  <p>Nenhum registro recente encontrado</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

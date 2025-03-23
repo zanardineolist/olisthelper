@@ -12,9 +12,13 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 20px;
+  padding: 2rem 1rem;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  gap: 2rem;
 }
 
 /* Container para o formulário, com espaçamento */
@@ -25,10 +29,12 @@
   align-items: center;
   padding: 20px;
   background-color: var(--box-color);
-  border-radius: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   color: var(--text-color);
   width: 100%;
-  max-width: 600px;
+  max-width: 650px;
+  margin-bottom: 2rem;
 }
 
 /* Estilo do título do formulário */
@@ -131,12 +137,11 @@
 
 .helpCounter {
   background-color: var(--box-color);
-  border-radius: 16px;
-  padding: 20px 30px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
   text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .helpCounter:hover {
@@ -144,19 +149,164 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 }
 
-.helpCounter h3 {
-  color: white;
-  font-size: 1.3rem;
-  margin-top: 0;
-  margin-bottom: 15px;
-  font-weight: 600;
+.counterHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.counterHeader h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--text-color);
 }
 
 .counterValue {
   font-size: 3rem;
   font-weight: bold;
-  color: white;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  color: var(--color-primary);
+  padding: 0.5rem 0;
+}
+
+.refreshButton {
+  cursor: pointer;
+  color: var(--text-color2);
+  transition: color 0.2s ease;
+  font-size: 1rem;
+}
+
+.refreshButton:hover {
+  color: var(--color-primary);
+  transform: rotate(30deg);
+}
+
+/* Registros Recentes */
+.recentHelpsContainer {
+  background-color: var(--box-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.recentHelpsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.recentHelpsHeader h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--text-color);
+}
+
+.recentHelpsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+.recentHelpsList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.recentHelpsList::-webkit-scrollbar-track {
+  background: var(--scroll-bg);
+  border-radius: 10px;
+}
+
+.recentHelpsList::-webkit-scrollbar-thumb {
+  background-color: var(--scroll);
+  border-radius: 10px;
+  border: 2px solid var(--scroll-bg);
+}
+
+.recentHelpCard {
+  background-color: var(--labels-bg);
+  border-radius: 8px;
+  padding: 1rem;
+  border-left: 4px solid var(--color-primary);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recentHelpCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recentHelpHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.recentHelpCategory {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.recentHelpTime {
+  color: var(--text-color2);
+  font-size: 0.8rem;
+}
+
+.recentHelpUser {
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.recentHelpDescription {
+  border-top: 1px solid var(--color-border);
+  padding-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.descriptionLabel {
+  color: var(--text-color2);
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.descriptionText {
+  color: var(--text-color);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.noRecentHelps {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-color2);
+  text-align: center;
+}
+
+.noRecentHelps i {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.noRecentHelps p {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Estatísticas e Registros Recentes */
+.statsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 650px;
+  width: 100%;
 }
 
 /* Estilos responsivos para telas menores */
@@ -172,5 +322,51 @@
   .submitButton {
     padding: 12px;
     font-size: 0.9rem;
+  }
+}
+
+/* Responsividade */
+@media (min-width: 1024px) {
+  .mainContent {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .formContainerWithSpacing {
+    margin-bottom: 0;
+    margin-right: 2rem;
+    flex: 1;
+  }
+  
+  .statsContainer {
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .mainContent {
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+  
+  .formContainerWithSpacing, 
+  .statsContainer {
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 768px) {
+  .formContainerWithSpacing, 
+  .statsContainer {
+    max-width: 100%;
+  }
+  
+  .formButtonContainer {
+    flex-direction: column;
+  }
+  
+  .submitButton {
+    width: 100%;
+    margin-bottom: 0.5rem;
   }
 }
