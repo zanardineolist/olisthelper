@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
+import Modal from 'react-modal';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
+import managerStyles from '../styles/Manager.module.css';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 
@@ -23,6 +25,10 @@ export default function RegistroPage({ user }) {
     category: null,
     description: '',
   });
+  // Estados para o modal de nova categoria
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [newCategory, setNewCategory] = useState('');
+  const [savingCategory, setSavingCategory] = useState(false);
 
   // Carregar usuários e categorias
   useEffect(() => {
@@ -98,6 +104,98 @@ export default function RegistroPage({ user }) {
     }));
   };
 
+  // Funções para o modal de nova categoria
+  const openCategoryModal = () => {
+    setNewCategory('');
+    setModalIsOpen(true);
+  };
+
+  const closeCategoryModal = () => {
+    setModalIsOpen(false);
+  };
+
+  const handleNewCategoryChange = (e) => {
+    setNewCategory(e.target.value);
+  };
+
+  const handleSaveCategory = async () => {
+    if (!newCategory.trim()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'O nome da categoria não pode estar vazio.',
+        showConfirmButton: true,
+      });
+      return;
+    }
+
+    try {
+      setSavingCategory(true);
+      
+      // Verificar se a categoria já existe
+      const lowerCaseNewCategory = newCategory.trim().toLowerCase();
+      const isCategoryExists = categories.some(
+        (cat) => cat.toLowerCase() === lowerCaseNewCategory
+      );
+      
+      if (isCategoryExists) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Categoria já existe',
+          text: 'Esta categoria já está cadastrada.',
+          showConfirmButton: true,
+        });
+        return;
+      }
+
+      // Salvar a nova categoria
+      const res = await fetch('/api/manage-category', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: newCategory }),
+      });
+
+      if (!res.ok) throw new Error('Erro ao salvar categoria');
+
+      // Atualizar a lista de categorias
+      const categoriesRes = await fetch('/api/get-analysts-categories');
+      const categoriesData = await categoriesRes.json();
+      setCategories(categoriesData.categories);
+
+      // Selecionar a nova categoria automaticamente
+      const newCategoryOption = {
+        value: newCategory,
+        label: newCategory,
+      };
+      setFormData(prev => ({
+        ...prev,
+        category: newCategoryOption
+      }));
+
+      // Fechar o modal e mostrar mensagem de sucesso
+      setModalIsOpen(false);
+      Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: 'Categoria adicionada com sucesso.',
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error('Erro ao salvar categoria:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Erro ao salvar categoria.',
+        showConfirmButton: true,
+      });
+    } finally {
+      setSavingCategory(false);
+    }
+  };
+
   // Submeter o formulário de registro de ajuda
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -153,6 +251,11 @@ export default function RegistroPage({ user }) {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Redirecionamento para a página de gerenciamento de registros
+  const navigateToAllRecords = () => {
+    router.push('/manager#Registros');
   };
 
   // Estilos personalizados para o React-Select
@@ -270,7 +373,16 @@ const customSelectStyles = {
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="category">Tema da ajuda</label>
+              <div className={styles.categoryHeader}>
+                <label htmlFor="category">Tema da ajuda</label>
+                <button 
+                  type="button"
+                  className={styles.newCategoryButton}
+                  onClick={openCategoryModal}
+                >
+                  <i className="fa-solid fa-plus"></i> Nova categoria
+                </button>
+              </div>
               <Select
                 id="category"
                 name="category"
@@ -317,9 +429,6 @@ const customSelectStyles = {
           <div className={styles.helpCounter}>
             <div className={styles.counterHeader}>
               <h3>Ajudas prestadas hoje</h3>
-              <span className={styles.refreshButton} onClick={() => fetchHelpRequests()}>
-                <i className="fa-solid fa-arrows-rotate"></i>
-              </span>
             </div>
             <div className={styles.counterValue}>{helpRequests.today || 0}</div>
           </div>
@@ -328,9 +437,12 @@ const customSelectStyles = {
           <div className={styles.recentHelpsContainer}>
             <div className={styles.recentHelpsHeader}>
               <h3>Últimos registros</h3>
-              <span className={styles.refreshButton} onClick={() => fetchRecentHelps()}>
-                <i className="fa-solid fa-arrows-rotate"></i>
-              </span>
+              <button 
+                className={styles.viewAllButton}
+                onClick={navigateToAllRecords}
+              >
+                Ver todos <i className="fa-solid fa-arrow-right"></i>
+              </button>
             </div>
             
             <div className={styles.recentHelpsList}>
@@ -364,6 +476,39 @@ const customSelectStyles = {
           </div>
         </div>
       </main>
+
+      {/* Modal para adicionar nova categoria */}
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeCategoryModal}
+        contentLabel="Adicionar Nova Categoria"
+        className={managerStyles.modal}
+        overlayClassName={managerStyles.overlay}
+        ariaHideApp={false}
+      >
+        <h2 className={managerStyles.modalTitle}>Adicionar Nova Categoria</h2>
+        <div className={managerStyles.formContainer}>
+          <input
+            type="text"
+            value={newCategory}
+            placeholder="Nome da Categoria"
+            className={managerStyles.inputField}
+            onChange={handleNewCategoryChange}
+            required
+            autoComplete="off"
+          />
+          <button 
+            onClick={handleSaveCategory} 
+            disabled={savingCategory} 
+            className={managerStyles.saveButton}
+          >
+            {savingCategory ? 'Salvando...' : 'Adicionar Categoria'}
+          </button>
+          <button onClick={closeCategoryModal} className={managerStyles.cancelButton}>
+            Cancelar
+          </button>
+        </div>
+      </Modal>
 
       <Footer />
     </>

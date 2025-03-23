@@ -59,6 +59,39 @@
   font-weight: bold;
 }
 
+/* Header do campo de categoria com botão de adicionar */
+.categoryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+/* Botão para adicionar nova categoria */
+.newCategoryButton {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.newCategoryButton:hover {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.newCategoryButton i {
+  font-size: 0.75rem;
+}
+
 /* Efeito de foco e hover para caixas de texto */
 .formFieldHover:focus,
 .formFieldHover:hover {
@@ -200,6 +233,34 @@
   margin: 0;
   font-size: 1.2rem;
   color: var(--text-color);
+}
+
+/* Botão para ver todos os registros */
+.viewAllButton {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: none;
+  font-size: 0.85rem;
+  padding: 5px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.viewAllButton:hover {
+  background-color: rgba(58, 130, 246, 0.1); /* Versão transparente da cor primária */
+  transform: translateX(2px);
+}
+
+.viewAllButton i {
+  transition: transform 0.2s ease;
+}
+
+.viewAllButton:hover i {
+  transform: translateX(3px);
 }
 
 .recentHelpsList {
