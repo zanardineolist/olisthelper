@@ -316,6 +316,17 @@ export async function getServerSideProps(context) {
       },
     };
   }
+  
+  // Redirecionar usuários com perfil 'quality' para a página dashboard-quality
+  if (session.role === 'quality') {
+    return {
+      redirect: {
+        destination: '/dashboard-quality',
+        permanent: false,
+      },
+    };
+  }
+  
   return {
     props: {
       user: {

@@ -174,7 +174,13 @@ export default function Navbar({ user }) {
       )}
 
       <nav ref={navbarRef} className={styles.navbar}>
-        <Link href={user.role === 'analyst' || user.role === 'tax' ? '/profile-analyst' : '/profile'} className={styles.logo}>
+        <Link href={
+          user.role === 'analyst' || user.role === 'tax' 
+            ? '/profile-analyst' 
+            : user.role === 'quality'
+              ? '/dashboard-quality'
+              : '/profile'
+        } className={styles.logo}>
           <img 
             src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
             alt="Logo"
@@ -192,7 +198,7 @@ export default function Navbar({ user }) {
           </button>
 
           {/* Notifications */}
-          {['analyst', 'tax', 'super', 'support+', 'dev'].includes(user.role) && (
+          {['analyst', 'tax', 'super', 'support+', 'dev', 'quality'].includes(user.role) && (
             <div className={styles.notificationsWrapper}>
               <button className={styles.notificationToggle} onClick={toggleNotifications}>
                 <FaBell />
@@ -309,6 +315,12 @@ export default function Navbar({ user }) {
                   Ferramentas
                 </button>
               </>
+            )}
+
+            {user.role === 'quality' && (
+              <button onClick={() => handleNavigation('/dashboard-quality')} className={styles.menuButton}>
+                Dashboard Qualidade
+              </button>
             )}
 
             {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (

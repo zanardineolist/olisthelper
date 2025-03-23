@@ -18,6 +18,8 @@ export default function LoginPage() {
           router.push('/profile-analyst');
         } else if (session.role === 'super') {
           router.push('/dashboard-super');
+        } else if (session.role === 'quality') {
+          router.push('/dashboard-quality');
         } else if (session.role === 'dev') {
           router.push('/admin-notifications');
         } else {
@@ -72,9 +74,21 @@ export default function LoginPage() {
 export async function getServerSideProps(context) {
   const session = await getSession(context);
   if (session) {
+    let destination = '/profile';
+    
+    if (session.role === 'analyst' || session.role === 'tax') {
+      destination = '/profile-analyst';
+    } else if (session.role === 'super') {
+      destination = '/dashboard-super';
+    } else if (session.role === 'quality') {
+      destination = '/dashboard-quality';
+    } else if (session.role === 'dev') {
+      destination = '/admin-notifications';
+    }
+    
     return {
       redirect: {
-        destination: (session.role === 'analyst' || session.role === 'tax') ? '/profile-analyst' : session.role === 'super' ? '/dashboard-super' : session.role === 'dev' ? '/admin-notifications' : '/profile',
+        destination,
         permanent: false,
       },
     };
