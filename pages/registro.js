@@ -146,9 +146,7 @@ export default function RegistroPage({ user }) {
         
         if (checkRes.ok) {
           checkData = await checkRes.json();
-          console.log('Resultado da verificação de categoria:', checkData);
         } else {
-          console.warn('Falha na verificação de categoria, status:', checkRes.status);
           // Verificação local simplificada como fallback
           const lowerCaseNewCategory = newCategory.trim().toLowerCase();
           const existsLocally = categories.some(
