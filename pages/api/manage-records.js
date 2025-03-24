@@ -39,16 +39,19 @@ export default async function handler(req, res) {
         if (fetchError) throw fetchError;
 
         // Mapear dados para manter compatibilidade com o frontend
-        const formattedRecords = records.map((record, index) => ({
-          index,
-          date: new Date(record.created_at).toLocaleDateString('pt-BR'),
-          time: new Date(record.created_at).toLocaleTimeString('pt-BR'),
-          name: record.requester_name,
-          email: record.requester_email,
-          category: record.categories?.name || '',
-          description: record.description,
-          id: record.id // Adicionando ID para operações de update/delete
-        }));
+        const formattedRecords = records.map((record, index) => {
+          const createdAt = new Date(record.created_at);
+          return {
+            index,
+            date: createdAt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+            time: createdAt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+            name: record.requester_name,
+            email: record.requester_email,
+            category: record.categories?.name || '',
+            description: record.description,
+            id: record.id // Adicionando ID para operações de update/delete
+          };
+        });
 
         return res.status(200).json({ records: formattedRecords });
 

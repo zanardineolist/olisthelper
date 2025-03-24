@@ -1,6 +1,6 @@
 import { getSession } from 'next-auth/react';
 import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
-import { format } from 'date-fns';
+import { format, zonedTimeToUtc } from 'date-fns-tz';
 import { ptBR } from 'date-fns/locale';
 
 export default async function handler(req, res) {
@@ -42,11 +42,14 @@ export default async function handler(req, res) {
 
     // Formatar os registros para exibição
     const formattedHelps = recentHelps.map((help) => {
+      // Converter para data considerando o fuso horário do Brasil
       const createdAt = new Date(help.created_at);
+      const timezone = 'America/Sao_Paulo';
+      
       return {
         id: help.id,
-        formattedDate: format(createdAt, 'dd/MM/yyyy', { locale: ptBR }),
-        formattedTime: format(createdAt, 'HH:mm', { locale: ptBR }),
+        formattedDate: format(createdAt, 'dd/MM/yyyy', { locale: ptBR, timeZone: timezone }),
+        formattedTime: format(createdAt, 'HH:mm', { locale: ptBR, timeZone: timezone }),
         requesterName: help.requester_name,
         category: help.categories?.name || 'Sem categoria',
         description: help.description

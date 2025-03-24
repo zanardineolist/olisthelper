@@ -17,7 +17,14 @@ function formatRelativeTime(dateString) {
   if (diff < 86400) return `${Math.floor(diff / 3600)} horas atrás`;
   if (diff < 2592000) return `${Math.floor(diff / 86400)} dias atrás`;
 
-  return date.toLocaleDateString(); // Exibe a data se for muito antiga
+  // Exibe a data no formato brasileiro se for muito antiga
+  return date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }); 
+}
+
+// Formatar data completa no fuso horário brasileiro
+function formatDateTimeBR(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 }
 
 const MessageCard = ({ message, isPopular }) => {
@@ -74,11 +81,11 @@ const MessageCard = ({ message, isPopular }) => {
           <span>{message.author_name}</span>
         </div>
         
-        <div className={cardStyles.timestamp} title={new Date(message.created_at).toLocaleString()}>
+        <div className={cardStyles.timestamp} title={formatDateTimeBR(message.created_at)}>
           <FaClock className={cardStyles.metaIcon} />
           <span>{formatRelativeTime(message.created_at)}</span>
           {message.updated_at !== message.created_at && (
-            <span className={cardStyles.editedMark} title={`Atualizado em ${new Date(message.updated_at).toLocaleString()}`}>
+            <span className={cardStyles.editedMark} title={`Atualizado em ${formatDateTimeBR(message.updated_at)}`}>
               (editado)
             </span>
           )}
