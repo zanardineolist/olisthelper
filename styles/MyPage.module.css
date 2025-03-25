@@ -317,7 +317,7 @@
   border-radius: 12px;
   padding: 16px 20px;
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: 50px minmax(120px, 25%) 1fr auto;
   align-items: center;
   gap: 20px;
   transition: transform 0.3s ease;
@@ -343,8 +343,10 @@
   height: 8px;
   background-color: var(--color-primary);
   border-radius: 4px;
-  min-width: 50px;
+  width: 100%;
+  min-width: 100px;
   transition: width 0.3s ease;
+  justify-self: stretch;
 }
 
 .count {
@@ -458,7 +460,8 @@
   }
 
   .listItem {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 50px 1fr auto;
+    gap: 15px;
   }
 
   .progressBarCategory {
