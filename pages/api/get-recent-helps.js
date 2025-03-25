@@ -1,7 +1,5 @@
 import { getSession } from 'next-auth/react';
 import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
-import { format, zonedTimeToUtc } from 'date-fns-tz';
-import { ptBR } from 'date-fns/locale';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -40,16 +38,14 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Erro ao buscar registros recentes' });
     }
 
-    // Formatar os registros para exibição
+    // Formatar os registros usando o mesmo método do manage-records.js
     const formattedHelps = recentHelps.map((help) => {
-      // Converter para data considerando o fuso horário do Brasil
       const createdAt = new Date(help.created_at);
-      const timezone = 'America/Sao_Paulo';
       
       return {
         id: help.id,
-        formattedDate: format(createdAt, 'dd/MM/yyyy', { locale: ptBR, timeZone: timezone }),
-        formattedTime: format(createdAt, 'HH:mm', { locale: ptBR, timeZone: timezone }),
+        formattedDate: createdAt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+        formattedTime: createdAt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
         requesterName: help.requester_name,
         category: help.categories?.name || 'Sem categoria',
         description: help.description

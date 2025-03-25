@@ -10,3 +10,5 @@ config.toml
 .vscode
 database_roles.sql
 database_structure.sql
+help_records_rows (1).csv
+help_records_rows.csv
