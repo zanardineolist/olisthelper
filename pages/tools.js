@@ -10,6 +10,7 @@ import TicketCounter from '../components/TicketCounter';
 import SharedMessages from '../components/SharedMessages';
 import CepIbgeValidator from '../components/CepIbgeValidator';
 import styles from '../styles/Tools.module.css';
+import Image from 'next/image';
 
 const theme = createTheme({
   components: {
@@ -130,22 +131,88 @@ export default function ToolsPage({ user }) {
               <CepIbgeValidator />
               <div className={styles.infoCard}>
                 <h2>Como utilizar</h2>
-                <ul>
-                  <li>Digite o CEP no campo de busca e clique em "Consultar"</li>
-                  <li>O sistema irá consultar a cidade nos Correios e também a nomenclatura oficial no IBGE</li>
-                  <li>Se houver divergência, use o nome oficial do IBGE para emissão da NF-e</li>
-                  <li>Você pode copiar o nome da cidade clicando no botão "Copiar" ao lado do nome</li>
-                </ul>
+                <div className={styles.stepsList}>
+                  <div className={styles.step}>
+                    <span className={styles.stepNumber}>1</span>
+                    <div className={styles.stepContent}>
+                      <h3>Identifique o erro da SEFAZ</h3>
+                      <p>
+                        Quando o Seller tenta autorizar uma nota fiscal com nome de cidade incorreto, 
+                        a SEFAZ retorna um erro como este:
+                      </p>
+                      <div className={styles.errorImageContainer}>
+                        <img 
+                          src="https://i.imgur.com/xWxipTb.jpeg" 
+                          alt="Exemplo de erro da SEFAZ sobre nomenclatura de município" 
+                          className={styles.errorImage}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className={styles.step}>
+                    <span className={styles.stepNumber}>2</span>
+                    <div className={styles.stepContent}>
+                      <h3>Consulte o CEP</h3>
+                      <p>
+                        Copie o CEP utilizado na NF-e e cole no campo de busca da ferramenta. 
+                        Clique em "Consultar" para obter a nomenclatura correta da cidade.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className={styles.step}>
+                    <span className={styles.stepNumber}>3</span>
+                    <div className={styles.stepContent}>
+                      <h3>Copie o nome oficial da cidade</h3>
+                      <p>
+                        Clique no botão "Copiar" ao lado do nome da cidade retornado pelo IBGE 
+                        (destacado em azul na seção de resultados).
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className={styles.step}>
+                    <span className={styles.stepNumber}>4</span>
+                    <div className={styles.stepContent}>
+                      <h3>Corrija na NF-e</h3>
+                      <p>
+                        No sistema Olist ERP, selecione a nomenclatura correta do IBGE no campo "Município" 
+                        da NF-e e salve as alterações.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className={styles.step}>
+                    <span className={styles.stepNumber}>5</span>
+                    <div className={styles.stepContent}>
+                      <h3>Tente autorizar novamente</h3>
+                      <p>
+                        Após fazer as correções, tente autorizar a NF-e novamente.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className={styles.importantAlert}>
+                  <h3>⚠️ Importante!</h3>
+                  <p>
+                    Caso o pedido de venda esteja preenchido com o endereço do cliente e um endereço de 
+                    cobrança com o mesmo CEP, é necessário ajustar o município no pedido original e 
+                    gerar uma nova NF-e. Caso contrário, o erro continuará ocorrendo.
+                  </p>
+                </div>
                 
                 <h2>Por que isso é importante?</h2>
                 <p>
                   Ao emitir uma Nota Fiscal Eletrônica (NF-e), os dados do destinatário são validados pela SEFAZ, que 
                   utiliza a nomenclatura oficial do IBGE para os municípios brasileiros. Se o nome da cidade na NF-e 
-                  não corresponder exatamente à nomenclatura oficial, a nota pode ser rejeitada com erro de validação.
+                  não corresponder exatamente à nomenclatura oficial, a nota será rejeitada com o erro mostrado acima.
                 </p>
                 <p>
-                  Por exemplo, a cidade conhecida como "Feira de Santana" nos Correios pode ser "Feira de Santana" 
-                  (sem o "de") no IBGE, e esta diferença sutil pode causar a rejeição da nota fiscal.
+                  Divergências comuns incluem acentuação, artigos (do/da), abreviações e nomes históricos que 
+                  foram alterados oficialmente. Por exemplo, "Feira de Santana" vs "Feira de Santana" (sem acento) 
+                  ou "São José dos Campos" vs "S. J. dos Campos".
                 </p>
               </div>
             </>
