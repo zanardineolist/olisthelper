@@ -82,6 +82,125 @@
     margin-top: 10px;
   }
   
+  /* Estilos para a seção de CEPs populares */
+  .popularCepsSection {
+    margin-bottom: 25px;
+    background-color: var(--box-color2);
+    border-radius: 6px;
+    padding: 15px;
+  }
+  
+  .popularCepsTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--text-color);
+    font-size: 18px;
+  }
+  
+  .popularCepsIcon {
+    color: var(--color-primary);
+  }
+  
+  .popularCepsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+  }
+  
+  .popularCepCard {
+    background-color: var(--box-color);
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .popularCepCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .popularCepHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .popularCepNumber {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text-color);
+  }
+  
+  .miniMatchTag, .miniMismatchTag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  
+  .miniMatchTag {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+  }
+  
+  .miniMismatchTag {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+  }
+  
+  .popularCepData {
+    font-size: 13px;
+  }
+  
+  .popularCepRow {
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    color: var(--text-color2);
+  }
+  
+  .popularCepRow strong {
+    color: var(--text-color);
+  }
+  
+  .popularCepSearchCount {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    padding-top: 5px;
+    border-top: 1px dashed var(--color-border);
+    color: var(--text-color2);
+    font-size: 12px;
+  }
+  
+  .loadingPopular {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    color: var(--text-color2);
+    justify-content: center;
+  }
+  
+  .noPopularCeps {
+    text-align: center;
+    color: var(--text-color2);
+    font-style: italic;
+    padding: 10px;
+  }
+  
   .resultContainer {
     background-color: var(--box-color2);
     border-radius: 6px;

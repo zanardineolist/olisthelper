@@ -23,6 +23,15 @@ export default async function handler(req, res) {
     // Verificar se o resultado está em cache
     if (cepCache.has(cepNumerico)) {
       console.log(`Usando cache para o CEP ${cepNumerico}`);
+      
+      // Incrementar contador de buscas no banco mesmo quando usar o cache em memória
+      try {
+        await supabaseAdmin
+          .rpc('increment_cep_search_count', { cep_param: cepNumerico });
+      } catch (counterError) {
+        console.error('Erro ao incrementar contador de buscas:', counterError);
+      }
+      
       return res.status(200).json(cepCache.get(cepNumerico));
     }
 
@@ -35,6 +44,14 @@ export default async function handler(req, res) {
 
     if (!cepCacheError && cepCacheData) {
       console.log(`Usando cache do banco para o CEP ${cepNumerico}`);
+      
+      // Incrementar contador de buscas no banco
+      try {
+        await supabaseAdmin
+          .rpc('increment_cep_search_count', { cep_param: cepNumerico });
+      } catch (counterError) {
+        console.error('Erro ao incrementar contador de buscas:', counterError);
+      }
       
       // Atualizar o cache em memória
       cepCache.set(cepNumerico, cepCacheData.data);
@@ -113,7 +130,8 @@ export default async function handler(req, res) {
           cep: cepNumerico,
           data: result,
           created_at: new Date(),
-          updated_at: new Date()
+          updated_at: new Date(),
+          search_count: 1
         });
     } catch (cacheError) {
       // Apenas registrar erro de cache, não interromper a resposta

@@ -1,6 +1,41 @@
-import React, { useState } from 'react';
-import { FaCheckCircle, FaExclamationTriangle, FaSpinner, FaSearch } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaCheckCircle, FaExclamationTriangle, FaSpinner, FaSearch, FaHistory, FaEye } from 'react-icons/fa';
 import styles from '../styles/CepValidator.module.css';
+
+const PopularCepCard = ({ cepData, onSelect }) => {
+  if (!cepData) return null;
+  
+  const { cep, data, searchCount } = cepData;
+  const isMatch = data.correspondencia.igual;
+  
+  return (
+    <div className={styles.popularCepCard} onClick={() => onSelect(cep)}>
+      <div className={styles.popularCepHeader}>
+        <span className={styles.popularCepNumber}>{cep.replace(/(\d{5})(\d{3})/, '$1-$2')}</span>
+        {isMatch ? (
+          <span className={styles.miniMatchTag}>
+            <FaCheckCircle /> Cidades idênticas
+          </span>
+        ) : (
+          <span className={styles.miniMismatchTag}>
+            <FaExclamationTriangle /> Divergência
+          </span>
+        )}
+      </div>
+      <div className={styles.popularCepData}>
+        <div className={styles.popularCepRow}>
+          <span>Correios:</span> <strong>{data.correios.cidade}/{data.correios.uf}</strong>
+        </div>
+        <div className={styles.popularCepRow}>
+          <span>IBGE:</span> <strong className={isMatch ? '' : styles.highlighted}>{data.ibge.cidade}/{data.ibge.uf}</strong>
+        </div>
+        <div className={styles.popularCepSearchCount}>
+          <FaEye /> <span>{searchCount || 0} consulta{searchCount !== 1 ? 's' : ''}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const CepIbgeValidator = () => {
   const [cep, setCep] = useState('');
@@ -8,6 +43,30 @@ const CepIbgeValidator = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [popularCeps, setPopularCeps] = useState([]);
+  const [loadingPopular, setLoadingPopular] = useState(true);
+
+  useEffect(() => {
+    fetchPopularCeps();
+  }, []);
+
+  const fetchPopularCeps = async () => {
+    setLoadingPopular(true);
+    try {
+      const response = await fetch('/api/cep-top-searched?limit=3');
+      
+      if (!response.ok) {
+        throw new Error('Falha ao buscar CEPs populares');
+      }
+      
+      const data = await response.json();
+      setPopularCeps(data);
+    } catch (err) {
+      console.error('Erro ao buscar CEPs populares:', err);
+    } finally {
+      setLoadingPopular(false);
+    }
+  };
 
   const formatCep = (value) => {
     // Remover caracteres não numéricos
@@ -50,10 +109,24 @@ const CepIbgeValidator = () => {
       
       const data = await response.json();
       setResult(data);
+      // Atualiza lista de CEPs populares após busca bem-sucedida
+      fetchPopularCeps();
     } catch (err) {
       setError(err.message || 'Erro ao consultar o CEP');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSelectPopularCep = (popularCep) => {
+    const cepNumerico = popularCep.replace(/\D/g, '');
+    // Busca no array de CEPs populares
+    const selectedCepData = popularCeps.find(item => item.cep === cepNumerico);
+    
+    if (selectedCepData) {
+      setCep(formatCep(cepNumerico));
+      setResult(selectedCepData.data);
+      setError(null);
     }
   };
 
@@ -102,6 +175,33 @@ const CepIbgeValidator = () => {
             <FaExclamationTriangle />
             <span>{error}</span>
           </div>
+        )}
+      </div>
+
+      {/* Seção de CEPs Populares */}
+      <div className={styles.popularCepsSection}>
+        <h3 className={styles.popularCepsTitle}>
+          <FaHistory className={styles.popularCepsIcon} />
+          CEPs mais consultados
+        </h3>
+        
+        {loadingPopular ? (
+          <div className={styles.loadingPopular}>
+            <FaSpinner className={styles.spinner} />
+            <span>Carregando CEPs populares...</span>
+          </div>
+        ) : popularCeps.length > 0 ? (
+          <div className={styles.popularCepsGrid}>
+            {popularCeps.map((cepItem, index) => (
+              <PopularCepCard 
+                key={index} 
+                cepData={cepItem} 
+                onSelect={() => handleSelectPopularCep(cepItem.cep)}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className={styles.noPopularCeps}>Nenhum CEP foi consultado recentemente.</p>
         )}
       </div>
 
