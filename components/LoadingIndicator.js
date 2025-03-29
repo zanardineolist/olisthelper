@@ -48,7 +48,10 @@ export function LoadingProvider({ children }) {
     const handleStart = (url) => {
       // Só mostrar o loading se estiver mudando para uma página diferente
       if (url !== router.asPath) {
-        startLoading({ message: 'Carregando página...' });
+        startLoading({ 
+          message: 'Carregando página...', 
+          type: 'fullscreen'  // Sempre usar overlay para mudanças de página
+        });
       }
     };
 
@@ -81,6 +84,8 @@ export function LoadingProvider({ children }) {
       setLoadingMessage 
     }}>
       {children}
+      
+      {/* Loading overlay para carregamento de página inteira */}
       {state.isLoading && state.loadingType === 'fullscreen' && (
         <div className="loaderOverlay">
           <div className="loader"></div>
@@ -104,7 +109,51 @@ export function useLoading() {
   return useContext(LoadingContext);
 }
 
-// Componente de loading local que pode ser usado em diferentes partes da aplicação
+// Componente de loading de três bolinhas, para uso em containers específicos
+export function ThreeDotsLoader({ message, inline = false, size = 'medium' }) {
+  const sizeMap = {
+    small: { height: '20px', fontSize: '5px' },
+    medium: { height: '30px', fontSize: '7px' },
+    large: { height: '40px', fontSize: '9px' }
+  };
+
+  const calculatedSize = sizeMap[size] || sizeMap.medium;
+  
+  const containerStyle = inline 
+    ? {
+        display: 'inline-flex',
+        alignItems: 'center',
+        marginLeft: '10px',
+        height: calculatedSize.height
+      }
+    : {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        width: '100%',
+        minHeight: '100px'
+      };
+
+  return (
+    <div style={containerStyle}>
+      <div className="standardBoxLoader" style={{ fontSize: calculatedSize.fontSize }}></div>
+      {message && (
+        <p style={{ 
+          marginTop: inline ? 0 : '40px', 
+          marginLeft: inline ? '50px' : 0,
+          color: 'var(--text-color)',
+          fontSize: '14px'
+        }}>
+          {message}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// Componente de loading local com spinner, para uso em áreas específicas
 export function LocalLoader({ message, size = 'medium', inline = false }) {
   const sizeMap = {
     small: { width: '24px', height: '24px' },

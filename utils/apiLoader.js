@@ -5,7 +5,7 @@
  * Função para fazer chamadas de API com gerenciamento automático de loading
  * @param {string} url - URL da API a ser chamada
  * @param {Object} options - Opções do fetch (method, headers, body, etc)
- * @param {Object} loadingOptions - Opções de loading (message, showLoading)
+ * @param {Object} loadingOptions - Opções de loading (message, showLoading, type)
  * @returns {Promise<any>} - Resultado da chamada à API em formato JSON
  */
 export async function fetchWithLoading(url, options = {}, loadingOptions = {}) {
@@ -34,7 +34,7 @@ export async function fetchWithLoading(url, options = {}, loadingOptions = {}) {
   const {
     message = 'Carregando...',
     showLoading = true,
-    type = 'fullscreen'
+    type = 'local'  // Por padrão, usamos loading local para chamadas de API
   } = loadingOptions;
   
   try {
@@ -86,6 +86,9 @@ export function useApiLoader() {
   
   /**
    * Função para fazer chamadas de API com loading automatizado
+   * @param {string} url - URL da API a ser chamada
+   * @param {Object} options - Opções do fetch (method, headers, body, etc)
+   * @param {Object} loadingOptions - Opções de loading (message, showLoading, type)
    */
   const callApi = async (url, options = {}, loadingOptions = {}) => {
     if (!loadingContext) {
@@ -99,7 +102,7 @@ export function useApiLoader() {
     const {
       message = 'Carregando...',
       showLoading = true,
-      type = 'fullscreen'
+      type = 'local'  // Por padrão, usamos loading local para chamadas de API
     } = loadingOptions;
     
     try {

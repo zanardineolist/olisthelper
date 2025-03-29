@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import stringSimilarity from 'string-similarity';
 import { useApiLoader } from '../utils/apiLoader';
-import { useLoading, LocalLoader } from '../components/LoadingIndicator';
+import { useLoading, ThreeDotsLoader } from './LoadingIndicator';
 
 export default function ManageUsers({ user }) {
   const [users, setUsers] = useState([]);
@@ -26,6 +26,7 @@ export default function ManageUsers({ user }) {
   const [isEditing, setIsEditing] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [originalEmail, setOriginalEmail] = useState(''); // Para rastrear o e-mail original durante a edição
+  const [loadingUsers, setLoadingUsers] = useState(true);
   
   const { callApi } = useApiLoader();
   const { startLoading, stopLoading } = useLoading();
@@ -46,11 +47,16 @@ export default function ManageUsers({ user }) {
 
   const loadUsers = async () => {
     try {
-      startLoading({ message: "Carregando usuários..." });
+      startLoading({ 
+        message: "Carregando usuários...",
+        type: "local" // Usando loading local 
+      });
       setLoading(true);
+      setLoadingUsers(true);
       
       const data = await callApi('/api/manage-user', {}, {
         message: "Carregando usuários...",
+        type: "local"
       });
       
       const activeUsers = data.users.filter(u => u.active === true);
@@ -68,6 +74,7 @@ export default function ManageUsers({ user }) {
     } finally {
       stopLoading();
       setLoading(false);
+      setLoadingUsers(false);
     }
   };
 
@@ -106,13 +113,17 @@ export default function ManageUsers({ user }) {
     }
 
     try {
-      startLoading({ message: "Inativando usuário..." });
+      startLoading({ 
+        message: "Inativando usuário...",
+        type: "local" // Usando loading local 
+      });
       setLoading(true);
       
       await callApi(`/api/manage-user?id=${userId}`, {
         method: 'DELETE',
       }, {
-        message: "Inativando usuário..."
+        message: "Inativando usuário...",
+        type: "local"
       });
 
       await loadUsers();
@@ -143,7 +154,10 @@ export default function ManageUsers({ user }) {
 
   const handleSaveUser = async () => {
     try {
-      startLoading({ message: isEditing ? "Atualizando usuário..." : "Adicionando usuário..." });
+      startLoading({ 
+        message: isEditing ? "Atualizando usuário..." : "Adicionando usuário...",
+        type: "local" // Usando loading local 
+      });
       setLoading(true);
 
       if (!isEditing) {
@@ -232,7 +246,8 @@ export default function ManageUsers({ user }) {
           originalEmail: isEditing ? originalEmail : null,
         }),
       }, {
-        message: isEditing ? "Atualizando usuário..." : "Adicionando usuário..."
+        message: isEditing ? "Atualizando usuário..." : "Adicionando usuário...",
+        type: "local"
       });
 
       // Recarregar a lista após salvar
@@ -451,57 +466,64 @@ export default function ManageUsers({ user }) {
             <FontAwesomeIcon icon={faPlus} /> Add Usuário
           </button>
         </div>
-        <div className={styles.itemsTable}>
-          <table>
+        
+        {loadingUsers ? (
+          <div className={styles.loadingContainer}>
+            <ThreeDotsLoader message="Carregando usuários..." />
+          </div>
+        ) : (
+          <div className={styles.itemsTable}>
+            <table>
               <thead>
-                  <tr>
-                      <th>Nome</th>
-                      <th>E-mail</th>
-                      <th>Chamado</th>
-                      <th>Telefone</th>
-                      <th>Chat</th>
-                      <th>Ações</th>
-                  </tr>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Chamado</th>
+                  <th>Telefone</th>
+                  <th>Chat</th>
+                  <th>Ações</th>
+                </tr>
               </thead>
               <tbody>
-                  {users.map((user) => (
-                      <tr key={user.id}>
-                          <td>{user.name}</td>
-                          <td>{user.email}</td>
-                          <td>
-                              <input
-                                  type="checkbox"
-                                  disabled
-                                  checked={user.chamado}
-                              />
-                          </td>
-                          <td>
-                              <input
-                                  type="checkbox"
-                                  disabled
-                                  checked={user.telefone}
-                              />
-                          </td>
-                          <td>
-                              <input
-                                  type="checkbox"
-                                  disabled
-                                  checked={user.chat}
-                              />
-                          </td>
-                          <td className={generalStyles.actionButtons}>
-                              <button onClick={() => handleEditUser(user)} className={generalStyles.actionButtonIcon}>
-                                  <FontAwesomeIcon icon={faPenToSquare} />
-                              </button>
-                              <button onClick={() => handleDeleteUser(user.id)} className={generalStyles.actionButtonIcon}>
-                                  <FontAwesomeIcon icon={faTrash} />
-                              </button>
-                          </td>
-                      </tr>
-                  ))}
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        disabled
+                        checked={user.chamado}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        disabled
+                        checked={user.telefone}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        disabled
+                        checked={user.chat}
+                      />
+                    </td>
+                    <td className={generalStyles.actionButtons}>
+                      <button onClick={() => handleEditUser(user)} className={generalStyles.actionButtonIcon}>
+                        <FontAwesomeIcon icon={faPenToSquare} />
+                      </button>
+                      <button onClick={() => handleDeleteUser(user.id)} className={generalStyles.actionButtonIcon}>
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
-          </table>
-        </div>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

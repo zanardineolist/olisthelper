@@ -5,6 +5,7 @@ import MessageCard from './MessageCard';
 import MessageRow from './MessageRow';
 import Pagination from '../ui/Pagination';
 import styles from '../../styles/shared-messages/Layout.module.css';
+import { ThreeDotsLoader } from '../LoadingIndicator';
 
 const MessageList = () => {
   const { 
@@ -15,10 +16,20 @@ const MessageList = () => {
     setCurrentPage,
     viewMode,
     POPULAR_THRESHOLD,
-    totalMessages
+    totalMessages,
+    loading
   } = useMessageContext();
 
   const { popular, regular } = separateMessages(messages);
+
+  // Renderiza o loading quando estiver carregando mensagens
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <ThreeDotsLoader message="Carregando mensagens..." size="medium" />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.messageListContainer}>
@@ -59,15 +70,21 @@ const MessageList = () => {
           </div>
         )}
 
-        <div className={viewMode === 'grid' ? styles.messageGrid : styles.messageList}>
-          {regular.map(message => (
-            viewMode === 'grid' ? (
-              <MessageCard key={message.id} message={message} isPopular={false} />
-            ) : (
-              <MessageRow key={message.id} message={message} isPopular={false} />
-            )
-          ))}
-        </div>
+        {regular.length > 0 ? (
+          <div className={viewMode === 'grid' ? styles.messageGrid : styles.messageList}>
+            {regular.map(message => (
+              viewMode === 'grid' ? (
+                <MessageCard key={message.id} message={message} isPopular={false} />
+              ) : (
+                <MessageRow key={message.id} message={message} isPopular={false} />
+              )
+            ))}
+          </div>
+        ) : totalMessages === 0 ? (
+          <div className={styles.emptyMessage}>
+            Nenhuma mensagem encontrada. Comece adicionando uma nova mensagem!
+          </div>
+        ) : null}
       </div>
 
       {/* Informações de Paginação */}

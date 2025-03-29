@@ -125,3 +125,15 @@
 .itemsTable tbody tr:nth-child(even) {
   background-color: var(--color-treven); /* Cor mais clara para linhas pares */
 }
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background-color: var(--box-color2);
+  border-radius: 8px;
+  margin: 20px 0;
+  padding: 20px;
+  width: 100%;
+}

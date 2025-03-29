@@ -130,3 +130,29 @@
     grid-template-columns: 1fr;
   }
 }
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  width: 100%;
+  background-color: var(--box-color);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.emptyMessage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  width: 100%;
+  background-color: var(--box-color2);
+  border-radius: 8px;
+  padding: 20px;
+  color: var(--text-color2);
+  font-size: 16px;
+  text-align: center;
+}

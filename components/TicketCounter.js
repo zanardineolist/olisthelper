@@ -12,7 +12,7 @@ import tableStyles from '../styles/HistoryTable.module.css';
 import ProgressBar from './ProgressBar';
 import StatusBadge from './StatusBadge';
 import { useApiLoader } from '../utils/apiLoader';
-import { useLoading } from '../components/LoadingIndicator';
+import { useLoading, ThreeDotsLoader } from './LoadingIndicator';
 
 // Configurar dayjs para trabalhar com timezone
 dayjs.extend(utc);
@@ -34,6 +34,7 @@ function TicketCounter() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalTickets, setTotalTickets] = useState(0);
   const [lastResetDate, setLastResetDate] = useState(dayjs().tz().format('YYYY-MM-DD'));
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   // Usando os hooks do sistema de loading centralizado
   const { callApi } = useApiLoader();
@@ -94,14 +95,18 @@ function TicketCounter() {
   const handleIncrement = async () => {
     try {
       // Usando o novo sistema de loading
-      startLoading({ message: "Incrementando contagem..." });
+      startLoading({ 
+        message: "Incrementando contagem...",
+        type: "local" // Usando loading local para não sobrepor a tela inteira
+      });
       setLoading(true);
       
       // Usando o novo método callApi
       const data = await callApi('/api/ticket-count', { 
         method: 'POST' 
       }, {
-        message: "Incrementando contagem..."
+        message: "Incrementando contagem...",
+        type: "local"
       });
       
       setCount(prev => prev + 1);
@@ -118,14 +123,18 @@ function TicketCounter() {
   const handleDecrement = async () => {
     try {
       // Usando o novo sistema de loading
-      startLoading({ message: "Decrementando contagem..." });
+      startLoading({ 
+        message: "Decrementando contagem...",
+        type: "local" // Usando loading local para não sobrepor a tela inteira
+      });
       setLoading(true);
       
       // Usando o novo método callApi
       const data = await callApi('/api/ticket-count', { 
         method: 'DELETE' 
       }, {
-        message: "Decrementando contagem..."
+        message: "Decrementando contagem...",
+        type: "local"
       });
       
       setCount(prev => Math.max(0, prev - 1));
@@ -152,14 +161,18 @@ function TicketCounter() {
     if (result.isConfirmed) {
       try {
         // Usando o novo sistema de loading
-        startLoading({ message: "Limpando contagem..." });
+        startLoading({ 
+          message: "Limpando contagem...",
+          type: "local" // Usando loading local para não sobrepor a tela inteira
+        });
         setLoading(true);
         
         // Usando o novo método callApi
         await callApi('/api/ticket-count?action=clear', { 
           method: 'DELETE' 
         }, {
-          message: "Limpando contagem..."
+          message: "Limpando contagem...",
+          type: "local"
         });
         
         setCount(0);
@@ -177,6 +190,8 @@ function TicketCounter() {
 
   const loadHistoryData = async () => {
     try {
+      setLoadingHistory(true);
+      
       let startDate, endDate;
       const today = dayjs().tz().format('YYYY-MM-DD');
       const now = dayjs().tz();
@@ -265,6 +280,8 @@ function TicketCounter() {
       setTotalPages(1);
       setTotalCount(0);
       setTotalTickets(0);
+    } finally {
+      setLoadingHistory(false);
     }
   };
 
@@ -411,7 +428,11 @@ function TicketCounter() {
         </div>
 
         {/* Gráfico */}
-        {chartData && chartData.length > 0 && (
+        {loadingHistory ? (
+          <div className={styles.loadingContainer}>
+            <ThreeDotsLoader message="Carregando histórico..." />
+          </div>
+        ) : chartData && chartData.length > 0 ? (
           <div className={styles.chartContainer}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
@@ -441,42 +462,48 @@ function TicketCounter() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        )}
+        ) : null}
 
         {/* Tabela de Histórico */}
         <div className={tableStyles.tableWrapper}>
-          <table className={tableStyles.modernTable}>
-            <thead>
-              <tr className={tableStyles.tableHeader}>
-                <th className={tableStyles.tableHeaderCell}>Data</th>
-                <th className={tableStyles.tableHeaderCell}>Total de Chamados</th>
-                <th className={tableStyles.tableHeaderCell}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.length > 0 ? (
-                history.map((record, index) => (
-                  <tr key={index} className={tableStyles.tableRow}>
-                    <td className={`${tableStyles.tableCell} ${tableStyles.dateCell}`}>
-                      {dayjs(record.count_date).format('DD/MM/YYYY')}
-                    </td>
-                    <td className={`${tableStyles.tableCell} ${tableStyles.countCell}`}>
-                      {record.total_count}
-                    </td>
-                    <td className={`${tableStyles.tableCell} ${tableStyles.statusCell}`}>
-                      <StatusBadge count={record.total_count} />
+          {loadingHistory ? (
+            <div className={styles.loadingContainer}>
+              <ThreeDotsLoader message="Carregando registros..." />
+            </div>
+          ) : (
+            <table className={tableStyles.modernTable}>
+              <thead>
+                <tr className={tableStyles.tableHeader}>
+                  <th className={tableStyles.tableHeaderCell}>Data</th>
+                  <th className={tableStyles.tableHeaderCell}>Total de Chamados</th>
+                  <th className={tableStyles.tableHeaderCell}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.length > 0 ? (
+                  history.map((record, index) => (
+                    <tr key={index} className={tableStyles.tableRow}>
+                      <td className={`${tableStyles.tableCell} ${tableStyles.dateCell}`}>
+                        {dayjs(record.count_date).format('DD/MM/YYYY')}
+                      </td>
+                      <td className={`${tableStyles.tableCell} ${tableStyles.countCell}`}>
+                        {record.total_count}
+                      </td>
+                      <td className={`${tableStyles.tableCell} ${tableStyles.statusCell}`}>
+                        <StatusBadge count={record.total_count} />
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className={tableStyles.emptyMessage}>
+                      Nenhum registro encontrado
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className={tableStyles.emptyMessage}>
-                    Nenhum registro encontrado
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* Paginação */}
@@ -489,7 +516,7 @@ function TicketCounter() {
             <div>
               <button
                 onClick={() => setPage(prev => Math.max(1, prev - 1))}
-                disabled={page === 1}
+                disabled={page === 1 || loadingHistory}
                 className={styles.paginationButton}
               >
                 Anterior
@@ -499,7 +526,7 @@ function TicketCounter() {
               </span>
               <button
                 onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={page === totalPages || totalPages === 0}
+                disabled={page === totalPages || totalPages === 0 || loadingHistory}
                 className={styles.paginationButton}
               >
                 Próxima
