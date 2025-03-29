@@ -1,0 +1,218 @@
+.container {
+    background-color: var(--box-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header {
+    margin-bottom: 20px;
+  }
+  
+  .title {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: var(--text-color);
+  }
+  
+  .description {
+    color: var(--text-color2);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .searchContainer {
+    margin-bottom: 20px;
+  }
+  
+  .inputWrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .input {
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background-color: var(--modals-inputs);
+    color: var(--text-color);
+  }
+  
+  .input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(10, 78, 228, 0.2);
+  }
+  
+  .searchButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .searchButton:hover {
+    background-color: var(--color-primary-hover);
+  }
+  
+  .searchButton:disabled {
+    background-color: var(--color-trodd);
+    cursor: not-allowed;
+  }
+  
+  .errorMessage {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    margin-top: 10px;
+  }
+  
+  .resultContainer {
+    background-color: var(--box-color2);
+    border-radius: 6px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+  
+  .resultHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .resultHeader h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text-color);
+  }
+  
+  .matchTag, .mismatchTag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .matchTag {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+  }
+  
+  .mismatchTag {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+  }
+  
+  .resultGridContainer {
+    margin-bottom: 20px;
+  }
+  
+  .resultGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .resultColumn {
+    background-color: var(--box-color);
+    padding: 15px;
+    border-radius: 6px;
+  }
+  
+  .resultColumn h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: var(--text-color);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .resultItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .label {
+    font-weight: 500;
+    min-width: 80px;
+    color: var(--text-color2);
+  }
+  
+  .value {
+    flex: 1;
+    color: var(--text-color);
+  }
+  
+  .highlighted {
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+  
+  .copyButton {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--text-color2);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 8px;
+  }
+  
+  .copyButton:hover {
+    background-color: var(--box-color3);
+    color: var(--text-color);
+  }
+  
+  .primaryCopyButton {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+  }
+  
+  .primaryCopyButton:hover {
+    background-color: var(--color-primary-hover);
+    color: white;
+  }
+  
+  .observationBox {
+    background-color: var(--box-color3);
+    border-left: 4px solid var(--color-primary);
+    padding: 15px;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+    color: var(--text-color);
+  }
+  
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
