@@ -12,7 +12,7 @@ import tableStyles from '../styles/HistoryTable.module.css';
 import ProgressBar from './ProgressBar';
 import StatusBadge from './StatusBadge';
 import { useApiLoader } from '../utils/apiLoader';
-import { useLoading, LocalLoader } from '../components/LoadingIndicator';
+import { useLoading } from '../components/LoadingIndicator';
 
 // Configurar dayjs para trabalhar com timezone
 dayjs.extend(utc);
@@ -21,7 +21,7 @@ dayjs.tz.setDefault("America/Sao_Paulo");
 
 function TicketCounter() {
   const [count, setCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(true); // Mantendo um estado local para controle de componentes específicos
+  const [loading, setLoading] = useState(true); // Mantemos o nome original para compatibilidade
   const [chartData, setChartData] = useState(null);
   const [dateFilter, setDateFilter] = useState({ value: 'today', label: 'Hoje' });
   const [customRange, setCustomRange] = useState({
@@ -87,7 +87,7 @@ function TicketCounter() {
       console.error('Erro ao carregar contagem:', error);
       Swal.fire('Erro', 'Erro ao carregar contagem do dia', 'error');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -95,6 +95,7 @@ function TicketCounter() {
     try {
       // Usando o novo sistema de loading
       startLoading({ message: "Incrementando contagem..." });
+      setLoading(true);
       
       // Usando o novo método callApi
       const data = await callApi('/api/ticket-count', { 
@@ -110,6 +111,7 @@ function TicketCounter() {
       Swal.fire('Erro', 'Erro ao adicionar contagem', 'error');
     } finally {
       stopLoading();
+      setLoading(false);
     }
   };
 
@@ -117,6 +119,7 @@ function TicketCounter() {
     try {
       // Usando o novo sistema de loading
       startLoading({ message: "Decrementando contagem..." });
+      setLoading(true);
       
       // Usando o novo método callApi
       const data = await callApi('/api/ticket-count', { 
@@ -132,6 +135,7 @@ function TicketCounter() {
       Swal.fire('Erro', 'Erro ao remover contagem', 'error');
     } finally {
       stopLoading();
+      setLoading(false);
     }
   };
 
@@ -149,6 +153,7 @@ function TicketCounter() {
       try {
         // Usando o novo sistema de loading
         startLoading({ message: "Limpando contagem..." });
+        setLoading(true);
         
         // Usando o novo método callApi
         await callApi('/api/ticket-count?action=clear', { 
@@ -165,6 +170,7 @@ function TicketCounter() {
         Swal.fire('Erro', error.message || 'Erro ao limpar contagem', 'error');
       } finally {
         stopLoading();
+        setLoading(false);
       }
     }
   };
@@ -299,195 +305,207 @@ function TicketCounter() {
   };
 
   return (
-    <div className={styles.ticketCounter}>
-      <div className={styles.counterContainer}>
-        <h2 className={styles.title}>Contador de Chamados</h2>
-        
-        <div className={styles.counterControls}>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className={styles.decrementButton}
-            onClick={handleDecrement}
-            disabled={count <= 0 || isLoading}
-          >
-            <Minus size={18} />
-          </motion.button>
-          
-          <div className={styles.countDisplay}>
-            {isLoading ? (
-              <LocalLoader size="small" inline={true} />
-            ) : (
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={count}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  className={styles.countNumber}
-                >
-                  {count}
-                </motion.span>
-              </AnimatePresence>
-            )}
-          </div>
-          
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className={styles.incrementButton}
-            onClick={handleIncrement}
-            disabled={isLoading}
-          >
-            <Plus size={18} />
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={styles.clearButton}
-            onClick={handleClear}
-            disabled={count <= 0 || isLoading}
-          >
-            <Trash2 size={16} />
-          </motion.button>
-        </div>
-        
-        {/* Barra de Progresso */}
-        <ProgressBar count={count} />
+    <div className={styles.counterContainer}>
+      {/* Data atual com animação suave */}
+      <motion.div 
+        className={styles.counterHeader}
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        {dayjs().tz().format('DD/MM/YYYY')}
+      </motion.div>
 
-        {/* Histórico */}
-        <div className={styles.historyContainer}>
-          <div className={styles.historyHeader}>
-            <div className={styles.filterContainer}>
-              <Select
-                value={dateFilter}
-                onChange={(option) => {
-                  setDateFilter(option);
-                  setPage(1);
-                }}
-                options={filterOptions}
-                styles={customSelectStyles}
-                className={styles.selectFilter}
-                isSearchable={false}
+      {/* Container do contador com efeito de hover */}
+      <motion.div 
+        className={styles.counterDisplay}
+        whileHover={{ scale: 1.01 }}
+        transition={{ type: "spring", stiffness: 400 }}
+      >
+        <motion.button
+          className={`${styles.counterButton} ${styles.decrementButton}`}
+          onClick={handleDecrement}
+          disabled={loading || count === 0}
+          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Minus size={32} />
+        </motion.button>
+
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={count}
+            className={styles.counterValue}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {loading ? '...' : count}
+          </motion.div>
+        </AnimatePresence>
+
+        <motion.button
+          className={`${styles.counterButton} ${styles.incrementButton}`}
+          onClick={handleIncrement}
+          disabled={loading}
+          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Plus size={32} />
+        </motion.button>
+      </motion.div>
+
+      <motion.button
+        className={styles.clearButton}
+        onClick={handleClear}
+        disabled={loading || count === 0}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ duration: 0.2 }}
+      >
+        <div className={styles.clearButtonContent}>
+          <Trash2 size={20} />
+          <span>Limpar Contagem do Dia</span>
+        </div>
+      </motion.button>
+
+      {/* Barra de Progresso */}
+      <ProgressBar count={count} />
+
+      {/* Histórico */}
+      <div className={styles.historyContainer}>
+        <div className={styles.historyHeader}>
+          <div className={styles.filterContainer}>
+            <Select
+              value={dateFilter}
+              onChange={(option) => {
+                setDateFilter(option);
+                setPage(1);
+              }}
+              options={filterOptions}
+              styles={customSelectStyles}
+              className={styles.selectFilter}
+              isSearchable={false}
+            />
+          </div>
+
+          {dateFilter.value === 'custom' && (
+            <div className={styles.dateRangeContainer}>
+              <input
+                type="date"
+                value={customRange.startDate}
+                onChange={(e) => setCustomRange(prev => ({ ...prev, startDate: e.target.value }))}
+                className={styles.dateInput}
+              />
+              <input
+                type="date"
+                value={customRange.endDate}
+                onChange={(e) => setCustomRange(prev => ({ ...prev, endDate: e.target.value }))}
+                className={styles.dateInput}
               />
             </div>
-
-            {dateFilter.value === 'custom' && (
-              <div className={styles.dateRangeContainer}>
-                <input
-                  type="date"
-                  value={customRange.startDate}
-                  onChange={(e) => setCustomRange(prev => ({ ...prev, startDate: e.target.value }))}
-                  className={styles.dateInput}
-                />
-                <input
-                  type="date"
-                  value={customRange.endDate}
-                  onChange={(e) => setCustomRange(prev => ({ ...prev, endDate: e.target.value }))}
-                  className={styles.dateInput}
-                />
-              </div>
-            )}
-          </div>
-
-          {/* Gráfico */}
-          {chartData && chartData.length > 0 && (
-            <div className={styles.chartContainer}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="date"
-                    tick={{ fill: 'var(--text-color)' }}
-                  />
-                  <YAxis 
-                    tick={{ fill: 'var(--text-color)' }}
-                  />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: 'var(--box-color)',
-                      border: '1px solid var(--color-border)',
-                      color: 'var(--text-color)'
-                    }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="count" 
-                    stroke="var(--color-accent3)" 
-                    strokeWidth={2}
-                    dot={{ fill: 'var(--color-accent3)', strokeWidth: 2 }}
-                    activeDot={{ r: 6, fill: 'var(--color-accent3)' }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
           )}
+        </div>
 
-          {/* Tabela de Histórico */}
-          <div className={tableStyles.tableWrapper}>
-            <table className={tableStyles.modernTable}>
-              <thead>
-                <tr className={tableStyles.tableHeader}>
-                  <th className={tableStyles.tableHeaderCell}>Data</th>
-                  <th className={tableStyles.tableHeaderCell}>Total de Chamados</th>
-                  <th className={tableStyles.tableHeaderCell}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {history.length > 0 ? (
-                  history.map((record, index) => (
-                    <tr key={index} className={tableStyles.tableRow}>
-                      <td className={`${tableStyles.tableCell} ${tableStyles.dateCell}`}>
-                        {dayjs(record.count_date).format('DD/MM/YYYY')}
-                      </td>
-                      <td className={`${tableStyles.tableCell} ${tableStyles.countCell}`}>
-                        {record.total_count}
-                      </td>
-                      <td className={`${tableStyles.tableCell} ${tableStyles.statusCell}`}>
-                        <StatusBadge count={record.total_count} />
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="3" className={tableStyles.emptyMessage}>
-                      Nenhum registro encontrado
+        {/* Gráfico */}
+        {chartData && chartData.length > 0 && (
+          <div className={styles.chartContainer}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="date"
+                  tick={{ fill: 'var(--text-color)' }}
+                />
+                <YAxis 
+                  tick={{ fill: 'var(--text-color)' }}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'var(--box-color)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--text-color)'
+                  }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="count" 
+                  stroke="var(--color-accent3)" 
+                  strokeWidth={2}
+                  dot={{ fill: 'var(--color-accent3)', strokeWidth: 2 }}
+                  activeDot={{ r: 6, fill: 'var(--color-accent3)' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Tabela de Histórico */}
+        <div className={tableStyles.tableWrapper}>
+          <table className={tableStyles.modernTable}>
+            <thead>
+              <tr className={tableStyles.tableHeader}>
+                <th className={tableStyles.tableHeaderCell}>Data</th>
+                <th className={tableStyles.tableHeaderCell}>Total de Chamados</th>
+                <th className={tableStyles.tableHeaderCell}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.length > 0 ? (
+                history.map((record, index) => (
+                  <tr key={index} className={tableStyles.tableRow}>
+                    <td className={`${tableStyles.tableCell} ${tableStyles.dateCell}`}>
+                      {dayjs(record.count_date).format('DD/MM/YYYY')}
+                    </td>
+                    <td className={`${tableStyles.tableCell} ${tableStyles.countCell}`}>
+                      {record.total_count}
+                    </td>
+                    <td className={`${tableStyles.tableCell} ${tableStyles.statusCell}`}>
+                      <StatusBadge count={record.total_count} />
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className={tableStyles.emptyMessage}>
+                    Nenhum registro encontrado
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-          {/* Paginação */}
-          <div className={styles.pagination}>
-            <div className={styles.paginationInfo}>
-              <span>Total de registros: {totalCount}</span>
-              <span>Total de chamados: {totalTickets}</span>
-            </div>
-            {totalCount > 0 && (
-              <div>
-                <button
-                  onClick={() => setPage(prev => Math.max(1, prev - 1))}
-                  disabled={page === 1}
-                  className={styles.paginationButton}
-                >
-                  Anterior
-                </button>
-                <span style={{ margin: '0 1rem' }}>
-                  Página {page} de {Math.max(1, totalPages)}
-                </span>
-                <button
-                  onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={page === totalPages || totalPages === 0}
-                  className={styles.paginationButton}
-                >
-                  Próxima
-                </button>
-              </div>
-            )}
+        {/* Paginação */}
+        <div className={styles.pagination}>
+          <div className={styles.paginationInfo}>
+            <span>Total de registros: {totalCount}</span>
+            <span>Total de chamados: {totalTickets}</span>
           </div>
+          {totalCount > 0 && (
+            <div>
+              <button
+                onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                disabled={page === 1}
+                className={styles.paginationButton}
+              >
+                Anterior
+              </button>
+              <span style={{ margin: '0 1rem' }}>
+                Página {page} de {Math.max(1, totalPages)}
+              </span>
+              <button
+                onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={page === totalPages || totalPages === 0}
+                className={styles.paginationButton}
+              >
+                Próxima
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -22,6 +22,7 @@ export default function ManageUsers({ user }) {
     telefone: false,
     chat: false,
   });
+  const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [originalEmail, setOriginalEmail] = useState(''); // Para rastrear o e-mail original durante a edição
@@ -46,6 +47,7 @@ export default function ManageUsers({ user }) {
   const loadUsers = async () => {
     try {
       startLoading({ message: "Carregando usuários..." });
+      setLoading(true);
       
       const data = await callApi('/api/manage-user', {}, {
         message: "Carregando usuários...",
@@ -65,6 +67,7 @@ export default function ManageUsers({ user }) {
       });
     } finally {
       stopLoading();
+      setLoading(false);
     }
   };
 
@@ -104,6 +107,7 @@ export default function ManageUsers({ user }) {
 
     try {
       startLoading({ message: "Inativando usuário..." });
+      setLoading(true);
       
       await callApi(`/api/manage-user?id=${userId}`, {
         method: 'DELETE',
@@ -133,11 +137,13 @@ export default function ManageUsers({ user }) {
       });
     } finally {
       stopLoading();
+      setLoading(false);
     }
   };
 
   const handleSaveUser = async () => {
     try {
+      startLoading({ message: isEditing ? "Atualizando usuário..." : "Adicionando usuário..." });
       setLoading(true);
 
       if (!isEditing) {
@@ -158,6 +164,7 @@ export default function ManageUsers({ user }) {
             showConfirmButton: true,
             allowOutsideClick: true,
           });
+          stopLoading();
           setLoading(false);
           return;
         }
@@ -183,6 +190,7 @@ export default function ManageUsers({ user }) {
           });
 
           if (!result.isConfirmed) {
+            stopLoading();
             setLoading(false);
             return;
           }
@@ -198,55 +206,48 @@ export default function ManageUsers({ user }) {
             Deseja prosseguir com esta alteração?
           `,
           showCancelButton: true,
-          confirmButtonText: 'Sim, alterar e-mail',
+          confirmButtonText: 'Sim, alterar',
           cancelButtonText: 'Cancelar',
           allowOutsideClick: true,
         });
 
         if (!isEmailChangeConfirmed.isConfirmed) {
+          stopLoading();
           setLoading(false);
           return;
         }
       }
 
+      // Lógica de cadastro/atualização
       const method = isEditing ? 'PUT' : 'POST';
-      const payload = {
-        ...newUser,
-        originalEmail: isEditing ? originalEmail : null // Envia o e-mail original para o backend
-      };
       
-      const res = await fetch('/api/manage-user', {
+      // Usando o novo método callApi
+      const result = await callApi('/api/manage-user', {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...newUser,
+          originalEmail: isEditing ? originalEmail : null,
+        }),
+      }, {
+        message: isEditing ? "Atualizando usuário..." : "Adicionando usuário..."
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Erro ao salvar usuário');
-      }
-
+      // Recarregar a lista após salvar
       await loadUsers();
 
-      setNewUser({ 
-        name: '', 
-        email: '', 
-        profile: '', 
-        squad: '', 
-        chamado: false, 
-        telefone: false, 
-        chat: false 
-      });
-      setIsEditing(false);
+      // Fechar modal e limpar formulário
       setModalIsOpen(false);
-      setOriginalEmail('');
+      resetForm();
 
       Swal.fire({
         icon: 'success',
-        title: 'Sucesso!',
-        text: isEditing ? 'Usuário atualizado com sucesso.' : 'Usuário adicionado com sucesso.',
+        title: isEditing ? 'Atualizado!' : 'Adicionado!',
+        text: isEditing
+          ? 'O usuário foi atualizado com sucesso.'
+          : 'O usuário foi adicionado com sucesso.',
         timer: 2000,
         showConfirmButton: false,
         allowOutsideClick: true,
@@ -262,28 +263,32 @@ export default function ManageUsers({ user }) {
         allowOutsideClick: true,
       });
     } finally {
+      stopLoading();
       setLoading(false);
     }
   };
 
-  const handleOpenModal = () => {
-    setNewUser({ 
-      name: '', 
-      email: '', 
-      profile: '', 
-      squad: '', 
-      chamado: false, 
-      telefone: false, 
-      chat: false 
+  const resetForm = () => {
+    setNewUser({
+      name: '',
+      email: '',
+      profile: '',
+      squad: '',
+      chamado: false,
+      telefone: false,
+      chat: false
     });
-    setOriginalEmail('');
     setIsEditing(false);
+    setOriginalEmail('');
+  };
+
+  const handleOpenModal = () => {
+    resetForm();
     setModalIsOpen(true);
   };
 
   const handleCloseModal = () => {
     setModalIsOpen(false);
-    setOriginalEmail('');
   };
 
   // Estilos personalizados para o React-Select
