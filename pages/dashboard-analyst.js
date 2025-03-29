@@ -11,9 +11,10 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
+import { useApiLoader } from '../utils/apiLoader';
+import { useLoading, LocalLoader } from '../components/LoadingIndicator';
 
 export default function DashboardAnalyst({ user }) {
-  const [loading, setLoading] = useState(true);
   const [initialLoading, setInitialLoading] = useState(true);
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState(null);
@@ -23,7 +24,9 @@ export default function DashboardAnalyst({ user }) {
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [categoryLoading, setCategoryLoading] = useState(false);
   
-  // Estado para os filtros de período
+  const { callApi } = useApiLoader();
+  const { startLoading, stopLoading } = useLoading();
+  
   const [periodFilter, setPeriodFilter] = useState({ value: 'last7days', label: 'Últimos 7 dias' });
   const [customDateRange, setCustomDateRange] = useState({
     startDate: dayjs().subtract(7, 'day').format('YYYY-MM-DD'),
@@ -31,7 +34,6 @@ export default function DashboardAnalyst({ user }) {
   });
   const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
 
-  // Opções de filtro de período
   const periodOptions = [
     { value: 'today', label: 'Hoje' },
     { value: 'last7days', label: 'Últimos 7 dias' },
@@ -40,7 +42,6 @@ export default function DashboardAnalyst({ user }) {
     { value: 'custom', label: 'Período personalizado' }
   ];
 
-  // Definir saudação baseada na hora do dia
   useEffect(() => {
     setTimeout(() => {
       const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
@@ -60,12 +61,10 @@ export default function DashboardAnalyst({ user }) {
     }, 500);
   }, []);
 
-  // Exibir/ocultar o seletor de datas personalizadas
   useEffect(() => {
     setShowCustomDatePicker(periodFilter.value === 'custom');
   }, [periodFilter]);
 
-  // Fetch dos dados quando o filtro é alterado
   useEffect(() => {
     if (!initialLoading && user?.id) {
       fetchRecords();
@@ -74,7 +73,6 @@ export default function DashboardAnalyst({ user }) {
     }
   }, [initialLoading, periodFilter, customDateRange, user]);
 
-  // Função para obter datas com base no filtro
   const getDateRange = () => {
     const today = dayjs();
     let startDate, endDate, filter;
@@ -114,7 +112,6 @@ export default function DashboardAnalyst({ user }) {
     return { startDate, endDate, filter };
   };
 
-  // Fetch registros do analista (para o gráfico, com base no filtro selecionado)
   const fetchRecords = async () => {
     if (!user?.id) {
       console.error("ID do analista não encontrado.");
@@ -122,26 +119,23 @@ export default function DashboardAnalyst({ user }) {
     }
 
     try {
-      setLoading(true);
+      startLoading({ message: "Carregando dados de registros..." });
+      
       const { filter, startDate, endDate } = getDateRange();
       
-      // Construir URL com parâmetros de data
       let url = `/api/get-analyst-records?analystId=${user.id}`;
       
-      // Para filtro personalizado, usamos os parâmetros startDate e endDate
       if (periodFilter.value === 'custom') {
         url += `&startDate=${startDate}&endDate=${endDate}`;
       } else {
-        // Caso contrário, mantemos compatibilidade com o filtro existente
         url += `&filter=${filter}`;
       }
       
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error('Erro ao buscar registros.');
-      }
-
-      const data = await res.json();
+      const data = await callApi(url, {}, {
+        message: "Carregando dados de registros...",
+        showLoading: true
+      });
+      
       setRecordCount(data.count);
       
       if (data.count > 0) {
@@ -167,11 +161,10 @@ export default function DashboardAnalyst({ user }) {
       setRecordCount(0);
       setChartData(null);
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   };
 
-  // Fetch leaderboard de usuários com base no período selecionado
   const fetchLeaderboard = async () => {
     if (!user?.id) {
       console.error("ID do analista não encontrado.");
@@ -182,50 +175,43 @@ export default function DashboardAnalyst({ user }) {
       setLeaderboardLoading(true);
       const { startDate, endDate } = getDateRange();
       
-      // Usar a API específica de leaderboard com os parâmetros de data
       const url = `/api/get-analyst-leaderboard?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}`;
       
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error('Erro ao buscar registros para o leaderboard.');
-      }
-
-      const data = await res.json();
+      const data = await callApi(url, {}, {
+        message: "Carregando classificação...",
+        type: "local",
+        showLoading: false
+      });
       
       if (!data.rows || data.rows.length === 0) {
         setLeaderboard([]);
         return;
       }
 
-      // Processar os dados do leaderboard
       const userMap = new Map();
 
-      // Processar os dados recebidos da API
       data.rows.forEach(row => {
-        // Presumindo que os dados do usuário estão nas posições 2 (nome) e 3 (email) e a contagem na posição 4
-        const userName = row[2]; // nome do usuário
-        const count = parseInt(row[4]); // contagem de ajudas
+        const userName = row[2];
+        const count = parseInt(row[4]);
         
         if (userName) {
           userMap.set(userName, { name: userName, count: count });
         }
       });
 
-      // Ordenar por contagem e pegar os top 5
       const sortedUsers = Array.from(userMap.values())
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
 
       setLeaderboard(sortedUsers);
     } catch (err) {
-      console.error('Erro ao carregar leaderboard:', err);
+      console.error('Erro ao buscar leaderboard:', err);
       setLeaderboard([]);
     } finally {
       setLeaderboardLoading(false);
     }
   };
 
-  // Fetch ranking de categorias com base no período selecionado
   const fetchCategoryRanking = async () => {
     if (!user?.id) {
       console.error("ID do analista não encontrado.");
@@ -236,22 +222,19 @@ export default function DashboardAnalyst({ user }) {
       setCategoryLoading(true);
       const { startDate, endDate } = getDateRange();
       
-      // Usar a API específica de ranking de categorias com os parâmetros de data
       const url = `/api/get-category-ranking?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}`;
       
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error('Erro ao buscar registros das categorias.');
-      }
-
-      const data = await res.json();
+      const data = await callApi(url, {}, {
+        message: "Carregando ranking de categorias...",
+        type: "local",
+        showLoading: false
+      });
       
       if (!data.categories || data.categories.length === 0) {
         setCategoryRanking([]);
         return;
       }
 
-      // Usar diretamente os dados formatados da API
       setCategoryRanking(data.categories);
     } catch (err) {
       console.error('Erro ao carregar ranking das categorias:', err);
@@ -273,7 +256,6 @@ export default function DashboardAnalyst({ user }) {
     setCustomDateRange(prev => ({ ...prev, endDate: e.target.value }));
   };
 
-  // Estilos personalizados para o React-Select
   const customSelectStyles = {
     container: (provided) => ({
       ...provided,
@@ -353,8 +335,8 @@ export default function DashboardAnalyst({ user }) {
 
   if (initialLoading) {
     return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
+      <div className={styles.loadingContainer}>
+        <LocalLoader message="Carregando dashboard..." size="large" />
       </div>
     );
   }
@@ -391,7 +373,6 @@ export default function DashboardAnalyst({ user }) {
           </div>
         </div>
 
-        {/* Seção de filtro de período */}
         <div className={styles.periodFilterSection}>
           <h3 className={styles.sectionTitle}>Período de Análise</h3>
           <div className={styles.periodFilterControls}>
@@ -444,7 +425,6 @@ export default function DashboardAnalyst({ user }) {
           </div>
         </div>
 
-        {/* Cartão de resumo */}
         <div className={styles.summaryCard}>
           <div className={styles.summaryHeader}>
             <h3>Resumo de Desempenho</h3>
@@ -474,10 +454,9 @@ export default function DashboardAnalyst({ user }) {
           </div>
         </div>
 
-        {/* Gráfico */}
         <div className={styles.chartContainer}>
           <h3 className={styles.chartTitle}>Distribuição de Auxilios</h3>
-          {loading ? (
+          {leaderboardLoading ? (
             <div className={styles.loadingContainer}>
               <div className="standardBoxLoader"></div>
             </div>
@@ -554,9 +533,7 @@ export default function DashboardAnalyst({ user }) {
           )}
         </div>
 
-        {/* Container de rankings */}
         <div className={styles.rankingsContainer}>
-          {/* Leaderboard */}
           <div className={styles.rankingCard}>
             <h3 className={styles.rankingTitle}>Top 5 - Usuários com Mais Ajudas</h3>
             {leaderboardLoading ? (
@@ -591,7 +568,6 @@ export default function DashboardAnalyst({ user }) {
             )}
           </div>
 
-          {/* Ranking de categorias */}
           <div className={styles.rankingCard}>
             <h3 className={styles.rankingTitle}>Top 10 - Temas de Dúvidas</h3>
             {categoryLoading ? (

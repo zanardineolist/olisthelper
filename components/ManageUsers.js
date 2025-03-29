@@ -7,6 +7,8 @@ import generalStyles from '../styles/Manager.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import stringSimilarity from 'string-similarity';
+import { useApiLoader } from '../utils/apiLoader';
+import { useLoading, LocalLoader } from '../components/LoadingIndicator';
 
 export default function ManageUsers({ user }) {
   const [users, setUsers] = useState([]);
@@ -20,10 +22,12 @@ export default function ManageUsers({ user }) {
     telefone: false,
     chat: false,
   });
-  const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [originalEmail, setOriginalEmail] = useState(''); // Para rastrear o e-mail original durante a edição
+  
+  const { callApi } = useApiLoader();
+  const { startLoading, stopLoading } = useLoading();
 
   const profileOptions = [
     { value: 'support', label: 'Suporte' },
@@ -41,14 +45,12 @@ export default function ManageUsers({ user }) {
 
   const loadUsers = async () => {
     try {
-      setLoading(true);
-      const res = await fetch('/api/manage-user');
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Erro ao carregar usuários');
-      }
-      const data = await res.json();
-      // Filtrar apenas usuários ativos
+      startLoading({ message: "Carregando usuários..." });
+      
+      const data = await callApi('/api/manage-user', {}, {
+        message: "Carregando usuários...",
+      });
+      
       const activeUsers = data.users.filter(u => u.active === true);
       setUsers(activeUsers);
     } catch (err) {
@@ -62,7 +64,7 @@ export default function ManageUsers({ user }) {
         allowOutsideClick: true,
       });
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   };
 
@@ -101,15 +103,13 @@ export default function ManageUsers({ user }) {
     }
 
     try {
-      setLoading(true);
-      const res = await fetch(`/api/manage-user?id=${userId}`, {
-        method: 'DELETE',
-      });
+      startLoading({ message: "Inativando usuário..." });
       
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Erro ao inativar usuário');
-      }
+      await callApi(`/api/manage-user?id=${userId}`, {
+        method: 'DELETE',
+      }, {
+        message: "Inativando usuário..."
+      });
 
       await loadUsers();
 
@@ -132,7 +132,7 @@ export default function ManageUsers({ user }) {
         allowOutsideClick: true,
       });
     } finally {
-      setLoading(false);
+      stopLoading();
     }
   };
 

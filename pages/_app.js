@@ -2,7 +2,7 @@
 import '../styles/globals.css';
 import '../styles/shared-messages/variables.css';
 import { SessionProvider } from 'next-auth/react';
-import LoadingIndicator from '../components/LoadingIndicator';
+import { LoadingProvider } from '../components/LoadingIndicator';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
@@ -32,8 +32,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 
   return (
     <SessionProvider session={session}>
-      <LoadingIndicator />
-      <Component {...pageProps} />
+      <LoadingProvider>
+        <Component {...pageProps} />
+      </LoadingProvider>
     </SessionProvider>
   );
 }

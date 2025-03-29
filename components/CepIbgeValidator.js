@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaCheckCircle, FaExclamationTriangle, FaSpinner, FaSearch, FaHistory, FaEye } from 'react-icons/fa';
 import styles from '../styles/CepValidator.module.css';
+import { useApiLoader } from '../utils/apiLoader';
+import { LocalLoader, useLoading } from './LoadingIndicator';
 
 const PopularCepCard = ({ cepData, onSelect }) => {
   if (!cepData) return null;
@@ -40,31 +42,29 @@ const PopularCepCard = ({ cepData, onSelect }) => {
 const CepIbgeValidator = () => {
   const [cep, setCep] = useState('');
   const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
   const [popularCeps, setPopularCeps] = useState([]);
-  const [loadingPopular, setLoadingPopular] = useState(true);
+  
+  // Usando o hook personalizado para as chamadas de API com loading
+  const { callApi } = useApiLoader();
+  const { startLoading, stopLoading } = useLoading();
 
   useEffect(() => {
     fetchPopularCeps();
   }, []);
 
   const fetchPopularCeps = async () => {
-    setLoadingPopular(true);
     try {
-      const response = await fetch('/api/cep-top-searched?limit=3');
+      // Utilizando o novo sistema de loading para componentes específicos
+      const data = await callApi('/api/cep-top-searched?limit=3', {}, {
+        message: 'Carregando CEPs populares...',
+        type: 'local' // Utilizando loading local em vez de fullscreen
+      });
       
-      if (!response.ok) {
-        throw new Error('Falha ao buscar CEPs populares');
-      }
-      
-      const data = await response.json();
       setPopularCeps(data);
     } catch (err) {
       console.error('Erro ao buscar CEPs populares:', err);
-    } finally {
-      setLoadingPopular(false);
     }
   };
 
@@ -98,23 +98,17 @@ const CepIbgeValidator = () => {
       return;
     }
 
-    setLoading(true);
     try {
-      const response = await fetch(`/api/cep-ibge?cep=${cepNumerico}`);
+      // Usando o sistema centralizado de loading
+      const data = await callApi(`/api/cep-ibge?cep=${cepNumerico}`, {}, {
+        message: 'Consultando CEP...'
+      });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro ao consultar o CEP');
-      }
-      
-      const data = await response.json();
       setResult(data);
       // Atualiza lista de CEPs populares após busca bem-sucedida
       fetchPopularCeps();
     } catch (err) {
       setError(err.message || 'Erro ao consultar o CEP');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -163,9 +157,8 @@ const CepIbgeValidator = () => {
           <button 
             onClick={validateCep} 
             className={styles.searchButton}
-            disabled={loading}
           >
-            {loading ? <FaSpinner className={styles.spinner} /> : <FaSearch />}
+            <FaSearch />
             <span>Consultar</span>
           </button>
         </div>
@@ -185,10 +178,9 @@ const CepIbgeValidator = () => {
           CEPs mais consultados
         </h3>
         
-        {loadingPopular ? (
+        {popularCeps.length === 0 ? (
           <div className={styles.loadingPopular}>
-            <FaSpinner className={styles.spinner} />
-            <span>Carregando CEPs populares...</span>
+            <LocalLoader message="Carregando CEPs populares..." size="small" />
           </div>
         ) : popularCeps.length > 0 ? (
           <div className={styles.popularCepsGrid}>
