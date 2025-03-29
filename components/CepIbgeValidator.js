@@ -146,7 +146,7 @@ const CepIbgeValidator = () => {
       <div className={styles.header}>
         <h2 className={styles.title}>Validador CEP x IBGE</h2>
         <p className={styles.description}>
-          Consulte um CEP para obter a nomenclatura correta da cidade conforme o IBGE (utilizada pela SEFAZ)
+          Consulte um CEP para obter a nomenclatura correta da cidade conforme o IBGE.
         </p>
       </div>
 
