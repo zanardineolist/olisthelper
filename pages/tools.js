@@ -211,8 +211,7 @@ export default function ToolsPage({ user }) {
                 </p>
                 <p>
                   Divergências comuns incluem acentuação, artigos (do/da), abreviações e nomes históricos que 
-                  foram alterados oficialmente. Por exemplo, "Feira de Santana" vs "Feira de Santana" (sem acento) 
-                  ou "São José dos Campos" vs "S. J. dos Campos".
+                  foram alterados oficialmente.
                 </p>
               </div>
             </>
