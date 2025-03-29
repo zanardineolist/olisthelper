@@ -227,13 +227,6 @@ const CepIbgeValidator = () => {
                 <div className={styles.resultItem}>
                   <span className={styles.label}>Cidade:</span>
                   <span className={styles.value}>{result.correios.cidade}</span>
-                  <button 
-                    onClick={() => copyToClipboard(result.correios.cidade)}
-                    className={styles.copyButton}
-                    title="Copiar nome da cidade (Correios)"
-                  >
-                    {copied ? <FaCheckCircle /> : 'Copiar'}
-                  </button>
                 </div>
                 <div className={styles.resultItem}>
                   <span className={styles.label}>UF:</span>
