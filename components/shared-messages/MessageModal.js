@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaUser, FaClock, FaGlobe, FaLock, FaTag, FaStar, FaTimes, FaHeart } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
@@ -6,6 +6,7 @@ import MessageActions from './MessageActions';
 import styles from '../../styles/shared-messages/Form.module.css';
 import cardStyles from '../../styles/shared-messages/Card.module.css';
 import tagStyles from '../../styles/shared-messages/Tags.module.css';
+import { createPortal } from 'react-dom';
 
 // Formatação relativa de tempo (reutilizada dos componentes de card/row)
 function formatRelativeTime(dateString) {
@@ -30,6 +31,17 @@ function formatDateTimeBR(dateString) {
 
 const MessageModal = ({ message, onClose, isPopular }) => {
   const { POPULAR_THRESHOLD } = useMessageContext();
+  
+  // Efeito para prevenir rolagem do body quando o modal está aberto
+  useEffect(() => {
+    // Desabilita a rolagem do body quando o modal é aberto
+    document.body.style.overflow = 'hidden';
+    
+    // Restaura a rolagem quando o modal é fechado
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
 
   // Variantes de animação para o modal
   const modalVariants = {
@@ -52,7 +64,8 @@ const MessageModal = ({ message, onClose, isPopular }) => {
     exit: { opacity: 0 }
   };
 
-  return (
+  // Usando createPortal para renderizar o modal diretamente no body
+  return createPortal(
     <motion.div 
       className={styles.modalOverlay}
       initial="hidden"
@@ -161,7 +174,7 @@ const MessageModal = ({ message, onClose, isPopular }) => {
         </div>
       </motion.div>
     </motion.div>
-  );
+  , document.body);
 };
 
 export default MessageModal;
