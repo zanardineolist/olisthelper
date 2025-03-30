@@ -87,14 +87,6 @@ const MessageModal = ({ message, onClose, isPopular }) => {
             {message.title}
           </h2>
           <div className={cardStyles.cardBadges}>
-            {/* Indicador de público/privado */}
-            <span 
-              className={cardStyles.visibilityBadge} 
-              title={message.is_public ? "Mensagem pública" : "Mensagem privada"}
-            >
-              {message.is_public ? <FaGlobe /> : <FaLock />}
-            </span>
-            
             {/* Indicador de popular */}
             {isPopular && (
               <span className={cardStyles.popularBadge} title={`Mais de ${POPULAR_THRESHOLD} favoritos`}>
@@ -116,7 +108,7 @@ const MessageModal = ({ message, onClose, isPopular }) => {
           <span 
             className={cardStyles.visibilityBadge} 
             title={message.is_public ? "Mensagem pública" : "Mensagem privada"}
-            style={{ marginRight: '10px' }}
+            style={{ marginRight: '2px' }}
           >
             {message.is_public ? <FaGlobe /> : <FaLock />}
           </span>
