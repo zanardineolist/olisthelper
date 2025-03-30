@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FaUser, FaClock, FaGlobe, FaLock, FaTag, FaStar, FaHeart, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaUser, FaClock, FaGlobe, FaLock, FaTag, FaStar, FaHeart, FaEye } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
 import MessageActions from './MessageActions';
+import MessageModal from './MessageModal';
 import styles from '../../styles/shared-messages/Row.module.css';
 import tagStyles from '../../styles/shared-messages/Tags.module.css';
 
@@ -28,7 +29,7 @@ function formatDateTimeBR(dateString) {
 }
 
 const MessageRow = ({ message, isPopular }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const { POPULAR_THRESHOLD } = useMessageContext();
 
   // Variantes simplificadas para animação
@@ -86,28 +87,19 @@ const MessageRow = ({ message, isPopular }) => {
 
         {/* Conteúdo */}
         <div className={styles.rowContent}>
-          <div className={`${styles.messagePreview} ${isExpanded ? styles.expanded : ''}`}>
-            {message.content}
-          </div>
-          
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)} 
-            className={styles.expandButton}
-            aria-expanded={isExpanded}
-          >
-            {isExpanded ? (
-              <>
-                <FaEyeSlash className={styles.expandIcon} />
-                <span>Ver menos</span>
-              </>
-            ) : (
-              <>
-                <FaEye className={styles.expandIcon} />
-                <span>Ver mais</span>
-              </>
-            )}
-          </button>
+        <div className={styles.messagePreview}>
+          {message.content.length > 150 ? `${message.content.substring(0, 150)}...` : message.content}
         </div>
+        
+        <button 
+          onClick={() => setShowModal(true)} 
+          className={styles.expandButton}
+          aria-label="Ver detalhes da mensagem"
+        >
+          <FaEye className={styles.expandIcon} />
+          <span>Ver mais</span>
+        </button>
+      </div>
         
         {/* Metadados do autor e tempo */}
         <div className={styles.rowMeta}>
@@ -135,6 +127,17 @@ const MessageRow = ({ message, isPopular }) => {
       <div className={styles.rowActions}>
         <MessageActions message={message} />
       </div>
+
+      {/* Modal de visualização completa */}
+      <AnimatePresence>
+        {showModal && (
+          <MessageModal 
+            message={message} 
+            onClose={() => setShowModal(false)}
+            isPopular={isPopular}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

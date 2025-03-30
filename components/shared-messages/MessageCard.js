@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FaUser, FaClock, FaGlobe, FaLock, FaTag, FaStar, FaHeart, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaUser, FaClock, FaGlobe, FaLock, FaTag, FaStar, FaHeart, FaEye } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
 import MessageActions from './MessageActions';
+import MessageModal from './MessageModal';
 import cardStyles from '../../styles/shared-messages/Card.module.css';
 import tagStyles from '../../styles/shared-messages/Tags.module.css';
 
@@ -28,16 +29,14 @@ function formatDateTimeBR(dateString) {
 }
 
 const MessageCard = ({ message, isPopular }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const { POPULAR_THRESHOLD } = useMessageContext();
 
-  // Verificar se o conteúdo precisa do botão de expandir
+  // Verificar se o conteúdo precisa do botão de "Ver mais"
   const needsExpansion = message.content.length > 150;
-  const displayContent = isExpanded 
-    ? message.content 
-    : needsExpansion 
-      ? `${message.content.substring(0, 150)}...` 
-      : message.content;
+  const displayContent = needsExpansion 
+    ? `${message.content.substring(0, 150)}...` 
+    : message.content;
 
   // Variantes simplificadas para animação com Framer Motion (mais suaves)
   const cardVariants = {
@@ -50,7 +49,7 @@ const MessageCard = ({ message, isPopular }) => {
 
   return (
     <motion.div 
-      className={`${cardStyles.messageCard} ${isPopular ? cardStyles.popularCard : ''} ${isExpanded ? cardStyles.expandedCard : ''}`}
+      className={`${cardStyles.messageCard} ${isPopular ? cardStyles.popularCard : ''}`}
       whileHover="hover"
       variants={cardVariants}
     >
@@ -97,21 +96,12 @@ const MessageCard = ({ message, isPopular }) => {
         
         {needsExpansion && (
           <button 
-            onClick={() => setIsExpanded(!isExpanded)} 
+            onClick={() => setShowModal(true)} 
             className={cardStyles.expandButton}
-            aria-expanded={isExpanded}
+            aria-label="Ver detalhes da mensagem"
           >
-            {isExpanded ? (
-              <>
-                <FaEyeSlash className={cardStyles.expandIcon} />
-                <span>Ver menos</span>
-              </>
-            ) : (
-              <>
-                <FaEye className={cardStyles.expandIcon} />
-                <span>Ver mais</span>
-              </>
-            )}
+            <FaEye className={cardStyles.expandIcon} />
+            <span>Ver mais</span>
           </button>
         )}
       </div>
@@ -138,6 +128,17 @@ const MessageCard = ({ message, isPopular }) => {
         {/* Ações */}
         <MessageActions message={message} />
       </div>
+
+      {/* Modal de visualização completa */}
+      <AnimatePresence>
+        {showModal && (
+          <MessageModal 
+            message={message} 
+            onClose={() => setShowModal(false)}
+            isPopular={isPopular}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
