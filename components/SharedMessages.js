@@ -92,7 +92,8 @@ const SharedMessages = ({ user }) => {
       }
       
       setMessages(sortedMessages);
-      setTotalPages(data.totalPages || Math.ceil(sortedMessages.length / ITEMS_PER_PAGE) || 1);
+      // Corrigindo o cálculo de totalPages para usar o número total de mensagens em vez do tamanho do array atual
+      setTotalPages(data.totalPages || Math.ceil(data.totalMessages / ITEMS_PER_PAGE) || 1);
       setTotalMessages(data.totalMessages || sortedMessages.length || 0);
       
       // Atualizar tags disponíveis - excluir duplicatas

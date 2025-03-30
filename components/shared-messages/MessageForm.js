@@ -34,8 +34,6 @@ const MessageForm = ({ formData: initialFormData, setFormData: setParentFormData
     
     if (!formData.content.trim()) {
       newErrors.content = 'Conteúdo é obrigatório';
-    } else if (formData.content.length > 5000) {
-      newErrors.content = 'Conteúdo deve ter no máximo 5000 caracteres';
     }
     
     setErrors(newErrors);
@@ -178,7 +176,7 @@ const MessageForm = ({ formData: initialFormData, setFormData: setParentFormData
                   aria-describedby={errors.content ? "content-error" : undefined}
                 />
                 <span className={styles.charCount} aria-live="polite">
-                  {charCount.content}/5000
+                  {charCount.content}
                 </span>
               </div>
               {errors.content && (
