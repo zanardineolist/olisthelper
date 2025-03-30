@@ -109,7 +109,7 @@ const MessageModal = ({ message, onClose, isPopular }) => {
             <span 
               className={cardStyles.visibilityBadge} 
               title={message.is_public ? "Mensagem pública" : "Mensagem privada"}
-              style={{ marginRight: '0' }}
+              style={{ marginRight: '5px' }}
             >
               {message.is_public ? <FaGlobe /> : <FaLock />}
             </span>
