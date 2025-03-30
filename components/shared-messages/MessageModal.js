@@ -112,6 +112,15 @@ const MessageModal = ({ message, onClose, isPopular }) => {
         </div>
         
         <div className={cardStyles.cardMeta}>
+          {/* Indicador de público/privado movido para antes do autor */}
+          <span 
+            className={cardStyles.visibilityBadge} 
+            title={message.is_public ? "Mensagem pública" : "Mensagem privada"}
+            style={{ marginRight: '10px' }}
+          >
+            {message.is_public ? <FaGlobe /> : <FaLock />}
+          </span>
+          
           <div className={cardStyles.author}>
             <FaUser className={cardStyles.metaIcon} />
             <span>{message.author_name}</span>
