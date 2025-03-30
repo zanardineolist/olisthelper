@@ -56,12 +56,14 @@
   font-size: 0.8rem;
   color: var(--text-color2);
   margin-bottom: 10px;
+  gap: 8px;
 }
 
 .author, .timestamp {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  padding-left: 0;
 }
 
 .metaIcon {
