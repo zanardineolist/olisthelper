@@ -176,7 +176,6 @@ const MessageForm = ({ formData: initialFormData, setFormData: setParentFormData
                   aria-required="true"
                   aria-invalid={errors.content ? "true" : "false"}
                   aria-describedby={errors.content ? "content-error" : undefined}
-                  maxLength="5000"
                 />
                 <span className={styles.charCount} aria-live="polite">
                   {charCount.content}/5000

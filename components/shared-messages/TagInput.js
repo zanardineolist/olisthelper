@@ -27,8 +27,8 @@ const TagInput = ({ id, value, onChange }) => {
 
   // Manipuladores de eventos
   const handleKeyDown = (e) => {
-    // Adicionar tag quando o usuário pressiona vírgula, espaço ou Enter
-    if ((e.key === ',' || e.key === ' ' || e.key === 'Enter') && inputValue.trim()) {
+    // Adicionar tag quando o usuário pressiona vírgula ou Enter (removido espaço)
+    if ((e.key === ',' || e.key === 'Enter') && inputValue.trim()) {
       e.preventDefault();
       addTag(inputValue.trim());
     } 
@@ -137,7 +137,7 @@ const TagInput = ({ id, value, onChange }) => {
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
-          placeholder={tags.length === 0 ? "Digite tags e pressione espaço, vírgula ou Enter" : ""}
+          placeholder={tags.length === 0 ? "Digite tags e pressione vírgula ou Enter" : ""}
           className={styles.tagInput}
           aria-label="Adicionar tags"
         />

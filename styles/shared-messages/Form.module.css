@@ -106,7 +106,9 @@
   
   .formTextarea {
     min-height: 150px;
+    max-height: 300px;
     resize: vertical;
+    overflow-y: auto;
   }
   
   .hasError {
