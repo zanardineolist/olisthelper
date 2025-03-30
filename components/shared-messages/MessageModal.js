@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FaUser, FaClock, FaGlobe, FaLock, FaTag, FaStar, FaTimes } from 'react-icons/fa';
+import { FaUser, FaClock, FaGlobe, FaLock, FaTag, FaStar, FaTimes, FaHeart } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
 import MessageActions from './MessageActions';
 import styles from '../../styles/shared-messages/Form.module.css';
