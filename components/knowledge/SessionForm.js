@@ -109,15 +109,7 @@ const SessionForm = () => {
   return (
     <AnimatePresence>
       {isSessionFormOpen && (
-        <>
-          <motion.div 
-            className={styles.modalOverlay}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={overlayVariants}
-            onClick={handleCancel}
-          />
+        <div className={styles.modalOverlay} onClick={handleCancel}>
           <motion.div 
             className={styles.modalContent}
             initial="hidden"
@@ -195,7 +187,7 @@ const SessionForm = () => {
               </div>
             </form>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );

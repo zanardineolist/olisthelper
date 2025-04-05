@@ -1,20 +1,38 @@
 /* styles/knowledge/Form.module.css */
 
 /* ===== Modal e Formulário ===== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.65);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9000;
   overflow-y: auto;
   backdrop-filter: blur(5px);
   padding: 20px;
+  box-sizing: border-box;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeInZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .modalContent {
@@ -25,18 +43,11 @@
   max-width: 700px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   position: relative;
-  opacity: 0;
-  transform: scale(0.95);
-  animation: fadeInZoom 0.3s forwards;
-}
-
-@keyframes fadeInZoom {
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  z-index: 9001;
+  margin: auto;
+  animation: fadeInZoom 0.35s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 
 .modalHeader {
@@ -75,6 +86,7 @@
   position: absolute;
   right: 24px;
   top: 24px;
+  z-index: 1;
 }
 
 .closeButton:hover {
