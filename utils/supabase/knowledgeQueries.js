@@ -2,17 +2,65 @@
 import { supabaseAdmin } from './supabaseClient';
 
 /**
+ * Obtém o ID correspondente de public.users com base no ID de autenticação
+ */
+async function getUserIdFromAuth(authUserId) {
+  try {
+    // Primeiro, verificar se o ID já existe em public.users
+    const { data: existingUser, error: existingUserError } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('id', authUserId)
+      .single();
+    
+    if (!existingUserError && existingUser) {
+      return authUserId; // O ID já existe em public.users
+    }
+    
+    // Se não encontrar diretamente, buscar usuário por email
+    const { data: authUser, error: authUserError } = await supabaseAdmin
+      .from('auth.users')
+      .select('email')
+      .eq('id', authUserId)
+      .single();
+    
+    if (authUserError || !authUser) {
+      throw new Error(`Usuário de autenticação não encontrado: ${authUserId}`);
+    }
+    
+    // Buscar na tabela public.users pelo email
+    const { data: publicUser, error: publicUserError } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('email', authUser.email)
+      .single();
+    
+    if (publicUserError || !publicUser) {
+      throw new Error(`Usuário não encontrado na tabela pública com email: ${authUser.email}`);
+    }
+    
+    return publicUser.id;
+  } catch (error) {
+    console.error('Erro ao obter ID do usuário:', error);
+    throw error;
+  }
+}
+
+/**
  * Busca todos os itens da base de conhecimento do usuário
  */
 export async function getUserKnowledgeItems(userId, searchTerm = '', tags = [], sessionId = null) {
   try {
+    // Obter o ID correspondente em public.users
+    const publicUserId = await getUserIdFromAuth(userId);
+    
     let query = supabaseAdmin
       .from('knowledge_base')
       .select(`
         *,
         knowledge_sessions(name, description)
       `)
-      .eq('user_id', userId)
+      .eq('user_id', publicUserId)
       .order('created_at', { ascending: false });
 
     if (searchTerm) {
@@ -52,10 +100,13 @@ export async function addKnowledgeItem({
   ticketLink
 }) {
   try {
+    // Obter o ID correspondente em public.users
+    const publicUserId = await getUserIdFromAuth(userId);
+    
     const { data, error } = await supabaseAdmin
       .from('knowledge_base')
       .insert({
-        user_id: userId,
+        user_id: publicUserId,
         title,
         description,
         tags,
@@ -114,10 +165,13 @@ export async function deleteKnowledgeItem(itemId) {
  */
 export async function getUserKnowledgeSessions(userId) {
   try {
+    // Obter o ID correspondente em public.users
+    const publicUserId = await getUserIdFromAuth(userId);
+    
     const { data, error } = await supabaseAdmin
       .from('knowledge_sessions')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', publicUserId)
       .order('name', { ascending: true });
 
     if (error) throw error;
@@ -137,10 +191,13 @@ export async function addKnowledgeSession({
   description
 }) {
   try {
+    // Obter o ID correspondente em public.users
+    const publicUserId = await getUserIdFromAuth(userId);
+    
     const { data, error } = await supabaseAdmin
       .from('knowledge_sessions')
       .insert({
-        user_id: userId,
+        user_id: publicUserId,
         name,
         description
       })

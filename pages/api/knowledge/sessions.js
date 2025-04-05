@@ -38,6 +38,6 @@ export default async function handler(req, res) {
     }
   } catch (error) {
     console.error('Erro ao processar requisição:', error);
-    return res.status(500).json({ error: 'Erro interno do servidor' });
+    return res.status(500).json({ error: 'Erro interno do servidor', message: error.message });
   }
 }

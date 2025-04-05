@@ -27,6 +27,9 @@ export default async function handler(req, res) {
     return res.status(200).json({ response: result.response });
   } catch (error) {
     console.error('Erro ao processar consulta Gemini:', error);
-    return res.status(500).json({ error: 'Erro ao processar sua consulta' });
+    return res.status(500).json({ 
+      error: 'Erro ao processar sua consulta', 
+      message: error.message 
+    });
   }
 }
