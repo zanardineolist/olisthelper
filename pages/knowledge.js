@@ -88,15 +88,11 @@ const KnowledgePage = () => {
 
   // Abrir formulário para novo item
   const openNewItemForm = () => {
-    // Resetar o formulário antes de abrir
-    resetForm();
     setIsFormOpen(true);
   };
 
   // Abrir formulário para nova sessão
   const openNewSessionForm = () => {
-    // Resetar o formulário antes de abrir
-    resetSessionForm();
     setIsSessionFormOpen(true);
   };
 

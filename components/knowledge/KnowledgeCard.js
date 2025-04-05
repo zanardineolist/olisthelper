@@ -6,7 +6,7 @@ import { useKnowledgeContext } from './KnowledgeContext';
 import styles from '../../styles/knowledge/Card.module.css';
 
 const KnowledgeCard = ({ item }) => {
-  const { sessions, deleteKnowledgeItem } = useKnowledgeContext();
+  const { sessions, deleteKnowledgeItem, editItem } = useKnowledgeContext();
 
   // Encontrar o nome da sessão
   const sessionName = item.session_id 
@@ -49,7 +49,7 @@ const KnowledgeCard = ({ item }) => {
           <button 
             className={styles.actionButton} 
             aria-label="Editar"
-            onClick={() => {}}
+            onClick={() => editItem(item)}
           >
             <FaEdit />
           </button>

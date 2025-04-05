@@ -203,13 +203,72 @@ export async function deleteKnowledgeSession(sessionId) {
  */
 export async function queryGeminiWithKnowledge(userId, query) {
   try {
-    // Implementação futura para integração com Gemini
-    // Esta é apenas uma estrutura básica
-    return {
-      response: "Funcionalidade de integração com Gemini em desenvolvimento."
-    };
+    // Buscar itens de conhecimento do usuário para formar o contexto
+    const knowledgeItems = await getUserKnowledgeItems(userId);
+    
+    if (!knowledgeItems || knowledgeItems.length === 0) {
+      return {
+        response: "Não encontrei informações na sua base de conhecimento. Adicione alguns itens primeiro."
+      };
+    }
+
+    // Preparar o contexto para o Gemini
+    const context = knowledgeItems.map(item => {
+      return `Título: ${item.title}\nDescrição: ${item.description}\nTags: ${item.tags.join(', ')}\n---\n`;
+    }).join('\n');
+
+    // Construir o prompt para o Gemini
+    const prompt = `
+    Você é um assistente de conhecimento que ajuda a responder perguntas com base na base de conhecimento do usuário.
+    
+    BASE DE CONHECIMENTO:\n${context}\n
+    PERGUNTA DO USUÁRIO: ${query}
+    
+    Responda à pergunta do usuário usando APENAS as informações fornecidas na base de conhecimento acima.
+    Se a resposta não puder ser encontrada na base de conhecimento, diga que não encontrou informações suficientes e sugira que o usuário adicione mais conhecimento sobre o assunto.
+    Formate sua resposta de maneira clara e concisa, usando parágrafos quando apropriado.
+    `;
+
+    // Fazer a chamada para a API do Gemini
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    if (!geminiApiKey) {
+      console.warn('API key do Gemini não configurada');
+      return { response: "Integração com IA não configurada. Contate o administrador do sistema." };
+    }
+
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': geminiApiKey
+      },
+      body: JSON.stringify({
+        contents: [{
+          role: 'user',
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 800
+        }
+      })
+    });
+
+    const data = await response.json();
+    
+    // Verificar se há conteúdo na resposta
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      console.error('Resposta inválida do Gemini:', data);
+      return { response: "Desculpe, não consegui processar sua consulta. Tente novamente." };
+    }
+    
+    // Extrair o texto da resposta
+    const responseText = data.candidates[0].content.parts[0].text;
+    return { response: responseText };
   } catch (error) {
     console.error('Erro ao consultar Gemini:', error);
-    throw error;
+    return { 
+      response: "Ocorreu um erro ao consultar a IA. Por favor, tente novamente mais tarde."
+    };
   }
 }
