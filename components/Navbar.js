@@ -333,6 +333,9 @@ export default function Navbar({ user }) {
                 <NavLink href="/profile" className={styles.menuButton}>
                   Meu Perfil
                 </NavLink>
+                <NavLink href="/knowledge" className={styles.menuButton}>
+                  Base de Conhecimento
+                </NavLink>
                 <NavLink href="/tools" className={styles.menuButton}>
                   Ferramentas
                 </NavLink>
@@ -350,6 +353,9 @@ export default function Navbar({ user }) {
                 <NavLink href="/dashboard-analyst" className={styles.menuButton}>
                   Dashboard
                 </NavLink>
+                <NavLink href="/knowledge" className={styles.menuButton}>
+                  Base de Conhecimento
+                </NavLink>
                 <NavLink href="/tools" className={styles.menuButton}>
                   Ferramentas
                 </NavLink>
@@ -361,6 +367,9 @@ export default function Navbar({ user }) {
                 <NavLink href="/dashboard-super" className={styles.menuButton}>
                   Dashboard
                 </NavLink>
+                <NavLink href="/knowledge" className={styles.menuButton}>
+                  Base de Conhecimento
+                </NavLink>
                 <NavLink href="/tools" className={styles.menuButton}>
                   Ferramentas
                 </NavLink>
@@ -368,9 +377,14 @@ export default function Navbar({ user }) {
             )}
 
             {user?.role === 'quality' && (
-              <NavLink href="/dashboard-quality" className={styles.menuButton}>
-                Dashboard Qualidade
-              </NavLink>
+              <>
+                <NavLink href="/dashboard-quality" className={styles.menuButton}>
+                  Dashboard Qualidade
+                </NavLink>
+                <NavLink href="/knowledge" className={styles.menuButton}>
+                  Base de Conhecimento
+                </NavLink>
+              </>
             )}
 
             {user?.role && (user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
@@ -386,9 +400,14 @@ export default function Navbar({ user }) {
             )}
 
             {user?.role === 'dev' && (
-              <NavLink href="/admin-notifications" className={styles.menuButton}>
-                Admin Notificações
-              </NavLink>
+              <>
+                <NavLink href="/admin-notifications" className={styles.menuButton}>
+                  Admin Notificações
+                </NavLink>
+                <NavLink href="/knowledge" className={styles.menuButton}>
+                  Base de Conhecimento
+                </NavLink>
+              </>
             )}
 
             <button 
