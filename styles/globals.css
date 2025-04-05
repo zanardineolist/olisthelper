@@ -39,6 +39,11 @@
   --modals-inputs: #e6e6e6;
   --bg-tooltip: #5D5D5D;
   --text-tooltip: #c0c0c0;
+
+  /* Variáveis para componentes knowledge */
+  --card-border-radius: 16px;
+  --button-border-radius: 10px;
+  --transition-speed: 0.25s;
 }
 
 [data-theme="dark"] {
