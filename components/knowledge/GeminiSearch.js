@@ -1,7 +1,7 @@
 // components/knowledge/GeminiSearch.js
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaRobot, FaSearch, FaSpinner } from 'react-icons/fa';
+import { FaRobot, FaSearch, FaSpinner, FaTimes } from 'react-icons/fa';
 import { useKnowledgeContext } from './KnowledgeContext';
 import styles from '../../styles/knowledge/Search.module.css';
 
@@ -44,20 +44,19 @@ const GeminiSearch = () => {
 
   // Variantes de animação
   const containerVariants = {
-    hidden: { opacity: 0, y: -20 },
+    hidden: { opacity: 0 },
     visible: { 
-      opacity: 1, 
-      y: 0,
+      opacity: 1,
       transition: { duration: 0.3 }
     }
   };
 
   const resultVariants = {
-    hidden: { opacity: 0, height: 0 },
+    hidden: { opacity: 0, y: -10 },
     visible: { 
       opacity: 1, 
-      height: 'auto',
-      transition: { duration: 0.3 }
+      y: 0,
+      transition: { duration: 0.3, delay: 0.1 }
     }
   };
 
@@ -87,22 +86,26 @@ const GeminiSearch = () => {
             disabled={isLoading}
           />
         </div>
-        <button 
-          type="submit" 
-          className={styles.searchButton}
-          disabled={isLoading || !query.trim()}
-        >
-          {isLoading ? <FaSpinner className={styles.spinner} /> : 'Consultar'}
-        </button>
-        {(result || error) && (
+        
+        <div style={{ display: 'flex', gap: '10px' }}>
           <button 
-            type="button" 
-            className={styles.clearButton}
-            onClick={handleClear}
+            type="submit" 
+            className={styles.searchButton}
+            disabled={isLoading || !query.trim()}
           >
-            Limpar
+            {isLoading ? <FaSpinner className={styles.spinner} /> : 'Consultar IA'}
           </button>
-        )}
+          
+          {(result || error) && (
+            <button 
+              type="button" 
+              className={styles.clearButton}
+              onClick={handleClear}
+            >
+              <FaTimes /> Limpar
+            </button>
+          )}
+        </div>
       </form>
 
       {isLoading && (
@@ -128,7 +131,7 @@ const GeminiSearch = () => {
           <h3 className={styles.resultTitle}>Resposta:</h3>
           <div className={styles.resultContent}>
             {result.split('\n').map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
+              paragraph ? <p key={index}>{paragraph}</p> : <br key={index} />
             ))}
           </div>
           <div className={styles.resultFooter}>

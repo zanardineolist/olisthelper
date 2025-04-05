@@ -49,7 +49,6 @@ const KnowledgePage = () => {
     }
   }, [session, loadKnowledgeItems, loadSessions]);
 
-
   // Pesquisar ao alterar filtros
   useEffect(() => {
     if (session) {
@@ -99,7 +98,7 @@ const KnowledgePage = () => {
   // Renderizar conteúdo principal
   const renderContent = () => {
     if (loading || isLoading) {
-      return <LoadingIndicator />;
+      return <div className={styles.loadingIndicator}><LoadingIndicator /></div>;
     }
 
     if (error) {
@@ -133,108 +132,107 @@ const KnowledgePage = () => {
   return (
     <Layout>
       <div className={styles.knowledgeContainer}>
-          <div className={styles.knowledgeHeader}>
-            <h1 className={styles.knowledgeTitle}>Base de Conhecimento</h1>
-            <div className={styles.knowledgeActions}>
-              <button 
-                className={styles.actionButton}
-                onClick={openNewItemForm}
-                title="Adicionar novo item"
-              >
-                <FaPlus /> Novo Item
-              </button>
-              <button 
-                className={styles.actionButton}
-                onClick={openNewSessionForm}
-                title="Criar nova sessão"
-              >
-                <FaLayerGroup /> Nova Sessão
-              </button>
-            </div>
+        <div className={styles.knowledgeHeader}>
+          <h1 className={styles.knowledgeTitle}>Base de Conhecimento</h1>
+          <div className={styles.knowledgeActions}>
+            <button 
+              className={styles.actionButton}
+              onClick={openNewItemForm}
+              title="Adicionar novo item"
+            >
+              <FaPlus /> Novo Item
+            </button>
+            <button 
+              className={styles.actionButton}
+              onClick={openNewSessionForm}
+              title="Criar nova sessão"
+            >
+              <FaLayerGroup /> Nova Sessão
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.knowledgeToolbar}>
+          <div className={styles.searchContainer}>
+            <FaSearch className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Pesquisar na base de conhecimento..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className={styles.searchInput}
+            />
           </div>
 
-          <div className={styles.knowledgeToolbar}>
-            <div className={styles.searchContainer}>
-              <FaSearch className={styles.searchIcon} />
-              <input
-                type="text"
-                placeholder="Pesquisar na base de conhecimento..."
-                value={searchTerm}
-                onChange={handleSearchChange}
-                className={styles.searchInput}
+          <div className={styles.toolbarActions}>
+            <button 
+              className={`${styles.viewButton} ${viewMode === 'grid' ? styles.active : ''}`}
+              onClick={() => toggleViewMode('grid')}
+              title="Visualização em grade"
+            >
+              <FaThLarge />
+            </button>
+            <button 
+              className={`${styles.viewButton} ${viewMode === 'list' ? styles.active : ''}`}
+              onClick={() => toggleViewMode('list')}
+              title="Visualização em lista"
+            >
+              <FaList />
+            </button>
+            <button 
+              className={`${styles.filterButton} ${showFilters ? styles.active : ''}`}
+              onClick={toggleFilters}
+              title="Mostrar filtros"
+            >
+              <FaFilter />
+            </button>
+          </div>
+        </div>
+
+        {showFilters && (
+          <div className={styles.filtersContainer}>
+            <div className={styles.filterGroup}>
+              <label htmlFor="session-filter">Sessão:</label>
+              <select
+                id="session-filter"
+                value={selectedSession || 'all'}
+                onChange={handleSessionChange}
+                className={styles.selectFilter}
+              >
+                <option value="all">Todas as sessões</option>
+                {sessions.map(session => (
+                  <option key={session.id} value={session.id}>
+                    {session.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles.filterGroup}>
+              <label>Tags:</label>
+              <TagInput
+                tags={selectedTags.join(',')}
+                onChange={handleTagsChange}
+                placeholder="Filtrar por tags..."
+                className={styles.tagFilter}
               />
             </div>
-
-            <div className={styles.toolbarActions}>
-              <button 
-                className={`${styles.viewButton} ${viewMode === 'grid' ? styles.active : ''}`}
-                onClick={() => toggleViewMode('grid')}
-                title="Visualização em grade"
-              >
-                <FaThLarge />
-              </button>
-              <button 
-                className={`${styles.viewButton} ${viewMode === 'list' ? styles.active : ''}`}
-                onClick={() => toggleViewMode('list')}
-                title="Visualização em lista"
-              >
-                <FaList />
-              </button>
-              <button 
-                className={`${styles.filterButton} ${showFilters ? styles.active : ''}`}
-                onClick={toggleFilters}
-                title="Mostrar filtros"
-              >
-                <FaFilter />
-              </button>
-            </div>
           </div>
+        )}
 
-          {showFilters && (
-            <div className={styles.filtersContainer}>
-              <div className={styles.filterGroup}>
-                <label htmlFor="session-filter">Sessão:</label>
-                <select
-                  id="session-filter"
-                  value={selectedSession || 'all'}
-                  onChange={handleSessionChange}
-                  className={styles.selectFilter}
-                >
-                  <option value="all">Todas as sessões</option>
-                  {sessions.map(session => (
-                    <option key={session.id} value={session.id}>
-                      {session.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={styles.filterGroup}>
-                <label>Tags:</label>
-                <TagInput
-                  tags={selectedTags.join(',')}
-                  onChange={handleTagsChange}
-                  placeholder="Filtrar por tags..."
-                  className={styles.tagFilter}
-                />
-              </div>
-            </div>
-          )}
-
-          <div className={styles.knowledgeContent}>
-            {/* Componente de busca com IA */}
-            <div className={styles.geminiContainer}>
-              <GeminiSearch />
-            </div>
-            
-            <div className={styles.knowledgeListContainer}>
-              {renderContent()}
-            </div>
+        <div className={styles.knowledgeContent}>
+          <div className={styles.knowledgeListContainer}>
+            {renderContent()}
           </div>
-
-          {isFormOpen && <KnowledgeForm />}
-          {isSessionFormOpen && <SessionForm />}
+          
+          <div className={styles.geminiContainer}>
+            <GeminiSearch />
+          </div>
         </div>
+
+        {isFormOpen && <KnowledgeForm />}
+        {isSessionFormOpen && <SessionForm />}
+      </div>
     </Layout>
   );
 };
