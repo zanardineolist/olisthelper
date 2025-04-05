@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { FaPlus, FaLayerGroup, FaSearch, FaThLarge, FaList, FaFilter } from 'react-icons/fa';
 import Layout from '../components/Layout';
-import { KnowledgeProvider } from '../components/knowledge/KnowledgeContext';
+import { KnowledgeProvider, useKnowledgeContext } from '../components/knowledge/KnowledgeContext';
 import KnowledgeForm from '../components/knowledge/KnowledgeForm';
 import KnowledgeCard from '../components/knowledge/KnowledgeCard';
 import SessionForm from '../components/knowledge/SessionForm';
@@ -12,24 +12,34 @@ import TagInput from '../components/TagInput';
 import LoadingIndicator from '../components/LoadingIndicator';
 import styles from '../styles/knowledge/Layout.module.css';
 
+// Componente interno que usa o contexto
 const KnowledgePage = () => {
   const { data: session, status } = useSession();
   const loading = status === 'loading';
-
-  // Estado para controle da interface
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTags, setSelectedTags] = useState([]);
-  const [selectedSession, setSelectedSession] = useState(null);
-  const [viewMode, setViewMode] = useState('grid');
-  const [showFilters, setShowFilters] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isSessionFormOpen, setIsSessionFormOpen] = useState(false);
   
-  // Estado para dados
-  const [knowledgeItems, setKnowledgeItems] = useState([]);
-  const [sessions, setSessions] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Usar o contexto em vez de estado local
+  const {
+    knowledgeItems,
+    sessions,
+    loading: isLoading,
+    error,
+    searchTerm,
+    setSearchTerm,
+    selectedTags,
+    setSelectedTags,
+    selectedSession,
+    setSelectedSession,
+    viewMode,
+    setViewMode,
+    isFormOpen,
+    setIsFormOpen,
+    isSessionFormOpen,
+    setIsSessionFormOpen,
+    loadKnowledgeItems,
+    loadSessions
+  } = useKnowledgeContext();
+  
+  const [showFilters, setShowFilters] = useState(false);
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -37,46 +47,8 @@ const KnowledgePage = () => {
       loadKnowledgeItems();
       loadSessions();
     }
-  }, [session]);
+  }, [session, loadKnowledgeItems, loadSessions]);
 
-  // Carregar itens de conhecimento
-  const loadKnowledgeItems = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/knowledge?${new URLSearchParams({
-        searchTerm,
-        tags: selectedTags.join(','),
-        sessionId: selectedSession || ''
-      })}`);
-      
-      if (!response.ok) throw new Error('Falha ao carregar itens');
-      
-      const data = await response.json();
-      setKnowledgeItems(data.items);
-      setError(null);
-    } catch (err) {
-      console.error('Erro ao carregar itens de conhecimento:', err);
-      setError('Não foi possível carregar os itens. Tente novamente.');
-      setKnowledgeItems([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Carregar sessões
-  const loadSessions = async () => {
-    try {
-      const response = await fetch('/api/knowledge/sessions');
-      
-      if (!response.ok) throw new Error('Falha ao carregar sessões');
-      
-      const data = await response.json();
-      setSessions(data.sessions);
-    } catch (err) {
-      console.error('Erro ao carregar sessões:', err);
-      setSessions([]);
-    }
-  };
 
   // Pesquisar ao alterar filtros
   useEffect(() => {
@@ -86,7 +58,7 @@ const KnowledgePage = () => {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [searchTerm, selectedTags, selectedSession]);
+  }, [session, searchTerm, selectedTags, selectedSession, loadKnowledgeItems]);
 
   // Manipular mudança na pesquisa
   const handleSearchChange = (e) => {
@@ -116,11 +88,15 @@ const KnowledgePage = () => {
 
   // Abrir formulário para novo item
   const openNewItemForm = () => {
+    // Resetar o formulário antes de abrir
+    resetForm();
     setIsFormOpen(true);
   };
 
   // Abrir formulário para nova sessão
   const openNewSessionForm = () => {
+    // Resetar o formulário antes de abrir
+    resetSessionForm();
     setIsSessionFormOpen(true);
   };
 
@@ -160,8 +136,7 @@ const KnowledgePage = () => {
 
   return (
     <Layout>
-      <KnowledgeProvider>
-        <div className={styles.knowledgeContainer}>
+      <div className={styles.knowledgeContainer}>
           <div className={styles.knowledgeHeader}>
             <h1 className={styles.knowledgeTitle}>Base de Conhecimento</h1>
             <div className={styles.knowledgeActions}>
@@ -264,9 +239,15 @@ const KnowledgePage = () => {
           {isFormOpen && <KnowledgeForm />}
           {isSessionFormOpen && <SessionForm />}
         </div>
-      </KnowledgeProvider>
     </Layout>
   );
 };
 
-export default KnowledgePage;
+// Componente wrapper que fornece o contexto
+const KnowledgePageWithProvider = () => (
+  <KnowledgeProvider>
+    <KnowledgePage />
+  </KnowledgeProvider>
+);
+
+export default KnowledgePageWithProvider;
