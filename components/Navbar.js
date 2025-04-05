@@ -225,9 +225,9 @@ export default function Navbar({ user }) {
 
       <nav ref={navbarRef} className={styles.navbar}>
         <Link href={
-          user.role === 'analyst' || user.role === 'tax' 
+          user?.role === 'analyst' || user?.role === 'tax' 
             ? '/profile-analyst' 
-            : user.role === 'quality'
+            : user?.role === 'quality'
               ? '/dashboard-quality'
               : '/profile'
         } className={styles.logo}>
@@ -248,7 +248,7 @@ export default function Navbar({ user }) {
           </button>
 
           {/* Notifications */}
-          {['analyst', 'tax', 'super', 'support+', 'dev', 'quality'].includes(user.role) && (
+          {user?.role && ['analyst', 'tax', 'super', 'support+', 'dev', 'quality'].includes(user.role) && (
             <div className={styles.notificationsWrapper}>
               <button className={styles.notificationToggle} onClick={toggleNotifications}>
                 <FaBell />
@@ -328,7 +328,7 @@ export default function Navbar({ user }) {
         {/* Menu Dropdown */}
         {menuOpen && (
           <div className={styles.menu}>
-            {(user.role === 'support' || user.role === 'support+') && (
+            {user?.role && (user.role === 'support' || user.role === 'support+') && (
               <>
                 <NavLink href="/profile" className={styles.menuButton}>
                   Meu Perfil
@@ -339,7 +339,7 @@ export default function Navbar({ user }) {
               </>
             )}
 
-            {(user.role === 'analyst' || user.role === 'tax') && (
+            {user?.role && (user.role === 'analyst' || user.role === 'tax') && (
               <>
                 <NavLink href="/profile-analyst" className={styles.menuButton}>
                   Meu Perfil
@@ -356,7 +356,7 @@ export default function Navbar({ user }) {
               </>
             )}
 
-            {user.role === 'super' && (
+            {user?.role === 'super' && (
               <>
                 <NavLink href="/dashboard-super" className={styles.menuButton}>
                   Dashboard
@@ -367,25 +367,25 @@ export default function Navbar({ user }) {
               </>
             )}
 
-            {user.role === 'quality' && (
+            {user?.role === 'quality' && (
               <NavLink href="/dashboard-quality" className={styles.menuButton}>
                 Dashboard Qualidade
               </NavLink>
             )}
 
-            {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
+            {user?.role && (user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
               <NavLink href="/manager" className={styles.menuButton}>
                 Gerenciador
               </NavLink>
             )}
 
-            {(user.role === 'support+' || user.role === 'super') && (
+            {user?.role && (user.role === 'support+' || user.role === 'super') && (
               <NavLink href="/remote" className={styles.menuButton}>
                 Acesso Remoto
               </NavLink>
             )}
 
-            {user.role === 'dev' && (
+            {user?.role === 'dev' && (
               <NavLink href="/admin-notifications" className={styles.menuButton}>
                 Admin Notificações
               </NavLink>
