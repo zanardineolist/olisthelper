@@ -1,0 +1,234 @@
+/* styles/knowledge/Layout.module.css */
+
+/* Container principal */
+.knowledgeContainer {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  color: var(--text-color);
+}
+
+/* Cabeçalho */
+.knowledgeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.knowledgeTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--title-color);
+  margin: 0;
+}
+
+.knowledgeActions {
+  display: flex;
+  gap: 12px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background-color: var(--box-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  background-color: var(--box-color2);
+}
+
+.primaryButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.primaryButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Barra de ferramentas */
+.knowledgeToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.viewToggle {
+  display: flex;
+  align-items: center;
+  background-color: var(--box-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.viewButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background-color: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.viewButton:hover {
+  background-color: var(--box-color2);
+}
+
+.viewButton.active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* Conteúdo principal */
+.knowledgeContent {
+  position: relative;
+  min-height: 400px;
+}
+
+/* Container do Gemini */
+.geminiContainer {
+  margin-bottom: 20px;
+}
+
+/* Lista de itens */
+.knowledgeListContainer {
+  width: 100%;
+}
+
+/* Visualização em grade */
+.knowledgeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* Visualização em lista */
+.knowledgeList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* Cabeçalho da sessão */
+.sessionHeader {
+  margin-bottom: 20px;
+  padding: 16px;
+  background-color: var(--box-color);
+  border-radius: 12px;
+}
+
+.sessionTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--title-color);
+  margin: 0;
+}
+
+.sessionIcon {
+  color: var(--color-primary);
+}
+
+/* Estado vazio */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: var(--box-color);
+  border-radius: 12px;
+  text-align: center;
+  min-height: 300px;
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  color: var(--color-primary);
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.emptyTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--title-color);
+  margin-bottom: 8px;
+}
+
+.emptyText {
+  color: var(--text-color);
+  margin-bottom: 24px;
+  max-width: 500px;
+}
+
+/* Carregamento */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+/* Paginação */
+.paginationContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.paginationInfo {
+  text-align: center;
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .knowledgeHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .knowledgeToolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .knowledgeGrid {
+    grid-template-columns: 1fr;
+  }
+}

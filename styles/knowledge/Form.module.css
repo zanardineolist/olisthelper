@@ -1,0 +1,214 @@
+/* styles/knowledge/Form.module.css */
+
+/* ===== Modal e Formulário ===== */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  overflow-y: auto;
+  backdrop-filter: blur(3px);
+  padding: 20px;
+}
+
+.modalContent {
+  background-color: var(--box-color);
+  border-radius: 16px;
+  padding: 30px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.modalTitle {
+  color: var(--title-color);
+  font-size: 1.8rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modalIcon {
+  color: var(--color-primary);
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--box-color2);
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: var(--color-accent1);
+  color: var(--color-white);
+}
+
+/* ===== Formulário ===== */
+.knowledgeForm, .sessionForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.formLabel {
+  font-weight: 600;
+  color: var(--title-color);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.labelIcon {
+  color: var(--color-primary);
+}
+
+.requiredMark {
+  color: var(--color-accent1);
+}
+
+.inputWrapper, .textareaWrapper {
+  position: relative;
+}
+
+.formControl, .formTextarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--modals-inputs);
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.formControl:focus, .formTextarea:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.hasError {
+  border-color: var(--color-accent1) !important;
+}
+
+.errorMessage {
+  color: var(--color-accent1);
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.helpText {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.charCounter {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background-color: var(--modals-inputs);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* ===== Ações do Formulário ===== */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.cancelButton {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background-color: var(--box-color);
+  color: var(--text-color);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background-color: var(--box-color2);
+}
+
+.saveButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.saveButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.saveButton:disabled, .cancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== Responsividade ===== */
+@media (max-width: 768px) {
+  .modalContent {
+    padding: 20px;
+  }
+  
+  .formActions {
+    flex-direction: column-reverse;
+  }
+  
+  .saveButton, .cancelButton {
+    width: 100%;
+    justify-content: center;
+  }
+}
