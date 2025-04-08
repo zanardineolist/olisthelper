@@ -635,8 +635,7 @@ export default function DashboardData({ user }) {
                           <span className={styles.metricLabel}>Total Chamados</span>
                         </div>
                         <div 
-                          className={styles.performanceMetric} 
-                          style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'var(--box-color3)' }}
+                          className={styles.performanceMetric}
                         >
                           <span className={styles.metricValue}>{performanceData.chamados.mediaPorDia}</span>
                           <span className={styles.metricLabel}>Média/Dia</span>

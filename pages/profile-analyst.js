@@ -209,7 +209,7 @@ export default function AnalystProfilePage({ user }) {
                   <span>Total Chamados</span>
                   <span>{performanceData.chamados.totalChamados}</span>
                 </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.mediaPorDia || 'transparent' }}>
+                <div className={styles.performanceItem}>
                   <span>Média/Dia</span>
                   <span>{performanceData.chamados.mediaPorDia}</span>
                 </div>
