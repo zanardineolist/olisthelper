@@ -164,14 +164,36 @@ export default function RegisterAccess({ user }) {
             value={formData.chamado}
             onChange={handleInputChange}
             onKeyDown={(event) => {
+              // Permitir Ctrl+C, Ctrl+V, Ctrl+A e outras combinações com Ctrl
+              if (event.ctrlKey) {
+                return;
+              }
+              
+              // Permitir teclas de navegação e edição
               if (
-                !/[0-9]/.test(event.key) &&
-                event.key !== 'Backspace' &&
-                event.key !== 'Delete' &&
-                event.key !== 'ArrowLeft' &&
-                event.key !== 'ArrowRight'
+                event.key === 'Backspace' ||
+                event.key === 'Delete' ||
+                event.key === 'ArrowLeft' ||
+                event.key === 'ArrowRight' ||
+                event.key === 'Tab' ||
+                event.key === 'Enter' ||
+                event.key === 'Home' ||
+                event.key === 'End'
               ) {
+                return;
+              }
+              
+              // Bloquear qualquer tecla que não seja um número
+              if (!/[0-9]/.test(event.key)) {
                 event.preventDefault();
+              }
+            }}
+            // Adicionar validação no evento de colar (paste)
+            onPaste={(event) => {
+              const pasteData = event.clipboardData.getData('text');
+              if (!/^\d+$/.test(pasteData)) {
+                event.preventDefault();
+                Swal.fire('Atenção', 'Apenas números são permitidos neste campo.', 'warning');
               }
             }}
             required

@@ -95,7 +95,7 @@
   background-color: var(--box-color);
   padding: 30px;
   border-radius: 10px;
-  max-width: 800px;
+  max-width: 1000px;
   width: 100%;
 }
 
@@ -410,7 +410,8 @@
 /* ================== Estilos Responsivos ================== */
 @media (max-width: 600px) {
   .formContainer {
-    padding: 15px;
+    padding: 20px;
+    max-width: 90%;
   }
 
   .formTitle {
