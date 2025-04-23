@@ -8,6 +8,8 @@ const temaOptions = [
   { value: 'Certificado A3', label: 'Certificado A3' },
   { value: 'Etiqueta de produto', label: 'Etiqueta de produto' },
   { value: 'SAT', label: 'SAT' },
+  { value: 'Print node', label: 'Print node' },
+  { value: 'Outros', label: 'Outros' },
 ];
 
 const customSelectStyles = {

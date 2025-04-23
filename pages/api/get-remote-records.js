@@ -1,4 +1,8 @@
-import { getSheetValues } from '../../utils/googleSheets';
+import { 
+  getAllRemoteAccess, 
+  getUserRemoteAccess, 
+  getUserCurrentMonthRemoteAccess 
+} from '../../utils/supabase/remoteAccessQueries';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -8,42 +12,24 @@ export default async function handler(req, res) {
   const { userEmail, filterByMonth } = req.query;
 
   try {
-    // Obter todos os registros
-    const records = await getSheetValues('Remoto', 'A:G');
-    const dataWithoutHeader = records.slice(1); // Ignora a primeira linha (cabeçalho)
-    console.log('Registros obtidos do Google Sheets:', records);
-
     if (userEmail) {
-      const filteredRecords = dataWithoutHeader.filter(record => record[3] === userEmail);
-      console.log(`Registros filtrados para o usuário ${userEmail}:`, filteredRecords);
-
+      // Buscar registros de um usuário específico
       if (filterByMonth === 'true') {
-        const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-        const currentMonth = new Date(today).getMonth();
-        const currentYear = new Date(today).getFullYear();
-
-        const isFromCurrentMonth = (record) => {
-          const [day, month, year] = record[0].split('/');
-          const recordDate = new Date(year, month - 1, day);
-          return (
-            recordDate.getMonth() === currentMonth &&
-            recordDate.getFullYear() === currentYear
-          );
-        };
+        // Buscar apenas registros do mês atual
+        const monthRecords = await getUserCurrentMonthRemoteAccess(userEmail);
+        const allRecords = await getUserRemoteAccess(userEmail);
         
-        const monthRecords = filteredRecords.filter(isFromCurrentMonth);
-        console.log('Registros do mês atual:', monthRecords);        
-
-        return res.status(200).json({ monthRecords, allRecords: filteredRecords });
+        return res.status(200).json({ monthRecords, allRecords });
       }
 
       // Se não for solicitado apenas registros do mês, retornar todos os registros do usuário
-      return res.status(200).json({ allRecords: filteredRecords });
+      const allRecords = await getUserRemoteAccess(userEmail);
+      return res.status(200).json({ allRecords });
     }
 
-    // Caso não seja uma requisição de usuário específico, retornar todos os registros (a partir da linha 2)
-    console.log('Todos os registros:', dataWithoutHeader);
-    return res.status(200).json({ allRecords: dataWithoutHeader });
+    // Caso não seja uma requisição de usuário específico, retornar todos os registros
+    const allRecords = await getAllRemoteAccess();
+    return res.status(200).json({ allRecords });
 
   } catch (error) {
     console.error('Erro ao buscar registros:', error);

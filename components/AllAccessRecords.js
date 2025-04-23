@@ -27,13 +27,14 @@ export default function AllAccessRecords({ user, currentTab }) {
         setAllRecords(records);
         setAllTotal(records.length);
 
-        // Filtrar registros do mês atual para definir o valor de "Acessos no Mês Atual"
-        const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-        const currentMonth = new Date(today).getMonth();
-        const currentYear = new Date(today).getFullYear();
+        // Filtrar registros do mês atual
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
 
         const monthRecords = records.filter(record => {
-          const [day, month, year] = record[0].split('/');
+          if (!record.date) return false;
+          const [day, month, year] = record.date.split('/');
           const recordDate = new Date(year, month - 1, day);
           return (
             recordDate.getMonth() === currentMonth &&
@@ -57,7 +58,9 @@ export default function AllAccessRecords({ user, currentTab }) {
   const prepareChartData = (records) => {
     // Agrupar registros por mês
     const monthlyCounts = records.reduce((acc, record) => {
-      const [day, month, year] = record[0].split('/');
+      if (!record.date) return acc;
+      
+      const [day, month, year] = record.date.split('/');
       const monthYear = `${month}/${year}`;
       acc[monthYear] = (acc[monthYear] || 0) + 1;
       return acc;
@@ -83,6 +86,15 @@ export default function AllAccessRecords({ user, currentTab }) {
           tension: 0.1,
         },
       ],
+    });
+  };
+
+  const handleDescriptionClick = (description) => {
+    Swal.fire({
+      title: 'Descrição Completa',
+      text: description || 'Sem descrição disponível',
+      icon: 'info',
+      confirmButtonText: 'Fechar',
     });
   };
 
@@ -120,21 +132,23 @@ export default function AllAccessRecords({ user, currentTab }) {
             <tbody>
               {allRecords.length > 0 ? (
                 allRecords.map((record, index) => (
-                  <tr key={index}>
-                    <td>{record[0]}</td>
-                    <td>{record[1]}</td>
-                    <td>{record[2]}</td>
-                    <td>{record[4]}</td>
-                    <td>{record[5]}</td>
+                  <tr key={record.id || index}>
+                    <td>{record.date}</td>
+                    <td>{record.time}</td>
+                    <td>{record.name}</td>
+                    <td>{record.ticket_number}</td>
+                    <td>{record.theme}</td>
                     <td>
                       <span style={{ display: 'flex', alignItems: 'center' }}>
                         <span style={{ marginRight: '8px' }}>
-                          {record[6]?.length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                          {record.description?.length > 20 
+                            ? `${record.description.substring(0, 20)}...` 
+                            : record.description || 'N/A'}
                         </span>
                         <FontAwesomeIcon
                           icon={faInfoCircle}
                           className={styles.infoIcon}
-                          onClick={() => handleDescriptionClick(record[6])}
+                          onClick={() => handleDescriptionClick(record.description)}
                         />
                       </span>
                     </td>
@@ -162,12 +176,3 @@ export default function AllAccessRecords({ user, currentTab }) {
     </>
   );
 }
-
-const handleDescriptionClick = (description) => {
-  Swal.fire({
-    title: 'Descrição Completa',
-    text: description,
-    icon: 'info',
-    confirmButtonText: 'Fechar',
-  });
-};

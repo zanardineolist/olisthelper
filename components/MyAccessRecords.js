@@ -33,7 +33,7 @@ export default function MyAccessRecords({ user }) {
   const handleDescriptionClick = (description) => {
     Swal.fire({
       title: 'Descrição Completa',
-      text: description,
+      text: description || 'Sem descrição disponível',
       icon: 'info',
       confirmButtonText: 'Fechar',
     });
@@ -73,21 +73,23 @@ export default function MyAccessRecords({ user }) {
             <tbody>
               {userRecords.length > 0 ? (
                 userRecords.map((record, index) => (
-                  <tr key={index}>
-                    <td>{record[0]}</td>
-                    <td>{record[1]}</td>
-                    <td>{record[2]}</td>
-                    <td>{record[4]}</td>
-                    <td>{record[5]}</td>
+                  <tr key={record.id || index}>
+                    <td>{record.date}</td>
+                    <td>{record.time}</td>
+                    <td>{record.name}</td>
+                    <td>{record.ticket_number}</td>
+                    <td>{record.theme}</td>
                     <td>
                       <span style={{ display: 'flex', alignItems: 'center' }}>
                         <span style={{ marginRight: '8px' }}>
-                          {record[6].length > 20 ? `${record[6].substring(0, 20)}...` : record[6]}
+                          {record.description?.length > 20 
+                            ? `${record.description.substring(0, 20)}...` 
+                            : record.description || 'N/A'}
                         </span>
                         <FontAwesomeIcon
                           icon={faInfoCircle}
                           className={styles.infoIcon}
-                          onClick={() => handleDescriptionClick(record[6])}
+                          onClick={() => handleDescriptionClick(record.description)}
                         />
                       </span>
                     </td>

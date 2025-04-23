@@ -14,3 +14,5 @@ help_records_rows (1).csv
 help_records_rows.csv
 README.md
 docs/loading-system.md
+sql/update_remote_access_table.sql
+sql/remote_access_table.sql
