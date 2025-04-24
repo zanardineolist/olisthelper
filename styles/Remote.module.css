@@ -87,6 +87,12 @@
   margin-top: 20px;
 }
 
+.tabContent {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 /* ================== Formulário ================== */
 .formContainer {
   display: flex;
@@ -95,7 +101,7 @@
   background-color: var(--box-color);
   padding: 30px;
   border-radius: 10px;
-  max-width: 1000px;
+  max-width: 1400px;
   width: 100%;
 }
 
