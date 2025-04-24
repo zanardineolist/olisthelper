@@ -18,11 +18,11 @@ export default async function handler(req, res) {
     const sheets = google.sheets({ version: 'v4', auth });
 
     // ID da planilha original e da nova planilha
-    const planilhaOriginalId = process.env.GOOGLE_SHEET_ID; // A planilha original
+    const planilhaOriginalId = process.env.SHEET_ID; // A planilha original
     
     // Verificar se o ID da planilha original existe
     if (!planilhaOriginalId) {
-      return res.status(500).json({ error: 'ID da planilha original não configurado nas variáveis de ambiente (GOOGLE_SHEET_ID)' });
+      return res.status(500).json({ error: 'ID da planilha original não configurado nas variáveis de ambiente (SHEET_ID)' });
     }
     
     const novaPlanilhaId = req.body.novaPlanilhaId; // ID da nova planilha fornecido no corpo da requisição
