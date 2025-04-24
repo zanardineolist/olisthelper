@@ -83,12 +83,37 @@ export default function MyAccessRecords({ user }) {
     }
   };
 
-  const handleDescriptionClick = (description) => {
+  const handleDescriptionClick = (description, theme, date, time, ticket) => {
     Swal.fire({
-      title: 'Descrição Completa',
-      text: description || 'Sem descrição disponível',
-      icon: 'info',
-      confirmButtonText: 'Fechar',
+      title: `<div class="modal-title">${theme || 'Detalhes do Registro'}</div>`,
+      html: `
+        <div class="modal-content">
+          <div class="modal-info-row">
+            <span class="modal-label">Data:</span>
+            <span class="modal-value">${date || 'N/A'}</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-label">Hora:</span>
+            <span class="modal-value">${time || 'N/A'}</span>
+          </div>
+          <div class="modal-info-row">
+            <span class="modal-label">Chamado:</span>
+            <span class="modal-value">${ticket || 'N/A'}</span>
+          </div>
+          <div class="modal-description">
+            <div class="modal-label">Descrição:</div>
+            <div class="modal-description-text">${description || 'Sem descrição disponível'}</div>
+          </div>
+        </div>
+      `,
+      showCloseButton: true,
+      showConfirmButton: false,
+      customClass: {
+        popup: 'custom-modal-popup',
+        title: 'custom-modal-title',
+        content: 'custom-modal-content',
+        closeButton: 'custom-modal-close'
+      }
     });
   };
 
@@ -108,7 +133,7 @@ export default function MyAccessRecords({ user }) {
 
       {/* Tabela de Registros */}
       <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-        <div className={styles.cardHeader}>
+        <div className={styles.cardHeaderColumn}>
           <h2 className={styles.cardTitle}>Meus Acessos</h2>
           
           {/* Campo de busca */}
@@ -153,12 +178,18 @@ export default function MyAccessRecords({ user }) {
                             : record.description || 'N/A'}
                         </span>
                         {record.description && record.description.length > 30 && (
-                          <FontAwesomeIcon
-                            icon={faInfoCircle}
-                            className={styles.infoIcon}
-                            onClick={() => handleDescriptionClick(record.description)}
-                            title="Ver descrição completa"
-                          />
+                          <button 
+                            className={styles.seeMoreButton}
+                            onClick={() => handleDescriptionClick(
+                              record.description, 
+                              record.theme,
+                              record.date,
+                              record.time,
+                              record.ticket_number
+                            )}
+                          >
+                            Ver mais
+                          </button>
                         )}
                       </div>
                     </td>
@@ -175,6 +206,86 @@ export default function MyAccessRecords({ user }) {
           </table>
         </div>
       </div>
+
+      {/* CSS para o modal - será injetado no SweetAlert2 */}
+      <style jsx global>{`
+        .custom-modal-popup {
+          background-color: var(--box-color);
+          border-radius: 12px;
+          box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+          padding: 20px;
+          max-width: 600px;
+          width: 90%;
+        }
+        
+        .modal-title {
+          color: var(--title-color);
+          font-size: 1.5rem;
+          font-weight: bold;
+          border-bottom: 1px solid var(--color-border);
+          padding-bottom: 15px;
+          margin-bottom: 10px;
+          text-align: left;
+        }
+        
+        .modal-content {
+          text-align: left;
+          padding: 10px 5px;
+          color: var(--text-color);
+        }
+        
+        .modal-info-row {
+          display: flex;
+          margin-bottom: 10px;
+          align-items: center;
+        }
+        
+        .modal-label {
+          font-weight: bold;
+          width: 100px;
+          color: var(--color-primary);
+        }
+        
+        .modal-value {
+          flex: 1;
+        }
+        
+        .modal-description {
+          display: flex;
+          flex-direction: column;
+          margin-top: 15px;
+          border-top: 1px solid var(--color-border);
+          padding-top: 15px;
+        }
+        
+        .modal-description-text {
+          margin-top: 10px;
+          white-space: pre-line;
+          line-height: 1.5;
+          max-height: 300px;
+          overflow-y: auto;
+          padding: 10px;
+          background-color: var(--labels-bg);
+          border-radius: 8px;
+          border: 1px solid var(--color-border);
+        }
+        
+        .custom-modal-close {
+          color: var(--text-color) !important;
+          background-color: var(--labels-bg) !important;
+          border-radius: 50% !important;
+          width: 32px !important;
+          height: 32px !important;
+          top: 15px !important;
+          right: 15px !important;
+          transition: all 0.2s ease !important;
+        }
+        
+        .custom-modal-close:hover {
+          background-color: var(--color-primary) !important;
+          color: #fff !important;
+        }
+      `}</style>
     </>
   );
 }

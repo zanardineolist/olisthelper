@@ -41,6 +41,14 @@
   gap: 15px;
 }
 
+.cardHeaderColumn {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
 .cardTitle {
   color: var(--title-color);
   font-size: 1.5rem;
@@ -528,8 +536,8 @@
 /* ================== Estilo para Campo de Busca ================== */
 .searchContainer {
   position: relative;
-  width: 300px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 500px;
 }
 
 .searchIcon {
@@ -561,4 +569,29 @@
 .searchInput::placeholder {
   color: var(--text-color2);
   opacity: 0.7;
+}
+
+/* ================== Botão Ver Mais ================== */
+.seeMoreButton {
+  background-color: transparent;
+  color: var(--color-primary);
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid var(--color-primary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  margin-left: 10px;
+}
+
+.seeMoreButton:hover {
+  background-color: var(--color-primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.seeMoreButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
 }
