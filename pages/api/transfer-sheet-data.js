@@ -19,7 +19,19 @@ export default async function handler(req, res) {
 
     // ID da planilha original e da nova planilha
     const planilhaOriginalId = process.env.GOOGLE_SHEET_ID; // A planilha original
+    
+    // Verificar se o ID da planilha original existe
+    if (!planilhaOriginalId) {
+      return res.status(500).json({ error: 'ID da planilha original não configurado nas variáveis de ambiente (GOOGLE_SHEET_ID)' });
+    }
+    
     const novaPlanilhaId = req.body.novaPlanilhaId; // ID da nova planilha fornecido no corpo da requisição
+    
+    // Verificar se o ID da nova planilha foi fornecido
+    if (!novaPlanilhaId) {
+      return res.status(400).json({ error: 'ID da nova planilha não fornecido' });
+    }
+    
     const abaOrigem = 'remoto'; // Nome da aba de origem
     const abaDestino = req.body.abaDestino || 'Dados Importados'; // Nome da aba de destino
 
