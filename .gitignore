@@ -16,3 +16,5 @@ README.md
 docs/loading-system.md
 sql/update_remote_access_table.sql
 sql/remote_access_table.sql
+Planilha sem título - Dados Importados.csv
+supabase_import_script.sql

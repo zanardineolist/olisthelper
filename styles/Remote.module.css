@@ -37,6 +37,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .cardTitle {
@@ -242,70 +244,69 @@
 }
 
 /* ================== Estilo da Tabela ================== */
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--box-color);
+}
+
 .recordsTable {
   width: 100%;
-  max-width: 1000px;
-  margin: 20px auto;
-  overflow-x: auto;
-  border-collapse: collapse;
+  min-width: 800px;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
 }
 
 .recordsTable thead {
   background-color: var(--color-thead);
-  border-top-right-radius: 10px;
-  border-top-left-radius: 10px;
-}
-
-.recordsTable th,
-.recordsTable td {
-  padding: 10px;
-  text-align: left;
-  color: var(--text-th);
-  border-bottom: 1px solid var(--color-border);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .recordsTable th {
-  font-weight: bold;
+  padding: 15px 12px;
+  text-align: left;
+  color: var(--text-th);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--color-border);
+  position: relative;
 }
 
-.recordsTable tbody {
-  display: block;
-  max-height: 500px;
-  overflow-y: auto;
+.recordsTable th:after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background-color: var(--color-border);
+  opacity: 0.5;
 }
 
-.recordsTable thead,
-.recordsTable tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
+.recordsTable th:last-child:after {
+  display: none;
 }
 
-.recordsTable th:nth-child(1), .recordsTable td:nth-child(1) {
-  width: 10%;  /* Coluna Data */
+.recordsTable td {
+  padding: 12px;
+  text-align: left;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 14px;
 }
 
-.recordsTable th:nth-child(2), .recordsTable td:nth-child(2) {
-  width: 10%;  /* Coluna Hora */
+.tableRow {
+  transition: background-color 0.2s ease;
 }
 
-.recordsTable th:nth-child(3), .recordsTable td:nth-child(3) {
-  width: 15%;  /* Coluna Nome */
-}
-
-.recordsTable th:nth-child(4), .recordsTable td:nth-child(4) {
-  width: 9%;  /* Coluna Chamado */
-}
-
-.recordsTable th:nth-child(5), .recordsTable td:nth-child(5) {
-  width: 16%;  /* Coluna Tema */
-}
-
-.recordsTable th:nth-child(6), .recordsTable td:nth-child(6) {
-  width: 18%;  /* Coluna Descrição */
+.tableRow:hover {
+  background-color: var(--color-hover) !important;
 }
 
 .recordsTable tbody tr:nth-child(odd) {
@@ -316,16 +317,69 @@
   background-color: var(--color-treven);
 }
 
+/* Tamanhos específicos das colunas */
+.dateColumn {
+  width: 10%;
+  min-width: 90px;
+}
+
+.timeColumn {
+  width: 8%;
+  min-width: 80px;
+}
+
+.nameColumn {
+  width: 15%;
+  min-width: 120px;
+}
+
+.ticketColumn {
+  width: 10%;
+  min-width: 90px;
+}
+
+.themeColumn {
+  width: 15%;
+  min-width: 120px;
+}
+
+.descriptionColumn {
+  width: 42%;
+  min-width: 200px;
+}
+
+/* Estilo para a descrição com ícone */
+.descriptionWithIcon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.truncatedText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.noRecordsMessage {
+  text-align: center;
+  padding: 20px !important;
+  color: var(--text-color2) !important;
+  font-style: italic;
+}
+
 /* ================== Ícones de Informação ================== */
 .infoIcon {
   color: var(--color-icons);
-  font-size: 1.2em;
+  font-size: 16px;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, transform 0.2s ease;
 }
 
 .infoIcon:hover {
   color: var(--color-primary);
+  transform: scale(1.2);
 }
 
 /* ================== Loader ================== */
@@ -431,6 +485,26 @@
   }
 }
 
+@media (max-width: 768px) {
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .searchContainer {
+    width: 100%;
+  }
+  
+  .performanceWrapper {
+    flex-direction: column;
+  }
+  
+  .performanceContainer {
+    max-width: 100%;
+    margin-bottom: 15px;
+  }
+}
+
 /* ================== Chartjs Estilos ================== */
 
 .chartContainer {
@@ -449,4 +523,42 @@
   font-size: 1.5rem;
   color: var(--title-color);
   margin-bottom: 20px;
+}
+
+/* ================== Estilo para Campo de Busca ================== */
+.searchContainer {
+  position: relative;
+  width: 300px;
+  max-width: 100%;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-color2);
+  font-size: 14px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 10px 10px 35px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background-color: var(--labels-bg);
+  color: var(--text-color);
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.searchInput::placeholder {
+  color: var(--text-color2);
+  opacity: 0.7;
 }
