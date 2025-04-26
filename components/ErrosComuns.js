@@ -278,11 +278,18 @@ export default function ErrosComuns({ user }) {
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={handleSearchKeyPress}
             InputProps={{
+              className: styles.inputRoot,
               endAdornment: searchQuery ? (
-                <IconButton size="small" onClick={handleClearSearch}>
+                <IconButton size="small" onClick={handleClearSearch} className={styles.iconButton}>
                   <CloseIcon />
                 </IconButton>
               ) : null,
+              classes: { 
+                notchedOutline: styles.inputOutline 
+              }
+            }}
+            InputLabelProps={{
+              className: styles.inputLabel
             }}
           />
           <Button
@@ -290,7 +297,7 @@ export default function ErrosComuns({ user }) {
             color="primary"
             onClick={handleSearch}
             startIcon={<SearchIcon />}
-            className={styles.searchButton}
+            className={`${styles.searchButton} ${styles.btnContained}`}
           >
             Buscar
           </Button>
@@ -298,7 +305,7 @@ export default function ErrosComuns({ user }) {
             variant="outlined"
             onClick={() => setShowFilters(!showFilters)}
             startIcon={<FilterListIcon />}
-            className={styles.filterButton}
+            className={`${styles.filterButton} ${styles.btnOutlined}`}
           >
             Filtros
           </Button>
@@ -309,7 +316,7 @@ export default function ErrosComuns({ user }) {
             <div className={styles.filterControls}>
               {currentTab !== 2 && (
                 <FormControl variant="outlined" className={styles.filterSelect}>
-                  <InputLabel>{getIntegrationLabel()}</InputLabel>
+                  <InputLabel className={styles.inputLabel}>{getIntegrationLabel()}</InputLabel>
                   <Select
                     value={integracaoFilter}
                     onChange={(e) => {
@@ -317,10 +324,23 @@ export default function ErrosComuns({ user }) {
                       applyFilters(data, currentTab, e.target.value, tipoFilter, searchQuery);
                     }}
                     label={getIntegrationLabel()}
+                    className={styles.inputRoot}
+                    MenuProps={{
+                      classes: {
+                        paper: styles.menuPaper
+                      },
+                      PaperProps: {
+                        className: styles.menuPaper
+                      }
+                    }}
                   >
-                    <MenuItem value="">Todos</MenuItem>
+                    <MenuItem value="" className={`${styles.menuItem} ${styles.menuItemHover}`}>Todos</MenuItem>
                     {integracoes.map((integ) => (
-                      <MenuItem key={integ} value={integ}>
+                      <MenuItem 
+                        key={integ} 
+                        value={integ} 
+                        className={`${styles.menuItem} ${styles.menuItemHover}`}
+                      >
                         {integ}
                       </MenuItem>
                     ))}
@@ -329,7 +349,7 @@ export default function ErrosComuns({ user }) {
               )}
 
               <FormControl variant="outlined" className={styles.filterSelect}>
-                <InputLabel>Tipo</InputLabel>
+                <InputLabel className={styles.inputLabel}>Tipo</InputLabel>
                 <Select
                   value={tipoFilter}
                   onChange={(e) => {
@@ -337,10 +357,23 @@ export default function ErrosComuns({ user }) {
                     applyFilters(data, currentTab, integracaoFilter, e.target.value, searchQuery);
                   }}
                   label="Tipo"
+                  className={styles.inputRoot}
+                  MenuProps={{
+                    classes: {
+                      paper: styles.menuPaper
+                    },
+                    PaperProps: {
+                      className: styles.menuPaper
+                    }
+                  }}
                 >
-                  <MenuItem value="">Todos</MenuItem>
+                  <MenuItem value="" className={`${styles.menuItem} ${styles.menuItemHover}`}>Todos</MenuItem>
                   {tipos.map((tipo) => (
-                    <MenuItem key={tipo} value={tipo}>
+                    <MenuItem 
+                      key={tipo} 
+                      value={tipo} 
+                      className={`${styles.menuItem} ${styles.menuItemHover}`}
+                    >
                       {tipo}
                     </MenuItem>
                   ))}
@@ -351,7 +384,7 @@ export default function ErrosComuns({ user }) {
                 variant="outlined"
                 color="secondary"
                 onClick={resetFilters}
-                className={styles.resetButton}
+                className={`${styles.resetButton} ${styles.btnOutlined}`}
               >
                 Limpar Filtros
               </Button>
@@ -370,7 +403,7 @@ export default function ErrosComuns({ user }) {
         {filteredData.length > 0 ? (
           filteredData.map((item, index) => (
             <Card key={index} className={styles.card}>
-              <CardContent>
+              <CardContent className={styles.cardContent}>
                 <div className={styles.cardHeader}>
                   <Chip 
                     label={getTabName()} 
@@ -412,6 +445,7 @@ export default function ErrosComuns({ user }) {
                   color="primary"
                   startIcon={<VisibilityIcon />}
                   onClick={() => handleOpenModal(item)}
+                  className={styles.btnContained}
                 >
                   Ver detalhes
                 </Button>
@@ -421,7 +455,11 @@ export default function ErrosComuns({ user }) {
         ) : (
           <div className={styles.noResults}>
             <p>Nenhum resultado encontrado com os filtros aplicados.</p>
-            <Button variant="outlined" onClick={resetFilters}>
+            <Button 
+              variant="outlined" 
+              onClick={resetFilters}
+              className={styles.btnOutlined}
+            >
               Limpar Filtros
             </Button>
           </div>
@@ -435,15 +473,18 @@ export default function ErrosComuns({ user }) {
         maxWidth="md"
         fullWidth
         className={styles.detailsDialog}
+        PaperProps={{
+          className: styles.detailsDialog
+        }}
       >
         {selectedItem && (
           <>
             <DialogTitle className={styles.dialogTitle}>
               <div className={styles.dialogTitleContent}>
-                <Typography variant="h6" component="h2">
+                <Typography variant="h6" component="h2" className={styles.dialogTitle}>
                   {selectedItem.Erro}
                 </Typography>
-                <IconButton onClick={handleCloseModal}>
+                <IconButton onClick={handleCloseModal} className={styles.iconButton}>
                   <CloseIcon />
                 </IconButton>
               </div>
@@ -478,7 +519,7 @@ export default function ErrosComuns({ user }) {
                 />
               </div>
             </DialogTitle>
-            <DialogContent dividers>
+            <DialogContent className={styles.dialogContent} dividers>
               <Box className={styles.solutionBox}>
                 <div className={styles.solutionHeader}>
                   <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
@@ -523,15 +564,20 @@ export default function ErrosComuns({ user }) {
                 </Box>
               )}
             </DialogContent>
-            <DialogActions>
+            <DialogActions className={styles.dialogActions}>
               <Button 
                 onClick={() => handleCopyToClipboard(selectedItem.Solução)}
                 variant="contained"
                 startIcon={<ContentCopyIcon />}
+                className={styles.btnContained}
               >
                 Copiar Solução
               </Button>
-              <Button onClick={handleCloseModal} variant="outlined">
+              <Button 
+                onClick={handleCloseModal} 
+                variant="outlined"
+                className={styles.btnOutlined}
+              >
                 Fechar
               </Button>
             </DialogActions>

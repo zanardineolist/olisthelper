@@ -67,29 +67,18 @@
 }
 
 /* Estilo para o menu dropdown de filtros */
-.filterSelect :global(.MuiMenu-paper) {
+.menuPaper {
   max-height: 300px;
   overflow-y: auto;
-}
-
-/* Estilo para as opções nos menus de filtro */
-.filterSelect :global(.MuiSelect-select) {
-  max-height: 250px;
-  overflow-y: auto;
-}
-
-/* Estilizar o popup do menu de filtros */
-:global(.MuiMenu-paper) {
   background-color: var(--box-color) !important;
   color: var(--text-color) !important;
-  max-height: 300px !important;
 }
 
-:global(.MuiMenuItem-root) {
+.menuItem {
   color: var(--text-color) !important;
 }
 
-:global(.MuiMenuItem-root:hover) {
+.menuItemHover:hover {
   background-color: var(--box-color2) !important;
 }
 
@@ -117,12 +106,17 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.card :global(.MuiCardContent-root) {
+.cardContent {
+  flex-grow: 1;
+  padding: 16px;
   background-color: var(--box-color) !important;
   color: var(--text-color) !important;
 }
 
-.card :global(.MuiCardActions-root) {
+.cardActions {
+  padding: 8px 16px 16px;
+  display: flex;
+  justify-content: flex-end;
   background-color: var(--box-color) !important;
 }
 
@@ -137,17 +131,6 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 15px;
-}
-
-.cardContent {
-  flex-grow: 1;
-  padding: 16px;
-}
-
-.cardActions {
-  padding: 8px 16px 16px;
-  display: flex;
-  justify-content: flex-end;
 }
 
 /* Corrigir cores das chips */
@@ -193,37 +176,8 @@
 /* Estilos para o modal de detalhes */
 .detailsDialog {
   border-radius: 8px;
-}
-
-/* Aplicar estilos forçados aos componentes do Dialog */
-:global(.MuiDialog-paper) {
   background-color: var(--background-color) !important;
   color: var(--text-color) !important;
-}
-
-:global(.MuiDialogTitle-root) {
-  background-color: var(--box-color) !important;
-  color: var(--title-color) !important;
-  border-bottom: 1px solid var(--color-border) !important;
-}
-
-:global(.MuiDialogContent-root) {
-  background-color: var(--background-color) !important;
-  color: var(--text-color) !important;
-}
-
-:global(.MuiDialogActions-root) {
-  background-color: var(--box-color) !important;
-  border-top: 1px solid var(--color-border) !important;
-  color: var(--text-color) !important;
-}
-
-:global(.MuiTypography-root) {
-  color: var(--text-color) !important;
-}
-
-:global(.MuiTypography-h6) {
-  color: var(--title-color) !important;
 }
 
 .dialogTitle {
@@ -233,10 +187,29 @@
   border-bottom: 1px solid var(--color-border) !important;
 }
 
+.dialogContent {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+.dialogActions {
+  background-color: var(--box-color) !important;
+  border-top: 1px solid var(--color-border) !important;
+  color: var(--text-color) !important;
+}
+
 .dialogTitleContent {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+}
+
+.dialogText {
+  color: var(--text-color) !important;
+}
+
+.dialogTitle h2 {
+  color: var(--title-color) !important;
 }
 
 .tagContainer {
@@ -344,46 +317,37 @@
   height: 56px;
 }
 
-/* Override Button styles */
-:global(.MuiButton-containedPrimary) {
-  background-color: var(--color-primary) !important;
-  color: white !important;
-}
-
-:global(.MuiButton-containedPrimary:hover) {
-  background-color: var(--color-primary-hover) !important;
-}
-
-:global(.MuiButton-outlinedPrimary) {
-  color: var(--color-primary) !important;
-  border-color: var(--color-primary) !important;
-}
-
-:global(.MuiButton-outlined) {
-  color: var(--text-color) !important;
-  border-color: var(--color-border) !important;
-}
-
-:global(.MuiButton-text) {
-  color: var(--color-primary) !important;
-}
-
-:global(.MuiIconButton-root) {
-  color: var(--text-color) !important;
-}
-
-/* Corrigir cor do input de busca */
-:global(.MuiInputBase-root) {
+/* Estilos para elementos de formulário */
+.inputRoot {
   background-color: var(--modals-inputs) !important;
   color: var(--text-color) !important;
 }
 
-:global(.MuiInputLabel-root) {
+.inputLabel {
   color: var(--text-color2) !important;
 }
 
-:global(.MuiOutlinedInput-notchedOutline) {
+.inputOutline {
   border-color: var(--color-border) !important;
+}
+
+/* Estilos para botões */
+.btnContained {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+}
+
+.btnOutlined {
+  color: var(--text-color) !important;
+  border-color: var(--color-border) !important;
+}
+
+.btnText {
+  color: var(--color-primary) !important;
+}
+
+.iconButton {
+  color: var(--text-color) !important;
 }
 
 @media (max-width: 768px) {
