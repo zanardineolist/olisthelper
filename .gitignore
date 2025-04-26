@@ -18,3 +18,6 @@ sql/update_remote_access_table.sql
 sql/remote_access_table.sql
 Planilha sem título - Dados Importados.csv
 supabase_import_script.sql
+Database - Erros Comuns - Anúncios.csv
+Database - Erros Comuns - Expedição.csv
+Database - Erros Comuns - Notas Fiscais.csv

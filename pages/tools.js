@@ -9,6 +9,7 @@ import Footer from '../components/Footer';
 import TicketCounter from '../components/TicketCounter';
 import SharedMessages from '../components/SharedMessages';
 import CepIbgeValidator from '../components/CepIbgeValidator';
+import ErrosComuns from '../components/ErrosComuns';
 import styles from '../styles/Tools.module.css';
 import Image from 'next/image';
 
@@ -61,6 +62,8 @@ export default function ToolsPage({ user }) {
         setCurrentTab(1);
       } else if (hash === '#CepIbgeValidator') {
         setCurrentTab(2);
+      } else if (hash === '#ErrosComuns') {
+        setCurrentTab(3);
       }
       setLoading(false);
     }, 500);
@@ -78,6 +81,9 @@ export default function ToolsPage({ user }) {
         break;
       case 2:
         hash = '#CepIbgeValidator';
+        break;
+      case 3:
+        hash = '#ErrosComuns';
         break;
       default:
         break;
@@ -110,6 +116,7 @@ export default function ToolsPage({ user }) {
               )}
               <Tab label="Respostas Compartilhadas" />
               <Tab label="Validador CEP x IBGE" />
+              <Tab label="Base de Conhecimento" />
             </Tabs>
           </div>
         </ThemeProvider>
@@ -215,6 +222,9 @@ export default function ToolsPage({ user }) {
                 </p>
               </div>
             </>
+          )}
+          {currentTab === 3 && (
+            <ErrosComuns user={user} />
           )}
         </div>
       </main>
