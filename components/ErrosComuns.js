@@ -147,8 +147,6 @@ export default function ErrosComuns({ user }) {
   useEffect(() => {
     if (abas && abas.length > 0 && data && Object.keys(data).length > 0) {
       const abaAtual = abas[currentTab];
-      console.log("Aba atual:", abaAtual);
-      console.log("Cabeçalhos:", cabecalhos);
       const currentItems = data[abaAtual] || [];
       
       applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, filtroRevisao, searchQuery);
