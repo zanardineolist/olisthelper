@@ -66,12 +66,55 @@
   flex: 1;
 }
 
-/* Estilo para o menu dropdown de filtros */
-.menuPaper {
+.formControl {
+  min-width: 200px;
+  margin-right: 15px;
+  flex: 1;
+}
+
+.selectHeight {
   max-height: 300px;
   overflow-y: auto;
+}
+
+.checkboxGroup {
+  align-items: center;
+  background-color: var(--box-color2);
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 0;
+}
+
+/* Estilo para o menu dropdown de filtros */
+.menuPaper {
+  max-height: 300px !important;
+  overflow-y: auto !important;
   background-color: var(--box-color) !important;
   color: var(--text-color) !important;
+  scrollbar-width: thin;
+}
+
+.selectMenu {
+  max-height: 300px !important;
+  overflow-y: auto !important;
+}
+
+.menuPaper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.menuPaper::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.menuPaper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.menuPaper::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .menuItem {
@@ -144,7 +187,7 @@
   margin-bottom: 16px;
   align-items: center;
   padding-bottom: 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 /* Corrigir cores das chips */

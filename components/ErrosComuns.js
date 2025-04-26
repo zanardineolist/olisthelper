@@ -316,6 +316,19 @@ export default function ErrosComuns({ user }) {
           value={tag1Filter}
           onChange={handleTag1Change}
           label="Marcador 1"
+          MenuProps={{
+            classes: { paper: styles.menuPaper },
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'left',
+            },
+            transformOrigin: {
+              vertical: 'top',
+              horizontal: 'left',
+            },
+            getContentAnchorEl: null
+          }}
+          className={styles.selectHeight}
         >
           <MenuItem value="">
             <em>Todos</em>
@@ -340,6 +353,19 @@ export default function ErrosComuns({ user }) {
           value={tag2Filter}
           onChange={handleTag2Change}
           label="Marcador 2"
+          MenuProps={{
+            classes: { paper: styles.menuPaper },
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'left',
+            },
+            transformOrigin: {
+              vertical: 'top',
+              horizontal: 'left',
+            },
+            getContentAnchorEl: null
+          }}
+          className={styles.selectHeight}
         >
           <MenuItem value="">
             <em>Todos</em>
