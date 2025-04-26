@@ -388,12 +388,6 @@ export default function ErrosComuns({ user }) {
       
       <h3 className={styles.errorTitle}>{item.Erro}</h3>
       
-      {item.Solução && (
-        <Typography variant="body2" className={styles.cardPreview}>
-          {item.Solução.substring(0, 150)}{item.Solução.length > 150 ? '...' : ''}
-        </Typography>
-      )}
-      
       <div className={styles.cardActions}>
         <Button
           variant="outlined"
