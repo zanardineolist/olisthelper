@@ -354,6 +354,17 @@ export default function ErrosComuns({ user }) {
 
   const renderCard = (item, index) => (
     <div key={index} className={styles.card}>
+      <div className={styles.cardStatusHeader}>
+        <Chip 
+          icon={item.Revisado === 'Sim' ? <CheckCircleIcon fontSize="small" /> : <CancelIcon fontSize="small" />}
+          label={item.Revisado === 'Sim' ? 'Revisado' : 'Não revisado'} 
+          color={item.Revisado === 'Sim' ? 'success' : 'warning'}
+          variant="outlined" 
+          size="small"
+          className={styles.revisaoChip} 
+        />
+      </div>
+      
       <div className={styles.cardHeader}>
         <Chip 
           label={getTabName()} 
@@ -381,15 +392,6 @@ export default function ErrosComuns({ user }) {
       <h3 className={styles.errorTitle}>{item.Erro}</h3>
       
       <div className={styles.cardFooter}>
-        <Chip 
-          icon={item.Revisado === 'Sim' ? <CheckCircleIcon fontSize="small" /> : <CancelIcon fontSize="small" />}
-          label={item.Revisado === 'Sim' ? 'Revisado' : 'Não revisado'} 
-          color={item.Revisado === 'Sim' ? 'success' : 'warning'}
-          variant="outlined" 
-          size="small"
-          className={styles.revisaoChip} 
-        />
-        
         <Button
           variant="outlined"
           color="primary"

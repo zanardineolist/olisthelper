@@ -505,12 +505,18 @@
 .cardFooter {
   padding: 8px 0 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   background-color: var(--box-color) !important;
   margin-top: auto;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   padding-top: 16px;
+}
+
+.cardStatusHeader {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
 }
 
 .revisaoChip {
