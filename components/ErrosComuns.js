@@ -376,6 +376,11 @@ export default function ErrosComuns({ user }) {
             className={styles.typeChip} 
           />
         )}
+      </div>
+      
+      <h3 className={styles.errorTitle}>{item.Erro}</h3>
+      
+      <div className={styles.cardFooter}>
         <Chip 
           icon={item.Revisado === 'Sim' ? <CheckCircleIcon fontSize="small" /> : <CancelIcon fontSize="small" />}
           label={item.Revisado === 'Sim' ? 'Revisado' : 'Não revisado'} 
@@ -384,11 +389,7 @@ export default function ErrosComuns({ user }) {
           size="small"
           className={styles.revisaoChip} 
         />
-      </div>
-      
-      <h3 className={styles.errorTitle}>{item.Erro}</h3>
-      
-      <div className={styles.cardActions}>
+        
         <Button
           variant="outlined"
           color="primary"

@@ -124,16 +124,6 @@
   color: var(--text-color) !important;
 }
 
-.cardActions {
-  padding: 8px 0 0;
-  display: flex;
-  justify-content: flex-end;
-  background-color: var(--box-color) !important;
-  margin-top: auto;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  padding-top: 16px;
-}
-
 .viewButton {
   font-weight: 500 !important;
   text-transform: none !important;
@@ -448,6 +438,7 @@
   font-size: 0.75rem;
   color: var(--text-color) !important;
   transition: all 0.2s ease;
+  border-width: 1px !important;
 }
 
 /* Aprimorar o dialog */
@@ -509,4 +500,23 @@
   font-weight: 500;
   padding: 0 10px !important;
   height: 28px !important;
+}
+
+.cardFooter {
+  padding: 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--box-color) !important;
+  margin-top: auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 16px;
+}
+
+.revisaoChip {
+  font-weight: 500;
+  font-size: 0.75rem;
+  color: var(--text-color) !important;
+  transition: all 0.2s ease;
+  border-width: 1px !important;
 } 
