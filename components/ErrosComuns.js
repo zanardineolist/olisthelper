@@ -318,7 +318,17 @@ export default function ErrosComuns({ user }) {
     return (
       <div className={styles.filterControls}>
         <FormControl variant="outlined" size="small" className={styles.formControl}>
-          <InputLabel id="tag1-select-label" style={{ color: 'var(--title-color)', backgroundColor: 'transparent' }}>{labelTag1}</InputLabel>
+          <InputLabel 
+            id="tag1-select-label" 
+            style={{ 
+              color: 'var(--title-color)', 
+              backgroundColor: 'var(--background-color)',
+              padding: '0 4px',
+              fontSize: '0.85rem'
+            }}
+          >
+            {labelTag1}
+          </InputLabel>
           <Select
             labelId="tag1-select-label"
             id="tag1-select"
@@ -332,18 +342,43 @@ export default function ErrosComuns({ user }) {
               backgroundColor: 'var(--background-color)',
               borderColor: 'var(--color-border)'
             }}
+            MenuProps={{
+              classes: { 
+                paper: styles.menuPaper,
+                list: styles.selectMenu 
+              },
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+              transformOrigin: {
+                vertical: 'top',
+                horizontal: 'left',
+              },
+              getContentAnchorEl: null
+            }}
           >
             <MenuItem value="">
               <em>Todos</em>
             </MenuItem>
             {tags && tags.tag1 && tags.tag1.map((tag) => (
-              <MenuItem key={tag} value={tag}>{tag}</MenuItem>
+              <MenuItem key={tag} value={tag} className={styles.menuItem}>{tag}</MenuItem>
             ))}
           </Select>
         </FormControl>
         
         <FormControl variant="outlined" size="small" className={styles.formControl}>
-          <InputLabel id="tag2-select-label" style={{ color: 'var(--title-color)', backgroundColor: 'transparent' }}>{labelTag2}</InputLabel>
+          <InputLabel 
+            id="tag2-select-label" 
+            style={{ 
+              color: 'var(--title-color)', 
+              backgroundColor: 'var(--background-color)',
+              padding: '0 4px',
+              fontSize: '0.85rem'
+            }}
+          >
+            {labelTag2}
+          </InputLabel>
           <Select
             labelId="tag2-select-label"
             id="tag2-select"
@@ -357,12 +392,27 @@ export default function ErrosComuns({ user }) {
               backgroundColor: 'var(--background-color)',
               borderColor: 'var(--color-border)'
             }}
+            MenuProps={{
+              classes: { 
+                paper: styles.menuPaper,
+                list: styles.selectMenu 
+              },
+              anchorOrigin: {
+                vertical: 'bottom',
+                horizontal: 'left',
+              },
+              transformOrigin: {
+                vertical: 'top',
+                horizontal: 'left',
+              },
+              getContentAnchorEl: null
+            }}
           >
             <MenuItem value="">
               <em>Todos</em>
             </MenuItem>
             {tags && tags.tag2 && tags.tag2.map((tag) => (
-              <MenuItem key={tag} value={tag}>{tag}</MenuItem>
+              <MenuItem key={tag} value={tag} className={styles.menuItem}>{tag}</MenuItem>
             ))}
           </Select>
         </FormControl>

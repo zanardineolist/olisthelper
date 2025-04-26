@@ -155,6 +155,7 @@
   background-color: var(--background-color) !important;
   color: var(--title-color) !important;
   scrollbar-width: thin;
+  border: 1px solid var(--color-border);
 }
 
 .selectMenu {
@@ -167,12 +168,12 @@
 }
 
 .menuPaper::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--scroll-bg);
   border-radius: 10px;
 }
 
 .menuPaper::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--scroll);
   border-radius: 10px;
 }
 
@@ -181,7 +182,7 @@
 }
 
 .menuItem {
-  color: var(--text-color) !important;
+  color: var(--title-color) !important;
 }
 
 .menuItemHover:hover {
@@ -726,4 +727,37 @@
 /* Textos dentro dos checkboxes */
 .MuiFormControlLabel-label {
   color: var(--title-color) !important;
+}
+
+.formControl .MuiInputLabel-outlined {
+  background-color: var(--background-color);
+  padding: 0 5px;
+  font-size: 0.85rem;
+  transform: translate(14px, -6px) scale(0.85) !important;
+}
+
+.formControl .MuiInputLabel-outlined.MuiInputLabel-shrink {
+  transform: translate(14px, -6px) scale(0.85) !important;
+  background-color: var(--background-color);
+  padding: 0 5px;
+}
+
+.formControl .MuiOutlinedInput-input {
+  padding: 10px 14px;
+  color: var(--title-color) !important;
+}
+
+.formControl .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--color-primary) !important;
+  border-width: 1px !important;
+}
+
+/* Estilos para o texto em MenuItem */
+.menuItem {
+  color: var(--title-color) !important;
+  background-color: var(--background-color) !important;
+}
+
+.menuItem:hover {
+  background-color: var(--box-color2) !important;
 } 
