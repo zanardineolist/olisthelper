@@ -790,7 +790,7 @@ button.resetButton.btnOutlined {
   transition: all 0.2s ease !important;
   text-transform: none !important;
   font-size: 0.95rem !important;
-  font-color: var(--text-color) !important;
+  color: var(--text-color) !important;
   margin: 0 4px !important;
 }
 
