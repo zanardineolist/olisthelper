@@ -116,7 +116,7 @@ export default function ToolsPage({ user }) {
               )}
               <Tab label="Respostas Compartilhadas" />
               <Tab label="Validador CEP x IBGE" />
-              <Tab label="Base de Conhecimento" />
+              <Tab label="Base de Erros" />
             </Tabs>
           </div>
         </ThemeProvider>

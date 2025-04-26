@@ -790,7 +790,7 @@ export default function ErrosComuns({ user }) {
   return (
     <Container maxWidth="xl" className={styles.container}>
       <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Base de Conhecimento de Erros</h1>
+        <h1 className={styles.pageTitle}>Base de Erros</h1>
         <p className={styles.pageDescription}>
           Esta ferramenta exibe erros comuns e suas soluções cadastradas na planilha.
         </p>

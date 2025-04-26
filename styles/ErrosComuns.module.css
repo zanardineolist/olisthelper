@@ -158,6 +158,12 @@
   padding: 0 16px;
   margin-top: 0;
   flex: 0 1 auto;
+  color: var(--color-accent1) !important;
+  border-color: var(--color-accent1) !important;
+}
+
+.resetButton:hover {
+  background-color: rgba(230, 78, 54, 0.08) !important;
 }
 
 .btnOutlined:hover {
