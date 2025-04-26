@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import styles from '../styles/ErrosComuns.module.css';
 import { 
   TextField, 
@@ -275,6 +275,35 @@ export default function ErrosComuns({ user }) {
     applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, novoFiltro, searchQuery);
   };
 
+  // Função para gerar cor baseada em hash da string
+  const getColorForTag = (tag) => {
+    if (!tag) return { main: '#9e9e9e', bg: 'rgba(158, 158, 158, 0.08)', border: 'rgba(158, 158, 158, 0.3)' };
+    
+    // Hash simples
+    let hash = 0;
+    for (let i = 0; i < tag.length; i++) {
+      hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Lista de cores predefinidas com boa visibilidade
+    const colors = [
+      { main: '#1976d2', bg: 'rgba(25, 118, 210, 0.08)', border: 'rgba(25, 118, 210, 0.3)' },   // azul
+      { main: '#e53935', bg: 'rgba(229, 57, 53, 0.08)', border: 'rgba(229, 57, 53, 0.3)' },     // vermelho
+      { main: '#7b1fa2', bg: 'rgba(123, 31, 162, 0.08)', border: 'rgba(123, 31, 162, 0.3)' },   // roxo
+      { main: '#388e3c', bg: 'rgba(56, 142, 60, 0.08)', border: 'rgba(56, 142, 60, 0.3)' },     // verde
+      { main: '#f57c00', bg: 'rgba(245, 124, 0, 0.08)', border: 'rgba(245, 124, 0, 0.3)' },     // laranja
+      { main: '#0288d1', bg: 'rgba(2, 136, 209, 0.08)', border: 'rgba(2, 136, 209, 0.3)' },     // azul claro
+      { main: '#455a64', bg: 'rgba(69, 90, 100, 0.08)', border: 'rgba(69, 90, 100, 0.3)' },     // azul cinza
+      { main: '#5d4037', bg: 'rgba(93, 64, 55, 0.08)', border: 'rgba(93, 64, 55, 0.3)' },       // marrom
+      { main: '#00796b', bg: 'rgba(0, 121, 107, 0.08)', border: 'rgba(0, 121, 107, 0.3)' },     // verde azulado
+      { main: '#c2185b', bg: 'rgba(194, 24, 91, 0.08)', border: 'rgba(194, 24, 91, 0.3)' }      // rosa
+    ];
+    
+    // Usar o hash para selecionar uma cor da lista
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
+  };
+
   const renderFiltroTag1 = () => {
     if (!tags || !tags.tag1 || tags.tag1.length === 0) return null;
     
@@ -352,136 +381,164 @@ export default function ErrosComuns({ user }) {
     );
   };
 
-  const renderCard = (item, index) => (
-    <div key={index} className={styles.card}>
-      <div className={styles.cardStatusHeader}>
-        <Chip 
-          icon={item.Revisado === 'Sim' ? <CheckCircleIcon fontSize="small" /> : <CancelIcon fontSize="small" />}
-          label={item.Revisado === 'Sim' ? 'Revisado' : 'Não revisado'} 
-          color={item.Revisado === 'Sim' ? 'success' : 'warning'}
-          variant="outlined" 
-          size="small"
-          className={styles.revisaoChip} 
-        />
-      </div>
-      
-      <div className={styles.cardHeader}>
-        <Chip 
-          label={getTabName()} 
-          color="primary" 
-          className={styles.sectionChip} 
-        />
-        {item.Tag1 && (
+  const renderCard = (item, index) => {
+    const tag1Color = getColorForTag(item.Tag1);
+    const tag2Color = getColorForTag(item.Tag2);
+    
+    return (
+      <div key={index} className={styles.card}>
+        <div className={styles.cardStatusHeader}>
           <Chip 
-            label={item.Tag1} 
-            color="primary" 
-            variant="outlined" 
-            className={styles.integrationChip} 
-          />
-        )}
-        {item.Tag2 && (
-          <Chip 
-            label={item.Tag2} 
-            color="secondary" 
-            variant="outlined" 
-            className={styles.typeChip} 
-          />
-        )}
-      </div>
-      
-      <h3 className={styles.errorTitle}>{item.Erro}</h3>
-      
-      <div className={styles.cardFooter}>
-        <Button
-          variant="outlined"
-          color="primary"
-          size="small"
-          onClick={() => handleOpenModal(item)}
-          startIcon={<VisibilityIcon />}
-          className={styles.viewButton}
-        >
-          Ver detalhes
-        </Button>
-      </div>
-    </div>
-  );
-
-  const renderModalContent = () => (
-    <>
-      <div className={styles.modalHeader}>
-        <Typography variant="h6" component="h2" className={styles.modalTitle}>
-          {modalData.Erro}
-        </Typography>
-        
-        <div className={styles.modalChips}>
-          {modalData.Tag1 && (
-            <Chip 
-              label={modalData.Tag1} 
-              color="primary" 
-              variant="outlined" 
-              size="small"
-              className={styles.modalChip}
-            />
-          )}
-          {modalData.Tag2 && (
-            <Chip 
-              label={modalData.Tag2} 
-              color="secondary" 
-              variant="outlined" 
-              size="small"
-              className={styles.modalChip}
-            />
-          )}
-          <Chip 
-            icon={modalData.Revisado === 'Sim' ? <CheckCircleIcon fontSize="small" /> : <CancelIcon fontSize="small" />}
-            label={modalData.Revisado === 'Sim' ? 'Revisado' : 'Não revisado'} 
-            color={modalData.Revisado === 'Sim' ? 'success' : 'warning'}
+            icon={item.Revisado === 'Sim' ? <CheckCircleIcon fontSize="small" /> : <CancelIcon fontSize="small" />}
+            label={item.Revisado === 'Sim' ? 'Revisado' : 'Não revisado'} 
+            color={item.Revisado === 'Sim' ? 'success' : 'warning'}
             variant="outlined" 
             size="small"
+            className={styles.revisaoChip} 
           />
         </div>
-      </div>
-
-      <div className={styles.solutionBox}>
-        <div className={styles.solutionHeader}>
-          <div className={styles.sectionTitleWrapper}>
-            <DescriptionIcon className={styles.sectionIcon} />
-            <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
-              Solução
-            </Typography>
-          </div>
-          <Tooltip title="Copiar solução">
-            <IconButton 
-              onClick={() => handleCopyToClipboard(modalData.Solução)}
-              size="small"
-              className={styles.copyButton}
-            >
-              <ContentCopyIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
+        
+        <div className={styles.cardHeader}>
+          <Chip 
+            label={getTabName()} 
+            color="primary" 
+            className={styles.sectionChip} 
+          />
+          {item.Tag1 && (
+            <Chip 
+              label={item.Tag1} 
+              variant="outlined" 
+              className={styles.tagChip}
+              style={{
+                color: tag1Color.main,
+                borderColor: tag1Color.border,
+                backgroundColor: tag1Color.bg
+              }}
+            />
+          )}
+          {item.Tag2 && (
+            <Chip 
+              label={item.Tag2} 
+              variant="outlined" 
+              className={styles.tagChip}
+              style={{
+                color: tag2Color.main,
+                borderColor: tag2Color.border,
+                backgroundColor: tag2Color.bg
+              }}
+            />
+          )}
         </div>
-        <Box className={styles.solutionScrollbox}>
-          <Typography variant="body2" className={styles.solutionText}>
-            {modalData.Solução}
-          </Typography>
-        </Box>
+        
+        <div className={styles.cardContentArea}>
+          <h3 className={styles.errorTitle}>{item.Erro}</h3>
+        </div>
+        
+        <div className={styles.cardFooter}>
+          <Button
+            variant="outlined"
+            color="primary"
+            size="small"
+            onClick={() => handleOpenModal(item)}
+            startIcon={<VisibilityIcon />}
+            className={styles.viewButton}
+          >
+            Ver detalhes
+          </Button>
+        </div>
       </div>
+    );
+  };
 
-      {modalData.Observação && modalData.Observação.trim() !== '' && (
-        <Box className={styles.observationBox}>
-          <div className={styles.sectionTitleWrapper}>
-            <InfoIcon className={styles.sectionIcon} />
-            <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
-              Observação
-            </Typography>
-          </div>
-          <Typography variant="body2" className={styles.observationText}>
-            {modalData.Observação}
+  const renderModalContent = () => {
+    const tag1Color = getColorForTag(modalData.Tag1);
+    const tag2Color = getColorForTag(modalData.Tag2);
+    
+    return (
+      <>
+        <div className={styles.modalHeader}>
+          <Typography variant="h6" component="h2" className={styles.modalTitle}>
+            {modalData.Erro}
           </Typography>
-        </Box>
-      )}
-    </>
-  );
+          
+          <div className={styles.modalChips}>
+            {modalData.Tag1 && (
+              <Chip 
+                label={modalData.Tag1} 
+                variant="outlined" 
+                size="small"
+                className={styles.modalChip}
+                style={{
+                  color: tag1Color.main,
+                  borderColor: tag1Color.border,
+                  backgroundColor: tag1Color.bg
+                }}
+              />
+            )}
+            {modalData.Tag2 && (
+              <Chip 
+                label={modalData.Tag2} 
+                variant="outlined" 
+                size="small"
+                className={styles.modalChip}
+                style={{
+                  color: tag2Color.main,
+                  borderColor: tag2Color.border,
+                  backgroundColor: tag2Color.bg
+                }}
+              />
+            )}
+            <Chip 
+              icon={modalData.Revisado === 'Sim' ? <CheckCircleIcon fontSize="small" /> : <CancelIcon fontSize="small" />}
+              label={modalData.Revisado === 'Sim' ? 'Revisado' : 'Não revisado'} 
+              color={modalData.Revisado === 'Sim' ? 'success' : 'warning'}
+              variant="outlined" 
+              size="small"
+            />
+          </div>
+        </div>
+
+        <div className={styles.solutionBox}>
+          <div className={styles.solutionHeader}>
+            <div className={styles.sectionTitleWrapper}>
+              <DescriptionIcon className={styles.sectionIcon} />
+              <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+                Solução
+              </Typography>
+            </div>
+            <Tooltip title="Copiar solução">
+              <IconButton 
+                onClick={() => handleCopyToClipboard(modalData.Solução)}
+                size="small"
+                className={styles.copyButton}
+              >
+                <ContentCopyIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </div>
+          <Box className={styles.solutionScrollbox}>
+            <Typography variant="body2" className={styles.solutionText}>
+              {modalData.Solução}
+            </Typography>
+          </Box>
+        </div>
+
+        {modalData.Observação && modalData.Observação.trim() !== '' && (
+          <Box className={styles.observationBox}>
+            <div className={styles.sectionTitleWrapper}>
+              <InfoIcon className={styles.sectionIcon} />
+              <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+                Observação
+              </Typography>
+            </div>
+            <Typography variant="body2" className={styles.observationText}>
+              {modalData.Observação}
+            </Typography>
+          </Box>
+        )}
+      </>
+    );
+  };
 
   if (loading) {
     return (

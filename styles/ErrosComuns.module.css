@@ -143,6 +143,8 @@
   gap: 8px;
   margin-bottom: 16px;
   align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 /* Corrigir cores das chips */
@@ -517,6 +519,8 @@
   display: flex;
   justify-content: flex-end;
   margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .revisaoChip {
@@ -525,4 +529,20 @@
   color: var(--text-color) !important;
   transition: all 0.2s ease;
   border-width: 1px !important;
+}
+
+.cardContentArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 16px;
+}
+
+.tagChip {
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tagChip:hover {
+  filter: brightness(0.95);
 } 
