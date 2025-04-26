@@ -322,7 +322,16 @@ export default function ErrosComuns({ user }) {
           onChange={handleTag1Change}
           label={labelTag1}
           MenuProps={{
-            classes: { paper: styles.menuPaper },
+            classes: { 
+              paper: styles.menuPaper,
+              list: styles.selectMenu 
+            },
+            PaperProps: {
+              style: {
+                backgroundColor: 'var(--background-color)',
+                color: 'var(--title-color)'
+              }
+            },
             anchorOrigin: {
               vertical: 'bottom',
               horizontal: 'left',
@@ -362,7 +371,16 @@ export default function ErrosComuns({ user }) {
           onChange={handleTag2Change}
           label={labelTag2}
           MenuProps={{
-            classes: { paper: styles.menuPaper },
+            classes: { 
+              paper: styles.menuPaper,
+              list: styles.selectMenu 
+            },
+            PaperProps: {
+              style: {
+                backgroundColor: 'var(--background-color)',
+                color: 'var(--title-color)'
+              }
+            },
             anchorOrigin: {
               vertical: 'bottom',
               horizontal: 'left',
@@ -396,9 +414,11 @@ export default function ErrosComuns({ user }) {
               onChange={(e) => handleRevisaoChange(e)}
               name="TRUE"
               color="primary"
+              className={styles.checkboxRevisado}
             />
           }
           label="Revisado"
+          className={styles.checkboxLabel}
         />
         <FormControlLabel
           control={
@@ -407,9 +427,11 @@ export default function ErrosComuns({ user }) {
               onChange={(e) => handleRevisaoChange(e)}
               name="FALSE"
               color="primary"
+              className={styles.checkboxNaoRevisado}
             />
           }
           label="Não Revisado"
+          className={styles.checkboxLabel}
         />
       </FormGroup>
     );
