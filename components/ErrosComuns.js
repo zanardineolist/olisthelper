@@ -70,8 +70,9 @@ export default function ErrosComuns({ user }) {
       const response = await axios.get('/api/erros-comuns');
       
       if (response.data) {
-        const { tabs, dados } = response.data;
+        const { abas, dados } = response.data;
         setDados(dados);
+        setAbas(abas);
         
         // Extrai as opções de filtragem usando a nova função
         const { categorias, subcategorias } = extrairOpcoesDeFiltragem(dados);
@@ -79,8 +80,11 @@ export default function ErrosComuns({ user }) {
         setOpcoesTag2(subcategorias);
         
         // Aplica os filtros iniciais
-        const dadosFiltrados = applyFilters(dados);
-        setDadosFiltrados(dadosFiltrados);
+        if (abas && abas.length > 0) {
+          const abaAtual = abas[0];
+          const currentItems = dados[abaAtual] || [];
+          applyFilters(currentItems, 0, '', '', { TRUE: true, FALSE: true }, '');
+        }
       }
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
@@ -277,8 +281,8 @@ export default function ErrosComuns({ user }) {
   };
 
   const extrairOpcoesDeFiltragem = (data) => {
-    // Verifica se os dados existem e são um array
-    if (!data || !Array.isArray(data)) {
+    // Verifica se os dados existem e são um objeto
+    if (!data || typeof data !== 'object') {
       return { categorias: [], subcategorias: [] };
     }
 
@@ -286,12 +290,15 @@ export default function ErrosComuns({ user }) {
     const categoriasSet = new Set();
     const subcategoriasSet = new Set();
 
-    // Itera pelos itens para coletar categorias e subcategorias únicas
-    data.forEach(item => {
-      if (item.tags && Array.isArray(item.tags)) {
-        // Se o item tiver tags, adiciona a primeira tag como categoria e a segunda como subcategoria
-        if (item.tags[0]) categoriasSet.add(item.tags[0]);
-        if (item.tags[1]) subcategoriasSet.add(item.tags[1]);
+    // Itera por todas as abas
+    Object.values(data).forEach(itensAba => {
+      // Verifica se itensAba é um array
+      if (Array.isArray(itensAba)) {
+        // Itera pelos itens para coletar tags únicas
+        itensAba.forEach(item => {
+          if (item.Tag1) categoriasSet.add(item.Tag1);
+          if (item.Tag2) subcategoriasSet.add(item.Tag2);
+        });
       }
     });
 
@@ -306,8 +313,8 @@ export default function ErrosComuns({ user }) {
     if (!tag1 && !tag2) return items;
     
     return items.filter(item => {
-      const temTag1 = !tag1 || (item.tags && item.tags.includes(tag1));
-      const temTag2 = !tag2 || (item.tags && item.tags.includes(tag2));
+      const temTag1 = !tag1 || item.Tag1 === tag1;
+      const temTag2 = !tag2 || item.Tag2 === tag2;
       return temTag1 && temTag2;
     });
   };
