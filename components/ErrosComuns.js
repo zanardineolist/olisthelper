@@ -214,6 +214,19 @@ export default function ErrosComuns({ user }) {
 
   const handleSearchKeyPress = handleKeyPress;
 
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Quando o campo de busca for limpo, resetar a busca automaticamente
+    if (!value.trim()) {
+      setSearchActive(false);
+      const abaAtual = abas[currentTab];
+      const currentItems = data[abaAtual] || [];
+      applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, filtroRevisao, '');
+    }
+  };
+
   const handleClearSearch = () => {
     setSearchQuery('');
     setSearchActive(false);
@@ -528,7 +541,15 @@ export default function ErrosComuns({ user }) {
             variant="outlined"
             color="secondary"
             onClick={resetFilters}
-            className={`${styles.resetButton} ${styles.btnOutlined}`}
+            className={styles.resetButton}
+            sx={{ 
+              color: 'var(--color-accent1)', 
+              borderColor: 'var(--color-accent1)',
+              '&:hover': {
+                backgroundColor: 'rgba(230, 78, 54, 0.08)',
+                borderColor: 'var(--color-accent1)'
+              }
+            }}
             disabled={!tag1Filter && !tag2Filter && filtroRevisao.TRUE && filtroRevisao.FALSE && !searchQuery}
             size="small"
           >
@@ -556,7 +577,7 @@ export default function ErrosComuns({ user }) {
             label="Buscar"
             variant="outlined"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleSearchInputChange}
             onKeyPress={handleSearchKeyPress}
             size="small"
             InputProps={{

@@ -160,10 +160,26 @@
   flex: 0 1 auto;
   color: var(--color-accent1) !important;
   border-color: var(--color-accent1) !important;
+  background-color: transparent !important;
 }
 
 .resetButton:hover {
   background-color: rgba(230, 78, 54, 0.08) !important;
+}
+
+button.resetButton {
+  color: var(--color-accent1) !important;
+  border-color: var(--color-accent1) !important;
+}
+
+button.resetButton.btnOutlined {
+  color: var(--color-accent1) !important;
+  border-color: var(--color-accent1) !important;
+}
+
+.btnOutlined.resetButton {
+  color: var(--color-accent1) !important;
+  border-color: var(--color-accent1) !important;
 }
 
 .btnOutlined:hover {
