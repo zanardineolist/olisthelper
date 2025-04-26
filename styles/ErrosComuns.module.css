@@ -89,6 +89,13 @@
   margin-top: 10px;
 }
 
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
 .cardsContainer {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

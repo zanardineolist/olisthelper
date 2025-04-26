@@ -69,10 +69,17 @@ export default function ErrosComuns({ user }) {
       const response = await axios.get('/api/erros-comuns');
       
       if (response.data) {
+        const convertRevisado = (items) => {
+          return items.map(item => ({
+            ...item,
+            Revisado: item.Revisado === 'TRUE' ? 'Sim' : 'Não'
+          }));
+        };
+        
         const apiData = {
-          anuncios: response.data.anuncios || [],
-          expedicao: response.data.expedicao || [],
-          notas: response.data.notasFiscais || []
+          anuncios: convertRevisado(response.data.anuncios || []),
+          expedicao: convertRevisado(response.data.expedicao || []),
+          notas: convertRevisado(response.data.notasFiscais || [])
         };
         
         setData(apiData);
@@ -104,11 +111,11 @@ export default function ErrosComuns({ user }) {
     }
     
     if (filtroRevisao.TRUE && !filtroRevisao.FALSE) {
-      return items.filter(item => item.Revisado === 'TRUE');
+      return items.filter(item => item.Revisado === 'Sim');
     }
     
     if (!filtroRevisao.TRUE && filtroRevisao.FALSE) {
-      return items.filter(item => item.Revisado === 'FALSE');
+      return items.filter(item => item.Revisado === 'Não');
     }
     
     return items;
@@ -391,9 +398,9 @@ export default function ErrosComuns({ user }) {
           />
         )}
         <Chip 
-          icon={item.Revisado === 'TRUE' ? <CheckCircleIcon /> : <CancelIcon />}
-          label={item.Revisado === 'TRUE' ? 'Revisado' : 'Não revisado'} 
-          color={item.Revisado === 'TRUE' ? 'success' : 'warning'}
+          icon={item.Revisado === 'Sim' ? <CheckCircleIcon /> : <CancelIcon />}
+          label={item.Revisado === 'Sim' ? 'Revisado' : 'Não revisado'} 
+          color={item.Revisado === 'Sim' ? 'success' : 'warning'}
           variant="outlined" 
           size="small"
           className={styles.revisaoChip} 
@@ -401,6 +408,19 @@ export default function ErrosComuns({ user }) {
       </div>
       
       <h3 className={styles.errorTitle}>{item.Erro}</h3>
+      
+      <div className={styles.cardActions}>
+        <Button
+          variant="outlined"
+          color="primary"
+          size="small"
+          onClick={() => handleOpenModal(item)}
+          startIcon={<VisibilityIcon />}
+          className={styles.viewButton}
+        >
+          Ver mais
+        </Button>
+      </div>
     </div>
   );
 
