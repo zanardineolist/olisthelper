@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styles from '@/styles/ErrosComuns.module.css';
+import styles from '../styles/ErrosComuns.module.css';
 import { 
   TextField, 
   Tab, 
@@ -21,9 +21,12 @@ import {
   Typography,
   Chip,
   Container,
-  FormGroup
+  FormGroup,
+  Box,
+  CircularProgress,
+  Tooltip
 } from '@mui/material';
-import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon } from '@mui/icons-material';
+import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon, ContentCopy as ContentCopyIcon } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -65,14 +68,22 @@ export default function ErrosComuns({ user }) {
     try {
       const response = await axios.get('/api/erros-comuns');
       
-      if (response.data && response.data.success) {
-        setData(response.data.data);
+      if (response.data) {
+        const apiData = {
+          anuncios: response.data.anuncios || [],
+          expedicao: response.data.expedicao || [],
+          notas: response.data.notasFiscais || []
+        };
         
-        // Aplicar filtros iniciais e extrair opções de filtragem
-        applyFilters(response.data.data, currentTab, '', '', filtroRevisao, '');
-        extrairOpcoesDeFiltragem(response.data.data, currentTab);
+        setData(apiData);
+        
+        const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
+        const currentTabData = apiData[tabKey] || [];
+        
+        applyFilters(currentTabData, currentTab, '', '', filtroRevisao, '');
+        extrairOpcoesDeFiltragem(currentTabData, currentTab);
       } else {
-        console.error('Erro ao buscar dados:', response.data.message);
+        console.error('Erro ao buscar dados: formato inesperado');
         toast.error('Erro ao carregar os dados');
       }
     } catch (error) {
@@ -142,9 +153,9 @@ export default function ErrosComuns({ user }) {
       const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
       const currentItems = data[tabKey] || [];
       
-      applyFilters(data, currentTab, '', '', filtroRevisao, searchQuery);
+      applyFilters(currentItems, currentTab, '', '', filtroRevisao, searchQuery);
       
-      extrairOpcoesDeFiltragem(data, currentTab);
+      extrairOpcoesDeFiltragem(currentItems, currentTab);
     }
   }, [currentTab, data]);
 
@@ -159,7 +170,9 @@ export default function ErrosComuns({ user }) {
   const handleSearch = () => {
     if (searchQuery.trim()) {
       setSearchActive(true);
-      applyFilters(data, currentTab, integracaoFilter, tipoFilter, filtroRevisao, searchQuery);
+      const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
+      const currentItems = data[tabKey] || [];
+      applyFilters(currentItems, currentTab, integracaoFilter, tipoFilter, filtroRevisao, searchQuery);
     }
   };
 
@@ -169,17 +182,23 @@ export default function ErrosComuns({ user }) {
     }
   };
 
+  const handleSearchKeyPress = handleKeyPress;
+
   const handleClearSearch = () => {
     setSearchQuery('');
     setSearchActive(false);
-    applyFilters(data, currentTab, integracaoFilter, tipoFilter, filtroRevisao, '');
+    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
+    const currentItems = data[tabKey] || [];
+    applyFilters(currentItems, currentTab, integracaoFilter, tipoFilter, filtroRevisao, '');
   };
 
   const handleRevisadoFilterChange = (value) => {
     const newRevisadoFilter = { ...filtroRevisao };
     newRevisadoFilter[value] = !newRevisadoFilter[value];
     setFiltroRevisao(newRevisadoFilter);
-    applyFilters(data, currentTab, integracaoFilter, tipoFilter, newRevisadoFilter, searchQuery);
+    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
+    const currentItems = data[tabKey] || [];
+    applyFilters(currentItems, currentTab, integracaoFilter, tipoFilter, newRevisadoFilter, searchQuery);
   };
 
   const handleCopyToClipboard = (text) => {
@@ -208,7 +227,9 @@ export default function ErrosComuns({ user }) {
     setTipoFilter('');
     setFiltroRevisao({ TRUE: true, FALSE: true });
     setSearchQuery('');
-    applyFilters(data, currentTab, '', '', { TRUE: true, FALSE: true }, '');
+    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
+    const currentItems = data[tabKey] || [];
+    applyFilters(currentItems, currentTab, '', '', { TRUE: true, FALSE: true }, '');
   };
 
   const handleOpenModal = (item) => {
@@ -236,20 +257,26 @@ export default function ErrosComuns({ user }) {
   const handleIntegracaoChange = (event) => {
     const valor = event.target.value;
     setIntegracaoFilter(valor);
-    applyFilters(data, currentTab, valor, tipoFilter, filtroRevisao, searchQuery);
+    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
+    const currentItems = data[tabKey] || [];
+    applyFilters(currentItems, currentTab, valor, tipoFilter, filtroRevisao, searchQuery);
   };
 
   const handleTipoChange = (event) => {
     const valor = event.target.value;
     setTipoFilter(valor);
-    applyFilters(data, currentTab, integracaoFilter, valor, filtroRevisao, searchQuery);
+    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
+    const currentItems = data[tabKey] || [];
+    applyFilters(currentItems, currentTab, integracaoFilter, valor, filtroRevisao, searchQuery);
   };
 
   const handleRevisaoChange = (event) => {
     const { name, checked } = event.target;
     const novoFiltro = { ...filtroRevisao, [name]: checked };
     setFiltroRevisao(novoFiltro);
-    applyFilters(data, currentTab, integracaoFilter, tipoFilter, novoFiltro, searchQuery);
+    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
+    const currentItems = data[tabKey] || [];
+    applyFilters(currentItems, currentTab, integracaoFilter, tipoFilter, novoFiltro, searchQuery);
   };
 
   const renderFiltroIntegracao = () => {
