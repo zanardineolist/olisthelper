@@ -46,7 +46,9 @@
     "jspdf-autotable": "^3.7.0",
     "@mui/x-date-pickers": "^6.18.2",
     "axios": "^1.6.7",
-    "react-hot-toast": "^2.4.1"
+    "react-hot-toast": "^2.4.1",
+    "primereact": "^10.0.9",
+    "primeicons": "^6.0.1"
   },
   "devDependencies": {
     "eslint": "8.0.1",

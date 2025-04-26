@@ -76,7 +76,7 @@
   flex-wrap: wrap;
   gap: 15px;
   margin-bottom: 15px;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .formControl {
@@ -85,7 +85,8 @@
   flex: 1;
   height: 40px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .formControl .MuiInputBase-root {
@@ -121,6 +122,7 @@
   border: 1px solid var(--color-border);
   min-height: 40px;
   height: 40px;
+  margin-top: 24px;
 }
 
 .checkboxLabel {
@@ -141,6 +143,7 @@
   border-radius: 8px;
   transition: all 0.2s ease;
   padding: 0 16px;
+  margin-top: 24px;
 }
 
 .btnOutlined:hover {
@@ -463,18 +466,54 @@
 
 .inputLabel {
   color: var(--title-color) !important;
-  background-color: var(--background-color);
-  padding: 0 5px;
-  font-size: 0.85rem;
-  z-index: 1;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: -1px;
 }
 
 .filterSelect {
-  min-width: 200px;
-  flex: 1;
-  color: var(--title-color) !important;
+  width: 100% !important;
+  border-radius: 8px !important;
+  height: 40px !important;
+  font-size: 0.9rem !important;
+}
+
+.filterSelect:global(.p-dropdown) {
+  width: 100% !important;
+  border-radius: 8px !important;
+  height: 40px !important;
   background-color: var(--background-color) !important;
-  border-color: var(--color-border) !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+.filterSelect:global(.p-dropdown):hover {
+  border-color: var(--color-primary) !important;
+}
+
+.filterSelect:global(.p-dropdown) :global(.p-dropdown-label) {
+  padding: 8px 12px !important;
+  color: var(--title-color) !important;
+}
+
+.filterSelect:global(.p-dropdown) :global(.p-dropdown-trigger) {
+  width: 3rem !important;
+  border-top-right-radius: 8px !important;
+  border-bottom-right-radius: 8px !important;
+  background-color: transparent !important;
+}
+
+.filterSelect:global(.p-dropdown) :global(.p-dropdown-trigger-icon) {
+  color: var(--title-color) !important;
+}
+
+.filterSelect:global(.p-dropdown) :global(.p-dropdown-clear-icon) {
+  color: var(--title-color) !important;
+  margin-right: 0.5rem !important;
+}
+
+.filterSelect:global(.p-dropdown) :global(.p-placeholder) {
+  opacity: 0.7;
+  color: var(--text-color) !important;
 }
 
 .inputRoot {
@@ -507,12 +546,17 @@
   .filterControls {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: 24px;
   }
   
   .formControl, .checkboxGroup, .resetButton {
     width: 100%;
     min-width: 100%;
+    margin-top: 0;
+  }
+  
+  .checkboxGroup, .resetButton {
+    margin-top: 0;
   }
   
   .cards {

@@ -11,10 +11,6 @@ import {
   Snackbar, 
   Alert,
   IconButton,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   FormControlLabel,
   Checkbox,
   InputAdornment,
@@ -28,6 +24,11 @@ import {
   Badge,
   Collapse
 } from '@mui/material';
+
+// Importações do PrimeReact
+import { Dropdown } from 'primereact/dropdown';
+import { Checkbox as PCheckbox } from 'primereact/checkbox';
+
 import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon, ContentCopy as ContentCopyIcon, Info as InfoIcon, Description as DescriptionIcon, FilterAlt as FilterAltIcon } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -268,16 +269,16 @@ export default function ErrosComuns({ user }) {
     return abas[currentTab] || "";
   };
 
-  const handleTag1Change = (event) => {
-    const valor = event.target.value;
+  const handleTag1Change = (e) => {
+    const valor = e.value;
     setTag1Filter(valor);
     const abaAtual = abas[currentTab];
     const currentItems = data[abaAtual] || [];
     applyFilters(currentItems, currentTab, valor, tag2Filter, filtroRevisao, searchQuery);
   };
 
-  const handleTag2Change = (event) => {
-    const valor = event.target.value;
+  const handleTag2Change = (e) => {
+    const valor = e.value;
     setTag2Filter(valor);
     const abaAtual = abas[currentTab];
     const currentItems = data[abaAtual] || [];
@@ -322,6 +323,7 @@ export default function ErrosComuns({ user }) {
     return colors[index];
   };
 
+  // Modifique o renderFiltros para usar o PrimeReact Dropdown
   const renderFiltros = () => {
     if (!abas || abas.length === 0) return null;
     
@@ -329,99 +331,40 @@ export default function ErrosComuns({ user }) {
     const labelTag1 = cabecalhos[abaAtual]?.colA || 'Integração';
     const labelTag2 = cabecalhos[abaAtual]?.colB || 'Tipo';
     
+    // Preparar opções para os dropdowns
+    const tag1Options = tags && tags.tag1 
+      ? [{ label: "Todos", value: "" }, ...tags.tag1.map(tag => ({ label: tag, value: tag }))]
+      : [{ label: "Todos", value: "" }];
+    
+    const tag2Options = tags && tags.tag2 
+      ? [{ label: "Todos", value: "" }, ...tags.tag2.map(tag => ({ label: tag, value: tag }))]
+      : [{ label: "Todos", value: "" }];
+    
     return (
       <div className={styles.filterControls}>
-        <FormControl variant="outlined" size="small" className={styles.formControl}>
-          <InputLabel 
-            id="tag1-select-label" 
-            className={styles.inputLabel}
-          >
-            {labelTag1}
-          </InputLabel>
-          <Select
-            labelId="tag1-select-label"
-            id="tag1-select"
+        <div className={styles.formControl}>
+          <span className={styles.inputLabel}>{labelTag1}</span>
+          <Dropdown
             value={tag1Filter}
+            options={tag1Options}
             onChange={handleTag1Change}
-            label={labelTag1}
-            displayEmpty
-            renderValue={(selected) => {
-              if (!selected) {
-                return <span style={{ opacity: 0.7 }}>Selecione {labelTag1}</span>;
-              }
-              return selected;
-            }}
+            placeholder={`Selecione ${labelTag1}`}
             className={styles.filterSelect}
-            MenuProps={{
-              classes: { 
-                paper: styles.menuPaper,
-                list: styles.selectMenu 
-              },
-              anchorOrigin: {
-                vertical: 'bottom',
-                horizontal: 'left',
-              },
-              transformOrigin: {
-                vertical: 'top',
-                horizontal: 'left',
-              },
-              disableScrollLock: true
-            }}
-          >
-            <MenuItem value="">
-              <em>Todos</em>
-            </MenuItem>
-            {tags && tags.tag1 && tags.tag1.map((tag) => (
-              <MenuItem key={tag} value={tag} className={styles.menuItem}>{tag}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            showClear
+          />
+        </div>
         
-        <FormControl variant="outlined" size="small" className={styles.formControl}>
-          <InputLabel 
-            id="tag2-select-label" 
-            className={styles.inputLabel}
-          >
-            {labelTag2}
-          </InputLabel>
-          <Select
-            labelId="tag2-select-label"
-            id="tag2-select"
+        <div className={styles.formControl}>
+          <span className={styles.inputLabel}>{labelTag2}</span>
+          <Dropdown
             value={tag2Filter}
+            options={tag2Options}
             onChange={handleTag2Change}
-            label={labelTag2}
-            displayEmpty
-            renderValue={(selected) => {
-              if (!selected) {
-                return <span style={{ opacity: 0.7 }}>Selecione {labelTag2}</span>;
-              }
-              return selected;
-            }}
+            placeholder={`Selecione ${labelTag2}`}
             className={styles.filterSelect}
-            MenuProps={{
-              classes: { 
-                paper: styles.menuPaper,
-                list: styles.selectMenu 
-              },
-              anchorOrigin: {
-                vertical: 'bottom',
-                horizontal: 'left',
-              },
-              transformOrigin: {
-                vertical: 'top',
-                horizontal: 'left',
-              },
-              disableScrollLock: true
-            }}
-          >
-            <MenuItem value="">
-              <em>Todos</em>
-            </MenuItem>
-            {tags && tags.tag2 && tags.tag2.map((tag) => (
-              <MenuItem key={tag} value={tag} className={styles.menuItem}>{tag}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            showClear
+          />
+        </div>
         
         <FormGroup row className={styles.checkboxGroup}>
           <FormControlLabel
@@ -522,7 +465,7 @@ export default function ErrosComuns({ user }) {
               className={`${styles.filterButton} ${styles.btnOutlined}`}
               size="medium"
             >
-              FILTROS {showFilters ? '▲' : '▼'}
+              FILTROS
             </Button>
           </Badge>
         </div>
@@ -530,6 +473,18 @@ export default function ErrosComuns({ user }) {
         <Collapse in={showFilters} timeout={300}>
           {renderFiltersSection()}
         </Collapse>
+      </div>
+    );
+  };
+
+  const renderResultsInfo = () => {
+    return (
+      <div className={styles.resultsInfo}>
+        <Typography variant="body2">
+          {filteredData.length === 0 
+            ? "Nenhum resultado encontrado" 
+            : `${filteredData.length} ${filteredData.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}`}
+        </Typography>
       </div>
     );
   };
@@ -690,18 +645,6 @@ export default function ErrosComuns({ user }) {
           </Box>
         )}
       </>
-    );
-  };
-
-  const renderResultsInfo = () => {
-    return (
-      <div className={styles.resultsInfo}>
-        <Typography variant="body2">
-          {filteredData.length === 0 
-            ? "Nenhum resultado encontrado" 
-            : `${filteredData.length} ${filteredData.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}`}
-        </Typography>
-      </div>
     );
   };
 
