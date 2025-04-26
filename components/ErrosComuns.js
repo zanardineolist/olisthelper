@@ -409,6 +409,12 @@ export default function ErrosComuns({ user }) {
       
       <h3 className={styles.errorTitle}>{item.Erro}</h3>
       
+      {item.Solução && (
+        <Typography variant="body2" className={styles.cardPreview} noWrap>
+          {item.Solução.substring(0, 120)}{item.Solução.length > 120 ? '...' : ''}
+        </Typography>
+      )}
+      
       <div className={styles.cardActions}>
         <Button
           variant="outlined"
@@ -426,6 +432,49 @@ export default function ErrosComuns({ user }) {
 
   const renderModalContent = () => (
     <>
+      <div className={styles.modalHeader}>
+        <Typography variant="h6" component="h2" className={styles.modalTitle}>
+          {modalData.Erro}
+        </Typography>
+        
+        <div className={styles.modalChips}>
+          {currentTab === 0 && modalData.Integração && (
+            <Chip 
+              label={modalData.Integração} 
+              color="primary" 
+              variant="outlined" 
+              size="small"
+              className={styles.modalChip}
+            />
+          )}
+          {currentTab === 1 && modalData.Logística && (
+            <Chip 
+              label={modalData.Logística} 
+              color="primary" 
+              variant="outlined" 
+              size="small"
+              className={styles.modalChip}
+            />
+          )}
+          {modalData.Tipo && (
+            <Chip 
+              label={modalData.Tipo} 
+              color="secondary" 
+              variant="outlined" 
+              size="small"
+              className={styles.modalChip}
+            />
+          )}
+          <Chip 
+            icon={modalData.Revisado === 'Sim' ? <CheckCircleIcon /> : <CancelIcon />}
+            label={modalData.Revisado === 'Sim' ? 'Revisado' : 'Não revisado'} 
+            color={modalData.Revisado === 'Sim' ? 'success' : 'warning'}
+            variant="outlined" 
+            size="small"
+          />
+        </div>
+      </div>
+
       <div className={styles.solutionHeader}>
         <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
           Solução

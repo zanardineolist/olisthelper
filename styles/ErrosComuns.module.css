@@ -91,8 +91,8 @@
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
   margin-top: 20px;
 }
 
@@ -111,6 +111,10 @@
   background-color: var(--box-color) !important;
   border: 1px solid var(--color-border) !important;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
 }
 
 .cardContent {
@@ -121,10 +125,16 @@
 }
 
 .cardActions {
-  padding: 8px 16px 16px;
+  padding: 8px 0;
   display: flex;
   justify-content: flex-end;
   background-color: var(--box-color) !important;
+  margin-top: auto;
+}
+
+.viewButton {
+  font-weight: 500 !important;
+  text-transform: none !important;
 }
 
 .card:hover {
@@ -370,7 +380,7 @@
     flex-direction: column;
   }
   
-  .cardsContainer {
+  .cards {
     grid-template-columns: 1fr;
   }
   
@@ -412,4 +422,61 @@
   font-size: 0.75rem;
   color: var(--text-color) !important;
   background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Aprimorar o dialog */
+.dialog {
+  border-radius: 12px;
+}
+
+.dialogPaper {
+  border-radius: 12px !important;
+  background-color: var(--background-color) !important;
+  overflow: hidden;
+}
+
+.dialogContent {
+  background-color: var(--box-color) !important;
+  color: var(--text-color) !important;
+  padding: 24px !important;
+}
+
+.dialogActions {
+  background-color: var(--box-color) !important;
+  border-top: 1px solid var(--color-border) !important;
+  color: var(--text-color) !important;
+  padding: 16px 24px !important;
+}
+
+.cardPreview {
+  color: var(--text-color2) !important;
+  margin-bottom: 15px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.modalHeader {
+  margin-bottom: 24px;
+}
+
+.modalTitle {
+  color: var(--title-color) !important;
+  font-weight: 600;
+  margin-bottom: 12px;
+  line-height: 1.4;
+  font-size: 1.5rem !important;
+}
+
+.modalChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.modalChip {
+  font-weight: 500;
 } 
