@@ -294,3 +294,23 @@ export async function addCheckboxToSheet(sheetName, range) {
     throw new Error(`Erro ao adicionar checkbox na aba ${sheetName}.`);
   }
 }
+
+export async function getAllSheetNames() {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const sheetId = process.env.SHEET_ID;
+    
+    const response = await sheets.spreadsheets.get({
+      spreadsheetId: sheetId
+    });
+    
+    // Extrair os nomes das abas
+    const sheetNames = response.data.sheets.map(sheet => sheet.properties.title);
+    
+    // Opcional: filtrar abas de sistema ou ocultas, se necessário
+    return sheetNames;
+  } catch (error) {
+    console.error('Erro ao obter nomes das abas:', error);
+    throw new Error('Erro ao obter nomes das abas da planilha.');
+  }
+}

@@ -1,67 +1,66 @@
-import { getAuthenticatedGoogleSheets, batchGetValues } from '../../utils/googleSheets';
+import { getAuthenticatedGoogleSheets, batchGetValues, getAllSheetNames } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   try {
-    // Usar o método batchGet para evitar problemas com caracteres especiais nas abas
-    const ranges = [
-      'Anúncios!A:G',
-      'Expedição!A:G', 
-      'Notas Fiscais!A:F'
-    ];
+    // Obter todas as abas disponíveis na planilha
+    const sheetNames = await getAllSheetNames();
     
+    // Filtrar abas de sistema ou privadas, se necessário
+    // Por exemplo, ignorar abas como "Configurações", "Sistema", etc.
+    const excludedSheets = ['Configurações', 'Sistema', 'Usuários'];
+    const targetSheets = sheetNames.filter(name => !excludedSheets.includes(name));
+    
+    // Preparar ranges para todas as abas identificadas
+    const ranges = targetSheets.map(sheetName => `${sheetName}!A:G`);
+    
+    // Buscar dados de todas as abas
     const results = await batchGetValues(ranges);
     
-    // Preparar os dados dos anúncios (mapeamento direto com as colunas identificadas)
-    const anunciosHeaders = results[0].values[0];
-    const anunciosData = results[0].values.slice(1)
-      .filter(row => row.length >= 7) // Garantir que a linha tem dados até a coluna G
-      .map(row => {
-        return {
-          Integração: row[0] || '',         // Coluna A
-          Tipo: row[1] || '',               // Coluna B
-          Erro: row[2] || '',               // Coluna C
-          Solução: row[3] || '',            // Coluna D
-          Observação: row[4] || '',         // Coluna E
-          'Sugestões de melhoria': row[5] || '', // Coluna F
-          Revisado: row[6] || 'FALSE'       // Coluna G
-        };
-      });
-
-    // Preparar os dados da expedição (mapeamento direto com as colunas identificadas)
-    const expedicaoHeaders = results[1].values[0];
-    const expedicaoData = results[1].values.slice(1)
-      .filter(row => row.length >= 7) // Garantir que a linha tem dados até a coluna G
-      .map(row => {
-        return {
-          Logística: row[0] || '',          // Coluna A
-          Tipo: row[1] || '',               // Coluna B
-          Erro: row[2] || '',               // Coluna C  
-          Solução: row[3] || '',            // Coluna D
-          Observação: row[4] || '',         // Coluna E
-          'Sugestões de melhoria': row[5] || '', // Coluna F
-          Revisado: row[6] || 'FALSE'       // Coluna G
-        };
-      });
-
-    // Preparar os dados das notas fiscais (mapeamento direto com as colunas identificadas)
-    const notasFiscaisHeaders = results[2].values[0];
-    const notasFiscaisData = results[2].values.slice(1)
-      .filter(row => row.length >= 6) // Garantir que a linha tem dados até a coluna F
-      .map(row => {
-        return {
-          Erro: row[0] || '',               // Coluna A
-          Tipo: row[1] || '',               // Coluna B
-          Solução: row[2] || '',            // Coluna C
-          Observação: row[3] || '',         // Coluna D
-          'Sugestão de melhoria': row[4] || '', // Coluna E
-          Revisado: row[5] || 'FALSE'       // Coluna F
-        };
-      });
-
+    // Objeto para armazenar os dados de todas as abas
+    const sheetData = {};
+    
+    // Processar cada aba com o novo formato padronizado
+    results.forEach((result, index) => {
+      const sheetName = targetSheets[index];
+      
+      // Pular se não houver dados ou apenas o cabeçalho
+      if (!result.values || result.values.length <= 1) {
+        sheetData[sheetName] = [];
+        return;
+      }
+      
+      // Determinar o comprimento máximo esperado (mínimo 7 para incluir a coluna G)
+      const maxLength = 7;
+      
+      // Mapear linhas para o formato padronizado
+      const sheetRows = result.values.slice(1)
+        .filter(row => row.length >= 3) // Precisa ter pelo menos erro (coluna C)
+        .map(row => {
+          // Estender o array para ter o tamanho adequado se necessário
+          const paddedRow = [...row];
+          while (paddedRow.length < maxLength) {
+            paddedRow.push('');
+          }
+          
+          return {
+            Tag1: paddedRow[0] || '',            // Coluna A (tag1/marcador1)
+            Tag2: paddedRow[1] || '',            // Coluna B (tag2/marcador2)
+            Erro: paddedRow[2] || '',            // Coluna C (título/erro)
+            Solução: paddedRow[3] || '',         // Coluna D (solução)
+            Observação: paddedRow[4] || '',      // Coluna E (observações)
+            Sugestões: paddedRow[5] || '',       // Coluna F (sugestões)
+            Revisado: (paddedRow[6] || 'Não') === 'Sim' ? 'Sim' : 'Não'  // Coluna G (revisado)
+          };
+        });
+      
+      // Adicionar dados ao objeto de resposta
+      sheetData[sheetName] = sheetRows;
+    });
+    
+    // Retornar estrutura com os dados e metadados
     res.status(200).json({
-      anuncios: anunciosData,
-      expedicao: expedicaoData,
-      notasFiscais: notasFiscaisData,
+      abas: targetSheets,
+      dados: sheetData
     });
   } catch (error) {
     console.error('Erro ao obter dados de erros comuns:', error);

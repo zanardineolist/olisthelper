@@ -37,31 +37,21 @@ import { toast } from 'react-hot-toast';
 
 export default function ErrosComuns({ user }) {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState({
-    anuncios: [],
-    expedicao: [],
-    notas: []
-  });
+  const [data, setData] = useState({});
+  const [abas, setAbas] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentTab, setCurrentTab] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
-  const [integracoes, setIntegracoes] = useState([]);
-  const [tipos, setTipos] = useState([]);
-  const [integracaoFilter, setIntegracaoFilter] = useState('');
-  const [tipoFilter, setTipoFilter] = useState('');
+  const [tags, setTags] = useState([]);
+  const [tag1Filter, setTag1Filter] = useState('');
+  const [tag2Filter, setTag2Filter] = useState('');
   const [searchActive, setSearchActive] = useState(false);
   const [filtroRevisao, setFiltroRevisao] = useState({ TRUE: true, FALSE: true });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState('');
-
-  const tabOptions = [
-    { label: 'Anúncios', value: 'anuncios' },
-    { label: 'Expedição', value: 'expedicao' },
-    { label: 'Notas Fiscais', value: 'notasFiscais' }
-  ];
 
   const fetchData = async () => {
     setLoading(true);
@@ -69,26 +59,24 @@ export default function ErrosComuns({ user }) {
       const response = await axios.get('/api/erros-comuns');
       
       if (response.data) {
-        const convertRevisado = (items) => {
-          return items.map(item => ({
-            ...item,
-            Revisado: item.Revisado === 'TRUE' ? 'Sim' : 'Não'
-          }));
-        };
+        // Extrair abas e dados
+        const { abas, dados } = response.data;
         
-        const apiData = {
-          anuncios: convertRevisado(response.data.anuncios || []),
-          expedicao: convertRevisado(response.data.expedicao || []),
-          notas: convertRevisado(response.data.notasFiscais || [])
-        };
+        setAbas(abas);
+        setData(dados);
         
-        setData(apiData);
-        
-        const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
-        const currentTabData = apiData[tabKey] || [];
-        
-        applyFilters(currentTabData, currentTab, '', '', filtroRevisao, '');
-        extrairOpcoesDeFiltragem(currentTabData, currentTab);
+        // Se temos abas disponíveis
+        if (abas && abas.length > 0) {
+          // Usar a primeira aba por padrão
+          const primeiraAba = abas[0];
+          const currentTabData = dados[primeiraAba] || [];
+          
+          // Aplicar filtros iniciais e extrair opções de tags
+          applyFilters(currentTabData, 0, '', '', filtroRevisao, '');
+          extrairOpcoesDeTags(currentTabData);
+        } else {
+          setFilteredData([]);
+        }
       } else {
         console.error('Erro ao buscar dados: formato inesperado');
         toast.error('Erro ao carregar os dados');
@@ -121,24 +109,25 @@ export default function ErrosComuns({ user }) {
     return items;
   };
 
-  const applyFilters = (allData, tabIndex, integracaoValue, tipoValue, revisaoValue, searchValue) => {
+  const applyFilters = (allData, tabIndex, tag1Value, tag2Value, revisaoValue, searchValue) => {
     if (!allData || allData.length === 0) return;
 
     let filteredItems = [...allData];
 
-    if (tabIndex !== 2 && integracaoValue) {
-      const field = tabIndex === 0 ? 'Integração' : tabIndex === 1 ? 'Logística' : null;
-      if (field) {
-        filteredItems = filteredItems.filter(item => item[field] === integracaoValue);
-      }
+    // Filtrar por Tag1
+    if (tag1Value) {
+      filteredItems = filteredItems.filter(item => item.Tag1 === tag1Value);
     }
     
-    if (tipoValue) {
-      filteredItems = filteredItems.filter(item => item.Tipo === tipoValue);
+    // Filtrar por Tag2
+    if (tag2Value) {
+      filteredItems = filteredItems.filter(item => item.Tag2 === tag2Value);
     }
     
+    // Filtrar por status de revisão
     filteredItems = filtrarPorRevisao(filteredItems, revisaoValue);
     
+    // Filtrar por texto de busca
     if (searchValue) {
       const searchLower = searchValue.toLowerCase();
       filteredItems = filteredItems.filter(item => {
@@ -146,8 +135,7 @@ export default function ErrosComuns({ user }) {
           (item.Erro && item.Erro.toLowerCase().includes(searchLower)) ||
           (item.Solução && item.Solução.toLowerCase().includes(searchLower)) ||
           (item.Observação && item.Observação.toLowerCase().includes(searchLower)) ||
-          (item['Sugestões de melhoria'] && item['Sugestões de melhoria'].toLowerCase().includes(searchLower)) ||
-          (item['Sugestão de melhoria'] && item['Sugestão de melhoria'].toLowerCase().includes(searchLower))
+          (item.Sugestões && item.Sugestões.toLowerCase().includes(searchLower))
         );
       });
     }
@@ -156,20 +144,31 @@ export default function ErrosComuns({ user }) {
   };
 
   useEffect(() => {
-    if (data) {
-      const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
-      const currentItems = data[tabKey] || [];
+    if (abas && abas.length > 0 && data && Object.keys(data).length > 0) {
+      const abaAtual = abas[currentTab];
+      const currentItems = data[abaAtual] || [];
       
-      applyFilters(currentItems, currentTab, '', '', filtroRevisao, searchQuery);
-      
-      extrairOpcoesDeFiltragem(currentItems, currentTab);
+      applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, filtroRevisao, searchQuery);
+      extrairOpcoesDeTags(currentItems);
     }
-  }, [currentTab, data]);
+  }, [currentTab, data, abas]);
+
+  const extrairOpcoesDeTags = (items) => {
+    if (!items || items.length === 0) return;
+
+    // Extrair tags únicas (Tag1 e Tag2)
+    const uniqueTags = {
+      tag1: [...new Set(items.map(item => item.Tag1))].filter(Boolean).sort(),
+      tag2: [...new Set(items.map(item => item.Tag2))].filter(Boolean).sort()
+    };
+
+    setTags(uniqueTags);
+  };
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
-    setIntegracaoFilter('');
-    setTipoFilter('');
+    setTag1Filter('');
+    setTag2Filter('');
     setSearchQuery('');
     setSearchActive(false);
   };
@@ -177,9 +176,9 @@ export default function ErrosComuns({ user }) {
   const handleSearch = () => {
     if (searchQuery.trim()) {
       setSearchActive(true);
-      const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
-      const currentItems = data[tabKey] || [];
-      applyFilters(currentItems, currentTab, integracaoFilter, tipoFilter, filtroRevisao, searchQuery);
+      const abaAtual = abas[currentTab];
+      const currentItems = data[abaAtual] || [];
+      applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, filtroRevisao, searchQuery);
     }
   };
 
@@ -194,18 +193,18 @@ export default function ErrosComuns({ user }) {
   const handleClearSearch = () => {
     setSearchQuery('');
     setSearchActive(false);
-    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
-    const currentItems = data[tabKey] || [];
-    applyFilters(currentItems, currentTab, integracaoFilter, tipoFilter, filtroRevisao, '');
+    const abaAtual = abas[currentTab];
+    const currentItems = data[abaAtual] || [];
+    applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, filtroRevisao, '');
   };
 
   const handleRevisadoFilterChange = (value) => {
     const newRevisadoFilter = { ...filtroRevisao };
     newRevisadoFilter[value] = !newRevisadoFilter[value];
     setFiltroRevisao(newRevisadoFilter);
-    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
-    const currentItems = data[tabKey] || [];
-    applyFilters(currentItems, currentTab, integracaoFilter, tipoFilter, newRevisadoFilter, searchQuery);
+    const abaAtual = abas[currentTab];
+    const currentItems = data[abaAtual] || [];
+    applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, newRevisadoFilter, searchQuery);
   };
 
   const handleCopyToClipboard = (text) => {
@@ -230,12 +229,12 @@ export default function ErrosComuns({ user }) {
   };
 
   const resetFilters = () => {
-    setIntegracaoFilter('');
-    setTipoFilter('');
+    setTag1Filter('');
+    setTag2Filter('');
     setFiltroRevisao({ TRUE: true, FALSE: true });
     setSearchQuery('');
-    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
-    const currentItems = data[tabKey] || [];
+    const abaAtual = abas[currentTab];
+    const currentItems = data[abaAtual] || [];
     applyFilters(currentItems, currentTab, '', '', { TRUE: true, FALSE: true }, '');
   };
 
@@ -249,87 +248,76 @@ export default function ErrosComuns({ user }) {
   };
 
   const getTabName = () => {
-    return tabOptions[currentTab].label;
+    return abas[currentTab] || "";
   };
 
-  const getIntegrationName = (item) => {
-    if (currentTab === 0 && item.Integração) {
-      return item.Integração;
-    } else if (currentTab === 1 && item.Logística) {
-      return item.Logística;
-    }
-    return null;
-  };
-
-  const handleIntegracaoChange = (event) => {
+  const handleTag1Change = (event) => {
     const valor = event.target.value;
-    setIntegracaoFilter(valor);
-    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
-    const currentItems = data[tabKey] || [];
-    applyFilters(currentItems, currentTab, valor, tipoFilter, filtroRevisao, searchQuery);
+    setTag1Filter(valor);
+    const abaAtual = abas[currentTab];
+    const currentItems = data[abaAtual] || [];
+    applyFilters(currentItems, currentTab, valor, tag2Filter, filtroRevisao, searchQuery);
   };
 
-  const handleTipoChange = (event) => {
+  const handleTag2Change = (event) => {
     const valor = event.target.value;
-    setTipoFilter(valor);
-    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
-    const currentItems = data[tabKey] || [];
-    applyFilters(currentItems, currentTab, integracaoFilter, valor, filtroRevisao, searchQuery);
+    setTag2Filter(valor);
+    const abaAtual = abas[currentTab];
+    const currentItems = data[abaAtual] || [];
+    applyFilters(currentItems, currentTab, tag1Filter, valor, filtroRevisao, searchQuery);
   };
 
   const handleRevisaoChange = (event) => {
     const { name, checked } = event.target;
     const novoFiltro = { ...filtroRevisao, [name]: checked };
     setFiltroRevisao(novoFiltro);
-    const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
-    const currentItems = data[tabKey] || [];
-    applyFilters(currentItems, currentTab, integracaoFilter, tipoFilter, novoFiltro, searchQuery);
+    const abaAtual = abas[currentTab];
+    const currentItems = data[abaAtual] || [];
+    applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, novoFiltro, searchQuery);
   };
 
-  const renderFiltroIntegracao = () => {
-    if (currentTab === 2 || integracoes.length === 0) return null;
-
-    const label = currentTab === 0 ? 'Integração' : 'Logística';
+  const renderFiltroTag1 = () => {
+    if (!tags || !tags.tag1 || tags.tag1.length === 0) return null;
     
     return (
       <FormControl variant="outlined" size="small" className={styles.formControl}>
-        <InputLabel id="integracao-select-label">{label}</InputLabel>
+        <InputLabel id="tag1-select-label">Marcador 1</InputLabel>
         <Select
-          labelId="integracao-select-label"
-          id="integracao-select"
-          value={integracaoFilter}
-          onChange={handleIntegracaoChange}
-          label={label}
+          labelId="tag1-select-label"
+          id="tag1-select"
+          value={tag1Filter}
+          onChange={handleTag1Change}
+          label="Marcador 1"
         >
           <MenuItem value="">
             <em>Todos</em>
           </MenuItem>
-          {integracoes.map((integ) => (
-            <MenuItem key={integ} value={integ}>{integ}</MenuItem>
+          {tags.tag1.map((tag) => (
+            <MenuItem key={tag} value={tag}>{tag}</MenuItem>
           ))}
         </Select>
       </FormControl>
     );
   };
 
-  const renderFiltroTipo = () => {
-    if (tipos.length === 0) return null;
+  const renderFiltroTag2 = () => {
+    if (!tags || !tags.tag2 || tags.tag2.length === 0) return null;
     
     return (
       <FormControl variant="outlined" size="small" className={styles.formControl}>
-        <InputLabel id="tipo-select-label">Tipo</InputLabel>
+        <InputLabel id="tag2-select-label">Marcador 2</InputLabel>
         <Select
-          labelId="tipo-select-label"
-          id="tipo-select"
-          value={tipoFilter}
-          onChange={handleTipoChange}
-          label="Tipo"
+          labelId="tag2-select-label"
+          id="tag2-select"
+          value={tag2Filter}
+          onChange={handleTag2Change}
+          label="Marcador 2"
         >
           <MenuItem value="">
             <em>Todos</em>
           </MenuItem>
-          {tipos.map((tipo) => (
-            <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>
+          {tags.tag2.map((tag) => (
+            <MenuItem key={tag} value={tag}>{tag}</MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -373,25 +361,17 @@ export default function ErrosComuns({ user }) {
           color="primary" 
           className={styles.sectionChip} 
         />
-        {currentTab === 0 && item.Integração && (
+        {item.Tag1 && (
           <Chip 
-            label={item.Integração} 
+            label={item.Tag1} 
             color="primary" 
             variant="outlined" 
             className={styles.integrationChip} 
           />
         )}
-        {currentTab === 1 && item.Logística && (
+        {item.Tag2 && (
           <Chip 
-            label={item.Logística} 
-            color="primary" 
-            variant="outlined" 
-            className={styles.integrationChip} 
-          />
-        )}
-        {item.Tipo && (
-          <Chip 
-            label={item.Tipo} 
+            label={item.Tag2} 
             color="secondary" 
             variant="outlined" 
             className={styles.typeChip} 
@@ -438,27 +418,18 @@ export default function ErrosComuns({ user }) {
         </Typography>
         
         <div className={styles.modalChips}>
-          {currentTab === 0 && modalData.Integração && (
+          {modalData.Tag1 && (
             <Chip 
-              label={modalData.Integração} 
+              label={modalData.Tag1} 
               color="primary" 
               variant="outlined" 
               size="small"
               className={styles.modalChip}
             />
           )}
-          {currentTab === 1 && modalData.Logística && (
+          {modalData.Tag2 && (
             <Chip 
-              label={modalData.Logística} 
-              color="primary" 
-              variant="outlined" 
-              size="small"
-              className={styles.modalChip}
-            />
-          )}
-          {modalData.Tipo && (
-            <Chip 
-              label={modalData.Tipo} 
+              label={modalData.Tag2} 
               color="secondary" 
               variant="outlined" 
               size="small"
@@ -506,48 +477,18 @@ export default function ErrosComuns({ user }) {
         </Box>
       )}
 
-      {modalData['Sugestões de melhoria'] && modalData['Sugestões de melhoria'].trim() !== '' && (
+      {modalData.Sugestões && modalData.Sugestões.trim() !== '' && (
         <Box className={styles.suggestionBox}>
           <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
             Sugestões de melhoria
           </Typography>
           <Typography variant="body2" className={styles.suggestionText}>
-            {modalData['Sugestões de melhoria']}
-          </Typography>
-        </Box>
-      )}
-      
-      {modalData['Sugestão de melhoria'] && modalData['Sugestão de melhoria'].trim() !== '' && (
-        <Box className={styles.suggestionBox}>
-          <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
-            Sugestões de melhoria
-          </Typography>
-          <Typography variant="body2" className={styles.suggestionText}>
-            {modalData['Sugestão de melhoria']}
+            {modalData.Sugestões}
           </Typography>
         </Box>
       )}
     </>
   );
-
-  const getIntegrationLabel = () => {
-    return currentTab === 0 ? 'Integração' : currentTab === 1 ? 'Logística' : 'Tipo';
-  };
-
-  const extrairOpcoesDeFiltragem = (data, tabIndex) => {
-    if (!data || data.length === 0) return;
-
-    if (tabIndex !== 2) {
-      const field = tabIndex === 0 ? 'Integração' : 'Logística';
-      const uniqueIntegracoes = [...new Set(data.map(item => item[field]))].filter(Boolean).sort();
-      setIntegracoes(uniqueIntegracoes);
-    } else {
-      setIntegracoes([]);
-    }
-
-    const uniqueTipos = [...new Set(data.map(item => item.Tipo))].filter(Boolean).sort();
-    setTipos(uniqueTipos);
-  };
 
   if (loading) {
     return (
@@ -563,95 +504,112 @@ export default function ErrosComuns({ user }) {
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Base de Conhecimento de Erros</h1>
         <p className={styles.pageDescription}>
-          Esta ferramenta exibe erros comuns e suas soluções para anúncios, expedição e notas fiscais.
+          Esta ferramenta exibe erros comuns e suas soluções cadastradas na planilha.
         </p>
       </div>
 
-      <Tabs
-        value={currentTab}
-        onChange={handleTabChange}
-        variant="fullWidth"
-        className={styles.tabs}
-      >
-        <Tab label="Anúncios" className={styles.tab} />
-        <Tab label="Expedição" className={styles.tab} />
-        <Tab label="Notas Fiscais" className={styles.tab} />
-      </Tabs>
-
-      <div className={styles.searchContainer}>
-        <div className={styles.searchInputWrapper}>
-          <TextField
-            fullWidth
-            label="Buscar"
-            variant="outlined"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={handleSearchKeyPress}
-            InputProps={{
-              className: styles.inputRoot,
-              endAdornment: searchQuery ? (
-                <IconButton size="small" onClick={handleClearSearch} className={styles.iconButton}>
-                  <CloseIcon />
-                </IconButton>
-              ) : null,
-              classes: { 
-                notchedOutline: styles.inputOutline 
-              }
-            }}
-            InputLabelProps={{
-              className: styles.inputLabel
-            }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSearch}
-            startIcon={<SearchIcon />}
-            className={`${styles.searchButton} ${styles.btnContained}`}
+      {abas.length > 0 ? (
+        <>
+          <Tabs
+            value={currentTab}
+            onChange={handleTabChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            className={styles.tabs}
           >
-            Buscar
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => setShowFilters(!showFilters)}
-            startIcon={<FilterListIcon />}
-            className={`${styles.filterButton} ${styles.btnOutlined}`}
-          >
-            Filtros
-          </Button>
-        </div>
+            {abas.map((aba, index) => (
+              <Tab key={index} label={aba} className={styles.tab} />
+            ))}
+          </Tabs>
 
-        {showFilters && (
-          <div className={styles.filtersContainer}>
-            <div className={styles.filterControls}>
-              {renderFiltroIntegracao()}
-
-              {renderFiltroTipo()}
-
-              {renderFiltrosRevisao()}
-
+          <div className={styles.searchContainer}>
+            <div className={styles.searchInputWrapper}>
+              <TextField
+                fullWidth
+                label="Buscar"
+                variant="outlined"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={handleSearchKeyPress}
+                InputProps={{
+                  className: styles.inputRoot,
+                  endAdornment: searchQuery ? (
+                    <IconButton size="small" onClick={handleClearSearch} className={styles.iconButton}>
+                      <CloseIcon />
+                    </IconButton>
+                  ) : null,
+                  classes: { 
+                    notchedOutline: styles.inputOutline 
+                  }
+                }}
+                InputLabelProps={{
+                  className: styles.inputLabel
+                }}
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSearch}
+                startIcon={<SearchIcon />}
+                className={`${styles.searchButton} ${styles.btnContained}`}
+              >
+                Buscar
+              </Button>
               <Button
                 variant="outlined"
-                color="secondary"
-                onClick={resetFilters}
-                className={`${styles.resetButton} ${styles.btnOutlined}`}
+                onClick={() => setShowFilters(!showFilters)}
+                startIcon={<FilterListIcon />}
+                className={`${styles.filterButton} ${styles.btnOutlined}`}
               >
-                Limpar Filtros
+                Filtros
               </Button>
             </div>
+
+            {showFilters && (
+              <div className={styles.filtersContainer}>
+                <div className={styles.filterControls}>
+                  {renderFiltroTag1()}
+                  {renderFiltroTag2()}
+                  {renderFiltrosRevisao()}
+
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={resetFilters}
+                    className={`${styles.resetButton} ${styles.btnOutlined}`}
+                  >
+                    Limpar Filtros
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      <div className={styles.resultsInfo}>
-        <p>
-          {filteredData.length} {filteredData.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
-        </p>
-      </div>
+          <div className={styles.resultsInfo}>
+            <p>
+              {filteredData.length} {filteredData.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
+            </p>
+          </div>
 
-      <div className={styles.cards}>
-        {filteredData.map((item, index) => renderCard(item, index))}
-      </div>
+          <div className={styles.cards}>
+            {filteredData.length > 0 ? (
+              filteredData.map((item, index) => renderCard(item, index))
+            ) : (
+              <div className={styles.noResults}>
+                <Typography variant="body1">
+                  Nenhum resultado encontrado para os filtros selecionados.
+                </Typography>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className={styles.noResults}>
+          <Typography variant="body1">
+            Nenhuma aba encontrada na planilha.
+          </Typography>
+        </div>
+      )}
 
       <Dialog
         open={modalOpen}
