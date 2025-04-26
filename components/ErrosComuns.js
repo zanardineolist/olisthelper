@@ -24,9 +24,10 @@ import {
   FormGroup,
   Box,
   CircularProgress,
-  Tooltip
+  Tooltip,
+  Badge
 } from '@mui/material';
-import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon, ContentCopy as ContentCopyIcon, Info as InfoIcon, Description as DescriptionIcon } from '@mui/icons-material';
+import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon, ContentCopy as ContentCopyIcon, Info as InfoIcon, Description as DescriptionIcon, FilterAlt as FilterAltIcon } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -53,6 +54,20 @@ export default function ErrosComuns({ user }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState('');
   const [cabecalhos, setCabecalhos] = useState({});
+  const [filtrosAtivos, setFiltrosAtivos] = useState(0);
+
+  // Verificar número de filtros ativos
+  useEffect(() => {
+    let count = 0;
+    
+    if (tag1Filter) count++;
+    if (tag2Filter) count++;
+    if (filtroRevisao.TRUE && !filtroRevisao.FALSE) count++;
+    if (!filtroRevisao.TRUE && filtroRevisao.FALSE) count++;
+    if (searchQuery) count++;
+    
+    setFiltrosAtivos(count);
+  }, [tag1Filter, tag2Filter, filtroRevisao, searchQuery]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -318,12 +333,7 @@ export default function ErrosComuns({ user }) {
         <FormControl variant="outlined" size="small" className={styles.formControl}>
           <InputLabel 
             id="tag1-select-label" 
-            style={{ 
-              color: 'var(--title-color)', 
-              backgroundColor: 'var(--background-color)',
-              padding: '0 4px',
-              fontSize: '0.85rem'
-            }}
+            className={styles.inputLabel}
           >
             {labelTag1}
           </InputLabel>
@@ -341,11 +351,6 @@ export default function ErrosComuns({ user }) {
               return selected;
             }}
             className={styles.filterSelect}
-            style={{ 
-              color: 'var(--title-color)', 
-              backgroundColor: 'var(--background-color)',
-              borderColor: 'var(--color-border)'
-            }}
             MenuProps={{
               classes: { 
                 paper: styles.menuPaper,
@@ -359,7 +364,7 @@ export default function ErrosComuns({ user }) {
                 vertical: 'top',
                 horizontal: 'left',
               },
-              getContentAnchorEl: null
+              disableScrollLock: true
             }}
           >
             <MenuItem value="">
@@ -374,12 +379,7 @@ export default function ErrosComuns({ user }) {
         <FormControl variant="outlined" size="small" className={styles.formControl}>
           <InputLabel 
             id="tag2-select-label" 
-            style={{ 
-              color: 'var(--title-color)', 
-              backgroundColor: 'var(--background-color)',
-              padding: '0 4px',
-              fontSize: '0.85rem'
-            }}
+            className={styles.inputLabel}
           >
             {labelTag2}
           </InputLabel>
@@ -397,11 +397,6 @@ export default function ErrosComuns({ user }) {
               return selected;
             }}
             className={styles.filterSelect}
-            style={{ 
-              color: 'var(--title-color)', 
-              backgroundColor: 'var(--background-color)',
-              borderColor: 'var(--color-border)'
-            }}
             MenuProps={{
               classes: { 
                 paper: styles.menuPaper,
@@ -415,7 +410,7 @@ export default function ErrosComuns({ user }) {
                 vertical: 'top',
                 horizontal: 'left',
               },
-              getContentAnchorEl: null
+              disableScrollLock: true
             }}
           >
             <MenuItem value="">
@@ -461,6 +456,7 @@ export default function ErrosComuns({ user }) {
           color="secondary"
           onClick={resetFilters}
           className={`${styles.resetButton} ${styles.btnOutlined}`}
+          disabled={!tag1Filter && !tag2Filter && filtroRevisao.TRUE && filtroRevisao.FALSE && !searchQuery}
         >
           LIMPAR FILTROS
         </Button>
@@ -508,17 +504,20 @@ export default function ErrosComuns({ user }) {
             onClick={handleSearch}
             startIcon={<SearchIcon />}
             className={`${styles.searchButton} ${styles.btnContained}`}
+            disabled={!searchQuery.trim()}
           >
             BUSCAR
           </Button>
-          <Button
-            variant="outlined"
-            onClick={() => setShowFilters(!showFilters)}
-            startIcon={<FilterListIcon />}
-            className={`${styles.filterButton} ${styles.btnOutlined}`}
-          >
-            FILTROS
-          </Button>
+          <Badge badgeContent={filtrosAtivos} color="primary" invisible={filtrosAtivos === 0}>
+            <Button
+              variant="outlined"
+              onClick={() => setShowFilters(!showFilters)}
+              startIcon={<FilterListIcon />}
+              className={`${styles.filterButton} ${styles.btnOutlined}`}
+            >
+              FILTROS
+            </Button>
+          </Badge>
         </div>
         
         {showFilters && renderFiltersSection()}
@@ -733,6 +732,17 @@ export default function ErrosComuns({ user }) {
                 <Typography variant="body1">
                   Nenhum resultado encontrado para os filtros selecionados.
                 </Typography>
+                {filtrosAtivos > 0 && (
+                  <Button 
+                    variant="outlined" 
+                    color="primary"
+                    onClick={resetFilters}
+                    startIcon={<FilterAltIcon />}
+                    style={{ marginTop: '10px' }}
+                  >
+                    Limpar Filtros
+                  </Button>
+                )}
               </div>
             )}
           </div>
