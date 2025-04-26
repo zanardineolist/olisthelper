@@ -11,7 +11,7 @@
 }
 
 .pageTitle {
-  color: var(--color-primary);
+  color: var(--title-color);
   font-size: 2rem;
   margin-bottom: 10px;
 }
@@ -25,13 +25,13 @@
 
 .tabs {
   margin-bottom: 30px;
-  background-color: var(--background-light);
+  background-color: var(--tab-menu-bg);
   border-radius: 8px;
 }
 
 .searchContainer {
   margin-bottom: 30px;
-  background-color: var(--background-light);
+  background-color: var(--box-color);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -51,7 +51,7 @@
 .filtersContainer {
   margin-top: 15px;
   padding-top: 15px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-border);
 }
 
 .filterControls {
@@ -68,7 +68,7 @@
 
 .resultsInfo {
   font-size: 0.9rem;
-  color: var(--text-color-light);
+  color: var(--text-color2);
   text-align: right;
   margin-top: 10px;
 }
@@ -84,6 +84,8 @@
   transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
+  background-color: var(--box-color);
+  border: 1px solid var(--color-border);
 }
 
 .card:hover {
@@ -125,7 +127,7 @@
 }
 
 .errorTitle {
-  color: var(--color-primary-dark);
+  color: var(--title-color);
   font-size: 1.1rem;
   margin-bottom: 15px;
   font-weight: 600;
@@ -145,6 +147,8 @@
 
 .dialogTitle {
   padding-bottom: 8px !important;
+  background-color: var(--box-color) !important;
+  color: var(--title-color) !important;
 }
 
 .dialogTitleContent {
@@ -170,7 +174,7 @@
   margin-bottom: 20px;
   padding: 15px;
   border-radius: 6px;
-  background-color: var(--background-light);
+  background-color: var(--box-color);
 }
 
 .solutionBox {
@@ -178,11 +182,11 @@
 }
 
 .observationBox {
-  border-left: 4px solid var(--color-secondary);
+  border-left: 4px solid var(--color-accent2);
 }
 
 .suggestionBox {
-  border-left: 4px solid var(--color-warning);
+  border-left: 4px solid var(--color-accent3);
 }
 
 .solutionHeader {
@@ -197,6 +201,22 @@
   overflow-y: auto;
   padding-right: 10px;
   margin-bottom: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scroll) var(--scroll-bg);
+}
+
+.solutionScrollbox::-webkit-scrollbar {
+  width: 6px;
+}
+
+.solutionScrollbox::-webkit-scrollbar-track {
+  background: var(--scroll-bg);
+  border-radius: 10px;
+}
+
+.solutionScrollbox::-webkit-scrollbar-thumb {
+  background-color: var(--scroll);
+  border-radius: 10px;
 }
 
 .solutionText {
@@ -218,10 +238,10 @@
   grid-column: 1 / -1;
   text-align: center;
   padding: 50px 0;
-  color: var(--text-color-light);
-  background-color: var(--background-light);
+  color: var(--text-color2);
+  background-color: var(--box-color);
   border-radius: 8px;
-  border: 1px dashed var(--border-color);
+  border: 1px dashed var(--color-border);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -234,7 +254,7 @@
   align-items: center;
   justify-content: center;
   height: 300px;
-  color: var(--text-color-light);
+  color: var(--text-color2);
   gap: 20px;
 }
 
