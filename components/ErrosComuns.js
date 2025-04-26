@@ -1,56 +1,58 @@
-import { useState, useEffect } from 'react';
-import styles from '../styles/ErrosComuns.module.css';
+import React, { useState, useEffect, useRef } from 'react';
+import styles from '@/styles/ErrosComuns.module.css';
 import { 
   TextField, 
-  Button,
-  CircularProgress,
-  Chip,
-  Card,
-  CardContent,
-  CardActions,
-  Tabs,
-  Tab,
+  Tab, 
+  Tabs, 
+  Button, 
+  Dialog,
+  DialogContent, 
+  DialogActions, 
+  Snackbar, 
+  Alert,
+  IconButton,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  IconButton,
-  Tooltip,
-  Snackbar,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  FormControlLabel,
+  Checkbox,
+  InputAdornment,
   Typography,
-  Box,
-  Divider
+  Chip,
+  Container,
+  FormGroup
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CloseIcon from '@mui/icons-material/Close';
+import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 export default function ErrosComuns({ user }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({
     anuncios: [],
     expedicao: [],
-    notasFiscais: []
+    notas: []
   });
   const [filteredData, setFilteredData] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [currentTab, setCurrentTab] = useState(0);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalData, setModalData] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [integracoes, setIntegracoes] = useState([]);
+  const [tipos, setTipos] = useState([]);
   const [integracaoFilter, setIntegracaoFilter] = useState('');
   const [tipoFilter, setTipoFilter] = useState('');
+  const [searchActive, setSearchActive] = useState(false);
+  const [filtroRevisao, setFiltroRevisao] = useState({ TRUE: true, FALSE: true });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
 
   const tabOptions = [
     { label: 'Anúncios', value: 'anuncios' },
@@ -58,49 +60,24 @@ export default function ErrosComuns({ user }) {
     { label: 'Notas Fiscais', value: 'notasFiscais' }
   ];
 
-  // Lista de integrações e tipos para filtros
-  const [integracoes, setIntegracoes] = useState([]);
-  const [tipos, setTipos] = useState([]);
-
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/erros-comuns');
-      if (!response.ok) {
-        throw new Error('Falha ao carregar dados');
+      const response = await axios.get('/api/erros-comuns');
+      
+      if (response.data && response.data.success) {
+        setData(response.data.data);
+        
+        // Aplicar filtros iniciais e extrair opções de filtragem
+        applyFilters(response.data.data, currentTab, '', '', filtroRevisao, '');
+        extrairOpcoesDeFiltragem(response.data.data, currentTab);
+      } else {
+        console.error('Erro ao buscar dados:', response.data.message);
+        toast.error('Erro ao carregar os dados');
       }
-      
-      const result = await response.json();
-      setData(result);
-      
-      // Processar dados para filtros
-      const allIntegracoes = new Set();
-      const allTipos = new Set();
-      
-      // Extrair integrações dos anúncios
-      result.anuncios.forEach(item => {
-        if (item.Integração) allIntegracoes.add(item.Integração);
-        if (item.Tipo) allTipos.add(item.Tipo);
-      });
-      
-      // Extrair integrações da expedição
-      result.expedicao.forEach(item => {
-        if (item.Logística) allIntegracoes.add(item.Logística);
-        if (item.Tipo) allTipos.add(item.Tipo);
-      });
-      
-      // Extrair tipos das notas fiscais
-      result.notasFiscais.forEach(item => {
-        if (item.Tipo) allTipos.add(item.Tipo);
-      });
-      
-      setIntegracoes(Array.from(allIntegracoes).sort());
-      setTipos(Array.from(allTipos).sort());
-      
-      // Inicializar dados filtrados com a primeira aba
-      applyFilters(result, 0, '', '');
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
+      toast.error('Erro ao carregar os dados');
     } finally {
       setLoading(false);
     }
@@ -110,79 +87,99 @@ export default function ErrosComuns({ user }) {
     fetchData();
   }, []);
 
-  const applyFilters = (dataToFilter = data, tab = currentTab, integracao = integracaoFilter, tipo = tipoFilter, query = searchQuery) => {
-    const currentTabData = dataToFilter[tabOptions[tab].value] || [];
+  const filtrarPorRevisao = (items, filtroRevisao) => {
+    if ((filtroRevisao.TRUE && filtroRevisao.FALSE) || (!filtroRevisao.TRUE && !filtroRevisao.FALSE)) {
+      return items;
+    }
     
-    let filtered = [...currentTabData];
+    if (filtroRevisao.TRUE && !filtroRevisao.FALSE) {
+      return items.filter(item => item.Revisado === 'TRUE');
+    }
     
-    // Aplicar filtro de integração
-    if (integracao) {
-      if (tab === 0) { // Anúncios
-        filtered = filtered.filter(item => item.Integração === integracao);
-      } else if (tab === 1) { // Expedição
-        filtered = filtered.filter(item => item.Logística === integracao);
+    if (!filtroRevisao.TRUE && filtroRevisao.FALSE) {
+      return items.filter(item => item.Revisado === 'FALSE');
+    }
+    
+    return items;
+  };
+
+  const applyFilters = (allData, tabIndex, integracaoValue, tipoValue, revisaoValue, searchValue) => {
+    if (!allData || allData.length === 0) return;
+
+    let filteredItems = [...allData];
+
+    if (tabIndex !== 2 && integracaoValue) {
+      const field = tabIndex === 0 ? 'Integração' : tabIndex === 1 ? 'Logística' : null;
+      if (field) {
+        filteredItems = filteredItems.filter(item => item[field] === integracaoValue);
       }
     }
     
-    // Aplicar filtro de tipo
-    if (tipo) {
-      filtered = filtered.filter(item => item.Tipo === tipo);
+    if (tipoValue) {
+      filteredItems = filteredItems.filter(item => item.Tipo === tipoValue);
     }
     
-    // Aplicar filtro de busca
-    if (query) {
-      const searchLower = query.toLowerCase();
-      filtered = filtered.filter(item => {
-        // Anúncios
-        if (tab === 0) {
-          return (
-            (item.Erro && item.Erro.toLowerCase().includes(searchLower)) ||
-            (item.Solução && item.Solução.toLowerCase().includes(searchLower)) ||
-            (item.Integração && item.Integração.toLowerCase().includes(searchLower))
-          );
-        }
-        // Expedição
-        else if (tab === 1) {
-          return (
-            (item.Erro && item.Erro.toLowerCase().includes(searchLower)) ||
-            (item.Solução && item.Solução.toLowerCase().includes(searchLower)) ||
-            (item.Logística && item.Logística.toLowerCase().includes(searchLower))
-          );
-        }
-        // Notas Fiscais
-        else {
-          return (
-            (item.Erro && item.Erro.toLowerCase().includes(searchLower)) ||
-            (item.Solução && item.Solução.toLowerCase().includes(searchLower))
-          );
-        }
+    filteredItems = filtrarPorRevisao(filteredItems, revisaoValue);
+    
+    if (searchValue) {
+      const searchLower = searchValue.toLowerCase();
+      filteredItems = filteredItems.filter(item => {
+        return (
+          (item.Erro && item.Erro.toLowerCase().includes(searchLower)) ||
+          (item.Solução && item.Solução.toLowerCase().includes(searchLower)) ||
+          (item.Observação && item.Observação.toLowerCase().includes(searchLower)) ||
+          (item['Sugestões de melhoria'] && item['Sugestões de melhoria'].toLowerCase().includes(searchLower)) ||
+          (item['Sugestão de melhoria'] && item['Sugestão de melhoria'].toLowerCase().includes(searchLower))
+        );
       });
     }
     
-    setFilteredData(filtered);
+    setFilteredData(filteredItems);
   };
+
+  useEffect(() => {
+    if (data) {
+      const tabKey = currentTab === 0 ? 'anuncios' : currentTab === 1 ? 'expedicao' : 'notas';
+      const currentItems = data[tabKey] || [];
+      
+      applyFilters(data, currentTab, '', '', filtroRevisao, searchQuery);
+      
+      extrairOpcoesDeFiltragem(data, currentTab);
+    }
+  }, [currentTab, data]);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
-    // Resetar filtros ao mudar de aba
     setIntegracaoFilter('');
     setTipoFilter('');
-    applyFilters(data, newValue, '', '', searchQuery);
+    setSearchQuery('');
+    setSearchActive(false);
   };
 
   const handleSearch = () => {
-    applyFilters();
+    if (searchQuery.trim()) {
+      setSearchActive(true);
+      applyFilters(data, currentTab, integracaoFilter, tipoFilter, filtroRevisao, searchQuery);
+    }
   };
 
-  const handleSearchKeyPress = (e) => {
-    if (e.key === 'Enter') {
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
       handleSearch();
     }
   };
 
   const handleClearSearch = () => {
     setSearchQuery('');
-    applyFilters(data, currentTab, integracaoFilter, tipoFilter, '');
+    setSearchActive(false);
+    applyFilters(data, currentTab, integracaoFilter, tipoFilter, filtroRevisao, '');
+  };
+
+  const handleRevisadoFilterChange = (value) => {
+    const newRevisadoFilter = { ...filtroRevisao };
+    newRevisadoFilter[value] = !newRevisadoFilter[value];
+    setFiltroRevisao(newRevisadoFilter);
+    applyFilters(data, currentTab, integracaoFilter, tipoFilter, newRevisadoFilter, searchQuery);
   };
 
   const handleCopyToClipboard = (text) => {
@@ -209,12 +206,13 @@ export default function ErrosComuns({ user }) {
   const resetFilters = () => {
     setIntegracaoFilter('');
     setTipoFilter('');
+    setFiltroRevisao({ TRUE: true, FALSE: true });
     setSearchQuery('');
-    applyFilters(data, currentTab, '', '', '');
+    applyFilters(data, currentTab, '', '', { TRUE: true, FALSE: true }, '');
   };
 
   const handleOpenModal = (item) => {
-    setSelectedItem(item);
+    setModalData(item);
     setModalOpen(true);
   };
 
@@ -235,6 +233,226 @@ export default function ErrosComuns({ user }) {
     return null;
   };
 
+  const handleIntegracaoChange = (event) => {
+    const valor = event.target.value;
+    setIntegracaoFilter(valor);
+    applyFilters(data, currentTab, valor, tipoFilter, filtroRevisao, searchQuery);
+  };
+
+  const handleTipoChange = (event) => {
+    const valor = event.target.value;
+    setTipoFilter(valor);
+    applyFilters(data, currentTab, integracaoFilter, valor, filtroRevisao, searchQuery);
+  };
+
+  const handleRevisaoChange = (event) => {
+    const { name, checked } = event.target;
+    const novoFiltro = { ...filtroRevisao, [name]: checked };
+    setFiltroRevisao(novoFiltro);
+    applyFilters(data, currentTab, integracaoFilter, tipoFilter, novoFiltro, searchQuery);
+  };
+
+  const renderFiltroIntegracao = () => {
+    if (currentTab === 2 || integracoes.length === 0) return null;
+
+    const label = currentTab === 0 ? 'Integração' : 'Logística';
+    
+    return (
+      <FormControl variant="outlined" size="small" className={styles.formControl}>
+        <InputLabel id="integracao-select-label">{label}</InputLabel>
+        <Select
+          labelId="integracao-select-label"
+          id="integracao-select"
+          value={integracaoFilter}
+          onChange={handleIntegracaoChange}
+          label={label}
+        >
+          <MenuItem value="">
+            <em>Todos</em>
+          </MenuItem>
+          {integracoes.map((integ) => (
+            <MenuItem key={integ} value={integ}>{integ}</MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    );
+  };
+
+  const renderFiltroTipo = () => {
+    if (tipos.length === 0) return null;
+    
+    return (
+      <FormControl variant="outlined" size="small" className={styles.formControl}>
+        <InputLabel id="tipo-select-label">Tipo</InputLabel>
+        <Select
+          labelId="tipo-select-label"
+          id="tipo-select"
+          value={tipoFilter}
+          onChange={handleTipoChange}
+          label="Tipo"
+        >
+          <MenuItem value="">
+            <em>Todos</em>
+          </MenuItem>
+          {tipos.map((tipo) => (
+            <MenuItem key={tipo} value={tipo}>{tipo}</MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    );
+  };
+
+  const renderFiltrosRevisao = () => {
+    return (
+      <FormGroup row className={styles.checkboxGroup}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={filtroRevisao.TRUE}
+              onChange={(e) => handleRevisaoChange(e)}
+              name="TRUE"
+              color="primary"
+            />
+          }
+          label="Revisado"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={filtroRevisao.FALSE}
+              onChange={(e) => handleRevisaoChange(e)}
+              name="FALSE"
+              color="primary"
+            />
+          }
+          label="Não Revisado"
+        />
+      </FormGroup>
+    );
+  };
+
+  const renderCard = (item, index) => (
+    <div key={index} className={styles.card}>
+      <div className={styles.cardHeader}>
+        <Chip 
+          label={getTabName()} 
+          color="primary" 
+          className={styles.sectionChip} 
+        />
+        {currentTab === 0 && item.Integração && (
+          <Chip 
+            label={item.Integração} 
+            color="primary" 
+            variant="outlined" 
+            className={styles.integrationChip} 
+          />
+        )}
+        {currentTab === 1 && item.Logística && (
+          <Chip 
+            label={item.Logística} 
+            color="primary" 
+            variant="outlined" 
+            className={styles.integrationChip} 
+          />
+        )}
+        {item.Tipo && (
+          <Chip 
+            label={item.Tipo} 
+            color="secondary" 
+            variant="outlined" 
+            className={styles.typeChip} 
+          />
+        )}
+        <Chip 
+          icon={item.Revisado === 'TRUE' ? <CheckCircleIcon /> : <CancelIcon />}
+          label={item.Revisado === 'TRUE' ? 'Revisado' : 'Não revisado'} 
+          color={item.Revisado === 'TRUE' ? 'success' : 'warning'}
+          variant="outlined" 
+          size="small"
+          className={styles.revisaoChip} 
+        />
+      </div>
+      
+      <h3 className={styles.errorTitle}>{item.Erro}</h3>
+    </div>
+  );
+
+  const renderModalContent = () => (
+    <>
+      <div className={styles.solutionHeader}>
+        <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+          Solução
+        </Typography>
+        <Tooltip title="Copiar solução">
+          <IconButton 
+            onClick={() => handleCopyToClipboard(modalData.Solução)}
+            size="small"
+            className={styles.copyButton}
+          >
+            <ContentCopyIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </div>
+      <Box className={styles.solutionScrollbox}>
+        <Typography variant="body2" className={styles.solutionText}>
+          {modalData.Solução}
+        </Typography>
+      </Box>
+
+      {modalData.Observação && modalData.Observação.trim() !== '' && (
+        <Box className={styles.observationBox}>
+          <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+            Observação
+          </Typography>
+          <Typography variant="body2" className={styles.observationText}>
+            {modalData.Observação}
+          </Typography>
+        </Box>
+      )}
+
+      {modalData['Sugestões de melhoria'] && modalData['Sugestões de melhoria'].trim() !== '' && (
+        <Box className={styles.suggestionBox}>
+          <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+            Sugestões de melhoria
+          </Typography>
+          <Typography variant="body2" className={styles.suggestionText}>
+            {modalData['Sugestões de melhoria']}
+          </Typography>
+        </Box>
+      )}
+      
+      {modalData['Sugestão de melhoria'] && modalData['Sugestão de melhoria'].trim() !== '' && (
+        <Box className={styles.suggestionBox}>
+          <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+            Sugestões de melhoria
+          </Typography>
+          <Typography variant="body2" className={styles.suggestionText}>
+            {modalData['Sugestão de melhoria']}
+          </Typography>
+        </Box>
+      )}
+    </>
+  );
+
+  const getIntegrationLabel = () => {
+    return currentTab === 0 ? 'Integração' : currentTab === 1 ? 'Logística' : 'Tipo';
+  };
+
+  const extrairOpcoesDeFiltragem = (data, tabIndex) => {
+    if (!data || data.length === 0) return;
+
+    if (tabIndex !== 2) {
+      const field = tabIndex === 0 ? 'Integração' : 'Logística';
+      const uniqueIntegracoes = [...new Set(data.map(item => item[field]))].filter(Boolean).sort();
+      setIntegracoes(uniqueIntegracoes);
+    } else {
+      setIntegracoes([]);
+    }
+
+    const uniqueTipos = [...new Set(data.map(item => item.Tipo))].filter(Boolean).sort();
+    setTipos(uniqueTipos);
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -244,12 +462,8 @@ export default function ErrosComuns({ user }) {
     );
   }
 
-  const getIntegrationLabel = () => {
-    return currentTab === 0 ? 'Integração' : currentTab === 1 ? 'Logística' : 'Tipo';
-  };
-
   return (
-    <div className={styles.container}>
+    <Container maxWidth="xl" className={styles.container}>
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Base de Conhecimento de Erros</h1>
         <p className={styles.pageDescription}>
@@ -260,12 +474,12 @@ export default function ErrosComuns({ user }) {
       <Tabs
         value={currentTab}
         onChange={handleTabChange}
-        className={styles.tabs}
         variant="fullWidth"
+        className={styles.tabs}
       >
-        <Tab label="Anúncios" />
-        <Tab label="Expedição" />
-        <Tab label="Notas Fiscais" />
+        <Tab label="Anúncios" className={styles.tab} />
+        <Tab label="Expedição" className={styles.tab} />
+        <Tab label="Notas Fiscais" className={styles.tab} />
       </Tabs>
 
       <div className={styles.searchContainer}>
@@ -314,71 +528,11 @@ export default function ErrosComuns({ user }) {
         {showFilters && (
           <div className={styles.filtersContainer}>
             <div className={styles.filterControls}>
-              {currentTab !== 2 && (
-                <FormControl variant="outlined" className={styles.filterSelect}>
-                  <InputLabel className={styles.inputLabel}>{getIntegrationLabel()}</InputLabel>
-                  <Select
-                    value={integracaoFilter}
-                    onChange={(e) => {
-                      setIntegracaoFilter(e.target.value);
-                      applyFilters(data, currentTab, e.target.value, tipoFilter, searchQuery);
-                    }}
-                    label={getIntegrationLabel()}
-                    className={styles.inputRoot}
-                    MenuProps={{
-                      classes: {
-                        paper: styles.menuPaper
-                      },
-                      PaperProps: {
-                        className: styles.menuPaper
-                      }
-                    }}
-                  >
-                    <MenuItem value="" className={`${styles.menuItem} ${styles.menuItemHover}`}>Todos</MenuItem>
-                    {integracoes.map((integ) => (
-                      <MenuItem 
-                        key={integ} 
-                        value={integ} 
-                        className={`${styles.menuItem} ${styles.menuItemHover}`}
-                      >
-                        {integ}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
+              {renderFiltroIntegracao()}
 
-              <FormControl variant="outlined" className={styles.filterSelect}>
-                <InputLabel className={styles.inputLabel}>Tipo</InputLabel>
-                <Select
-                  value={tipoFilter}
-                  onChange={(e) => {
-                    setTipoFilter(e.target.value);
-                    applyFilters(data, currentTab, integracaoFilter, e.target.value, searchQuery);
-                  }}
-                  label="Tipo"
-                  className={styles.inputRoot}
-                  MenuProps={{
-                    classes: {
-                      paper: styles.menuPaper
-                    },
-                    PaperProps: {
-                      className: styles.menuPaper
-                    }
-                  }}
-                >
-                  <MenuItem value="" className={`${styles.menuItem} ${styles.menuItemHover}`}>Todos</MenuItem>
-                  {tipos.map((tipo) => (
-                    <MenuItem 
-                      key={tipo} 
-                      value={tipo} 
-                      className={`${styles.menuItem} ${styles.menuItemHover}`}
-                    >
-                      {tipo}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              {renderFiltroTipo()}
+
+              {renderFiltrosRevisao()}
 
               <Button
                 variant="outlined"
@@ -391,192 +545,36 @@ export default function ErrosComuns({ user }) {
             </div>
           </div>
         )}
-
-        <div className={styles.resultsInfo}>
-          <p>
-            {filteredData.length} {filteredData.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
-          </p>
-        </div>
       </div>
 
-      <div className={styles.cardsContainer}>
-        {filteredData.length > 0 ? (
-          filteredData.map((item, index) => (
-            <Card key={index} className={styles.card}>
-              <CardContent className={styles.cardContent}>
-                <div className={styles.cardHeader}>
-                  <Chip 
-                    label={getTabName()} 
-                    color="primary" 
-                    className={styles.sectionChip} 
-                  />
-                  {currentTab === 0 && item.Integração && (
-                    <Chip 
-                      label={item.Integração} 
-                      color="primary" 
-                      variant="outlined" 
-                      className={styles.integrationChip} 
-                    />
-                  )}
-                  {currentTab === 1 && item.Logística && (
-                    <Chip 
-                      label={item.Logística} 
-                      color="primary" 
-                      variant="outlined" 
-                      className={styles.integrationChip} 
-                    />
-                  )}
-                  {item.Tipo && (
-                    <Chip 
-                      label={item.Tipo} 
-                      color="secondary" 
-                      variant="outlined" 
-                      className={styles.typeChip} 
-                    />
-                  )}
-                </div>
-                
-                <h3 className={styles.errorTitle}>{item.Erro}</h3>
-              </CardContent>
-              <CardActions className={styles.cardActions}>
-                <Button 
-                  variant="contained" 
-                  size="small" 
-                  color="primary"
-                  startIcon={<VisibilityIcon />}
-                  onClick={() => handleOpenModal(item)}
-                  className={styles.btnContained}
-                >
-                  Ver detalhes
-                </Button>
-              </CardActions>
-            </Card>
-          ))
-        ) : (
-          <div className={styles.noResults}>
-            <p>Nenhum resultado encontrado com os filtros aplicados.</p>
-            <Button 
-              variant="outlined" 
-              onClick={resetFilters}
-              className={styles.btnOutlined}
-            >
-              Limpar Filtros
-            </Button>
-          </div>
-        )}
+      <div className={styles.resultsInfo}>
+        <p>
+          {filteredData.length} {filteredData.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
+        </p>
       </div>
 
-      {/* Modal com detalhes completos */}
+      <div className={styles.cards}>
+        {filteredData.map((item, index) => renderCard(item, index))}
+      </div>
+
       <Dialog
         open={modalOpen}
         onClose={handleCloseModal}
         maxWidth="md"
         fullWidth
-        className={styles.detailsDialog}
-        PaperProps={{
-          className: styles.detailsDialog
-        }}
+        className={styles.dialog}
+        PaperProps={{ className: styles.dialogPaper }}
       >
-        {selectedItem && (
+        {modalData && (
           <>
-            <DialogTitle className={styles.dialogTitle}>
-              <div className={styles.dialogTitleContent}>
-                <Typography variant="h6" component="h2" className={styles.dialogTitle}>
-                  {selectedItem.Erro}
-                </Typography>
-                <IconButton onClick={handleCloseModal} className={styles.iconButton}>
-                  <CloseIcon />
-                </IconButton>
-              </div>
-              <div className={styles.tagContainer}>
-                <Chip 
-                  label={getTabName()} 
-                  color="primary" 
-                  className={styles.sectionChip} 
-                />
-                {getIntegrationName(selectedItem) && (
-                  <Chip 
-                    label={getIntegrationName(selectedItem)} 
-                    color="primary" 
-                    variant="outlined" 
-                    className={styles.integrationChip} 
-                  />
-                )}
-                {selectedItem.Tipo && (
-                  <Chip 
-                    label={selectedItem.Tipo} 
-                    color="secondary" 
-                    variant="outlined" 
-                    className={styles.typeChip} 
-                  />
-                )}
-                <Chip 
-                  icon={selectedItem.Revisado === 'TRUE' ? <CheckCircleIcon /> : <CancelIcon />}
-                  label={selectedItem.Revisado === 'TRUE' ? 'Revisado' : 'Não revisado'} 
-                  color={selectedItem.Revisado === 'TRUE' ? 'success' : 'warning'}
-                  variant="outlined" 
-                  className={styles.revisionChip} 
-                />
-              </div>
-            </DialogTitle>
-            <DialogContent className={styles.dialogContent} dividers>
-              <Box className={styles.solutionBox}>
-                <div className={styles.solutionHeader}>
-                  <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
-                    Solução
-                  </Typography>
-                  <Tooltip title="Copiar solução">
-                    <IconButton 
-                      onClick={() => handleCopyToClipboard(selectedItem.Solução)}
-                      size="small"
-                      className={styles.copyButton}
-                    >
-                      <ContentCopyIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </div>
-                <Box className={styles.solutionScrollbox}>
-                  <Typography variant="body2" className={styles.solutionText}>
-                    {selectedItem.Solução}
-                  </Typography>
-                </Box>
-              </Box>
-
-              {selectedItem.Observação && selectedItem.Observação.trim() !== '' && (
-                <Box className={styles.observationBox}>
-                  <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
-                    Observação
-                  </Typography>
-                  <Typography variant="body2" className={styles.observationText}>
-                    {selectedItem.Observação}
-                  </Typography>
-                </Box>
-              )}
-
-              {selectedItem['Sugestões de melhoria'] && selectedItem['Sugestões de melhoria'].trim() !== '' && (
-                <Box className={styles.suggestionBox}>
-                  <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
-                    Sugestões de melhoria
-                  </Typography>
-                  <Typography variant="body2" className={styles.suggestionText}>
-                    {selectedItem['Sugestões de melhoria']}
-                  </Typography>
-                </Box>
-              )}
+            <DialogContent className={styles.dialogContent}>
+              {renderModalContent()}
             </DialogContent>
             <DialogActions className={styles.dialogActions}>
               <Button 
-                onClick={() => handleCopyToClipboard(selectedItem.Solução)}
-                variant="contained"
-                startIcon={<ContentCopyIcon />}
-                className={styles.btnContained}
-              >
-                Copiar Solução
-              </Button>
-              <Button 
                 onClick={handleCloseModal} 
+                className={styles.dialogButton}
                 variant="outlined"
-                className={styles.btnOutlined}
               >
                 Fechar
               </Button>
@@ -591,14 +589,10 @@ export default function ErrosComuns({ user }) {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity="success" 
-          variant="filled"
-        >
+        <Alert onClose={handleCloseSnackbar} severity="success">
           {copySuccess}
         </Alert>
       </Snackbar>
-    </div>
+    </Container>
   );
 } 

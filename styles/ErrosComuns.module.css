@@ -374,4 +374,35 @@
   .tagContainer {
     margin-top: 15px;
   }
+}
+
+.checkboxContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  background-color: var(--box-color2);
+  padding: 10px 15px;
+  border-radius: 6px;
+}
+
+.checkboxLabel {
+  margin: 0;
+  color: var(--text-color) !important;
+}
+
+.checkboxRevisado {
+  color: var(--color-success) !important;
+}
+
+.checkboxNaoRevisado {
+  color: var(--color-warning) !important;
+}
+
+.revisaoChip {
+  margin-left: auto;
+  font-weight: 500;
+  font-size: 0.75rem;
+  color: var(--text-color) !important;
+  background-color: rgba(0, 0, 0, 0.05) !important;
 } 
