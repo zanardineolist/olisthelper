@@ -813,7 +813,7 @@ export default function ErrosComuns({ user }) {
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Base de Erros</h1>
         <p className={styles.pageDescription}>
-          Esta ferramenta exibe erros comuns e suas soluções cadastradas na planilha.
+          Esta ferramenta exibe erros mepeados e suas soluções para facilitar a busca e resolução de problemas.
         </p>
       </div>
 
