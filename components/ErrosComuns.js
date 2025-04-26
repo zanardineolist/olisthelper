@@ -25,7 +25,8 @@ import {
   Box,
   CircularProgress,
   Tooltip,
-  Badge
+  Badge,
+  Collapse
 } from '@mui/material';
 import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon, ContentCopy as ContentCopyIcon, Info as InfoIcon, Description as DescriptionIcon, FilterAlt as FilterAltIcon } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -346,7 +347,7 @@ export default function ErrosComuns({ user }) {
             displayEmpty
             renderValue={(selected) => {
               if (!selected) {
-                return "";
+                return <span style={{ opacity: 0.7 }}>Selecione {labelTag1}</span>;
               }
               return selected;
             }}
@@ -392,7 +393,7 @@ export default function ErrosComuns({ user }) {
             displayEmpty
             renderValue={(selected) => {
               if (!selected) {
-                return "";
+                return <span style={{ opacity: 0.7 }}>Selecione {labelTag2}</span>;
               }
               return selected;
             }}
@@ -431,6 +432,7 @@ export default function ErrosComuns({ user }) {
                 name="TRUE"
                 color="primary"
                 className={styles.checkboxRevisado}
+                size="small"
               />
             }
             label="Revisado"
@@ -444,6 +446,7 @@ export default function ErrosComuns({ user }) {
                 name="FALSE"
                 color="primary"
                 className={styles.checkboxNaoRevisado}
+                size="small"
               />
             }
             label="Não Revisado"
@@ -457,6 +460,7 @@ export default function ErrosComuns({ user }) {
           onClick={resetFilters}
           className={`${styles.resetButton} ${styles.btnOutlined}`}
           disabled={!tag1Filter && !tag2Filter && filtroRevisao.TRUE && filtroRevisao.FALSE && !searchQuery}
+          size="small"
         >
           LIMPAR FILTROS
         </Button>
@@ -483,11 +487,12 @@ export default function ErrosComuns({ user }) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={handleSearchKeyPress}
+            size="small"
             InputProps={{
               className: styles.inputRoot,
               endAdornment: searchQuery ? (
                 <IconButton size="small" onClick={handleClearSearch} className={styles.iconButton}>
-                  <CloseIcon />
+                  <CloseIcon fontSize="small" />
                 </IconButton>
               ) : null,
               classes: { 
@@ -505,6 +510,7 @@ export default function ErrosComuns({ user }) {
             startIcon={<SearchIcon />}
             className={`${styles.searchButton} ${styles.btnContained}`}
             disabled={!searchQuery.trim()}
+            size="medium"
           >
             BUSCAR
           </Button>
@@ -514,13 +520,16 @@ export default function ErrosComuns({ user }) {
               onClick={() => setShowFilters(!showFilters)}
               startIcon={<FilterListIcon />}
               className={`${styles.filterButton} ${styles.btnOutlined}`}
+              size="medium"
             >
-              FILTROS
+              FILTROS {showFilters ? '▲' : '▼'}
             </Button>
           </Badge>
         </div>
         
-        {showFilters && renderFiltersSection()}
+        <Collapse in={showFilters} timeout={300}>
+          {renderFiltersSection()}
+        </Collapse>
       </div>
     );
   };
@@ -684,6 +693,18 @@ export default function ErrosComuns({ user }) {
     );
   };
 
+  const renderResultsInfo = () => {
+    return (
+      <div className={styles.resultsInfo}>
+        <Typography variant="body2">
+          {filteredData.length === 0 
+            ? "Nenhum resultado encontrado" 
+            : `${filteredData.length} ${filteredData.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}`}
+        </Typography>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -718,11 +739,7 @@ export default function ErrosComuns({ user }) {
 
           {renderFiltersBlock()}
 
-          <div className={styles.resultsInfo}>
-            <p>
-              {filteredData.length} {filteredData.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}
-            </p>
-          </div>
+          {filteredData.length > 0 && renderResultsInfo()}
 
           <div className={styles.cards}>
             {filteredData.length > 0 ? (
