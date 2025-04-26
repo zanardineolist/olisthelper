@@ -7,6 +7,7 @@ import {
   Chip,
   Card,
   CardContent,
+  CardActions,
   Tabs,
   Tab,
   FormControl,
@@ -16,12 +17,22 @@ import {
   IconButton,
   Tooltip,
   Snackbar,
-  Alert
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  Box,
+  Divider
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 export default function ErrosComuns({ user }) {
   const [loading, setLoading] = useState(true);
@@ -38,6 +49,8 @@ export default function ErrosComuns({ user }) {
   const [tipoFilter, setTipoFilter] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const tabOptions = [
     { label: 'Anúncios', value: 'anuncios' },
@@ -200,6 +213,28 @@ export default function ErrosComuns({ user }) {
     applyFilters(data, currentTab, '', '', '');
   };
 
+  const handleOpenModal = (item) => {
+    setSelectedItem(item);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const getTabName = () => {
+    return tabOptions[currentTab].label;
+  };
+
+  const getIntegrationName = (item) => {
+    if (currentTab === 0 && item.Integração) {
+      return item.Integração;
+    } else if (currentTab === 1 && item.Logística) {
+      return item.Logística;
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -337,6 +372,11 @@ export default function ErrosComuns({ user }) {
             <Card key={index} className={styles.card}>
               <CardContent>
                 <div className={styles.cardHeader}>
+                  <Chip 
+                    label={getTabName()} 
+                    color="primary" 
+                    className={styles.sectionChip} 
+                  />
                   {currentTab === 0 && item.Integração && (
                     <Chip 
                       label={item.Integração} 
@@ -364,32 +404,18 @@ export default function ErrosComuns({ user }) {
                 </div>
                 
                 <h3 className={styles.errorTitle}>{item.Erro}</h3>
-                
-                <div className={styles.solutionContainer}>
-                  <div className={styles.solutionHeader}>
-                    <h4 className={styles.solutionTitle}>Solução</h4>
-                    <Tooltip title="Copiar solução">
-                      <IconButton 
-                        onClick={() => handleCopyToClipboard(item.Solução)}
-                        size="small"
-                        className={styles.copyButton}
-                      >
-                        <ContentCopyIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </div>
-                  <p className={styles.solutionText}>
-                    {item.Solução}
-                  </p>
-                </div>
-                
-                {item.Observação && item.Observação.trim() !== '' && (
-                  <div className={styles.observationContainer}>
-                    <h4 className={styles.observationTitle}>Observação</h4>
-                    <p className={styles.observationText}>{item.Observação}</p>
-                  </div>
-                )}
               </CardContent>
+              <CardActions className={styles.cardActions}>
+                <Button 
+                  variant="contained" 
+                  size="small" 
+                  color="primary"
+                  startIcon={<VisibilityIcon />}
+                  onClick={() => handleOpenModal(item)}
+                >
+                  Ver detalhes
+                </Button>
+              </CardActions>
             </Card>
           ))
         ) : (
@@ -401,6 +427,117 @@ export default function ErrosComuns({ user }) {
           </div>
         )}
       </div>
+
+      {/* Modal com detalhes completos */}
+      <Dialog
+        open={modalOpen}
+        onClose={handleCloseModal}
+        maxWidth="md"
+        fullWidth
+        className={styles.detailsDialog}
+      >
+        {selectedItem && (
+          <>
+            <DialogTitle className={styles.dialogTitle}>
+              <div className={styles.dialogTitleContent}>
+                <Typography variant="h6" component="h2">
+                  {selectedItem.Erro}
+                </Typography>
+                <IconButton onClick={handleCloseModal}>
+                  <CloseIcon />
+                </IconButton>
+              </div>
+              <div className={styles.tagContainer}>
+                <Chip 
+                  label={getTabName()} 
+                  color="primary" 
+                  className={styles.sectionChip} 
+                />
+                {getIntegrationName(selectedItem) && (
+                  <Chip 
+                    label={getIntegrationName(selectedItem)} 
+                    color="primary" 
+                    variant="outlined" 
+                    className={styles.integrationChip} 
+                  />
+                )}
+                {selectedItem.Tipo && (
+                  <Chip 
+                    label={selectedItem.Tipo} 
+                    color="secondary" 
+                    variant="outlined" 
+                    className={styles.typeChip} 
+                  />
+                )}
+                <Chip 
+                  icon={selectedItem.Revisado === 'TRUE' ? <CheckCircleIcon /> : <CancelIcon />}
+                  label={selectedItem.Revisado === 'TRUE' ? 'Revisado' : 'Não revisado'} 
+                  color={selectedItem.Revisado === 'TRUE' ? 'success' : 'warning'}
+                  variant="outlined" 
+                  className={styles.revisionChip} 
+                />
+              </div>
+            </DialogTitle>
+            <DialogContent dividers>
+              <Box className={styles.solutionBox}>
+                <div className={styles.solutionHeader}>
+                  <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+                    Solução
+                  </Typography>
+                  <Tooltip title="Copiar solução">
+                    <IconButton 
+                      onClick={() => handleCopyToClipboard(selectedItem.Solução)}
+                      size="small"
+                      className={styles.copyButton}
+                    >
+                      <ContentCopyIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </div>
+                <Box className={styles.solutionScrollbox}>
+                  <Typography variant="body2" className={styles.solutionText}>
+                    {selectedItem.Solução}
+                  </Typography>
+                </Box>
+              </Box>
+
+              {selectedItem.Observação && selectedItem.Observação.trim() !== '' && (
+                <Box className={styles.observationBox}>
+                  <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+                    Observação
+                  </Typography>
+                  <Typography variant="body2" className={styles.observationText}>
+                    {selectedItem.Observação}
+                  </Typography>
+                </Box>
+              )}
+
+              {selectedItem['Sugestões de melhoria'] && selectedItem['Sugestões de melhoria'].trim() !== '' && (
+                <Box className={styles.suggestionBox}>
+                  <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+                    Sugestões de melhoria
+                  </Typography>
+                  <Typography variant="body2" className={styles.suggestionText}>
+                    {selectedItem['Sugestões de melhoria']}
+                  </Typography>
+                </Box>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button 
+                onClick={() => handleCopyToClipboard(selectedItem.Solução)}
+                variant="contained"
+                startIcon={<ContentCopyIcon />}
+              >
+                Copiar Solução
+              </Button>
+              <Button onClick={handleCloseModal} variant="outlined">
+                Fechar
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
 
       <Snackbar
         open={snackbarOpen}
