@@ -156,11 +156,24 @@
   color: var(--title-color) !important;
   scrollbar-width: thin;
   border: 1px solid var(--color-border);
+  margin-top: 8px !important;
 }
 
 .selectMenu {
   max-height: 300px !important;
-  overflow-y: auto !important;
+  overflow-y: hidden !important; /* Evitar scrollbar duplo */
+  padding: 0 !important;
+}
+
+/* Customize scrollbar para evitar duplicação */
+.MuiSelect-root::-webkit-scrollbar {
+  display: none !important; /* Esconder scrollbar no elemento Select */
+}
+
+.MuiMenuItem-root {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .menuPaper::-webkit-scrollbar {
@@ -181,11 +194,53 @@
   background: rgba(0, 0, 0, 0.3);
 }
 
-.menuItem {
+/* Estilos para os inputs dos selects */
+.formControl .MuiInputLabel-outlined {
+  background-color: var(--background-color);
+  padding: 0 5px;
+  font-size: 0.85rem;
+  transform: translate(14px, -6px) scale(0.85) !important;
+  z-index: 1;
+}
+
+.formControl .MuiInputLabel-outlined.MuiInputLabel-shrink {
+  transform: translate(14px, -6px) scale(0.85) !important;
+  background-color: var(--background-color);
+  padding: 0 5px;
+  z-index: 1;
+}
+
+.formControl .MuiOutlinedInput-input {
+  padding: 10px 14px;
   color: var(--title-color) !important;
 }
 
-.menuItemHover:hover {
+/* Evitar que o texto do label e o valor selecionado se sobreponham */
+.formControl .MuiSelect-selectMenu {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filterSelect {
+  min-width: 200px;
+  flex: 1;
+  color: var(--title-color) !important;
+  background-color: var(--background-color) !important;
+}
+
+.formControl .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--color-primary) !important;
+  border-width: 1px !important;
+}
+
+/* Estilos para o texto em MenuItem */
+.menuItem {
+  color: var(--title-color) !important;
+  background-color: var(--background-color) !important;
+}
+
+.menuItem:hover {
   background-color: var(--box-color2) !important;
 }
 

@@ -336,6 +336,12 @@ export default function ErrosComuns({ user }) {
             onChange={handleTag1Change}
             label={labelTag1}
             displayEmpty
+            renderValue={(selected) => {
+              if (!selected) {
+                return <em>{labelTag1}</em>;
+              }
+              return selected;
+            }}
             className={styles.filterSelect}
             style={{ 
               color: 'var(--title-color)', 
@@ -386,6 +392,12 @@ export default function ErrosComuns({ user }) {
             onChange={handleTag2Change}
             label={labelTag2}
             displayEmpty
+            renderValue={(selected) => {
+              if (!selected) {
+                return <em>{labelTag2}</em>;
+              }
+              return selected;
+            }}
             className={styles.filterSelect}
             style={{ 
               color: 'var(--title-color)', 
