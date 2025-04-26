@@ -175,8 +175,8 @@ export default function ErrosComuns({ user }) {
 
     // Extrair tags únicas (Tag1 e Tag2)
     const uniqueTags = {
-      tag1: [...new Set(items.map(item => item.Tag1))].filter(Boolean).sort(),
-      tag2: [...new Set(items.map(item => item.Tag2))].filter(Boolean).sort()
+      tag1: [...new Set(items.map(item => item.Tag1))].filter(tag => tag && tag.trim() !== '').sort(),
+      tag2: [...new Set(items.map(item => item.Tag2))].filter(tag => tag && tag.trim() !== '').sort()
     };
 
     setTags(uniqueTags);
@@ -188,6 +188,13 @@ export default function ErrosComuns({ user }) {
     setTag2Filter('');
     setSearchQuery('');
     setSearchActive(false);
+    
+    // Atualizar filtros quando muda de aba
+    if (abas && abas.length > 0 && data && Object.keys(data).length > 0) {
+      const novaAba = abas[newValue];
+      const novosDadosAba = data[novaAba] || [];
+      extrairOpcoesDeTags(novosDadosAba);
+    }
   };
 
   const handleSearch = () => {
@@ -428,12 +435,16 @@ export default function ErrosComuns({ user }) {
     const labelTag1 = cabecalhos[abaAtual]?.colA || 'Integração';
     const labelTag2 = cabecalhos[abaAtual]?.colB || 'Tipo';
     
+    // Verificar se existem valores nas tags 
+    const temValoresTag1 = tags && tags.tag1 && tags.tag1.length > 0;
+    const temValoresTag2 = tags && tags.tag2 && tags.tag2.length > 0;
+    
     // Preparar opções para o React Select
-    const tag1Options = tags && tags.tag1 
+    const tag1Options = temValoresTag1
       ? [{ label: "Todos", value: "" }, ...tags.tag1.map(tag => ({ label: tag, value: tag }))]
       : [{ label: "Todos", value: "" }];
     
-    const tag2Options = tags && tags.tag2 
+    const tag2Options = temValoresTag2
       ? [{ label: "Todos", value: "" }, ...tags.tag2.map(tag => ({ label: tag, value: tag }))]
       : [{ label: "Todos", value: "" }];
     
@@ -443,35 +454,39 @@ export default function ErrosComuns({ user }) {
     
     return (
       <div className={styles.filterControls}>
-        <div className={styles.formControl}>
-          <span className={styles.inputLabel}>{labelTag1}</span>
-          <Select
-            value={selectedTag1}
-            options={tag1Options}
-            onChange={handleTag1Change}
-            placeholder={`Selecione ${labelTag1}`}
-            isClearable
-            className={styles.reactSelect}
-            theme={selectTheme}
-            styles={customSelectStyles}
-            aria-label={labelTag1}
-          />
-        </div>
+        {temValoresTag1 && (
+          <div className={styles.formControl}>
+            <span className={styles.inputLabel}>{labelTag1}</span>
+            <Select
+              value={selectedTag1}
+              options={tag1Options}
+              onChange={handleTag1Change}
+              placeholder={`Selecione ${labelTag1}`}
+              isClearable
+              className={styles.reactSelect}
+              theme={selectTheme}
+              styles={customSelectStyles}
+              aria-label={labelTag1}
+            />
+          </div>
+        )}
         
-        <div className={styles.formControl}>
-          <span className={styles.inputLabel}>{labelTag2}</span>
-          <Select
-            value={selectedTag2}
-            options={tag2Options}
-            onChange={handleTag2Change}
-            placeholder={`Selecione ${labelTag2}`}
-            isClearable
-            className={styles.reactSelect}
-            theme={selectTheme}
-            styles={customSelectStyles}
-            aria-label={labelTag2}
-          />
-        </div>
+        {temValoresTag2 && (
+          <div className={styles.formControl}>
+            <span className={styles.inputLabel}>{labelTag2}</span>
+            <Select
+              value={selectedTag2}
+              options={tag2Options}
+              onChange={handleTag2Change}
+              placeholder={`Selecione ${labelTag2}`}
+              isClearable
+              className={styles.reactSelect}
+              theme={selectTheme}
+              styles={customSelectStyles}
+              aria-label={labelTag2}
+            />
+          </div>
+        )}
         
         <FormGroup row className={styles.checkboxGroup}>
           <FormControlLabel
