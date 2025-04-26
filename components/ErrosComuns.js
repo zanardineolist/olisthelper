@@ -488,47 +488,53 @@ export default function ErrosComuns({ user }) {
           </div>
         )}
         
-        <FormGroup row className={styles.checkboxGroup}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filtroRevisao.TRUE}
-                onChange={(e) => handleRevisaoChange(e)}
-                name="TRUE"
-                color="primary"
-                className={styles.checkboxRevisado}
-                size="small"
-              />
-            }
-            label="Revisado"
-            className={styles.checkboxLabel}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filtroRevisao.FALSE}
-                onChange={(e) => handleRevisaoChange(e)}
-                name="FALSE"
-                color="primary"
-                className={styles.checkboxNaoRevisado}
-                size="small"
-              />
-            }
-            label="Não Revisado"
-            className={styles.checkboxLabel}
-          />
-        </FormGroup>
+        <div className={styles.formControl}>
+          <span className={styles.inputLabel}>Status</span>
+          <FormGroup row className={styles.checkboxGroup}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={filtroRevisao.TRUE}
+                  onChange={(e) => handleRevisaoChange(e)}
+                  name="TRUE"
+                  color="primary"
+                  className={styles.checkboxRevisado}
+                  size="small"
+                />
+              }
+              label="Revisado"
+              className={styles.checkboxLabel}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={filtroRevisao.FALSE}
+                  onChange={(e) => handleRevisaoChange(e)}
+                  name="FALSE"
+                  color="primary"
+                  className={styles.checkboxNaoRevisado}
+                  size="small"
+                />
+              }
+              label="Não Revisado"
+              className={styles.checkboxLabel}
+            />
+          </FormGroup>
+        </div>
         
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={resetFilters}
-          className={`${styles.resetButton} ${styles.btnOutlined}`}
-          disabled={!tag1Filter && !tag2Filter && filtroRevisao.TRUE && filtroRevisao.FALSE && !searchQuery}
-          size="small"
-        >
-          LIMPAR FILTROS
-        </Button>
+        <div className={styles.formControl}>
+          <span className={styles.inputLabel}>&nbsp;</span>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={resetFilters}
+            className={`${styles.resetButton} ${styles.btnOutlined}`}
+            disabled={!tag1Filter && !tag2Filter && filtroRevisao.TRUE && filtroRevisao.FALSE && !searchQuery}
+            size="small"
+          >
+            LIMPAR FILTROS
+          </Button>
+        </div>
       </div>
     );
   };
@@ -568,28 +574,30 @@ export default function ErrosComuns({ user }) {
               className: styles.inputLabel
             }}
           />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSearch}
-            startIcon={<SearchIcon />}
-            className={`${styles.searchButton} ${styles.btnContained}`}
-            disabled={!searchQuery.trim()}
-            size="medium"
-          >
-            BUSCAR
-          </Button>
-          <Badge badgeContent={filtrosAtivos} color="primary" invisible={filtrosAtivos === 0}>
+          <div className={styles.searchButtonsContainer}>
             <Button
-              variant="outlined"
-              onClick={() => setShowFilters(!showFilters)}
-              startIcon={<FilterListIcon />}
-              className={`${styles.filterButton} ${styles.btnOutlined}`}
+              variant="contained"
+              color="primary"
+              onClick={handleSearch}
+              startIcon={<SearchIcon />}
+              className={`${styles.searchButton} ${styles.btnContained}`}
+              disabled={!searchQuery.trim()}
               size="medium"
             >
-              FILTROS
+              BUSCAR
             </Button>
-          </Badge>
+            <Badge badgeContent={filtrosAtivos} color="primary" invisible={filtrosAtivos === 0}>
+              <Button
+                variant="outlined"
+                onClick={() => setShowFilters(!showFilters)}
+                startIcon={<FilterListIcon />}
+                className={`${styles.filterButton} ${styles.btnOutlined}`}
+                size="medium"
+              >
+                FILTROS
+              </Button>
+            </Badge>
+          </div>
         </div>
         
         <Collapse in={showFilters} timeout={300}>
