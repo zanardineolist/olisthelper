@@ -49,17 +49,21 @@
 }
 
 .filtersContainer {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--color-border);
+}
+
+.filterControls {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
   gap: 15px;
-  margin-bottom: 25px;
-  background-color: var(--box-color);
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.12);
-  border: 1px solid var(--box-color2);
+  margin-bottom: 15px;
+}
+
+.filterSelect {
+  min-width: 200px;
+  flex: 1;
 }
 
 .formControl {
@@ -68,113 +72,57 @@
   flex: 1;
 }
 
-.selectLabel {
-  color: var(--title-color) !important;
-  font-weight: 600;
-  background-color: var(--background-color);
-  padding: 0 8px;
-  font-size: 14px;
-}
-
-.filterSelect {
-  color: var(--title-color) !important;
-  background-color: var(--background-color);
-  border-radius: 8px;
-  border: 1px solid var(--box-color2);
-}
-
-.filterSelect:hover {
-  background-color: var(--box-color);
-  border-color: var(--color-primary);
+.selectHeight {
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .checkboxGroup {
-  display: flex;
   align-items: center;
-  background-color: var(--background-color);
-  padding: 12px 18px;
-  border-radius: 8px;
+  background-color: var(--box-color2);
+  padding: 10px 15px;
+  border-radius: 6px;
   margin-bottom: 0;
-  border: 1px solid var(--box-color2);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-.checkboxLabel {
-  margin-right: 15px !important;
-  color: var(--title-color) !important;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.checkbox {
-  color: var(--color-primary) !important;
-  transform: scale(1.1);
-}
-
+/* Estilo para o menu dropdown de filtros */
 .menuPaper {
-  max-height: 300px;
-  overflow-y: auto;
-  background-color: var(--background-color) !important;
-  border: 1px solid var(--box-color2);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
+  max-height: 300px !important;
+  overflow-y: auto !important;
+  background-color: var(--box-color) !important;
+  color: var(--text-color) !important;
+  scrollbar-width: thin;
+}
+
+.selectMenu {
+  max-height: 300px !important;
+  overflow-y: auto !important;
+}
+
+.menuPaper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.menuPaper::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.menuPaper::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.menuPaper::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .menuItem {
-  font-size: 14px;
-  color: var(--title-color) !important;
-  transition: background-color 0.2s ease;
-  padding: 8px 16px;
+  color: var(--text-color) !important;
 }
 
 .menuItemHover:hover {
-  background-color: var(--color-primary-hover) !important;
-  color: white !important;
-}
-
-.searchInput {
-  flex: 1;
-  min-width: 180px;
-  padding: 14px 18px;
-  border-radius: 8px;
-  border: 2px solid var(--box-color2);
-  background-color: var(--background-color);
-  color: var(--title-color);
-  font-size: 14px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.searchInput:hover {
-  border-color: var(--color-primary-hover);
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(10, 78, 228, 0.25);
-  background-color: var(--background-color);
-}
-
-.clearFiltersButton {
-  background-color: rgba(230, 78, 54, 0.9);
-  color: white;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  border: none;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 5px rgba(230, 78, 54, 0.3);
-}
-
-.clearFiltersButton:hover {
-  background-color: var(--color-accent1);
-  box-shadow: 0 4px 8px rgba(230, 78, 54, 0.4);
-  transform: translateY(-2px);
+  background-color: var(--box-color2) !important;
 }
 
 .resultsInfo {
@@ -203,10 +151,12 @@
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  background-color: var(--background-color);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  background-color: var(--box-color) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
   overflow: hidden;
 }
 
@@ -225,8 +175,9 @@
 }
 
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-primary) !important;
 }
 
 .cardHeader {
@@ -441,9 +392,7 @@
 }
 
 .resetButton {
-  min-width: 120px;
-  margin-top: 5px;
-  height: 40px;
+  height: 56px;
 }
 
 /* Estilos para elementos de formulário */
@@ -462,32 +411,13 @@
 
 /* Estilos para botões */
 .btnContained {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  padding: 8px 16px;
-  font-weight: 500;
-  text-transform: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.btnContained:hover {
-  background-color: var(--color-primary-hover);
+  background-color: var(--color-primary) !important;
+  color: white !important;
 }
 
 .btnOutlined {
-  border: 1px solid var(--color-primary);
-  color: var(--color-primary);
-  padding: 8px 16px;
-  font-weight: 500;
-  text-transform: none;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.btnOutlined:hover {
-  background-color: rgba(10, 78, 228, 0.05);
-  border-color: var(--color-primary-hover);
+  color: var(--text-color) !important;
+  border-color: var(--color-border) !important;
 }
 
 .btnText {
@@ -532,6 +462,11 @@
   background-color: var(--box-color2);
   padding: 10px 15px;
   border-radius: 6px;
+}
+
+.checkboxLabel {
+  margin: 0;
+  color: var(--text-color) !important;
 }
 
 .checkboxRevisado {
@@ -653,115 +588,4 @@
 
 .tagChip:hover {
   filter: brightness(0.95);
-}
-
-.filterButtons {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-}
-
-.searchContainer {
-  position: relative;
-  flex: 1;
-  max-width: 600px;
-}
-
-.searchInput input {
-  color: var(--title-color);
-  padding: 12px 15px;
-}
-
-.searchInput input::placeholder {
-  color: var(--text-color2);
-  opacity: 0.8;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-color);
-  font-size: 20px;
-}
-
-.resetButton {
-  white-space: nowrap;
-  color: var(--color-accent1) !important;
-  border-color: var(--color-accent1) !important;
-}
-
-.resetButton:hover {
-  background-color: rgba(230, 78, 54, 0.1) !important;
-}
-
-.btnOutlined {
-  text-transform: none !important;
-  font-weight: 500 !important;
-  padding: 8px 16px !important;
-  border-radius: 6px !important;
-  transition: background-color 0.3s !important;
-}
-
-.btnContained {
-  text-transform: none !important;
-  font-weight: 500 !important;
-  padding: 8px 16px !important;
-  border-radius: 6px !important;
-  background-color: var(--color-primary) !important;
-  color: white !important;
-  transition: background-color 0.3s !important;
-}
-
-.btnContained:hover {
-  background-color: var(--color-primary-hover) !important;
-}
-
-.clearFiltersButton {
-  background-color: var(--color-accent4);
-  color: var(--color-white);
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border: none;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-.clearFiltersButton:hover {
-  background-color: var(--color-primary);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.badge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  margin-right: 8px;
-  margin-bottom: 5px;
-}
-
-.revisado {
-  background-color: var(--color-accent3);
-  color: white;
-}
-
-.naoRevisado {
-  background-color: var(--color-accent1);
-  color: white;
-}
-
-.tag1 {
-  background-color: var(--color-primary);
-  color: white;
-}
-
-.tag2 {
-  background-color: var(--color-accent2);
-  color: white;
 } 
