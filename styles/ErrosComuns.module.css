@@ -83,7 +83,7 @@
   min-width: 200px;
   margin-right: 0;
   flex: 1;
-  height: 40px;
+  min-height: 40px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -468,52 +468,8 @@
   color: var(--title-color) !important;
   font-size: 0.8rem;
   font-weight: 500;
-  margin-bottom: -1px;
-}
-
-.filterSelect {
-  width: 100% !important;
-  border-radius: 8px !important;
-  height: 40px !important;
-  font-size: 0.9rem !important;
-}
-
-.filterSelect:global(.p-dropdown) {
-  width: 100% !important;
-  border-radius: 8px !important;
-  height: 40px !important;
-  background-color: var(--background-color) !important;
-  border: 1px solid var(--color-border) !important;
-}
-
-.filterSelect:global(.p-dropdown):hover {
-  border-color: var(--color-primary) !important;
-}
-
-.filterSelect:global(.p-dropdown) :global(.p-dropdown-label) {
-  padding: 8px 12px !important;
-  color: var(--title-color) !important;
-}
-
-.filterSelect:global(.p-dropdown) :global(.p-dropdown-trigger) {
-  width: 3rem !important;
-  border-top-right-radius: 8px !important;
-  border-bottom-right-radius: 8px !important;
-  background-color: transparent !important;
-}
-
-.filterSelect:global(.p-dropdown) :global(.p-dropdown-trigger-icon) {
-  color: var(--title-color) !important;
-}
-
-.filterSelect:global(.p-dropdown) :global(.p-dropdown-clear-icon) {
-  color: var(--title-color) !important;
-  margin-right: 0.5rem !important;
-}
-
-.filterSelect:global(.p-dropdown) :global(.p-placeholder) {
-  opacity: 0.7;
-  color: var(--text-color) !important;
+  margin-bottom: 6px;
+  display: block;
 }
 
 .inputRoot {
@@ -793,4 +749,10 @@
   text-transform: none !important;
   font-size: 0.95rem !important;
   margin: 0 4px !important;
+}
+
+/* Estilos para o React Select */
+.reactSelect {
+  width: 100%;
+  color: var(--title-color);
 } 

@@ -25,9 +25,8 @@ import {
   Collapse
 } from '@mui/material';
 
-// Importações do PrimeReact
-import { Dropdown } from 'primereact/dropdown';
-import { Checkbox as PCheckbox } from 'primereact/checkbox';
+// Importando o React Select
+import Select from 'react-select';
 
 import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon, ContentCopy as ContentCopyIcon, Info as InfoIcon, Description as DescriptionIcon, FilterAlt as FilterAltIcon } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -269,16 +268,16 @@ export default function ErrosComuns({ user }) {
     return abas[currentTab] || "";
   };
 
-  const handleTag1Change = (e) => {
-    const valor = e.value;
+  const handleTag1Change = (selectedOption) => {
+    const valor = selectedOption ? selectedOption.value : '';
     setTag1Filter(valor);
     const abaAtual = abas[currentTab];
     const currentItems = data[abaAtual] || [];
     applyFilters(currentItems, currentTab, valor, tag2Filter, filtroRevisao, searchQuery);
   };
 
-  const handleTag2Change = (e) => {
-    const valor = e.value;
+  const handleTag2Change = (selectedOption) => {
+    const valor = selectedOption ? selectedOption.value : '';
     setTag2Filter(valor);
     const abaAtual = abas[currentTab];
     const currentItems = data[abaAtual] || [];
@@ -323,7 +322,105 @@ export default function ErrosComuns({ user }) {
     return colors[index];
   };
 
-  // Modifique o renderFiltros para usar o PrimeReact Dropdown
+  // Configuração do tema do React Select
+  const selectTheme = theme => ({
+    ...theme,
+    colors: {
+      ...theme.colors,
+      primary: 'var(--color-primary)',
+      primary25: 'rgba(10, 78, 228, 0.08)',
+      primary50: 'rgba(10, 78, 228, 0.16)',
+      neutral0: 'var(--background-color)',
+      neutral10: 'var(--color-border)',
+      neutral20: 'var(--color-border)',
+      neutral30: 'var(--color-border)',
+      neutral80: 'var(--title-color)',
+    },
+  });
+
+  // Configuração de estilos customizados
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: 'var(--background-color)',
+      borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
+      borderRadius: '8px',
+      minHeight: '40px',
+      height: '40px',
+      boxShadow: state.isFocused ? '0 0 0 1px var(--color-primary)' : 'none',
+      '&:hover': {
+        borderColor: 'var(--color-primary)',
+      },
+    }),
+    valueContainer: (provided) => ({
+      ...provided,
+      padding: '0 8px',
+      height: '40px',
+      display: 'flex',
+      alignItems: 'center',
+    }),
+    input: (provided) => ({
+      ...provided,
+      margin: '0px',
+      color: 'var(--title-color)'
+    }),
+    indicatorSeparator: () => ({
+      display: 'none',
+    }),
+    indicatorsContainer: (provided) => ({
+      ...provided,
+      height: '40px',
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      padding: '0 8px',
+      color: 'var(--title-color)',
+    }),
+    clearIndicator: (provided) => ({
+      ...provided,
+      padding: '0 8px',
+      color: 'var(--title-color)',
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      color: 'var(--title-color)',
+      backgroundColor: state.isSelected 
+        ? 'rgba(10, 78, 228, 0.08)' 
+        : state.isFocused 
+          ? 'var(--box-color2)' 
+          : 'var(--background-color)',
+      padding: '8px 16px',
+      fontSize: '0.9rem',
+      cursor: 'pointer',
+      '&:active': {
+        backgroundColor: 'rgba(10, 78, 228, 0.16)',
+      }
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--background-color)',
+      border: '1px solid var(--color-border)',
+      borderRadius: '8px',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      zIndex: 9999,
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      padding: '8px 0',
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: 'var(--text-color)',
+      opacity: 0.7,
+      fontSize: '0.9rem',
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: 'var(--title-color)',
+      fontSize: '0.9rem',
+    }),
+  };
+
   const renderFiltros = () => {
     if (!abas || abas.length === 0) return null;
     
@@ -331,7 +428,7 @@ export default function ErrosComuns({ user }) {
     const labelTag1 = cabecalhos[abaAtual]?.colA || 'Integração';
     const labelTag2 = cabecalhos[abaAtual]?.colB || 'Tipo';
     
-    // Preparar opções para os dropdowns
+    // Preparar opções para o React Select
     const tag1Options = tags && tags.tag1 
       ? [{ label: "Todos", value: "" }, ...tags.tag1.map(tag => ({ label: tag, value: tag }))]
       : [{ label: "Todos", value: "" }];
@@ -340,29 +437,39 @@ export default function ErrosComuns({ user }) {
       ? [{ label: "Todos", value: "" }, ...tags.tag2.map(tag => ({ label: tag, value: tag }))]
       : [{ label: "Todos", value: "" }];
     
+    // Valor selecionado atual
+    const selectedTag1 = tag1Options.find(option => option.value === tag1Filter) || null;
+    const selectedTag2 = tag2Options.find(option => option.value === tag2Filter) || null;
+    
     return (
       <div className={styles.filterControls}>
         <div className={styles.formControl}>
           <span className={styles.inputLabel}>{labelTag1}</span>
-          <Dropdown
-            value={tag1Filter}
+          <Select
+            value={selectedTag1}
             options={tag1Options}
             onChange={handleTag1Change}
             placeholder={`Selecione ${labelTag1}`}
-            className={styles.filterSelect}
-            showClear
+            isClearable
+            className={styles.reactSelect}
+            theme={selectTheme}
+            styles={customSelectStyles}
+            aria-label={labelTag1}
           />
         </div>
         
         <div className={styles.formControl}>
           <span className={styles.inputLabel}>{labelTag2}</span>
-          <Dropdown
-            value={tag2Filter}
+          <Select
+            value={selectedTag2}
             options={tag2Options}
             onChange={handleTag2Change}
             placeholder={`Selecione ${labelTag2}`}
-            className={styles.filterSelect}
-            showClear
+            isClearable
+            className={styles.reactSelect}
+            theme={selectTheme}
+            styles={customSelectStyles}
+            aria-label={labelTag2}
           />
         </div>
         
