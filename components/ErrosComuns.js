@@ -338,7 +338,7 @@ export default function ErrosComuns({ user }) {
             displayEmpty
             renderValue={(selected) => {
               if (!selected) {
-                return <em>{labelTag1}</em>;
+                return "";
               }
               return selected;
             }}
@@ -394,7 +394,7 @@ export default function ErrosComuns({ user }) {
             displayEmpty
             renderValue={(selected) => {
               if (!selected) {
-                return <em>{labelTag2}</em>;
+                return "";
               }
               return selected;
             }}
