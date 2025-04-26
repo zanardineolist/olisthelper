@@ -34,7 +34,7 @@
   background-color: var(--box-color);
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .searchInputWrapper {
@@ -66,6 +66,33 @@
   flex: 1;
 }
 
+/* Estilo para o menu dropdown de filtros */
+.filterSelect :global(.MuiMenu-paper) {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Estilo para as opções nos menus de filtro */
+.filterSelect :global(.MuiSelect-select) {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+/* Estilizar o popup do menu de filtros */
+:global(.MuiMenu-paper) {
+  background-color: var(--box-color) !important;
+  color: var(--text-color) !important;
+  max-height: 300px !important;
+}
+
+:global(.MuiMenuItem-root) {
+  color: var(--text-color) !important;
+}
+
+:global(.MuiMenuItem-root:hover) {
+  background-color: var(--box-color2) !important;
+}
+
 .resultsInfo {
   font-size: 0.9rem;
   color: var(--text-color2);
@@ -86,11 +113,13 @@
   flex-direction: column;
   background-color: var(--box-color);
   border: 1px solid var(--color-border);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  border-color: var(--color-primary);
 }
 
 .cardHeader {
@@ -102,6 +131,7 @@
 
 .cardContent {
   flex-grow: 1;
+  padding: 16px;
 }
 
 .cardActions {
@@ -112,14 +142,19 @@
 
 .integrationChip {
   font-weight: 500;
+  background-color: rgba(10, 78, 228, 0.1) !important;
+  border-color: var(--color-primary) !important;
 }
 
 .typeChip {
   font-weight: 500;
+  background-color: rgba(240, 160, 40, 0.1) !important;
+  border-color: var(--color-accent2) !important;
 }
 
 .sectionChip {
   font-weight: 500;
+  background-color: rgba(10, 78, 228, 0.15) !important;
 }
 
 .revisionChip {
@@ -149,6 +184,7 @@
   padding-bottom: 8px !important;
   background-color: var(--box-color) !important;
   color: var(--title-color) !important;
+  border-bottom: 1px solid var(--color-border) !important;
 }
 
 .dialogTitleContent {
@@ -174,7 +210,7 @@
   margin-bottom: 20px;
   padding: 15px;
   border-radius: 6px;
-  background-color: var(--box-color);
+  background-color: var(--box-color2);
 }
 
 .solutionBox {
@@ -260,6 +296,30 @@
 
 .resetButton {
   height: 56px;
+}
+
+/* Dialog content background */
+:global(.MuiDialog-paper) {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+:global(.MuiDialogContent-root) {
+  background-color: var(--background-color) !important;
+}
+
+:global(.MuiDialogActions-root) {
+  background-color: var(--box-color) !important;
+  border-top: 1px solid var(--color-border) !important;
+}
+
+/* Override Button styles */
+:global(.MuiButton-containedPrimary) {
+  background-color: var(--color-primary) !important;
+}
+
+:global(.MuiButton-containedPrimary:hover) {
+  background-color: var(--color-primary-hover) !important;
 }
 
 @media (max-width: 768px) {
