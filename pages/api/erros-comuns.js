@@ -1,29 +1,19 @@
-import { getAuthenticatedGoogleSheets } from '../../utils/googleSheets';
+import { getAuthenticatedGoogleSheets, batchGetValues } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   try {
-    const sheets = await getAuthenticatedGoogleSheets();
-    const sheetId = process.env.SHEET_ID;
-
-    // Buscar dados das três abas de erros comuns
-    const [anunciosResponse, expedicaoResponse, notasFiscaisResponse] = await Promise.all([
-      sheets.spreadsheets.values.get({
-        spreadsheetId: sheetId,
-        range: 'Database - Erros Comuns - Anúncios!A:G',
-      }),
-      sheets.spreadsheets.values.get({
-        spreadsheetId: sheetId,
-        range: 'Database - Erros Comuns - Expedição!A:G',
-      }),
-      sheets.spreadsheets.values.get({
-        spreadsheetId: sheetId,
-        range: 'Database - Erros Comuns - Notas Fiscais!A:F',
-      }),
-    ]);
-
+    // Usar o método batchGet para evitar problemas com caracteres especiais nas abas
+    const ranges = [
+      'Anúncios!A:G',
+      'Expedição!A:G', 
+      'Notas Fiscais!A:F'
+    ];
+    
+    const results = await batchGetValues(ranges);
+    
     // Preparar os dados dos anúncios
-    const anunciosHeaders = anunciosResponse.data.values[0];
-    const anunciosData = anunciosResponse.data.values.slice(1).map(row => {
+    const anunciosHeaders = results[0].values[0];
+    const anunciosData = results[0].values.slice(1).map(row => {
       const item = {};
       anunciosHeaders.forEach((header, index) => {
         item[header] = row[index] || '';
@@ -32,8 +22,8 @@ export default async function handler(req, res) {
     }).filter(item => item.Revisado === 'TRUE');
 
     // Preparar os dados da expedição
-    const expedicaoHeaders = expedicaoResponse.data.values[0];
-    const expedicaoData = expedicaoResponse.data.values.slice(1).map(row => {
+    const expedicaoHeaders = results[1].values[0];
+    const expedicaoData = results[1].values.slice(1).map(row => {
       const item = {};
       expedicaoHeaders.forEach((header, index) => {
         item[header] = row[index] || '';
@@ -42,8 +32,8 @@ export default async function handler(req, res) {
     }).filter(item => item.Revisado === 'TRUE');
 
     // Preparar os dados das notas fiscais
-    const notasFiscaisHeaders = notasFiscaisResponse.data.values[0];
-    const notasFiscaisData = notasFiscaisResponse.data.values.slice(1).map(row => {
+    const notasFiscaisHeaders = results[2].values[0];
+    const notasFiscaisData = results[2].values.slice(1).map(row => {
       const item = {};
       notasFiscaisHeaders.forEach((header, index) => {
         item[header] = row[index] || '';
