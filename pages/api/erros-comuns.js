@@ -48,7 +48,7 @@ export default async function handler(req, res) {
             Erro: paddedRow[2] || '',            // Coluna C (título/erro)
             Solução: paddedRow[3] || '',         // Coluna D (solução)
             Observação: paddedRow[4] || '',      // Coluna E (observações)
-            Sugestões: paddedRow[5] || '',       // Coluna F (sugestões)
+            // Coluna F (sugestões) não é mais incluída - informação interna
             Revisado: (paddedRow[6] || 'Não') === 'Sim' ? 'Sim' : 'Não'  // Coluna G (revisado)
           };
         });

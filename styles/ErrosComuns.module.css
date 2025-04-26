@@ -105,14 +105,14 @@
 /* Forçar os cards a usarem as cores corretas do tema */
 .card {
   height: 100%;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   background-color: var(--box-color) !important;
   border: 1px solid var(--color-border) !important;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 20px;
   position: relative;
   overflow: hidden;
 }
@@ -125,21 +125,25 @@
 }
 
 .cardActions {
-  padding: 8px 0;
+  padding: 8px 0 0;
   display: flex;
   justify-content: flex-end;
   background-color: var(--box-color) !important;
   margin-top: auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 16px;
 }
 
 .viewButton {
   font-weight: 500 !important;
   text-transform: none !important;
+  padding: 6px 16px !important;
+  border-radius: 8px !important;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
   border-color: var(--color-primary) !important;
 }
 
@@ -147,28 +151,39 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
+  align-items: center;
 }
 
 /* Corrigir cores das chips */
 .integrationChip {
   font-weight: 500;
-  background-color: rgba(10, 78, 228, 0.1) !important;
-  border-color: var(--color-primary) !important;
-  color: var(--title-color) !important;
+  background-color: rgba(10, 78, 228, 0.08) !important;
+  border-color: rgba(10, 78, 228, 0.3) !important;
+  color: var(--color-primary) !important;
+  transition: all 0.2s ease;
+}
+
+.integrationChip:hover {
+  background-color: rgba(10, 78, 228, 0.12) !important;
 }
 
 .typeChip {
   font-weight: 500;
-  background-color: rgba(240, 160, 40, 0.1) !important;
-  border-color: var(--color-accent2) !important;
-  color: var(--title-color) !important;
+  background-color: rgba(240, 160, 40, 0.08) !important;
+  border-color: rgba(240, 160, 40, 0.3) !important;
+  color: var(--color-accent2) !important;
+  transition: all 0.2s ease;
+}
+
+.typeChip:hover {
+  background-color: rgba(240, 160, 40, 0.12) !important;
 }
 
 .sectionChip {
   font-weight: 500;
-  background-color: rgba(10, 78, 228, 0.15) !important;
-  color: var(--title-color) !important;
+  background-color: rgba(10, 78, 228, 0.12) !important;
+  color: var(--color-primary) !important;
 }
 
 .revisionChip {
@@ -178,8 +193,8 @@
 
 .errorTitle {
   color: var(--title-color) !important;
-  font-size: 1.1rem;
-  margin-bottom: 15px;
+  font-size: 1.15rem;
+  margin-bottom: 12px;
   font-weight: 600;
   line-height: 1.4;
   display: -webkit-box;
@@ -187,7 +202,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  height: 2.8em;
+  min-height: 3.2em;
 }
 
 /* Estilos para o modal de detalhes */
@@ -236,17 +251,31 @@
   margin-top: 10px;
 }
 
+.sectionTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sectionIcon {
+  color: var(--color-primary);
+  font-size: 1.2rem !important;
+}
+
 .sectionTitle {
   color: var(--color-primary) !important;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 0;
+  font-size: 1.1rem !important;
 }
 
 .solutionBox, .observationBox, .suggestionBox {
-  margin-bottom: 20px;
-  padding: 15px;
-  border-radius: 6px;
+  margin-bottom: 28px;
+  padding: 20px;
+  border-radius: 10px;
   background-color: var(--box-color2) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .solutionBox {
@@ -265,11 +294,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 
 .solutionScrollbox {
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
   padding-right: 10px;
   margin-bottom: 5px;
@@ -291,15 +320,11 @@
   border-radius: 10px;
 }
 
-.solutionText {
+.solutionText, .observationText {
   white-space: pre-line;
   color: var(--text-color) !important;
-  line-height: 1.5;
-}
-
-.observationText, .suggestionText {
-  color: var(--text-color) !important;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-size: 0.95rem;
 }
 
 .copyButton {
@@ -421,62 +446,66 @@
   font-weight: 500;
   font-size: 0.75rem;
   color: var(--text-color) !important;
-  background-color: rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.2s ease;
 }
 
 /* Aprimorar o dialog */
 .dialog {
-  border-radius: 12px;
+  border-radius: 16px;
 }
 
 .dialogPaper {
-  border-radius: 12px !important;
+  border-radius: 16px !important;
   background-color: var(--background-color) !important;
   overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
 }
 
 .dialogContent {
   background-color: var(--box-color) !important;
   color: var(--text-color) !important;
-  padding: 24px !important;
+  padding: 32px !important;
 }
 
 .dialogActions {
   background-color: var(--box-color) !important;
   border-top: 1px solid var(--color-border) !important;
   color: var(--text-color) !important;
-  padding: 16px 24px !important;
+  padding: 16px 32px !important;
 }
 
 .cardPreview {
   color: var(--text-color2) !important;
-  margin-bottom: 15px;
+  margin-bottom: 18px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.5;
   font-size: 0.9rem;
+  flex-grow: 1;
 }
 
 .modalHeader {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .modalTitle {
   color: var(--title-color) !important;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   line-height: 1.4;
-  font-size: 1.5rem !important;
+  font-size: 1.6rem !important;
 }
 
 .modalChips {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .modalChip {
   font-weight: 500;
+  padding: 0 10px !important;
+  height: 28px !important;
 } 

@@ -26,7 +26,7 @@ import {
   CircularProgress,
   Tooltip
 } from '@mui/material';
-import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon, ContentCopy as ContentCopyIcon } from '@mui/icons-material';
+import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon, ContentCopy as ContentCopyIcon, Info as InfoIcon, Description as DescriptionIcon } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -134,8 +134,7 @@ export default function ErrosComuns({ user }) {
         return (
           (item.Erro && item.Erro.toLowerCase().includes(searchLower)) ||
           (item.Solução && item.Solução.toLowerCase().includes(searchLower)) ||
-          (item.Observação && item.Observação.toLowerCase().includes(searchLower)) ||
-          (item.Sugestões && item.Sugestões.toLowerCase().includes(searchLower))
+          (item.Observação && item.Observação.toLowerCase().includes(searchLower))
         );
       });
     }
@@ -378,7 +377,7 @@ export default function ErrosComuns({ user }) {
           />
         )}
         <Chip 
-          icon={item.Revisado === 'Sim' ? <CheckCircleIcon /> : <CancelIcon />}
+          icon={item.Revisado === 'Sim' ? <CheckCircleIcon fontSize="small" /> : <CancelIcon fontSize="small" />}
           label={item.Revisado === 'Sim' ? 'Revisado' : 'Não revisado'} 
           color={item.Revisado === 'Sim' ? 'success' : 'warning'}
           variant="outlined" 
@@ -390,8 +389,8 @@ export default function ErrosComuns({ user }) {
       <h3 className={styles.errorTitle}>{item.Erro}</h3>
       
       {item.Solução && (
-        <Typography variant="body2" className={styles.cardPreview} noWrap>
-          {item.Solução.substring(0, 120)}{item.Solução.length > 120 ? '...' : ''}
+        <Typography variant="body2" className={styles.cardPreview}>
+          {item.Solução.substring(0, 150)}{item.Solução.length > 150 ? '...' : ''}
         </Typography>
       )}
       
@@ -404,7 +403,7 @@ export default function ErrosComuns({ user }) {
           startIcon={<VisibilityIcon />}
           className={styles.viewButton}
         >
-          Ver mais
+          Ver detalhes
         </Button>
       </div>
     </div>
@@ -437,7 +436,7 @@ export default function ErrosComuns({ user }) {
             />
           )}
           <Chip 
-            icon={modalData.Revisado === 'Sim' ? <CheckCircleIcon /> : <CancelIcon />}
+            icon={modalData.Revisado === 'Sim' ? <CheckCircleIcon fontSize="small" /> : <CancelIcon fontSize="small" />}
             label={modalData.Revisado === 'Sim' ? 'Revisado' : 'Não revisado'} 
             color={modalData.Revisado === 'Sim' ? 'success' : 'warning'}
             variant="outlined" 
@@ -446,44 +445,41 @@ export default function ErrosComuns({ user }) {
         </div>
       </div>
 
-      <div className={styles.solutionHeader}>
-        <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
-          Solução
-        </Typography>
-        <Tooltip title="Copiar solução">
-          <IconButton 
-            onClick={() => handleCopyToClipboard(modalData.Solução)}
-            size="small"
-            className={styles.copyButton}
-          >
-            <ContentCopyIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
+      <div className={styles.solutionBox}>
+        <div className={styles.solutionHeader}>
+          <div className={styles.sectionTitleWrapper}>
+            <DescriptionIcon className={styles.sectionIcon} />
+            <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+              Solução
+            </Typography>
+          </div>
+          <Tooltip title="Copiar solução">
+            <IconButton 
+              onClick={() => handleCopyToClipboard(modalData.Solução)}
+              size="small"
+              className={styles.copyButton}
+            >
+              <ContentCopyIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </div>
+        <Box className={styles.solutionScrollbox}>
+          <Typography variant="body2" className={styles.solutionText}>
+            {modalData.Solução}
+          </Typography>
+        </Box>
       </div>
-      <Box className={styles.solutionScrollbox}>
-        <Typography variant="body2" className={styles.solutionText}>
-          {modalData.Solução}
-        </Typography>
-      </Box>
 
       {modalData.Observação && modalData.Observação.trim() !== '' && (
         <Box className={styles.observationBox}>
-          <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
-            Observação
-          </Typography>
+          <div className={styles.sectionTitleWrapper}>
+            <InfoIcon className={styles.sectionIcon} />
+            <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+              Observação
+            </Typography>
+          </div>
           <Typography variant="body2" className={styles.observationText}>
             {modalData.Observação}
-          </Typography>
-        </Box>
-      )}
-
-      {modalData.Sugestões && modalData.Sugestões.trim() !== '' && (
-        <Box className={styles.suggestionBox}>
-          <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
-            Sugestões de melhoria
-          </Typography>
-          <Typography variant="body2" className={styles.suggestionText}>
-            {modalData.Sugestões}
           </Typography>
         </Box>
       )}
