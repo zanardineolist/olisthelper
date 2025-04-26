@@ -52,6 +52,7 @@ export default function ErrosComuns({ user }) {
   const [filtroRevisao, setFiltroRevisao] = useState({ TRUE: true, FALSE: true });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState('');
+  const [cabecalhos, setCabecalhos] = useState({});
 
   const fetchData = async () => {
     setLoading(true);
@@ -59,11 +60,12 @@ export default function ErrosComuns({ user }) {
       const response = await axios.get('/api/erros-comuns');
       
       if (response.data) {
-        // Extrair abas e dados
-        const { abas, dados } = response.data;
+        // Extrair abas, dados e cabeçalhos
+        const { abas, dados, cabecalhos } = response.data;
         
         setAbas(abas);
         setData(dados);
+        setCabecalhos(cabecalhos || {});
         
         // Se temos abas disponíveis
         if (abas && abas.length > 0) {
@@ -307,15 +309,18 @@ export default function ErrosComuns({ user }) {
   const renderFiltroTag1 = () => {
     if (!tags || !tags.tag1 || tags.tag1.length === 0) return null;
     
+    // Utilizar o cabeçalho da coluna A da aba atual, ou "Marcador 1" como fallback
+    const labelTag1 = cabecalhos[abas[currentTab]]?.colA || 'Marcador 1';
+    
     return (
       <FormControl variant="outlined" size="small" className={styles.formControl}>
-        <InputLabel id="tag1-select-label">Marcador 1</InputLabel>
+        <InputLabel id="tag1-select-label">{labelTag1}</InputLabel>
         <Select
           labelId="tag1-select-label"
           id="tag1-select"
           value={tag1Filter}
           onChange={handleTag1Change}
-          label="Marcador 1"
+          label={labelTag1}
           MenuProps={{
             classes: { paper: styles.menuPaper },
             anchorOrigin: {
@@ -344,15 +349,18 @@ export default function ErrosComuns({ user }) {
   const renderFiltroTag2 = () => {
     if (!tags || !tags.tag2 || tags.tag2.length === 0) return null;
     
+    // Utilizar o cabeçalho da coluna B da aba atual, ou "Marcador 2" como fallback
+    const labelTag2 = cabecalhos[abas[currentTab]]?.colB || 'Marcador 2';
+    
     return (
       <FormControl variant="outlined" size="small" className={styles.formControl}>
-        <InputLabel id="tag2-select-label">Marcador 2</InputLabel>
+        <InputLabel id="tag2-select-label">{labelTag2}</InputLabel>
         <Select
           labelId="tag2-select-label"
           id="tag2-select"
           value={tag2Filter}
           onChange={handleTag2Change}
-          label="Marcador 2"
+          label={labelTag2}
           MenuProps={{
             classes: { paper: styles.menuPaper },
             anchorOrigin: {

@@ -398,11 +398,12 @@
 /* Estilos para elementos de formulário */
 .inputRoot {
   background-color: var(--modals-inputs) !important;
-  color: var(--text-color) !important;
+  color: var(--title-color) !important;
+  border: 1px solid var(--color-border) !important;
 }
 
 .inputLabel {
-  color: var(--text-color2) !important;
+  color: var(--title-color) !important;
 }
 
 .inputOutline {
@@ -412,11 +413,12 @@
 /* Estilos para botões */
 .btnContained {
   background-color: var(--color-primary) !important;
-  color: white !important;
+  color: var(--color-white) !important;
+  font-weight: 500;
 }
 
 .btnOutlined {
-  color: var(--text-color) !important;
+  color: var(--title-color) !important;
   border-color: var(--color-border) !important;
 }
 
@@ -425,7 +427,35 @@
 }
 
 .iconButton {
-  color: var(--text-color) !important;
+  color: var(--title-color) !important;
+}
+
+/* Melhorias nos filtros */
+.filterSelect, .formControl .MuiSelect-select {
+  background-color: var(--box-color2) !important;
+  color: var(--title-color) !important;
+}
+
+.checkboxLabel {
+  color: var(--title-color) !important;
+}
+
+.checkboxGroup {
+  border: 1px solid var(--color-border);
+}
+
+/* Melhorar contraste dos dropdowns */
+.filterSelect {
+  background-color: var(--box-color2) !important;
+  color: var(--title-color) !important;
+  border: 1px solid var(--color-border);
+}
+
+/* Melhorar contraste do botão de busca */
+.searchButton {
+  background-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
@@ -462,11 +492,6 @@
   background-color: var(--box-color2);
   padding: 10px 15px;
   border-radius: 6px;
-}
-
-.checkboxLabel {
-  margin: 0;
-  color: var(--text-color) !important;
 }
 
 .checkboxRevisado {

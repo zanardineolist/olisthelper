@@ -19,6 +19,9 @@ export default async function handler(req, res) {
     // Objeto para armazenar os dados de todas as abas
     const sheetData = {};
     
+    // Objeto para armazenar os cabeçalhos (títulos das colunas)
+    const cabecalhos = {};
+    
     // Processar cada aba com o novo formato padronizado
     results.forEach((result, index) => {
       const sheetName = targetSheets[index];
@@ -28,6 +31,12 @@ export default async function handler(req, res) {
         sheetData[sheetName] = [];
         return;
       }
+      
+      // Armazenar os cabeçalhos (primeira linha)
+      cabecalhos[sheetName] = {
+        colA: result.values[0][0] || 'Tag 1', // Nome da coluna A ou padrão
+        colB: result.values[0][1] || 'Tag 2'  // Nome da coluna B ou padrão
+      };
       
       // Determinar o comprimento máximo esperado (mínimo 7 para incluir a coluna G)
       const maxLength = 7;
@@ -60,7 +69,8 @@ export default async function handler(req, res) {
     // Retornar estrutura com os dados e metadados
     res.status(200).json({
       abas: targetSheets,
-      dados: sheetData
+      dados: sheetData,
+      cabecalhos: cabecalhos
     });
   } catch (error) {
     console.error('Erro ao obter dados de erros comuns:', error);
