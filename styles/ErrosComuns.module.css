@@ -59,12 +59,79 @@
   flex-wrap: wrap;
   gap: 15px;
   margin-bottom: 15px;
+  align-items: center;
 }
 
-.filterSelect, .formControl .MuiSelect-select {
-  background-color: var(--background-color) !important;
+.formControl {
+  min-width: 200px;
+  margin-right: 15px;
+  flex: 1;
+}
+
+.filterSelect {
+  min-width: 200px;
+  flex: 1;
   color: var(--title-color) !important;
+  background-color: var(--background-color) !important;
+}
+
+/* Override para garantir que os selects apareçam corretamente */
+.formControl label {
+  color: var(--title-color) !important;
+  background-color: transparent !important;
+  z-index: 1;
+}
+
+.formControl .MuiSelect-root {
+  color: var(--title-color) !important;
+  background-color: var(--background-color) !important;
+  border-color: var(--color-border) !important;
+  padding: 10px 14px !important;
+}
+
+.formControl .MuiOutlinedInput-notchedOutline {
+  border-color: var(--color-border) !important;
+}
+
+.formControl .MuiSelect-icon {
+  color: var(--title-color) !important;
+}
+
+/* Estilo para o grupo de checkboxes */
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  background-color: transparent !important;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 0;
   border: 1px solid var(--color-border);
+  min-height: 40px;
+}
+
+/* Melhorar estilos de botões */
+.btnContained {
+  background-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
+  font-weight: 500 !important;
+  height: 40px;
+}
+
+.btnOutlined {
+  color: var(--title-color) !important;
+  border-color: var(--color-border) !important;
+  height: 40px;
+}
+
+.resetButton {
+  height: 40px;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+/* Garantir que o texto dos checkboxes seja visível */
+.checkboxLabel span {
+  color: var(--title-color) !important;
 }
 
 .selectHeight {

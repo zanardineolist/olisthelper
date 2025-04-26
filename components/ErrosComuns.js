@@ -147,6 +147,8 @@ export default function ErrosComuns({ user }) {
   useEffect(() => {
     if (abas && abas.length > 0 && data && Object.keys(data).length > 0) {
       const abaAtual = abas[currentTab];
+      console.log("Aba atual:", abaAtual);
+      console.log("Cabeçalhos:", cabecalhos);
       const currentItems = data[abaAtual] || [];
       
       applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, filtroRevisao, searchQuery);
@@ -306,134 +308,161 @@ export default function ErrosComuns({ user }) {
     return colors[index];
   };
 
-  const renderFiltroTag1 = () => {
-    if (!tags || !tags.tag1 || tags.tag1.length === 0) return null;
+  const renderFiltros = () => {
+    if (!abas || abas.length === 0) return null;
     
-    // Utilizar o cabeçalho da coluna A da aba atual, ou "Marcador 1" como fallback
-    const labelTag1 = cabecalhos[abas[currentTab]]?.colA || 'Marcador 1';
+    const abaAtual = abas[currentTab] || '';
+    const labelTag1 = cabecalhos[abaAtual]?.colA || 'Integração';
+    const labelTag2 = cabecalhos[abaAtual]?.colB || 'Tipo';
     
     return (
-      <FormControl variant="outlined" size="small" className={styles.formControl}>
-        <InputLabel id="tag1-select-label">{labelTag1}</InputLabel>
-        <Select
-          labelId="tag1-select-label"
-          id="tag1-select"
-          value={tag1Filter}
-          onChange={handleTag1Change}
-          label={labelTag1}
-          MenuProps={{
-            classes: { 
-              paper: styles.menuPaper,
-              list: styles.selectMenu 
-            },
-            PaperProps: {
-              style: {
-                backgroundColor: 'var(--background-color)',
-                color: 'var(--title-color)'
-              }
-            },
-            anchorOrigin: {
-              vertical: 'bottom',
-              horizontal: 'left',
-            },
-            transformOrigin: {
-              vertical: 'top',
-              horizontal: 'left',
-            },
-            getContentAnchorEl: null
-          }}
-          className={styles.selectHeight}
+      <div className={styles.filterControls}>
+        <FormControl variant="outlined" size="small" className={styles.formControl}>
+          <InputLabel id="tag1-select-label" style={{ color: 'var(--title-color)', backgroundColor: 'transparent' }}>{labelTag1}</InputLabel>
+          <Select
+            labelId="tag1-select-label"
+            id="tag1-select"
+            value={tag1Filter}
+            onChange={handleTag1Change}
+            label={labelTag1}
+            displayEmpty
+            className={styles.filterSelect}
+            style={{ 
+              color: 'var(--title-color)', 
+              backgroundColor: 'var(--background-color)',
+              borderColor: 'var(--color-border)'
+            }}
+          >
+            <MenuItem value="">
+              <em>Todos</em>
+            </MenuItem>
+            {tags && tags.tag1 && tags.tag1.map((tag) => (
+              <MenuItem key={tag} value={tag}>{tag}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        
+        <FormControl variant="outlined" size="small" className={styles.formControl}>
+          <InputLabel id="tag2-select-label" style={{ color: 'var(--title-color)', backgroundColor: 'transparent' }}>{labelTag2}</InputLabel>
+          <Select
+            labelId="tag2-select-label"
+            id="tag2-select"
+            value={tag2Filter}
+            onChange={handleTag2Change}
+            label={labelTag2}
+            displayEmpty
+            className={styles.filterSelect}
+            style={{ 
+              color: 'var(--title-color)', 
+              backgroundColor: 'var(--background-color)',
+              borderColor: 'var(--color-border)'
+            }}
+          >
+            <MenuItem value="">
+              <em>Todos</em>
+            </MenuItem>
+            {tags && tags.tag2 && tags.tag2.map((tag) => (
+              <MenuItem key={tag} value={tag}>{tag}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        
+        <FormGroup row className={styles.checkboxGroup}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filtroRevisao.TRUE}
+                onChange={(e) => handleRevisaoChange(e)}
+                name="TRUE"
+                color="primary"
+                className={styles.checkboxRevisado}
+              />
+            }
+            label="Revisado"
+            className={styles.checkboxLabel}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filtroRevisao.FALSE}
+                onChange={(e) => handleRevisaoChange(e)}
+                name="FALSE"
+                color="primary"
+                className={styles.checkboxNaoRevisado}
+              />
+            }
+            label="Não Revisado"
+            className={styles.checkboxLabel}
+          />
+        </FormGroup>
+        
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={resetFilters}
+          className={`${styles.resetButton} ${styles.btnOutlined}`}
         >
-          <MenuItem value="">
-            <em>Todos</em>
-          </MenuItem>
-          {tags.tag1.map((tag) => (
-            <MenuItem key={tag} value={tag}>{tag}</MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+          LIMPAR FILTROS
+        </Button>
+      </div>
     );
   };
 
-  const renderFiltroTag2 = () => {
-    if (!tags || !tags.tag2 || tags.tag2.length === 0) return null;
-    
-    // Utilizar o cabeçalho da coluna B da aba atual, ou "Marcador 2" como fallback
-    const labelTag2 = cabecalhos[abas[currentTab]]?.colB || 'Marcador 2';
-    
+  const renderFiltersSection = () => {
     return (
-      <FormControl variant="outlined" size="small" className={styles.formControl}>
-        <InputLabel id="tag2-select-label">{labelTag2}</InputLabel>
-        <Select
-          labelId="tag2-select-label"
-          id="tag2-select"
-          value={tag2Filter}
-          onChange={handleTag2Change}
-          label={labelTag2}
-          MenuProps={{
-            classes: { 
-              paper: styles.menuPaper,
-              list: styles.selectMenu 
-            },
-            PaperProps: {
-              style: {
-                backgroundColor: 'var(--background-color)',
-                color: 'var(--title-color)'
-              }
-            },
-            anchorOrigin: {
-              vertical: 'bottom',
-              horizontal: 'left',
-            },
-            transformOrigin: {
-              vertical: 'top',
-              horizontal: 'left',
-            },
-            getContentAnchorEl: null
-          }}
-          className={styles.selectHeight}
-        >
-          <MenuItem value="">
-            <em>Todos</em>
-          </MenuItem>
-          {tags.tag2.map((tag) => (
-            <MenuItem key={tag} value={tag}>{tag}</MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <div className={styles.filtersContainer}>
+        {renderFiltros()}
+      </div>
     );
   };
-
-  const renderFiltrosRevisao = () => {
+  
+  const renderFiltersBlock = () => {
     return (
-      <FormGroup row className={styles.checkboxGroup}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={filtroRevisao.TRUE}
-              onChange={(e) => handleRevisaoChange(e)}
-              name="TRUE"
-              color="primary"
-              className={styles.checkboxRevisado}
-            />
-          }
-          label="Revisado"
-          className={styles.checkboxLabel}
-        />
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={filtroRevisao.FALSE}
-              onChange={(e) => handleRevisaoChange(e)}
-              name="FALSE"
-              color="primary"
-              className={styles.checkboxNaoRevisado}
-            />
-          }
-          label="Não Revisado"
-          className={styles.checkboxLabel}
-        />
-      </FormGroup>
+      <div className={styles.searchContainer}>
+        <div className={styles.searchInputWrapper}>
+          <TextField
+            fullWidth
+            label="Buscar"
+            variant="outlined"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleSearchKeyPress}
+            InputProps={{
+              className: styles.inputRoot,
+              endAdornment: searchQuery ? (
+                <IconButton size="small" onClick={handleClearSearch} className={styles.iconButton}>
+                  <CloseIcon />
+                </IconButton>
+              ) : null,
+              classes: { 
+                notchedOutline: styles.inputOutline 
+              }
+            }}
+            InputLabelProps={{
+              className: styles.inputLabel
+            }}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSearch}
+            startIcon={<SearchIcon />}
+            className={`${styles.searchButton} ${styles.btnContained}`}
+          >
+            BUSCAR
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => setShowFilters(!showFilters)}
+            startIcon={<FilterListIcon />}
+            className={`${styles.filterButton} ${styles.btnOutlined}`}
+          >
+            FILTROS
+          </Button>
+        </div>
+        
+        {showFilters && renderFiltersSection()}
+      </div>
     );
   };
 
@@ -628,68 +657,7 @@ export default function ErrosComuns({ user }) {
             ))}
           </Tabs>
 
-          <div className={styles.searchContainer}>
-            <div className={styles.searchInputWrapper}>
-              <TextField
-                fullWidth
-                label="Buscar"
-                variant="outlined"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={handleSearchKeyPress}
-                InputProps={{
-                  className: styles.inputRoot,
-                  endAdornment: searchQuery ? (
-                    <IconButton size="small" onClick={handleClearSearch} className={styles.iconButton}>
-                      <CloseIcon />
-                    </IconButton>
-                  ) : null,
-                  classes: { 
-                    notchedOutline: styles.inputOutline 
-                  }
-                }}
-                InputLabelProps={{
-                  className: styles.inputLabel
-                }}
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSearch}
-                startIcon={<SearchIcon />}
-                className={`${styles.searchButton} ${styles.btnContained}`}
-              >
-                Buscar
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => setShowFilters(!showFilters)}
-                startIcon={<FilterListIcon />}
-                className={`${styles.filterButton} ${styles.btnOutlined}`}
-              >
-                Filtros
-              </Button>
-            </div>
-
-            {showFilters && (
-              <div className={styles.filtersContainer}>
-                <div className={styles.filterControls}>
-                  {renderFiltroTag1()}
-                  {renderFiltroTag2()}
-                  {renderFiltrosRevisao()}
-
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={resetFilters}
-                    className={`${styles.resetButton} ${styles.btnOutlined}`}
-                  >
-                    Limpar Filtros
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
+          {renderFiltersBlock()}
 
           <div className={styles.resultsInfo}>
             <p>
