@@ -106,20 +106,30 @@
   gap: 20px;
 }
 
+/* Forçar os cards a usarem as cores corretas do tema */
 .card {
   height: 100%;
   transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
-  background-color: var(--box-color);
-  border: 1px solid var(--color-border);
+  background-color: var(--box-color) !important;
+  border: 1px solid var(--color-border) !important;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.card :global(.MuiCardContent-root) {
+  background-color: var(--box-color) !important;
+  color: var(--text-color) !important;
+}
+
+.card :global(.MuiCardActions-root) {
+  background-color: var(--box-color) !important;
 }
 
 .card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  border-color: var(--color-primary);
+  border-color: var(--color-primary) !important;
 }
 
 .cardHeader {
@@ -140,29 +150,34 @@
   justify-content: flex-end;
 }
 
+/* Corrigir cores das chips */
 .integrationChip {
   font-weight: 500;
   background-color: rgba(10, 78, 228, 0.1) !important;
   border-color: var(--color-primary) !important;
+  color: var(--title-color) !important;
 }
 
 .typeChip {
   font-weight: 500;
   background-color: rgba(240, 160, 40, 0.1) !important;
   border-color: var(--color-accent2) !important;
+  color: var(--title-color) !important;
 }
 
 .sectionChip {
   font-weight: 500;
   background-color: rgba(10, 78, 228, 0.15) !important;
+  color: var(--title-color) !important;
 }
 
 .revisionChip {
   font-weight: 500;
+  color: var(--title-color) !important;
 }
 
 .errorTitle {
-  color: var(--title-color);
+  color: var(--title-color) !important;
   font-size: 1.1rem;
   margin-bottom: 15px;
   font-weight: 600;
@@ -178,6 +193,37 @@
 /* Estilos para o modal de detalhes */
 .detailsDialog {
   border-radius: 8px;
+}
+
+/* Aplicar estilos forçados aos componentes do Dialog */
+:global(.MuiDialog-paper) {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+:global(.MuiDialogTitle-root) {
+  background-color: var(--box-color) !important;
+  color: var(--title-color) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
+
+:global(.MuiDialogContent-root) {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+:global(.MuiDialogActions-root) {
+  background-color: var(--box-color) !important;
+  border-top: 1px solid var(--color-border) !important;
+  color: var(--text-color) !important;
+}
+
+:global(.MuiTypography-root) {
+  color: var(--text-color) !important;
+}
+
+:global(.MuiTypography-h6) {
+  color: var(--title-color) !important;
 }
 
 .dialogTitle {
@@ -201,7 +247,7 @@
 }
 
 .sectionTitle {
-  color: var(--color-primary);
+  color: var(--color-primary) !important;
   font-weight: 600;
   margin-bottom: 10px;
 }
@@ -210,7 +256,7 @@
   margin-bottom: 20px;
   padding: 15px;
   border-radius: 6px;
-  background-color: var(--box-color2);
+  background-color: var(--box-color2) !important;
 }
 
 .solutionBox {
@@ -257,17 +303,17 @@
 
 .solutionText {
   white-space: pre-line;
-  color: var(--text-color);
+  color: var(--text-color) !important;
   line-height: 1.5;
 }
 
 .observationText, .suggestionText {
-  color: var(--text-color);
+  color: var(--text-color) !important;
   line-height: 1.5;
 }
 
 .copyButton {
-  color: var(--color-primary);
+  color: var(--color-primary) !important;
 }
 
 .noResults {
@@ -298,28 +344,46 @@
   height: 56px;
 }
 
-/* Dialog content background */
-:global(.MuiDialog-paper) {
-  background-color: var(--background-color) !important;
-  color: var(--text-color) !important;
-}
-
-:global(.MuiDialogContent-root) {
-  background-color: var(--background-color) !important;
-}
-
-:global(.MuiDialogActions-root) {
-  background-color: var(--box-color) !important;
-  border-top: 1px solid var(--color-border) !important;
-}
-
 /* Override Button styles */
 :global(.MuiButton-containedPrimary) {
   background-color: var(--color-primary) !important;
+  color: white !important;
 }
 
 :global(.MuiButton-containedPrimary:hover) {
   background-color: var(--color-primary-hover) !important;
+}
+
+:global(.MuiButton-outlinedPrimary) {
+  color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+:global(.MuiButton-outlined) {
+  color: var(--text-color) !important;
+  border-color: var(--color-border) !important;
+}
+
+:global(.MuiButton-text) {
+  color: var(--color-primary) !important;
+}
+
+:global(.MuiIconButton-root) {
+  color: var(--text-color) !important;
+}
+
+/* Corrigir cor do input de busca */
+:global(.MuiInputBase-root) {
+  background-color: var(--modals-inputs) !important;
+  color: var(--text-color) !important;
+}
+
+:global(.MuiInputLabel-root) {
+  color: var(--text-color2) !important;
+}
+
+:global(.MuiOutlinedInput-notchedOutline) {
+  border-color: var(--color-border) !important;
 }
 
 @media (max-width: 768px) {
