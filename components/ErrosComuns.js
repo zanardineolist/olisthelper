@@ -46,12 +46,23 @@ export default function ErrosComuns({ user }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [tags, setTags] = useState([]);
-  const [tag1Filter, setTag1Filter] = useState('');
-  const [tag2Filter, setTag2Filter] = useState('');
+  const [tag1, setTag1] = useState('');
+  const [tag2, setTag2] = useState('');
   const [searchActive, setSearchActive] = useState(false);
   const [filtroRevisao, setFiltroRevisao] = useState({ TRUE: true, FALSE: true });
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState('');
+  const [opcoesTag1, setOpcoesTag1] = useState([]);
+  const [opcoesTag2, setOpcoesTag2] = useState([]);
+  const [revisao, setRevisao] = useState([]);
+  const [tipoSelecionado, setTipoSelecionado] = useState(abas[0]);
+  const [dados, setDados] = useState([]);
+  const [dadosFiltrados, setDadosFiltrados] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState(null);
+  const [termoBusca, setTermoBusca] = useState('');
+  const [itemDetalhado, setItemDetalhado] = useState(null);
+  const [modalAberto, setModalAberto] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -59,31 +70,21 @@ export default function ErrosComuns({ user }) {
       const response = await axios.get('/api/erros-comuns');
       
       if (response.data) {
-        // Extrair abas e dados
-        const { abas, dados } = response.data;
+        const { tabs, dados } = response.data;
+        setDados(dados);
         
-        setAbas(abas);
-        setData(dados);
+        // Extrai as opções de filtragem usando a nova função
+        const { categorias, subcategorias } = extrairOpcoesDeFiltragem(dados);
+        setOpcoesTag1(categorias);
+        setOpcoesTag2(subcategorias);
         
-        // Se temos abas disponíveis
-        if (abas && abas.length > 0) {
-          // Usar a primeira aba por padrão
-          const primeiraAba = abas[0];
-          const currentTabData = dados[primeiraAba] || [];
-          
-          // Aplicar filtros iniciais e extrair opções de tags
-          applyFilters(currentTabData, 0, '', '', filtroRevisao, '');
-          extrairOpcoesDeTags(currentTabData);
-        } else {
-          setFilteredData([]);
-        }
-      } else {
-        console.error('Erro ao buscar dados: formato inesperado');
-        toast.error('Erro ao carregar os dados');
+        // Aplica os filtros iniciais
+        const dadosFiltrados = applyFilters(dados);
+        setDadosFiltrados(dadosFiltrados);
       }
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
-      toast.error('Erro ao carregar os dados');
+      setErro('Não foi possível carregar os dados. Por favor, tente novamente mais tarde.');
     } finally {
       setLoading(false);
     }
@@ -147,7 +148,7 @@ export default function ErrosComuns({ user }) {
       const abaAtual = abas[currentTab];
       const currentItems = data[abaAtual] || [];
       
-      applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, filtroRevisao, searchQuery);
+      applyFilters(currentItems, currentTab, tag1, tag2, filtroRevisao, searchQuery);
       extrairOpcoesDeTags(currentItems);
     }
   }, [currentTab, data, abas]);
@@ -166,8 +167,8 @@ export default function ErrosComuns({ user }) {
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
-    setTag1Filter('');
-    setTag2Filter('');
+    setTag1('');
+    setTag2('');
     setSearchQuery('');
     setSearchActive(false);
   };
@@ -177,7 +178,7 @@ export default function ErrosComuns({ user }) {
       setSearchActive(true);
       const abaAtual = abas[currentTab];
       const currentItems = data[abaAtual] || [];
-      applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, filtroRevisao, searchQuery);
+      applyFilters(currentItems, currentTab, tag1, tag2, filtroRevisao, searchQuery);
     }
   };
 
@@ -194,7 +195,7 @@ export default function ErrosComuns({ user }) {
     setSearchActive(false);
     const abaAtual = abas[currentTab];
     const currentItems = data[abaAtual] || [];
-    applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, filtroRevisao, '');
+    applyFilters(currentItems, currentTab, tag1, tag2, filtroRevisao, '');
   };
 
   const handleRevisadoFilterChange = (value) => {
@@ -203,7 +204,7 @@ export default function ErrosComuns({ user }) {
     setFiltroRevisao(newRevisadoFilter);
     const abaAtual = abas[currentTab];
     const currentItems = data[abaAtual] || [];
-    applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, newRevisadoFilter, searchQuery);
+    applyFilters(currentItems, currentTab, tag1, tag2, newRevisadoFilter, searchQuery);
   };
 
   const handleCopyToClipboard = (text) => {
@@ -228,8 +229,8 @@ export default function ErrosComuns({ user }) {
   };
 
   const resetFilters = () => {
-    setTag1Filter('');
-    setTag2Filter('');
+    setTag1('');
+    setTag2('');
     setFiltroRevisao({ TRUE: true, FALSE: true });
     setSearchQuery('');
     const abaAtual = abas[currentTab];
@@ -252,18 +253,18 @@ export default function ErrosComuns({ user }) {
 
   const handleTag1Change = (event) => {
     const valor = event.target.value;
-    setTag1Filter(valor);
+    setTag1(valor);
     const abaAtual = abas[currentTab];
     const currentItems = data[abaAtual] || [];
-    applyFilters(currentItems, currentTab, valor, tag2Filter, filtroRevisao, searchQuery);
+    applyFilters(currentItems, currentTab, valor, tag2, filtroRevisao, searchQuery);
   };
 
   const handleTag2Change = (event) => {
     const valor = event.target.value;
-    setTag2Filter(valor);
+    setTag2(valor);
     const abaAtual = abas[currentTab];
     const currentItems = data[abaAtual] || [];
-    applyFilters(currentItems, currentTab, tag1Filter, valor, filtroRevisao, searchQuery);
+    applyFilters(currentItems, currentTab, tag1, valor, filtroRevisao, searchQuery);
   };
 
   const handleRevisaoChange = (event) => {
@@ -272,7 +273,57 @@ export default function ErrosComuns({ user }) {
     setFiltroRevisao(novoFiltro);
     const abaAtual = abas[currentTab];
     const currentItems = data[abaAtual] || [];
-    applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, novoFiltro, searchQuery);
+    applyFilters(currentItems, currentTab, tag1, tag2, novoFiltro, searchQuery);
+  };
+
+  const extrairOpcoesDeFiltragem = (data) => {
+    // Verifica se os dados existem e são um array
+    if (!data || !Array.isArray(data)) {
+      return { categorias: [], subcategorias: [] };
+    }
+
+    // Conjuntos para armazenar valores únicos
+    const categoriasSet = new Set();
+    const subcategoriasSet = new Set();
+
+    // Itera pelos itens para coletar categorias e subcategorias únicas
+    data.forEach(item => {
+      if (item.tags && Array.isArray(item.tags)) {
+        // Se o item tiver tags, adiciona a primeira tag como categoria e a segunda como subcategoria
+        if (item.tags[0]) categoriasSet.add(item.tags[0]);
+        if (item.tags[1]) subcategoriasSet.add(item.tags[1]);
+      }
+    });
+
+    // Converte os conjuntos para arrays e ordena alfabeticamente
+    const categorias = Array.from(categoriasSet).sort();
+    const subcategorias = Array.from(subcategoriasSet).sort();
+
+    return { categorias, subcategorias };
+  };
+
+  const filtrarPorTags = (items) => {
+    if (!tag1 && !tag2) return items;
+    
+    return items.filter(item => {
+      const temTag1 = !tag1 || (item.tags && item.tags.includes(tag1));
+      const temTag2 = !tag2 || (item.tags && item.tags.includes(tag2));
+      return temTag1 && temTag2;
+    });
+  };
+
+  const renderButtons = () => {
+    return (
+      <div className={styles.filterButtons}>
+        <Button 
+          variant="outlined" 
+          onClick={resetFilters}
+          className={`${styles.btnOutlined} ${styles.resetButton}`}
+        >
+          Limpar Filtros
+        </Button>
+      </div>
+    );
   };
 
   // Função para gerar cor baseada em hash da string
@@ -305,36 +356,40 @@ export default function ErrosComuns({ user }) {
   };
 
   const renderFiltroTag1 = () => {
-    if (!tags || !tags.tag1 || tags.tag1.length === 0) return null;
-    
     return (
-      <FormControl variant="outlined" size="small" className={styles.formControl}>
-        <InputLabel id="tag1-select-label">Marcador 1</InputLabel>
+      <FormControl variant="outlined" className={styles.formControl}>
+        <InputLabel id="tag1-label" className={styles.selectLabel}>Categoria</InputLabel>
         <Select
-          labelId="tag1-select-label"
+          labelId="tag1-label"
           id="tag1-select"
-          value={tag1Filter}
+          value={tag1}
           onChange={handleTag1Change}
-          label="Marcador 1"
+          label="Categoria"
+          className={styles.filterSelect}
           MenuProps={{
             classes: { paper: styles.menuPaper },
             anchorOrigin: {
-              vertical: 'bottom',
-              horizontal: 'left',
+              vertical: "bottom",
+              horizontal: "left"
             },
             transformOrigin: {
-              vertical: 'top',
-              horizontal: 'left',
+              vertical: "top",
+              horizontal: "left"
             },
             getContentAnchorEl: null
           }}
-          className={styles.selectHeight}
         >
-          <MenuItem value="">
-            <em>Todos</em>
+          <MenuItem value="" className={styles.menuItem}>
+            <em>Todas</em>
           </MenuItem>
-          {tags.tag1.map((tag) => (
-            <MenuItem key={tag} value={tag}>{tag}</MenuItem>
+          {opcoesTag1.map((tag) => (
+            <MenuItem 
+              key={tag}
+              value={tag} 
+              className={`${styles.menuItem} ${styles.menuItemHover}`}
+            >
+              {tag}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -342,36 +397,40 @@ export default function ErrosComuns({ user }) {
   };
 
   const renderFiltroTag2 = () => {
-    if (!tags || !tags.tag2 || tags.tag2.length === 0) return null;
-    
     return (
-      <FormControl variant="outlined" size="small" className={styles.formControl}>
-        <InputLabel id="tag2-select-label">Marcador 2</InputLabel>
+      <FormControl variant="outlined" className={styles.formControl}>
+        <InputLabel id="tag2-label" className={styles.selectLabel}>Subcategoria</InputLabel>
         <Select
-          labelId="tag2-select-label"
+          labelId="tag2-label"
           id="tag2-select"
-          value={tag2Filter}
+          value={tag2}
           onChange={handleTag2Change}
-          label="Marcador 2"
+          label="Subcategoria"
+          className={styles.filterSelect}
           MenuProps={{
             classes: { paper: styles.menuPaper },
             anchorOrigin: {
-              vertical: 'bottom',
-              horizontal: 'left',
+              vertical: "bottom",
+              horizontal: "left"
             },
             transformOrigin: {
-              vertical: 'top',
-              horizontal: 'left',
+              vertical: "top",
+              horizontal: "left"
             },
             getContentAnchorEl: null
           }}
-          className={styles.selectHeight}
         >
-          <MenuItem value="">
-            <em>Todos</em>
+          <MenuItem value="" className={styles.menuItem}>
+            <em>Todas</em>
           </MenuItem>
-          {tags.tag2.map((tag) => (
-            <MenuItem key={tag} value={tag}>{tag}</MenuItem>
+          {opcoesTag2.map((tag) => (
+            <MenuItem 
+              key={tag}
+              value={tag} 
+              className={`${styles.menuItem} ${styles.menuItemHover}`}
+            >
+              {tag}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -380,7 +439,7 @@ export default function ErrosComuns({ user }) {
 
   const renderFiltrosRevisao = () => {
     return (
-      <FormGroup row className={styles.checkboxGroup}>
+      <div className={styles.checkboxGroup}>
         <FormControlLabel
           control={
             <Checkbox
@@ -388,9 +447,11 @@ export default function ErrosComuns({ user }) {
               onChange={(e) => handleRevisaoChange(e)}
               name="TRUE"
               color="primary"
+              className={styles.checkbox}
             />
           }
           label="Revisado"
+          className={styles.checkboxLabel}
         />
         <FormControlLabel
           control={
@@ -399,11 +460,13 @@ export default function ErrosComuns({ user }) {
               onChange={(e) => handleRevisaoChange(e)}
               name="FALSE"
               color="primary"
+              className={styles.checkbox}
             />
           }
           label="Não Revisado"
+          className={styles.checkboxLabel}
         />
-      </FormGroup>
+      </div>
     );
   };
 
@@ -566,6 +629,84 @@ export default function ErrosComuns({ user }) {
     );
   };
 
+  const handleFiltrosAlterados = () => {
+    const dadosFiltrados = applyFilters(
+      dados,
+      tipoSelecionado,
+      tag1,
+      tag2,
+      revisao,
+      termoBusca
+    );
+    setDadosFiltrados(dadosFiltrados);
+  };
+
+  const limparFiltros = () => {
+    setTag1('');
+    setTag2('');
+    setRevisao({ TRUE: true, FALSE: true });
+    setTermoBusca('');
+  };
+
+  const renderFiltros = () => {
+    return (
+      <div className={styles.filtersContainer}>
+        <div className={styles.filtersRow}>
+          {renderFiltroTag1()}
+          {renderFiltroTag2()}
+          <div className={styles.checkboxGroup}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={revisao.TRUE}
+                  onChange={(e) => setRevisao({ ...revisao, TRUE: e.target.checked })}
+                  color="primary"
+                  className={styles.checkbox}
+                />
+              }
+              label="Revisado"
+              className={styles.checkboxLabel}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={revisao.FALSE}
+                  onChange={(e) => setRevisao({ ...revisao, FALSE: e.target.checked })}
+                  color="primary"
+                  className={styles.checkbox}
+                />
+              }
+              label="Não revisado"
+              className={styles.checkboxLabel}
+            />
+          </div>
+        </div>
+        <div className={styles.filtersRow}>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              placeholder="Buscar..."
+              value={termoBusca}
+              onChange={(e) => setTermoBusca(e.target.value)}
+              className={styles.searchInput}
+            />
+            <SearchIcon className={styles.searchIcon} />
+          </div>
+          <div className={styles.filterButtons}>
+            <Button
+              variant="outlined"
+              onClick={limparFiltros}
+              startIcon={<FilterListIcon />}
+              className={`${styles.btnOutlined} ${styles.resetButton}`}
+            >
+              Limpar filtros
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -643,20 +784,7 @@ export default function ErrosComuns({ user }) {
 
             {showFilters && (
               <div className={styles.filtersContainer}>
-                <div className={styles.filterControls}>
-                  {renderFiltroTag1()}
-                  {renderFiltroTag2()}
-                  {renderFiltrosRevisao()}
-
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={resetFilters}
-                    className={`${styles.resetButton} ${styles.btnOutlined}`}
-                  >
-                    Limpar Filtros
-                  </Button>
-                </div>
+                {renderFiltros()}
               </div>
             )}
           </div>
