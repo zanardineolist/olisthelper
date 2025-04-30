@@ -56,6 +56,7 @@ export default function ErrosComuns({ user }) {
   const [copySuccess, setCopySuccess] = useState('');
   const [cabecalhos, setCabecalhos] = useState({});
   const [filtrosAtivos, setFiltrosAtivos] = useState(0);
+  const [allData, setAllData] = useState([]);
 
   // Verificar número de filtros ativos
   useEffect(() => {
@@ -79,15 +80,27 @@ export default function ErrosComuns({ user }) {
         // Extrair abas, dados e cabeçalhos
         const { abas, dados, cabecalhos } = response.data;
         
-        setAbas(abas);
-        setData(dados);
+        // Adicionar todos os dados em um único array para a aba "Todos"
+        let todosOsDados = [];
+        Object.keys(dados).forEach(aba => {
+          // Adicionar o nome da aba a cada item para identificação
+          const itensComAba = (dados[aba] || []).map(item => ({
+            ...item,
+            Aba: aba
+          }));
+          todosOsDados = [...todosOsDados, ...itensComAba];
+        });
+        setAllData(todosOsDados);
+        
+        // Adicionar aba "Todos" ao início do array
+        setAbas(['Todos', ...abas]);
+        setData({ Todos: todosOsDados, ...dados });
         setCabecalhos(cabecalhos || {});
         
         // Se temos abas disponíveis
         if (abas && abas.length > 0) {
-          // Usar a primeira aba por padrão
-          const primeiraAba = abas[0];
-          const currentTabData = dados[primeiraAba] || [];
+          // Usar a aba "Todos" por padrão
+          const currentTabData = todosOsDados;
           
           // Aplicar filtros iniciais e extrair opções de tags
           applyFilters(currentTabData, 0, '', '', filtroRevisao, '');
@@ -165,8 +178,14 @@ export default function ErrosComuns({ user }) {
       const abaAtual = abas[currentTab];
       const currentItems = data[abaAtual] || [];
       
+      // Extrair opções de tags para a aba atual
+      if (abaAtual === 'Todos') {
+        extrairOpcoesDeTags(allData);
+      } else {
+        extrairOpcoesDeTags(currentItems);
+      }
+      
       applyFilters(currentItems, currentTab, tag1Filter, tag2Filter, filtroRevisao, searchQuery);
-      extrairOpcoesDeTags(currentItems);
     }
   }, [currentTab, data, abas]);
 
@@ -643,6 +662,7 @@ export default function ErrosComuns({ user }) {
   const renderCard = (item, index) => {
     const tag1Color = getColorForTag(item.Tag1);
     const tag2Color = getColorForTag(item.Tag2);
+    const abaAtual = abas[currentTab];
     
     return (
       <div key={index} className={styles.card}>
@@ -659,7 +679,7 @@ export default function ErrosComuns({ user }) {
         
         <div className={styles.cardHeader}>
           <Chip 
-            label={getTabName()} 
+            label={abaAtual === 'Todos' ? item.Aba : getTabName()} 
             color="primary" 
             className={styles.sectionChip} 
           />
@@ -712,6 +732,7 @@ export default function ErrosComuns({ user }) {
   const renderModalContent = () => {
     const tag1Color = getColorForTag(modalData.Tag1);
     const tag2Color = getColorForTag(modalData.Tag2);
+    const abaAtual = abas[currentTab];
     
     return (
       <>
@@ -721,6 +742,14 @@ export default function ErrosComuns({ user }) {
           </Typography>
           
           <div className={styles.modalChips}>
+            {abaAtual === 'Todos' && modalData.Aba && (
+              <Chip 
+                label={modalData.Aba} 
+                color="primary" 
+                size="small"
+                className={styles.modalChip}
+              />
+            )}
             {modalData.Tag1 && (
               <Chip 
                 label={modalData.Tag1} 
