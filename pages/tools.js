@@ -51,43 +51,70 @@ export default function ToolsPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  
+  // Verifica se o usuário tem acesso ao contador de chamados
+  const hasTicketCounterAccess = ['support', 'support+', 'analyst', 'super'].includes(user.role);
 
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
       const hash = window.location.hash;
-      if (hash === '#TicketCounter') {
+      
+      // Ajuste da lógica para determinar a aba correta baseada no hash e permissões
+      if (hash === '#TicketCounter' && hasTicketCounterAccess) {
         setCurrentTab(0);
       } else if (hash === '#SharedMessages') {
-        setCurrentTab(1);
+        setCurrentTab(hasTicketCounterAccess ? 1 : 0);
       } else if (hash === '#CepIbgeValidator') {
-        setCurrentTab(2);
+        setCurrentTab(hasTicketCounterAccess ? 2 : 1);
       } else if (hash === '#ErrosComuns') {
-        setCurrentTab(3);
+        setCurrentTab(hasTicketCounterAccess ? 3 : 2);
+      } else {
+        // Se não tiver hash ou o hash for inválido, mostra a primeira aba disponível para o usuário
+        setCurrentTab(0);
       }
       setLoading(false);
     }, 500);
-  }, []);
+  }, [hasTicketCounterAccess]);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
     let hash = '';
-    switch (newValue) {
-      case 0:
-        hash = '#TicketCounter';
-        break;
-      case 1:
-        hash = '#SharedMessages';
-        break;
-      case 2:
-        hash = '#CepIbgeValidator';
-        break;
-      case 3:
-        hash = '#ErrosComuns';
-        break;
-      default:
-        break;
+    
+    // Ajuste dos índices baseado no acesso ao contador de chamados
+    if (hasTicketCounterAccess) {
+      switch (newValue) {
+        case 0:
+          hash = '#TicketCounter';
+          break;
+        case 1:
+          hash = '#SharedMessages';
+          break;
+        case 2:
+          hash = '#CepIbgeValidator';
+          break;
+        case 3:
+          hash = '#ErrosComuns';
+          break;
+        default:
+          break;
+      }
+    } else {
+      switch (newValue) {
+        case 0:
+          hash = '#SharedMessages';
+          break;
+        case 1:
+          hash = '#CepIbgeValidator';
+          break;
+        case 2:
+          hash = '#ErrosComuns';
+          break;
+        default:
+          break;
+      }
     }
+    
     router.push(`${window.location.pathname}${hash}`, undefined, { shallow: true });
   };
 
@@ -111,7 +138,7 @@ export default function ToolsPage({ user }) {
         <ThemeProvider theme={theme}>
           <div className={styles.tabsContainer}>
             <Tabs value={currentTab} onChange={handleTabChange} centered>
-              {['support', 'support+', 'analyst', 'super'].includes(user.role) && (
+              {hasTicketCounterAccess && (
                 <Tab label="Contador de Chamados" />
               )}
               <Tab label="Respostas Compartilhadas" />
@@ -122,11 +149,13 @@ export default function ToolsPage({ user }) {
         </ThemeProvider>
 
         <div className={styles.tabContent}>
-          {currentTab === 0 && ['support', 'support+', 'analyst', 'super'].includes(user.role) && (
+          {currentTab === 0 && hasTicketCounterAccess && (
             <TicketCounter />
           )}
-          {currentTab === 1 && <SharedMessages user={user} />}
-          {currentTab === 2 && (
+          {((currentTab === 1 && hasTicketCounterAccess) || (currentTab === 0 && !hasTicketCounterAccess)) && (
+            <SharedMessages user={user} />
+          )}
+          {((currentTab === 2 && hasTicketCounterAccess) || (currentTab === 1 && !hasTicketCounterAccess)) && (
             <>
               <div className={styles.pageHeader}>
                 <h1 className={styles.pageTitle}>Validador CEP x IBGE</h1>
@@ -223,7 +252,7 @@ export default function ToolsPage({ user }) {
               </div>
             </>
           )}
-          {currentTab === 3 && (
+          {((currentTab === 3 && hasTicketCounterAccess) || (currentTab === 2 && !hasTicketCounterAccess)) && (
             <ErrosComuns user={user} />
           )}
         </div>
