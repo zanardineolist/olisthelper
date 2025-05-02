@@ -53,7 +53,7 @@ export default function ToolsPage({ user }) {
   const router = useRouter();
   
   // Verifica se o usuário tem acesso ao contador de chamados
-  const hasTicketCounterAccess = ['support', 'support+', 'analyst', 'super'].includes(user.role);
+  const hasTicketCounterAccess = ['support', 'support+', 'analyst', 'super', 'tax'].includes(user.role);
 
   useEffect(() => {
     setLoading(true);
