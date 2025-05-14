@@ -52,11 +52,16 @@ export default async function handler(req, res) {
       const parts = await processFileStream(file.filepath, layoutType);
       const zipBuffer = await createZip(parts);
 
+      // Definir cabeçalhos explícitos para a resposta binária
       res.setHeader('Content-Type', 'application/zip');
       res.setHeader('Content-Disposition', `attachment; filename=Planilha_${layoutType}_dividida.zip`);
-      res.send(zipBuffer);
+      res.setHeader('Content-Length', zipBuffer.length);
+      res.setHeader('X-Content-Type-Options', 'nosniff'); // Impedir que o navegador tente adivinhar o tipo de conteúdo
+      
+      // Enviar o buffer do ZIP diretamente
+      res.status(200).send(zipBuffer);
     } catch (error) {
-      console.error('Erro:', error);
+      console.error('Erro no processamento:', error);
       
       if (error.message.includes('excede o limite')) {
         res.status(413).json({ error: 'O arquivo é muito grande. O limite permitido é 5MB.' });
@@ -64,6 +69,8 @@ export default async function handler(req, res) {
         res.status(400).json({ error: 'Erro na validação do layout. Verifique o formato do arquivo.' });
       } else if (error.message.includes('ZIP')) {
         res.status(500).json({ error: 'Falha ao criar o arquivo ZIP. Tente novamente mais tarde.' });
+      } else if (error.message.includes('vazio')) {
+        res.status(400).json({ error: 'A planilha está vazia ou contém apenas o cabeçalho.' });
       } else {
         res.status(500).json({ error: `Erro inesperado: ${error.message}` });
       }

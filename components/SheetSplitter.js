@@ -169,7 +169,7 @@ const SheetSplitter = () => {
         method: 'POST',
         body: formData,
         headers: {
-          'Accept': 'application/octet-stream',
+          'Accept': '*/*', // Aceitar qualquer tipo de conteúdo
         },
         skipContentType: true,
         onProgress: (progressEvent) => {
@@ -177,20 +177,28 @@ const SheetSplitter = () => {
           setProgress(percentCompleted);
           if (percentCompleted === 100) setSuccessMessage('Arquivo enviado, iniciando o processamento...');
         },
-        responseType: 'blob'
+        responseType: 'blob', // Solicitar resposta como blob explicitamente
+        handleError: false // Lidar com erros manualmente
       }, {
         message: 'Processando arquivo...'
       });
 
-      // Verificar se a resposta é realmente um blob ou um erro JSON
-      const contentType = response.type;
+      // Verificamos se o tipo de conteúdo da resposta indica um erro (application/json)
+      const contentType = response.type || '';
+      
+      // Se for JSON e indicar erro, vamos analisar a resposta como texto
       if (contentType.includes('application/json')) {
-        // É uma resposta de erro em formato JSON
-        const errorText = await new Response(response).text();
-        const errorData = JSON.parse(errorText);
-        throw new Error(errorData.error || 'Erro desconhecido durante o processamento');
-      }
-
+        try {
+          const errorText = await response.text();
+          const errorData = JSON.parse(errorText);
+          throw new Error(errorData.error || 'Erro desconhecido durante o processamento');
+        } catch (jsonError) {
+          // Se falhar ao analisar como JSON, assumimos que é apenas um erro de formato
+          throw new Error('Erro no formato da resposta do servidor');
+        }
+      } 
+      
+      // Se chegou aqui, é um arquivo ZIP válido
       const url = window.URL.createObjectURL(new Blob([response]));
       setFileUrl(url);
       const link = document.createElement('a');
@@ -223,6 +231,8 @@ const SheetSplitter = () => {
         errorMessage = 'Arquivo muito grande: O limite máximo é de 5MB.';
       } else if (errorMessage.includes('vazio')) {
         errorMessage = 'A planilha está vazia ou contém apenas cabeçalho.';
+      } else if (errorMessage.includes('JSON')) {
+        errorMessage = 'Erro de comunicação com o servidor. Por favor, tente novamente.';
       }
       
       setError(`Erro ao processar o arquivo: ${errorMessage}`);

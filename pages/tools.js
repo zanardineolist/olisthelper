@@ -266,15 +266,7 @@ export default function ToolsPage({ user }) {
             <ErrosComuns user={user} />
           )}
           {((currentTab === 4 && hasTicketCounterAccess) || (currentTab === 3 && !hasTicketCounterAccess)) && (
-            <>
-              <div className={styles.pageHeader}>
-                <h1 className={styles.pageTitle}>Divisor de Planilhas</h1>
-                <p className={styles.pageDescription}>
-                  Ferramenta para dividir planilhas grandes em partes menores para facilitar a importação no sistema ERP.
-                </p>
-              </div>
               <SheetSplitter />
-            </>
           )}
         </div>
       </main>
