@@ -1,4 +1,4 @@
-import formidable from 'formidable';
+import { formidable } from 'formidable';
 import XLSX from 'xlsx';
 import fs from 'fs/promises';
 
@@ -88,14 +88,23 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Método não permitido. Utilize POST.' });
   }
 
-  const form = new formidable.IncomingForm();
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      return res.status(500).json({ error: 'Erro ao processar o arquivo' });
-    }
-
-    const file = files.file;
-    const layoutType = fields.layoutType;
+  try {
+    const options = {
+      maxFileSize: 5 * 1024 * 1024, // 5MB
+      keepExtensions: true,
+    };
+    
+    const result = await new Promise((resolve, reject) => {
+      const form = formidable(options);
+      form.parse(req, (err, fields, files) => {
+        if (err) return reject(err);
+        resolve({ fields, files });
+      });
+    });
+    
+    const { fields, files } = result;
+    const file = files.file[0]; // Na versão 3.x, files é um objeto com arrays
+    const layoutType = fields.layoutType[0]; // Na versão 3.x, fields também é um objeto com arrays
 
     if (!file || !layoutType) {
       return res.status(400).json({ error: 'Arquivo ou tipo de layout não fornecido' });
@@ -122,5 +131,8 @@ export default async function handler(req, res) {
         console.error('Erro ao remover arquivo temporário:', e);
       }
     }
-  });
+  } catch (error) {
+    console.error('Erro ao processar o formulário:', error);
+    return res.status(500).json({ error: 'Erro ao processar o arquivo' });
+  }
 } 

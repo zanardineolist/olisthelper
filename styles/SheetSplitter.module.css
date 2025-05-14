@@ -1,165 +1,304 @@
 .container {
   background-color: var(--color-background-card);
-  border-radius: 10px;
-  padding: 24px;
+  border-radius: 12px;
+  padding: 0;
   box-shadow: var(--card-shadow);
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   width: 100%;
+  overflow: hidden;
 }
 
 .header {
-  margin-bottom: 24px;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 16px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  padding: 24px 32px;
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .title {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleIcon {
   font-size: 24px;
-  color: var(--color-title);
-  margin-bottom: 8px;
 }
 
 .description {
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 16px;
   line-height: 1.5;
+  margin: 0;
+  max-width: 80%;
 }
 
-.contentContainer {
+/* Step indicator styles */
+.stepIndicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-background-secondary);
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.step {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s ease;
 }
 
-.optionsContainer {
+.stepNumber {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--color-background-card);
+  border: 2px solid var(--color-border);
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.selectLabel {
+  align-items: center;
+  justify-content: center;
   font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 5px;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
 }
 
-.selectInput {
-  width: 100%;
-  padding: 12px;
-  border-radius: 5px;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-background-input);
-  color: var(--color-text);
-  font-size: 16px;
+.stepLabel {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.selectInput:focus {
-  outline: none;
+.activeStep .stepNumber {
+  background-color: var(--color-primary);
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.25);
+  color: white;
 }
 
+.activeStep .stepLabel {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.completedStep .stepNumber {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  color: white;
+}
+
+.stepConnector {
+  flex-grow: 1;
+  height: 2px;
+  background-color: var(--color-border);
+  margin: 0 10px;
+  margin-bottom: 36px;
+}
+
+/* Content container styles */
+.contentContainer {
+  padding: 24px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Card Grid Layout */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* Card Styles */
+.selectorCard,
+.uploadCard,
+.processingCard,
+.resultCard {
+  background-color: var(--color-background-card);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  transition: box-shadow 0.3s ease;
+}
+
+.selectorCard:hover,
+.uploadCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.cardHeader {
+  background-color: var(--color-background-secondary);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cardHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-title);
+}
+
+.cardContent {
+  padding: 20px;
+}
+
+/* Layout Type Option Grid */
+.layoutTypeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.layoutTypeOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  color: var(--color-text);
+}
+
+.layoutTypeOption svg {
+  font-size: 24px;
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.layoutTypeOption span {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.layoutTypeOption:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.05);
+  border-color: var(--color-primary);
+}
+
+.layoutTypeOption:hover svg {
+  color: var(--color-primary);
+}
+
+.selectedLayout {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+  border-color: var(--color-primary);
+}
+
+.selectedLayout svg {
+  color: var(--color-primary);
+}
+
+.selectedIcon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 14px;
+  color: var(--color-primary) !important;
+}
+
+/* Layout Info */
 .layoutInfo {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  background-color: var(--color-background-secondary);
-  padding: 12px;
-  border-radius: 5px;
+  gap: 12px;
+  background-color: rgba(var(--color-primary-rgb), 0.05);
+  padding: 16px;
+  border-radius: 8px;
   border-left: 4px solid var(--color-primary);
-  margin-top: 10px;
+  margin-top: 16px;
 }
 
 .infoIcon {
   color: var(--color-primary);
-  font-size: 18px;
+  font-size: 20px;
   margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .layoutInfo p {
   margin: 0;
   color: var(--color-text);
   line-height: 1.5;
+  font-size: 14px;
 }
 
-.fileSummary {
-  background-color: var(--color-background-secondary);
-  padding: 12px 16px;
-  border-radius: 5px;
-  margin-bottom: 15px;
-}
-
-.fileSummary h3 {
-  font-size: 16px;
-  color: var(--color-title);
-  margin-top: 0;
-  margin-bottom: 8px;
-}
-
-.fileSummary p {
-  margin: 0;
-  color: var(--color-text);
-  font-size: 15px;
-}
-
-.errorMessage {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: var(--color-error-bg);
-  color: var(--color-error);
-  padding: 12px 16px;
-  border-radius: 5px;
-  margin-bottom: 15px;
-}
-
-.errorMessage svg {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.successMessage {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: var(--color-success-bg);
-  color: var(--color-success);
-  padding: 12px 16px;
-  border-radius: 5px;
-  margin-bottom: 15px;
-}
-
-.successMessage svg {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
+/* Upload Form */
 .uploadForm {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
 }
 
 .fileInputContainer {
   width: 100%;
-  margin-bottom: 10px;
 }
 
 .fileInputLabel {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 14px;
+  justify-content: space-between;
+  padding: 24px;
   background-color: var(--color-background-secondary);
   border: 2px dashed var(--color-border);
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   color: var(--color-text);
-  font-weight: 500;
+}
+
+.fileIcon {
+  font-size: 32px;
+  color: var(--color-primary);
+  margin-right: 16px;
+}
+
+.fileInputText {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fileInputTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.fileInputSubtitle {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.uploadIcon {
+  font-size: 20px;
+  color: var(--color-primary);
 }
 
 .fileInputLabel:hover {
@@ -167,23 +306,105 @@
   background-color: rgba(var(--color-primary-rgb), 0.05);
 }
 
+.fileInputDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fileInputDisabled:hover {
+  border-color: var(--color-border);
+  background-color: var(--color-background-secondary);
+}
+
 .fileInput {
   display: none;
 }
 
+/* File Summary Card */
+.fileSummaryCard {
+  background-color: var(--color-background-secondary);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.fileSummaryHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.fileSummaryIcon {
+  font-size: 20px;
+  color: var(--color-primary);
+}
+
+.fileSummaryHeader h3 {
+  font-size: 16px;
+  color: var(--color-title);
+  margin: 0;
+}
+
+.fileSummaryText {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Error and Success Messages */
+.errorMessage {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border-left: 4px solid var(--color-error);
+}
+
+.errorMessage svg {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.successMessage {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border-left: 4px solid var(--color-success);
+}
+
+.successMessage svg {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Buttons */
 .submitButton,
 .downloadButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 20px;
+  gap: 10px;
+  padding: 14px 24px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  width: 100%;
 }
 
 .submitButton {
@@ -193,6 +414,7 @@
 
 .submitButton:hover {
   background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
 }
 
 .downloadButton {
@@ -202,24 +424,42 @@
 
 .downloadButton:hover {
   background-color: var(--color-success-dark);
+  transform: translateY(-2px);
 }
 
 .downloadContainer {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 }
 
+.downloadText {
+  text-align: center;
+  font-size: 15px;
+  color: var(--color-text);
+  margin: 0 0 8px 0;
+}
+
+/* Progress Bar */
 .progressContainer {
-  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.progressBarContainer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .progressBar {
-  width: 100%;
+  flex-grow: 1;
   height: 8px;
   background-color: var(--color-background-secondary);
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: 10px;
 }
 
 .progressFill {
@@ -229,18 +469,25 @@
   transition: width 0.3s ease;
 }
 
+.progressPercentage {
+  font-weight: 600;
+  color: var(--color-primary);
+  width: 40px;
+  text-align: right;
+}
+
 .progressText {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   color: var(--color-text);
   font-size: 14px;
-  text-align: center;
 }
 
 .spinnerIcon {
   animation: spin 1.5s linear infinite;
   font-size: 16px;
+  color: var(--color-primary);
 }
 
 @keyframes spin {
@@ -252,43 +499,65 @@
   }
 }
 
+/* Instructions Container */
 .instructionsContainer {
-  background-color: var(--color-background-secondary);
-  padding: 20px;
-  border-radius: 5px;
-  margin-top: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-background-card);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-top: 12px;
 }
 
-.instructionsContainer h3 {
+.instructionsContent {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.instructionsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.instructionsColumn h4 {
   font-size: 18px;
   color: var(--color-title);
-  margin-top: 0;
-  margin-bottom: 15px;
+  margin: 0 0 12px 0;
+  font-weight: 600;
 }
 
 .instructionsList {
   padding-left: 20px;
-  margin-bottom: 20px;
+  margin: 0;
 }
 
 .instructionsList li {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   color: var(--color-text);
   line-height: 1.5;
+  font-size: 15px;
 }
 
+.instructionsList li:last-child {
+  margin-bottom: 0;
+}
+
+/* Warning Box */
 .warningBox {
   background-color: var(--color-warning-bg);
   border-left: 4px solid var(--color-warning);
-  padding: 12px 16px;
-  border-radius: 5px;
+  padding: 16px;
+  border-radius: 8px;
 }
 
 .warningBox h4 {
   color: var(--color-warning);
-  margin-top: 0;
-  margin-bottom: 10px;
+  margin: 0 0 12px 0;
   font-size: 16px;
+  font-weight: 600;
 }
 
 .warningBox ul {
@@ -299,34 +568,133 @@
 .warningBox li {
   margin-bottom: 8px;
   color: var(--color-text);
-  line-height: 1.4;
+  line-height: 1.5;
+  font-size: 14px;
 }
 
 .warningBox li:last-child {
   margin-bottom: 0;
 }
 
-@media (max-width: 768px) {
-  .container {
-    padding: 16px;
+/* Tip Box */
+.tipBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background-color: var(--color-info-bg, rgba(0, 120, 212, 0.1));
+  border-left: 4px solid var(--color-info, #0078d4);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.tipIcon {
+  color: var(--color-info, #0078d4);
+  font-size: 20px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.tipBox h4 {
+  color: var(--color-info, #0078d4);
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.tipBox p {
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .cardGrid {
+    grid-template-columns: 1fr;
   }
   
-  .title {
-    font-size: 20px;
+  .header {
+    padding: 20px 24px;
+  }
+  
+  .contentContainer {
+    padding: 20px 24px;
+  }
+  
+  .stepIndicator {
+    padding: 16px 24px;
   }
   
   .description {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 20px;
+  }
+  
+  .contentContainer {
+    padding: 20px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .stepIndicator {
+    padding: 16px;
+  }
+  
+  .stepNumber {
+    width: 32px;
+    height: 32px;
     font-size: 14px;
+  }
+  
+  .stepLabel {
+    font-size: 12px;
+  }
+  
+  .layoutTypeGrid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  
+  .instructionsContent {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .stepLabel {
+    display: none;
+  }
+  
+  .stepConnector {
+    margin-bottom: 18px;
   }
   
   .fileInputLabel {
-    padding: 12px;
-    font-size: 14px;
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
   }
   
-  .submitButton,
-  .downloadButton {
-    padding: 10px 16px;
-    font-size: 14px;
+  .fileIcon {
+    margin-right: 0;
+  }
+  
+  .uploadIcon {
+    margin-top: 8px;
+  }
+  
+  .fileInputText {
+    text-align: center;
+  }
+  
+  .layoutTypeGrid {
+    grid-template-columns: repeat(2, 1fr);
   }
 } 
