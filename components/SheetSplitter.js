@@ -15,6 +15,7 @@ import styles from '../styles/SheetSplitter.module.css';
 import { useApiLoader } from '../utils/apiLoader';
 import { LocalLoader } from './LoadingIndicator';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 const SheetSplitter = () => {
   const [file, setFile] = useState(null);
@@ -165,61 +166,58 @@ const SheetSplitter = () => {
     formData.append('layoutType', selectedOption);
 
     try {
-      const response = await callApi('/api/split-handler', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'Accept': '*/*', // Aceitar qualquer tipo de conteúdo
+      // Usando axios diretamente para ter mais controle sobre o tipo de resposta
+      const response = await axios.post('/api/split-handler', formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Accept': '*/*'
         },
-        skipContentType: true,
-        onProgress: (progressEvent) => {
+        onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           setProgress(percentCompleted);
           if (percentCompleted === 100) setSuccessMessage('Arquivo enviado, iniciando o processamento...');
         },
-        responseType: 'blob', // Solicitar resposta como blob explicitamente
-        handleError: false // Lidar com erros manualmente
-      }, {
-        message: 'Processando arquivo...'
+        responseType: 'blob', // Isso garante que a resposta seja tratada como blob
       });
 
-      // Verificamos se o tipo de conteúdo da resposta indica um erro (application/json)
-      const contentType = response.type || '';
-      
-      // Se for JSON e indicar erro, vamos analisar a resposta como texto
-      if (contentType.includes('application/json')) {
-        try {
-          const errorText = await response.text();
-          const errorData = JSON.parse(errorText);
-          throw new Error(errorData.error || 'Erro desconhecido durante o processamento');
-        } catch (jsonError) {
-          // Se falhar ao analisar como JSON, assumimos que é apenas um erro de formato
-          throw new Error('Erro no formato da resposta do servidor');
-        }
-      } 
-      
-      // Se chegou aqui, é um arquivo ZIP válido
-      const url = window.URL.createObjectURL(new Blob([response]));
-      setFileUrl(url);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
+      // Verificando se a resposta é um formato JSON de erro
+      const contentType = response.headers['content-type'];
+      if (contentType && contentType.includes('application/json')) {
+        // É um erro em formato JSON
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const errorData = JSON.parse(reader.result);
+            throw new Error(errorData.error || 'Erro desconhecido durante o processamento');
+          } catch (jsonError) {
+            throw new Error('Erro no formato da resposta do servidor');
+          }
+        };
+        reader.readAsText(response.data);
+      } else {
+        // É um arquivo ZIP válido
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        setFileUrl(url);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
 
-      setSuccessMessage('Processamento concluído! Arquivo pronto para download.');
-      setError('');
-      setProgress(100);
-      setFile(null);
-      setActiveStep(4);
-      
-      // Limpa campo de arquivo
-      const fileInput = document.getElementById('file-input');
-      if (fileInput) fileInput.value = '';
-      
-      // Exibe notificação de sucesso
-      toast.success('Planilha dividida com sucesso!');
+        setSuccessMessage('Processamento concluído! Arquivo pronto para download.');
+        setError('');
+        setProgress(100);
+        setFile(null);
+        setActiveStep(4);
+        
+        // Limpa campo de arquivo
+        const fileInput = document.getElementById('file-input');
+        if (fileInput) fileInput.value = '';
+        
+        // Exibe notificação de sucesso
+        toast.success('Planilha dividida com sucesso!');
+      }
     } catch (error) {
       console.error('Erro no processamento:', error);
       let errorMessage = error.message || 'Erro desconhecido';

@@ -56,10 +56,17 @@ export default async function handler(req, res) {
       res.setHeader('Content-Type', 'application/zip');
       res.setHeader('Content-Disposition', `attachment; filename=Planilha_${layoutType}_dividida.zip`);
       res.setHeader('Content-Length', zipBuffer.length);
-      res.setHeader('X-Content-Type-Options', 'nosniff'); // Impedir que o navegador tente adivinhar o tipo de conteúdo
+      
+      // Impedir que o navegador tente adivinhar o tipo de conteúdo
+      res.setHeader('X-Content-Type-Options', 'nosniff'); 
+      
+      // Desativar o cache para evitar problemas com respostas anteriores
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
       
       // Enviar o buffer do ZIP diretamente
-      res.status(200).send(zipBuffer);
+      return res.status(200).end(zipBuffer);
     } catch (error) {
       console.error('Erro no processamento:', error);
       
