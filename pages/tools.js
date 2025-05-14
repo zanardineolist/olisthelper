@@ -10,6 +10,7 @@ import TicketCounter from '../components/TicketCounter';
 import SharedMessages from '../components/SharedMessages';
 import CepIbgeValidator from '../components/CepIbgeValidator';
 import ErrosComuns from '../components/ErrosComuns';
+import SheetSplitter from '../components/SheetSplitter';
 import styles from '../styles/Tools.module.css';
 import Image from 'next/image';
 
@@ -69,6 +70,8 @@ export default function ToolsPage({ user }) {
         setCurrentTab(hasTicketCounterAccess ? 2 : 1);
       } else if (hash === '#ErrosComuns') {
         setCurrentTab(hasTicketCounterAccess ? 3 : 2);
+      } else if (hash === '#SheetSplitter') {
+        setCurrentTab(hasTicketCounterAccess ? 4 : 3);
       } else {
         // Se não tiver hash ou o hash for inválido, mostra a primeira aba disponível para o usuário
         setCurrentTab(0);
@@ -96,6 +99,9 @@ export default function ToolsPage({ user }) {
         case 3:
           hash = '#ErrosComuns';
           break;
+        case 4:
+          hash = '#SheetSplitter';
+          break;
         default:
           break;
       }
@@ -109,6 +115,9 @@ export default function ToolsPage({ user }) {
           break;
         case 2:
           hash = '#ErrosComuns';
+          break;
+        case 3:
+          hash = '#SheetSplitter';
           break;
         default:
           break;
@@ -144,6 +153,7 @@ export default function ToolsPage({ user }) {
               <Tab label="Respostas Compartilhadas" />
               <Tab label="Validador CEP x IBGE" />
               <Tab label="Base de Erros" />
+              <Tab label="Divisor de Planilhas" />
             </Tabs>
           </div>
         </ThemeProvider>
@@ -254,6 +264,17 @@ export default function ToolsPage({ user }) {
           )}
           {((currentTab === 3 && hasTicketCounterAccess) || (currentTab === 2 && !hasTicketCounterAccess)) && (
             <ErrosComuns user={user} />
+          )}
+          {((currentTab === 4 && hasTicketCounterAccess) || (currentTab === 3 && !hasTicketCounterAccess)) && (
+            <>
+              <div className={styles.pageHeader}>
+                <h1 className={styles.pageTitle}>Divisor de Planilhas</h1>
+                <p className={styles.pageDescription}>
+                  Ferramenta para dividir planilhas grandes em partes menores para facilitar a importação no sistema ERP.
+                </p>
+              </div>
+              <SheetSplitter />
+            </>
           )}
         </div>
       </main>
