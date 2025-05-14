@@ -30,7 +30,7 @@ export async function middleware(req) {
     '/manager': allowedRoles,
     '/admin-notifications': ['dev'],
     '/remote': ['support+', 'super'],
-    '/tools': ['support', 'support+', 'analyst', 'super', 'tax']
+    '/tools': ['support', 'support+', 'analyst', 'super', 'tax', 'quality']
   };
 
   // Verificar acesso à rota atual

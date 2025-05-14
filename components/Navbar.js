@@ -368,9 +368,14 @@ export default function Navbar({ user }) {
             )}
 
             {user.role === 'quality' && (
-              <NavLink href="/dashboard-quality" className={styles.menuButton}>
-                Dashboard Qualidade
-              </NavLink>
+              <>
+                <NavLink href="/dashboard-quality" className={styles.menuButton}>
+                  Dashboard Qualidade
+                </NavLink>
+                <NavLink href="/tools" className={styles.menuButton}>
+                  Ferramentas
+                </NavLink>
+              </>
             )}
 
             {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
