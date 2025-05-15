@@ -312,7 +312,7 @@ const SheetSplitter = () => {
             Divisor de Planilhas ERP
           </h2>
           <p className={styles.description}>
-            Divida planilhas grandes em partes menores para facilitar a importação no sistema ERP Olist.
+            Divida planilhas grandes em partes menores para facilitar a importação no sistema.
           </p>
         </div>
       </div>
@@ -506,7 +506,6 @@ const SheetSplitter = () => {
                   <li>O tamanho máximo de arquivo é 5MB</li>
                   <li>O layout deve seguir o padrão exato do ERP</li>
                   <li>Cada parte manterá o cabeçalho original</li>
-                  <li>As variações de produtos são mantidas com seus pais</li>
                 </ul>
               </div>
               
@@ -515,7 +514,7 @@ const SheetSplitter = () => {
                 <div>
                   <h4>Dica</h4>
                   <p>
-                    Planilhas com muitas linhas causam timeouts no ERP. Esta ferramenta divide sua planilha 
+                    Planilhas com muitas linhas causam timeouts ou erros na importação. Esta ferramenta divide a planilha 
                     mantendo a integridade dos dados e facilitando a importação em lotes menores.
                   </p>
                 </div>
