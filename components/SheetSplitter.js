@@ -9,7 +9,9 @@ import {
   FaInfoCircle, 
   FaTable,
   FaFileAlt,
-  FaChevronRight
+  FaChevronRight,
+  FaCloudDownloadAlt,
+  FaTimesCircle
 } from 'react-icons/fa';
 import styles from '../styles/SheetSplitter.module.css';
 import { useApiLoader } from '../utils/apiLoader';
@@ -29,6 +31,7 @@ const SheetSplitter = () => {
   const [estimatedSize, setEstimatedSize] = useState(0);
   const [activeStep, setActiveStep] = useState(1);
   const { callApi } = useApiLoader();
+  const [validationResult, setValidationResult] = useState(null);
 
   const layoutOptions = [
     { value: 'produtos', label: 'Produtos', icon: <FaTable /> },
@@ -38,6 +41,16 @@ const SheetSplitter = () => {
     { value: 'contas_receber', label: 'Contas a Receber', icon: <FaTable /> },
     { value: 'contas_pagar', label: 'Contas a Pagar', icon: <FaTable /> }
   ];
+
+  // Mapeia os tipos de layout para os arquivos de modelo correspondentes
+  const layoutTemplates = {
+    'produtos': '/planilhas base/produtos.xls',
+    'clientes': '/planilhas base/clientes.xls',
+    'contatos': '/planilhas base/contatos.xls',
+    'inventario': '/planilhas base/inventario.xls',
+    'contas_receber': '/planilhas base/contas a receber.xls',
+    'contas_pagar': '/planilhas base/contas a pagar.xls'
+  };
 
   const handleFileChange = async (event) => {
     const selectedFile = event.target.files[0];
@@ -68,6 +81,7 @@ const SheetSplitter = () => {
       setFileSummary(`Nome: ${selectedFile.name}, Tamanho: ${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB, Formato: ${fileType}`);
       setEstimatedSize(selectedFile.size);
       setActiveStep(2);
+      setValidationResult(null);
       
       if (!selectedOption) {
         setError('Selecione o tipo de planilha antes de enviar um arquivo.');
@@ -93,7 +107,7 @@ const SheetSplitter = () => {
       setIsProcessing(true);
       setSuccessMessage('Validando formato da planilha...');
       
-      await callApi('/api/validate-layout', {
+      const response = await callApi('/api/validate-layout', {
         method: 'POST',
         body: formData,
         headers: {
@@ -106,15 +120,48 @@ const SheetSplitter = () => {
         type: 'local'
       });
       
+      // Se chegarmos aqui, a validação foi bem-sucedida
       setError('');
       setSuccessMessage('Validação concluída! A planilha está no formato correto.');
       toast.success('Layout validado com sucesso!');
+      
+      // Definir resultado de validação
+      try {
+        // Tentar extrair detalhes da validação, se disponíveis
+        if (response && response.data) {
+          setValidationResult({
+            status: 'success',
+            details: response.data
+          });
+        } else {
+          setValidationResult({
+            status: 'success',
+            details: null
+          });
+        }
+      } catch (parseError) {
+        console.error('Erro ao processar resultado da validação:', parseError);
+        setValidationResult({
+          status: 'success',
+          details: null
+        });
+      }
     } catch (error) {
       let errorMessage = error.message || 'Erro desconhecido';
       let detailedError = '';
+      let validationDetails = null;
       
       // Ocultar a mensagem de validação quando há erro
       setSuccessMessage('');
+      
+      // Tentar extrair detalhes da validação, se disponíveis
+      try {
+        if (error.response && error.response.data) {
+          validationDetails = error.response.data;
+        }
+      } catch (parseError) {
+        console.error('Erro ao processar detalhes do erro:', parseError);
+      }
       
       // Tratamento específico para mensagens de erro conhecidas
       if (errorMessage.includes('Número de colunas incorreto')) {
@@ -136,6 +183,13 @@ const SheetSplitter = () => {
       } else if (errorMessage.includes('Erro 400')) {
         errorMessage = `O layout do arquivo não corresponde ao tipo "${getLayoutLabel(selectedOption)}" selecionado. Verifique se você escolheu o tipo correto de planilha.`;
       }
+      
+      // Definir resultado de validação para erro
+      setValidationResult({
+        status: 'error',
+        message: errorMessage,
+        details: validationDetails
+      });
       
       setError(
         <div className={styles.errorContent}>
@@ -185,6 +239,7 @@ const SheetSplitter = () => {
     setFileUrl('');
     setFileSummary('');
     setEstimatedSize(0);
+    setValidationResult(null);
     
     // Se selecionou uma opção, pode avançar para o upload
     if (event.target.value) {
@@ -215,6 +270,7 @@ const SheetSplitter = () => {
     setProgress(0);
     setSuccessMessage('Iniciando validação do layout...');
     setActiveStep(3);
+    setValidationResult(null);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -313,17 +369,109 @@ const SheetSplitter = () => {
   const getLayoutInfo = (option) => {
     switch (option) {
       case 'produtos':
-        return 'A planilha de produtos deve seguir o layout específico com colunas de código, descrição, preço e outros atributos do produto.';
+        return (
+          <div className={styles.detailedLayoutInfo}>
+            <p><strong>Layout da planilha de Produtos:</strong></p>
+            <p>Esta planilha deve conter as seguintes colunas principais:</p>
+            <ul>
+              <li><strong>Código do Produto</strong> - identificador único do produto</li>
+              <li><strong>Nome do Produto</strong> - descrição completa</li>
+              <li><strong>Preço</strong> - valor de venda</li>
+              <li><strong>NCM</strong> - código fiscal do produto</li>
+              <li><strong>Peso</strong> - peso em kg</li>
+              <li><strong>Dimensões</strong> - altura, largura e comprimento</li>
+              <li><strong>SKU</strong> - código de estoque</li>
+            </ul>
+            <p>O arquivo exemplo contém {5310} linhas com vários produtos e suas especificações completas.</p>
+          </div>
+        );
       case 'clientes':
-        return 'A planilha de clientes deve conter informações como nome, endereço, contato e documentos fiscais.';
+        return (
+          <div className={styles.detailedLayoutInfo}>
+            <p><strong>Layout da planilha de Clientes:</strong></p>
+            <p>Esta planilha deve conter as seguintes colunas principais:</p>
+            <ul>
+              <li><strong>Código do Cliente</strong> - identificador único</li>
+              <li><strong>Nome/Razão Social</strong> - nome completo</li>
+              <li><strong>CPF/CNPJ</strong> - documento fiscal</li>
+              <li><strong>Endereço</strong> - logradouro completo</li>
+              <li><strong>Bairro</strong> - bairro do endereço</li>
+              <li><strong>Cidade</strong> - cidade do endereço</li>
+              <li><strong>UF</strong> - estado</li>
+              <li><strong>CEP</strong> - código postal</li>
+              <li><strong>Telefone</strong> - número para contato</li>
+              <li><strong>Email</strong> - endereço de email</li>
+            </ul>
+            <p>O arquivo exemplo contém {8141} linhas com dados cadastrais completos de clientes.</p>
+          </div>
+        );
       case 'contatos':
-        return 'A planilha de contatos deve seguir o layout de informações de contatos com campos como nome, e-mail e telefone.';
+        return (
+          <div className={styles.detailedLayoutInfo}>
+            <p><strong>Layout da planilha de Contatos:</strong></p>
+            <p>Esta planilha deve conter as seguintes colunas principais:</p>
+            <ul>
+              <li><strong>Nome do Contato</strong> - nome completo</li>
+              <li><strong>Email</strong> - endereço de email</li>
+              <li><strong>Telefone</strong> - número para contato</li>
+              <li><strong>Cargo/Função</strong> - (se aplicável)</li>
+              <li><strong>Empresa</strong> - (se aplicável)</li>
+              <li><strong>Observações</strong> - informações adicionais</li>
+            </ul>
+            <p>O arquivo exemplo contém {28} linhas com informações básicas de contatos.</p>
+          </div>
+        );
       case 'inventario':
-        return 'A planilha de inventário deve conter informações de SKU, localização e saldo de estoque.';
+        return (
+          <div className={styles.detailedLayoutInfo}>
+            <p><strong>Layout da planilha de Inventário:</strong></p>
+            <p>Esta planilha deve conter as seguintes colunas principais:</p>
+            <ul>
+              <li><strong>SKU/Código</strong> - identificador do produto</li>
+              <li><strong>Descrição</strong> - nome do produto</li>
+              <li><strong>Localização</strong> - posição no estoque</li>
+              <li><strong>Quantidade</strong> - saldo disponível</li>
+              <li><strong>Valor Unitário</strong> - custo unitário</li>
+              <li><strong>Valor Total</strong> - valor total do estoque</li>
+              <li><strong>Data</strong> - data da contagem</li>
+            </ul>
+            <p>O arquivo exemplo contém {963} linhas com informações detalhadas de estoque e inventário.</p>
+          </div>
+        );
       case 'contas_receber':
-        return 'A planilha de contas a receber deve incluir colunas como data de emissão, vencimento, valor e saldo.';
+        return (
+          <div className={styles.detailedLayoutInfo}>
+            <p><strong>Layout da planilha de Contas a Receber:</strong></p>
+            <p>Esta planilha deve conter as seguintes colunas principais:</p>
+            <ul>
+              <li><strong>Número do Documento</strong> - identificador da conta</li>
+              <li><strong>Cliente</strong> - nome ou código do cliente</li>
+              <li><strong>Data de Emissão</strong> - data de criação</li>
+              <li><strong>Data de Vencimento</strong> - data limite para pagamento</li>
+              <li><strong>Valor</strong> - valor a receber</li>
+              <li><strong>Status</strong> - situação do pagamento</li>
+              <li><strong>Forma de Pagamento</strong> - método de recebimento</li>
+            </ul>
+            <p>O arquivo exemplo contém {3107} linhas com registros financeiros de contas a receber.</p>
+          </div>
+        );
       case 'contas_pagar':
-        return 'A planilha de contas a pagar deve incluir colunas de data de vencimento, valor e status de pagamento.';
+        return (
+          <div className={styles.detailedLayoutInfo}>
+            <p><strong>Layout da planilha de Contas a Pagar:</strong></p>
+            <p>Esta planilha deve conter as seguintes colunas principais:</p>
+            <ul>
+              <li><strong>Número do Documento</strong> - identificador da conta</li>
+              <li><strong>Fornecedor</strong> - nome ou código do fornecedor</li>
+              <li><strong>Data de Emissão</strong> - data de criação</li>
+              <li><strong>Data de Vencimento</strong> - data limite para pagamento</li>
+              <li><strong>Valor</strong> - valor a pagar</li>
+              <li><strong>Status</strong> - situação do pagamento</li>
+              <li><strong>Categoria</strong> - tipo de despesa</li>
+            </ul>
+            <p>O arquivo exemplo contém {859} linhas com registros financeiros de contas a pagar.</p>
+          </div>
+        );
       default:
         return '';
     }
@@ -359,6 +507,109 @@ const SheetSplitter = () => {
   const getLayoutLabel = (option) => {
     const layout = layoutOptions.find(layout => layout.value === option);
     return layout ? layout.label : option;
+  };
+
+  // Função para baixar o modelo de planilha
+  const downloadTemplate = (option) => {
+    const templatePath = layoutTemplates[option];
+    if (templatePath) {
+      window.open(templatePath, '_blank');
+      toast.success(`Baixando modelo de ${getLayoutLabel(option)}...`);
+    } else {
+      toast.error('Modelo não disponível');
+    }
+  };
+
+  // Renderiza o resultado da validação do cabeçalho
+  const renderValidationResult = () => {
+    if (!validationResult) return null;
+    
+    if (validationResult.status === 'success') {
+      return (
+        <div className={styles.validationCard}>
+          <div className={styles.cardHeader}>
+            <h3>Resultado da Validação</h3>
+          </div>
+          <div className={styles.cardContent}>
+            <div className={styles.validationSuccess}>
+              <FaCheckCircle className={styles.validationSuccessIcon} />
+              <div className={styles.validationMessage}>
+                <h4>Layout validado com sucesso!</h4>
+                <p>Todos os cabeçalhos estão corretos e compatíveis com o modelo esperado.</p>
+              </div>
+            </div>
+            
+            {validationResult.details && validationResult.details.columns && (
+              <div className={styles.validationDetails}>
+                <h4>Detalhes da Validação</h4>
+                <div className={styles.columnsList}>
+                  {validationResult.details.columns.map((column, index) => (
+                    <div key={index} className={styles.columnItem}>
+                      <FaCheckCircle className={styles.columnSuccessIcon} />
+                      <span>{column}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className={styles.validationCard}>
+          <div className={styles.cardHeader}>
+            <h3>Resultado da Validação</h3>
+          </div>
+          <div className={styles.cardContent}>
+            <div className={styles.validationError}>
+              <FaTimesCircle className={styles.validationErrorIcon} />
+              <div className={styles.validationMessage}>
+                <h4>Problemas detectados no layout</h4>
+                <p>{validationResult.message || 'Verifique se o arquivo segue o layout esperado'}</p>
+              </div>
+            </div>
+            
+            {validationResult.details && validationResult.details.expected && validationResult.details.found && (
+              <div className={styles.validationDetails}>
+                <h4>Comparação de Cabeçalhos</h4>
+                <div className={styles.headersComparison}>
+                  <div className={styles.headersColumn}>
+                    <h5>Esperado</h5>
+                    <div className={styles.columnsList}>
+                      {validationResult.details.expected.map((column, index) => {
+                        const isFound = validationResult.details.found.includes(column);
+                        return (
+                          <div key={`expected-${index}`} className={`${styles.columnItem} ${isFound ? styles.columnMatch : styles.columnMissing}`}>
+                            {isFound ? <FaCheckCircle className={styles.columnSuccessIcon} /> : <FaTimesCircle className={styles.columnErrorIcon} />}
+                            <span>{column}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  
+                  <div className={styles.headersColumn}>
+                    <h5>Encontrado</h5>
+                    <div className={styles.columnsList}>
+                      {validationResult.details.found.map((column, index) => {
+                        const isExpected = validationResult.details.expected.includes(column);
+                        return (
+                          <div key={`found-${index}`} className={`${styles.columnItem} ${isExpected ? styles.columnMatch : styles.columnExtra}`}>
+                            {isExpected ? <FaCheckCircle className={styles.columnSuccessIcon} /> : <FaExclamationTriangle className={styles.columnWarningIcon} />}
+                            <span>{column}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
   };
 
   return (
@@ -419,6 +670,7 @@ const SheetSplitter = () => {
                         setFileUrl('');
                         setFileSummary('');
                         setEstimatedSize(0);
+                        setValidationResult(null);
                         setActiveStep(1);
                         if (file) {
                           setFile(null);
@@ -438,7 +690,18 @@ const SheetSplitter = () => {
               {selectedOption && (
                 <div className={styles.layoutInfo}>
                   <FaInfoCircle className={styles.infoIcon} />
-                  <p>{getLayoutInfo(selectedOption)}</p>
+                  {getLayoutInfo(selectedOption)}
+                  
+                  <div className={styles.templateDownload}>
+                    <button 
+                      className={styles.templateDownloadButton}
+                      onClick={() => downloadTemplate(selectedOption)}
+                    >
+                      <FaCloudDownloadAlt />
+                      <span>Baixar Modelo de {getLayoutLabel(selectedOption)}</span>
+                    </button>
+                    <p className={styles.templateNote}>Use este modelo como referência para garantir compatibilidade</p>
+                  </div>
                 </div>
               )}
             </div>
@@ -508,6 +771,9 @@ const SheetSplitter = () => {
             </div>
           </div>
         </div>
+
+        {/* Renderizar o resultado da validação, se disponível */}
+        {file && validationResult && !isProcessing && renderValidationResult()}
 
         {isProcessing && (
           <div className={styles.processingCard}>
