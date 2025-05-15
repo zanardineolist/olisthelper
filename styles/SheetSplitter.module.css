@@ -222,6 +222,25 @@
   color: var(--color-primary) !important;
 }
 
+/* Área de processamento e status, agora mais destacada */
+.processingStatusArea {
+  width: 100%;
+  margin-bottom: 24px;
+  order: 2; /* Colocar após o grid principal, mas antes das informações de layout */
+}
+
+/* Card de informações de layout */
+.layoutInfoCard {
+  background-color: var(--color-background-card);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  margin-bottom: 24px;
+  width: 100%;
+  order: 3; /* Colocar após a área de processamento */
+}
+
 /* Layout Info */
 .layoutInfo {
   display: flex;
@@ -232,7 +251,6 @@
   padding: 16px;
   border-radius: 8px;
   border-left: 4px solid var(--color-primary);
-  margin-top: 16px;
 }
 
 .infoIcon {
@@ -745,6 +763,27 @@
   
   .instructionsContent {
     grid-template-columns: 1fr;
+  }
+  
+  .contentContainer {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .cardGrid {
+    order: 1;
+  }
+  
+  .processingStatusArea {
+    order: 2;
+  }
+  
+  .layoutInfoCard {
+    order: 3;
+  }
+  
+  .instructionsContainer {
+    order: 4;
   }
 }
 

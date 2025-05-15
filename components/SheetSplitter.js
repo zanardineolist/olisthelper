@@ -713,24 +713,6 @@ const SheetSplitter = () => {
                   ))}
                 </div>
               </div>
-              
-              {selectedOption && (
-                <div className={styles.layoutInfo}>
-                  <FaInfoCircle className={styles.infoIcon} />
-                  {getLayoutInfo(selectedOption)}
-                  
-                  <div className={styles.templateDownload}>
-                    <button 
-                      className={styles.templateDownloadButton}
-                      onClick={() => downloadTemplate(selectedOption)}
-                    >
-                      <FaCloudDownloadAlt />
-                      <span>Baixar Modelo de {getLayoutLabel(selectedOption)}</span>
-                    </button>
-                    <p className={styles.templateNote}>Use este modelo como referência para garantir compatibilidade</p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
@@ -799,59 +781,88 @@ const SheetSplitter = () => {
           </div>
         </div>
 
-        {/* Renderizar o resultado da validação, se disponível */}
-        {file && validationResult && !isProcessing && renderValidationResult()}
-
-        {isProcessing && (
-          <div className={styles.processingCard}>
-            <div className={styles.cardHeader}>
-              <h3>Processando...</h3>
-            </div>
-            <div className={styles.cardContent}>
-              <div className={styles.progressContainer}>
-                <div className={styles.progressBarContainer}>
-                  <div className={styles.progressBar}>
-                    <div className={styles.progressFill} style={{ width: `${progress}%` }}></div>
+        {/* Área de Status e Processamento - Agora mais visível */}
+        <div className={styles.processingStatusArea}>
+          {isProcessing && (
+            <div className={styles.processingCard}>
+              <div className={styles.cardHeader}>
+                <h3>Processando...</h3>
+              </div>
+              <div className={styles.cardContent}>
+                <div className={styles.progressContainer}>
+                  <div className={styles.progressBarContainer}>
+                    <div className={styles.progressBar}>
+                      <div className={styles.progressFill} style={{ width: `${progress}%` }}></div>
+                    </div>
+                    <span className={styles.progressPercentage}>{progress}%</span>
                   </div>
-                  <span className={styles.progressPercentage}>{progress}%</span>
+                  <p className={styles.progressText}>
+                    {progress < 100 ? (
+                      <>
+                        <FaSpinner className={styles.spinnerIcon} /> {progress < 50 ? 'Analisando planilha...' : 'Dividindo planilha...'}
+                      </>
+                    ) : (
+                      'Finalizando...'
+                    )}
+                  </p>
                 </div>
-                <p className={styles.progressText}>
-                  {progress < 100 ? (
-                    <>
-                      <FaSpinner className={styles.spinnerIcon} /> {progress < 50 ? 'Analisando planilha...' : 'Dividindo planilha...'}
-                    </>
-                  ) : (
-                    'Finalizando...'
-                  )}
-                </p>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {fileUrl && !isProcessing && (
-          <div className={styles.resultCard}>
+          {/* Renderizar o resultado da validação, se disponível */}
+          {file && validationResult && !isProcessing && renderValidationResult()}
+
+          {fileUrl && !isProcessing && (
+            <div className={styles.resultCard}>
+              <div className={styles.cardHeader}>
+                <h3>Arquivo pronto!</h3>
+              </div>
+              <div className={styles.cardContent}>
+                <div className={styles.downloadContainer}>
+                  <p className={styles.downloadText}>Seu arquivo foi processado com sucesso e está pronto para download.</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = fileUrl;
+                      link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
+                      document.body.appendChild(link);
+                      link.click();
+                      link.parentNode.removeChild(link);
+                    }}
+                    className={styles.downloadButton}
+                  >
+                    <FaDownload />
+                    <span>Baixar Arquivo ZIP</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Detalhes do layout selecionado */}
+        {selectedOption && (
+          <div className={styles.layoutInfoCard}>
             <div className={styles.cardHeader}>
-              <h3>Arquivo pronto!</h3>
+              <h3>Informações do Layout</h3>
             </div>
             <div className={styles.cardContent}>
-              <div className={styles.downloadContainer}>
-                <p className={styles.downloadText}>Seu arquivo foi processado com sucesso e está pronto para download.</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const link = document.createElement('a');
-                    link.href = fileUrl;
-                    link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
-                    document.body.appendChild(link);
-                    link.click();
-                    link.parentNode.removeChild(link);
-                  }}
-                  className={styles.downloadButton}
-                >
-                  <FaDownload />
-                  <span>Baixar Arquivo ZIP</span>
-                </button>
+              <div className={styles.layoutInfo}>
+                <FaInfoCircle className={styles.infoIcon} />
+                {getLayoutInfo(selectedOption)}
+                
+                <div className={styles.templateDownload}>
+                  <button 
+                    className={styles.templateDownloadButton}
+                    onClick={() => downloadTemplate(selectedOption)}
+                  >
+                    <FaCloudDownloadAlt />
+                    <span>Baixar Modelo de {getLayoutLabel(selectedOption)}</span>
+                  </button>
+                  <p className={styles.templateNote}>Use este modelo como referência para garantir compatibilidade</p>
+                </div>
               </div>
             </div>
           </div>
