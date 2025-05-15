@@ -97,6 +97,7 @@ const SheetSplitter = () => {
       
       setError('');
       setSuccessMessage('Validação concluída! A planilha está no formato correto.');
+      toast.success('Layout validado com sucesso!');
     } catch (error) {
       console.error('Erro na validação:', error);
       let errorMessage = error.message || 'Erro desconhecido';
@@ -111,6 +112,7 @@ const SheetSplitter = () => {
       }
       
       setError(`Erro na validação: ${errorMessage}`);
+      toast.error('Erro na validação do arquivo');
       setFile(null);
       
       // Limpar campo de arquivo
@@ -250,6 +252,7 @@ const SheetSplitter = () => {
   useEffect(() => {
     if (estimatedSize > 5 * 1024 * 1024) {
       setError('O arquivo pode ser muito grande para processar. Considere dividir manualmente se exceder o limite de 5MB.');
+      toast.warning('Arquivo pode exceder o limite de tamanho permitido');
     } else if (estimatedSize > 0 && !error) {
       setError('');
     }
@@ -390,7 +393,7 @@ const SheetSplitter = () => {
                   >
                     <FaFileAlt className={styles.fileIcon} />
                     <div className={styles.fileInputText}>
-                      <span className={styles.fileInputTitle}>Arraste ou clique para selecionar</span>
+                      <span className={styles.fileInputTitle}>Clique para selecionar um arquivo</span>
                       <span className={styles.fileInputSubtitle}>Formatos suportados: .xls, .xlsx, .csv (máx. 5MB)</span>
                     </div>
                     <FaUpload className={styles.uploadIcon} />
