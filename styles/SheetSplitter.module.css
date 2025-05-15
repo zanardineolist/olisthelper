@@ -326,17 +326,20 @@
   padding: 16px;
   border-radius: 8px;
   border: 1px solid var(--color-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .fileSummaryHeader {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .fileSummaryIcon {
-  font-size: 20px;
+  font-size: 22px;
   color: var(--color-primary);
 }
 
@@ -344,13 +347,26 @@
   font-size: 16px;
   color: var(--color-title);
   margin: 0;
+  font-weight: 600;
 }
 
-.fileSummaryText {
-  margin: 0;
-  color: var(--color-text);
+.fileSummaryContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fileSummaryItem {
+  display: flex;
   font-size: 14px;
   line-height: 1.5;
+  color: var(--color-text);
+}
+
+.fileSummaryItem strong {
+  min-width: 80px;
+  color: var(--color-text-secondary);
+  font-weight: 600;
 }
 
 /* Error and Success Messages */

@@ -54,8 +54,18 @@ const SheetSplitter = () => {
         return;
       }
       
+      // Simplifica o tipo de arquivo para exibição
+      let fileType = "Desconhecido";
+      if (selectedFile.name.toLowerCase().endsWith('.csv')) {
+        fileType = "CSV";
+      } else if (selectedFile.name.toLowerCase().endsWith('.xlsx')) {
+        fileType = "Excel (XLSX)";
+      } else if (selectedFile.name.toLowerCase().endsWith('.xls')) {
+        fileType = "Excel (XLS)";
+      }
+      
       setFile(selectedFile);
-      setFileSummary(`Nome: ${selectedFile.name}, Tamanho: ${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB, Tipo: ${selectedFile.type || 'Não identificado'}`);
+      setFileSummary(`Nome: ${selectedFile.name}, Tamanho: ${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB, Formato: ${fileType}`);
       setEstimatedSize(selectedFile.size);
       setActiveStep(2);
       
@@ -309,7 +319,7 @@ const SheetSplitter = () => {
         <div className={styles.headerContent}>
           <h2 className={styles.title}>
             <FaFileExcel className={styles.titleIcon} />
-            Divisor de Planilhas ERP
+            Divisor de Planilhas
           </h2>
           <p className={styles.description}>
             Divida planilhas grandes em partes menores para facilitar a importação no sistema.
@@ -411,10 +421,26 @@ const SheetSplitter = () => {
                 {fileSummary && (
                   <div className={styles.fileSummaryCard}>
                     <div className={styles.fileSummaryHeader}>
-                      <FaFileExcel className={styles.fileSummaryIcon} />
+                      {file && file.name.toLowerCase().endsWith('.csv') ? (
+                        <FaFileAlt className={styles.fileSummaryIcon} />
+                      ) : (
+                        <FaFileExcel className={styles.fileSummaryIcon} />
+                      )}
                       <h3>Arquivo selecionado</h3>
                     </div>
-                    <p className={styles.fileSummaryText}>{fileSummary}</p>
+                    <div className={styles.fileSummaryContent}>
+                      <div className={styles.fileSummaryItem}>
+                        <strong>Nome:</strong> {file ? file.name : ''}
+                      </div>
+                      <div className={styles.fileSummaryItem}>
+                        <strong>Tamanho:</strong> {file ? (file.size / (1024 * 1024)).toFixed(2) + ' MB' : ''}
+                      </div>
+                      <div className={styles.fileSummaryItem}>
+                        <strong>Formato:</strong> {file && file.name.toLowerCase().endsWith('.csv') ? 'CSV' : 
+                                           file && file.name.toLowerCase().endsWith('.xlsx') ? 'Excel (XLSX)' : 
+                                           file && file.name.toLowerCase().endsWith('.xls') ? 'Excel (XLS)' : 'Desconhecido'}
+                      </div>
+                    </div>
                   </div>
                 )}
   
