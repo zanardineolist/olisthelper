@@ -777,69 +777,62 @@ const SheetSplitter = () => {
                   </button>
                 )}
               </form>
+              
+              {/* Área de processamento e validação integrada ao card de upload */}
+              {(isProcessing || (file && validationResult && !isProcessing) || (fileUrl && !isProcessing)) && (
+                <div className={styles.uploadProcessingArea}>
+                  {isProcessing && (
+                    <div className={styles.processingStatus}>
+                      <div className={styles.processingStatusHeader}>
+                        <FaSpinner className={styles.spinnerIcon} />
+                        <h4>Processando...</h4>
+                      </div>
+                      <div className={styles.progressContainer}>
+                        <div className={styles.progressBarContainer}>
+                          <div className={styles.progressBar}>
+                            <div className={styles.progressFill} style={{ width: `${progress}%` }}></div>
+                          </div>
+                          <span className={styles.progressPercentage}>{progress}%</span>
+                        </div>
+                        <p className={styles.progressText}>
+                          {progress < 50 ? 'Analisando planilha...' : progress < 100 ? 'Dividindo planilha...' : 'Finalizando...'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Resultado da validação */}
+                  {file && validationResult && !isProcessing && renderValidationResult()}
+
+                  {/* Resultado do processamento */}
+                  {fileUrl && !isProcessing && (
+                    <div className={styles.processingResult}>
+                      <div className={styles.processingResultHeader}>
+                        <FaCheckCircle className={styles.successIcon} />
+                        <h4>Arquivo pronto!</h4>
+                      </div>
+                      <p className={styles.downloadText}>Seu arquivo foi processado com sucesso e está pronto para download.</p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = fileUrl;
+                          link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
+                          document.body.appendChild(link);
+                          link.click();
+                          link.parentNode.removeChild(link);
+                        }}
+                        className={styles.downloadButton}
+                      >
+                        <FaDownload />
+                        <span>Baixar Arquivo ZIP</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-        </div>
-
-        {/* Área de Status e Processamento - Agora mais visível */}
-        <div className={styles.processingStatusArea}>
-          {isProcessing && (
-            <div className={styles.processingCard}>
-              <div className={styles.cardHeader}>
-                <h3>Processando...</h3>
-              </div>
-              <div className={styles.cardContent}>
-                <div className={styles.progressContainer}>
-                  <div className={styles.progressBarContainer}>
-                    <div className={styles.progressBar}>
-                      <div className={styles.progressFill} style={{ width: `${progress}%` }}></div>
-                    </div>
-                    <span className={styles.progressPercentage}>{progress}%</span>
-                  </div>
-                  <p className={styles.progressText}>
-                    {progress < 100 ? (
-                      <>
-                        <FaSpinner className={styles.spinnerIcon} /> {progress < 50 ? 'Analisando planilha...' : 'Dividindo planilha...'}
-                      </>
-                    ) : (
-                      'Finalizando...'
-                    )}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Renderizar o resultado da validação, se disponível */}
-          {file && validationResult && !isProcessing && renderValidationResult()}
-
-          {fileUrl && !isProcessing && (
-            <div className={styles.resultCard}>
-              <div className={styles.cardHeader}>
-                <h3>Arquivo pronto!</h3>
-              </div>
-              <div className={styles.cardContent}>
-                <div className={styles.downloadContainer}>
-                  <p className={styles.downloadText}>Seu arquivo foi processado com sucesso e está pronto para download.</p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const link = document.createElement('a');
-                      link.href = fileUrl;
-                      link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
-                      document.body.appendChild(link);
-                      link.click();
-                      link.parentNode.removeChild(link);
-                    }}
-                    className={styles.downloadButton}
-                  >
-                    <FaDownload />
-                    <span>Baixar Arquivo ZIP</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Detalhes do layout selecionado */}
