@@ -111,17 +111,55 @@ const SheetSplitter = () => {
     } catch (error) {
       console.error('Erro na validação:', error);
       let errorMessage = error.message || 'Erro desconhecido';
+      let detailedError = '';
       
       // Tratamento específico para mensagens de erro conhecidas
       if (errorMessage.includes('Número de colunas incorreto')) {
-        errorMessage = `Layout incorreto: ${errorMessage}`;
+        detailedError = errorMessage;
+        errorMessage = `Incompatibilidade de layout: O número de colunas não corresponde ao layout esperado para "${getLayoutLabel(selectedOption)}".`;
       } else if (errorMessage.includes('Erro na coluna')) {
-        errorMessage = `Layout incorreto: ${errorMessage}`;
+        // Extrair o nome da coluna esperada e recebida
+        const match = errorMessage.match(/Esperado "([^"]+)", mas encontrado "([^"]+)"/);
+        if (match) {
+          const [_, expectedColumn, foundColumn] = match;
+          detailedError = errorMessage;
+          errorMessage = `Incompatibilidade de layout: Encontrada coluna "${foundColumn}" quando era esperada "${expectedColumn}".`;
+        } else {
+          detailedError = errorMessage;
+          errorMessage = `Incompatibilidade de layout: As colunas não correspondem ao layout esperado para "${getLayoutLabel(selectedOption)}".`;
+        }
       } else if (errorMessage.includes('limite de 5MB')) {
         errorMessage = 'Arquivo muito grande: O limite máximo é de 5MB.';
+      } else if (errorMessage.includes('Erro 400')) {
+        errorMessage = `O layout do arquivo não corresponde ao tipo "${getLayoutLabel(selectedOption)}" selecionado. Verifique se você escolheu o tipo correto de planilha.`;
       }
       
-      setError(`Erro na validação: ${errorMessage}`);
+      setError(
+        <div className={styles.errorContent}>
+          <div className={styles.errorTitle}>
+            <FaExclamationTriangle /> Erro na validação
+          </div>
+          <div className={styles.errorDescription}>
+            {errorMessage}
+          </div>
+          {detailedError && (
+            <div className={styles.errorDetails}>
+              <details>
+                <summary>Detalhes técnicos</summary>
+                <p>{detailedError}</p>
+              </details>
+            </div>
+          )}
+          <div className={styles.errorHelp}>
+            <strong>Sugestões:</strong>
+            <ul>
+              <li>Verifique se selecionou o tipo correto de planilha no menu</li>
+              <li>Certifique-se de que o arquivo segue exatamente o layout esperado</li>
+              <li>Compare o cabeçalho do seu arquivo com o modelo oficial</li>
+            </ul>
+          </div>
+        </div>
+      );
       toast.error('Erro na validação do arquivo');
       setFile(null);
       
@@ -313,6 +351,12 @@ const SheetSplitter = () => {
     );
   };
 
+  // Função auxiliar para obter o rótulo amigável do tipo de layout
+  const getLayoutLabel = (option) => {
+    const layout = layoutOptions.find(layout => layout.value === option);
+    return layout ? layout.label : option;
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -332,8 +376,14 @@ const SheetSplitter = () => {
       <div className={styles.contentContainer}>
         {error && (
           <div className={styles.errorMessage}>
-            <FaExclamationTriangle />
-            <span>{error}</span>
+            {typeof error === 'string' ? (
+              <>
+                <FaExclamationTriangle />
+                <span>{error}</span>
+              </>
+            ) : (
+              error
+            )}
           </div>
         )}
 
