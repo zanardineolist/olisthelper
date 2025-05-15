@@ -22,13 +22,15 @@ import {
   CircularProgress,
   Tooltip,
   Badge,
-  Collapse
+  Collapse,
+  Paper,
+  Link
 } from '@mui/material';
 
 // Importando o React Select
 import Select from 'react-select';
 
-import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon, ContentCopy as ContentCopyIcon, Info as InfoIcon, Description as DescriptionIcon, FilterAlt as FilterAltIcon } from '@mui/icons-material';
+import { Search as SearchIcon, Close as CloseIcon, FilterList as FilterListIcon, ContentCopy as ContentCopyIcon, Info as InfoIcon, Description as DescriptionIcon, FilterAlt as FilterAltIcon, Announcement as AnnouncementIcon } from '@mui/icons-material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -840,6 +842,33 @@ export default function ErrosComuns({ user }) {
   return (
     <Container maxWidth="xl" className={styles.container}>
       <div className={styles.pageHeader}>
+        <Paper 
+          elevation={0} 
+          className={styles.infoBanner}
+          sx={{ 
+            padding: '12px 16px', 
+            marginBottom: '16px', 
+            backgroundColor: 'rgba(25, 118, 210, 0.08)', 
+            border: '1px solid rgba(25, 118, 210, 0.2)',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}
+        >
+          <AnnouncementIcon color="primary" />
+          <Typography variant="body2">
+            Você tem um erro mapeado e quer compartilhar? Envie para o canal do Slack{' '}
+            <Link 
+              href="https://olist.slack.com/archives/C08E3GUME3U" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              sx={{ fontWeight: 500 }}
+            >
+              #conteúdos-suporte
+            </Link>
+          </Typography>
+        </Paper>
         <h1 className={styles.pageTitle}>Base de Erros</h1>
         <p className={styles.pageDescription}>
           Esta ferramenta exibe erros mepeados e suas soluções para facilitar a busca e resolução de problemas.
