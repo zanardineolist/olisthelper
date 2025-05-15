@@ -147,6 +147,9 @@
   background-color: var(--color-background-secondary);
   padding: 16px 20px;
   border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .cardHeader h3 {
@@ -1094,4 +1097,29 @@
   .headersComparison {
     grid-template-columns: 1fr;
   }
+}
+
+/* Botão de nova importação */
+.newImportButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.newImportButton:hover {
+  background-color: var(--color-primary-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.newImportButton svg {
+  font-size: 14px;
 } 

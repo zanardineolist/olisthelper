@@ -11,7 +11,8 @@ import {
   FaFileAlt,
   FaChevronRight,
   FaCloudDownloadAlt,
-  FaTimesCircle
+  FaTimesCircle,
+  FaRedo
 } from 'react-icons/fa';
 import styles from '../styles/SheetSplitter.module.css';
 import { useApiLoader } from '../utils/apiLoader';
@@ -32,6 +33,7 @@ const SheetSplitter = () => {
   const [activeStep, setActiveStep] = useState(1);
   const { callApi } = useApiLoader();
   const [validationResult, setValidationResult] = useState(null);
+  const [processCompleted, setProcessCompleted] = useState(false);
 
   const layoutOptions = [
     { value: 'produtos', label: 'Produtos', icon: <FaTable /> },
@@ -53,6 +55,11 @@ const SheetSplitter = () => {
   };
 
   const handleFileChange = async (event) => {
+    // Não permitir seleção de arquivo se o processo já foi completado
+    if (processCompleted) {
+      return;
+    }
+    
     const selectedFile = event.target.files[0];
     if (selectedFile) {
       const validTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/csv'];
@@ -230,26 +237,30 @@ const SheetSplitter = () => {
     }
   };
 
-  const handleOptionChange = (event) => {
-    setSelectedOption(event.target.value);
-    setError('');
-    setSuccessMessage('');
+  const resetForm = () => {
+    setFile(null);
     setProgress(0);
+    setError('');
     setIsProcessing(false);
+    setSuccessMessage('');
     setFileUrl('');
     setFileSummary('');
     setEstimatedSize(0);
     setValidationResult(null);
+    setProcessCompleted(false);
+    setActiveStep(1);
     
+    // Limpar campo de arquivo
+    const fileInput = document.getElementById('file-input');
+    if (fileInput) fileInput.value = '';
+  };
+
+  const handleOptionChange = (event) => {
+    setSelectedOption(event.target.value);
+    resetForm();
     // Se selecionou uma opção, pode avançar para o upload
     if (event.target.value) {
       setActiveStep(1);
-    }
-
-    if (file) {
-      setFile(null);
-      const fileInput = document.getElementById('file-input');
-      if (fileInput) fileInput.value = '';
     }
   };
 
@@ -322,6 +333,7 @@ const SheetSplitter = () => {
         setFile(null);
         setFileSummary('');
         setActiveStep(4);
+        setProcessCompleted(true); // Marcar o processo como completado
         
         // Limpa campo de arquivo
         const fileInput = document.getElementById('file-input');
@@ -720,18 +732,36 @@ const SheetSplitter = () => {
           <div className={styles.uploadCard}>
             <div className={styles.cardHeader}>
               <h3>Enviar arquivo</h3>
+              {processCompleted && (
+                <button 
+                  className={styles.newImportButton}
+                  onClick={resetForm}
+                  title="Iniciar nova importação"
+                >
+                  <FaRedo /> Nova importação
+                </button>
+              )}
             </div>
             <div className={styles.cardContent}>
               <form onSubmit={handleSubmit} className={styles.uploadForm}>
                 <div className={styles.fileInputContainer}>
                   <label 
                     htmlFor="file-input" 
-                    className={`${styles.fileInputLabel} ${!selectedOption ? styles.fileInputDisabled : ''}`}
+                    className={`${styles.fileInputLabel} ${!selectedOption || processCompleted ? styles.fileInputDisabled : ''}`}
                   >
                     <FaFileAlt className={styles.fileIcon} />
                     <div className={styles.fileInputText}>
-                      <span className={styles.fileInputTitle}>Clique para selecionar um arquivo</span>
-                      <span className={styles.fileInputSubtitle}>Formatos suportados: .xls, .xlsx, .csv (máx. 5MB)</span>
+                      {processCompleted ? (
+                        <>
+                          <span className={styles.fileInputTitle}>Processo concluído</span>
+                          <span className={styles.fileInputSubtitle}>Clique em "Nova importação" para processar outro arquivo</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className={styles.fileInputTitle}>Clique para selecionar um arquivo</span>
+                          <span className={styles.fileInputSubtitle}>Formatos suportados: .xls, .xlsx, .csv (máx. 5MB)</span>
+                        </>
+                      )}
                     </div>
                     <FaUpload className={styles.uploadIcon} />
                   </label>
@@ -740,7 +770,7 @@ const SheetSplitter = () => {
                     type="file"
                     accept=".xls,.xlsx,.csv"
                     onChange={handleFileChange}
-                    disabled={!selectedOption}
+                    disabled={!selectedOption || processCompleted}
                     className={styles.fileInput}
                   />
                 </div>
@@ -771,7 +801,7 @@ const SheetSplitter = () => {
                   </div>
                 )}
   
-                {!isProcessing && file && (
+                {!isProcessing && file && !processCompleted && (
                   <button type="submit" className={styles.submitButton}>
                     <span>Dividir Arquivo</span>
                     <FaChevronRight />
