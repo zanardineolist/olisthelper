@@ -848,9 +848,9 @@ export default function ErrosComuns({ user }) {
           sx={{ 
             padding: '12px 16px', 
             marginBottom: '16px', 
-            backgroundColor: 'rgba(25, 118, 210, 0.08)', 
-            border: '1px solid rgba(25, 118, 210, 0.2)',
-            color: 'rgb(226, 226, 226)',
+            backgroundColor: 'var(--box-color)',
+            border: '1px solid var(--color-primary)',
+            color: 'var(--title-color)',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
