@@ -12,7 +12,8 @@ import {
   FaChevronRight,
   FaCloudDownloadAlt,
   FaTimesCircle,
-  FaRedo
+  FaRedo,
+  FaSearch
 } from 'react-icons/fa';
 import styles from '../styles/SheetSplitter.module.css';
 import { useApiLoader } from '../utils/apiLoader';
@@ -34,6 +35,8 @@ const SheetSplitter = () => {
   const { callApi } = useApiLoader();
   const [validationResult, setValidationResult] = useState(null);
   const [processCompleted, setProcessCompleted] = useState(false);
+  const [processPhase, setProcessPhase] = useState('idle'); // 'idle', 'validating', 'splitting', 'complete'
+  const [validationProgress, setValidationProgress] = useState(0);
 
   const layoutOptions = [
     { value: 'produtos', label: 'Produtos', icon: <FaTable /> },
@@ -112,7 +115,19 @@ const SheetSplitter = () => {
 
     try {
       setIsProcessing(true);
+      setProcessPhase('validating');
       setSuccessMessage('Validando formato da planilha...');
+      
+      // Simulação de progresso de validação
+      let validationTimer = setInterval(() => {
+        setValidationProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(validationTimer);
+            return 90; // Mantém em 90% até a resposta da API
+          }
+          return prev + 10;
+        });
+      }, 150);
       
       const response = await callApi('/api/validate-layout', {
         method: 'POST',
@@ -127,33 +142,43 @@ const SheetSplitter = () => {
         type: 'local'
       });
       
-      // Se chegarmos aqui, a validação foi bem-sucedida
-      setError('');
-      setSuccessMessage('Validação concluída! A planilha está no formato correto.');
-      toast.success('Layout validado com sucesso!');
+      // Validação concluída, ajusta para 100%
+      clearInterval(validationTimer);
+      setValidationProgress(100);
       
-      // Definir resultado de validação
-      try {
-        // Tentar extrair detalhes da validação, se disponíveis
-        if (response && response.data) {
-          setValidationResult({
-            status: 'success',
-            details: response.data
-          });
-        } else {
+      // Após breve pausa para mostrar 100%, define o sucesso
+      setTimeout(() => {
+        // Se chegarmos aqui, a validação foi bem-sucedida
+        setError('');
+        setSuccessMessage('Validação concluída! A planilha está no formato correto.');
+        setProcessPhase('validated');
+        toast.success('Layout validado com sucesso!');
+        
+        // Definir resultado de validação
+        try {
+          // Tentar extrair detalhes da validação, se disponíveis
+          if (response && response.data) {
+            setValidationResult({
+              status: 'success',
+              details: response.data
+            });
+          } else {
+            setValidationResult({
+              status: 'success',
+              details: null
+            });
+          }
+        } catch (parseError) {
+          console.error('Erro ao processar resultado da validação:', parseError);
           setValidationResult({
             status: 'success',
             details: null
           });
         }
-      } catch (parseError) {
-        console.error('Erro ao processar resultado da validação:', parseError);
-        setValidationResult({
-          status: 'success',
-          details: null
-        });
-      }
+      }, 500);
     } catch (error) {
+      setValidationProgress(0);
+      setProcessPhase('error');
       let errorMessage = error.message || 'Erro desconhecido';
       let detailedError = '';
       let validationDetails = null;
@@ -226,9 +251,6 @@ const SheetSplitter = () => {
       );
       toast.error('Erro na validação do arquivo');
       
-      // Não limpar o arquivo para manter as informações visíveis
-      // setFile(null);
-      
       // Limpar campo de arquivo para permitir nova seleção
       const fileInput = document.getElementById('file-input');
       if (fileInput) fileInput.value = '';
@@ -278,8 +300,9 @@ const SheetSplitter = () => {
     }
 
     setIsProcessing(true);
+    setProcessPhase('splitting');
     setProgress(0);
-    setSuccessMessage('Iniciando validação do layout...');
+    setSuccessMessage('Iniciando divisão do arquivo...');
     setActiveStep(3);
     setValidationResult(null);
 
@@ -288,19 +311,42 @@ const SheetSplitter = () => {
     formData.append('layoutType', selectedOption);
 
     try {
-      // Usando axios diretamente para ter mais controle sobre o tipo de resposta
+      // Usar axios diretamente para ter mais controle sobre o tipo de resposta
       const response = await axios.post('/api/split-handler', formData, {
         headers: { 
           'Content-Type': 'multipart/form-data',
           'Accept': '*/*'
         },
         onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setProgress(percentCompleted);
-          if (percentCompleted === 100) setSuccessMessage('Arquivo enviado, iniciando o processamento...');
+          // Durante o upload, o progresso vai de 0 a 40%
+          const uploadPercentage = Math.round((progressEvent.loaded * 40) / progressEvent.total);
+          setProgress(uploadPercentage);
+          if (uploadPercentage >= 40) {
+            setSuccessMessage('Arquivo enviado, iniciando o processamento...');
+            
+            // Após o upload completo, simulamos o progresso de processamento (40% a 90%)
+            let processingTimer = setInterval(() => {
+              setProgress(prev => {
+                if (prev >= 90) {
+                  clearInterval(processingTimer);
+                  return 90; // Mantém em 90% até a resposta final
+                }
+                return prev + 2;
+              });
+            }, 300);
+            
+            // Limpeza do timer em caso de resposta ou erro
+            setTimeout(() => {
+              clearInterval(processingTimer);
+            }, 15000); // Timeout de segurança
+          }
         },
         responseType: 'blob', // Isso garante que a resposta seja tratada como blob
       });
+
+      // Quando a resposta chega, o progresso vai para 100%
+      setProgress(100);
+      setSuccessMessage('Finalizado! Gerando arquivo para download...');
 
       // Verificando se a resposta é um formato JSON de erro
       const contentType = response.headers['content-type'];
@@ -317,32 +363,36 @@ const SheetSplitter = () => {
         };
         reader.readAsText(response.data);
       } else {
-        // É um arquivo ZIP válido
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        setFileUrl(url);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
+        // É um arquivo ZIP válido - Aguardar um pouco para mostrar o 100% antes de concluir
+        setTimeout(() => {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          setFileUrl(url);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode.removeChild(link);
 
-        setSuccessMessage('Processamento concluído! Arquivo pronto para download.');
-        setError('');
-        setProgress(100);
-        setFile(null);
-        setFileSummary('');
-        setActiveStep(4);
-        setProcessCompleted(true); // Marcar o processo como completado
-        
-        // Limpa campo de arquivo
-        const fileInput = document.getElementById('file-input');
-        if (fileInput) fileInput.value = '';
-        
-        // Exibe notificação de sucesso
-        toast.success('Planilha dividida com sucesso!');
+          setSuccessMessage('Processamento concluído! Arquivo pronto para download.');
+          setError('');
+          setProgress(100);
+          setFile(null);
+          setFileSummary('');
+          setActiveStep(4);
+          setProcessCompleted(true);
+          setProcessPhase('complete');
+          
+          // Limpa campo de arquivo
+          const fileInput = document.getElementById('file-input');
+          if (fileInput) fileInput.value = '';
+          
+          // Exibe notificação de sucesso
+          toast.success('Planilha dividida com sucesso!');
+        }, 800);
       }
     } catch (error) {
+      setProcessPhase('error');
       let errorMessage = error.message || 'Erro desconhecido';
       
       // Tratamento específico para mensagens de erro conhecidas
@@ -652,6 +702,135 @@ const SheetSplitter = () => {
     }
   };
 
+  // Componente de renderização da área de processamento
+  const renderProcessingArea = () => {
+    if (isProcessing) {
+      return (
+        <div className={styles.processingStatus}>
+          <div className={styles.processingStatusHeader}>
+            {processPhase === 'validating' ? (
+              <>
+                <FaSearch className={styles.processingIcon} />
+                <h4>Validando layout...</h4>
+              </>
+            ) : (
+              <>
+                <FaSpinner className={styles.spinnerIcon} />
+                <h4>Processando...</h4>
+              </>
+            )}
+          </div>
+          
+          <div className={styles.progressContainer}>
+            {processPhase === 'validating' ? (
+              <>
+                <div className={styles.progressBarContainer}>
+                  <div className={styles.progressBar}>
+                    <div 
+                      className={styles.progressFill} 
+                      style={{ width: `${validationProgress}%` }}
+                    />
+                  </div>
+                  <span className={styles.progressPercentage}>{validationProgress}%</span>
+                </div>
+                <p className={styles.progressText}>
+                  Verificando estrutura e cabeçalhos do arquivo...
+                </p>
+              </>
+            ) : (
+              <>
+                <div className={styles.progressBarContainer}>
+                  <div className={styles.progressBar}>
+                    <div 
+                      className={styles.progressFill} 
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <span className={styles.progressPercentage}>{progress}%</span>
+                </div>
+                <p className={styles.progressText}>
+                  {progress < 40 ? 'Enviando arquivo...' : 
+                   progress < 80 ? 'Dividindo planilha...' : 
+                   progress < 100 ? 'Empacotando arquivos...' : 
+                   'Finalizando...'}
+                </p>
+              </>
+            )}
+          </div>
+          
+          <div className={styles.processingStages}>
+            <div className={`${styles.processingStage} ${processPhase === 'validating' || processPhase === 'splitting' || processPhase === 'complete' ? styles.activeStage : ''}`}>
+              <span className={styles.stageIcon}>
+                {processPhase === 'validating' ? 
+                  <FaSpinner className={styles.spinnerIcon} /> : 
+                  <FaCheckCircle className={styles.completeIcon} />
+                }
+              </span>
+              <span className={styles.stageName}>Validação</span>
+            </div>
+            <div className={styles.stageConnector}></div>
+            <div className={`${styles.processingStage} ${processPhase === 'splitting' || processPhase === 'complete' ? styles.activeStage : ''}`}>
+              <span className={styles.stageIcon}>
+                {processPhase === 'splitting' ? 
+                  <FaSpinner className={styles.spinnerIcon} /> : 
+                  processPhase === 'complete' ? 
+                    <FaCheckCircle className={styles.completeIcon} /> :
+                    <span className={styles.stageNumber}>2</span>
+                }
+              </span>
+              <span className={styles.stageName}>Divisão</span>
+            </div>
+            <div className={styles.stageConnector}></div>
+            <div className={`${styles.processingStage} ${processPhase === 'complete' ? styles.activeStage : ''}`}>
+              <span className={styles.stageIcon}>
+                {processPhase === 'complete' ? 
+                  <FaCheckCircle className={styles.completeIcon} /> :
+                  <span className={styles.stageNumber}>3</span>
+                }
+              </span>
+              <span className={styles.stageName}>Conclusão</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Resultado da validação ou erro
+    if (file && validationResult && !isProcessing) {
+      return renderValidationResult();
+    }
+
+    // Resultado do processamento
+    if (fileUrl && !isProcessing) {
+      return (
+        <div className={styles.processingResult}>
+          <div className={styles.processingResultHeader}>
+            <FaCheckCircle className={styles.successIcon} />
+            <h4>Arquivo pronto!</h4>
+          </div>
+          <p className={styles.downloadText}>Seu arquivo foi processado com sucesso e está pronto para download.</p>
+          <button
+            type="button"
+            onClick={() => {
+              const link = document.createElement('a');
+              link.href = fileUrl;
+              link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
+              document.body.appendChild(link);
+              link.click();
+              link.parentNode.removeChild(link);
+            }}
+            className={styles.downloadButton}
+          >
+            <FaDownload />
+            <span>Baixar Arquivo ZIP</span>
+          </button>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -812,54 +991,7 @@ const SheetSplitter = () => {
               {/* Área de processamento e validação integrada ao card de upload */}
               {(isProcessing || (file && validationResult && !isProcessing) || (fileUrl && !isProcessing)) && (
                 <div className={styles.uploadProcessingArea}>
-                  {isProcessing && (
-                    <div className={styles.processingStatus}>
-                      <div className={styles.processingStatusHeader}>
-                        <FaSpinner className={styles.spinnerIcon} />
-                        <h4>Processando...</h4>
-                      </div>
-                      <div className={styles.progressContainer}>
-                        <div className={styles.progressBarContainer}>
-                          <div className={styles.progressBar}>
-                            <div className={styles.progressFill} style={{ width: `${progress}%` }}></div>
-                          </div>
-                          <span className={styles.progressPercentage}>{progress}%</span>
-                        </div>
-                        <p className={styles.progressText}>
-                          {progress < 50 ? 'Analisando planilha...' : progress < 100 ? 'Dividindo planilha...' : 'Finalizando...'}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Resultado da validação */}
-                  {file && validationResult && !isProcessing && renderValidationResult()}
-
-                  {/* Resultado do processamento */}
-                  {fileUrl && !isProcessing && (
-                    <div className={styles.processingResult}>
-                      <div className={styles.processingResultHeader}>
-                        <FaCheckCircle className={styles.successIcon} />
-                        <h4>Arquivo pronto!</h4>
-                      </div>
-                      <p className={styles.downloadText}>Seu arquivo foi processado com sucesso e está pronto para download.</p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const link = document.createElement('a');
-                          link.href = fileUrl;
-                          link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
-                          document.body.appendChild(link);
-                          link.click();
-                          link.parentNode.removeChild(link);
-                        }}
-                        className={styles.downloadButton}
-                      >
-                        <FaDownload />
-                        <span>Baixar Arquivo ZIP</span>
-                      </button>
-                    </div>
-                  )}
+                  {renderProcessingArea()}
                 </div>
               )}
             </div>

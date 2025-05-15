@@ -241,12 +241,13 @@
 }
 
 .processingStatus {
-  background-color: rgba(var(--color-primary-rgb), 0.05);
+  background-color: var(--color-background-secondary);
   border-radius: 8px;
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .processingStatusHeader {
@@ -262,9 +263,17 @@
   color: var(--color-primary);
 }
 
+.processingIcon,
+.spinnerIcon {
+  font-size: 18px;
+  color: var(--color-primary);
+}
+
 .spinnerIcon {
   animation: spin 1.5s linear infinite;
-  font-size: 18px;
+}
+
+.processingIcon {
   color: var(--color-primary);
 }
 
@@ -620,45 +629,67 @@
 .progressContainer {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .progressBarContainer {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
+  width: 100%;
 }
 
 .progressBar {
   flex-grow: 1;
   height: 8px;
-  background-color: var(--color-background-secondary);
+  background-color: rgba(var(--color-primary-rgb), 0.1);
   border-radius: 4px;
   overflow: hidden;
+  position: relative;
 }
 
 .progressFill {
+  position: absolute;
+  top: 0;
+  left: 0;
   height: 100%;
   background-color: var(--color-primary);
-  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
-  background-size: 1rem 1rem;
   border-radius: 4px;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease-in-out;
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+  animation: progressAnimation 1.5s linear infinite;
+}
+
+@keyframes progressAnimation {
+  0% {
+    background-position: 1rem 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
 }
 
 .progressPercentage {
   font-weight: 600;
   color: var(--color-primary);
-  width: 40px;
+  min-width: 40px;
   text-align: right;
 }
 
 .progressText {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--color-text);
   font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 @keyframes spin {
@@ -1121,5 +1152,72 @@
 }
 
 .newImportButton svg {
+  font-size: 14px;
+}
+
+/* Etapas de processamento */
+.processingStages {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(var(--color-border-rgb), 0.3);
+}
+
+.processingStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.activeStage {
+  opacity: 1;
+}
+
+.stageIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: var(--color-background-secondary);
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: all 0.3s ease;
+}
+
+.activeStage .stageIcon {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.stageNumber {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stageName {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  text-align: center;
+}
+
+.stageConnector {
+  height: 2px;
+  flex-grow: 1;
+  background-color: var(--color-border);
+  margin: 0 5px;
+  margin-bottom: 24px;
+}
+
+.completeIcon {
+  color: var(--color-success);
   font-size: 14px;
 } 
