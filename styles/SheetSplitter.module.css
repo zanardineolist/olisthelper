@@ -735,17 +735,17 @@
   gap: 8px;
   font-size: 16px;
   font-weight: 600;
-  color: #dc3545;
+  color: #ffffff;
 }
 
 .errorDescription {
   font-size: 15px;
   line-height: 1.5;
-  color: #333;
+  color: #ffffff;
 }
 
 .errorDetails {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(0, 0, 0, 0.2);
   border-radius: 6px;
   font-size: 14px;
 }
@@ -753,25 +753,25 @@
 .errorDetails summary {
   padding: 8px 12px;
   cursor: pointer;
-  color: #666;
+  color: #f8f9fa;
   font-weight: 500;
 }
 
 .errorDetails summary:hover {
-  color: #dc3545;
+  color: #ffffff;
 }
 
 .errorDetails p {
   padding: 8px 12px;
   margin: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  color: #666;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e9ecef;
   white-space: pre-wrap;
   overflow-x: auto;
 }
 
 .errorHelp {
-  background-color: rgba(255, 193, 7, 0.1);
+  background-color: rgba(255, 193, 7, 0.2);
   border-left: 3px solid #ffc107;
   padding: 12px 16px;
   border-radius: 4px;
@@ -780,7 +780,8 @@
 .errorHelp strong {
   display: block;
   margin-bottom: 8px;
-  color: #d97706;
+  color: #ffba08;
+  font-weight: 600;
 }
 
 .errorHelp ul {
@@ -791,7 +792,8 @@
 .errorHelp li {
   margin-bottom: 6px;
   font-size: 14px;
-  color: #333;
+  color: #ffffff;
+  line-height: 1.5;
 }
 
 .errorHelp li:last-child {

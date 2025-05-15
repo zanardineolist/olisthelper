@@ -55,7 +55,7 @@ const SheetSplitter = () => {
       }
       
       // Simplifica o tipo de arquivo para exibição
-      let fileType = "Desconhecido";
+      let fileType = "Planilha";
       if (selectedFile.name.toLowerCase().endsWith('.csv')) {
         fileType = "CSV";
       } else if (selectedFile.name.toLowerCase().endsWith('.xlsx')) {
@@ -113,6 +113,9 @@ const SheetSplitter = () => {
       let errorMessage = error.message || 'Erro desconhecido';
       let detailedError = '';
       
+      // Ocultar a mensagem de validação quando há erro
+      setSuccessMessage('');
+      
       // Tratamento específico para mensagens de erro conhecidas
       if (errorMessage.includes('Número de colunas incorreto')) {
         detailedError = errorMessage;
@@ -161,9 +164,11 @@ const SheetSplitter = () => {
         </div>
       );
       toast.error('Erro na validação do arquivo');
-      setFile(null);
       
-      // Limpar campo de arquivo
+      // Não limpar o arquivo para manter as informações visíveis
+      // setFile(null);
+      
+      // Limpar campo de arquivo para permitir nova seleção
       const fileInput = document.getElementById('file-input');
       if (fileInput) fileInput.value = '';
     } finally {
