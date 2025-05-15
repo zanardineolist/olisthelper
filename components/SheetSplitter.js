@@ -262,6 +262,7 @@ const SheetSplitter = () => {
   const resetForm = () => {
     setFile(null);
     setProgress(0);
+    setValidationProgress(0);
     setError('');
     setIsProcessing(false);
     setSuccessMessage('');
@@ -270,6 +271,7 @@ const SheetSplitter = () => {
     setEstimatedSize(0);
     setValidationResult(null);
     setProcessCompleted(false);
+    setProcessPhase('idle');
     setActiveStep(1);
     
     // Limpar campo de arquivo
@@ -704,23 +706,50 @@ const SheetSplitter = () => {
 
   // Componente de renderização da área de processamento
   const renderProcessingArea = () => {
-    if (isProcessing) {
-      return (
-        <div className={styles.processingStatus}>
-          <div className={styles.processingStatusHeader}>
-            {processPhase === 'validating' ? (
-              <>
-                <FaSearch className={styles.processingIcon} />
-                <h4>Validando layout...</h4>
-              </>
-            ) : (
-              <>
-                <FaSpinner className={styles.spinnerIcon} />
-                <h4>Processando...</h4>
-              </>
-            )}
-          </div>
-          
+    // Se não houver arquivo selecionado, não mostra nada
+    if (!file && processPhase === 'idle') {
+      return null;
+    }
+    
+    return (
+      <div className={styles.processingStatus}>
+        {/* Cabeçalho de status */}
+        <div className={styles.processingStatusHeader}>
+          {isProcessing && processPhase === 'validating' ? (
+            <>
+              <FaSearch className={styles.processingIcon} />
+              <h4>Validando layout...</h4>
+            </>
+          ) : isProcessing && processPhase === 'splitting' ? (
+            <>
+              <FaSpinner className={styles.spinnerIcon} />
+              <h4>Processando...</h4>
+            </>
+          ) : processPhase === 'complete' ? (
+            <>
+              <FaCheckCircle className={styles.successIcon} />
+              <h4>Processamento concluído!</h4>
+            </>
+          ) : processPhase === 'validated' ? (
+            <>
+              <FaCheckCircle className={styles.successIcon} />
+              <h4>Validação concluída!</h4>
+            </>
+          ) : processPhase === 'error' ? (
+            <>
+              <FaExclamationTriangle className={styles.errorIcon} />
+              <h4>Erro no processamento</h4>
+            </>
+          ) : (
+            <>
+              <FaFileExcel className={styles.fileIcon} />
+              <h4>Arquivo pronto para processamento</h4>
+            </>
+          )}
+        </div>
+        
+        {/* Barras de progresso - exibidas apenas durante o processamento */}
+        {isProcessing && (
           <div className={styles.progressContainer}>
             {processPhase === 'validating' ? (
               <>
@@ -757,78 +786,88 @@ const SheetSplitter = () => {
               </>
             )}
           </div>
+        )}
+        
+        {/* Resultado da validação quando aplicável */}
+        {validationResult && processPhase === 'validated' && !isProcessing && (
+          <div className={styles.validationResultContainer}>
+            {validationResult.status === 'success' && (
+              <p className={styles.validationSuccessText}>
+                <FaCheckCircle className={styles.validationSuccessIcon} /> 
+                O layout do arquivo está correto e pronto para ser dividido.
+              </p>
+            )}
+          </div>
+        )}
+        
+        {/* Área de botões de ação - sempre na mesma posição */}
+        <div className={styles.processingActions}>
+          {/* Botão de dividir - visível após validação bem sucedida */}
+          {file && !isProcessing && processPhase === 'validated' && !processCompleted && (
+            <button onClick={handleSubmit} className={styles.actionButton}>
+              <FaChevronRight />
+              <span>Dividir Arquivo</span>
+            </button>
+          )}
           
-          <div className={styles.processingStages}>
-            <div className={`${styles.processingStage} ${processPhase === 'validating' || processPhase === 'splitting' || processPhase === 'complete' ? styles.activeStage : ''}`}>
-              <span className={styles.stageIcon}>
-                {processPhase === 'validating' ? 
-                  <FaSpinner className={styles.spinnerIcon} /> : 
-                  <FaCheckCircle className={styles.completeIcon} />
-                }
-              </span>
-              <span className={styles.stageName}>Validação</span>
-            </div>
-            <div className={styles.stageConnector}></div>
-            <div className={`${styles.processingStage} ${processPhase === 'splitting' || processPhase === 'complete' ? styles.activeStage : ''}`}>
-              <span className={styles.stageIcon}>
-                {processPhase === 'splitting' ? 
-                  <FaSpinner className={styles.spinnerIcon} /> : 
-                  processPhase === 'complete' ? 
-                    <FaCheckCircle className={styles.completeIcon} /> :
-                    <span className={styles.stageNumber}>2</span>
-                }
-              </span>
-              <span className={styles.stageName}>Divisão</span>
-            </div>
-            <div className={styles.stageConnector}></div>
-            <div className={`${styles.processingStage} ${processPhase === 'complete' ? styles.activeStage : ''}`}>
-              <span className={styles.stageIcon}>
-                {processPhase === 'complete' ? 
+          {/* Botão de download - visível após processamento completo */}
+          {fileUrl && processPhase === 'complete' && (
+            <button
+              type="button"
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = fileUrl;
+                link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
+                document.body.appendChild(link);
+                link.click();
+                link.parentNode.removeChild(link);
+              }}
+              className={styles.downloadButton}
+            >
+              <FaDownload />
+              <span>Baixar Arquivo ZIP</span>
+            </button>
+          )}
+        </div>
+        
+        {/* Diagrama de etapas - sempre visível uma vez que o arquivo é selecionado */}
+        <div className={styles.processingStages}>
+          <div className={`${styles.processingStage} ${processPhase !== 'idle' ? styles.activeStage : ''} ${(processPhase === 'validated' || processPhase === 'splitting' || processPhase === 'complete') ? styles.completedStage : ''}`}>
+            <span className={styles.stageIcon}>
+              {processPhase === 'validating' ? 
+                <FaSpinner className={styles.spinnerIcon} /> : 
+                (processPhase === 'validated' || processPhase === 'splitting' || processPhase === 'complete') ?
+                <FaCheckCircle className={styles.completeIcon} /> :
+                <span className={styles.stageNumber}>1</span>
+              }
+            </span>
+            <span className={styles.stageName}>Validação</span>
+          </div>
+          <div className={styles.stageConnector}></div>
+          <div className={`${styles.processingStage} ${(processPhase === 'splitting' || processPhase === 'complete') ? styles.activeStage : ''} ${processPhase === 'complete' ? styles.completedStage : ''}`}>
+            <span className={styles.stageIcon}>
+              {processPhase === 'splitting' ? 
+                <FaSpinner className={styles.spinnerIcon} /> : 
+                processPhase === 'complete' ? 
                   <FaCheckCircle className={styles.completeIcon} /> :
-                  <span className={styles.stageNumber}>3</span>
-                }
-              </span>
-              <span className={styles.stageName}>Conclusão</span>
-            </div>
+                  <span className={styles.stageNumber}>2</span>
+              }
+            </span>
+            <span className={styles.stageName}>Divisão</span>
+          </div>
+          <div className={styles.stageConnector}></div>
+          <div className={`${styles.processingStage} ${processPhase === 'complete' ? styles.activeStage : processPhase === 'idle' ? '' : styles.upcomingStage}`}>
+            <span className={styles.stageIcon}>
+              {processPhase === 'complete' ? 
+                <FaCheckCircle className={styles.completeIcon} /> :
+                <span className={styles.stageNumber}>3</span>
+              }
+            </span>
+            <span className={styles.stageName}>Conclusão</span>
           </div>
         </div>
-      );
-    }
-
-    // Resultado da validação ou erro
-    if (file && validationResult && !isProcessing) {
-      return renderValidationResult();
-    }
-
-    // Resultado do processamento
-    if (fileUrl && !isProcessing) {
-      return (
-        <div className={styles.processingResult}>
-          <div className={styles.processingResultHeader}>
-            <FaCheckCircle className={styles.successIcon} />
-            <h4>Arquivo pronto!</h4>
-          </div>
-          <p className={styles.downloadText}>Seu arquivo foi processado com sucesso e está pronto para download.</p>
-          <button
-            type="button"
-            onClick={() => {
-              const link = document.createElement('a');
-              link.href = fileUrl;
-              link.setAttribute('download', `SheetSplitter_${selectedOption}.zip`);
-              document.body.appendChild(link);
-              link.click();
-              link.parentNode.removeChild(link);
-            }}
-            className={styles.downloadButton}
-          >
-            <FaDownload />
-            <span>Baixar Arquivo ZIP</span>
-          </button>
-        </div>
-      );
-    }
-
-    return null;
+      </div>
+    );
   };
 
   return (
@@ -922,7 +961,7 @@ const SheetSplitter = () => {
               )}
             </div>
             <div className={styles.cardContent}>
-              <form onSubmit={handleSubmit} className={styles.uploadForm}>
+              <form className={styles.uploadForm}>
                 <div className={styles.fileInputContainer}>
                   <label 
                     htmlFor="file-input" 
@@ -949,12 +988,13 @@ const SheetSplitter = () => {
                     type="file"
                     accept=".xls,.xlsx,.csv"
                     onChange={handleFileChange}
-                    disabled={!selectedOption || processCompleted}
+                    disabled={!selectedOption || processCompleted || isProcessing}
                     className={styles.fileInput}
                   />
                 </div>
   
-                {fileSummary && !fileUrl && (
+                {/* Resumo do arquivo - apenas visível após a seleção e antes da conclusão */}
+                {fileSummary && processPhase !== 'complete' && (
                   <div className={styles.fileSummaryCard}>
                     <div className={styles.fileSummaryHeader}>
                       {file && file.name.toLowerCase().endsWith('.csv') ? (
@@ -979,21 +1019,12 @@ const SheetSplitter = () => {
                     </div>
                   </div>
                 )}
-  
-                {!isProcessing && file && !processCompleted && (
-                  <button type="submit" className={styles.submitButton}>
-                    <span>Dividir Arquivo</span>
-                    <FaChevronRight />
-                  </button>
-                )}
               </form>
               
-              {/* Área de processamento e validação integrada ao card de upload */}
-              {(isProcessing || (file && validationResult && !isProcessing) || (fileUrl && !isProcessing)) && (
-                <div className={styles.uploadProcessingArea}>
-                  {renderProcessingArea()}
-                </div>
-              )}
+              {/* Área de processamento - agora sempre visível depois que o arquivo é selecionado */}
+              <div className={styles.uploadProcessingArea}>
+                {renderProcessingArea()}
+              </div>
             </div>
           </div>
         </div>
