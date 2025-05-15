@@ -320,6 +320,7 @@ const SheetSplitter = () => {
         setError('');
         setProgress(100);
         setFile(null);
+        setFileSummary('');
         setActiveStep(4);
         
         // Limpa campo de arquivo
@@ -744,7 +745,7 @@ const SheetSplitter = () => {
                   />
                 </div>
   
-                {fileSummary && (
+                {fileSummary && !fileUrl && (
                   <div className={styles.fileSummaryCard}>
                     <div className={styles.fileSummaryHeader}>
                       {file && file.name.toLowerCase().endsWith('.csv') ? (
