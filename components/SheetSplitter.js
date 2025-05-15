@@ -804,9 +804,12 @@ const SheetSplitter = () => {
         <div className={styles.processingActions}>
           {/* Botão de dividir - visível após validação bem sucedida */}
           {file && !isProcessing && processPhase === 'validated' && !processCompleted && (
-            <button onClick={handleSubmit} className={styles.actionButton}>
-              <FaChevronRight />
-              <span>Dividir Arquivo</span>
+            <button onClick={handleSubmit} className={styles.primaryActionButton}>
+              <div className={styles.buttonContent}>
+                <FaChevronRight />
+                <span>Dividir Arquivo</span>
+              </div>
+              <div className={styles.buttonEffect}></div>
             </button>
           )}
           
@@ -821,11 +824,15 @@ const SheetSplitter = () => {
                 document.body.appendChild(link);
                 link.click();
                 link.parentNode.removeChild(link);
+                toast.success('Download iniciado');
               }}
-              className={styles.downloadButton}
+              className={styles.downloadActionButton}
             >
-              <FaDownload />
-              <span>Baixar Arquivo ZIP</span>
+              <div className={styles.buttonContent}>
+                <FaDownload />
+                <span>Baixar Arquivo ZIP</span>
+              </div>
+              <div className={styles.buttonEffect}></div>
             </button>
           )}
         </div>
@@ -870,8 +877,93 @@ const SheetSplitter = () => {
     );
   };
 
+  // Adicionar estilos inline para os novos botões
+  const customStyles = `
+    .primaryActionButton, .downloadActionButton {
+      display: flex;
+      position: relative;
+      overflow: hidden;
+      padding: 14px 28px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      outline: none;
+      margin: 15px 0;
+      min-width: 240px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+      justify-content: center;
+      align-items: center;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    
+    .primaryActionButton {
+      background: linear-gradient(135deg, #4a8eff, #2563eb);
+      color: white;
+    }
+    
+    .downloadActionButton {
+      background: linear-gradient(135deg, #22c55e, #059669);
+      color: white;
+    }
+    
+    .primaryActionButton:hover, .downloadActionButton:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .primaryActionButton:active, .downloadActionButton:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .buttonContent {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+      gap: 12px;
+    }
+    
+    .buttonContent svg {
+      font-size: 20px;
+    }
+    
+    .buttonEffect {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, 
+        rgba(255,255,255,0) 0%, 
+        rgba(255,255,255,0.3) 50%, 
+        rgba(255,255,255,0) 100%);
+      transform: translateX(-100%);
+      transition: transform 0.8s ease;
+    }
+    
+    .primaryActionButton:hover .buttonEffect, 
+    .downloadActionButton:hover .buttonEffect {
+      transform: translateX(100%);
+    }
+    
+    .processingActions {
+      display: flex;
+      justify-content: center;
+      margin-top: 25px;
+      margin-bottom: 15px;
+      gap: 20px;
+    }
+  `;
+
   return (
     <div className={styles.container}>
+      <style dangerouslySetInnerHTML={{ __html: customStyles }} />
       <div className={styles.header}>
         <div className={styles.headerContent}>
           <h2 className={styles.title}>
