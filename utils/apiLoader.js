@@ -56,7 +56,10 @@ export async function fetchWithLoading(url, options = {}, loadingOptions = {}) {
     
     return data;
   } catch (error) {
-    console.error('Erro na chamada de API:', error);
+    // Verifica se deve suprimir os erros no console
+    if (!options.suppressConsoleError) {
+      console.error('Erro na chamada de API:', error);
+    }
     throw error;
   } finally {
     // Para o loading se ele foi iniciado
@@ -118,7 +121,10 @@ export function useApiLoader() {
       
       return await response.json();
     } catch (error) {
-      console.error('Erro na chamada de API:', error);
+      // Verifica se deve suprimir os erros no console
+      if (!options.suppressConsoleError) {
+        console.error('Erro na chamada de API:', error);
+      }
       throw error;
     } finally {
       if (showLoading) {

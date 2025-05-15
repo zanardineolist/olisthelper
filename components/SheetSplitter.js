@@ -99,7 +99,8 @@ const SheetSplitter = () => {
         headers: {
           'Accept': 'application/json',
         },
-        skipContentType: true
+        skipContentType: true,
+        suppressConsoleError: true
       }, {
         message: 'Validando layout da planilha...',
         type: 'local'
@@ -109,7 +110,6 @@ const SheetSplitter = () => {
       setSuccessMessage('Validação concluída! A planilha está no formato correto.');
       toast.success('Layout validado com sucesso!');
     } catch (error) {
-      console.error('Erro na validação:', error);
       let errorMessage = error.message || 'Erro desconhecido';
       let detailedError = '';
       
@@ -274,7 +274,6 @@ const SheetSplitter = () => {
         toast.success('Planilha dividida com sucesso!');
       }
     } catch (error) {
-      console.error('Erro no processamento:', error);
       let errorMessage = error.message || 'Erro desconhecido';
       
       // Tratamento específico para mensagens de erro conhecidas
