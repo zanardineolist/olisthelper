@@ -44,12 +44,12 @@ const SheetSplitter = () => {
 
   // Mapeia os tipos de layout para os arquivos de modelo correspondentes
   const layoutTemplates = {
-    'produtos': '/planilhas base/produtos.xls',
-    'clientes': '/planilhas base/clientes.xls',
-    'contatos': '/planilhas base/contatos.xls',
-    'inventario': '/planilhas base/inventario.xls',
-    'contas_receber': '/planilhas base/contas a receber.xls',
-    'contas_pagar': '/planilhas base/contas a pagar.xls'
+    'produtos': '/sheets/produtos.xls',
+    'clientes': '/sheets/clientes.xls',
+    'contatos': '/sheets/contatos_clientes.xls',
+    'inventario': '/sheets/estoque_inventario.xls',
+    'contas_receber': '/sheets/contas_receber_competencia.xls',
+    'contas_pagar': '/sheets/contas_pagar_competencia.xls'
   };
 
   const handleFileChange = async (event) => {
@@ -374,15 +374,20 @@ const SheetSplitter = () => {
             <p><strong>Layout da planilha de Produtos:</strong></p>
             <p>Esta planilha deve conter as seguintes colunas principais:</p>
             <ul>
-              <li><strong>Código do Produto</strong> - identificador único do produto</li>
-              <li><strong>Nome do Produto</strong> - descrição completa</li>
+              <li><strong>ID</strong> - identificador único do produto</li>
+              <li><strong>Código (SKU)</strong> - código do produto</li>
+              <li><strong>Descrição</strong> - nome do produto</li>
+              <li><strong>Unidade</strong> - unidade de medida (Un, Cx, Pc)</li>
+              <li><strong>NCM (Classificação fiscal)</strong> - código fiscal</li>
+              <li><strong>Origem</strong> - origem do produto</li>
               <li><strong>Preço</strong> - valor de venda</li>
-              <li><strong>NCM</strong> - código fiscal do produto</li>
-              <li><strong>Peso</strong> - peso em kg</li>
-              <li><strong>Dimensões</strong> - altura, largura e comprimento</li>
-              <li><strong>SKU</strong> - código de estoque</li>
+              <li><strong>Situação</strong> - status do produto (Ativo, Inativo)</li>
+              <li><strong>Estoque</strong> - quantidade em estoque</li>
+              <li><strong>Tipo do produto</strong> - tipo (S para simples, V para variação)</li>
+              <li><strong>GTIN/EAN</strong> - código de barras</li>
+              <li><strong>Marca</strong> - marca do produto</li>
             </ul>
-            <p>O arquivo exemplo contém {5310} linhas com vários produtos e suas especificações completas.</p>
+            <p>Além destas, o arquivo deve conter outras colunas específicas do ERP para importação completa.</p>
           </div>
         );
       case 'clientes':
@@ -391,85 +396,107 @@ const SheetSplitter = () => {
             <p><strong>Layout da planilha de Clientes:</strong></p>
             <p>Esta planilha deve conter as seguintes colunas principais:</p>
             <ul>
-              <li><strong>Código do Cliente</strong> - identificador único</li>
-              <li><strong>Nome/Razão Social</strong> - nome completo</li>
-              <li><strong>CPF/CNPJ</strong> - documento fiscal</li>
-              <li><strong>Endereço</strong> - logradouro completo</li>
-              <li><strong>Bairro</strong> - bairro do endereço</li>
-              <li><strong>Cidade</strong> - cidade do endereço</li>
-              <li><strong>UF</strong> - estado</li>
+              <li><strong>ID</strong> - identificador único</li>
+              <li><strong>Código</strong> - código do cliente</li>
+              <li><strong>Nome</strong> - nome completo/razão social</li>
+              <li><strong>Fantasia</strong> - nome fantasia</li>
+              <li><strong>Endereço</strong> - logradouro</li>
+              <li><strong>Número</strong> - número do endereço</li>
+              <li><strong>Complemento</strong> - complemento do endereço</li>
+              <li><strong>Bairro</strong> - bairro</li>
               <li><strong>CEP</strong> - código postal</li>
-              <li><strong>Telefone</strong> - número para contato</li>
-              <li><strong>Email</strong> - endereço de email</li>
+              <li><strong>Cidade</strong> - cidade</li>
+              <li><strong>Estado</strong> - UF</li>
+              <li><strong>Fone</strong> - telefone principal</li>
+              <li><strong>E-mail</strong> - endereço de email</li>
+              <li><strong>Tipo pessoa</strong> - Pessoa Física, Jurídica ou Estrangeiro</li>
+              <li><strong>CNPJ / CPF</strong> - documento fiscal</li>
+              <li><strong>Situação</strong> - status do cliente (Ativo, Inativo)</li>
             </ul>
-            <p>O arquivo exemplo contém {8141} linhas com dados cadastrais completos de clientes.</p>
+            <p>O arquivo completo inclui outros campos importantes para cadastro completo no ERP.</p>
           </div>
         );
       case 'contatos':
         return (
           <div className={styles.detailedLayoutInfo}>
             <p><strong>Layout da planilha de Contatos:</strong></p>
-            <p>Esta planilha deve conter as seguintes colunas principais:</p>
+            <p>Esta planilha deve conter as seguintes colunas:</p>
             <ul>
-              <li><strong>Nome do Contato</strong> - nome completo</li>
-              <li><strong>Email</strong> - endereço de email</li>
+              <li><strong>ID</strong> - identificador único</li>
+              <li><strong>CNPJ Cliente</strong> - CNPJ do cliente relacionado</li>
+              <li><strong>Nome Cliente</strong> - nome da empresa ou cliente</li>
+              <li><strong>Contato</strong> - nome da pessoa de contato</li>
+              <li><strong>Setor</strong> - departamento (Administrativo, Compras, etc.)</li>
+              <li><strong>E-mail</strong> - endereço de email</li>
               <li><strong>Telefone</strong> - número para contato</li>
-              <li><strong>Cargo/Função</strong> - (se aplicável)</li>
-              <li><strong>Empresa</strong> - (se aplicável)</li>
-              <li><strong>Observações</strong> - informações adicionais</li>
+              <li><strong>Ramal</strong> - número do ramal</li>
             </ul>
-            <p>O arquivo exemplo contém {28} linhas com informações básicas de contatos.</p>
+            <p>Este layout é mais simples e foca nos dados essenciais para contatos empresariais.</p>
           </div>
         );
       case 'inventario':
         return (
           <div className={styles.detailedLayoutInfo}>
             <p><strong>Layout da planilha de Inventário:</strong></p>
-            <p>Esta planilha deve conter as seguintes colunas principais:</p>
+            <p>Esta planilha deve conter as seguintes colunas:</p>
             <ul>
-              <li><strong>SKU/Código</strong> - identificador do produto</li>
-              <li><strong>Descrição</strong> - nome do produto</li>
-              <li><strong>Localização</strong> - posição no estoque</li>
-              <li><strong>Quantidade</strong> - saldo disponível</li>
-              <li><strong>Valor Unitário</strong> - custo unitário</li>
-              <li><strong>Valor Total</strong> - valor total do estoque</li>
-              <li><strong>Data</strong> - data da contagem</li>
+              <li><strong>ID*</strong> - identificador único (opcional)</li>
+              <li><strong>Produto</strong> - nome/descrição do produto</li>
+              <li><strong>Código (SKU)*</strong> - código de estoque obrigatório</li>
+              <li><strong>GTIN/EAN</strong> - código de barras</li>
+              <li><strong>Localização</strong> - posição física no estoque</li>
+              <li><strong>Saldo em estoque</strong> - quantidade disponível</li>
             </ul>
-            <p>O arquivo exemplo contém {963} linhas com informações detalhadas de estoque e inventário.</p>
+            <p>Atenção: O campo Código (SKU)* é obrigatório e deve existir previamente no cadastro.</p>
           </div>
         );
       case 'contas_receber':
         return (
           <div className={styles.detailedLayoutInfo}>
             <p><strong>Layout da planilha de Contas a Receber:</strong></p>
-            <p>Esta planilha deve conter as seguintes colunas principais:</p>
+            <p>Esta planilha deve conter as seguintes colunas:</p>
             <ul>
-              <li><strong>Número do Documento</strong> - identificador da conta</li>
-              <li><strong>Cliente</strong> - nome ou código do cliente</li>
-              <li><strong>Data de Emissão</strong> - data de criação</li>
-              <li><strong>Data de Vencimento</strong> - data limite para pagamento</li>
-              <li><strong>Valor</strong> - valor a receber</li>
-              <li><strong>Status</strong> - situação do pagamento</li>
-              <li><strong>Forma de Pagamento</strong> - método de recebimento</li>
+              <li><strong>ID</strong> - identificador único</li>
+              <li><strong>Cliente</strong> - nome do cliente</li>
+              <li><strong>Data Emissão</strong> - data de criação</li>
+              <li><strong>Data Vencimento</strong> - data limite para recebimento</li>
+              <li><strong>Data Liquidação</strong> - data de pagamento (quando houver)</li>
+              <li><strong>Valor documento</strong> - valor a receber</li>
+              <li><strong>Saldo</strong> - valor remanescente</li>
+              <li><strong>Situação</strong> - status (Em aberto, Paga)</li>
+              <li><strong>Número documento</strong> - número do título</li>
+              <li><strong>Número no banco</strong> - número bancário</li>
+              <li><strong>Categoria</strong> - classificação financeira</li>
+              <li><strong>Histórico</strong> - descrição/observações</li>
+              <li><strong>Forma de recebimento</strong> - método de pagamento</li>
+              <li><strong>Competência</strong> - mês/ano de competência</li>
             </ul>
-            <p>O arquivo exemplo contém {3107} linhas com registros financeiros de contas a receber.</p>
+            <p>Este layout permite importar todo o contas a receber para o sistema financeiro.</p>
           </div>
         );
       case 'contas_pagar':
         return (
           <div className={styles.detailedLayoutInfo}>
             <p><strong>Layout da planilha de Contas a Pagar:</strong></p>
-            <p>Esta planilha deve conter as seguintes colunas principais:</p>
+            <p>Esta planilha deve conter as seguintes colunas:</p>
             <ul>
-              <li><strong>Número do Documento</strong> - identificador da conta</li>
-              <li><strong>Fornecedor</strong> - nome ou código do fornecedor</li>
-              <li><strong>Data de Emissão</strong> - data de criação</li>
-              <li><strong>Data de Vencimento</strong> - data limite para pagamento</li>
-              <li><strong>Valor</strong> - valor a pagar</li>
-              <li><strong>Status</strong> - situação do pagamento</li>
-              <li><strong>Categoria</strong> - tipo de despesa</li>
+              <li><strong>ID</strong> - identificador único</li>
+              <li><strong>Fornecedor</strong> - nome do fornecedor</li>
+              <li><strong>Data Emissão</strong> - data de criação</li>
+              <li><strong>Data Vencimento</strong> - data limite para pagamento</li>
+              <li><strong>Data Liquidação</strong> - data de pagamento (quando houver)</li>
+              <li><strong>Valor documento</strong> - valor a pagar</li>
+              <li><strong>Saldo</strong> - valor remanescente</li>
+              <li><strong>Situação</strong> - status (Em aberto, Paga)</li>
+              <li><strong>Número documento</strong> - número do título</li>
+              <li><strong>Categoria</strong> - classificação financeira</li>
+              <li><strong>Histórico</strong> - descrição/observações</li>
+              <li><strong>Pago</strong> - valor já pago</li>
+              <li><strong>Competencia</strong> - mês/ano de competência</li>
+              <li><strong>Forma Pagamento</strong> - método de pagamento</li>
+              <li><strong>Chave PIX/Código boleto</strong> - informações de pagamento</li>
             </ul>
-            <p>O arquivo exemplo contém {859} linhas com registros financeiros de contas a pagar.</p>
+            <p>Este layout permite importar todo o contas a pagar para o sistema financeiro.</p>
           </div>
         );
       default:

@@ -31,9 +31,7 @@ const layouts = {
     'Tipos de Contatos', 'Contribuinte', 'Código de regime tributário', 'Limite de crédito'
   ],
   contatos: [
-    'ID', 'Código', 'Nome', 'Endereço', 'Número', 'Complemento', 'Bairro', 'CEP', 'Cidade', 'Estado',
-    'Observações do contato', 'Telefone', 'E-mail', 'CNPJ/CPF', 'IE/RG', 'Situação', 'Data de cadastro',
-    'Data de atualização', 'Responsável', 'Observações do cliente'
+    'ID', 'CNPJ Cliente', 'Nome Cliente', 'Contato', 'Setor', 'E-mail', 'Telefone', 'Ramal'
   ],
   inventario: [
     'ID*', 'Produto', 'Código (SKU)*', 'GTIN/EAN', 'Localização', 'Saldo em estoque'
@@ -68,16 +66,31 @@ async function validateLayout(filePath, fileType) {
       throw new Error(`O layout para o tipo de arquivo "${fileType}" não foi definido.`);
     }
     
+    // Melhorar o retorno detalhado para o componente de validação
+    const validationResult = {
+      expected: expectedLayout,
+      found: fileHeader
+    };
+    
     if (fileHeader.length !== expectedLayout.length) {
-      throw new Error(`Número de colunas incorreto. Esperado: ${expectedLayout.length}, Recebido: ${fileHeader.length}.`);
+      const error = new Error(`Número de colunas incorreto. Esperado: ${expectedLayout.length}, Recebido: ${fileHeader.length}.`);
+      error.details = validationResult;
+      throw error;
     }
 
     for (let i = 0; i < fileHeader.length; i++) {
       if (fileHeader[i] !== expectedLayout[i]) {
-        throw new Error(`Erro na coluna ${i + 1}: Esperado "${expectedLayout[i]}", mas encontrado "${fileHeader[i]}" na posição ${i + 1}. Verifique e ajuste o arquivo.`);
+        const error = new Error(`Erro na coluna ${i + 1}: Esperado "${expectedLayout[i]}", mas encontrado "${fileHeader[i]}" na posição ${i + 1}. Verifique e ajuste o arquivo.`);
+        error.details = validationResult;
+        throw error;
       }
     }
-    return true;
+    
+    // Retornar informações mais detalhadas para o sucesso
+    return {
+      valid: true,
+      columns: expectedLayout
+    };
   } catch (error) {
     throw error;
   }
@@ -120,10 +133,17 @@ export default async function handler(req, res) {
         });
       }
 
-      await validateLayout(file.filepath, layoutType);
-      return res.status(200).json({ valid: true });
+      const validationResult = await validateLayout(file.filepath, layoutType);
+      return res.status(200).json(validationResult);
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      const response = { error: error.message };
+      
+      // Incluir detalhes se disponíveis
+      if (error.details) {
+        response.details = error.details;
+      }
+      
+      return res.status(400).json(response);
     } finally {
       try {
         await fs.unlink(file.filepath);
