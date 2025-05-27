@@ -32,37 +32,39 @@ export default function LoginPage() {
   return (
     <>
       <Head>
-        <title>Olist Helper</title>
+        <title>Olist Helper - Acesse sua conta</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="noindex, nofollow" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
 
       <div className={styles.loginContainer}>
-        <div className={styles.loginCard}>
-          <div className={styles.leftSection}>
-            <div className={styles.logoContainer}>
+        <main className={styles.loginCard}>
+          <aside className={styles.leftSection}>
+            <header className={styles.logoContainer}>
               <Image
                 src="/images/logos/olist_helper_blue_logo.png"
                 alt="Olist Helper Logo"
                 width={200}
                 height={55}
               />
-            </div>
-            <h2 className={styles.accessTitle}>acesse sua conta</h2>
+            </header>
+            <h3 className={styles.accessTitle}>acesse sua conta</h3>
             
             <button onClick={() => signIn('google')} className={styles.loginButton}>
               Acessar
             </button>
-          </div>
+          </aside>
           
-          <div className={styles.rightSection}>
-            <h1 className={styles.welcomeTitle}>Que bom ter você aqui!</h1>
+          <aside className={styles.rightSection}>
+            <h2 className={styles.welcomeTitle}>Que bom ter você aqui!</h2>
             <p className={styles.welcomeDescription}>
               Entre com sua conta google para acessar o Olist Helper, uma ferramenta que transforma seu dia a dia.
             </p>
-          </div>
-        </div>
+          </aside>
+        </main>
         
         <footer className={styles.footer}>
           <p className={styles.credits}>Desenvolvido por Rafael Zanardine</p>
