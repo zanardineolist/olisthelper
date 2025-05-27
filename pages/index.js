@@ -42,12 +42,7 @@ export default function LoginPage() {
         <div className={styles.loginCard}>
           <div className={styles.leftSection}>
             <div className={styles.logoContainer}>
-              <Image
-                src="/images/logos/olist_helper_blue_logo.png"
-                alt="Olist Helper Logo"
-                width={120}
-                height={40}
-              />
+              <h1 className={styles.logoText}>olist</h1>
             </div>
             <h2 className={styles.accessTitle}>acesse sua conta</h2>
             
