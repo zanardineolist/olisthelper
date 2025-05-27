@@ -52,7 +52,7 @@ export default function LoginPage() {
             <h2 className={styles.accessTitle}>acesse sua conta</h2>
             
             <button onClick={() => signIn('google')} className={styles.loginButton}>
-              Acessar com a conta Google
+              Acessar
             </button>
           </div>
           
