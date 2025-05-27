@@ -7,7 +7,7 @@
   min-height: 100vh;
   padding: 20px;
   margin: 0;
-  background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 50%, #2563EB 100%);
+  background: #2250DB;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -21,34 +21,38 @@
   width: 100%;
   min-height: 500px;
   position: relative;
+  padding: 10px;
 }
 
 .leftSection {
-  flex: 0 0 400px;
-  padding: 60px 50px;
+  flex: 0 0 500px;
+  padding: 70px 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   background: white;
-  border-radius: 290px;
+  border-radius: 50%;
   position: relative;
   z-index: 2;
-  margin-right: -3px;
+  aspect-ratio: 1;
+  height: 500px;
+  width: 500px;
 }
 
 .rightSection {
   flex: 1;
-  padding: 60px 80px 60px 120px;
+  padding: 70px 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   background: #2250DB;
   color: white;
   border-radius: 265px;
-  margin-left: -50px;
+  margin-left: 20px;
   position: relative;
   z-index: 1;
+  min-height: 480px;
 }
 
 .logoContainer {
@@ -125,13 +129,41 @@
 }
 
 /* Responsividade */
+@media (max-width: 1200px) {
+  .loginCard {
+    max-width: 900px;
+  }
+  
+  .leftSection {
+    flex: 0 0 400px;
+    height: 400px;
+    width: 400px;
+    padding: 60px 50px;
+  }
+  
+  .rightSection {
+    padding: 60px 50px;
+  }
+}
+
 @media (max-width: 1024px) {
   .loginCard {
     max-width: 800px;
   }
   
+  .leftSection {
+    flex: 0 0 350px;
+    height: 350px;
+    width: 350px;
+    padding: 50px 40px;
+  }
+  
   .rightSection {
-    padding: 60px 60px 60px 100px;
+    padding: 50px 40px;
+  }
+  
+  .logoText {
+    font-size: 40px;
   }
 }
 
@@ -143,6 +175,7 @@
     border-radius: 30px;
     background: white;
     border: 2px solid white;
+    padding: 5px;
   }
   
   .leftSection {
@@ -151,6 +184,9 @@
     margin: 0;
     padding: 40px 30px;
     background: white;
+    height: auto;
+    width: auto;
+    aspect-ratio: unset;
   }
   
   .rightSection {
@@ -160,6 +196,7 @@
     margin: 0;
     order: -1;
     background: #2250DB;
+    min-height: auto;
   }
   
   .logoText {
