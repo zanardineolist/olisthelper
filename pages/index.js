@@ -59,8 +59,7 @@ export default function LoginPage() {
           <div className={styles.rightSection}>
             <h1 className={styles.welcomeTitle}>Que bom ter você aqui!</h1>
             <p className={styles.welcomeDescription}>
-              Entre com seus dados para acessar a Olist, um ecossistema que 
-              transforma negócios em gigantes do e-commerce.
+              Entre com sua conta google para acessar o Olist Helper, uma ferramenta que transforma seu dia a dia.
             </p>
           </div>
         </div>
