@@ -5,61 +5,147 @@
   align-items: center;
   flex-direction: column;
   min-height: 100vh;
-  padding: 0;
+  padding: 20px;
   margin: 0;
-  background-color: var(--background-color);
+  background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 50%, #2563EB 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.loginBox {
-  text-align: center;
-  max-width: 450px;
+.loginCard {
+  display: flex;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  max-width: 900px;
   width: 100%;
-  background-color: var(--box-color);
-  border-radius: 10px;
-  padding: 40px;
-  margin-bottom: 20px;
+  min-height: 500px;
+}
+
+.leftSection {
+  flex: 1;
+  padding: 60px 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: white;
+}
+
+.rightSection {
+  flex: 1;
+  padding: 60px 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(135deg, #4F46E5 0%, #3B82F6 100%);
+  color: white;
 }
 
 .logoContainer {
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 }
 
-.welcomeText {
-  font-size: 1.8em;
-  color: var(--title-color);
-  margin-bottom: 10px;
-}
-
-.description {
-  font-size: 1em;
-  color: var(--text-color);
+.accessTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
   margin-bottom: 30px;
-}
-
-.loginTitle {
-  color: var(--color-primary);
-  margin-bottom: 20px;
+  text-transform: lowercase;
 }
 
 .loginButton {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  padding: 15px 30px;
+  background: #4F46E5;
+  color: white;
+  padding: 16px 32px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
+  font-weight: 600;
   width: 100%;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .loginButton:hover {
-  background-color: var(--color-primary-hover);
+  background: #4338CA;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
+}
+
+.welcomeTitle {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.welcomeDescription {
+  font-size: 16px;
+  line-height: 1.6;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.footer {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
 }
 
 .credits {
-  color: #888;
-  font-size: 0.9em;
-  text-align: center;
-  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .loginCard {
+    flex-direction: column;
+    max-width: 400px;
+    margin-bottom: 60px;
+  }
+  
+  .leftSection,
+  .rightSection {
+    padding: 40px 30px;
+  }
+  
+  .rightSection {
+    order: -1;
+  }
+  
+  .welcomeTitle {
+    font-size: 24px;
+  }
+  
+  .welcomeDescription {
+    font-size: 14px;
+  }
+  
+  .accessTitle {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .loginContainer {
+    padding: 10px;
+  }
+  
+  .leftSection,
+  .rightSection {
+    padding: 30px 20px;
+  }
+  
+  .logoContainer {
+    margin-bottom: 30px;
+  }
+  
+  .accessTitle {
+    margin-bottom: 20px;
+  }
 }

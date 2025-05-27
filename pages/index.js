@@ -2,13 +2,12 @@
 import Head from 'next/head';
 import { getSession, signIn } from 'next-auth/react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import styles from '../styles/Login.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
     const checkSession = async () => {
@@ -28,14 +27,7 @@ export default function LoginPage() {
       }
     };
     checkSession();
-  }, [router]);  
-
-  // Recuperar tema do localStorage
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  }, []);
+  }, [router]);
 
   return (
     <>
@@ -44,28 +36,34 @@ export default function LoginPage() {
       </Head>
 
       <div className={styles.loginContainer}>
-        <div className={styles.loginBox}>
-          <div className={styles.logoContainer}>
-            <Image
-              src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
-              alt="Olist Helper Logo"
-              width={270}
-              height={75}
-            />
+        <div className={styles.loginCard}>
+          <div className={styles.leftSection}>
+            <div className={styles.logoContainer}>
+              <Image
+                src="/images/logos/olist_helper_blue_logo.png"
+                alt="Olist Helper Logo"
+                width={120}
+                height={40}
+              />
+            </div>
+            <h2 className={styles.accessTitle}>acesse sua conta</h2>
+            <button onClick={() => signIn('google')} className={styles.loginButton}>
+              Acessar com Google
+            </button>
           </div>
-          <h1 className={styles.welcomeText}>Seja bem-vindo(a)</h1>
-          <p className={styles.description}>
-            O Olist Helper é uma ferramenta para ajudar você a registrar e gerenciar suas dúvidas tiradas com os analistas no dia a dia.
-          </p>
-          <button onClick={() => signIn('google')} className={styles.loginButton}>
-            Login com Google
-          </button>
-          <p className={styles.description}>
-            Acesse com seu e-mail <br />
-            @tiny.com.br ou @olist.com
-          </p>
+          
+          <div className={styles.rightSection}>
+            <h1 className={styles.welcomeTitle}>Que bom ter você aqui!</h1>
+            <p className={styles.welcomeDescription}>
+              Entre com seus dados para acessar a Olist, um ecossistema que 
+              transforma negócios em gigantes do e-commerce.
+            </p>
+          </div>
         </div>
-        <p className={styles.credits}>Desenvolvido por Rafael Zanardine</p>
+        
+        <footer className={styles.footer}>
+          <p className={styles.credits}>Desenvolvido por Rafael Zanardine</p>
+        </footer>
       </div>
     </>
   );
