@@ -33,22 +33,37 @@ export default function LoginPage() {
     <>
       <Head>
         <title>Olist Helper</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
 
       <div className={styles.loginContainer}>
         <div className={styles.loginCard}>
           <div className={styles.leftSection}>
             <div className={styles.logoContainer}>
-              <Image
-                src="/images/logos/olist_helper_blue_logo.png"
-                alt="Olist Helper Logo"
-                width={120}
-                height={40}
-              />
+              <h1 className={styles.logoText}>olist</h1>
             </div>
             <h2 className={styles.accessTitle}>acesse sua conta</h2>
+            
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>usuário</label>
+              <div className={styles.inputContainer}>
+                <svg className={styles.inputIcon} width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="#9CA3AF"/>
+                  <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="#9CA3AF"/>
+                </svg>
+                <input 
+                  type="email" 
+                  placeholder="email@email.com"
+                  className={styles.emailInput}
+                  disabled
+                />
+              </div>
+            </div>
+            
             <button onClick={() => signIn('google')} className={styles.loginButton}>
-              Acessar com Google
+              Avançar
             </button>
           </div>
           
