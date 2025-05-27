@@ -26,7 +26,6 @@
 }
 
 .leftSection {
-  flex: 0 0 500px;
   padding: 70px 60px;
   display: flex;
   flex-direction: column;
@@ -80,7 +79,7 @@
   cursor: pointer;
   font-size: 16px;
   font-weight: 600;
-  width: 100%;
+  width: 90%;
   transition: background-color 0.4s ease;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
