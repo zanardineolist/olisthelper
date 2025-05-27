@@ -60,14 +60,6 @@
   text-align: center;
 }
 
-.logoText {
-  font-size: 48px;
-  font-weight: 700;
-  color: #4F46E5;
-  margin: 0;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
 .accessTitle {
   font-size: 16px;
   font-weight: 500;
@@ -161,10 +153,6 @@
   .rightSection {
     padding: 50px 40px;
   }
-  
-  .logoText {
-    font-size: 40px;
-  }
 }
 
 @media (max-width: 768px) {
@@ -197,10 +185,6 @@
     order: -1;
     background: #2250DB;
     min-height: auto;
-  }
-  
-  .logoText {
-    font-size: 36px;
   }
   
   .welcomeTitle {
