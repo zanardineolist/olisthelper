@@ -74,15 +74,14 @@
 .loginButton {
   background: #0C29D0;
   color: white;
-  padding: 18px 40px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 25px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 600;
   width: 100%;
-  max-width: 280px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.4s ease;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
