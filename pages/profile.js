@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import Sidebar from '../components/Sidebar';
+import Navbar from '../components/Navbar';
 import styles from '../styles/ProfileSupport.module.css';
 import Footer from '../components/Footer';
 
@@ -266,7 +266,7 @@ export default function MyPage({ user }) {
         <meta name="description" content="Perfil do usuário com métricas e indicadores de solicitações de ajuda" />
       </Head>
 
-      <Sidebar user={user} />
+      <Navbar user={user} />
 
       <main className={styles.container}>
         {/* Header */}

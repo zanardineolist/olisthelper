@@ -40,17 +40,6 @@
   --bg-tooltip: #5D5D5D;
   --text-tooltip: #c0c0c0;
 
-  /* Sidebar variables */
-  --sidebar-width-expanded: 280px;
-  --sidebar-width-collapsed: 72px;
-  --sidebar-bg: var(--navbar-bg, #ECECEC);
-  --sidebar-border: var(--border-color, #E5E5E5);
-  --sidebar-text: var(--text-color, #5D5D5D);
-  --sidebar-text-secondary: var(--text-secondary, #a9a9a9);
-  --sidebar-hover: rgba(93, 93, 93, 0.1);
-  --sidebar-active: var(--color-primary, #0A4EE4);
-  --transition-speed: 0.3s;
-
   /* Profile Analyst - Cores principais (Light Theme) */
   --primary-color: #0A4EE4;
   --primary-light: #174cbd;
@@ -120,14 +109,6 @@
   --modals-inputs: #282828;
   --bg-tooltip: #747474;
   --text-tooltip: #c0c0c0;
-
-  /* Sidebar variables - Dark Theme */
-  --sidebar-bg: var(--navbar-bg, #171717);
-  --sidebar-border: var(--border-color, #383838);
-  --sidebar-text: var(--text-color, #B4B4B4);
-  --sidebar-text-secondary: var(--text-secondary, #686868);
-  --sidebar-hover: rgba(255, 255, 255, 0.1);
-  --sidebar-active: var(--color-primary, #174cbd);
 
   /* Profile Analyst - Dark mode overrides */
   --primary-color: #174cbd;
