@@ -6,9 +6,10 @@
   max-width: none;
   margin: 0;
   padding: 2rem;
-  min-height: calc(100vh - 160px);
-  padding-bottom: 2rem;
+  min-height: calc(100vh - 140px);
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -29,20 +30,33 @@
   margin: 0;
 }
 
-/* Grid Principal */
-.mainGrid {
+/* Seções da Página */
+.profileSection {
   display: grid;
-  grid-template-columns: 350px 1fr 350px;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   width: 100%;
 }
 
-/* Sidebar Esquerda */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+.performanceSection {
+  margin-bottom: 3rem;
+  width: 100%;
+}
+
+.categorySection {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex: 1;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--title-color);
+  margin: 0 0 2rem 0;
+  text-align: center;
 }
 
 /* Card de Perfil */
@@ -61,9 +75,9 @@
 
 .profileHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
 .profileImage {
@@ -95,7 +109,7 @@
   font-weight: 600;
   color: white;
   background: var(--color-primary);
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .roleTag.tax {
@@ -148,19 +162,7 @@
   margin-top: 0.25rem;
 }
 
-/* Área Principal */
-.mainContent {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
 
-/* Área Direita */
-.rightSidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
 
 /* Card de Ajudas */
 .helpCard {
@@ -476,8 +478,8 @@
 
 /* Media Queries - Responsividade */
 @media (min-width: 1600px) {
-  .mainGrid {
-    grid-template-columns: 380px 1fr 380px;
+  .profileSection {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 3rem;
   }
   
@@ -486,15 +488,9 @@
   }
 }
 
-@media (max-width: 1400px) {
-  .mainGrid {
-    grid-template-columns: 320px 1fr 320px;
-  }
-}
-
 @media (max-width: 1200px) {
-  .mainGrid {
-    grid-template-columns: 280px 1fr 280px;
+  .profileSection {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   }
   
   .performanceGrid {
@@ -502,34 +498,10 @@
   }
 }
 
-@media (max-width: 1024px) {
-  .mainGrid {
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-  }
-  
-  .rightSidebar {
-    order: 3;
-    grid-column: 1 / -1;
-  }
-}
-
 @media (max-width: 992px) {
-  .mainGrid {
+  .profileSection {
     grid-template-columns: 1fr;
     gap: 1.5rem;
-  }
-  
-  .sidebar {
-    order: 1;
-  }
-  
-  .mainContent {
-    order: 2;
-  }
-  
-  .rightSidebar {
-    order: 3;
   }
   
   .metricsGrid {
