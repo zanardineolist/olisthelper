@@ -4,7 +4,7 @@
 .container {
   width: 100%;
   padding: calc(64px + 2rem) 2rem 2rem;
-  background-color: var(--bg-secondary);
+  background-color: var(--background-color);
   min-height: calc(100vh - 64px);
 }
 
@@ -45,7 +45,7 @@
 }
 
 .sectionTitle i {
-  color: var(--primary-color);
+  color: var(--color-primary);
 }
 
 .sectionSubtitle {
@@ -85,7 +85,7 @@
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--primary-color);
+  border: 3px solid var(--color-primary);
 }
 
 .profileDetails h3 {
@@ -105,7 +105,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--primary-color);
+  background: var(--color-primary);
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 20px;
@@ -114,7 +114,7 @@
 }
 
 .roleTag.tax {
-  background: var(--good-color);
+  background: #8A2BE2;
 }
 
 /* Métricas Integradas */
@@ -133,7 +133,7 @@
 .metricIcon {
   width: 48px;
   height: 48px;
-  background: var(--primary-color);
+  background: var(--color-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -191,7 +191,7 @@
 }
 
 .cardTitle i {
-  color: var(--excellent-color);
+  color: var(--color-accent3);
 }
 
 .helpStatsExpanded {
@@ -210,7 +210,7 @@
 .helpStatIcon {
   width: 44px;
   height: 44px;
-  background: var(--excellent-color);
+  background: var(--color-accent3);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -323,7 +323,7 @@
 .performanceIcon {
   width: 48px;
   height: 48px;
-  background: var(--primary-color);
+  background: var(--color-primary);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -385,7 +385,7 @@
 }
 
 .mainMetric.primary {
-  background: var(--primary-color);
+  background: var(--color-primary);
   color: white;
 }
 
@@ -635,7 +635,7 @@
 .statIcon {
   width: 40px;
   height: 40px;
-  background: var(--primary-color);
+  background: var(--color-primary);
   border-radius: 10px;
   display: flex;
   align-items: center;
