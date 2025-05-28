@@ -11,6 +11,9 @@ import styles from '../styles/ProfileAnalyst.module.css';
 // Componente para card de performance aprimorado
 const PerformanceCard = ({ title, icon, data, type }) => {
   if (!data) return null;
+  
+  // Debug temporário para verificar dados
+  console.log(`Performance Card - ${title}:`, data);
 
   const getMetricStatus = (colors, metric) => {
     if (!colors || !colors[metric]) return 'neutral';
@@ -62,6 +65,12 @@ const PerformanceCard = ({ title, icon, data, type }) => {
           type: 'primary' 
         },
         { 
+          label: 'Média por Dia', 
+          value: data.mediaPorDia, 
+          icon: 'fa-calendar-day',
+          type: 'secondary' 
+        },
+        { 
           label: 'Perdidas', 
           value: data.perdidas, 
           icon: 'fa-phone-slash',
@@ -77,6 +86,12 @@ const PerformanceCard = ({ title, icon, data, type }) => {
           value: data.totalChats, 
           icon: 'fa-message',
           type: 'primary' 
+        },
+        { 
+          label: 'Média por Dia', 
+          value: data.mediaPorDia, 
+          icon: 'fa-calendar-day',
+          type: 'secondary' 
         }
       );
     }
@@ -87,7 +102,7 @@ const PerformanceCard = ({ title, icon, data, type }) => {
   const renderKPIMetrics = () => {
     const kpis = [];
     
-    if (data.tma) {
+    if (data.tma !== undefined && data.tma !== null) {
       kpis.push({ 
         label: 'TMA', 
         value: data.tma,
@@ -96,11 +111,11 @@ const PerformanceCard = ({ title, icon, data, type }) => {
       });
     }
     
-    if (data.csat) {
+    if (data.csat !== undefined && data.csat !== null) {
       kpis.push({ 
         label: 'CSAT', 
         value: data.csat,
-        status: getMetricStatus(data.colors, 'csat'),
+        status: data.csat === "-" ? 'neutral' : getMetricStatus(data.colors, 'csat'),
         icon: 'fa-heart'
       });
     }
@@ -444,7 +459,7 @@ export default function ProfileAnalystPage({ user }) {
                   <i className="fa-solid fa-ticket"></i>
                 </div>
                 <div className={styles.metricData}>
-                  <span className={styles.metricValue}>{performanceData?.totalRFC || 0}</span>
+                  <span className={styles.metricValue}>{performanceData?.chamados?.totalChamados || 0}</span>
                   <span className={styles.metricLabel}>Total RFC</span>
                 </div>
               </div>
@@ -483,7 +498,7 @@ export default function ProfileAnalystPage({ user }) {
               
               <div className={styles.helpStatMain}>
                 <div className={styles.helpStatIcon}>
-                  <i className="fa-solid fa-calendar-month"></i>
+                  <i className="fa-solid fa-calendar"></i>
                 </div>
                 <div className={styles.helpStatContent}>
                   <span className={styles.helpStatValue}>{helpRequests.currentMonth}</span>
