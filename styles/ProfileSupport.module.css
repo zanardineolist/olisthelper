@@ -375,7 +375,163 @@
   color: var(--neutral-color);
 }
 
-/* Performance Info */
+/* Main Metrics */
+.mainMetrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.mainMetric {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+}
+
+.mainMetric.primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+.mainMetric.primary .mainMetricIcon {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.mainMetric.secondary {
+  background: var(--neutral-bg);
+}
+
+.mainMetric.warning {
+  background: var(--poor-bg);
+}
+
+.mainMetricIcon {
+  width: 36px;
+  height: 36px;
+  background: var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.mainMetricData {
+  display: flex;
+  flex-direction: column;
+}
+
+.mainMetricValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mainMetricLabel {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+/* KPI Metrics */
+.kpiMetrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.kpiMetric {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.kpiMetric.excellent {
+  background: var(--excellent-bg);
+  border-color: var(--excellent-color);
+}
+
+.kpiMetric.good {
+  background: var(--good-bg);
+  border-color: var(--good-color);
+}
+
+.kpiMetric.poor {
+  background: var(--poor-bg);
+  border-color: var(--poor-color);
+}
+
+.kpiIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  background: var(--neutral-color);
+  color: white;
+}
+
+.kpiMetric.excellent .kpiIcon {
+  background: var(--excellent-color);
+}
+
+.kpiMetric.good .kpiIcon {
+  background: var(--good-color);
+}
+
+.kpiMetric.poor .kpiIcon {
+  background: var(--poor-color);
+}
+
+.kpiData {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.kpiValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.kpiLabel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.kpiStatus {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.kpiStatus.excellent {
+  color: var(--excellent-color);
+}
+
+.kpiStatus.good {
+  color: var(--good-color);
+}
+
+.kpiStatus.poor {
+  color: var(--poor-color);
+}
+
+/* Performance Info - Mantendo para compatibilidade */
 .performanceInfo {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -604,6 +760,14 @@
 
   .performanceInfo {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mainMetrics {
+    grid-template-columns: 1fr;
+  }
+
+  .kpiMetrics {
+    grid-template-columns: 1fr;
   }
 
   .listItem {

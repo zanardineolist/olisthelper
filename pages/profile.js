@@ -31,6 +31,82 @@ const PerformanceCard = ({ title, icon, data, type, lastUpdated }) => {
     return 'neutral';
   };
 
+  const renderMainMetrics = () => {
+    const metrics = [];
+    
+    // Métricas principais por tipo
+    if (data.totalChamados !== undefined) {
+      metrics.push(
+        { 
+          label: 'Total Chamados', 
+          value: data.totalChamados, 
+          icon: 'fa-ticket',
+          type: 'primary' 
+        },
+        { 
+          label: 'Média por Dia', 
+          value: data.mediaPorDia, 
+          icon: 'fa-calendar-day',
+          type: 'secondary' 
+        }
+      );
+    }
+    
+    if (data.totalTelefone !== undefined) {
+      metrics.push(
+        { 
+          label: 'Total Ligações', 
+          value: data.totalTelefone, 
+          icon: 'fa-phone-volume',
+          type: 'primary' 
+        },
+        { 
+          label: 'Perdidas', 
+          value: data.perdidas, 
+          icon: 'fa-phone-slash',
+          type: 'warning' 
+        }
+      );
+    }
+    
+    if (data.totalChats !== undefined) {
+      metrics.push(
+        { 
+          label: 'Total Conversas', 
+          value: data.totalChats, 
+          icon: 'fa-message',
+          type: 'primary' 
+        }
+      );
+    }
+
+    return metrics;
+  };
+
+  const renderKPIMetrics = () => {
+    const kpis = [];
+    
+    if (data.tma !== undefined && data.tma !== null) {
+      kpis.push({ 
+        label: 'TMA', 
+        value: data.tma,
+        status: getMetricStatus(data.colors, 'tma'),
+        icon: 'fa-stopwatch'
+      });
+    }
+    
+    if (data.csat !== undefined && data.csat !== null) {
+      kpis.push({ 
+        label: 'CSAT', 
+        value: data.csat,
+        status: data.csat === "-" ? 'neutral' : getMetricStatus(data.colors, 'csat'),
+        icon: 'fa-heart'
+      });
+    }
+
+    return kpis;
+  };
+
   const overallStatus = getOverallStatus();
 
   return (
@@ -41,7 +117,6 @@ const PerformanceCard = ({ title, icon, data, type, lastUpdated }) => {
         </div>
         <div className={styles.performanceTitleSection}>
           <h3 className={styles.performanceTitle}>{title}</h3>
-          <p className={styles.lastUpdated}>Período: {lastUpdated || "Data não disponível"}</p>
           <div className={`${styles.statusIndicator} ${styles[overallStatus]}`}>
             <i className={`fa-solid ${
               overallStatus === 'excellent' ? 'fa-circle-check' :
@@ -57,65 +132,41 @@ const PerformanceCard = ({ title, icon, data, type, lastUpdated }) => {
         </div>
       </div>
       
-      <div className={styles.performanceInfo}>
-        {type === 'chamados' && (
-          <>
-            <div className={styles.performanceItem}>
-              <span>Total Chamados</span>
-              <span>{data.totalChamados}</span>
+      {/* Métricas Principais */}
+      <div className={styles.mainMetrics}>
+        {renderMainMetrics().map((metric, index) => (
+          <div key={index} className={`${styles.mainMetric} ${styles[metric.type]}`}>
+            <div className={styles.mainMetricIcon}>
+              <i className={`fa-solid ${metric.icon}`}></i>
             </div>
-            <div className={styles.performanceItem}>
-              <span>Média/Dia</span>
-              <span>{data.mediaPorDia}</span>
+            <div className={styles.mainMetricData}>
+              <span className={styles.mainMetricValue}>{metric.value}</span>
+              <span className={styles.mainMetricLabel}>{metric.label}</span>
             </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.tma || 'transparent' }}>
-              <span>TMA</span>
-              <span>{data.tma}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* KPIs com Status */}
+      <div className={styles.kpiMetrics}>
+        {renderKPIMetrics().map((kpi, index) => (
+          <div key={index} className={`${styles.kpiMetric} ${styles[kpi.status]}`}>
+            <div className={styles.kpiIcon}>
+              <i className={`fa-solid ${kpi.icon}`}></i>
             </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.csat || 'transparent' }}>
-              <span>CSAT</span>
-              <span>{data.csat}</span>
+            <div className={styles.kpiData}>
+              <span className={styles.kpiValue}>{kpi.value}</span>
+              <span className={styles.kpiLabel}>{kpi.label}</span>
             </div>
-          </>
-        )}
-        
-        {type === 'telefone' && (
-          <>
-            <div className={styles.performanceItem}>
-              <span>Total Telefone</span>
-              <span>{data.totalTelefone}</span>
+            <div className={`${styles.kpiStatus} ${styles[kpi.status]}`}>
+              <i className={`fa-solid ${
+                kpi.status === 'excellent' ? 'fa-thumbs-up' :
+                kpi.status === 'good' ? 'fa-thumbs-up' :
+                kpi.status === 'poor' ? 'fa-thumbs-down' : 'fa-minus'
+              }`}></i>
             </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.tma || 'transparent' }}>
-              <span>TMA</span>
-              <span>{data.tma}</span>
-            </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.csat || 'transparent' }}>
-              <span>CSAT</span>
-              <span>{data.csat}</span>
-            </div>
-            <div className={styles.performanceItem}>
-              <span>Perdidas</span>
-              <span>{data.perdidas}</span>
-            </div>
-          </>
-        )}
-        
-        {type === 'chat' && (
-          <>
-            <div className={styles.performanceItem}>
-              <span>Total Chats</span>
-              <span>{data.totalChats}</span>
-            </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.tma || 'transparent' }}>
-              <span>TMA</span>
-              <span>{data.tma}</span>
-            </div>
-            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.csat || 'transparent' }}>
-              <span>CSAT</span>
-              <span>{data.csat}</span>
-            </div>
-          </>
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );
