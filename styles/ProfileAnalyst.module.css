@@ -3,10 +3,7 @@
 /* ===== CONTAINER PRINCIPAL ===== */
 .container {
   width: 100%;
-  padding-top: calc(64px + 2rem);
-  padding-left: 2rem;
-  padding-right: 2rem;
-  padding-bottom: 2rem;
+  padding: 2rem;
 }
 
 /* ===== HEADER ===== */
@@ -746,8 +743,6 @@
   70% { box-shadow: 0 0 0 10px rgba(240, 160, 40, 0); }
   100% { box-shadow: 0 0 0 0 rgba(240, 160, 40, 0); }
 }
-
-
 
 .attentionLevel {
   font-size: 0.75rem;

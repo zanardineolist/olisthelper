@@ -2,7 +2,7 @@
 import Head from 'next/head';
 import { getSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
+import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 import styles from '../styles/ProfileAnalyst.module.css';
 
@@ -411,7 +411,7 @@ export default function ProfileAnalystPage({ user }) {
         <meta name="description" content="Perfil do analista com métricas e indicadores de performance" />
       </Head>
 
-      <Navbar user={user} />
+      <Sidebar user={user} />
 
       <main className={styles.container}>
         {/* Header */}
