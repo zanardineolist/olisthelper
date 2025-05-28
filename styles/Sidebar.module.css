@@ -1,18 +1,5 @@
 /* styles/Sidebar.module.css */
 
-/* ===== VARIABLES & RESET ===== */
-:root {
-  --sidebar-width-expanded: 280px;
-  --sidebar-width-collapsed: 72px;
-  --sidebar-bg: var(--navbar-bg, #2c3e50);
-  --sidebar-border: var(--border-color, rgba(255, 255, 255, 0.1));
-  --sidebar-text: var(--text-color, #ecf0f1);
-  --sidebar-text-secondary: var(--text-secondary, #bdc3c7);
-  --sidebar-hover: rgba(255, 255, 255, 0.1);
-  --sidebar-active: var(--color-primary, #3498db);
-  --transition-speed: 0.3s;
-}
-
 /* ===== NOTIFICATION BANNER ===== */
 .notificationBanner {
   position: fixed;
