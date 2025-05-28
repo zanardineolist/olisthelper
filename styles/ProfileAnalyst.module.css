@@ -1,59 +1,5 @@
 /* styles/ProfileAnalyst.module.css */
 
-/* ===== CSS VARIABLES ===== */
-:root {
-  /* Cores principais */
-  --primary-color: #2563eb;
-  --primary-light: #3b82f6;
-  --primary-dark: #1d4ed8;
-  
-  /* Status colors */
-  --excellent-color: #10b981;
-  --excellent-light: #34d399;
-  --excellent-bg: #ecfdf5;
-  --good-color: #f59e0b;
-  --good-light: #fbbf24;
-  --good-bg: #fffbeb;
-  --poor-color: #ef4444;
-  --poor-light: #f87171;
-  --poor-bg: #fef2f2;
-  --neutral-color: #6b7280;
-  --neutral-light: #9ca3af;
-  --neutral-bg: #f9fafb;
-  
-  /* Ranking colors */
-  --first-color: #fbbf24;
-  --first-bg: #fef3c7;
-  --second-color: #9ca3af;
-  --second-bg: #f3f4f6;
-  --third-color: #fb7185;
-  --third-bg: #fce7f3;
-  
-  /* Background and text */
-  --bg-color: #ffffff;
-  --bg-secondary: #f8fafc;
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --text-muted: #9ca3af;
-  --border-color: #e5e7eb;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-}
-
-/* Dark mode variables */
-[data-theme="dark"] {
-  --bg-color: #111827;
-  --bg-secondary: #1f2937;
-  --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
-  --text-muted: #9ca3af;
-  --border-color: #374151;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
-}
-
 /* ===== CONTAINER PRINCIPAL ===== */
 .container {
   width: 100%;
