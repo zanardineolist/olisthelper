@@ -4,9 +4,124 @@ import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import styles from '../styles/MyPage.module.css';
+import styles from '../styles/ProfileSupport.module.css';
 import Footer from '../components/Footer';
 
+// Componente para card de performance aprimorado
+const PerformanceCard = ({ title, icon, data, type, lastUpdated }) => {
+  if (!data) return null;
+
+  const getMetricStatus = (colors, metric) => {
+    if (!colors || !colors[metric]) return 'neutral';
+    
+    const color = colors[metric];
+    if (color.includes('green') || color.includes('#779E3D')) return 'excellent';
+    if (color.includes('yellow') || color.includes('#F0A028')) return 'good';
+    if (color.includes('red') || color.includes('#E64E36')) return 'poor';
+    return 'neutral';
+  };
+
+  const getOverallStatus = () => {
+    const tmaStatus = getMetricStatus(data.colors, 'tma');
+    const csatStatus = getMetricStatus(data.colors, 'csat');
+    
+    if (tmaStatus === 'excellent' && csatStatus === 'excellent') return 'excellent';
+    if (tmaStatus === 'poor' || csatStatus === 'poor') return 'poor';
+    if (tmaStatus === 'good' || csatStatus === 'good') return 'good';
+    return 'neutral';
+  };
+
+  const overallStatus = getOverallStatus();
+
+  return (
+    <div className={`${styles.performanceCard} ${styles[overallStatus]}`}>
+      <div className={styles.performanceCardHeader}>
+        <div className={styles.performanceIcon}>
+          <i className={`fa-solid ${icon}`}></i>
+        </div>
+        <div className={styles.performanceTitleSection}>
+          <h3 className={styles.performanceTitle}>{title}</h3>
+          <p className={styles.lastUpdated}>Período: {lastUpdated || "Data não disponível"}</p>
+          <div className={`${styles.statusIndicator} ${styles[overallStatus]}`}>
+            <i className={`fa-solid ${
+              overallStatus === 'excellent' ? 'fa-circle-check' :
+              overallStatus === 'good' ? 'fa-circle-minus' :
+              overallStatus === 'poor' ? 'fa-circle-xmark' : 'fa-circle'
+            }`}></i>
+            <span>
+              {overallStatus === 'excellent' ? 'Excelente' :
+               overallStatus === 'good' ? 'Bom' :
+               overallStatus === 'poor' ? 'Atenção' : 'Normal'}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div className={styles.performanceInfo}>
+        {type === 'chamados' && (
+          <>
+            <div className={styles.performanceItem}>
+              <span>Total Chamados</span>
+              <span>{data.totalChamados}</span>
+            </div>
+            <div className={styles.performanceItem}>
+              <span>Média/Dia</span>
+              <span>{data.mediaPorDia}</span>
+            </div>
+            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.tma || 'transparent' }}>
+              <span>TMA</span>
+              <span>{data.tma}</span>
+            </div>
+            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.csat || 'transparent' }}>
+              <span>CSAT</span>
+              <span>{data.csat}</span>
+            </div>
+          </>
+        )}
+        
+        {type === 'telefone' && (
+          <>
+            <div className={styles.performanceItem}>
+              <span>Total Telefone</span>
+              <span>{data.totalTelefone}</span>
+            </div>
+            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.tma || 'transparent' }}>
+              <span>TMA</span>
+              <span>{data.tma}</span>
+            </div>
+            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.csat || 'transparent' }}>
+              <span>CSAT</span>
+              <span>{data.csat}</span>
+            </div>
+            <div className={styles.performanceItem}>
+              <span>Perdidas</span>
+              <span>{data.perdidas}</span>
+            </div>
+          </>
+        )}
+        
+        {type === 'chat' && (
+          <>
+            <div className={styles.performanceItem}>
+              <span>Total Chats</span>
+              <span>{data.totalChats}</span>
+            </div>
+            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.tma || 'transparent' }}>
+              <span>TMA</span>
+              <span>{data.tma}</span>
+            </div>
+            <div className={styles.performanceItem} style={{ backgroundColor: data.colors?.csat || 'transparent' }}>
+              <span>CSAT</span>
+              <span>{data.csat}</span>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Componente principal
 export default function MyPage({ user }) {
   const router = useRouter();
   const [greeting, setGreeting] = useState('');
@@ -16,8 +131,9 @@ export default function MyPage({ user }) {
   const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(true);
 
+  // Configurar saudação baseada no horário
   useEffect(() => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
       const currentHour = new Date(brtDate).getHours();
       let greetingMessage = '';
@@ -33,8 +149,11 @@ export default function MyPage({ user }) {
       setGreeting(greetingMessage);
       setInitialLoading(false);
     }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
+  // Buscar dados do usuário
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -42,21 +161,23 @@ export default function MyPage({ user }) {
         const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
           fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
           fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),
-          (user.role === 'support' || user.role === 'support+') ? fetch(`/api/get-user-performance?userEmail=${user.email}`) : Promise.resolve({ json: () => null })
+          (user.role === 'support' || user.role === 'support+') ? 
+            fetch(`/api/get-user-performance?userEmail=${user.email}`) : 
+            Promise.resolve({ json: () => null })
         ]);
-  
+
         const helpData = await helpResponse.json();
         setHelpRequests({
           currentMonth: helpData.currentMonth,
           lastMonth: helpData.lastMonth,
         });
-  
+
         const categoryData = await categoryResponse.json();
         setCategoryRanking(categoryData.categories || []);
-  
+
         if (user.role === 'support' || user.role === 'support+') {
-          const performanceData = await performanceResponse.json();
-          setPerformanceData(performanceData);
+          const performanceDataResult = await performanceResponse.json();
+          setPerformanceData(performanceDataResult);
         }
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
@@ -64,12 +185,13 @@ export default function MyPage({ user }) {
         setLoading(false);
       }
     };
-  
+
     if (user?.email) {
       fetchData();
     }
-  }, [user.email, user.role]);  
+  }, [user.email, user.role]);
 
+  // Loading inicial
   if (initialLoading) {
     return (
       <div className="loaderOverlay">
@@ -86,31 +208,34 @@ export default function MyPage({ user }) {
     percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
   }
 
-  const arrowClass = percentageChange > 0 ? 'fa-circle-up' : 'fa-circle-down';
-  const arrowColor = percentageChange > 0 ? 'red' : 'green';
-  const formattedPercentage = Math.abs(percentageChange).toFixed(1);
-
-  // O código permanece o mesmo até o return
-
   return (
     <>
       <Head>
-        <title>Meus Dados</title>
+        <title>Meu Perfil - Support</title>
+        <meta name="description" content="Perfil do usuário com métricas e indicadores de solicitações de ajuda" />
       </Head>
 
       <Navbar user={user} />
 
-      <main className={styles.main}>
-        <h1 className={styles.greeting}>{greeting}, {firstName}!</h1>
+      <main className={styles.container}>
+        {/* Header */}
+        <header className={styles.header}>
+          <h1 className={styles.greeting}>{greeting}, {firstName}!</h1>
+          <p className={styles.subtitle}>Acompanhe suas métricas e solicitações de ajuda</p>
+        </header>
 
-        <div className={styles.profileAndHelpContainer}>
-          {/* Lado Esquerdo - Perfil e Métricas */}
-          <div className={styles.leftSide}>
-            {/* Card de Perfil */}
-            <div className={styles.profileContainer}>
-              <img src={user.image} alt={user.name} className={styles.profileImage} />
-              <div className={styles.profileInfo}>
-                <h2>{user.name}</h2>
+        {/* Seção 1: Overview Pessoal */}
+        <section className={styles.overviewSection}>
+          {/* Card de Perfil Expandido */}
+          <div className={styles.profileExpandedCard}>
+            <div className={styles.profileMainInfo}>
+              <img 
+                src={user.image} 
+                alt={user.name} 
+                className={styles.profileImage} 
+              />
+              <div className={styles.profileDetails}>
+                <h3>{user.name}</h3>
                 <p>{user.email}</p>
                 <div className={styles.tagsContainer}>
                   {performanceData?.squad && (
@@ -136,171 +261,189 @@ export default function MyPage({ user }) {
                 </div>
               </div>
             </div>
-
-            {/* Métricas de Trabalho */}
-            <div className={styles.workMetricsContainer}>
-              <div className={styles.workMetric}>
-                <h3>Dias Trabalhados</h3>
-                <div className={styles.metricContent}>
+            
+            {/* Métricas Integradas */}
+            <div className={styles.integratedMetrics}>
+              <div className={styles.metricItem}>
+                <div className={styles.metricIcon}>
+                  <i className="fa-solid fa-calendar-days"></i>
+                </div>
+                <div className={styles.metricData}>
                   <span className={styles.metricValue}>{performanceData?.diasTrabalhados || 0}</span>
+                  <span className={styles.metricLabel}>Dias Trabalhados</span>
                   <span className={styles.metricSubtext}>/ {performanceData?.diasUteis || 0} dias úteis</span>
                 </div>
               </div>
-              <div className={styles.workMetric}>
-                <h3>Absenteísmo</h3>
-                <div className={styles.metricContent}>
+              
+              <div className={styles.metricItem}>
+                <div className={styles.metricIcon}>
+                  <i className="fa-solid fa-chart-line"></i>
+                </div>
+                <div className={styles.metricData}>
                   <span className={styles.metricValue}>{performanceData?.absenteismo || 0}%</span>
+                  <span className={styles.metricLabel}>Absenteísmo</span>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Lado Direito - Ajudas Solicitadas */}
-          <div className={styles.rightSide}>
-            <div className={styles.helpRequestsContainer}>
-              <h2>Ajudas Solicitadas</h2>
-              <div className={styles.helpRequestsContent}>
-                <div className={styles.monthsInfo}>
-                  <div className={styles.monthMetric}>
-                    <span className={styles.monthLabel}>Mês Atual:</span>
-                    <span className={styles.monthValue}>{currentMonth}</span>
-                  </div>
-                  <div className={styles.monthMetric}>
-                    <span className={styles.monthLabel}>Mês Anterior:</span>
-                    <span className={styles.monthValue}>{lastMonth}</span>
-                  </div>
+          
+          {/* Card de Ajudas Solicitadas Expandido */}
+          <div className={styles.helpExpandedCard}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>
+                <i className="fa-solid fa-handshake-angle"></i>
+                Ajudas Solicitadas
+              </h3>
+            </div>
+            
+            <div className={styles.helpStatsExpanded}>
+              <div className={styles.helpStatMain}>
+                <div className={styles.helpStatIcon}>
+                  <i className="fa-solid fa-calendar"></i>
                 </div>
-                <div className={styles.percentageContainer}>
-                  <div className={styles.percentageChange} style={{ color: arrowColor }}>
-                    <i className={`fa-regular ${arrowClass}`}></i>
-                    <span>{formattedPercentage}%</span>
-                  </div>
-                  <span className={styles.percentageLabel}>Variação</span>
+                <div className={styles.helpStatContent}>
+                  <span className={styles.helpStatValue}>{currentMonth}</span>
+                  <span className={styles.helpStatLabel}>Mês Atual</span>
                 </div>
               </div>
+              
+              <div className={styles.helpStatMain}>
+                <div className={styles.helpStatIcon}>
+                  <i className="fa-solid fa-calendar-xmark"></i>
+                </div>
+                <div className={styles.helpStatContent}>
+                  <span className={styles.helpStatValue}>{lastMonth}</span>
+                  <span className={styles.helpStatLabel}>Mês Anterior</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.trendIndicator}>
+              <div className={`${styles.trendValue} ${
+                percentageChange > 0 ? styles.positive : 
+                percentageChange < 0 ? styles.negative : styles.neutral
+              }`}>
+                <i className={`fa-solid ${
+                  percentageChange > 0 ? 'fa-trending-up' : 
+                  percentageChange < 0 ? 'fa-trending-down' : 'fa-minus'
+                }`}></i>
+                <span>{Math.abs(percentageChange).toFixed(1)}%</span>
+              </div>
+              <span className={styles.trendLabel}>Variação Mensal</span>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Grid de Performance */}
-        <div className={styles.performanceWrapper}>
-          {performanceData?.chamados && (
-            <div className={styles.performanceContainer}>
-              <h2>Indicadores Chamados</h2>
-              <p className={styles.lastUpdated}>Período: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-              <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Chamados</span>
-                  <span>{performanceData.chamados.totalChamados}</span>
-                </div>
-                <div className={styles.performanceItem}>
-                  <span>Média/Dia</span>
-                  <span>{performanceData.chamados.mediaPorDia}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.tma || 'transparent' }}>
-                  <span>TMA</span>
-                  <span>{performanceData.chamados.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chamados.colors.csat || 'transparent' }}>
-                  <span>CSAT</span>
-                  <span>{performanceData.chamados.csat}</span>
-                </div>
+        {/* Seção 2: Indicadores de Performance */}
+        {performanceData && (
+          <section className={styles.performanceSection}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>
+                <i className="fa-solid fa-chart-bar"></i>
+                Indicadores de Performance
+              </h2>
+              <p className={styles.sectionSubtitle}>
+                Período: {performanceData.atualizadoAte || "Data não disponível"}
+              </p>
+            </div>
+            
+            <div className={styles.performanceGrid}>
+              {performanceData.chamados && (
+                <PerformanceCard 
+                  title="Indicadores Chamados"
+                  icon="fa-headset"
+                  data={performanceData.chamados}
+                  type="chamados"
+                  lastUpdated={performanceData.atualizadoAte}
+                />
+              )}
+              
+              {performanceData.telefone && (
+                <PerformanceCard 
+                  title="Indicadores Telefone"
+                  icon="fa-phone"
+                  data={performanceData.telefone}
+                  type="telefone"
+                  lastUpdated={performanceData.atualizadoAte}
+                />
+              )}
+              
+              {performanceData.chat && (
+                <PerformanceCard 
+                  title="Indicadores Chat"
+                  icon="fa-comments"
+                  data={performanceData.chat}
+                  type="chat"
+                  lastUpdated={performanceData.atualizadoAte}
+                />
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* Seção 3: Ranking de Categorias */}
+        <section className={styles.categorySection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <i className="fa-solid fa-chart-line"></i>
+              Top 10 - Temas de Maior Dúvida
+            </h2>
+            <p className={styles.sectionSubtitle}>
+              Áreas onde você mais solicita ajuda - Oportunidades para aprendizado
+            </p>
+          </div>
+          
+          <div className={styles.categoryRanking}>
+            <h3 className={styles.categoryTitle}>
+              <i className="fa-solid fa-ranking-star"></i>
+              Categorias Mais Solicitadas
+            </h3>
+            {loading ? (
+              <div className={styles.loadingContainer}>
+                <div className="standardBoxLoader"></div>
+                <p>Carregando ranking...</p>
               </div>
-            </div>
-          )}
-
-          {performanceData?.telefone && (
-            <div className={styles.performanceContainer}>
-              <h2>Indicadores Telefone</h2>
-              <p className={styles.lastUpdated}>Período: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-              <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Telefone</span>
-                  <span>{performanceData.telefone.totalTelefone}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.tma || 'transparent' }}>
-                  <span>TMA</span>
-                  <span>{performanceData.telefone.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.telefone.colors.csat || 'transparent' }}>
-                  <span>CSAT</span>
-                  <span>{performanceData.telefone.csat}</span>
-                </div>
-                <div className={styles.performanceItem}>
-                  <span>Perdidas</span>
-                  <span>{performanceData.telefone.perdidas}</span>
-                </div>
+            ) : categoryRanking.length > 0 ? (
+              <ul className={styles.list}>
+                {categoryRanking.map((category, index) => (
+                  <li key={index} className={styles.listItem}>
+                    <span className={styles.rank}>{index + 1}.</span>
+                    <span className={styles.categoryName}>{category.name}</span>
+                    <div
+                      className={styles.progressBarCategory}
+                      style={{
+                        width: `${Math.min((category.count / 20) * 100, 100)}%`,
+                        backgroundColor: category.count > 10 ? '#F0A028' : '',
+                      }}
+                    />
+                    <span className={styles.count}>
+                      {category.count} pedidos de ajuda
+                      {category.count > 10 && (
+                        <div className={styles.tooltip}>
+                          <i
+                            className="fa-solid fa-circle-exclamation"
+                            style={{ color: '#F0A028', cursor: 'pointer' }}
+                            onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
+                          ></i>
+                          <span className={styles.tooltipText}>
+                            Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone.
+                          </span>
+                        </div>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className={styles.noData}>
+                <i className="fa-solid fa-chart-simple"></i>
+                <p>Nenhum dado disponível no momento.</p>
               </div>
-            </div>
-          )}
-
-          {performanceData?.chat && (
-            <div className={styles.performanceContainer}>
-              <h2>Indicadores Chat</h2>
-              <p className={styles.lastUpdated}>Período: {performanceData?.atualizadoAte || "Data não disponível"}</p>
-              <div className={styles.performanceInfo}>
-                <div className={styles.performanceItem}>
-                  <span>Total Chats</span>
-                  <span>{performanceData.chat.totalChats}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.tma || 'transparent' }}>
-                  <span>TMA</span>
-                  <span>{performanceData.chat.tma}</span>
-                </div>
-                <div className={styles.performanceItem} style={{ backgroundColor: performanceData.chat.colors.csat || 'transparent' }}>
-                  <span>CSAT</span>
-                  <span>{performanceData.chat.csat}</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Ranking de Categorias */}
-        <div className={styles.categoryRanking}>
-          <h3>Top 10 - Temas de maior dúvida</h3>
-          {loading ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
-          ) : categoryRanking.length > 0 ? (
-            <ul className={styles.list}>
-              {categoryRanking.map((category, index) => (
-                <li key={index} className={styles.listItem}>
-                  <span className={styles.rank}>{index + 1}.</span>
-                  <span className={styles.categoryName}>{category.name}</span>
-                  <div
-                    className={styles.progressBarCategory}
-                    style={{
-                      width: `${Math.min((category.count / 20) * 100, 100)}%`,
-                      backgroundColor: category.count > 10 ? '#F0A028' : '',
-                    }}
-                  />
-                  <span className={styles.count}>
-                    {category.count} pedidos de ajuda
-                    {category.count > 10 && (
-                      <div className="tooltip">
-                        <i
-                          className="fa-solid fa-circle-exclamation"
-                          style={{ color: '#F0A028', cursor: 'pointer' }}
-                          onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
-                        ></i>
-                        <span className="tooltipText">
-                          Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone.
-                        </span>
-                      </div>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className={styles.noData}>
-              Nenhum dado disponível no momento.
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </section>
       </main>
+
       <Footer />
     </>
   );
@@ -336,3 +479,4 @@ export async function getServerSideProps(context) {
     },
   };
 }
+
