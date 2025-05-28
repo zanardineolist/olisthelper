@@ -3,9 +3,10 @@
 /* ===== CONTAINER PRINCIPAL ===== */
 .container {
   width: 100%;
-  padding: calc(64px + 2rem) 2rem 6rem;
-  background-color: var(--background-color);
-  min-height: calc(100vh - 64px);
+  padding-top: calc(64px + 2rem);
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
 }
 
 /* ===== HEADER ===== */
@@ -838,7 +839,10 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: calc(64px + 1rem) 1rem 1rem;
+    padding-top: calc(64px + 1rem);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 1rem;
   }
   
   .greeting {
