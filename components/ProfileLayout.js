@@ -91,6 +91,15 @@ export const Sidebar = ({ children, className = "" }) => {
   );
 };
 
+// Componente para Sidebar Direita
+export const RightSidebar = ({ children, className = "" }) => {
+  return (
+    <aside className={`${styles.rightSidebar} ${className}`}>
+      {children}
+    </aside>
+  );
+};
+
 // Componente para Conteúdo Principal
 export const MainContent = ({ children, className = "" }) => {
   return (

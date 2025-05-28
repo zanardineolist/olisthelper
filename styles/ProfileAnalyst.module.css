@@ -2,10 +2,13 @@
 
 /* Layout Principal */
 .container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-  min-height: calc(100vh - 140px);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 2rem;
+  min-height: calc(100vh - 160px);
+  padding-bottom: 2rem;
+  flex: 1;
 }
 
 .header {
@@ -29,9 +32,10 @@
 /* Grid Principal */
 .mainGrid {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 350px 1fr 350px;
   gap: 2rem;
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 /* Sidebar Esquerda */
@@ -151,6 +155,13 @@
   gap: 1.5rem;
 }
 
+/* Área Direita */
+.rightSidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 /* Card de Ajudas */
 .helpCard {
   background: var(--box-color);
@@ -230,9 +241,10 @@
 /* Performance Grid */
 .performanceGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .performanceCard {
@@ -325,6 +337,9 @@
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .categoryRankingTitle {
@@ -460,13 +475,42 @@
 }
 
 /* Media Queries - Responsividade */
-@media (max-width: 1200px) {
+@media (min-width: 1600px) {
   .mainGrid {
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 380px 1fr 380px;
+    gap: 3rem;
   }
   
   .performanceGrid {
-    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+}
+
+@media (max-width: 1400px) {
+  .mainGrid {
+    grid-template-columns: 320px 1fr 320px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .mainGrid {
+    grid-template-columns: 280px 1fr 280px;
+  }
+  
+  .performanceGrid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  
+  .rightSidebar {
+    order: 3;
+    grid-column: 1 / -1;
   }
 }
 
@@ -477,11 +521,15 @@
   }
   
   .sidebar {
-    order: 2;
+    order: 1;
   }
   
   .mainContent {
-    order: 1;
+    order: 2;
+  }
+  
+  .rightSidebar {
+    order: 3;
   }
   
   .metricsGrid {
@@ -508,6 +556,10 @@
   }
   
   .performanceMetrics {
+    grid-template-columns: 1fr;
+  }
+  
+  .performanceGrid {
     grid-template-columns: 1fr;
   }
   

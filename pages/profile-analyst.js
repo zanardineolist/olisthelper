@@ -342,7 +342,7 @@ export default function ProfileAnalystPage({ user }) {
 
         {/* Grid Principal */}
         <div className={styles.mainGrid}>
-          {/* Sidebar - Perfil e Métricas */}
+          {/* Sidebar Esquerda - Perfil */}
           <aside className={styles.sidebar}>
             {/* Card de Perfil */}
             <div className={styles.profileCard}>
@@ -364,15 +364,71 @@ export default function ProfileAnalystPage({ user }) {
               </div>
             </div>
 
-            {/* Métricas de Trabalho */}
-            <WorkMetricsCard performanceData={performanceData} />
+            {/* Card de Status */}
+            <div className={styles.helpCard}>
+              <h3 className={styles.cardTitle}>Status Atual</h3>
+              <div className={styles.helpStats}>
+                <div className={styles.helpStat}>
+                  <span className={styles.helpStatValue}>
+                    {performanceData?.diasTrabalhados >= (performanceData?.diasUteis * 0.9) ? '🟢' : performanceData?.diasTrabalhados >= (performanceData?.diasUteis * 0.7) ? '🟡' : '🔴'}
+                  </span>
+                  <span className={styles.helpStatLabel}>Frequência</span>
+                </div>
+                <div className={styles.helpStat}>
+                  <span className={styles.helpStatValue}>
+                    {helpRequests.today > 0 ? '🚀' : '💤'}
+                  </span>
+                  <span className={styles.helpStatLabel}>Hoje</span>
+                </div>
+              </div>
+            </div>
           </aside>
 
           {/* Conteúdo Principal */}
           <div className={styles.mainContent}>
             {/* Card de Ajudas Prestadas */}
             <HelpRequestsCard helpRequests={helpRequests} />
+            
+            {/* Card de Insights */}
+            <div className={styles.helpCard}>
+              <h3 className={styles.cardTitle}>Insights Rápidos</h3>
+              <div className={styles.helpStats}>
+                <div className={styles.helpStat}>
+                  <span className={styles.helpStatValue}>
+                    {categoryRanking.length > 0 ? categoryRanking[0]?.name?.substring(0, 20) + '...' : 'N/A'}
+                  </span>
+                  <span className={styles.helpStatLabel}>Tema Mais Auxiliado</span>
+                </div>
+                <div className={styles.helpStat}>
+                  <span className={styles.helpStatValue}>
+                    {performanceData?.atualizadoAte ? new Date(performanceData.atualizadoAte).toLocaleDateString('pt-BR') : 'N/A'}
+                  </span>
+                  <span className={styles.helpStatLabel}>Última Atualização</span>
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Sidebar Direita - Métricas */}
+          <aside className={styles.rightSidebar}>
+            {/* Métricas de Trabalho */}
+            <WorkMetricsCard performanceData={performanceData} />
+            
+            {/* Card de Resumo Mensal */}
+            <div className={styles.helpCard}>
+              <h3 className={styles.cardTitle}>Resumo do Mês</h3>
+              <div className={styles.helpStats}>
+                <div className={styles.helpStat}>
+                  <span className={styles.helpStatValue}>{Math.round((helpRequests.currentMonth / (performanceData?.diasTrabalhados || 1)) * 10) / 10}</span>
+                  <span className={styles.helpStatLabel}>Média por Dia</span>
+                </div>
+                <div className={styles.helpStat}>
+                  <span className={styles.helpStatValue}>{categoryRanking.length}</span>
+                  <span className={styles.helpStatLabel}>Temas Diferentes</span>
+                </div>
+              </div>
+            </div>
+          </aside>
         </div>
 
         {/* Grid de Performance */}
