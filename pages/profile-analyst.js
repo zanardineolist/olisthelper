@@ -11,9 +11,6 @@ import styles from '../styles/ProfileAnalyst.module.css';
 // Componente para card de performance aprimorado
 const PerformanceCard = ({ title, icon, data, type }) => {
   if (!data) return null;
-  
-  // Debug temporário para verificar dados
-  console.log(`Performance Card - ${title}:`, data);
 
   const getMetricStatus = (colors, metric) => {
     if (!colors || !colors[metric]) return 'neutral';
@@ -212,7 +209,8 @@ const CategoryRanking = ({ categories, loading }) => {
     );
   }
 
-  const maxCount = categories[0]?.count || 1;
+  // Calcular total de ajudas para a barra de progresso
+  const totalHelpRequests = categories.reduce((sum, category) => sum + category.count, 0);
 
   const getAttentionIcon = (index, count) => {
     if (count > 50) return 'fa-exclamation-triangle';
@@ -228,74 +226,87 @@ const CategoryRanking = ({ categories, loading }) => {
     return 'low';
   };
 
+  const getTooltipMessage = (count) => {
+    if (count > 50) {
+      return "⚠️ Atenção Crítica: Esta categoria tem muitas solicitações! Considere criar materiais de treinamento, tutoriais ou documentação específica para reduzir a demanda e aumentar a autonomia dos usuários.";
+    }
+    if (count > 30) {
+      return "💡 Oportunidade de Melhoria: Esta categoria está recebendo bastante demanda. Criar um material educativo pode ajudar a reduzir futuras solicitações e melhorar a experiência dos usuários.";
+    }
+    return "";
+  };
+
   return (
     <div className={styles.categoryRanking}>
       <div className={styles.categoryGrid}>
-        {categories.map((category, index) => (
-          <div 
-            key={index} 
-            className={`${styles.categoryCard} ${styles[getAttentionClass(index, category.count)]}`}
-          >
-            <div className={styles.categoryCardHeader}>
-              <div className={`${styles.attentionBadge} ${styles[getAttentionClass(index, category.count)]}`}>
-                <i className={`fa-solid ${getAttentionIcon(index, category.count)}`}></i>
-                <span className={styles.rankNumber}>#{index + 1}</span>
-              </div>
-              <div className={styles.categoryCardTitle}>
-                <h4 className={styles.categoryName}>{category.name}</h4>
-                <span className={styles.attentionLevel}>
-                  {category.count > 50 ? 'Atenção Crítica' : 
-                   category.count > 30 ? 'Atenção Alta' : 
-                   category.count > 15 ? 'Atenção Média' : 'Atenção Baixa'}
-                </span>
-              </div>
-            </div>
-            
-            <div className={styles.categoryStats}>
-              <div className={styles.primaryStat}>
-                <div className={styles.statIcon}>
-                  <i className="fa-solid fa-chart-bar"></i>
+        {categories.map((category, index) => {
+          const progressPercentage = Math.round((category.count / totalHelpRequests) * 100);
+          const tooltipMessage = getTooltipMessage(category.count);
+          
+          return (
+            <div 
+              key={index} 
+              className={`${styles.categoryCard} ${styles[getAttentionClass(index, category.count)]}`}
+              title={tooltipMessage}
+            >
+              <div className={styles.categoryCardHeader}>
+                <div className={`${styles.attentionBadge} ${styles[getAttentionClass(index, category.count)]}`}>
+                  <i className={`fa-solid ${getAttentionIcon(index, category.count)}`}></i>
+                  <span className={styles.rankNumber}>#{index + 1}</span>
                 </div>
-                <div className={styles.statData}>
-                  <span className={styles.statValue}>{category.count}</span>
-                  <span className={styles.statLabel}>Ajudas</span>
+                <div className={styles.categoryCardTitle}>
+                  <h4 className={styles.categoryName}>{category.name}</h4>
+                  <span className={styles.attentionLevel}>
+                    {category.count > 50 ? 'Atenção Crítica' : 
+                     category.count > 30 ? 'Atenção Alta' : 
+                     category.count > 15 ? 'Atenção Média' : 'Atenção Baixa'}
+                  </span>
                 </div>
               </div>
               
-              <div className={styles.progressSection}>
-                <div className={styles.categoryProgress}>
-                  <div 
-                    className={`${styles.categoryProgressBar} ${styles[getAttentionClass(index, category.count)]}`}
-                    style={{ width: `${(category.count / maxCount) * 100}%` }}
-                  />
+              <div className={styles.categoryStats}>
+                <div className={styles.primaryStat}>
+                  <div className={styles.statIcon}>
+                    <i className="fa-solid fa-chart-bar"></i>
+                  </div>
+                  <div className={styles.statData}>
+                    <span className={styles.statValue}>{category.count}</span>
+                    <span className={styles.statLabel}>Ajudas</span>
+                  </div>
                 </div>
-                <span className={styles.progressPercentage}>
-                  {Math.round((category.count / maxCount) * 100)}%
-                </span>
+                
+                <div className={styles.progressSection}>
+                  <div className={styles.categoryProgress}>
+                    <div 
+                      className={`${styles.categoryProgressBar} ${styles[getAttentionClass(index, category.count)]}`}
+                      style={{ width: `${progressPercentage}%` }}
+                      title={`Esta categoria representa ${progressPercentage}% do total de ${totalHelpRequests} ajudas prestadas`}
+                    />
+                  </div>
+                  <span 
+                    className={styles.progressPercentage}
+                    title={`${progressPercentage}% do total de ajudas`}
+                  >
+                    {progressPercentage}%
+                  </span>
+                </div>
               </div>
+
+              {category.count > 50 && (
+                <div 
+                  className={styles.actionBadge}
+                  title="Clique para acessar a base de conhecimento e criar materiais"
+                >
+                  <i
+                    className="fa-solid fa-lightbulb"
+                    onClick={() => window.open('https://olisterp.wixsite.com/knowledge/inicio', '_blank')}
+                  />
+                  <span>Criar Material</span>
+                </div>
+              )}
             </div>
-
-            {category.count > 50 && (
-              <div className={styles.actionBadge}>
-                <i
-                  className="fa-solid fa-lightbulb"
-                  onClick={() => window.open('https://olisterp.wixsite.com/knowledge/inicio', '_blank')}
-                  title="Muitas solicitações neste tema. Considere criar um material de apoio."
-                />
-                <span>Criar Material</span>
-              </div>
-            )}
-
-            {category.count > 30 && (
-              <div className={`${styles.attentionIndicator} ${styles[getAttentionClass(index, category.count)]}`}>
-                <i className={`fa-solid ${
-                  category.count > 50 ? 'fa-triangle-exclamation' : 
-                  category.count > 30 ? 'fa-circle-exclamation' : 'fa-info'
-                }`}></i>
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

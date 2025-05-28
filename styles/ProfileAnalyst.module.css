@@ -747,40 +747,7 @@
   100% { box-shadow: 0 0 0 0 rgba(240, 160, 40, 0); }
 }
 
-.attentionIndicator {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  box-shadow: var(--shadow-md);
-  animation: blink 1.5s infinite;
-}
 
-.attentionIndicator.critical {
-  background: var(--color-accent1);
-  color: white;
-}
-
-.attentionIndicator.high {
-  background: var(--color-accent2);
-  color: white;
-}
-
-.attentionIndicator.medium {
-  background: var(--color-accent3);
-  color: white;
-}
-
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0.6; }
-}
 
 .attentionLevel {
   font-size: 0.75rem;
