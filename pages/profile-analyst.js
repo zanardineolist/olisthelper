@@ -199,18 +199,18 @@ const CategoryRanking = ({ categories, loading }) => {
 
   const maxCount = categories[0]?.count || 1;
 
-  const getRankIcon = (index) => {
-    if (index === 0) return 'fa-trophy';
-    if (index === 1) return 'fa-medal';
-    if (index === 2) return 'fa-award';
-    return 'fa-circle';
+  const getAttentionIcon = (index, count) => {
+    if (count > 50) return 'fa-exclamation-triangle';
+    if (count > 30) return 'fa-exclamation-circle';
+    if (count > 15) return 'fa-info-circle';
+    return 'fa-circle-dot';
   };
 
-  const getRankClass = (index) => {
-    if (index === 0) return 'first';
-    if (index === 1) return 'second';
-    if (index === 2) return 'third';
-    return 'other';
+  const getAttentionClass = (index, count) => {
+    if (count > 50) return 'critical';
+    if (count > 30) return 'high';
+    if (count > 15) return 'medium';
+    return 'low';
   };
 
   return (
@@ -219,15 +219,20 @@ const CategoryRanking = ({ categories, loading }) => {
         {categories.map((category, index) => (
           <div 
             key={index} 
-            className={`${styles.categoryCard} ${styles[getRankClass(index)]}`}
+            className={`${styles.categoryCard} ${styles[getAttentionClass(index, category.count)]}`}
           >
             <div className={styles.categoryCardHeader}>
-              <div className={`${styles.rankBadge} ${styles[getRankClass(index)]}`}>
-                <i className={`fa-solid ${getRankIcon(index)}`}></i>
+              <div className={`${styles.attentionBadge} ${styles[getAttentionClass(index, category.count)]}`}>
+                <i className={`fa-solid ${getAttentionIcon(index, category.count)}`}></i>
                 <span className={styles.rankNumber}>#{index + 1}</span>
               </div>
               <div className={styles.categoryCardTitle}>
                 <h4 className={styles.categoryName}>{category.name}</h4>
+                <span className={styles.attentionLevel}>
+                  {category.count > 50 ? 'Atenção Crítica' : 
+                   category.count > 30 ? 'Atenção Alta' : 
+                   category.count > 15 ? 'Atenção Média' : 'Atenção Baixa'}
+                </span>
               </div>
             </div>
             
@@ -245,7 +250,7 @@ const CategoryRanking = ({ categories, loading }) => {
               <div className={styles.progressSection}>
                 <div className={styles.categoryProgress}>
                   <div 
-                    className={`${styles.categoryProgressBar} ${styles[getRankClass(index)]}`}
+                    className={`${styles.categoryProgressBar} ${styles[getAttentionClass(index, category.count)]}`}
                     style={{ width: `${(category.count / maxCount) * 100}%` }}
                   />
                 </div>
@@ -256,21 +261,21 @@ const CategoryRanking = ({ categories, loading }) => {
             </div>
 
             {category.count > 50 && (
-              <div className={styles.warningBadge}>
+              <div className={styles.actionBadge}>
                 <i
                   className="fa-solid fa-lightbulb"
                   onClick={() => window.open('https://olisterp.wixsite.com/knowledge/inicio', '_blank')}
-                  title="Você já ajudou neste tema mais de 50 vezes. Que tal criar um material sobre?"
+                  title="Muitas solicitações neste tema. Considere criar um material de apoio."
                 />
-                <span>Material?</span>
+                <span>Criar Material</span>
               </div>
             )}
 
-            {index < 3 && (
-              <div className={styles.podiumHighlight}>
+            {category.count > 30 && (
+              <div className={`${styles.attentionIndicator} ${styles[getAttentionClass(index, category.count)]}`}>
                 <i className={`fa-solid ${
-                  index === 0 ? 'fa-crown' : 
-                  index === 1 ? 'fa-star' : 'fa-gem'
+                  category.count > 50 ? 'fa-triangle-exclamation' : 
+                  category.count > 30 ? 'fa-circle-exclamation' : 'fa-info'
                 }`}></i>
               </div>
             )}
@@ -566,15 +571,15 @@ export default function ProfileAnalystPage({ user }) {
 
         {/* Seção 3: Ranking de Categorias */}
         <section className={styles.categorySection}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <i className="fa-solid fa-trophy"></i>
-              Ranking de Categorias
-            </h2>
-            <p className={styles.sectionSubtitle}>
-              Performance por categoria de atendimento
-            </p>
-          </div>
+                      <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>
+                <i className="fa-solid fa-chart-line"></i>
+                Categorias Mais Solicitadas
+              </h2>
+              <p className={styles.sectionSubtitle}>
+                Áreas onde você recebe mais pedidos de ajuda - Oportunidades para criação de materiais
+              </p>
+            </div>
           <CategoryRanking 
             categories={categoryRanking} 
             loading={loading} 

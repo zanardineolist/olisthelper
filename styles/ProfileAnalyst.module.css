@@ -3,7 +3,7 @@
 /* ===== CONTAINER PRINCIPAL ===== */
 .container {
   width: 100%;
-  padding: calc(64px + 2rem) 2rem 2rem;
+  padding: calc(64px + 2rem) 2rem 6rem;
   background-color: var(--background-color);
   min-height: calc(100vh - 64px);
 }
@@ -555,19 +555,24 @@
   box-shadow: var(--shadow-lg);
 }
 
-.categoryCard.first {
-  border-left: 4px solid var(--first-color);
-  background: linear-gradient(135deg, var(--first-bg) 0%, var(--bg-color) 50%);
+.categoryCard.critical {
+  border-left: 4px solid var(--color-accent1);
+  background: linear-gradient(135deg, rgba(230, 78, 54, 0.1) 0%, var(--bg-color) 50%);
 }
 
-.categoryCard.second {
-  border-left: 4px solid var(--second-color);
-  background: linear-gradient(135deg, var(--second-bg) 0%, var(--bg-color) 50%);
+.categoryCard.high {
+  border-left: 4px solid var(--color-accent2);
+  background: linear-gradient(135deg, rgba(240, 160, 40, 0.1) 0%, var(--bg-color) 50%);
 }
 
-.categoryCard.third {
-  border-left: 4px solid var(--third-color);
-  background: linear-gradient(135deg, var(--third-bg) 0%, var(--bg-color) 50%);
+.categoryCard.medium {
+  border-left: 4px solid var(--color-accent3);
+  background: linear-gradient(135deg, rgba(119, 158, 61, 0.1) 0%, var(--bg-color) 50%);
+}
+
+.categoryCard.low {
+  border-left: 4px solid var(--neutral-color);
+  background: var(--bg-color);
 }
 
 .categoryCardHeader {
@@ -577,7 +582,7 @@
   margin-bottom: 1.5rem;
 }
 
-.rankBadge {
+.attentionBadge {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -589,18 +594,23 @@
   color: white;
 }
 
-.rankBadge.first {
-  background: var(--first-color);
-  color: #1f2937;
-}
-
-.rankBadge.second {
-  background: var(--second-color);
+.attentionBadge.critical {
+  background: var(--color-accent1);
   color: white;
 }
 
-.rankBadge.third {
-  background: var(--third-color);
+.attentionBadge.high {
+  background: var(--color-accent2);
+  color: white;
+}
+
+.attentionBadge.medium {
+  background: var(--color-accent3);
+  color: white;
+}
+
+.attentionBadge.low {
+  background: var(--neutral-color);
   color: white;
 }
 
@@ -683,16 +693,20 @@
   background: var(--neutral-color);
 }
 
-.categoryProgressBar.first {
-  background: var(--first-color);
+.categoryProgressBar.critical {
+  background: var(--color-accent1);
 }
 
-.categoryProgressBar.second {
-  background: var(--second-color);
+.categoryProgressBar.high {
+  background: var(--color-accent2);
 }
 
-.categoryProgressBar.third {
-  background: var(--third-color);
+.categoryProgressBar.medium {
+  background: var(--color-accent3);
+}
+
+.categoryProgressBar.low {
+  background: var(--neutral-color);
 }
 
 .progressPercentage {
@@ -703,14 +717,14 @@
   text-align: right;
 }
 
-.warningBadge {
+.actionBadge {
   position: absolute;
   top: 1rem;
   right: 1rem;
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  background: var(--good-color);
+  background: var(--color-accent2);
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
@@ -718,13 +732,21 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  animation: pulse 2s infinite;
 }
 
-.warningBadge:hover {
-  background: var(--good-light);
+.actionBadge:hover {
+  background: var(--color-accent2);
+  transform: scale(1.05);
 }
 
-.podiumHighlight {
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(240, 160, 40, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(240, 160, 40, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(240, 160, 40, 0); }
+}
+
+.attentionIndicator {
   position: absolute;
   top: -5px;
   right: -5px;
@@ -735,19 +757,36 @@
   align-items: center;
   justify-content: center;
   font-size: 1rem;
-  background: var(--first-color);
-  color: #1f2937;
   box-shadow: var(--shadow-md);
+  animation: blink 1.5s infinite;
 }
 
-.categoryCard.second .podiumHighlight {
-  background: var(--second-color);
+.attentionIndicator.critical {
+  background: var(--color-accent1);
   color: white;
 }
 
-.categoryCard.third .podiumHighlight {
-  background: var(--third-color);
+.attentionIndicator.high {
+  background: var(--color-accent2);
   color: white;
+}
+
+.attentionIndicator.medium {
+  background: var(--color-accent3);
+  color: white;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.6; }
+}
+
+.attentionLevel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Loading e Empty States */
