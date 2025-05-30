@@ -6,7 +6,7 @@ import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import Navbar from '../components/Navbar';
 import styles from '../styles/DashboardAnalyst.module.css';
-import Footer from '../components/Footer';
+import { Footer } from '../components/layout';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import Select from 'react-select';

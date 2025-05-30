@@ -1,9 +1,8 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { getSession } from 'next-auth/react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import HelpTopicsData from '../components/HelpTopicsData';
+import { Navbar, Footer } from '../components/layout';
+import { HelpTopicsData } from '../components/dashboards';
 import styles from '../styles/DashboardSuper.module.css';
 
 export default function DashboardQuality({ user }) {

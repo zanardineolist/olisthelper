@@ -1,5 +1,5 @@
 import { FaHeart, FaRegHeart, FaCopy, FaEdit, FaTrash, FaMagic } from 'react-icons/fa';
-import styles from '../styles/SharedMessages.module.css';
+import styles from '../../styles/SharedMessages.module.css';
 
 const MessageActions = ({ message, user, onToggleFavorite, onCopy, onEdit, onDelete, onGeminiSuggestion }) => {
   const isAuthor = message.user_id === user.id;
@@ -69,4 +69,4 @@ const MessageActions = ({ message, user, onToggleFavorite, onCopy, onEdit, onDel
   );
 };
 
-export default MessageActions;
+export default MessageActions; 

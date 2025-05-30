@@ -1,6 +1,5 @@
-// Novo componente TagInput.js
 import React, { useState, useRef } from 'react';
-import styles from '../styles/TagInput.module.css';
+import styles from '../../styles/TagInput.module.css';
 import { FaTimes } from 'react-icons/fa';
 
 export default function TagInput({ value, onChange }) {
@@ -67,4 +66,4 @@ export default function TagInput({ value, onChange }) {
       />
     </div>
   );
-}
+} 

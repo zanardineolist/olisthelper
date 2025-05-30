@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle, faSearch } from '@fortawesome/free-solid-svg-icons';
-import styles from '../styles/Remote.module.css';
+import styles from '../../../styles/Remote.module.css';
 
 export default function MyAccessRecords({ user }) {
   const [userRecords, setUserRecords] = useState([]);
@@ -198,7 +198,10 @@ export default function MyAccessRecords({ user }) {
               ) : (
                 <tr>
                   <td colSpan="6" className={styles.noRecordsMessage}>
-                    {searchTerm ? 'Nenhum registro encontrado para a busca.' : 'Nenhum registro encontrado.'}
+                    {searchTerm.trim() === '' 
+                      ? 'Nenhum acesso registrado ainda.' 
+                      : `Nenhum registro encontrado para "${searchTerm}".`
+                    }
                   </td>
                 </tr>
               )}
@@ -207,85 +210,86 @@ export default function MyAccessRecords({ user }) {
         </div>
       </div>
 
-      {/* CSS para o modal - será injetado no SweetAlert2 */}
+      {/* CSS customizado para o modal */}
       <style jsx global>{`
         .custom-modal-popup {
-          background-color: var(--box-color);
-          border-radius: 12px;
-          box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
-          padding: 20px;
-          max-width: 600px;
-          width: 90%;
+          border-radius: 12px !important;
+          padding: 0 !important;
+          max-width: 600px !important;
+          background: var(--bg-color) !important;
+          color: var(--text-color) !important;
         }
         
-        .modal-title {
-          color: var(--title-color);
-          font-size: 1.5rem;
-          font-weight: bold;
-          border-bottom: 1px solid var(--color-border);
-          padding-bottom: 15px;
-          margin-bottom: 10px;
-          text-align: left;
+        .custom-modal-title {
+          background: var(--color-primary) !important;
+          color: white !important;
+          margin: 0 !important;
+          padding: 20px !important;
+          border-radius: 12px 12px 0 0 !important;
+          font-size: 1.2em !important;
+          font-weight: 600 !important;
+        }
+        
+        .custom-modal-content {
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        
+        .custom-modal-close {
+          color: white !important;
+          font-size: 1.5em !important;
+          background: none !important;
+          border: none !important;
         }
         
         .modal-content {
-          text-align: left;
-          padding: 10px 5px;
+          padding: 25px;
+          background: var(--bg-color);
           color: var(--text-color);
         }
         
         .modal-info-row {
           display: flex;
-          margin-bottom: 10px;
+          justify-content: space-between;
           align-items: center;
+          padding: 8px 0;
+          border-bottom: 1px solid var(--color-border);
+          margin-bottom: 8px;
         }
         
         .modal-label {
-          font-weight: bold;
-          width: 100px;
-          color: var(--color-primary);
+          font-weight: 600;
+          color: var(--text-color);
+          min-width: 80px;
         }
         
         .modal-value {
+          color: var(--text-color2);
+          text-align: right;
           flex: 1;
         }
         
         .modal-description {
-          display: flex;
-          flex-direction: column;
-          margin-top: 15px;
-          border-top: 1px solid var(--color-border);
-          padding-top: 15px;
+          margin-top: 20px;
+        }
+        
+        .modal-description .modal-label {
+          display: block;
+          margin-bottom: 10px;
+          font-size: 1.1em;
         }
         
         .modal-description-text {
-          margin-top: 10px;
-          white-space: pre-line;
-          line-height: 1.5;
-          max-height: 300px;
-          overflow-y: auto;
-          padding: 10px;
-          background-color: var(--labels-bg);
+          background: var(--labels-bg);
+          padding: 15px;
           border-radius: 8px;
+          line-height: 1.6;
+          color: var(--text-color);
           border: 1px solid var(--color-border);
-        }
-        
-        .custom-modal-close {
-          color: var(--text-color) !important;
-          background-color: var(--labels-bg) !important;
-          border-radius: 50% !important;
-          width: 32px !important;
-          height: 32px !important;
-          top: 15px !important;
-          right: 15px !important;
-          transition: all 0.2s ease !important;
-        }
-        
-        .custom-modal-close:hover {
-          background-color: var(--color-primary) !important;
-          color: #fff !important;
+          white-space: pre-wrap;
+          word-wrap: break-word;
         }
       `}</style>
     </>
   );
-}
+} 
