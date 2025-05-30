@@ -1,4 +1,4 @@
-import styles from '../../styles/Remote.module.css';
+import styles from '../styles/Remote.module.css';
 
 export default function GoogleCalendar() {
     return (
@@ -12,4 +12,4 @@ export default function GoogleCalendar() {
           ></iframe>
         </div>
       );      
-} 
+}

@@ -4,10 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
 import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
-import { Navbar, Footer } from '../components/layout';
-import { TicketCounter, CepIbgeValidator, SheetSplitter } from '../components/tools';
-import { SharedMessages } from '../components/shared';
-import { ErrosComuns } from '../components/data';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import TicketCounter from '../components/TicketCounter';
+import SharedMessages from '../components/SharedMessages';
+import CepIbgeValidator from '../components/CepIbgeValidator';
+import ErrosComuns from '../components/ErrosComuns';
+import SheetSplitter from '../components/SheetSplitter';
 import styles from '../styles/Tools.module.css';
 import Image from 'next/image';
 

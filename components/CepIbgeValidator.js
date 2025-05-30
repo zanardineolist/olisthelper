@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { FaCheckCircle, FaExclamationTriangle, FaSpinner, FaSearch, FaHistory, FaEye } from 'react-icons/fa';
-import styles from '../../styles/CepValidator.module.css';
-import { useApiLoader } from '../../utils/apiLoader';
-import { LocalLoader, useLoading } from '../ui/LoadingIndicator';
+import styles from '../styles/CepValidator.module.css';
+import { useApiLoader } from '../utils/apiLoader';
+import { LocalLoader, useLoading } from './LoadingIndicator';
 
 const PopularCepCard = ({ cepData, onSelect }) => {
   if (!cepData) return null;
@@ -198,73 +198,73 @@ const CepIbgeValidator = () => {
       </div>
 
       {result && (
-        <div className={styles.resultsContainer}>
-          <h3 className={styles.resultsTitle}>Resultado da Consulta</h3>
-          
-          <div className={styles.resultCard}>
+        <div className={styles.resultContainer}>
+          <div className={styles.resultHeader}>
+            <h3>Resultado para CEP {result.cep}</h3>
             {result.correspondencia.igual ? (
-              <div className={styles.matchResult}>
-                <div className={styles.matchIcon}>
-                  <FaCheckCircle />
-                </div>
-                <div className={styles.matchContent}>
-                  <h4>Cidades idênticas ✅</h4>
-                  <p>A nomenclatura dos Correios e do IBGE são iguais para este CEP.</p>
-                </div>
-              </div>
+              <span className={styles.matchTag}>
+                <FaCheckCircle /> Nomenclaturas idênticas
+              </span>
             ) : (
-              <div className={styles.mismatchResult}>
-                <div className={styles.mismatchIcon}>
-                  <FaExclamationTriangle />
-                </div>
-                <div className={styles.mismatchContent}>
-                  <h4>Divergência encontrada ⚠️</h4>
-                  <p>A nomenclatura dos Correios e do IBGE são diferentes.</p>
-                </div>
-              </div>
+              <span className={styles.mismatchTag}>
+                <FaExclamationTriangle /> Nomenclaturas diferentes
+              </span>
             )}
           </div>
 
-          <div className={styles.comparisonGrid}>
-            <div className={styles.comparisonCard}>
-              <h4>📮 Correios</h4>
-              <div className={styles.cityInfo}>
-                <span className={styles.cityName}>{result.correios.cidade}</span>
-                <span className={styles.uf}>{result.correios.uf}</span>
-              </div>
-              <div className={styles.additionalInfo}>
-                <p><strong>Bairro:</strong> {result.correios.bairro}</p>
-                <p><strong>Logradouro:</strong> {result.correios.logradouro}</p>
-              </div>
-            </div>
-
-            <div className={styles.comparisonCard}>
-              <h4>🏛️ IBGE (Oficial)</h4>
-              <div className={styles.cityInfo}>
-                <span className={`${styles.cityName} ${!result.correspondencia.igual ? styles.highlighted : ''}`}>
-                  {result.ibge.cidade}
-                </span>
-                <span className={styles.uf}>{result.ibge.uf}</span>
-              </div>
-              <div className={styles.additionalInfo}>
-                <p><strong>Código IBGE:</strong> {result.ibge.codigo_ibge}</p>
-                <p><strong>DDD:</strong> {result.ibge.ddd}</p>
-              </div>
-              
-              {!result.correspondencia.igual && (
-                <div className={styles.copySection}>
-                  <button 
-                    className={styles.copyButton}
-                    onClick={() => copyToClipboard(result.ibge.cidade)}
-                  >
-                    {copied ? 'Copiado!' : 'Copiar nome IBGE'}
-                  </button>
-                  <p className={styles.copyInstruction}>
-                    👆 Use este nome no sistema da Olist
-                  </p>
+          <div className={styles.resultGridContainer}>
+            <div className={styles.resultGrid}>
+              <div className={styles.resultColumn}>
+                <h4>Dados Correios</h4>
+                <div className={styles.resultItem}>
+                  <span className={styles.label}>Cidade:</span>
+                  <span className={styles.value}>{result.correios.cidade}</span>
                 </div>
-              )}
+                <div className={styles.resultItem}>
+                  <span className={styles.label}>UF:</span>
+                  <span className={styles.value}>{result.correios.uf}</span>
+                </div>
+                {result.correios.bairro && (
+                  <div className={styles.resultItem}>
+                    <span className={styles.label}>Bairro:</span>
+                    <span className={styles.value}>{result.correios.bairro}</span>
+                  </div>
+                )}
+                {result.correios.logradouro && (
+                  <div className={styles.resultItem}>
+                    <span className={styles.label}>Logradouro:</span>
+                    <span className={styles.value}>{result.correios.logradouro}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className={styles.resultColumn}>
+                <h4>Dados IBGE (para NFe)</h4>
+                <div className={styles.resultItem}>
+                  <span className={styles.label}>Cidade:</span>
+                  <span className={`${styles.value} ${styles.highlighted}`}>{result.ibge.cidade}</span>
+                  <button 
+                    onClick={() => copyToClipboard(result.ibge.cidade)}
+                    className={`${styles.copyButton} ${styles.primaryCopyButton}`}
+                    title="Copiar nome oficial da cidade (IBGE)"
+                  >
+                    {copied ? <FaCheckCircle /> : 'Copiar'}
+                  </button>
+                </div>
+                <div className={styles.resultItem}>
+                  <span className={styles.label}>UF:</span>
+                  <span className={styles.value}>{result.ibge.uf}</span>
+                </div>
+                <div className={styles.resultItem}>
+                  <span className={styles.label}>Código IBGE:</span>
+                  <span className={styles.value}>{result.ibge.codigo}</span>
+                </div>
+              </div>
             </div>
+          </div>
+
+          <div className={styles.observationBox}>
+            <strong>Observação:</strong> {result.correspondencia.observacao}
           </div>
         </div>
       )}
@@ -272,4 +272,4 @@ const CepIbgeValidator = () => {
   );
 };
 
-export default CepIbgeValidator; 
+export default CepIbgeValidator;

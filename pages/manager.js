@@ -3,8 +3,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
 import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
-import { ManageUsers, ManageCategories, ManageRecords } from '../components/admin';
-import { Navbar, Footer } from '../components/layout';
+import ManageUsers from '../components/ManageUsers';
+import ManageCategories from '../components/ManageCategories';
+import ManageRecords from '../components/ManageRecords';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import styles from '../styles/Manager.module.css';
 
 const theme = createTheme({

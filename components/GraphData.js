@@ -1,3 +1,4 @@
+// components/GraphData.js
 import React, { useState, useEffect } from 'react';
 import { Bar, Line } from 'react-chartjs-2';
 import {
@@ -13,7 +14,7 @@ import {
 } from 'chart.js';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
-import styles from '../../styles/GraphData.module.css';
+import styles from '../styles/GraphData.module.css';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 
@@ -791,4 +792,4 @@ export default function GraphData({ users }) {
       )}
     </div>
   );
-} 
+}

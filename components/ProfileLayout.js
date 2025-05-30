@@ -1,7 +1,7 @@
 import Head from 'next/head';
-import { Navbar } from './';
-import { Footer } from './';
-import styles from '../../styles/ProfileAnalyst.module.css';
+import Navbar from './Navbar';
+import Footer from './Footer';
+import styles from '../styles/ProfileAnalyst.module.css';
 
 // Componente de Layout reutilizável para páginas de perfil
 const ProfileLayout = ({ 
@@ -138,4 +138,4 @@ export const EmptyState = ({ message, icon, action }) => {
   );
 };
 
-export default ProfileLayout;
+export default ProfileLayout; 

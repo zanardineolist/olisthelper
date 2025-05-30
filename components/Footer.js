@@ -1,4 +1,5 @@
-import styles from '../../styles/Footer.module.css';
+// components/Footer.js
+import styles from '../styles/Footer.module.css';
 
 export default function Footer() {
   return (
@@ -6,4 +7,4 @@ export default function Footer() {
       <p>© Desenvolvido por Rafael Zanardine e Lucas Wenglarek</p>
     </footer>
   );
-} 
+}

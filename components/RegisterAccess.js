@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
-import styles from '../../../styles/Remote.module.css';
+import styles from '../styles/Remote.module.css';
 
 const temaOptions = [
   { value: 'Certificado A1', label: 'Certificado A1' },
@@ -198,48 +198,48 @@ export default function RegisterAccess({ user }) {
             }}
             required
             className={styles.inputField}
-            placeholder="Digite apenas números"
+            autoComplete="off"
           />
         </div>
-
+  
         {/* Campo: Tema */}
         <div className={styles.formGroup}>
           <label htmlFor="tema">Tema</label>
           <Select
+            id="tema"
+            name="tema"
+            options={temaOptions}
             value={formData.tema}
             onChange={handleSelectChange}
-            options={temaOptions}
-            isSearchable={false}
-            placeholder="Selecione um tema..."
-            className={styles.selectContainer}
+            isClearable
+            placeholder="Indique o tema do acesso"
             styles={customSelectStyles}
+            classNamePrefix="react-select"
             required
           />
         </div>
-
-        {/* Campo: Descrição (opcional) */}
+  
+        {/* Campo: Descrição */}
         <div className={styles.formGroup}>
-          <label htmlFor="description">Descrição (opcional)</label>
+          <label htmlFor="description">Descrição</label>
           <textarea
             id="description"
             name="description"
             value={formData.description}
             onChange={handleInputChange}
+            placeholder="Adicione aqui informações do acesso se necessário..."
             rows="4"
-            className={styles.textareaField}
-            placeholder="Descreva brevemente o trabalho realizado..."
-          ></textarea>
+            className={styles.formTextarea}
+          />
         </div>
-
-        {/* Botão: Registrar */}
-        <button
-          type="submit"
-          disabled={submitting || !formData.tema || !formData.chamado}
-          className={styles.submitButton}
-        >
-          {submitting ? 'Registrando...' : 'Registrar Acesso'}
-        </button>
+  
+        {/* Botão de Envio */}
+        <div className={styles.formButtonContainer}>
+          <button type="submit" className={styles.submitButton} disabled={submitting}>
+            {submitting ? 'Registrando...' : 'Registrar'}
+          </button>
+        </div>
       </form>
     </div>
-  );
-} 
+  );  
+}

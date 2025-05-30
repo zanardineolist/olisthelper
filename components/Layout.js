@@ -1,6 +1,6 @@
-import { Navbar } from './';
-import { Footer } from './';
-import styles from '../../styles/Layout.module.css';
+// components/Layout.js
+import Navbar from './Navbar';
+import styles from '../styles/Layout.module.css';
 
 export default function Layout({ children }) {
   const hasBanner = true;
@@ -13,4 +13,4 @@ export default function Layout({ children }) {
       </main>
     </div>
   );
-} 
+}

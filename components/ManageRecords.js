@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
 import Modal from 'react-modal';
-import styles from '../../styles/ManageRecords.module.css';
-import generalStyles from '../../styles/Manager.module.css';
+import styles from '../styles/ManageRecords.module.css';
+import generalStyles from '../styles/Manager.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Select from 'react-select';
@@ -214,7 +214,26 @@ export default function ManageRecords({ user }) {
     }
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedRecord((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSelectUser = (selectedOption) => {
+    const selectedUser = users.find(user => user.name === selectedOption.value);
+    setEditedRecord((prev) => ({
+      ...prev,
+      name: selectedOption.value,
+      email: selectedUser?.email || '',
+    }));
+  };
+
   const handleCloseModal = () => {
+    setModalIsOpen(false);
+    setEditingRecord(null);
     setEditedRecord({
       date: '',
       time: '',
@@ -223,18 +242,13 @@ export default function ManageRecords({ user }) {
       category: '',
       description: '',
     });
-    setEditingRecord(null);
-    setIsEditing(false);
-    setModalIsOpen(false);
   };
 
-  const selectedUser = users.find(u => u.email === editedRecord.email);
-  const selectedUserOption = selectedUser ? { value: selectedUser.email, label: selectedUser.name } : null;
-
+  // Estilos personalizados para o React-Select
   const customSelectStyles = {
     control: (provided, state) => ({
       ...provided,
-      backgroundColor: 'var(--labels-bg)',
+      backgroundColor: 'var(--modals-inputs)',
       borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
       color: 'var(--text-color)',
       borderRadius: '5px',
@@ -252,9 +266,25 @@ export default function ManageRecords({ user }) {
     }),
     menu: (provided) => ({
       ...provided,
-      backgroundColor: 'var(--labels-bg)',
+      backgroundColor: 'var(--modals-inputs)',
       maxHeight: '220px',
       overflowY: 'auto',
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      padding: 0,
+      maxHeight: '220px',
+      '&::-webkit-scrollbar': {
+        width: '8px',
+      },
+      '&::-webkit-scrollbar-track': {
+        background: 'var(--scroll-bg)',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: 'var(--scroll)',
+        borderRadius: '10px',
+        border: '2px solid var(--scroll-bg)',
+      },
     }),
     option: (provided, state) => ({
       ...provided,
@@ -262,7 +292,7 @@ export default function ManageRecords({ user }) {
         ? 'var(--color-trodd)'
         : state.isSelected
         ? 'var(--color-primary)'
-        : 'var(--box-color)',
+        : 'var(--modals-inputs)',
       color: 'var(--text-color)',
       cursor: 'pointer',
       '&:hover': {
@@ -277,163 +307,129 @@ export default function ManageRecords({ user }) {
       ...provided,
       color: 'var(--text-color2)',
     }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: 'var(--text-color)',
+    }),
+    indicatorSeparator: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--color-border)',
+    }),
   };
 
   return (
-    <div className={generalStyles.manageContainer}>
-      <h2 className={generalStyles.title}>Gerenciar Registros</h2>
-
-      {loading && (
-        <div className={generalStyles.loading}>
-          <div className="loaderOverlay">
-            <div className="loader"></div>
-          </div>
+    <div className={generalStyles.main}>
+      <div className={`${generalStyles.cardContainer} ${styles.cardContainer}`}>
+        <div className={generalStyles.cardHeader}>
+          <h2 className={generalStyles.cardTitle}>Lista de Registros</h2>
         </div>
-      )}
-
-      <div className={styles.tableContainer}>
-        <table className={styles.recordsTable}>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Hora</th>
-              <th>Nome</th>
-              <th>Categoria</th>
-              <th>Descrição</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {records.map((record) => (
-              <tr key={record.id}>
-                <td>{record.date}</td>
-                <td>{record.time}</td>
-                <td>{record.name}</td>
-                <td>{record.category}</td>
-                <td className={styles.descriptionCell}>
-                  {record.description?.substring(0, 50)}
-                  {record.description?.length > 50 && '...'}
-                </td>
-                <td className={styles.actionsCell}>
-                  <button
-                    className={styles.editButton}
-                    onClick={() => handleEditRecord(record)}
-                    title="Editar"
-                  >
-                    <FontAwesomeIcon icon={faPenToSquare} />
-                  </button>
-                  <button
-                    className={styles.deleteButton}
-                    onClick={() => handleDeleteRecord(record)}
-                    title="Excluir"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                </td>
+        <div className={styles.itemsTable}>
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Categoria</th>
+                <th>Descrição</th>
+                <th>Ações</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {records.length === 0 && !loading && (
-          <div className={styles.noRecords}>
-            <p>Nenhum registro encontrado</p>
-          </div>
-        )}
+            </thead>
+            <tbody>
+              {records.map((record) => (
+                <tr key={record.id}>
+                  <td>{record.date}</td>
+                  <td>{record.time}</td>
+                  <td>{record.name}</td>
+                  <td>{record.email}</td>
+                  <td>{record.category}</td>
+                  <td>{record.description}</td>
+                  <td className={generalStyles.actionButtons}>
+                    <button onClick={() => handleEditRecord(record)} className={generalStyles.actionButtonIcon}>
+                      <FontAwesomeIcon icon={faPenToSquare} />
+                    </button>
+                    <button onClick={() => handleDeleteRecord(record)} className={generalStyles.actionButtonIcon}>
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* Modal de Edição */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={handleCloseModal}
-        className={styles.modal}
-        overlayClassName={styles.modalOverlay}
         contentLabel="Editar Registro"
+        className={generalStyles.modal}
+        overlayClassName={generalStyles.overlay}
+        ariaHideApp={false}
       >
-        <div className={styles.modalContent}>
-          <h3>Editar Registro</h3>
-          
-          <div className={styles.modalForm}>
-            <div className={styles.formGroup}>
-              <label>Data:</label>
-              <input
-                type="date"
-                value={editedRecord.date}
-                onChange={(e) => setEditedRecord({...editedRecord, date: e.target.value})}
-                className={styles.inputField}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Hora:</label>
-              <input
-                type="time"
-                value={editedRecord.time}
-                onChange={(e) => setEditedRecord({...editedRecord, time: e.target.value})}
-                className={styles.inputField}
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Usuário:</label>
-              <Select
-                value={selectedUserOption}
-                onChange={(selectedOption) => {
-                  const selectedUser = users.find(u => u.email === selectedOption.value);
-                  setEditedRecord({
-                    ...editedRecord,
-                    email: selectedOption.value,
-                    name: selectedUser?.name || ''
-                  });
-                }}
-                options={users.map(user => ({ value: user.email, label: user.name }))}
-                styles={customSelectStyles}
-                placeholder="Selecione um usuário"
-                isSearchable
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Categoria:</label>
-              <Select
-                value={categories.find(cat => cat.value === editedRecord.category)}
-                onChange={(selectedOption) => setEditedRecord({...editedRecord, category: selectedOption.value})}
-                options={categories}
-                styles={customSelectStyles}
-                placeholder="Selecione uma categoria"
-                isSearchable
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Descrição:</label>
-              <textarea
-                value={editedRecord.description}
-                onChange={(e) => setEditedRecord({...editedRecord, description: e.target.value})}
-                className={styles.textareaField}
-                rows="4"
-              />
-            </div>
-          </div>
-
-          <div className={styles.modalActions}>
-            <button 
-              onClick={handleSaveRecord}
-              className={styles.saveButton}
-              disabled={loading}
-            >
-              {loading ? 'Salvando...' : 'Salvar'}
-            </button>
-            <button 
-              onClick={handleCloseModal}
-              className={styles.cancelButton}
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-          </div>
+        <h2 className={generalStyles.modalTitle}>Editar Registro</h2>
+        <div className={generalStyles.formContainer}>
+          <input
+            type="text"
+            name="date"
+            value={editedRecord.date}
+            placeholder="Data"
+            className={generalStyles.inputField}
+            onChange={handleInputChange}
+            disabled
+          />
+          <input
+            type="text"
+            name="time"
+            value={editedRecord.time}
+            placeholder="Hora"
+            className={generalStyles.inputField}
+            onChange={handleInputChange}
+            disabled
+          />
+          <Select
+            options={users.map(user => ({ value: user.name, label: user.name }))}
+            value={{ value: editedRecord.name, label: editedRecord.name }}
+            onChange={handleSelectUser}
+            placeholder="Nome do Usuário"
+            styles={customSelectStyles}
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            value={editedRecord.email}
+            placeholder="E-mail"
+            className={generalStyles.inputField}
+            onChange={handleInputChange}
+            disabled
+          />
+          <Select
+            options={categories}
+            value={{ value: editedRecord.category, label: editedRecord.category }}
+            onChange={(option) => setEditedRecord(prev => ({ ...prev, category: option.value }))}
+            placeholder="Categoria"
+            styles={customSelectStyles}
+            required
+          />
+          <input
+            type="text"
+            name="description"
+            value={editedRecord.description}
+            placeholder="Descrição"
+            className={generalStyles.inputField}
+            onChange={handleInputChange}
+            required
+          />
+          <button onClick={handleSaveRecord} disabled={loading} className={generalStyles.saveButton}>
+            Salvar Registro
+          </button>
+          <button onClick={handleCloseModal} className={generalStyles.cancelButton}>
+            Cancelar
+          </button>
         </div>
       </Modal>
     </div>
   );
-} 
+}

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
-import styles from '../../../styles/Remote.module.css';
+import styles from '../styles/Remote.module.css';
 
 export default function AllAccessRecords({ user, currentTab }) {
   const [allRecords, setAllRecords] = useState([]);
@@ -175,4 +175,4 @@ export default function AllAccessRecords({ user, currentTab }) {
       )}
     </>
   );
-} 
+}

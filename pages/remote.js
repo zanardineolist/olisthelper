@@ -2,10 +2,12 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import { getSession } from 'next-auth/react';
-import { Navbar } from '../components/layout';
-import { Footer } from '../components/layout';
-import { RegisterAccess, MyAccessRecords, AllAccessRecords } from '../components/features/remote';
-import { GoogleCalendar } from '../components/tools';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import RegisterAccess from '../components/RegisterAccess';
+import MyAccessRecords from '../components/MyAccessRecords';
+import AllAccessRecords from '../components/AllAccessRecords';
+import GoogleCalendar from '../components/GoogleCalendar';
 import styles from '../styles/Remote.module.css';
 
 const theme = createTheme({

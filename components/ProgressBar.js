@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
-import styles from '../../styles/ProgressBar.module.css';
+import styles from '../styles/ProgressBar.module.css';
 
 const ProgressBar = ({ count }) => {
   const [progress, setProgress] = useState(0);
@@ -266,4 +266,4 @@ const ProgressBar = ({ count }) => {
   );
 };
 
-export default ProgressBar; 
+export default ProgressBar;
