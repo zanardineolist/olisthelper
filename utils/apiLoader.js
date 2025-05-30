@@ -18,7 +18,7 @@ export async function fetchWithLoading(url, options = {}, loadingOptions = {}) {
   }
 
   // Importação dinâmica para evitar problemas de SSR
-  const { useLoading } = await import('../components/ui');
+  const { useLoading } = await import('../components/LoadingIndicator');
   
   // Obtém as funções do contexto de loading
   const loadingContext = useLoading();
@@ -80,7 +80,7 @@ export function useApiLoader() {
   if (typeof window !== 'undefined') {
     try {
       // Importação específica para componentes do cliente
-      const { useLoading } = require('../components/ui');
+      const { useLoading } = require('../components/LoadingIndicator');
       loadingContext = useLoading();
     } catch (error) {
       console.warn('Loading context não disponível', error);

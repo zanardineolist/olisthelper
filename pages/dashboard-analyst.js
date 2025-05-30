@@ -4,14 +4,15 @@ import { getSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
-import { Navbar, Footer } from '../components/layout';
-import { LoadingIndicator, useLoading, LocalLoader } from '../components/ui';
+import Navbar from '../components/Navbar';
 import styles from '../styles/DashboardAnalyst.module.css';
+import { Footer } from '../components/layout';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
 import { useApiLoader } from '../utils/apiLoader';
+import { useLoading, LocalLoader } from '../components/LoadingIndicator';
 
 export default function DashboardAnalyst({ user }) {
   const [initialLoading, setInitialLoading] = useState(true);

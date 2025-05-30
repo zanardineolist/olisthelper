@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaCheckCircle, FaExclamationTriangle, FaSpinner, FaSearch, FaHistory, FaEye } from 'react-icons/fa';
 import styles from '../../styles/CepValidator.module.css';
 import { useApiLoader } from '../../utils/apiLoader';
-import { LocalLoader, useLoading } from '../ui';
+import { LocalLoader, useLoading } from '../ui/LoadingIndicator';
 
 const PopularCepCard = ({ cepData, onSelect }) => {
   if (!cepData) return null;

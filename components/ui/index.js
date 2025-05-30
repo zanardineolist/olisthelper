@@ -4,4 +4,5 @@ export { default as LoadingIndicator, LoadingProvider, useLoading, ThreeDotsLoad
 export { default as Pagination } from './Pagination';
 export { default as ProgressBar } from './ProgressBar';
 export { default as StatusBadge } from './StatusBadge';
-export { default as TagInput } from './TagInput'; 
+export { default as TagInput } from './TagInput';
+export { default as MessageActions } from './MessageActions'; 

@@ -9,7 +9,8 @@ import Modal from 'react-modal';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
 import managerStyles from '../styles/Manager.module.css';
-import { Navbar, Footer } from '../components/layout';
+import Footer from '../components/Footer';
+import Navbar from '../components/Navbar';
 
 export default function RegistroPage({ user }) {
   const router = useRouter();

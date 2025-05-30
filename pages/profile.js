@@ -3,8 +3,9 @@ import Head from 'next/head';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import { Navbar, Footer } from '../components/layout';
+import Navbar from '../components/Navbar';
 import styles from '../styles/ProfileSupport.module.css';
+import Footer from '../components/Footer';
 
 // Componente para card de performance aprimorado
 const PerformanceCard = ({ title, icon, data, type, lastUpdated }) => {
