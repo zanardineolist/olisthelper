@@ -11,7 +11,7 @@ import styles from '../../styles/Tools.module.css';
 import tableStyles from '../../styles/HistoryTable.module.css';
 import { ProgressBar, StatusBadge } from '../ui';
 import { useApiLoader } from '../../utils/apiLoader';
-import { useLoading, ThreeDotsLoader } from '../ui/LoadingIndicator';
+import { useLoading, ThreeDotsLoader } from '../ui';
 
 // Configurar dayjs para trabalhar com timezone
 dayjs.extend(utc);

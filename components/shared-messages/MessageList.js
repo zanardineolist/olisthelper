@@ -5,7 +5,7 @@ import MessageCard from './MessageCard';
 import MessageRow from './MessageRow';
 import Pagination from '../ui/Pagination';
 import styles from '../../styles/shared-messages/Layout.module.css';
-import { ThreeDotsLoader } from '../LoadingIndicator';
+import { ThreeDotsLoader } from '../ui';
 
 const MessageList = () => {
   const { 

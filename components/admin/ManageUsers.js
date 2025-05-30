@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import stringSimilarity from 'string-similarity';
 import { useApiLoader } from '../../utils/apiLoader';
-import { useLoading, ThreeDotsLoader } from '../ui/LoadingIndicator';
+import { useLoading, ThreeDotsLoader } from '../ui';
 
 export default function ManageUsers({ user }) {
   const [users, setUsers] = useState([]);

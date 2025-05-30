@@ -17,7 +17,7 @@ import {
 } from 'react-icons/fa';
 import styles from '../../styles/SheetSplitter.module.css';
 import { useApiLoader } from '../../utils/apiLoader';
-import { LocalLoader } from '../ui/LoadingIndicator';
+import { LocalLoader } from '../ui';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
