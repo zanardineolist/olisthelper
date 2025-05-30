@@ -3,8 +3,7 @@ import Head from 'next/head';
 import { useState } from 'react';
 import { getSession } from 'next-auth/react';
 import { TextField, Button, ThemeProvider, createTheme, FormControlLabel, Checkbox, FormGroup, RadioGroup, Radio } from '@mui/material';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import { Navbar, Footer } from '../components/layout';
 import managerStyles from '../styles/Manager.module.css';
 import adminStyles from '../styles/AdminNotifications.module.css';
 

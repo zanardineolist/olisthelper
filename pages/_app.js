@@ -2,7 +2,7 @@
 import '../styles/globals.css';
 import '../styles/shared-messages/variables.css';
 import { SessionProvider } from 'next-auth/react';
-import { LoadingProvider } from '../components/LoadingIndicator';
+import { LoadingProvider } from '../components/ui';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 

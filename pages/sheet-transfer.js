@@ -2,8 +2,7 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import styles from '../styles/SheetTransfer.module.css';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import { Navbar, Footer } from '../components/layout';
 
 export default function SheetTransfer({ user }) {
   const [novaPlanilhaId, setNovaPlanilhaId] = useState('');

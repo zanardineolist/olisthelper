@@ -2,8 +2,7 @@
 import Head from 'next/head';
 import { getSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import { Navbar, Footer } from '../components/layout';
 import styles from '../styles/ProfileAnalyst.module.css';
 
 
