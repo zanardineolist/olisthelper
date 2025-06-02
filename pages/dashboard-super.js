@@ -18,16 +18,17 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: 'var(--tab-menu-bg)',
-          borderRadius: '8px',
-          marginBottom: '25px',
-          marginTop: '20px',
-          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
-          overflow: 'hidden'
+          borderRadius: '12px',
+          marginBottom: '32px',
+          marginTop: '24px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+          overflow: 'hidden',
+          border: '1px solid var(--color-border)',
         },
         indicator: {
           backgroundColor: 'var(--color-primary)',
-          height: '3px',
-          borderRadius: '3px 3px 0 0',
+          height: '4px',
+          borderRadius: '4px 4px 0 0',
         },
         flexContainer: {
           height: '100%'
@@ -37,13 +38,13 @@ const theme = createTheme({
     MuiTab: {
       styleOverrides: {
         root: {
-          color: 'var(--text-color)',
-          fontSize: '15px',
+          color: 'var(--text-color2)',
+          fontSize: '16px',
           fontWeight: 500,
           textTransform: 'none',
           transition: 'all 0.3s ease',
-          padding: '12px 24px',
-          minHeight: '54px',
+          padding: '16px 28px',
+          minHeight: '64px',
           '&.Mui-selected': {
             color: 'var(--color-primary)',
             backgroundColor: 'var(--box-color)',
@@ -147,58 +148,103 @@ export default function DashboardSuper({ user }) {
       <Navbar user={user} />
 
       <main className={styles.dashboardMain}>
-        <div className={styles.pageHeader}>
-          <div className={styles.welcomeContainer}>
-            <div className={styles.greetingText}>
-              {greeting}, <span>{user.name.split(' ')[0]}</span>
+        {/* Container principal com largura limitada */}
+        <div className={styles.mainContainer}>
+          {/* Header da página */}
+          <header className={styles.pageHeader}>
+            <div className={styles.headerContent}>
+              <div className={styles.welcomeSection}>
+                <div className={styles.greetingText}>
+                  {greeting}, <span className={styles.userName}>{user.name.split(' ')[0]}</span>
+                </div>
+                <p className={styles.dashboardSubtitle}>
+                  Bem-vindo ao seu painel de controle. Aqui você pode monitorar o desempenho da sua equipe.
+                </p>
+              </div>
+              
+              <div className={styles.profileSection}>
+                <div className={styles.profileCard}>
+                  <img src={user.image} alt={user.name} className={styles.profileImage} />
+                  <div className={styles.profileInfo}>
+                    <h2 className={styles.profileName}>{user.name}</h2>
+                    <p className={styles.profileEmail}>{user.email}</p>
+                    <span className={styles.roleBadge}>
+                      <i className="fa-solid fa-crown"></i>
+                      Supervisor
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <p className={styles.dashboardSubtitle}>
-              Bem-vindo ao seu painel de controle. Aqui você pode monitorar o desempenho da sua equipe.
-            </p>
-          </div>
-          
-          <div className={styles.profileSummary}>
-            <img src={user.image} alt={user.name} className={styles.profileImage} />
-            <div className={styles.profileInfo}>
-              <h2>{user.name}</h2>
-              <p>{user.email}</p>
-              <span className={styles.roleBadge}>Supervisor</span>
+          </header>
+
+          {/* Sistema de navegação por abas */}
+          <section className={styles.navigationSection}>
+            <ThemeProvider theme={theme}>
+              <div className={styles.tabsContainer}>
+                <Tabs 
+                  value={currentTab} 
+                  onChange={handleTabChange} 
+                  variant="fullWidth"
+                  aria-label="Dashboard navigation tabs"
+                >
+                  <Tab label="📊 Dashboard Individual" />
+                  <Tab label="📈 Comparativo de Equipe" />
+                  <Tab label="❓ Temas de Dúvidas" />
+                </Tabs>
+              </div>
+            </ThemeProvider>
+          </section>
+
+          {/* Conteúdo das abas */}
+          <section className={styles.contentSection}>
+            <div className={styles.tabContent}>
+              {currentTab === 0 && (
+                <div className={styles.tabPanel}>
+                  <div className={styles.tabPanelHeader}>
+                    <h3 className={styles.tabPanelTitle}>
+                      <i className="fa-solid fa-user-check"></i>
+                      Dashboard Individual
+                    </h3>
+                    <p className={styles.tabPanelDescription}>
+                      Análise detalhada de performance individual dos colaboradores
+                    </p>
+                  </div>
+                  <DashboardData user={user} />
+                </div>
+              )}
+              
+              {currentTab === 1 && (
+                <div className={styles.tabPanel}>
+                  <div className={styles.tabPanelHeader}>
+                    <h3 className={styles.tabPanelTitle}>
+                      <i className="fa-solid fa-chart-column"></i>
+                      Comparativo de Equipe
+                    </h3>
+                    <p className={styles.tabPanelDescription}>
+                      Análise comparativa de performance entre membros da equipe
+                    </p>
+                  </div>
+                  <GraphData users={users} />
+                </div>
+              )}
+              
+              {currentTab === 2 && (
+                <div className={styles.tabPanel}>
+                  <div className={styles.tabPanelHeader}>
+                    <h3 className={styles.tabPanelTitle}>
+                      <i className="fa-solid fa-question-circle"></i>
+                      Temas de Dúvidas
+                    </h3>
+                    <p className={styles.tabPanelDescription}>
+                      Análise dos principais temas de dúvidas e oportunidades de melhoria
+                    </p>
+                  </div>
+                  <HelpTopicsData />
+                </div>
+              )}
             </div>
-          </div>
-        </div>
-
-        <ThemeProvider theme={theme}>
-          <div className={styles.tabsContainer}>
-            <Tabs 
-              value={currentTab} 
-              onChange={handleTabChange} 
-              centered
-              variant="fullWidth"
-              aria-label="Dashboard navigation tabs"
-            >
-              <Tab 
-                label="Dashboard Individual" 
-                icon={<i className="fa-solid fa-user-check" style={{marginRight: '8px'}}></i>}
-                iconPosition="start"
-              />
-              <Tab 
-                label="Comparativo de Equipe" 
-                icon={<i className="fa-solid fa-chart-column" style={{marginRight: '8px'}}></i>}
-                iconPosition="start"
-              />
-              <Tab 
-                label="Temas de Dúvidas" 
-                icon={<i className="fa-solid fa-question-circle" style={{marginRight: '8px'}}></i>}
-                iconPosition="start"
-              />
-            </Tabs>
-          </div>
-        </ThemeProvider>
-
-        <div className={styles.tabContent}>
-          {currentTab === 0 && <DashboardData user={user} />}
-          {currentTab === 1 && <GraphData users={users} />}
-          {currentTab === 2 && <HelpTopicsData />}
+          </section>
         </div>
       </main>
 

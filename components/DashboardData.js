@@ -8,6 +8,192 @@ import 'chart.js/auto';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 
+// Componente para card de performance aprimorado
+const PerformanceCard = ({ title, icon, data, type }) => {
+  if (!data) return null;
+
+  const getMetricStatus = (colors, metric) => {
+    if (!colors || !colors[metric]) return 'neutral';
+    
+    const color = colors[metric];
+    if (color.includes('green') || color.includes('#779E3D')) return 'excellent';
+    if (color.includes('yellow') || color.includes('#F0A028')) return 'good';
+    if (color.includes('red') || color.includes('#E64E36')) return 'poor';
+    return 'neutral';
+  };
+
+  const getOverallStatus = () => {
+    if (!data.colors) return 'neutral';
+    
+    const tmaStatus = getMetricStatus(data.colors, 'tma');
+    const csatStatus = getMetricStatus(data.colors, 'csat');
+    
+    if (tmaStatus === 'excellent' && csatStatus === 'excellent') return 'excellent';
+    if (tmaStatus === 'poor' || csatStatus === 'poor') return 'poor';
+    if (tmaStatus === 'good' || csatStatus === 'good') return 'good';
+    return 'neutral';
+  };
+
+  const renderMainMetrics = () => {
+    const metrics = [];
+    
+    // Métricas principais por tipo
+    if (data.totalChamados !== undefined) {
+      metrics.push(
+        { 
+          label: 'Total Chamados', 
+          value: data.totalChamados, 
+          icon: 'fa-ticket',
+          type: 'primary' 
+        },
+        { 
+          label: 'Média por Dia', 
+          value: data.mediaPorDia, 
+          icon: 'fa-calendar-day',
+          type: 'secondary' 
+        }
+      );
+    }
+    
+    if (data.totalTelefone !== undefined) {
+      metrics.push(
+        { 
+          label: 'Total Ligações', 
+          value: data.totalTelefone, 
+          icon: 'fa-phone-volume',
+          type: 'primary' 
+        },
+        { 
+          label: 'Média por Dia', 
+          value: data.mediaPorDia, 
+          icon: 'fa-calendar-day',
+          type: 'secondary' 
+        },
+        { 
+          label: 'Perdidas', 
+          value: data.perdidas, 
+          icon: 'fa-phone-slash',
+          type: 'warning' 
+        }
+      );
+    }
+    
+    if (data.totalChats !== undefined) {
+      metrics.push(
+        { 
+          label: 'Total Conversas', 
+          value: data.totalChats, 
+          icon: 'fa-message',
+          type: 'primary' 
+        },
+        { 
+          label: 'Média por Dia', 
+          value: data.mediaPorDia, 
+          icon: 'fa-calendar-day',
+          type: 'secondary' 
+        }
+      );
+    }
+
+    return metrics;
+  };
+
+  const renderKPIMetrics = () => {
+    const kpis = [];
+    
+    if (data.tma !== undefined && data.tma !== null) {
+      kpis.push({ 
+        label: 'TMA', 
+        value: data.tma,
+        status: getMetricStatus(data.colors, 'tma'),
+        icon: 'fa-stopwatch'
+      });
+    }
+    
+    if (data.csat !== undefined && data.csat !== null) {
+      kpis.push({ 
+        label: 'CSAT', 
+        value: data.csat,
+        status: data.csat === "-" ? 'neutral' : getMetricStatus(data.colors, 'csat'),
+        icon: 'fa-heart'
+      });
+    }
+
+    return kpis;
+  };
+
+  const overallStatus = getOverallStatus();
+
+  // Função helper para obter classe CSS segura
+  const getSafeStyle = (baseClass, modifier = '') => {
+    const baseStyle = styles[baseClass] || '';
+    const modifierStyle = modifier && styles[modifier] ? styles[modifier] : '';
+    return `${baseStyle} ${modifierStyle}`.trim();
+  };
+
+  return (
+    <div className={getSafeStyle('dashboardPerformanceCard', overallStatus)}>
+      <div className={styles.dashboardPerformanceCardHeader || ''}>
+        <div className={styles.dashboardPerformanceIcon || ''}>
+          <i className={`fa-solid ${icon}`}></i>
+        </div>
+        <div className={styles.dashboardPerformanceTitleSection || ''}>
+          <h3 className={styles.dashboardPerformanceTitle || ''}>{title}</h3>
+          <div className={getSafeStyle('dashboardStatusIndicator', overallStatus)}>
+            <i className={`fa-solid ${
+              overallStatus === 'excellent' ? 'fa-circle-check' :
+              overallStatus === 'good' ? 'fa-circle-minus' :
+              overallStatus === 'poor' ? 'fa-circle-xmark' : 'fa-circle'
+            }`}></i>
+            <span>
+              {overallStatus === 'excellent' ? 'Excelente' :
+               overallStatus === 'good' ? 'Bom' :
+               overallStatus === 'poor' ? 'Atenção' : 'Normal'}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Métricas Principais */}
+      <div className={styles.dashboardMainMetrics || ''}>
+        {renderMainMetrics().map((metric, index) => (
+          <div key={index} className={getSafeStyle('dashboardMainMetric', metric.type)}>
+            <div className={styles.dashboardMainMetricIcon || ''}>
+              <i className={`fa-solid ${metric.icon}`}></i>
+            </div>
+            <div className={styles.dashboardMainMetricData || ''}>
+              <span className={styles.dashboardMainMetricValue || ''}>{metric.value}</span>
+              <span className={styles.dashboardMainMetricLabel || ''}>{metric.label}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* KPIs com Status */}
+      <div className={styles.dashboardKpiMetrics || ''}>
+        {renderKPIMetrics().map((kpi, index) => (
+          <div key={index} className={getSafeStyle('dashboardKpiMetric', kpi.status)}>
+            <div className={styles.dashboardKpiIcon || ''}>
+              <i className={`fa-solid ${kpi.icon}`}></i>
+            </div>
+            <div className={styles.dashboardKpiData || ''}>
+              <span className={styles.dashboardKpiValue || ''}>{kpi.value}</span>
+              <span className={styles.dashboardKpiLabel || ''}>{kpi.label}</span>
+            </div>
+            <div className={getSafeStyle('dashboardKpiStatus', kpi.status)}>
+              <i className={`fa-solid ${
+                kpi.status === 'excellent' ? 'fa-thumbs-up' :
+                kpi.status === 'good' ? 'fa-thumbs-up' :
+                kpi.status === 'poor' ? 'fa-thumbs-down' : 'fa-minus'
+              }`}></i>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default function DashboardData({ user }) {
   // Estados básicos
   const [users, setUsers] = useState([]);
@@ -36,7 +222,7 @@ export default function DashboardData({ user }) {
     { value: 'custom', label: 'Período personalizado' }
   ];
 
-  // Carregar lista de usuários
+  // Carregar lista de usuários (apenas uma vez)
   useEffect(() => {
     loadUsers();
   }, []);
@@ -44,14 +230,15 @@ export default function DashboardData({ user }) {
   // Exibir/ocultar o seletor de datas personalizadas
   useEffect(() => {
     setShowCustomDatePicker(periodFilter.value === 'custom');
-  }, [periodFilter]);
+  }, [periodFilter.value]);
 
   // Carregar dados quando o usuário ou período mudar
   useEffect(() => {
-    if (selectedUser) {
+    if (selectedUser?.id) {
       fetchUserData();
     }
-  }, [selectedUser, periodFilter, customDateRange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUser?.id, periodFilter.value, customDateRange.startDate, customDateRange.endDate]);
 
   const loadUsers = async () => {
     try {
@@ -59,7 +246,7 @@ export default function DashboardData({ user }) {
       const res = await fetch('/api/get-users');
       if (!res.ok) throw new Error('Erro ao carregar usuários');
       const data = await res.json();
-      setUsers(data.users);
+      setUsers(data.users || []);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
       Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
@@ -440,21 +627,24 @@ export default function DashboardData({ user }) {
   const arrowIcon = percentageChange > 0 ? 'fa-arrow-up' : 'fa-arrow-down';
 
   return (
-    <div className={styles.dashboardContainer}>
+    <div className={styles.dashboardContainer || ''}>
       {/* Seleção de usuário */}
-      <div className={styles.userSelectSection}>
-        <h3 className={styles.sectionTitle}>Selecione um Colaborador</h3>
+      <div className={styles.userSelectSection || ''}>
+        <h3 className={styles.sectionTitle || ''}>
+          <i className="fa-solid fa-users"></i>
+          Selecione um Colaborador
+        </h3>
         <Select
           options={users
-            .filter((user) => ['support', 'support+', 'analyst', 'tax'].includes(user.role.toLowerCase()))
+            .filter((user) => user && ['support', 'support+', 'analyst', 'tax'].includes(user.role?.toLowerCase()))
             .map((user) => ({
               value: user,
-              label: user.name,
-              role: user.role,
-              color: getColorForRole(user.role),
-              chamado: user.chamado,
-              telefone: user.telefone,
-              chat: user.chat,
+              label: user.name || 'Nome não disponível',
+              role: user.role || 'unknown',
+              color: getColorForRole(user.role || 'unknown'),
+              chamado: user.chamado || false,
+              telefone: user.telefone || false,
+              chat: user.chat || false,
             }))}
           onChange={handleUserSelect}
           isClearable
@@ -469,9 +659,12 @@ export default function DashboardData({ user }) {
       {selectedUser && (
         <>
           {/* Filtro de período */}
-          <div className={styles.periodFilterSection}>
-            <h3 className={styles.sectionTitle}>Período de Análise</h3>
-            <div className={styles.periodFilterControls}>
+          <div className={styles.periodFilterSection || ''}>
+            <h3 className={styles.sectionTitle || ''}>
+              <i className="fa-solid fa-calendar-range"></i>
+              Período de Análise
+            </h3>
+            <div className={styles.periodFilterControls || ''}>
               <Select
                 options={periodOptions}
                 value={periodFilter}
@@ -490,18 +683,18 @@ export default function DashboardData({ user }) {
               />
               
               {showCustomDatePicker && (
-                <div className={styles.customDatePickerContainer}>
-                  <div className={styles.datePickerWrapper}>
+                <div className={styles.customDatePickerContainer || ''}>
+                  <div className={styles.datePickerWrapper || ''}>
                     <label>De:</label>
                     <input
                       type="date"
                       value={customDateRange.startDate}
                       max={customDateRange.endDate}
                       onChange={handleStartDateChange}
-                      className={styles.dateInput}
+                      className={styles.dateInput || ''}
                     />
                   </div>
-                  <div className={styles.datePickerWrapper}>
+                  <div className={styles.datePickerWrapper || ''}>
                     <label>Até:</label>
                     <input
                       type="date"
@@ -509,16 +702,16 @@ export default function DashboardData({ user }) {
                       min={customDateRange.startDate}
                       max={dayjs().format('YYYY-MM-DD')}
                       onChange={handleEndDateChange}
-                      className={styles.dateInput}
+                      className={styles.dateInput || ''}
                     />
                   </div>
                 </div>
               )}
             </div>
 
-            <div className={styles.selectedPeriodInfo}>
-              <span className={styles.periodLabel}>Período selecionado:</span>
-              <span className={styles.periodValue}>
+            <div className={styles.selectedPeriodInfo || ''}>
+              <span className={styles.periodLabel || ''}>Período selecionado:</span>
+              <span className={styles.periodValue || ''}>
                 {periodFilter.value === 'custom' 
                   ? `${dayjs(customDateRange.startDate).format('DD/MM/YYYY')} até ${dayjs(customDateRange.endDate).format('DD/MM/YYYY')}`
                   : periodFilter.label}
@@ -526,355 +719,348 @@ export default function DashboardData({ user }) {
             </div>
           </div>
 
-          {/* Cards principais */}
-          <div className={styles.dashboardMainCards}>
-            {/* Perfil do usuário */}
-            <div className={styles.profileCard}>
-              {loadingData ? (
-                <div className={styles.loadingContainer}>
-                  <div className="standardBoxLoader"></div>
-                </div>
-              ) : (
-                <>
-                  <div className={styles.profileHeader}>
-                    <h2>{selectedUser.name}</h2>
-                    <p>{selectedUser.email}</p>
-                  </div>
-                  <div className={styles.tagsContainer}>
-                    {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
-                      <>
-                        {performanceData?.squad && (
-                          <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
-                            #{performanceData.squad}
-                          </div>
-                        )}
-                        {performanceData?.chamado && (
-                          <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
-                            #Chamado
-                          </div>
-                        )}
-                        {performanceData?.telefone && (
-                          <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
-                            #Telefone
-                          </div>
-                        )}
-                        {performanceData?.chat && (
-                          <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
-                            #Chat
-                          </div>
-                        )}
-                      </>
-                    )}
-                    {(selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
-                      <div className={styles.tag} style={{ backgroundColor: getColorForRole(selectedUser.role) }}>
-                        #{getRoleLabel(selectedUser.role)}
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
+          {/* Seção Overview do Usuário */}
+          <section className={styles.userOverviewSection || ''}>
+            <div className={styles.sectionHeader || ''}>
+              <h2 className={styles.sectionTitle || ''}>
+                <i className="fa-solid fa-user-circle"></i>
+                Overview do Colaborador
+              </h2>
             </div>
 
-            {/* Métricas de ajuda */}
-            <div className={styles.metricsCard}>
-              {loadingData ? (
-                <div className={styles.loadingContainer}>
-                  <div className="standardBoxLoader"></div>
-                </div>
-              ) : (
-                <>
-                  <h3 className={styles.metricsTitle}>
-                    {selectedUser.role === 'support' || selectedUser.role === 'support+' 
-                      ? 'Ajudas Solicitadas' 
-                      : 'Ajudas Prestadas'}
-                  </h3>
-                  <div className={styles.metricsGrid}>
-                    <div className={styles.metricItem}>
-                      <div className={styles.metricValue}>{currentMonth}</div>
-                      <div className={styles.metricLabel}>Período atual</div>
-                    </div>
-                    <div className={styles.metricItem}>
-                      <div className={styles.metricValue}>{lastMonth}</div>
-                      <div className={styles.metricLabel}>Período anterior</div>
-                    </div>
-                    <div className={styles.metricItem}>
-                      <div className={styles.variationWrapper}>
-                        <div className={styles.variationValue} style={{ color: arrowColor }}>
-                          {formattedPercentage}%
+            <div className={styles.overviewGrid || ''}>
+              {/* Perfil do usuário */}
+              <div className={styles.profileExpandedCard || ''}>
+                {loadingData ? (
+                  <div className={styles.loadingContainer || ''}>
+                    <div className="standardBoxLoader"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className={styles.profileMainInfo || ''}>
+                      <img 
+                        src={selectedUser.image || '/default-avatar.png'} 
+                        alt={selectedUser.name || 'Usuário'} 
+                        className={styles.profileImage || ''} 
+                      />
+                      <div className={styles.profileDetails || ''}>
+                        <h3>{selectedUser.name || 'Nome não disponível'}</h3>
+                        <p>{selectedUser.email || 'Email não disponível'}</p>
+                        <div 
+                          className={`${styles.roleTag || ''} ${selectedUser.role === 'tax' ? styles.tax || '' : ''}`}
+                        >
+                          <i className="fa-solid fa-user-tie"></i>
+                          {getRoleLabel(selectedUser.role)}
                         </div>
-                        <i className={`fa-solid ${arrowIcon}`} style={{ color: arrowColor }}></i>
                       </div>
-                      <div className={styles.metricLabel}>Variação</div>
                     </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+                    
+                    <div className={styles.tagsContainer || ''}>
+                      {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
+                        <>
+                          {performanceData?.squad && (
+                            <div className={styles.tag || ''} style={{ backgroundColor: '#0A4EE4' }}>
+                              #{performanceData.squad}
+                            </div>
+                          )}
+                          {performanceData?.chamado && (
+                            <div className={styles.tag || ''} style={{ backgroundColor: '#F0A028' }}>
+                              #Chamado
+                            </div>
+                          )}
+                          {performanceData?.telefone && (
+                            <div className={styles.tag || ''} style={{ backgroundColor: '#E64E36' }}>
+                              #Telefone
+                            </div>
+                          )}
+                          {performanceData?.chat && (
+                            <div className={styles.tag || ''} style={{ backgroundColor: '#779E3D' }}>
+                              #Chat
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
 
-          {/* Painel de indicadores */}
+              {/* Métricas de ajuda */}
+              <div className={styles.helpExpandedCard || ''}>
+                {loadingData ? (
+                  <div className={styles.loadingContainer || ''}>
+                    <div className="standardBoxLoader"></div>
+                  </div>
+                ) : (
+                  <>
+                    <div className={styles.cardHeader || ''}>
+                      <h3 className={styles.cardTitle || ''}>
+                        <i className="fa-solid fa-heart-hand"></i>
+                        {selectedUser.role === 'support' || selectedUser.role === 'support+' 
+                          ? 'Ajudas Solicitadas' 
+                          : 'Ajudas Prestadas'}
+                      </h3>
+                    </div>
+                    
+                    <div className={styles.helpStatsExpanded || ''}>
+                      <div className={styles.helpStatMain || ''}>
+                        <div className={styles.helpStatIcon || ''}>
+                          <i className="fa-solid fa-calendar"></i>
+                        </div>
+                        <div className={styles.helpStatContent || ''}>
+                          <span className={styles.helpStatValue || ''}>{currentMonth}</span>
+                          <span className={styles.helpStatLabel || ''}>Período Atual</span>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.helpStatMain || ''}>
+                        <div className={styles.helpStatIcon || ''}>
+                          <i className="fa-solid fa-calendar-xmark"></i>
+                        </div>
+                        <div className={styles.helpStatContent || ''}>
+                          <span className={styles.helpStatValue || ''}>{lastMonth}</span>
+                          <span className={styles.helpStatLabel || ''}>Período Anterior</span>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.helpStatMain || ''}>
+                        <div className={styles.helpStatIcon || ''}>
+                          <i className={`fa-solid ${arrowIcon}`} style={{ color: arrowColor }}></i>
+                        </div>
+                        <div className={styles.helpStatContent || ''}>
+                          <span className={styles.helpStatValue || ''} style={{ color: arrowColor }}>
+                            {formattedPercentage}%
+                          </span>
+                          <span className={styles.helpStatLabel || ''}>Variação</span>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Seção de Indicadores de Performance */}
           {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && (
-            <div className={styles.performanceGridContainer}>
+            <section className={styles.dashboardPerformanceSection || ''}>
+              <div className={styles.sectionHeader || ''}>
+                <h2 className={styles.sectionTitle || ''}>
+                  <i className="fa-solid fa-chart-bar"></i>
+                  Indicadores de Performance
+                </h2>
+                <p className={styles.sectionSubtitle || ''}>
+                  Período: {performanceData?.atualizadoAte || "Data não disponível"}
+                </p>
+              </div>
+              
               {loadingData ? (
-                <div className={styles.loadingContainer}>
+                <div className={styles.loadingContainer || ''}>
                   <div className="standardBoxLoader"></div>
                 </div>
               ) : (
-                <>
+                <div className={styles.dashboardPerformanceGrid || ''}>
                   {performanceData?.chamados && (
-                    <div className={styles.performanceCard}>
-                      <div className={styles.performanceHeader}>
-                        <h3>Indicadores Chamados</h3>
-                        <span className={styles.periodBadge}>
-                          {performanceData?.atualizadoAte || "Data não disponível"}
-                        </span>
-                      </div>
-                      <div className={styles.performanceMetrics}>
-                        <div className={styles.performanceMetric}>
-                          <span className={styles.metricValue}>{performanceData.chamados.totalChamados}</span>
-                          <span className={styles.metricLabel}>Total Chamados</span>
-                        </div>
-                        <div 
-                          className={styles.performanceMetric}
-                        >
-                          <span className={styles.metricValue}>{performanceData.chamados.mediaPorDia}</span>
-                          <span className={styles.metricLabel}>Média/Dia</span>
-                        </div>
-                        <div 
-                          className={styles.performanceMetric}
-                          style={{ backgroundColor: performanceData.chamados.colors.tma || 'var(--box-color3)' }}
-                        >
-                          <span className={styles.metricValue}>{performanceData.chamados.tma}</span>
-                          <span className={styles.metricLabel}>TMA</span>
-                        </div>
-                        <div 
-                          className={styles.performanceMetric}
-                          style={{ backgroundColor: performanceData.chamados.colors.csat || 'var(--box-color3)' }}
-                        >
-                          <span className={styles.metricValue}>{performanceData.chamados.csat}</span>
-                          <span className={styles.metricLabel}>CSAT</span>
-                        </div>
-                      </div>
-                    </div>
+                    <PerformanceCard 
+                      title="Chamados"
+                      icon="fa-headset"
+                      data={performanceData.chamados}
+                      type="chamados"
+                    />
                   )}
-
+                  
                   {performanceData?.telefone && (
-                    <div className={styles.performanceCard}>
-                      <div className={styles.performanceHeader}>
-                        <h3>Indicadores Telefone</h3>
-                        <span className={styles.periodBadge}>
-                          {performanceData?.atualizadoAte || "Data não disponível"}
-                        </span>
-                      </div>
-                      <div className={styles.performanceMetrics}>
-                        <div className={styles.performanceMetric}>
-                          <span className={styles.metricValue}>{performanceData.telefone.totalTelefone}</span>
-                          <span className={styles.metricLabel}>Total Ligações</span>
-                        </div>
-                        <div 
-                          className={styles.performanceMetric}
-                          style={{ backgroundColor: performanceData.telefone.colors.tma || 'var(--box-color3)' }}
-                        >
-                          <span className={styles.metricValue}>{performanceData.telefone.tma}</span>
-                          <span className={styles.metricLabel}>TMA</span>
-                        </div>
-                        <div 
-                          className={styles.performanceMetric}
-                          style={{ backgroundColor: performanceData.telefone.colors.csat || 'var(--box-color3)' }}
-                        >
-                          <span className={styles.metricValue}>{performanceData.telefone.csat}</span>
-                          <span className={styles.metricLabel}>CSAT</span>
-                        </div>
-                        <div className={styles.performanceMetric}>
-                          <span className={styles.metricValue}>{performanceData.telefone.perdidas}</span>
-                          <span className={styles.metricLabel}>Perdidas</span>
-                        </div>
-                      </div>
-                    </div>
+                    <PerformanceCard 
+                      title="Telefone"
+                      icon="fa-phone"
+                      data={performanceData.telefone}
+                      type="telefone"
+                    />
                   )}
-
+                  
                   {performanceData?.chat && (
-                    <div className={styles.performanceCard}>
-                      <div className={styles.performanceHeader}>
-                        <h3>Indicadores Chat</h3>
-                        <span className={styles.periodBadge}>
-                          {performanceData?.atualizadoAte || "Data não disponível"}
-                        </span>
-                      </div>
-                      <div className={styles.performanceMetrics}>
-                        <div className={styles.performanceMetric}>
-                          <span className={styles.metricValue}>{performanceData.chat.totalChats}</span>
-                          <span className={styles.metricLabel}>Total Chats</span>
-                        </div>
-                        <div 
-                          className={styles.performanceMetric}
-                          style={{ backgroundColor: performanceData.chat.colors.tma || 'var(--box-color3)' }}
-                        >
-                          <span className={styles.metricValue}>{performanceData.chat.tma}</span>
-                          <span className={styles.metricLabel}>TMA</span>
-                        </div>
-                        <div 
-                          className={styles.performanceMetric}
-                          style={{ backgroundColor: performanceData.chat.colors.csat || 'var(--box-color3)' }}
-                        >
-                          <span className={styles.metricValue}>{performanceData.chat.csat}</span>
-                          <span className={styles.metricLabel}>CSAT</span>
-                        </div>
-                      </div>
-                    </div>
+                    <PerformanceCard 
+                      title="Chat"
+                      icon="fa-comments"
+                      data={performanceData.chat}
+                      type="chat"
+                    />
                   )}
-                </>
+                </div>
               )}
-            </div>
+            </section>
           )}
 
-          {/* Métricas de analista */}
+          {/* Métricas específicas de analista */}
           {selectedUser.role === 'analyst' && (
-            <div className={styles.analystMetricsContainer}>
-              <div className={styles.analystMetricCard}>
-                {loadingData ? (
-                  <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
-                  </div>
-                ) : (
-                  <>
-                    <h3>Total de RFC</h3>
-                    <p className={styles.periodInfo}>
-                      {performanceData?.atualizadoAte || 'Data não disponível'}
-                    </p>
-                    <div className={styles.bigMetricValue}>
-                      {performanceData?.totalChamados || 0}
-                    </div>
-                  </>
-                )}
+            <section className={styles.analystSpecificSection || ''}>
+              <div className={styles.sectionHeader || ''}>
+                <h2 className={styles.sectionTitle || ''}>
+                  <i className="fa-solid fa-chart-line"></i>
+                  Métricas do Analista
+                </h2>
               </div>
+              
+              <div className={styles.analystMetricsGrid || ''}>
+                <div className={styles.analystMetricCard || ''}>
+                  {loadingData ? (
+                    <div className={styles.loadingContainer || ''}>
+                      <div className="standardBoxLoader"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className={styles.analystMetricHeader || ''}>
+                        <i className="fa-solid fa-ticket"></i>
+                        <h3>Total de RFC</h3>
+                      </div>
+                      <p className={styles.periodInfo || ''}>
+                        {performanceData?.atualizadoAte || 'Data não disponível'}
+                      </p>
+                      <div className={styles.bigMetricValue || ''}>
+                        {performanceData?.totalChamados || 0}
+                      </div>
+                    </>
+                  )}
+                </div>
 
-              <div className={styles.analystMetricCard}>
-                {loadingData ? (
-                  <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
-                  </div>
-                ) : (
-                  <>
-                    <h3>Total de Ajudas</h3>
-                    <p className={styles.metricHelpText}>
-                      (ajudas prestadas + RFC)
-                    </p>
-                    <div className={styles.bigMetricValue}>
-                      {(helpRequests.currentMonth || 0) + (performanceData?.totalChamados || 0)}
+                <div className={styles.analystMetricCard || ''}>
+                  {loadingData ? (
+                    <div className={styles.loadingContainer || ''}>
+                      <div className="standardBoxLoader"></div>
                     </div>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <div className={styles.analystMetricHeader || ''}>
+                        <i className="fa-solid fa-handshake-angle"></i>
+                        <h3>Total de Ajudas</h3>
+                      </div>
+                      <p className={styles.metricHelpText || ''}>
+                        (ajudas prestadas + RFC)
+                      </p>
+                      <div className={styles.bigMetricValue || ''}>
+                        {(helpRequests.currentMonth || 0) + (performanceData?.totalChamados || 0)}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
+            </section>
           )}
 
           {/* Ranking de Categorias */}
-          <div className={styles.categoryRankingCard}>
-            {categoryLoading ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-              </div>
-            ) : (
-              <>
-                <h3 className={styles.categoryTitle}>
-                  {selectedUser.role === 'support' || selectedUser.role === 'support+' 
-                    ? 'Top 10 - Temas de maior dúvida' 
-                    : 'Top 10 - Temas mais auxiliados'}
-                </h3>
-                
-                {categoryRanking.length > 0 ? (
-                  <div className={styles.categoryContent}>
-                    {/* Gráfico de barras */}
-                    <div className={styles.chartContainer}>
-                      <Bar 
-                        data={{
-                          labels: categoryRanking.map(cat => cat.name),
-                          datasets: [{
-                            label: 'Ocorrências',
-                            data: categoryRanking.map(cat => cat.count),
-                            backgroundColor: categoryRanking.map(cat => 
-                              cat.count > (selectedUser.role === 'support' ? 10 : 50) 
-                                ? '#F0A028' 
-                                : '#0A4EE4'
-                            ),
-                            borderWidth: 0,
-                            borderRadius: 4
-                          }]
-                        }}
-                        options={{
-                          indexAxis: 'y',
-                          plugins: {
-                            legend: {
-                              display: false
-                            },
-                            tooltip: {
-                              callbacks: {
-                                label: function(context) {
-                                  return `${context.raw} pedidos de ajuda`;
+          <section className={styles.categorySection || ''}>
+            <div className={styles.sectionHeader || ''}>
+              <h2 className={styles.sectionTitle || ''}>
+                <i className="fa-solid fa-chart-line"></i>
+                {selectedUser.role === 'support' || selectedUser.role === 'support+' 
+                  ? 'Top 10 - Temas de maior dúvida' 
+                  : 'Top 10 - Temas mais auxiliados'}
+              </h2>
+              <p className={styles.sectionSubtitle || ''}>
+                Análise das principais categorias no período selecionado
+              </p>
+            </div>
+
+            <div className={styles.categoryRankingCard || ''}>
+              {categoryLoading ? (
+                <div className={styles.loadingContainer || ''}>
+                  <div className="standardBoxLoader"></div>
+                </div>
+              ) : (
+                <>
+                  {categoryRanking.length > 0 ? (
+                    <div className={styles.categoryContent || ''}>
+                      {/* Gráfico de barras */}
+                      <div className={styles.chartContainer || ''}>
+                        <Bar 
+                          data={{
+                            labels: categoryRanking.map(cat => cat.name),
+                            datasets: [{
+                              label: 'Ocorrências',
+                              data: categoryRanking.map(cat => cat.count),
+                              backgroundColor: categoryRanking.map(cat => 
+                                cat.count > (selectedUser.role === 'support' ? 10 : 50) 
+                                  ? '#F0A028' 
+                                  : '#0A4EE4'
+                              ),
+                              borderWidth: 0,
+                              borderRadius: 4
+                            }]
+                          }}
+                          options={{
+                            indexAxis: 'y',
+                            plugins: {
+                              legend: {
+                                display: false
+                              },
+                              tooltip: {
+                                callbacks: {
+                                  label: function(context) {
+                                    return `${context.raw} pedidos de ajuda`;
+                                  }
                                 }
                               }
-                            }
-                          },
-                          scales: {
-                            x: {
-                              ticks: {
-                                color: 'var(--text-color)',
+                            },
+                            scales: {
+                              x: {
+                                ticks: {
+                                  color: 'var(--text-color)',
+                                },
+                                grid: {
+                                  color: 'var(--color-border)',
+                                }
                               },
-                              grid: {
-                                color: 'var(--color-border)',
+                              y: {
+                                ticks: {
+                                  color: 'var(--text-color)',
+                                },
+                                grid: {
+                                  display: false
+                                }
                               }
                             },
-                            y: {
-                              ticks: {
-                                color: 'var(--text-color)',
-                              },
-                              grid: {
-                                display: false
-                              }
-                            }
-                          },
-                          maintainAspectRatio: false
-                        }}
-                      />
-                    </div>
+                            maintainAspectRatio: false
+                          }}
+                        />
+                      </div>
 
-                    {/* Lista de categorias */}
-                    <ul className={styles.categoryList}>
-                      {categoryRanking.map((category, index) => (
-                        <li key={index} className={styles.categoryItem}>
-                          <div className={styles.categoryHeader}>
-                            <span className={styles.categoryRank}>{index + 1}</span>
-                            <span className={styles.categoryName}>{category.name}</span>
-                            <span className={styles.categoryCount}>
-                              {category.count} pedidos
-                              {category.count > (selectedUser.role === 'support' ? 10 : 50) && (
-                                <i className="fa-solid fa-circle-exclamation" style={{ color: '#F0A028', marginLeft: '8px' }}></i>
-                              )}
-                            </span>
-                          </div>
-                          <div className={styles.progressBarContainer}>
-                            <div 
-                              className={styles.progressBar}
-                              style={{
-                                width: `${Math.min((category.count / (selectedUser.role === 'support' ? 20 : 50)) * 100, 100)}%`,
-                                backgroundColor: category.count > (selectedUser.role === 'support' ? 10 : 50) ? '#F0A028' : '#0A4EE4',
-                              }}
-                            />
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : (
-                  <div className={styles.noDataMessage}>
-                    <i className="fa-solid fa-database"></i>
-                    <p>Nenhum registro de tema localizado no período selecionado.</p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+                      {/* Lista de categorias */}
+                      <ul className={styles.categoryList || ''}>
+                        {categoryRanking.map((category, index) => (
+                          <li key={index} className={styles.categoryItem || ''}>
+                            <div className={styles.categoryHeader || ''}>
+                              <span className={styles.categoryRank || ''}>{index + 1}</span>
+                              <span className={styles.categoryName || ''}>{category.name}</span>
+                              <span className={styles.categoryCount || ''}>
+                                {category.count} pedidos
+                                {category.count > (selectedUser.role === 'support' ? 10 : 50) && (
+                                  <i className="fa-solid fa-circle-exclamation" style={{ color: '#F0A028', marginLeft: '8px' }}></i>
+                                )}
+                              </span>
+                            </div>
+                            <div className={styles.progressBarContainer || ''}>
+                              <div 
+                                className={styles.progressBar || ''}
+                                style={{
+                                  width: `${Math.min((category.count / (selectedUser.role === 'support' ? 20 : 50)) * 100, 100)}%`,
+                                  backgroundColor: category.count > (selectedUser.role === 'support' ? 10 : 50) ? '#F0A028' : '#0A4EE4',
+                                }}
+                              />
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <div className={styles.noDataMessage || ''}>
+                      <i className="fa-solid fa-database"></i>
+                      <p>Nenhum registro de tema localizado no período selecionado.</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </section>
         </>
       )}
     </div>

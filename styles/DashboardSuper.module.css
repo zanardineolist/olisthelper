@@ -1,44 +1,1049 @@
 /* styles/DashboardSuper.module.css */
 
-/* Página principal - AJUSTADO PARA MAIOR LARGURA */
-.dashboardMain {
-    max-width: 1440px; /* Aumentado de 1200px para 1440px */
+/* ==================================================
+   LAYOUT PRINCIPAL REFORMULADO - SEM CENTRALIZAÇÃO EXCESSIVA
+   ================================================== */
+
+   .dashboardMain {
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+    background: var(--body-bg);
+}
+
+.mainContainer {
+    max-width: 1440px;
     margin: 0 auto;
-    padding: 30px 20px;
-  }
-  
-  .pageHeader {
+    padding: 20px 24px;
+    width: 100%;
+}
+
+/* ==================================================
+   HEADER REFORMULADO
+   ================================================== */
+
+.pageHeader {
+    margin-bottom: 32px;
+}
+
+.headerContent {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: start;
+}
+
+.welcomeSection {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.greetingText {
+    font-size: 2.25rem;
+    color: var(--text-color);
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.userName {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.dashboardSubtitle {
+    font-size: 1.125rem;
+    color: var(--text-color2);
+    line-height: 1.6;
+    margin: 0;
+    max-width: 600px;
+}
+
+.profileSection {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.profileCard {
+    background: var(--box-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 320px;
+}
+
+.profileImage {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--color-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profileInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.profileName {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--title-color);
+    font-weight: 600;
+}
+
+.profileEmail {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-color2);
+}
+
+.roleBadge {
+    background: linear-gradient(135deg, var(--color-primary), #0056b3);
+    color: white;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+}
+
+/* ==================================================
+   NAVEGAÇÃO POR ABAS
+   ================================================== */
+
+.navigationSection {
+    margin-bottom: 32px;
+}
+
+.tabsContainer {
+    background: var(--box-color);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+}
+
+/* ==================================================
+   CONTEÚDO DAS ABAS
+   ================================================== */
+
+.contentSection {
+    min-height: 600px;
+}
+
+.tabContent {
+    width: 100%;
+}
+
+.tabPanel {
+    width: 100%;
+}
+
+.tabPanelHeader {
+    margin-bottom: 24px;
+    padding: 24px;
+    background: var(--box-color);
+    border-radius: 16px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.tabPanelTitle {
+    font-size: 1.5rem;
+    color: var(--title-color);
+    margin: 0 0 8px 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tabPanelTitle i {
+    color: var(--color-primary);
+    font-size: 1.25rem;
+}
+
+.tabPanelDescription {
+    font-size: 1rem;
+    color: var(--text-color2);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ==================================================
+   DASHBOARD DATA - ESTILOS REFORMULADOS
+   ================================================== */
+
+.dashboardContainer {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Seções com headers padronizados */
+.userSelectSection,
+.periodFilterSection {
+    background: var(--box-color);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--color-border);
+}
+
+.sectionTitle {
+    font-size: 1.125rem;
+    color: var(--title-color);
+    margin-bottom: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sectionTitle i {
+    color: var(--color-primary);
+    font-size: 1rem;
+}
+
+/* ==================================================
+   SEÇÕES COM HEADERS PADRONIZADOS
+   ================================================== */
+
+.userOverviewSection,
+.dashboardPerformanceSection,
+.analystSpecificSection,
+.categorySection {
+    margin-bottom: 32px;
+}
+
+.sectionHeader {
+    margin-bottom: 20px;
+    padding: 20px 24px;
+    background: var(--box-color);
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.sectionHeader .sectionTitle {
+    font-size: 1.375rem;
+    margin-bottom: 8px;
+}
+
+.sectionSubtitle {
+    font-size: 0.9rem;
+    color: var(--text-color2);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* ==================================================
+   OVERVIEW GRID
+   ================================================== */
+
+.overviewGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.profileExpandedCard,
+.helpExpandedCard {
+    background: var(--box-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--color-border);
+    height: fit-content;
+}
+
+.profileMainInfo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.profileDetails h3 {
+    margin: 0 0 4px 0;
+    font-size: 1.25rem;
+    color: var(--title-color);
+    font-weight: 600;
+}
+
+.profileDetails p {
+    margin: 0 0 12px 0;
+    font-size: 0.875rem;
+    color: var(--text-color2);
+}
+
+.roleTag {
+    background: var(--color-primary);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.roleTag.tax {
+    background: #8A2BE2;
+}
+
+.tagsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Cards de ajuda expandidos */
+.cardHeader {
+    margin-bottom: 20px;
+}
+
+.cardTitle {
+    font-size: 1.125rem;
+    color: var(--title-color);
+    margin: 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cardTitle i {
+    color: var(--color-primary);
+}
+
+.helpStatsExpanded {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.helpStatMain {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--box-color2);
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+}
+
+.helpStatIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.helpStatContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.helpStatValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--title-color);
+    line-height: 1;
+}
+
+.helpStatLabel {
+    font-size: 0.75rem;
+    color: var(--text-color2);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ==================================================
+   PERFORMANCE CARDS - PADRÃO PROFILE-ANALYST
+   ================================================== */
+
+.dashboardPerformanceGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 24px;
+}
+
+.dashboardPerformanceCard {
+    background: var(--box-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--color-border);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboardPerformanceCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.dashboardPerformanceCard.excellent {
+    border-left: 4px solid #779E3D;
+    background: linear-gradient(135deg, rgba(119, 158, 61, 0.02), var(--box-color));
+}
+
+.dashboardPerformanceCard.good {
+    border-left: 4px solid #F0A028;
+    background: linear-gradient(135deg, rgba(240, 160, 40, 0.02), var(--box-color));
+}
+
+.dashboardPerformanceCard.poor {
+    border-left: 4px solid #E64E36;
+    background: linear-gradient(135deg, rgba(230, 78, 54, 0.02), var(--box-color));
+}
+
+.dashboardPerformanceCardHeader {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.dashboardPerformanceIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.dashboardPerformanceTitleSection {
+    flex: 1;
+}
+
+.dashboardPerformanceTitle {
+    font-size: 1.125rem;
+    color: var(--title-color);
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.dashboardStatusIndicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dashboardStatusIndicator.excellent {
+    color: #779E3D;
+}
+
+.dashboardStatusIndicator.good {
+    color: #F0A028;
+}
+
+.dashboardStatusIndicator.poor {
+    color: #E64E36;
+}
+
+.dashboardStatusIndicator.neutral {
+    color: var(--text-color2);
+}
+
+/* Métricas principais */
+.dashboardMainMetrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.dashboardMainMetric {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: var(--box-color2);
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+}
+
+.dashboardMainMetric.primary {
+    background: linear-gradient(135deg, rgba(10, 78, 228, 0.1), var(--box-color2));
+    border-color: rgba(10, 78, 228, 0.2);
+}
+
+.dashboardMainMetric.secondary {
+    background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), var(--box-color2));
+    border-color: rgba(108, 117, 125, 0.2);
+}
+
+.dashboardMainMetric.warning {
+    background: linear-gradient(135deg, rgba(240, 160, 40, 0.1), var(--box-color2));
+    border-color: rgba(240, 160, 40, 0.2);
+}
+
+.dashboardMainMetricIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.875rem;
+}
+
+.dashboardMainMetricData {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dashboardMainMetricValue {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--title-color);
+    line-height: 1;
+}
+
+.dashboardMainMetricLabel {
+    font-size: 0.7rem;
+    color: var(--text-color2);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* KPIs */
+.dashboardKpiMetrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.dashboardKpiMetric {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px;
+    background: var(--box-color2);
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    position: relative;
+}
+
+.dashboardKpiMetric.excellent {
+    background: linear-gradient(135deg, rgba(119, 158, 61, 0.1), var(--box-color2));
+    border-color: #779E3D;
+}
+
+.dashboardKpiMetric.good {
+    background: linear-gradient(135deg, rgba(240, 160, 40, 0.1), var(--box-color2));
+    border-color: #F0A028;
+}
+
+.dashboardKpiMetric.poor {
+    background: linear-gradient(135deg, rgba(230, 78, 54, 0.1), var(--box-color2));
+    border-color: #E64E36;
+}
+
+.dashboardKpiIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.dashboardKpiData {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dashboardKpiValue {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--title-color);
+    line-height: 1;
+}
+
+.dashboardKpiLabel {
+    font-size: 0.75rem;
+    color: var(--text-color2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dashboardKpiStatus {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+}
+
+.dashboardKpiStatus.excellent {
+    background: #779E3D;
+    color: white;
+}
+
+.dashboardKpiStatus.good {
+    background: #F0A028;
+    color: white;
+}
+
+.dashboardKpiStatus.poor {
+    background: #E64E36;
+    color: white;
+}
+
+.dashboardKpiStatus.neutral {
+    background: var(--text-color2);
+    color: white;
+}
+
+/* ==================================================
+   MÉTRICAS DE ANALISTA
+   ================================================== */
+
+.analystMetricsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.analystMetricCard {
+    background: var(--box-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--color-border);
+    text-align: center;
+}
+
+.analystMetricHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.analystMetricHeader i {
+    color: var(--color-primary);
+    font-size: 1.25rem;
+}
+
+.analystMetricHeader h3 {
+    margin: 0;
+    font-size: 1.125rem;
+    color: var(--title-color);
+    font-weight: 600;
+}
+
+.periodInfo {
+    font-size: 0.875rem;
+    color: var(--text-color2);
+    margin-bottom: 20px;
+}
+
+.metricHelpText {
+    font-size: 0.8rem;
+    color: var(--text-color2);
+    margin-bottom: 16px;
+    font-style: italic;
+}
+
+.bigMetricValue {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1;
+}
+
+/* ==================================================
+   PERÍODO E FILTROS
+   ================================================== */
+
+.periodFilterControls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.customDatePickerContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+}
+
+.datePickerWrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.datePickerWrapper label {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.dateInput {
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+    background-color: var(--modals-inputs);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.dateInput:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(10, 78, 228, 0.1);
+    outline: none;
+}
+
+.selectedPeriodInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(10, 78, 228, 0.05), var(--box-color2));
+    border-radius: 10px;
+    margin-top: 12px;
+    border: 1px solid rgba(10, 78, 228, 0.1);
+}
+
+.periodLabel {
+    font-size: 0.85rem;
+    color: var(--text-color2);
+    font-weight: 600;
+}
+
+.periodValue {
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+/* ==================================================
+   CATEGORIAS
+   ================================================== */
+
+.categoryRankingCard {
+    background: var(--box-color);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--color-border);
+}
+
+.categoryContent {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.chartContainer {
+    background: var(--box-color2);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--color-border);
+    height: 400px;
+}
+
+.categoryList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.categoryItem {
+    background: var(--box-color2);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    transition: all 0.3s ease;
+}
+
+.categoryItem:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.categoryHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.categoryRank {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.categoryName {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--title-color);
+    font-weight: 600;
+}
+
+.categoryCount {
+    font-size: 0.85rem;
+    color: var(--text-color2);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.progressBarContainer {
+    height: 6px;
+    background: var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progressBar {
+    height: 100%;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.noDataMessage {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-color2);
+}
+
+.noDataMessage i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.noDataMessage p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+/* ==================================================
+   RESPONSIVIDADE
+   ================================================== */
+
+@media (max-width: 1200px) {
+    .mainContainer {
+        padding: 16px 20px;
+    }
+    
+    .headerContent {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .profileSection {
+        justify-content: flex-start;
+    }
+    
+    .profileCard {
+        min-width: auto;
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .overviewGrid,
+    .dashboardPerformanceGrid,
+    .analystMetricsGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .categoryContent {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .mainContainer {
+        padding: 12px 16px;
+    }
+    
+    .greetingText {
+        font-size: 1.75rem;
+    }
+    
+    .dashboardSubtitle {
+        font-size: 1rem;
+    }
+    
+    .profileCard {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .helpStatsExpanded {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboardMainMetrics,
+    .dashboardKpiMetrics {
+        grid-template-columns: 1fr;
+    }
+    
+    .periodFilterControls {
+        flex-direction: column;
+    }
+    
+    .customDatePickerContainer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 576px) {
+    .tabPanelHeader {
+        padding: 16px;
+    }
+    
+    .tabPanelTitle {
+        font-size: 1.25rem;
+    }
+    
+    .profileExpandedCard,
+    .helpExpandedCard,
+    .categoryRankingCard,
+    .analystMetricCard {
+        padding: 16px;
+    }
+    
+    .bigMetricValue {
+        font-size: 2.5rem;
+    }
+    
+    .categoryHeader {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}
+
+/* ==================================================
+   DARK THEME
+   ================================================== */
+
+[data-theme="dark"] .chartContainer canvas {
+    filter: brightness(0.9);
+}
+
+/* Manter estilos antigos para compatibilidade */
+.pageHeader {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 20px;
     margin-bottom: 30px;
-  }
-  
-  .welcomeContainer {
+}
+
+.welcomeContainer {
     max-width: 600px;
-  }
-  
-  .greetingText {
+}
+
+.greetingText {
     font-size: 1.8rem;
     color: var(--text-color);
     margin-bottom: 10px;
     font-weight: 400;
-  }
-  
-  .greetingText span {
+}
+
+.greetingText span {
     font-weight: 600;
     color: var(--title-color);
-  }
-  
-  .dashboardSubtitle {
+}
+
+.dashboardSubtitle {
     font-size: 1rem;
     color: var(--text-color2);
     line-height: 1.5;
     margin: 0;
-  }
-  
-  .profileSummary {
+}
+
+.profileSummary {
     display: flex;
     align-items: center;
     gap: 15px;
@@ -46,34 +1051,34 @@
     padding: 15px;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  }
-  
-  .profileImage {
+}
+
+.profileImage {
     width: 60px;
     height: 60px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--color-primary);
-  }
-  
-  .profileInfo {
+}
+
+.profileInfo {
     display: flex;
     flex-direction: column;
-  }
-  
-  .profileInfo h2 {
+}
+
+.profileInfo h2 {
     margin: 0;
     font-size: 1.1rem;
     color: var(--title-color);
-  }
-  
-  .profileInfo p {
+}
+
+.profileInfo p {
     margin: 3px 0 8px 0;
     font-size: 0.85rem;
     color: var(--text-color2);
-  }
-  
-  .roleBadge {
+}
+
+.roleBadge {
     background-color: var(--color-primary);
     color: white;
     font-size: 0.75rem;
@@ -83,549 +1088,12 @@
     align-items: center;
     justify-content: center;
     font-weight: 500;
-  }
-  
-  .tabsContainer {
+}
+
+.tabsContainer {
     margin: 20px 0;
-  }
-  
-  .tabContent {
+}
+
+.tabContent {
     min-height: 500px;
-  }
-  
-  /* Contêiner principal do dashboard - AJUSTADO PARA MAIOR LARGURA */
-  .dashboardContainer {
-    width: 100%;
-    max-width: 1400px; /* Aumentado de 1200px para 1400px */
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  /* Seção do seletor de usuário */
-  .userSelectSection {
-    background-color: var(--box-color);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  }
-  
-  .sectionTitle {
-    font-size: 1rem;
-    color: var(--text-color2);
-    margin-bottom: 15px;
-    font-weight: 500;
-  }
-  
-  /* Seção do filtro de período */
-  .periodFilterSection {
-    background-color: var(--box-color);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  }
-  
-  .periodFilterControls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 15px;
-  }
-  
-  .customDatePickerContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
-  }
-  
-  .datePickerWrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .datePickerWrapper label {
-    font-size: 0.9rem;
-    color: var(--text-color);
-    white-space: nowrap;
-  }
-  
-  .dateInput {
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid var(--color-border);
-    background-color: var(--modals-inputs);
-    color: var(--text-color);
-    font-size: 0.9rem;
-  }
-  
-  .selectedPeriodInfo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 15px;
-    background-color: var(--box-color2);
-    border-radius: 8px;
-    margin-top: 10px;
-  }
-  
-  .periodLabel {
-    font-size: 0.85rem;
-    color: var(--text-color2);
-    font-weight: 500;
-  }
-  
-  .periodValue {
-    font-size: 0.9rem;
-    color: var(--title-color);
-    font-weight: 600;
-  }
-  
-  /* Cards principais do dashboard */
-  .dashboardMainCards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 25px;
-  }
-  
-  /* Card de perfil */
-  .profileCard {
-    background-color: var(--box-color);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    height: 100%;
-    min-height: 150px;
-    position: relative;
-  }
-  
-  .profileHeader {
-    margin-bottom: 15px;
-  }
-  
-  .profileHeader h2 {
-    margin: 0;
-    font-size: 1.3rem;
-    color: var(--title-color);
-  }
-  
-  .profileHeader p {
-    margin: 5px 0 0 0;
-    color: var(--text-color2);
-    font-size: 0.9rem;
-  }
-  
-  .tagsContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  .tag {
-    padding: 5px 10px;
-    border-radius: 100px;
-    font-size: 0.8rem;
-    color: white;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 500;
-  }
-  
-  /* Card de métricas */
-  .metricsCard {
-    background-color: var(--box-color);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    height: 100%;
-    min-height: 150px;
-    position: relative;
-  }
-  
-  .metricsTitle {
-    margin: 0 0 20px 0;
-    font-size: 1.1rem;
-    color: var(--title-color);
-  }
-  
-  .metricsGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-  }
-  
-  .metricItem {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--box-color2);
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-  }
-  
-  .metricValue {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--title-color);
-    margin-bottom: 5px;
-  }
-  
-  .metricLabel {
-    font-size: 0.8rem;
-    color: var(--text-color2);
-  }
-  
-  .variationWrapper {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  
-  .variationValue {
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-  
-  /* Container de carregamento */
-  .loadingContainer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.03);
-    border-radius: 12px;
-    z-index: 2;
-  }
-  
-  /* Grid para cards de desempenho - AJUSTADO PARA MELHOR EXIBIÇÃO */
-  .performanceGridContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 25px;
-  }
-  
-  .performanceCard {
-    background-color: var(--box-color);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  }
-  
-  .performanceHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .performanceHeader h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    color: var(--title-color);
-  }
-  
-  .periodBadge {
-    font-size: 0.8rem;
-    color: var(--text-color2);
-    background-color: var(--box-color2);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-weight: 500;
-  }
-  
-  /* AJUSTADO PARA MELHOR EXIBIÇÃO DOS INDICADORES */
-  .performanceMetrics {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
-    gap: 10px;
-  }
-  
-  .performanceMetric {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 8px;
-    background-color: var(--box-color2);
-    border-radius: 8px;
-    text-align: center;
-    min-width: 70px; /* Garantir largura mínima */
-  }
-  
-  /* Definindo tamanho específico para CSAT e TMA que tendem a ser maiores */
-  .performanceMetric span.metricValue {
-    font-size: 1.2rem; /* Reduzido para acomodar números maiores */
-    font-weight: 600;
-    color: var(--title-color);
-    word-break: break-word; /* Permite quebra de palavras longas */
-    white-space: normal; /* Permite quebra de linha */
-    width: 100%; /* Garante que use toda a largura disponível */
-  }
-  
-  .performanceMetric span.metricLabel {
-    font-size: 0.75rem;
-    color: var(--title-color);
-  }
-  
-  /* Métricas de analista */
-  .analystMetricsContainer {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 25px;
-  }
-  
-  .analystMetricCard {
-    background-color: var(--box-color);
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    text-align: center;
-    position: relative;
-  }
-  
-  .analystMetricCard h3 {
-    margin: 0 0 10px 0;
-    font-size: 1.1rem;
-    color: var(--title-color);
-  }
-  
-  .periodInfo {
-    font-size: 0.8rem;
-    color: var(--text-color2);
-    margin: 0 0 15px 0;
-  }
-  
-  .metricHelpText {
-    font-size: 0.8rem;
-    color: var(--text-color2);
-    margin: 0 0 15px 0;
-  }
-  
-  .bigMetricValue {
-    font-size: 3rem;
-    font-weight: 700;
-    color: var(--color-primary);
-  }
-  
-  /* Card de ranking de categorias */
-  .categoryRankingCard {
-    background-color: var(--box-color);
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    margin-bottom: 25px;
-    position: relative;
-  }
-  
-  .categoryTitle {
-    margin: 0 0 25px 0;
-    font-size: 1.1rem;
-    color: var(--title-color);
-  }
-  
-  .categoryContent {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-  
-  .chartContainer {
-    height: 350px;
-    margin-bottom: 15px;
-  }
-  
-  .categoryList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .categoryItem {
-    margin-bottom: 15px;
-  }
-  
-  .categoryHeader {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  
-  .categoryRank {
-    background-color: var(--box-color2);
-    min-width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--title-color);
-    margin-right: 10px;
-  }
-  
-  .categoryName {
-    flex-grow: 1;
-    font-size: 0.95rem;
-    color: var(--text-color);
-  }
-  
-  .categoryCount {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--title-color);
-    display: flex;
-    align-items: center;
-  }
-  
-  .progressBarContainer {
-    height: 8px;
-    background-color: var(--box-color2);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-left: 35px;
-  }
-  
-  .progressBar {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.3s ease;
-  }
-  
-  .noDataMessage {
-    text-align: center;
-    padding: 50px 20px;
-    color: var(--text-color2);
-  }
-  
-  .noDataMessage i {
-    font-size: 3rem;
-    margin-bottom: 15px;
-    opacity: 0.5;
-  }
-  
-  .noDataMessage p {
-    font-size: 1rem;
-    margin: 0;
-  }
-  
-  /* Responsividade - AJUSTADA PARA EVITAR PROBLEMAS DE LAYOUT */
-  @media (max-width: 1200px) {
-    .dashboardMainCards,
-    .performanceGridContainer,
-    .analystMetricsContainer {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    /* Melhor distribuição em telas médias */
-    .performanceMetrics {
-      grid-template-columns: repeat(4, 1fr);
-    }
-  }
-  
-  @media (max-width: 992px) {
-    .dashboardMainCards,
-    .performanceGridContainer,
-    .analystMetricsContainer {
-      grid-template-columns: 1fr;
-    }
-    
-    .metricsGrid {
-      grid-template-columns: 1fr 1fr 1fr;
-    }
-    
-    .categoryContent {
-      grid-template-columns: 1fr;
-    }
-    
-    /* Melhorias para evitar compressão */
-    .performanceMetrics {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .periodFilterControls,
-    .customDatePickerContainer {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    
-    .performanceMetrics {
-      grid-template-columns: 1fr 1fr;
-    }
-    
-    .dashboardContainer {
-      padding: 10px;
-    }
-    
-    .chartContainer {
-      height: 250px;
-    }
-  }
-  
-  @media (max-width: 576px) {
-    .metricsGrid {
-      grid-template-columns: 1fr;
-    }
-    
-    .categoryHeader {
-      flex-wrap: wrap;
-    }
-    
-    .categoryName {
-      order: -1;
-      width: 100%;
-      margin-bottom: 5px;
-    }
-    
-    .progressBarContainer {
-      margin-left: 0;
-    }
-    
-    .metricValue, 
-    .variationValue {
-      font-size: 1.2rem;
-    }
-  }
-  
-  /* Estilos para o gráfico em modo escuro */
-  [data-theme="dark"] .chartContainer canvas {
-    filter: brightness(0.9) contrast(1.1);
-  }
-
-.dashboardTitle {
-  margin-bottom: 25px;
-  text-align: center;
-  padding: 15px;
-  background-color: var(--box-color);
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.dashboardTitle h1 {
-  color: var(--title-color);
-  font-size: 1.8rem;
-  margin-bottom: 8px;
-  font-weight: 600;
-}
-
-.dashboardTitle p {
-  color: var(--text-color);
-  font-size: 1rem;
-  max-width: 800px;
-  margin: 0 auto;
 }
