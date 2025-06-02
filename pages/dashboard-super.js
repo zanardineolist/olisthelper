@@ -125,7 +125,7 @@ export default function DashboardSuper({ user }) {
   }
 
   return (
-    <>
+    <div className={styles.pageWrapper}>
       <Head>
         <title>Dashboard Supervisor</title>
         <meta name="description" content="Painel de controle para supervisores visualizarem métricas de desempenho" />
@@ -133,7 +133,7 @@ export default function DashboardSuper({ user }) {
 
       <Navbar user={user} />
 
-      <main className={styles.dashboardMain}>
+      <main className={`${styles.dashboardMain} dashboard-main`}>
         {/* Container principal com largura limitada */}
         <div className={styles.mainContainer}>
           {/* Header da página */}
@@ -208,7 +208,7 @@ export default function DashboardSuper({ user }) {
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }
 

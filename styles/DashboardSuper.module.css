@@ -4,20 +4,27 @@
    LAYOUT PRINCIPAL REFORMULADO - FOOTER NO FINAL
    ================================================== */
 
+.pageWrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
 .dashboardMain {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 0;
+    padding: 0; /* Remove todo padding do main */
     margin: 0;
     background: var(--body-bg);
     min-height: 0; /* Remove min-height para deixar o flex funcionar */
+    position: relative; /* Garante posicionamento relativo */
 }
 
 .mainContainer {
     max-width: 1440px;
     margin: 0 auto;
-    padding: 0 24px; /* Remove top/bottom padding pois já vem do main */
+    padding: 20px 24px; /* Restaura padding completo */
     width: 100%;
     flex: 1; /* Permite que o container ocupe todo o espaço disponível */
     display: flex;
@@ -894,7 +901,7 @@
 
 @media (max-width: 1200px) {
     .mainContainer {
-        padding: 0 20px; /* Ajuste do padding lateral */
+        padding: 16px 20px; /* Restaura padding vertical nos media queries */
     }
     
     .headerContent {
@@ -925,7 +932,7 @@
 
 @media (max-width: 768px) {
     .mainContainer {
-        padding: 0 16px; /* Ajuste do padding lateral */
+        padding: 12px 16px; /* Restaura padding vertical nos media queries */
     }
     
     .greetingText {
@@ -967,7 +974,7 @@
 
 @media (max-width: 576px) {
     .mainContainer {
-        padding: 0 12px; /* Padding mínimo em telas pequenas */
+        padding: 8px 12px; /* Padding mínimo em telas pequenas */
     }
     
     .profileExpandedCard,
