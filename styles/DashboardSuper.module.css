@@ -1,21 +1,27 @@
 /* styles/DashboardSuper.module.css */
 
 /* ==================================================
-   LAYOUT PRINCIPAL REFORMULADO - SEM CENTRALIZAÇÃO EXCESSIVA
+   LAYOUT PRINCIPAL REFORMULADO - FOOTER NO FINAL
    ================================================== */
 
-   .dashboardMain {
-    min-height: 100vh;
+.dashboardMain {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     padding: 0;
     margin: 0;
     background: var(--body-bg);
+    min-height: 0; /* Remove min-height para deixar o flex funcionar */
 }
 
 .mainContainer {
     max-width: 1440px;
     margin: 0 auto;
-    padding: 20px 24px;
+    padding: 0 24px; /* Remove top/bottom padding pois já vem do main */
     width: 100%;
+    flex: 1; /* Permite que o container ocupe todo o espaço disponível */
+    display: flex;
+    flex-direction: column;
 }
 
 /* ==================================================
@@ -129,11 +135,7 @@
 }
 
 .tabsContainer {
-    background: var(--box-color);
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--color-border);
-    overflow: hidden;
+    /* Remove background e estilos extras, mantém apenas estrutura básica */
 }
 
 /* ==================================================
@@ -141,46 +143,24 @@
    ================================================== */
 
 .contentSection {
-    min-height: 600px;
+    flex: 1; /* Ocupa o espaço restante após header e navegação */
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Importante para flexbox funcionar corretamente */
 }
 
 .tabContent {
     width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .tabPanel {
     width: 100%;
-}
-
-.tabPanelHeader {
-    margin-bottom: 24px;
-    padding: 24px;
-    background: var(--box-color);
-    border-radius: 16px;
-    border: 1px solid var(--color-border);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-}
-
-.tabPanelTitle {
-    font-size: 1.5rem;
-    color: var(--title-color);
-    margin: 0 0 8px 0;
-    font-weight: 600;
+    flex: 1;
     display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.tabPanelTitle i {
-    color: var(--color-primary);
-    font-size: 1.25rem;
-}
-
-.tabPanelDescription {
-    font-size: 1rem;
-    color: var(--text-color2);
-    margin: 0;
-    line-height: 1.5;
+    flex-direction: column;
 }
 
 /* ==================================================
@@ -192,6 +172,10 @@
     max-width: none;
     margin: 0;
     padding: 0;
+    flex: 1; /* Permite que o dashboard ocupe o espaço disponível */
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 /* Seções com headers padronizados */
@@ -910,7 +894,7 @@
 
 @media (max-width: 1200px) {
     .mainContainer {
-        padding: 16px 20px;
+        padding: 0 20px; /* Ajuste do padding lateral */
     }
     
     .headerContent {
@@ -941,7 +925,7 @@
 
 @media (max-width: 768px) {
     .mainContainer {
-        padding: 12px 16px;
+        padding: 0 16px; /* Ajuste do padding lateral */
     }
     
     .greetingText {
@@ -975,15 +959,15 @@
         flex-direction: column;
         align-items: stretch;
     }
+    
+    .dashboardContainer {
+        gap: 16px; /* Reduz gap em mobile */
+    }
 }
 
 @media (max-width: 576px) {
-    .tabPanelHeader {
-        padding: 16px;
-    }
-    
-    .tabPanelTitle {
-        font-size: 1.25rem;
+    .mainContainer {
+        padding: 0 12px; /* Padding mínimo em telas pequenas */
     }
     
     .profileExpandedCard,
@@ -1000,6 +984,10 @@
     .categoryHeader {
         flex-wrap: wrap;
         gap: 8px;
+    }
+    
+    .dashboardContainer {
+        gap: 12px; /* Gap ainda menor para mobile */
     }
 }
 

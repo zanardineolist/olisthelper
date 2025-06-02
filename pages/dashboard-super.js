@@ -18,42 +18,28 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: 'var(--tab-menu-bg)',
-          borderRadius: '12px',
-          marginBottom: '32px',
-          marginTop: '24px',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-          overflow: 'hidden',
-          border: '1px solid var(--color-border)',
+          borderRadius: '5px',
+          marginBottom: '20px',
+          marginTop: '20px',
         },
         indicator: {
-          backgroundColor: 'var(--color-primary)',
+          backgroundColor: 'var(--tab-menu-indicator)',
           height: '4px',
-          borderRadius: '4px 4px 0 0',
+          borderRadius: '5px',
         },
-        flexContainer: {
-          height: '100%'
-        }
       },
     },
     MuiTab: {
       styleOverrides: {
         root: {
-          color: 'var(--text-color2)',
+          color: 'var(--text-color)',
           fontSize: '16px',
-          fontWeight: 500,
           textTransform: 'none',
-          transition: 'all 0.3s ease',
-          padding: '16px 28px',
-          minHeight: '64px',
+          transition: 'color 0.3s ease, background-color 0.3s ease',
           '&.Mui-selected': {
-            color: 'var(--color-primary)',
-            backgroundColor: 'var(--box-color)',
-            fontWeight: 600
+            color: 'var(--color-white)',
+            backgroundColor: 'var(--color-primary)',
           },
-          '&:hover': {
-            backgroundColor: 'var(--color-trodd)',
-            color: 'var(--title-color)'
-          }
         },
       },
     },
@@ -188,9 +174,9 @@ export default function DashboardSuper({ user }) {
                   variant="fullWidth"
                   aria-label="Dashboard navigation tabs"
                 >
-                  <Tab label="📊 Dashboard Individual" />
-                  <Tab label="📈 Comparativo de Equipe" />
-                  <Tab label="❓ Temas de Dúvidas" />
+                  <Tab label="Dashboard Individual" />
+                  <Tab label="Comparativo de Equipe" />
+                  <Tab label="Temas de Dúvidas" />
                 </Tabs>
               </div>
             </ThemeProvider>
@@ -201,45 +187,18 @@ export default function DashboardSuper({ user }) {
             <div className={styles.tabContent}>
               {currentTab === 0 && (
                 <div className={styles.tabPanel}>
-                  <div className={styles.tabPanelHeader}>
-                    <h3 className={styles.tabPanelTitle}>
-                      <i className="fa-solid fa-user-check"></i>
-                      Dashboard Individual
-                    </h3>
-                    <p className={styles.tabPanelDescription}>
-                      Análise detalhada de performance individual dos colaboradores
-                    </p>
-                  </div>
                   <DashboardData user={user} />
                 </div>
               )}
               
               {currentTab === 1 && (
                 <div className={styles.tabPanel}>
-                  <div className={styles.tabPanelHeader}>
-                    <h3 className={styles.tabPanelTitle}>
-                      <i className="fa-solid fa-chart-column"></i>
-                      Comparativo de Equipe
-                    </h3>
-                    <p className={styles.tabPanelDescription}>
-                      Análise comparativa de performance entre membros da equipe
-                    </p>
-                  </div>
                   <GraphData users={users} />
                 </div>
               )}
               
               {currentTab === 2 && (
                 <div className={styles.tabPanel}>
-                  <div className={styles.tabPanelHeader}>
-                    <h3 className={styles.tabPanelTitle}>
-                      <i className="fa-solid fa-question-circle"></i>
-                      Temas de Dúvidas
-                    </h3>
-                    <p className={styles.tabPanelDescription}>
-                      Análise dos principais temas de dúvidas e oportunidades de melhoria
-                    </p>
-                  </div>
                   <HelpTopicsData />
                 </div>
               )}
