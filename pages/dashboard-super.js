@@ -125,7 +125,7 @@ export default function DashboardSuper({ user }) {
   }
 
   return (
-    <div className={styles.pageWrapper}>
+    <>
       <Head>
         <title>Dashboard Supervisor</title>
         <meta name="description" content="Painel de controle para supervisores visualizarem métricas de desempenho" />
@@ -133,82 +133,79 @@ export default function DashboardSuper({ user }) {
 
       <Navbar user={user} />
 
-      <main className={`${styles.dashboardMain} dashboard-main`}>
-        {/* Container principal com largura limitada */}
-        <div className={styles.mainContainer}>
-          {/* Header da página */}
-          <header className={styles.pageHeader}>
-            <div className={styles.headerContent}>
-              <div className={styles.welcomeSection}>
-                <div className={styles.greetingText}>
-                  {greeting}, <span className={styles.userName}>{user.name.split(' ')[0]}</span>
-                </div>
-                <p className={styles.dashboardSubtitle}>
-                  Bem-vindo ao seu painel de controle. Aqui você pode monitorar o desempenho da sua equipe.
-                </p>
+      <main className={styles.dashboardMain}>
+        {/* Header da página */}
+        <header className={styles.pageHeader}>
+          <div className={styles.headerContent}>
+            <div className={styles.welcomeSection}>
+              <div className={styles.greetingText}>
+                {greeting}, <span className={styles.userName}>{user.name.split(' ')[0]}</span>
               </div>
-              
-              <div className={styles.profileSection}>
-                <div className={styles.profileCard}>
-                  <img src={user.image} alt={user.name} className={styles.profileImage} />
-                  <div className={styles.profileInfo}>
-                    <h2 className={styles.profileName}>{user.name}</h2>
-                    <p className={styles.profileEmail}>{user.email}</p>
-                    <span className={styles.roleBadge}>
-                      <i className="fa-solid fa-crown"></i>
-                      Supervisor
-                    </span>
-                  </div>
+              <p className={styles.dashboardSubtitle}>
+                Bem-vindo ao seu painel de controle. Aqui você pode monitorar o desempenho da sua equipe.
+              </p>
+            </div>
+            
+            <div className={styles.profileSection}>
+              <div className={styles.profileCard}>
+                <img src={user.image} alt={user.name} className={styles.profileImage} />
+                <div className={styles.profileInfo}>
+                  <h2 className={styles.profileName}>{user.name}</h2>
+                  <p className={styles.profileEmail}>{user.email}</p>
+                  <span className={styles.roleBadge}>
+                    <i className="fa-solid fa-crown"></i>
+                    Supervisor
+                  </span>
                 </div>
               </div>
             </div>
-          </header>
+          </div>
+        </header>
 
-          {/* Sistema de navegação por abas */}
-          <section className={styles.navigationSection}>
-            <ThemeProvider theme={theme}>
-              <div className={styles.tabsContainer}>
-                <Tabs 
-                  value={currentTab} 
-                  onChange={handleTabChange} 
-                  variant="fullWidth"
-                  aria-label="Dashboard navigation tabs"
-                >
-                  <Tab label="Dashboard Individual" />
-                  <Tab label="Comparativo de Equipe" />
-                  <Tab label="Temas de Dúvidas" />
-                </Tabs>
-              </div>
-            </ThemeProvider>
-          </section>
-
-          {/* Conteúdo das abas */}
-          <section className={styles.contentSection}>
-            <div className={styles.tabContent}>
-              {currentTab === 0 && (
-                <div className={styles.tabPanel}>
-                  <DashboardData user={user} />
-                </div>
-              )}
-              
-              {currentTab === 1 && (
-                <div className={styles.tabPanel}>
-                  <GraphData users={users} />
-                </div>
-              )}
-              
-              {currentTab === 2 && (
-                <div className={styles.tabPanel}>
-                  <HelpTopicsData />
-                </div>
-              )}
+        {/* Sistema de navegação por abas */}
+        <section className={styles.navigationSection}>
+          <ThemeProvider theme={theme}>
+            <div className={styles.tabsContainer}>
+              <Tabs 
+                value={currentTab} 
+                onChange={handleTabChange} 
+                variant="fullWidth"
+                aria-label="Dashboard navigation tabs"
+              >
+                <Tab label="Dashboard Individual" />
+                <Tab label="Comparativo de Equipe" />
+                <Tab label="Temas de Dúvidas" />
+              </Tabs>
             </div>
-          </section>
-        </div>
+          </ThemeProvider>
+        </section>
+
+        {/* Conteúdo das abas */}
+        <section className={styles.contentSection}>
+          <div className={styles.tabContent}>
+            {currentTab === 0 && (
+              <div className={styles.tabPanel}>
+                <DashboardData user={user} />
+              </div>
+            )}
+            
+            {currentTab === 1 && (
+              <div className={styles.tabPanel}>
+                <GraphData users={users} />
+              </div>
+            )}
+            
+            {currentTab === 2 && (
+              <div className={styles.tabPanel}>
+                <HelpTopicsData />
+              </div>
+            )}
+          </div>
+        </section>
       </main>
 
       <Footer />
-    </div>
+    </>
   );
 }
 
