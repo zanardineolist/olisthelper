@@ -1,38 +1,38 @@
 /* styles/DashboardSuper.module.css */
 
 /* ==================================================
-   LAYOUT PRINCIPAL SIMPLIFICADO - IGUAL AO ANALYST
+   LAYOUT PRINCIPAL SIMPLIFICADO - MELHOR DENSIDADE
    ================================================== */
 
 .dashboardMain {
-    max-width: 1440px;
+    max-width: 1600px;
     margin: 0 auto;
-    padding: 30px 20px;
+    padding: 20px;
 }
 
 /* ==================================================
-   HEADER REFORMULADO
+   HEADER REFORMULADO - MAIS COMPACTO
    ================================================== */
 
 .pageHeader {
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 
 .headerContent {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 32px;
+    gap: 24px;
     align-items: start;
 }
 
 .welcomeSection {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 .greetingText {
-    font-size: 2.25rem;
+    font-size: 2rem;
     color: var(--text-color);
     margin: 0;
     font-weight: 600;
@@ -45,9 +45,9 @@
 }
 
 .dashboardSubtitle {
-    font-size: 1.125rem;
+    font-size: 1rem;
     color: var(--text-color2);
-    line-height: 1.6;
+    line-height: 1.5;
     margin: 0;
     max-width: 600px;
 }
@@ -59,70 +59,66 @@
 
 .profileCard {
     background: var(--box-color);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     border: 1px solid var(--color-border);
     display: flex;
     align-items: center;
-    gap: 16px;
-    min-width: 320px;
+    gap: 12px;
+    min-width: 280px;
 }
 
 .profileImage {
-    width: 64px;
-    height: 64px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--color-primary);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 2px solid var(--color-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
 }
 
 .profileInfo {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
 .profileName {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     color: var(--title-color);
     font-weight: 600;
 }
 
 .profileEmail {
     margin: 0;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     color: var(--text-color2);
 }
 
 .roleBadge {
     background: linear-gradient(135deg, var(--color-primary), #0056b3);
     color: white;
-    font-size: 0.75rem;
-    padding: 6px 12px;
-    border-radius: 20px;
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 12px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 8px;
+    letter-spacing: 0.3px;
+    margin-top: 4px;
 }
 
 /* ==================================================
-   NAVEGAÇÃO POR ABAS
+   NAVEGAÇÃO POR ABAS - MAIS COMPACTA
    ================================================== */
 
 .navigationSection {
-    margin-bottom: 32px;
-}
-
-.tabsContainer {
-    /* Remove background e estilos extras, mantém apenas estrutura básica */
+    margin-bottom: 20px;
 }
 
 /* ==================================================
@@ -130,7 +126,7 @@
    ================================================== */
 
 .contentSection {
-    margin-bottom: 32px;
+    margin-bottom: 16px;
 }
 
 .tabContent {
@@ -142,7 +138,7 @@
 }
 
 /* ==================================================
-   DASHBOARD DATA - ESTILOS REFORMULADOS
+   DASHBOARD DATA - OTIMIZADO
    ================================================== */
 
 .dashboardContainer {
@@ -152,80 +148,80 @@
     padding: 0;
 }
 
-/* Seções com headers padronizados */
+/* Seções com headers mais compactos */
 .userSelectSection,
 .periodFilterSection {
     background: var(--box-color);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
     border: 1px solid var(--color-border);
 }
 
 .sectionTitle {
-    font-size: 1.125rem;
+    font-size: 1rem;
     color: var(--title-color);
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .sectionTitle i {
     color: var(--color-primary);
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 /* ==================================================
-   SEÇÕES COM HEADERS PADRONIZADOS
+   SEÇÕES COM HEADERS OTIMIZADOS
    ================================================== */
 
 .userOverviewSection,
 .dashboardPerformanceSection,
 .analystSpecificSection,
 .categorySection {
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 
 .sectionHeader {
-    margin-bottom: 20px;
-    padding: 20px 24px;
+    margin-bottom: 16px;
+    padding: 12px 16px;
     background: var(--box-color);
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid var(--color-border);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.03);
 }
 
 .sectionHeader .sectionTitle {
-    font-size: 1.375rem;
-    margin-bottom: 8px;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
 }
 
 .sectionSubtitle {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--text-color2);
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.3;
 }
 
 /* ==================================================
-   OVERVIEW GRID
+   OVERVIEW GRID - MELHOR APROVEITAMENTO
    ================================================== */
 
 .overviewGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 16px;
 }
 
 .profileExpandedCard,
 .helpExpandedCard {
     background: var(--box-color);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
     border: 1px solid var(--color-border);
     height: fit-content;
 }
@@ -233,33 +229,33 @@
 .profileMainInfo {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 16px;
 }
 
 .profileDetails h3 {
     margin: 0 0 4px 0;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     color: var(--title-color);
     font-weight: 600;
 }
 
 .profileDetails p {
-    margin: 0 0 12px 0;
-    font-size: 0.875rem;
+    margin: 0 0 8px 0;
+    font-size: 0.8rem;
     color: var(--text-color2);
 }
 
 .roleTag {
     background: var(--color-primary);
     color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
 }
 
 .roleTag.tax {
@@ -269,32 +265,32 @@
 .tagsContainer {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
 }
 
 .tag {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.7rem;
+    padding: 3px 6px;
+    border-radius: 8px;
+    font-size: 0.65rem;
     font-weight: 600;
     color: white;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
 }
 
-/* Cards de ajuda expandidos */
+/* Cards de ajuda expandidos - mais compactos */
 .cardHeader {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .cardTitle {
-    font-size: 1.125rem;
+    font-size: 1rem;
     color: var(--title-color);
     margin: 0;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .cardTitle i {
@@ -304,190 +300,138 @@
 .helpStatsExpanded {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 12px;
 }
 
 .helpStatMain {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 16px;
+    gap: 10px;
+    padding: 12px;
     background: var(--box-color2);
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid var(--color-border);
 }
 
 .helpStatIcon {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     background: var(--color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .helpStatContent {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
 }
 
 .helpStatValue {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: var(--title-color);
     line-height: 1;
 }
 
 .helpStatLabel {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-color2);
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
 }
 
 /* ==================================================
-   PERFORMANCE CARDS - PADRÃO PROFILE-ANALYST
+   PERFORMANCE CARDS - DENSIDADE OTIMIZADA
    ================================================== */
 
 .dashboardPerformanceGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 16px;
+    max-width: 100%;
 }
 
 .dashboardPerformanceCard {
     background: var(--box-color);
-    border-radius: 16px;
-    padding: 2rem;
+    border-radius: 12px;
+    padding: 16px;
     box-shadow: var(--shadow-md);
     border: 1px solid var(--color-border);
     position: relative;
     overflow: hidden;
-}
-
-.dashboardPerformanceCard.excellent {
-    border-left: 4px solid var(--excellent-color);
-}
-
-.dashboardPerformanceCard.good {
-    border-left: 4px solid var(--good-color);
-}
-
-.dashboardPerformanceCard.poor {
-    border-left: 4px solid var(--poor-color);
-}
-
-.dashboardPerformanceCard.neutral {
-    border-left: 4px solid var(--neutral-color);
+    min-width: 0;
+    width: 100%;
 }
 
 .dashboardPerformanceCardHeader {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
     border-bottom: 1px solid var(--color-border);
 }
 
 .dashboardPerformanceIcon {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     background: var(--color-primary);
-    border-radius: 12px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1.25rem;
-}
-
-.dashboardPerformanceTitleSection {
-    flex: 1;
+    font-size: 1.1rem;
 }
 
 .dashboardPerformanceTitle {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: var(--title-color);
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 4px 0;
 }
 
 .dashboardStatusIndicator {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
+    gap: 6px;
+    font-size: 0.8rem;
     font-weight: 500;
 }
 
-.dashboardStatusIndicator.excellent {
-    color: var(--excellent-color);
-}
-
-.dashboardStatusIndicator.good {
-    color: var(--good-color);
-}
-
-.dashboardStatusIndicator.poor {
-    color: var(--poor-color);
-}
-
-.dashboardStatusIndicator.neutral {
-    color: var(--neutral-color);
-}
-
-/* Métricas principais */
+/* Métricas principais - mais compactas */
 .dashboardMainMetrics {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
 }
 
 .dashboardMainMetric {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 8px;
+    padding: 10px;
     background: var(--box-color2);
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid var(--color-border);
 }
 
-.dashboardMainMetric.primary {
-    background: var(--color-primary);
-    color: white;
-}
-
-.dashboardMainMetric.primary .dashboardMainMetricIcon {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-}
-
-.dashboardMainMetric.secondary {
-    background: var(--box-color2);
-}
-
-.dashboardMainMetric.warning {
-    background: var(--box-color2);
-    border-color: var(--poor-color);
-}
-
 .dashboardMainMetricIcon {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     background: var(--color-border);
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: var(--text-color2);
 }
 
@@ -497,127 +441,85 @@
 }
 
 .dashboardMainMetricValue {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
     line-height: 1;
 }
 
 .dashboardMainMetricLabel {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     opacity: 0.8;
     font-weight: 500;
 }
 
-/* KPIs */
+/* KPIs - otimizados */
 .dashboardKpiMetrics {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    max-width: 100%;
 }
 
 .dashboardKpiMetric {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    border-radius: 12px;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 8px;
     background: var(--box-color2);
     border: 1px solid var(--color-border);
-}
-
-.dashboardKpiMetric.excellent {
-    background: var(--excellent-bg);
-    border-color: var(--excellent-color);
-}
-
-.dashboardKpiMetric.good {
-    background: var(--good-bg);
-    border-color: var(--good-color);
-}
-
-.dashboardKpiMetric.poor {
-    background: var(--poor-bg);
-    border-color: var(--poor-color);
+    min-width: 0;
+    max-width: 100%;
 }
 
 .dashboardKpiIcon {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
-    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     background: var(--neutral-color);
     color: white;
     flex-shrink: 0;
 }
 
-.dashboardKpiMetric.excellent .dashboardKpiIcon {
-    background: var(--excellent-color);
-}
-
-.dashboardKpiMetric.good .dashboardKpiIcon {
-    background: var(--good-color);
-}
-
-.dashboardKpiMetric.poor .dashboardKpiIcon {
-    background: var(--poor-color);
-}
-
-.dashboardKpiData {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
 .dashboardKpiValue {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--title-color);
     line-height: 1;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .dashboardKpiLabel {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-color2);
     font-weight: 500;
-}
-
-.dashboardKpiStatus {
-    font-size: 1rem;
-    opacity: 0.7;
-}
-
-.dashboardKpiStatus.excellent {
-    color: var(--excellent-color);
-}
-
-.dashboardKpiStatus.good {
-    color: var(--good-color);
-}
-
-.dashboardKpiStatus.poor {
-    color: var(--poor-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ==================================================
-   MÉTRICAS DE ANALISTA
+   MÉTRICAS DE ANALISTA - MAIS COMPACTAS
    ================================================== */
 
 .analystMetricsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
 }
 
 .analystMetricCard {
     background: var(--box-color);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
     border: 1px solid var(--color-border);
     text-align: center;
 }
@@ -626,136 +528,66 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 16px;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .analystMetricHeader i {
     color: var(--color-primary);
-    font-size: 1.25rem;
+    font-size: 1.1rem;
 }
 
 .analystMetricHeader h3 {
     margin: 0;
-    font-size: 1.125rem;
+    font-size: 1rem;
     color: var(--title-color);
     font-weight: 600;
 }
 
 .periodInfo {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     color: var(--text-color2);
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .metricHelpText {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text-color2);
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     font-style: italic;
 }
 
 .bigMetricValue {
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 700;
     color: var(--color-primary);
     line-height: 1;
 }
 
 /* ==================================================
-   PERÍODO E FILTROS
-   ================================================== */
-
-.periodFilterControls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 15px;
-}
-
-.customDatePickerContainer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: center;
-}
-
-.datePickerWrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.datePickerWrapper label {
-    font-size: 0.9rem;
-    color: var(--text-color);
-    white-space: nowrap;
-    font-weight: 500;
-}
-
-.dateInput {
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--color-border);
-    background-color: var(--modals-inputs);
-    color: var(--text-color);
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-
-.dateInput:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(10, 78, 228, 0.1);
-    outline: none;
-}
-
-.selectedPeriodInfo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    background: linear-gradient(135deg, rgba(10, 78, 228, 0.05), var(--box-color2));
-    border-radius: 10px;
-    margin-top: 12px;
-    border: 1px solid rgba(10, 78, 228, 0.1);
-}
-
-.periodLabel {
-    font-size: 0.85rem;
-    color: var(--text-color2);
-    font-weight: 600;
-}
-
-.periodValue {
-    font-size: 0.9rem;
-    color: var(--color-primary);
-    font-weight: 700;
-}
-
-/* ==================================================
-   CATEGORIAS
+   CATEGORIAS - OTIMIZADA
    ================================================== */
 
 .categoryRankingCard {
     background: var(--box-color);
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
     border: 1px solid var(--color-border);
 }
 
 .categoryContent {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 16px;
 }
 
 .chartContainer {
     background: var(--box-color2);
-    border-radius: 12px;
-    padding: 20px;
+    border-radius: 8px;
+    padding: 16px;
     border: 1px solid var(--color-border);
-    height: 400px;
+    height: 350px;
 }
 
 .categoryList {
@@ -764,69 +596,69 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 .categoryItem {
     background: var(--box-color2);
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 8px;
+    padding: 12px;
     border: 1px solid var(--color-border);
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .categoryItem:hover {
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateX(2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .categoryHeader {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
+    gap: 10px;
+    margin-bottom: 6px;
 }
 
 .categoryRank {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: var(--color-primary);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
 }
 
 .categoryName {
     flex: 1;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--title-color);
     font-weight: 600;
 }
 
 .categoryCount {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--text-color2);
     font-weight: 500;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
 }
 
 .progressBarContainer {
-    height: 6px;
+    height: 4px;
     background: var(--color-border);
-    border-radius: 3px;
+    border-radius: 2px;
     overflow: hidden;
 }
 
 .progressBar {
     height: 100%;
-    border-radius: 3px;
-    transition: all 0.3s ease;
+    border-radius: 2px;
+    transition: all 0.2s ease;
 }
 
 .noDataMessage {
@@ -854,17 +686,24 @@
 }
 
 /* ==================================================
-   RESPONSIVIDADE
+   RESPONSIVIDADE OTIMIZADA
    ================================================== */
+
+@media (max-width: 1400px) {
+    .dashboardMain {
+        max-width: 1400px;
+        padding: 18px;
+    }
+}
 
 @media (max-width: 1200px) {
     .dashboardMain {
-        padding: 25px 20px;
+        padding: 16px;
     }
     
     .headerContent {
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: 16px;
     }
     
     .profileSection {
@@ -886,25 +725,35 @@
     .categoryContent {
         grid-template-columns: 1fr;
     }
+    
+    .chartContainer {
+        height: 300px;
+    }
 }
 
 @media (max-width: 768px) {
     .dashboardMain {
-        padding: 20px 15px;
+        padding: 12px;
     }
     
     .greetingText {
-        font-size: 1.75rem;
+        font-size: 1.6rem;
     }
     
     .dashboardSubtitle {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
     
     .profileCard {
         flex-direction: column;
         text-align: center;
-        gap: 12px;
+        gap: 8px;
+        padding: 12px;
+    }
+    
+    .profileImage {
+        width: 40px;
+        height: 40px;
     }
     
     .helpStatsExpanded {
@@ -918,33 +767,65 @@
     
     .periodFilterControls {
         flex-direction: column;
+        gap: 12px;
     }
     
     .customDatePickerContainer {
         flex-direction: column;
         align-items: stretch;
     }
+    
+    .sectionHeader {
+        padding: 10px 12px;
+    }
+    
+    .userSelectSection,
+    .periodFilterSection {
+        padding: 12px;
+    }
 }
 
 @media (max-width: 576px) {
     .dashboardMain {
-        padding: 15px 10px;
+        padding: 8px;
+    }
+    
+    .greetingText {
+        font-size: 1.4rem;
     }
     
     .profileExpandedCard,
     .helpExpandedCard,
     .categoryRankingCard,
-    .analystMetricCard {
-        padding: 16px;
+    .analystMetricCard,
+    .dashboardPerformanceCard {
+        padding: 12px;
     }
     
     .bigMetricValue {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
     
     .categoryHeader {
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 6px;
+    }
+    
+    .helpStatMain {
+        padding: 8px;
+    }
+    
+    .helpStatIcon {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .dashboardPerformanceGrid {
+        grid-template-columns: 1fr;
+    }
+    
+    .chartContainer {
+        height: 250px;
     }
 }
 
@@ -1041,4 +922,158 @@
 
 .tabContent {
     min-height: 500px;
+}
+
+.dashboardPerformanceCard.excellent {
+    border-left: 4px solid var(--excellent-color);
+}
+
+.dashboardPerformanceCard.good {
+    border-left: 4px solid var(--good-color);
+}
+
+.dashboardPerformanceCard.poor {
+    border-left: 4px solid var(--poor-color);
+}
+
+.dashboardPerformanceCard.neutral {
+    border-left: 4px solid var(--neutral-color);
+}
+
+.dashboardPerformanceTitleSection {
+    flex: 1;
+}
+
+.dashboardStatusIndicator.excellent {
+    color: var(--excellent-color);
+}
+
+.dashboardStatusIndicator.good {
+    color: var(--good-color);
+}
+
+.dashboardStatusIndicator.poor {
+    color: var(--poor-color);
+}
+
+.dashboardStatusIndicator.neutral {
+    color: var(--neutral-color);
+}
+
+.dashboardMainMetric.primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.dashboardMainMetric.primary .dashboardMainMetricIcon {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.dashboardMainMetric.secondary {
+    background: var(--box-color2);
+}
+
+.dashboardMainMetric.warning {
+    background: var(--box-color2);
+    border-color: var(--poor-color);
+}
+
+.dashboardKpiMetric.excellent {
+    background: var(--excellent-bg);
+    border-color: var(--excellent-color);
+}
+
+.dashboardKpiMetric.good {
+    background: var(--good-bg);
+    border-color: var(--good-color);
+}
+
+.dashboardKpiMetric.poor {
+    background: var(--poor-bg);
+    border-color: var(--poor-color);
+}
+
+.dashboardKpiMetric.excellent .dashboardKpiIcon {
+    background: var(--excellent-color);
+}
+
+.dashboardKpiMetric.good .dashboardKpiIcon {
+    background: var(--good-color);
+}
+
+.dashboardKpiMetric.poor .dashboardKpiIcon {
+    background: var(--poor-color);
+}
+
+.dashboardKpiData {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.dashboardKpiStatus {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.dashboardKpiStatus.excellent {
+    color: var(--excellent-color);
+}
+
+.dashboardKpiStatus.good {
+    color: var(--good-color);
+}
+
+.dashboardKpiStatus.poor {
+    color: var(--poor-color);
+}
+
+/* ==================================================
+   PERÍODO E FILTROS - COMPACTO
+   ================================================== */
+
+.periodFilterControls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.customDatePickerContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.datePickerWrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.datePickerWrapper label {
+    font-size: 0.85rem;
+    color: var(--text-color);
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.dateInput {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background-color: var(--modals-inputs);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.dateInput:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(10, 78, 228, 0.1);
+    outline: none;
 }

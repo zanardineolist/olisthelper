@@ -791,15 +791,6 @@ export default function DashboardData({ user }) {
                 </div>
               )}
             </div>
-
-            <div className={styles.selectedPeriodInfo || ''}>
-              <span className={styles.periodLabel || ''}>Período selecionado:</span>
-              <span className={styles.periodValue || ''}>
-                {periodFilter.value === 'custom' 
-                  ? `${dayjs(customDateRange.startDate).format('DD/MM/YYYY')} até ${dayjs(customDateRange.endDate).format('DD/MM/YYYY')}`
-                  : periodFilter.label}
-              </span>
-            </div>
           </div>
 
           {/* Seção Overview do Usuário */}
