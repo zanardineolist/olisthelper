@@ -8,6 +8,75 @@ import 'chart.js/auto';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 
+// Componente de Avatar Padrão em SVG
+const DefaultAvatar = ({ name, className }) => {
+  // Pegar as iniciais do nome
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    const names = name.split(' ');
+    if (names.length === 1) return names[0].charAt(0).toUpperCase();
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+  };
+
+  // Gerar cor baseada no nome
+  const getColorFromName = (name) => {
+    if (!name) return '#6B7280';
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const colors = [
+      '#3B82F6', '#10B981', '#F59E0B', '#EF4444', 
+      '#8B5CF6', '#06B6D4', '#84CC16', '#F97316'
+    ];
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  const initials = getInitials(name);
+  const bgColor = getColorFromName(name);
+
+  return (
+    <div className={className} style={{ background: bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '600', fontSize: '1.2rem' }}>
+      {initials}
+    </div>
+  );
+};
+
+// Componente para Avatar com fallback
+const UserAvatar = ({ user, className }) => {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
+  // Se não tem imagem ou houve erro, mostrar avatar padrão
+  if (!user.image || imageError) {
+    return <DefaultAvatar name={user.name} className={className} />;
+  }
+
+  return (
+    <>
+      <img 
+        src={user.image} 
+        alt={user.name || 'Usuário'} 
+        className={className}
+        onError={handleImageError}
+        onLoad={handleImageLoad}
+        style={{ display: imageLoaded ? 'block' : 'none' }}
+      />
+      {!imageLoaded && !imageError && (
+        <DefaultAvatar name={user.name} className={className} />
+      )}
+    </>
+  );
+};
+
 // Componente para card de performance aprimorado
 const PerformanceCard = ({ title, icon, data, type }) => {
   if (!data) return null;
@@ -616,15 +685,29 @@ export default function DashboardData({ user }) {
   // Calcular variação percentual das ajudas
   const { currentMonth, lastMonth } = helpRequests;
   let percentageChange = 0;
-  let arrowColor = 'green';
+  let arrowColor = 'var(--neutral-color)';
+  let arrowIcon = 'fa-minus';
   
   if (lastMonth > 0) {
     percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
-    arrowColor = percentageChange > 0 ? 'green' : 'red';
+    
+    // Lógica invertida: diminuição é positiva (verde), aumento é negativa (vermelho)
+    if (currentMonth < lastMonth) {
+      // Diminuição das ajudas = bom (verde com seta para baixo)
+      arrowColor = 'var(--excellent-color)';
+      arrowIcon = 'fa-arrow-down';
+    } else if (currentMonth > lastMonth) {
+      // Aumento das ajudas = ruim (vermelho com seta para cima)
+      arrowColor = 'var(--poor-color)';
+      arrowIcon = 'fa-arrow-up';
+    } else {
+      // Igual = neutro
+      arrowColor = 'var(--neutral-color)';
+      arrowIcon = 'fa-minus';
+    }
   }
   
   const formattedPercentage = Math.abs(percentageChange).toFixed(1);
-  const arrowIcon = percentageChange > 0 ? 'fa-arrow-up' : 'fa-arrow-down';
 
   return (
     <div className={styles.dashboardContainer || ''}>
@@ -738,9 +821,8 @@ export default function DashboardData({ user }) {
                 ) : (
                   <>
                     <div className={styles.profileMainInfo || ''}>
-                      <img 
-                        src={selectedUser.image || '/default-avatar.png'} 
-                        alt={selectedUser.name || 'Usuário'} 
+                      <UserAvatar 
+                        user={selectedUser} 
                         className={styles.profileImage || ''} 
                       />
                       <div className={styles.profileDetails || ''}>

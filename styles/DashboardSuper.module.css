@@ -76,6 +76,7 @@
     object-fit: cover;
     border: 3px solid var(--color-primary);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
 }
 
 .profileInfo {
@@ -542,6 +543,8 @@
 .dashboardKpiIcon {
     width: 32px;
     height: 32px;
+    min-width: 32px;
+    min-height: 32px;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -549,6 +552,7 @@
     font-size: 0.875rem;
     background: var(--neutral-color);
     color: white;
+    flex-shrink: 0;
 }
 
 .dashboardKpiMetric.excellent .dashboardKpiIcon {
