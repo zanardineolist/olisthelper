@@ -362,48 +362,43 @@
 .dashboardPerformanceCard {
     background: var(--box-color);
     border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
     border: 1px solid var(--color-border);
-    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
 }
 
-.dashboardPerformanceCard:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
-
 .dashboardPerformanceCard.excellent {
-    border-left: 4px solid #779E3D;
-    background: linear-gradient(135deg, rgba(119, 158, 61, 0.02), var(--box-color));
+    border-left: 4px solid var(--excellent-color);
 }
 
 .dashboardPerformanceCard.good {
-    border-left: 4px solid #F0A028;
-    background: linear-gradient(135deg, rgba(240, 160, 40, 0.02), var(--box-color));
+    border-left: 4px solid var(--good-color);
 }
 
 .dashboardPerformanceCard.poor {
-    border-left: 4px solid #E64E36;
-    background: linear-gradient(135deg, rgba(230, 78, 54, 0.02), var(--box-color));
+    border-left: 4px solid var(--poor-color);
+}
+
+.dashboardPerformanceCard.neutral {
+    border-left: 4px solid var(--neutral-color);
 }
 
 .dashboardPerformanceCardHeader {
     display: flex;
     align-items: center;
-    gap: 16px;
-    margin-bottom: 20px;
-    padding-bottom: 16px;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
     border-bottom: 1px solid var(--color-border);
 }
 
 .dashboardPerformanceIcon {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
     background: var(--color-primary);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -416,158 +411,166 @@
 }
 
 .dashboardPerformanceTitle {
-    font-size: 1.125rem;
-    color: var(--title-color);
-    margin: 0 0 8px 0;
+    font-size: 1.25rem;
     font-weight: 600;
+    color: var(--title-color);
+    margin: 0 0 0.5rem 0;
 }
 
 .dashboardStatusIndicator {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 
 .dashboardStatusIndicator.excellent {
-    color: #779E3D;
+    color: var(--excellent-color);
 }
 
 .dashboardStatusIndicator.good {
-    color: #F0A028;
+    color: var(--good-color);
 }
 
 .dashboardStatusIndicator.poor {
-    color: #E64E36;
+    color: var(--poor-color);
 }
 
 .dashboardStatusIndicator.neutral {
-    color: var(--text-color2);
+    color: var(--neutral-color);
 }
 
 /* Métricas principais */
 .dashboardMainMetrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .dashboardMainMetric {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px;
+    gap: 1rem;
+    padding: 1rem;
     background: var(--box-color2);
-    border-radius: 10px;
+    border-radius: 12px;
     border: 1px solid var(--color-border);
 }
 
 .dashboardMainMetric.primary {
-    background: linear-gradient(135deg, rgba(10, 78, 228, 0.1), var(--box-color2));
-    border-color: rgba(10, 78, 228, 0.2);
+    background: var(--color-primary);
+    color: white;
+}
+
+.dashboardMainMetric.primary .dashboardMainMetricIcon {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
 }
 
 .dashboardMainMetric.secondary {
-    background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), var(--box-color2));
-    border-color: rgba(108, 117, 125, 0.2);
+    background: var(--box-color2);
 }
 
 .dashboardMainMetric.warning {
-    background: linear-gradient(135deg, rgba(240, 160, 40, 0.1), var(--box-color2));
-    border-color: rgba(240, 160, 40, 0.2);
+    background: var(--box-color2);
+    border-color: var(--poor-color);
 }
 
 .dashboardMainMetricIcon {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+    background: var(--color-border);
     border-radius: 8px;
-    background: var(--color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 0.875rem;
+    font-size: 1rem;
+    color: var(--text-color2);
 }
 
 .dashboardMainMetricData {
     display: flex;
     flex-direction: column;
-    gap: 2px;
 }
 
 .dashboardMainMetricValue {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: var(--title-color);
     line-height: 1;
 }
 
 .dashboardMainMetricLabel {
-    font-size: 0.7rem;
-    color: var(--text-color2);
+    font-size: 0.75rem;
+    opacity: 0.8;
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 /* KPIs */
 .dashboardKpiMetrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
+    gap: 1rem;
 }
 
 .dashboardKpiMetric {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 16px;
-    background: var(--box-color2);
+    gap: 1rem;
+    padding: 1rem;
     border-radius: 12px;
+    background: var(--box-color2);
     border: 1px solid var(--color-border);
-    position: relative;
 }
 
 .dashboardKpiMetric.excellent {
-    background: linear-gradient(135deg, rgba(119, 158, 61, 0.1), var(--box-color2));
-    border-color: #779E3D;
+    background: var(--excellent-bg);
+    border-color: var(--excellent-color);
 }
 
 .dashboardKpiMetric.good {
-    background: linear-gradient(135deg, rgba(240, 160, 40, 0.1), var(--box-color2));
-    border-color: #F0A028;
+    background: var(--good-bg);
+    border-color: var(--good-color);
 }
 
 .dashboardKpiMetric.poor {
-    background: linear-gradient(135deg, rgba(230, 78, 54, 0.1), var(--box-color2));
-    border-color: #E64E36;
+    background: var(--poor-bg);
+    border-color: var(--poor-color);
 }
 
 .dashboardKpiIcon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: var(--color-primary);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 0.875rem;
+    background: var(--neutral-color);
     color: white;
-    font-size: 1rem;
+}
+
+.dashboardKpiMetric.excellent .dashboardKpiIcon {
+    background: var(--excellent-color);
+}
+
+.dashboardKpiMetric.good .dashboardKpiIcon {
+    background: var(--good-color);
+}
+
+.dashboardKpiMetric.poor .dashboardKpiIcon {
+    background: var(--poor-color);
 }
 
 .dashboardKpiData {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
 }
 
 .dashboardKpiValue {
-    font-size: 1.375rem;
+    font-size: 1.125rem;
     font-weight: 700;
     color: var(--title-color);
     line-height: 1;
@@ -576,39 +579,24 @@
 .dashboardKpiLabel {
     font-size: 0.75rem;
     color: var(--text-color2);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-weight: 500;
 }
 
 .dashboardKpiStatus {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
+    font-size: 1rem;
+    opacity: 0.7;
 }
 
 .dashboardKpiStatus.excellent {
-    background: #779E3D;
-    color: white;
+    color: var(--excellent-color);
 }
 
 .dashboardKpiStatus.good {
-    background: #F0A028;
-    color: white;
+    color: var(--good-color);
 }
 
 .dashboardKpiStatus.poor {
-    background: #E64E36;
-    color: white;
-}
-
-.dashboardKpiStatus.neutral {
-    background: var(--text-color2);
-    color: white;
+    color: var(--poor-color);
 }
 
 /* ==================================================
