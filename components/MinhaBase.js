@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import styles from '../styles/MinhaBase.module.css';
 
@@ -111,6 +111,38 @@ export default function MinhaBase({ user }) {
       setLoading(false);
     }
   }, [user?.id, searchTerm, filterCategory, filterTags, sortBy, sortDirection]);
+
+  // Verifica se há dados não salvos
+  const hasUnsavedData = () => {
+    const initialData = {
+      title: '',
+      description: '',
+      link: '',
+      tags: [],
+      color: '#0A4EE4',
+      category: 'geral'
+    };
+
+    if (editingEntry) {
+      return (
+        formData.title !== editingEntry.title ||
+        formData.description !== editingEntry.description ||
+        formData.link !== (editingEntry.link || '') ||
+        JSON.stringify(formData.tags) !== JSON.stringify(editingEntry.tags || []) ||
+        formData.color !== editingEntry.color ||
+        formData.category !== editingEntry.category
+      );
+    }
+
+    return (
+      formData.title !== initialData.title ||
+      formData.description !== initialData.description ||
+      formData.link !== initialData.link ||
+      formData.tags.length > 0 ||
+      formData.color !== initialData.color ||
+      formData.category !== initialData.category
+    );
+  };
 
   const handleSave = async () => {
     try {
@@ -248,12 +280,35 @@ export default function MinhaBase({ user }) {
     setShowModal(true);
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = async () => {
+    if (hasUnsavedData()) {
+      const result = await Swal.fire({
+        title: 'Descartar alterações?',
+        text: 'Você tem alterações não salvas. Deseja descartar?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, descartar',
+        cancelButtonText: 'Continuar editando',
+        confirmButtonColor: 'var(--color-accent1)',
+        cancelButtonColor: 'var(--color-primary)'
+      });
+
+      if (!result.isConfirmed) {
+        return;
+      }
+    }
+
     setShowModal(false);
     setEditingEntry(null);
     setNewTag('');
     setShowTagSuggestions(false);
     setShowCategorySuggestions(false);
+  };
+
+  const handleModalOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      handleCloseModal();
+    }
   };
 
   const handleCloseViewModal = () => {
@@ -565,69 +620,196 @@ export default function MinhaBase({ user }) {
 
       {/* Modal de Criação/Edição */}
       {showModal && (
-        <div className={styles.modalOverlay} onClick={handleCloseModal}>
+        <div className={styles.modalOverlay} onClick={handleModalOverlayClick}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>{editingEntry ? 'Editar Anotação' : 'Nova Anotação'}</h2>
-              <button onClick={handleCloseModal} className={styles.closeButton}>×</button>
+              <button onClick={handleCloseModal} className={styles.closeButton}>
+                <FaTimes />
+              </button>
             </div>
             
             <div className={styles.modalContent}>
-              <div className={styles.formGroup}>
-                <label>Título *</label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Ex: Como resolver erro de conexão"
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Descrição *</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Descreva detalhadamente o procedimento ou informação..."
-                  rows={4}
-                  className={styles.textarea}
-                />
-              </div>
-
-              <div className={styles.formRow}>
+              {/* Seção Principal */}
+              <div className={styles.formSection}>
+                <h3 className={styles.sectionTitle}>Informações Principais</h3>
+                
                 <div className={styles.formGroup}>
-                  <label>Categoria</label>
+                  <label className={styles.formLabel}>
+                    <span className={styles.labelIcon}>📝</span>
+                    Título <span className={styles.required}>*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Ex: Como resolver erro de conexão"
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>
+                    <span className={styles.labelIcon}>📄</span>
+                    Descrição <span className={styles.required}>*</span>
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Descreva detalhadamente o procedimento ou informação..."
+                    rows={4}
+                    className={styles.textarea}
+                  />
+                </div>
+              </div>
+
+              {/* Seção Organização */}
+              <div className={styles.formSection}>
+                <h3 className={styles.sectionTitle}>Organização</h3>
+                
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>
+                      <span className={styles.labelIcon}>📂</span>
+                      Categoria
+                    </label>
+                    <div className={`${styles.autocompleteContainer} autocomplete-container`}>
+                      <input
+                        type="text"
+                        value={formData.category}
+                        onChange={(e) => {
+                          setFormData({ ...formData, category: e.target.value });
+                          setShowCategorySuggestions(true);
+                        }}
+                        onFocus={() => setShowCategorySuggestions(true)}
+                        placeholder="Ex: Suporte, Fiscal, Técnico"
+                        className={styles.input}
+                      />
+                      {showCategorySuggestions && getFilteredCategories().length > 0 && (
+                        <div className={styles.suggestions}>
+                          {getFilteredCategories().slice(0, 5).map(category => (
+                            <div
+                              key={category}
+                              className={styles.suggestionItem}
+                              onClick={() => handleCategorySelect(category)}
+                            >
+                              {category}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>
+                      <span className={styles.labelIcon}><FaPalette /></span>
+                      Cor da Categoria
+                    </label>
+                    <div className={styles.colorSelector}>
+                      <div className={styles.selectedColor}>
+                        <div 
+                          className={styles.colorPreview}
+                          style={{ backgroundColor: formData.color }}
+                        />
+                        <span className={styles.colorName}>
+                          {COLOR_OPTIONS.find(c => c.color === formData.color)?.name || 'Personalizada'}
+                        </span>
+                      </div>
+                      <div className={styles.colorOptions}>
+                        {COLOR_OPTIONS.map(option => (
+                          <button
+                            key={option.color}
+                            className={`${styles.colorOption} ${formData.color === option.color ? styles.colorOptionSelected : ''}`}
+                            style={{ backgroundColor: option.color }}
+                            onClick={() => setFormData({ ...formData, color: option.color })}
+                            title={option.name}
+                            type="button"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção Tags */}
+              <div className={styles.formSection}>
+                <h3 className={styles.sectionTitle}>Tags</h3>
+                
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>
+                    <span className={styles.labelIcon}><FaTag /></span>
+                    Adicionar Tags
+                  </label>
                   <div className={`${styles.autocompleteContainer} autocomplete-container`}>
-                    <input
-                      type="text"
-                      value={formData.category}
-                      onChange={(e) => {
-                        setFormData({ ...formData, category: e.target.value });
-                        setShowCategorySuggestions(true);
-                      }}
-                      onFocus={() => setShowCategorySuggestions(true)}
-                      placeholder="Ex: Suporte, Fiscal, Técnico"
-                      className={styles.input}
-                    />
-                    {showCategorySuggestions && getFilteredCategories().length > 0 && (
+                    <div className={styles.tagsInput}>
+                      <input
+                        type="text"
+                        value={newTag}
+                        onChange={(e) => {
+                          setNewTag(e.target.value);
+                          setShowTagSuggestions(true);
+                        }}
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                        onFocus={() => setShowTagSuggestions(true)}
+                        placeholder="Digite uma tag e pressione Enter"
+                        className={styles.input}
+                      />
+                      <button 
+                        onClick={() => handleAddTag()} 
+                        className={styles.addTagButton}
+                        type="button"
+                      >
+                        <FaPlus />
+                      </button>
+                    </div>
+                    {showTagSuggestions && getFilteredTags().length > 0 && (
                       <div className={styles.suggestions}>
-                        {getFilteredCategories().slice(0, 5).map(category => (
+                        {getFilteredTags().slice(0, 5).map(tag => (
                           <div
-                            key={category}
+                            key={tag}
                             className={styles.suggestionItem}
-                            onClick={() => handleCategorySelect(category)}
+                            onClick={() => handleAddTag(tag)}
                           >
-                            {category}
+                            <FaTag /> {tag}
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
-                </div>
 
+                  {formData.tags.length > 0 && (
+                    <div className={styles.tagsDisplayContainer}>
+                      <span className={styles.tagsDisplayLabel}>Tags adicionadas:</span>
+                      <div className={styles.tagsList}>
+                        {formData.tags.map(tag => (
+                          <span key={tag} className={styles.formTag}>
+                            <FaTag /> {tag}
+                            <button 
+                              onClick={() => handleRemoveTag(tag)}
+                              type="button"
+                              className={styles.removeTagButton}
+                            >
+                              <FaTimes />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Seção Link */}
+              <div className={styles.formSection}>
+                <h3 className={styles.sectionTitle}>Link de Referência</h3>
+                
                 <div className={styles.formGroup}>
-                  <label>Link (opcional)</label>
+                  <label className={styles.formLabel}>
+                    <span className={styles.labelIcon}><FaLink /></span>
+                    URL (opcional)
+                  </label>
                   <input
                     type="url"
                     value={formData.link}
@@ -635,66 +817,19 @@ export default function MinhaBase({ user }) {
                     placeholder="https://exemplo.com"
                     className={styles.input}
                   />
-                </div>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Cor da categoria</label>
-                <div className={styles.colorOptions}>
-                  {COLOR_OPTIONS.map(option => (
-                    <button
-                      key={option.color}
-                      className={`${styles.colorOption} ${formData.color === option.color ? styles.colorOptionSelected : ''}`}
-                      style={{ backgroundColor: option.color }}
-                      onClick={() => setFormData({ ...formData, color: option.color })}
-                      title={option.name}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Tags</label>
-                <div className={`${styles.autocompleteContainer} autocomplete-container`}>
-                  <div className={styles.tagsInput}>
-                    <input
-                      type="text"
-                      value={newTag}
-                      onChange={(e) => {
-                        setNewTag(e.target.value);
-                        setShowTagSuggestions(true);
-                      }}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                      onFocus={() => setShowTagSuggestions(true)}
-                      placeholder="Digite uma tag e pressione Enter"
-                      className={styles.input}
-                    />
-                    <button onClick={() => handleAddTag()} className={styles.addTagButton}>
-                      <FaPlus />
-                    </button>
-                  </div>
-                  {showTagSuggestions && getFilteredTags().length > 0 && (
-                    <div className={styles.suggestions}>
-                      {getFilteredTags().slice(0, 5).map(tag => (
-                        <div
-                          key={tag}
-                          className={styles.suggestionItem}
-                          onClick={() => handleAddTag(tag)}
-                        >
-                          <FaTag /> {tag}
-                        </div>
-                      ))}
+                  {formData.link && (
+                    <div className={styles.linkPreview}>
+                      <FaExternalLinkAlt />
+                      <a 
+                        href={formData.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={styles.linkPreviewText}
+                      >
+                        {formData.link}
+                      </a>
                     </div>
                   )}
-                </div>
-
-                <div className={styles.tagsList}>
-                  {formData.tags.map(tag => (
-                    <span key={tag} className={styles.formTag}>
-                      <FaTag /> {tag}
-                      <button onClick={() => handleRemoveTag(tag)}>×</button>
-                    </span>
-                  ))}
                 </div>
               </div>
             </div>

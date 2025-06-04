@@ -417,7 +417,7 @@
   border: 1px solid var(--color-border);
   border-radius: 16px;
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
@@ -431,13 +431,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
+  padding: 24px 28px;
   border-bottom: 1px solid var(--color-border);
+  background: var(--box-color2);
+  border-radius: 16px 16px 0 0;
 }
 
 .modalHeader h2 {
   color: var(--title-color);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 600;
   margin: 0;
   flex: 1;
@@ -472,12 +474,12 @@
 .closeButton {
   background: none;
   border: none;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   color: var(--text-color2);
   cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
+  padding: 6px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -488,24 +490,25 @@
 .closeButton:hover {
   background: var(--color-accent1);
   color: white;
+  transform: scale(1.1);
 }
 
 /* Modal de Visualização */
 .viewModalContent {
-  padding: 24px;
+  padding: 28px;
 }
 
 .viewSection {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .viewSection h4 {
   color: var(--title-color);
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
   border-bottom: 2px solid var(--color-primary);
-  padding-bottom: 4px;
+  padding-bottom: 6px;
 }
 
 .viewDescription {
@@ -553,15 +556,15 @@
   background: var(--box-color2);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  padding: 16px;
-  margin-top: 20px;
+  padding: 20px;
+  margin-top: 24px;
 }
 
 .viewMetaItem {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   font-size: 0.95rem;
 }
 
@@ -578,32 +581,70 @@
   font-weight: 500;
 }
 
-/* Modal de Edição */
+/* Modal de Edição - Formulário organizado em seções */
 .modalContent {
-  padding: 24px;
+  padding: 0;
+}
+
+.formSection {
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.formSection:last-child {
+  border-bottom: none;
+}
+
+.sectionTitle {
+  color: var(--title-color);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .formGroup {
   margin-bottom: 20px;
 }
 
-.formGroup label {
-  display: block;
+.formGroup:last-child {
+  margin-bottom: 0;
+}
+
+.formLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--title-color);
   font-weight: 600;
   margin-bottom: 8px;
-  font-size: 0.95rem;
+  font-size: 1rem;
+}
+
+.labelIcon {
+  font-size: 1.1rem;
+  width: 20px;
+  text-align: center;
+}
+
+.required {
+  color: var(--color-accent1);
+  font-weight: 700;
 }
 
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 24px;
 }
 
 .input, .textarea {
   width: 100%;
-  padding: 12px;
+  padding: 12px 16px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
   background: var(--background-color);
@@ -626,6 +667,65 @@
 .textarea {
   resize: vertical;
   min-height: 100px;
+  line-height: 1.5;
+}
+
+/* Seletor de Cor Melhorado */
+.colorSelector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.selectedColor {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--box-color2);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.colorPreview {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.colorName {
+  font-weight: 600;
+  color: var(--title-color);
+}
+
+.colorOptions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 4px;
+}
+
+.colorOption {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.colorOption:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.colorOptionSelected {
+  border-color: var(--title-color);
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--title-color), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* Autocomplete */
@@ -649,13 +749,13 @@
 }
 
 .suggestionItem {
-  padding: 12px;
+  padding: 12px 16px;
   cursor: pointer;
   transition: all 0.3s ease;
   border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--text-color);
   font-size: 0.95rem;
 }
@@ -669,49 +769,40 @@
   border-bottom: none;
 }
 
-.colorOptions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.colorOption {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 3px solid transparent;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.colorOption:hover {
-  transform: scale(1.1);
-}
-
-.colorOptionSelected {
-  border-color: var(--title-color);
-  transform: scale(1.1);
-  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--title-color);
-}
-
+/* Tags melhoradas */
 .tagsInput {
   display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
 .addTagButton {
   background: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 6px;
-  padding: 12px;
+  border-radius: 8px;
+  padding: 12px 16px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 1rem;
+  min-width: 48px;
 }
 
 .addTagButton:hover {
   background: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.tagsDisplayContainer {
+  margin-top: 16px;
+}
+
+.tagsDisplayLabel {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-color2);
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
 .tagsList {
@@ -723,37 +814,71 @@
 .formTag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: var(--color-primary);
   color: white;
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 500;
+  transition: all 0.3s ease;
 }
 
-.formTag button {
+.formTag:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.removeTagButton {
   background: none;
   border: none;
   color: white;
-  font-size: 1.2rem;
+  font-size: 1rem;
   cursor: pointer;
-  padding: 0;
-  margin-left: 4px;
+  padding: 0 2px;
   line-height: 1;
+  opacity: 0.8;
+  transition: all 0.3s ease;
 }
 
-.formTag button:hover {
+.removeTagButton:hover {
+  opacity: 1;
   color: #ff6b6b;
+  transform: scale(1.2);
 }
 
+/* Preview do Link */
+.linkPreview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: var(--box-color2);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.linkPreviewText {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.linkPreviewText:hover {
+  text-decoration: underline;
+}
+
+/* Footer do Modal */
 .modalFooter {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding: 20px 24px;
+  padding: 24px 28px;
   border-top: 1px solid var(--color-border);
   background: var(--box-color2);
+  border-radius: 0 0 16px 16px;
 }
 
 .cancelButton {
@@ -761,15 +886,17 @@
   color: var(--text-color);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 12px 24px;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-weight: 500;
 }
 
 .cancelButton:hover {
   background: var(--color-list);
   color: white;
+  transform: translateY(-1px);
 }
 
 .saveButton {
@@ -777,7 +904,7 @@
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
+  padding: 12px 24px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -787,6 +914,7 @@
 .saveButton:hover {
   background: linear-gradient(135deg, var(--color-primary-hover), var(--color-primary));
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(10, 78, 228, 0.3);
 }
 
 /* Loading */
@@ -836,14 +964,24 @@
   .modal, .viewModal {
     margin: 10px;
     max-height: 95vh;
+    max-width: 95vw;
   }
 
-  .modalContent, .viewModalContent {
+  .modalHeader {
+    padding: 20px;
+  }
+
+  .modalHeader h2 {
+    font-size: 1.4rem;
+  }
+
+  .formSection {
     padding: 20px;
   }
 
   .modalFooter {
     flex-direction: column;
+    padding: 20px;
   }
 
   .cancelButton, .saveButton {
@@ -852,6 +990,14 @@
 
   .viewModalActions {
     flex-direction: row;
+  }
+
+  .colorOptions {
+    justify-content: center;
+  }
+
+  .tagsInput {
+    flex-direction: column;
   }
 }
 
@@ -868,19 +1014,19 @@
     font-size: 1.1rem;
   }
 
-  .colorOptions {
-    justify-content: center;
-  }
-
-  .tagsInput {
-    flex-direction: column;
-  }
-
   .modalHeader h2 {
     font-size: 1.2rem;
   }
 
+  .sectionTitle {
+    font-size: 1.1rem;
+  }
+
   .viewSection h4 {
+    font-size: 1rem;
+  }
+
+  .formLabel {
     font-size: 0.9rem;
   }
 } 
