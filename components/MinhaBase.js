@@ -37,7 +37,7 @@ import {
   Grid,
   Fab
 } from '@mui/material';
-import { supabase } from '../utils/supabase/supabaseClient';
+import Swal from 'sweetalert2';
 import styles from '../styles/MinhaBase.module.css';
 
 const PRIORITY_COLORS = {
@@ -103,26 +103,29 @@ export default function MinhaBase({ user }) {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
-        .rpc('search_user_knowledge_base', {
-          user_uuid: user.id,
-          search_term: searchTerm,
-          filter_tags: filterTags,
-          filter_category: filterCategory,
-          filter_priority: filterPriority,
-          order_by: sortBy,
-          order_direction: sortDirection
-        });
+      const queryParams = new URLSearchParams({
+        search_term: searchTerm,
+        filter_tags: filterTags.join(','),
+        filter_category: filterCategory,
+        filter_priority: filterPriority,
+        order_by: sortBy,
+        order_direction: sortDirection
+      });
 
-      if (error) throw error;
+      const response = await fetch(`/api/knowledge-base?${queryParams}`);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao carregar entradas');
+      }
 
-      setEntries(data || []);
+      const data = await response.json();
+      setEntries(data.entries || []);
       
       // Extrai tags e categorias disponíveis
       const allTags = new Set();
       const allCategories = new Set();
       
-      data?.forEach(entry => {
+      data.entries?.forEach(entry => {
         entry.tags?.forEach(tag => allTags.add(tag));
         if (entry.category) allCategories.add(entry.category);
       });
@@ -140,14 +143,11 @@ export default function MinhaBase({ user }) {
 
   const loadStats = async () => {
     try {
-      const { data, error } = await supabase
-        .rpc('get_user_knowledge_base_stats', {
-          user_uuid: user.id
-        });
-
-      if (error) throw error;
-      if (data && data.length > 0) {
-        setStats(data[0]);
+      const response = await fetch('/api/knowledge-base/stats');
+      
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data.stats);
       }
     } catch (error) {
       console.error('Erro ao carregar estatísticas:', error);
@@ -163,28 +163,24 @@ export default function MinhaBase({ user }) {
 
       const dataToSave = {
         ...formData,
-        user_id: user.id,
         tags: formData.tags.filter(tag => tag.trim() !== '')
       };
 
-      let error;
-      
-      if (editingEntry) {
-        // Atualizar entrada existente
-        const { error: updateError } = await supabase
-          .from('knowledge_base_entries')
-          .update(dataToSave)
-          .eq('id', editingEntry.id);
-        error = updateError;
-      } else {
-        // Criar nova entrada
-        const { error: insertError } = await supabase
-          .from('knowledge_base_entries')
-          .insert([dataToSave]);
-        error = insertError;
-      }
+      const method = editingEntry ? 'PUT' : 'POST';
+      const endpoint = editingEntry 
+        ? `/api/knowledge-base/${editingEntry.id}`
+        : '/api/knowledge-base';
 
-      if (error) throw error;
+      const response = await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSave)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao salvar entrada');
+      }
 
       showNotification(
         editingEntry ? 'Entrada atualizada com sucesso!' : 'Entrada criada com sucesso!', 
@@ -202,15 +198,28 @@ export default function MinhaBase({ user }) {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Tem certeza que deseja excluir esta entrada?')) return;
-
     try {
-      const { error } = await supabase
-        .from('knowledge_base_entries')
-        .delete()
-        .eq('id', id);
+      const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: 'Esta ação não pode ser desfeita',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#64748b'
+      });
 
-      if (error) throw error;
+      if (!result.isConfirmed) return;
+
+      const response = await fetch(`/api/knowledge-base/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao excluir entrada');
+      }
 
       showNotification('Entrada excluída com sucesso!', 'success');
       loadEntries();
@@ -224,14 +233,27 @@ export default function MinhaBase({ user }) {
 
   const handleToggleFavorite = async (entry) => {
     try {
-      const { error } = await supabase
-        .from('knowledge_base_entries')
-        .update({ is_favorite: !entry.is_favorite })
-        .eq('id', entry.id);
+      const response = await fetch('/api/knowledge-base/favorite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entryId: entry.id })
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao alterar favorito');
+      }
 
-      loadEntries();
+      const { isFavorite } = await response.json();
+      
+      // Atualizar estado local
+      setEntries(prevEntries => 
+        prevEntries.map(e => 
+          e.id === entry.id 
+            ? { ...e, is_favorite: isFavorite }
+            : e
+        )
+      );
       
     } catch (error) {
       console.error('Erro ao alterar favorito:', error);
@@ -242,8 +264,10 @@ export default function MinhaBase({ user }) {
   const handleViewEntry = async (entry) => {
     try {
       // Incrementa contador de visualizações
-      await supabase.rpc('increment_knowledge_base_view_count', {
-        entry_id: entry.id
+      await fetch('/api/knowledge-base/view', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entryId: entry.id })
       });
       
       // Abre link se existir
@@ -349,19 +373,19 @@ export default function MinhaBase({ user }) {
         {stats && (
           <div className={styles.statsContainer}>
             <div className={styles.statCard}>
-              <span className={styles.statNumber}>{stats.total_entries}</span>
+              <span className={styles.statNumber}>{stats.total_entries || 0}</span>
               <span className={styles.statLabel}>Entradas</span>
             </div>
             <div className={styles.statCard}>
-              <span className={styles.statNumber}>{stats.total_favorites}</span>
+              <span className={styles.statNumber}>{stats.total_favorites || 0}</span>
               <span className={styles.statLabel}>Favoritos</span>
             </div>
             <div className={styles.statCard}>
-              <span className={styles.statNumber}>{stats.total_views}</span>
+              <span className={styles.statNumber}>{stats.total_views || 0}</span>
               <span className={styles.statLabel}>Visualizações</span>
             </div>
             <div className={styles.statCard}>
-              <span className={styles.statNumber}>{stats.categories_count}</span>
+              <span className={styles.statNumber}>{stats.categories_count || 0}</span>
               <span className={styles.statLabel}>Categorias</span>
             </div>
           </div>
@@ -487,7 +511,7 @@ export default function MinhaBase({ user }) {
 
             <div className={styles.entryContent}>
               <p className={styles.entryDescription}>
-                {entry.description.length > 200 
+                {entry.description && entry.description.length > 200 
                   ? `${entry.description.substring(0, 200)}...` 
                   : entry.description
                 }
