@@ -4,14 +4,14 @@ import Swal from 'sweetalert2';
 import styles from '../styles/MinhaBase.module.css';
 
 const COLOR_OPTIONS = [
-  { color: '#0A4EE4', name: 'Azul Primário' },
-  { color: '#E64E36', name: 'Vermelho' },
-  { color: '#779E3D', name: 'Verde' },
-  { color: '#F0A028', name: 'Amarelo' },
-  { color: '#2A2A2A', name: 'Cinza Escuro' },
-  { color: '#6B46C1', name: 'Roxo' },
-  { color: '#EC4899', name: 'Rosa' },
-  { color: '#06B6D4', name: 'Azul Claro' }
+  { color: 'var(--color-primary)', name: 'Azul Primário', cssVar: 'primary' },
+  { color: 'var(--color-accent1)', name: 'Vermelho', cssVar: 'accent1' },
+  { color: 'var(--color-accent3)', name: 'Verde', cssVar: 'accent3' },
+  { color: 'var(--color-accent2)', name: 'Amarelo', cssVar: 'accent2' },
+  { color: 'var(--color-accent4)', name: 'Cinza Escuro', cssVar: 'accent4' },
+  { color: '#6B46C1', name: 'Roxo', cssVar: 'custom-purple' },
+  { color: '#EC4899', name: 'Rosa', cssVar: 'custom-pink' },
+  { color: '#06B6D4', name: 'Azul Claro', cssVar: 'custom-cyan' }
 ];
 
 export default function MinhaBase({ user }) {
@@ -33,7 +33,7 @@ export default function MinhaBase({ user }) {
     description: '',
     link: '',
     tags: [],
-    color: '#0A4EE4',
+    color: 'var(--color-primary)',
     category: 'geral',
     images: []
   });
@@ -47,7 +47,6 @@ export default function MinhaBase({ user }) {
 
   // Estados para imagens
   const [uploadingImages, setUploadingImages] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
   const [showLightbox, setShowLightbox] = useState(false);
   const [lightboxImage, setLightboxImage] = useState(null);
 
@@ -126,7 +125,7 @@ export default function MinhaBase({ user }) {
       description: '',
       link: '',
       tags: [],
-      color: '#0A4EE4',
+      color: 'var(--color-primary)',
       category: 'geral',
       images: []
     };
@@ -160,7 +159,7 @@ export default function MinhaBase({ user }) {
       description: '',
       link: '',
       tags: [],
-      color: '#0A4EE4',
+      color: 'var(--color-primary)',
       category: 'geral',
       images: []
     });
@@ -170,7 +169,7 @@ export default function MinhaBase({ user }) {
     setShowCategorySuggestions(false);
   };
 
-  // Funções para upload de imagens
+  // Funções para upload de imagens (removendo drag & drop)
   const handleImageUpload = async (files) => {
     if (!files || files.length === 0) return;
     
@@ -203,13 +202,13 @@ export default function MinhaBase({ user }) {
         }
 
         // Fazer upload para Imgur
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('title', `Imagem - ${formData.title || 'Anotação'}`);
+        const formDataUpload = new FormData();
+        formDataUpload.append('image', file);
+        formDataUpload.append('title', `Imagem - ${formData.title || 'Anotação'}`);
 
         const response = await fetch('/api/imgur-upload', {
           method: 'POST',
-          body: formData
+          body: formDataUpload
         });
 
         const result = await response.json();
@@ -248,23 +247,6 @@ export default function MinhaBase({ user }) {
     } finally {
       setUploadingImages(false);
     }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragActive(false);
-    const files = Array.from(e.dataTransfer.files);
-    handleImageUpload(files);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setDragActive(false);
   };
 
   const handleFileSelect = (e) => {
@@ -509,6 +491,20 @@ export default function MinhaBase({ user }) {
     }
   };
 
+  // Função para obter a cor CSS baseada na string de cor
+  const getColorValue = (colorString) => {
+    if (colorString.startsWith('var(')) {
+      return colorString;
+    }
+    return colorString;
+  };
+
+  // Função para obter classe CSS baseada na cor
+  const getColorClass = (colorString) => {
+    const colorOption = COLOR_OPTIONS.find(opt => opt.color === colorString);
+    return colorOption?.cssVar || 'primary';
+  };
+
   if (loading && entries.length === 0) {
     return (
       <div className={styles.loadingContainer}>
@@ -586,13 +582,16 @@ export default function MinhaBase({ user }) {
         </div>
       )}
 
-      {/* Grid de anotações */}
+      {/* Grid de anotações com cores melhoradas */}
       <div className={styles.entriesGrid}>
         {entries.map(entry => (
           <div
             key={entry.id}
-            className={styles.entryCard}
-            style={{ borderLeftColor: entry.color }}
+            className={`${styles.entryCard} ${styles[`entryCard--${getColorClass(entry.color)}`]}`}
+            style={{ 
+              '--entry-color': getColorValue(entry.color),
+              borderLeftColor: getColorValue(entry.color)
+            }}
             onClick={() => handleCardClick(entry)}
           >
             <div className={styles.entryHeader}>
@@ -647,7 +646,7 @@ export default function MinhaBase({ user }) {
               {entry.tags && entry.tags.length > 0 && (
                 <div className={styles.tagsContainer}>
                   {entry.tags.slice(0, 3).map(tag => (
-                    <span key={tag} className={styles.tag}>
+                    <span key={tag} className={styles.tag} style={{ backgroundColor: getColorValue(entry.color) }}>
                       <FaTag /> {tag}
                     </span>
                   ))}
@@ -662,7 +661,12 @@ export default function MinhaBase({ user }) {
 
             <div className={styles.entryFooter}>
               <div className={styles.entryMeta}>
-                <span className={styles.category}>{entry.category}</span>
+                <span className={styles.category} style={{ 
+                  borderLeftColor: getColorValue(entry.color),
+                  background: `${getColorValue(entry.color)}15`
+                }}>
+                  {entry.category}
+                </span>
                 <span className={styles.date}>{formatDate(entry.created_at)}</span>
               </div>
             </div>
@@ -690,12 +694,14 @@ export default function MinhaBase({ user }) {
         </div>
       )}
 
-      {/* Modal de Visualização */}
+      {/* Modal de Visualização - Design Melhorado */}
       {showViewModal && viewingEntry && (
         <div className={styles.modalOverlay} onClick={handleCloseViewModal}>
           <div className={styles.viewModal} onClick={(e) => e.stopPropagation()}>
             {/* Header do Modal */}
-            <div className={styles.viewModalHeader}>
+            <div className={styles.viewModalHeader} style={{
+              background: `linear-gradient(135deg, ${getColorValue(viewingEntry.color)}15, ${getColorValue(viewingEntry.color)}05)`
+            }}>
               <div className={styles.viewHeaderContent}>
                 <h2 className={styles.viewTitle}>{viewingEntry.title}</h2>
                 <div className={styles.viewActions}>
@@ -706,6 +712,7 @@ export default function MinhaBase({ user }) {
                     }}
                     className={styles.editIconButton}
                     title="Editar"
+                    style={{ backgroundColor: getColorValue(viewingEntry.color) }}
                   >
                     <FaEdit />
                   </button>
@@ -720,11 +727,18 @@ export default function MinhaBase({ user }) {
                 <div className={styles.viewMetaBadges}>
                   <span 
                     className={styles.viewCategoryBadge}
-                    style={{ borderLeftColor: viewingEntry.color }}
+                    style={{ 
+                      borderLeftColor: getColorValue(viewingEntry.color),
+                      background: `${getColorValue(viewingEntry.color)}15`
+                    }}
                   >
                     <FaFolder /> {viewingEntry.category}
                   </span>
-                  <span className={styles.viewDateBadge}>
+                  <span className={styles.viewDateBadge} style={{
+                    background: `${getColorValue(viewingEntry.color)}15`,
+                    color: getColorValue(viewingEntry.color),
+                    borderColor: `${getColorValue(viewingEntry.color)}30`
+                  }}>
                     <FaCalendarAlt /> {formatDateTime(viewingEntry.created_at)}
                   </span>
                 </div>
@@ -736,7 +750,7 @@ export default function MinhaBase({ user }) {
               {/* Descrição Principal */}
               <div className={styles.viewMainContent}>
                 <div className={styles.viewSectionHeader}>
-                  <FaAlignLeft className={styles.viewSectionIcon} />
+                  <FaAlignLeft className={styles.viewSectionIcon} style={{ color: getColorValue(viewingEntry.color) }} />
                   <span className={styles.viewSectionTitle}>Descrição</span>
                 </div>
                 <div className={styles.viewDescription}>
@@ -747,8 +761,8 @@ export default function MinhaBase({ user }) {
               {/* Gallery de Imagens */}
               {viewingEntry.images && viewingEntry.images.length > 0 && (
                 <div className={styles.viewContentSection}>
-                  <div className={styles.viewSectionHeader}>
-                    <FaImage className={styles.viewSectionIcon} />
+                  <div className={styles.viewSectionHeader} style={{ borderBottomColor: getColorValue(viewingEntry.color) }}>
+                    <FaImage className={styles.viewSectionIcon} style={{ color: getColorValue(viewingEntry.color) }} />
                     <span className={styles.viewSectionTitle}>
                       Imagens ({viewingEntry.images.length})
                     </span>
@@ -774,17 +788,18 @@ export default function MinhaBase({ user }) {
               {/* Link de Referência */}
               {viewingEntry.link && (
                 <div className={styles.viewContentSection}>
-                  <div className={styles.viewSectionHeader}>
-                    <FaLink className={styles.viewSectionIcon} />
+                  <div className={styles.viewSectionHeader} style={{ borderBottomColor: getColorValue(viewingEntry.color) }}>
+                    <FaLink className={styles.viewSectionIcon} style={{ color: getColorValue(viewingEntry.color) }} />
                     <span className={styles.viewSectionTitle}>Link de Referência</span>
                   </div>
-                  <div className={styles.viewLinkCard}>
-                    <FaExternalLinkAlt className={styles.viewLinkIcon} />
+                  <div className={styles.viewLinkCard} style={{ borderLeftColor: getColorValue(viewingEntry.color) }}>
+                    <FaExternalLinkAlt className={styles.viewLinkIcon} style={{ color: getColorValue(viewingEntry.color) }} />
                     <a 
                       href={viewingEntry.link} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className={styles.viewLinkText}
+                      style={{ color: getColorValue(viewingEntry.color) }}
                     >
                       {viewingEntry.link}
                     </a>
@@ -795,13 +810,13 @@ export default function MinhaBase({ user }) {
               {/* Tags */}
               {viewingEntry.tags && viewingEntry.tags.length > 0 && (
                 <div className={styles.viewContentSection}>
-                  <div className={styles.viewSectionHeader}>
-                    <FaTag className={styles.viewSectionIcon} />
+                  <div className={styles.viewSectionHeader} style={{ borderBottomColor: getColorValue(viewingEntry.color) }}>
+                    <FaTag className={styles.viewSectionIcon} style={{ color: getColorValue(viewingEntry.color) }} />
                     <span className={styles.viewSectionTitle}>Tags</span>
                   </div>
                   <div className={styles.viewTagsContainer}>
                     {viewingEntry.tags.map(tag => (
-                      <span key={tag} className={styles.viewTag}>
+                      <span key={tag} className={styles.viewTag} style={{ backgroundColor: getColorValue(viewingEntry.color) }}>
                         <FaTag /> {tag}
                       </span>
                     ))}
@@ -814,7 +829,7 @@ export default function MinhaBase({ user }) {
             {viewingEntry.updated_at !== viewingEntry.created_at && (
               <div className={styles.viewModalFooter}>
                 <div className={styles.viewUpdateInfo}>
-                  <FaUser className={styles.viewUpdateIcon} />
+                  <FaUser className={styles.viewUpdateIcon} style={{ color: getColorValue(viewingEntry.color) }} />
                   <span className={styles.viewUpdateText}>
                     Última atualização: {formatDateTime(viewingEntry.updated_at)}
                   </span>
@@ -825,11 +840,13 @@ export default function MinhaBase({ user }) {
         </div>
       )}
 
-      {/* Modal de Criação/Edição */}
+      {/* Modal de Criação/Edição - Design Melhorado */}
       {showModal && (
         <div className={styles.modalOverlay} onClick={handleModalOverlayClick}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
+            <div className={styles.modalHeader} style={{
+              background: `linear-gradient(135deg, ${getColorValue(formData.color)}15, ${getColorValue(formData.color)}05)`
+            }}>
               <h2>{editingEntry ? 'Editar Anotação' : 'Nova Anotação'}</h2>
               <button onClick={handleCloseModal} className={styles.closeButton}>
                 <FaTimes />
@@ -841,7 +858,9 @@ export default function MinhaBase({ user }) {
               <div className={styles.formSection}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>
-                    <span className={styles.labelIcon}><FaFileAlt /></span>
+                    <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
+                      <FaFileAlt />
+                    </span>
                     Título <span className={styles.required}>*</span>
                   </label>
                   <input
@@ -850,12 +869,15 @@ export default function MinhaBase({ user }) {
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="Ex: Como resolver erro de conexão"
                     className={styles.input}
+                    style={{ borderColor: formData.title ? getColorValue(formData.color) : undefined }}
                   />
                 </div>
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>
-                    <span className={styles.labelIcon}><FaAlignLeft /></span>
+                    <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
+                      <FaAlignLeft />
+                    </span>
                     Descrição <span className={styles.required}>*</span>
                   </label>
                   <textarea
@@ -864,29 +886,27 @@ export default function MinhaBase({ user }) {
                     placeholder="Descreva detalhadamente o procedimento ou informação..."
                     rows={4}
                     className={styles.textarea}
+                    style={{ borderColor: formData.description ? getColorValue(formData.color) : undefined }}
                   />
                 </div>
               </div>
 
-              {/* Upload de Imagens */}
+              {/* Upload de Imagens - SEM DRAG & DROP */}
               <div className={styles.formSection}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>
-                    <span className={styles.labelIcon}><FaImage /></span>
+                    <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
+                      <FaImage />
+                    </span>
                     Imagens
                   </label>
                   
-                  {/* Área de Upload */}
-                  <div 
-                    className={`${styles.uploadArea} ${dragActive ? styles.dragActive : ''}`}
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                  >
+                  {/* Área de Upload simplificada */}
+                  <div className={styles.uploadAreaSimple}>
                     <div className={styles.uploadContent}>
-                      <FaCloudUploadAlt className={styles.uploadIcon} />
+                      <FaCloudUploadAlt className={styles.uploadIcon} style={{ color: getColorValue(formData.color) }} />
                       <p className={styles.uploadText}>
-                        {uploadingImages ? 'Fazendo upload...' : 'Arraste imagens aqui ou clique para selecionar'}
+                        {uploadingImages ? 'Fazendo upload...' : 'Clique para selecionar imagens'}
                       </p>
                       <p className={styles.uploadSubtext}>
                         JPEG, PNG, GIF, WebP • Máximo 10MB por arquivo
@@ -905,7 +925,7 @@ export default function MinhaBase({ user }) {
                   {/* Preview das Imagens */}
                   {formData.images.length > 0 && (
                     <div className={styles.imagePreviewContainer}>
-                      <span className={styles.previewLabel}>
+                      <span className={styles.previewLabel} style={{ color: getColorValue(formData.color) }}>
                         Imagens adicionadas ({formData.images.length}):
                       </span>
                       <div className={styles.imagePreviewGrid}>
@@ -937,7 +957,9 @@ export default function MinhaBase({ user }) {
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>
-                      <span className={styles.labelIcon}><FaFolder /></span>
+                      <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
+                        <FaFolder />
+                      </span>
                       Categoria
                     </label>
                     <div className={`${styles.autocompleteContainer} autocomplete-container`}>
@@ -951,6 +973,7 @@ export default function MinhaBase({ user }) {
                         onFocus={() => setShowCategorySuggestions(true)}
                         placeholder="Ex: Suporte, Fiscal, Técnico"
                         className={styles.input}
+                        style={{ borderColor: formData.category !== 'geral' ? getColorValue(formData.color) : undefined }}
                       />
                       {showCategorySuggestions && getFilteredCategories().length > 0 && (
                         <div className={styles.suggestions}>
@@ -970,14 +993,16 @@ export default function MinhaBase({ user }) {
 
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>
-                      <span className={styles.labelIcon}><FaPalette /></span>
+                      <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
+                        <FaPalette />
+                      </span>
                       Cor da Categoria
                     </label>
                     <div className={styles.colorSelector}>
                       <div className={styles.selectedColor}>
                         <div 
                           className={styles.colorPreview}
-                          style={{ backgroundColor: formData.color }}
+                          style={{ backgroundColor: getColorValue(formData.color) }}
                         />
                         <span className={styles.colorName}>
                           {COLOR_OPTIONS.find(c => c.color === formData.color)?.name || 'Personalizada'}
@@ -988,7 +1013,7 @@ export default function MinhaBase({ user }) {
                           <button
                             key={option.color}
                             className={`${styles.colorOption} ${formData.color === option.color ? styles.colorOptionSelected : ''}`}
-                            style={{ backgroundColor: option.color }}
+                            style={{ backgroundColor: getColorValue(option.color) }}
                             onClick={() => setFormData({ ...formData, color: option.color })}
                             title={option.name}
                             type="button"
@@ -1004,7 +1029,9 @@ export default function MinhaBase({ user }) {
               <div className={styles.formSection}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>
-                    <span className={styles.labelIcon}><FaTag /></span>
+                    <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
+                      <FaTag />
+                    </span>
                     Adicionar Tags
                   </label>
                   <div className={`${styles.autocompleteContainer} autocomplete-container`}>
@@ -1025,6 +1052,7 @@ export default function MinhaBase({ user }) {
                         onClick={() => handleAddTag()} 
                         className={styles.addTagButton}
                         type="button"
+                        style={{ backgroundColor: getColorValue(formData.color) }}
                       >
                         <FaPlus />
                       </button>
@@ -1046,10 +1074,12 @@ export default function MinhaBase({ user }) {
 
                   {formData.tags.length > 0 && (
                     <div className={styles.tagsDisplayContainer}>
-                      <span className={styles.tagsDisplayLabel}>Tags adicionadas:</span>
+                      <span className={styles.tagsDisplayLabel} style={{ color: getColorValue(formData.color) }}>
+                        Tags adicionadas:
+                      </span>
                       <div className={styles.tagsList}>
                         {formData.tags.map(tag => (
-                          <span key={tag} className={styles.formTag}>
+                          <span key={tag} className={styles.formTag} style={{ backgroundColor: getColorValue(formData.color) }}>
                             <FaTag /> {tag}
                             <button 
                               onClick={() => handleRemoveTag(tag)}
@@ -1070,7 +1100,9 @@ export default function MinhaBase({ user }) {
               <div className={styles.formSection}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>
-                    <span className={styles.labelIcon}><FaLink /></span>
+                    <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
+                      <FaLink />
+                    </span>
                     URL (opcional)
                   </label>
                   <input
@@ -1079,15 +1111,17 @@ export default function MinhaBase({ user }) {
                     onChange={(e) => setFormData({ ...formData, link: e.target.value })}
                     placeholder="https://exemplo.com"
                     className={styles.input}
+                    style={{ borderColor: formData.link ? getColorValue(formData.color) : undefined }}
                   />
                   {formData.link && (
-                    <div className={styles.linkPreview}>
-                      <FaExternalLinkAlt />
+                    <div className={styles.linkPreview} style={{ borderLeftColor: getColorValue(formData.color) }}>
+                      <FaExternalLinkAlt style={{ color: getColorValue(formData.color) }} />
                       <a 
                         href={formData.link} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className={styles.linkPreviewText}
+                        style={{ color: getColorValue(formData.color) }}
                       >
                         {formData.link}
                       </a>
@@ -1105,6 +1139,10 @@ export default function MinhaBase({ user }) {
                 onClick={handleSave} 
                 className={styles.saveButton}
                 disabled={uploadingImages}
+                style={{ 
+                  background: `linear-gradient(135deg, ${getColorValue(formData.color)}, ${getColorValue(formData.color)}dd)`,
+                  borderColor: getColorValue(formData.color)
+                }}
               >
                 {uploadingImages ? 'Fazendo upload...' : (editingEntry ? 'Salvar Alterações' : 'Criar Anotação')}
               </button>
