@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Search, 
-  Plus, 
+  Add, 
   Filter, 
   Star, 
-  StarFilled, 
   Edit, 
   Delete, 
   Link,
   Tag,
-  Calendar,
-  Eye,
-  SortAscending,
-  SortDescending
+  DateRange,
+  Visibility,
+  KeyboardArrowUp,
+  KeyboardArrowDown
 } from '@mui/icons-material';
 import {
   Dialog,
@@ -38,7 +37,7 @@ import {
   Grid,
   Fab
 } from '@mui/material';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../utils/supabase';
 import styles from '../styles/MinhaBase.module.css';
 
 const PRIORITY_COLORS = {
@@ -409,9 +408,9 @@ export default function MinhaBase({ user }) {
             className={styles.sortButton}
             title="Ordenar por data"
           >
-            <Calendar />
+            <DateRange />
             {sortBy === 'created_at' && (
-              sortDirection === 'asc' ? <SortAscending /> : <SortDescending />
+              sortDirection === 'asc' ? <KeyboardArrowUp /> : <KeyboardArrowDown />
             )}
           </button>
 
@@ -422,7 +421,7 @@ export default function MinhaBase({ user }) {
           >
             Título
             {sortBy === 'title' && (
-              sortDirection === 'asc' ? <SortAscending /> : <SortDescending />
+              sortDirection === 'asc' ? <KeyboardArrowUp /> : <KeyboardArrowDown />
             )}
           </button>
         </div>
@@ -444,7 +443,7 @@ export default function MinhaBase({ user }) {
                     className={styles.favoriteButton}
                     title={entry.is_favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
                   >
-                    {entry.is_favorite ? <StarFilled /> : <Star />}
+                    <Star style={{ color: entry.is_favorite ? '#f59e0b' : '#64748b' }} />
                   </button>
                   
                   {entry.link && (
@@ -508,7 +507,7 @@ export default function MinhaBase({ user }) {
             <div className={styles.entryFooter}>
               <div className={styles.entryStats}>
                 <span title="Visualizações">
-                  <Eye /> {entry.view_count || 0}
+                  <Visibility /> {entry.view_count || 0}
                 </span>
                 <span title="Criado em">
                   {formatDate(entry.created_at)}
@@ -532,7 +531,7 @@ export default function MinhaBase({ user }) {
             onClick={() => handleOpenModal()}
             className={styles.primaryButton}
           >
-            <Plus /> Criar primeira entrada
+            <Add /> Criar primeira entrada
           </button>
         </div>
       )}
@@ -543,7 +542,7 @@ export default function MinhaBase({ user }) {
         className={styles.fab}
         onClick={() => handleOpenModal()}
       >
-        <Plus />
+        <Add />
       </Fab>
 
       {/* Modal de Criação/Edição */}
@@ -634,7 +633,7 @@ export default function MinhaBase({ user }) {
                   style={{ flex: 1, marginRight: '8px' }}
                 />
                 <Button onClick={handleAddTag} variant="outlined">
-                  <Plus />
+                  <Add />
                 </Button>
               </div>
 
