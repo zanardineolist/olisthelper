@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Minus, Trash2 } from 'lucide-react';
+import { Plus, Minus, Trash2, Download, TrendingUp, BarChart3, Keyboard } from 'lucide-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -21,7 +21,7 @@ dayjs.tz.setDefault("America/Sao_Paulo");
 
 function TicketCounter() {
   const [count, setCount] = useState(0);
-  const [loading, setLoading] = useState(true); // Mantemos o nome original para compatibilidade
+  const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState(null);
   const [dateFilter, setDateFilter] = useState({ value: 'today', label: 'Hoje' });
   const [customRange, setCustomRange] = useState({
@@ -35,6 +35,18 @@ function TicketCounter() {
   const [totalTickets, setTotalTickets] = useState(0);
   const [lastResetDate, setLastResetDate] = useState(dayjs().tz().format('YYYY-MM-DD'));
   const [loadingHistory, setLoadingHistory] = useState(false);
+  
+  // Novos estados para as melhorias
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [statistics, setStatistics] = useState({
+    dailyAverage: 0,
+    weeklyAverage: 0,
+    monthlyAverage: 0,
+    comparisonYesterday: 0,
+    comparisonLastWeek: 0,
+    bestDay: null,
+    trend: 'stable'
+  });
 
   // Usando os hooks do sistema de loading centralizado
   const { callApi } = useApiLoader();
@@ -49,6 +61,181 @@ function TicketCounter() {
     { value: 'custom', label: 'Período específico' }
   ];
 
+  // MELHORIA 1: Atalhos de teclado
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // Não processar se estivermos em um input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      // Não processar se Ctrl ou Cmd estiver pressionado
+      if (e.ctrlKey || e.metaKey) return;
+      
+      switch(e.key) {
+        case '+':
+        case '=':
+          e.preventDefault();
+          if (!loading) handleIncrement();
+          break;
+        case '-':
+          e.preventDefault();
+          if (!loading && count > 0) handleDecrement();
+          break;
+        case 'c':
+        case 'C':
+          e.preventDefault();
+          if (!loading && count > 0) handleClear();
+          break;
+        case 'e':
+        case 'E':
+          e.preventDefault();
+          exportToCSV();
+          break;
+        case 'h':
+        case 'H':
+          e.preventDefault();
+          setShowShortcuts(!showShortcuts);
+          break;
+        case 'Escape':
+          e.preventDefault();
+          setShowShortcuts(false);
+          break;
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [loading, count, showShortcuts]);
+
+  // MELHORIA 2: Toast para feedback visual
+  const showToast = (message, type = 'success') => {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 2000,
+      timerProgressBar: true,
+      background: 'var(--box-color)',
+      color: 'var(--text-color)',
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    });
+
+    Toast.fire({
+      icon: type,
+      title: message,
+      iconColor: type === 'success' ? 'var(--excellent-color)' : 
+                type === 'error' ? 'var(--poor-color)' : 
+                'var(--good-color)'
+    });
+  };
+
+  // MELHORIA 3: Cálculo de estatísticas
+  const calculateStatistics = useCallback((historyData) => {
+    if (!historyData || historyData.length === 0) {
+      setStatistics({
+        dailyAverage: 0,
+        weeklyAverage: 0,
+        monthlyAverage: 0,
+        comparisonYesterday: 0,
+        comparisonLastWeek: 0,
+        bestDay: null,
+        trend: 'stable'
+      });
+      return;
+    }
+
+    const today = dayjs().tz().format('YYYY-MM-DD');
+    const yesterday = dayjs().tz().subtract(1, 'day').format('YYYY-MM-DD');
+    const lastWeek = dayjs().tz().subtract(7, 'days').format('YYYY-MM-DD');
+    
+    // Calcular médias
+    const last7Days = historyData.filter(record => 
+      dayjs(record.count_date).isAfter(dayjs().subtract(7, 'days'))
+    );
+    const last30Days = historyData.filter(record => 
+      dayjs(record.count_date).isAfter(dayjs().subtract(30, 'days'))
+    );
+    
+    const dailyAverage = historyData.length > 0 ? 
+      historyData.reduce((sum, record) => sum + record.total_count, 0) / historyData.length : 0;
+    
+    const weeklyAverage = last7Days.length > 0 ? 
+      last7Days.reduce((sum, record) => sum + record.total_count, 0) / last7Days.length : 0;
+    
+    const monthlyAverage = last30Days.length > 0 ? 
+      last30Days.reduce((sum, record) => sum + record.total_count, 0) / last30Days.length : 0;
+
+    // Comparações
+    const todayRecord = historyData.find(r => r.count_date === today);
+    const yesterdayRecord = historyData.find(r => r.count_date === yesterday);
+    const lastWeekRecord = historyData.find(r => r.count_date === lastWeek);
+    
+    const todayCount = todayRecord ? todayRecord.total_count : count;
+    const comparisonYesterday = yesterdayRecord ? 
+      ((todayCount - yesterdayRecord.total_count) / yesterdayRecord.total_count * 100) : 0;
+    const comparisonLastWeek = lastWeekRecord ? 
+      ((todayCount - lastWeekRecord.total_count) / lastWeekRecord.total_count * 100) : 0;
+
+    // Melhor dia
+    const bestDay = historyData.reduce((best, current) => 
+      current.total_count > (best?.total_count || 0) ? current : best, null);
+
+    // Tendência (baseada nos últimos 3 dias)
+    const last3Days = historyData
+      .filter(record => dayjs(record.count_date).isAfter(dayjs().subtract(3, 'days')))
+      .sort((a, b) => dayjs(a.count_date).valueOf() - dayjs(b.count_date).valueOf());
+    
+    let trend = 'stable';
+    if (last3Days.length >= 2) {
+      const slope = last3Days[last3Days.length - 1].total_count - last3Days[0].total_count;
+      trend = slope > 0 ? 'up' : slope < 0 ? 'down' : 'stable';
+    }
+
+    setStatistics({
+      dailyAverage: Math.round(dailyAverage * 100) / 100,
+      weeklyAverage: Math.round(weeklyAverage * 100) / 100,
+      monthlyAverage: Math.round(monthlyAverage * 100) / 100,
+      comparisonYesterday: Math.round(comparisonYesterday * 100) / 100,
+      comparisonLastWeek: Math.round(comparisonLastWeek * 100) / 100,
+      bestDay,
+      trend
+    });
+  }, [count]);
+
+  // MELHORIA 4: Exportação CSV
+  const exportToCSV = () => {
+    if (!history || history.length === 0) {
+      showToast('Nenhum dado para exportar', 'warning');
+      return;
+    }
+
+    const headers = ['Data', 'Total de Chamados', 'Dia da Semana'];
+    const csvData = history.map(record => [
+      dayjs(record.count_date).format('DD/MM/YYYY'),
+      record.total_count,
+      dayjs(record.count_date).format('dddd')
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `contador-chamados-${dayjs().format('YYYY-MM-DD')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast('Arquivo CSV exportado com sucesso!', 'success');
+  };
+
   useEffect(() => {
     const checkDayReset = () => {
       const currentDate = dayjs().tz().format('YYYY-MM-DD');
@@ -60,7 +247,7 @@ function TicketCounter() {
     };
 
     checkDayReset();
-    const interval = setInterval(checkDayReset, 60000); // Checar a cada minuto
+    const interval = setInterval(checkDayReset, 60000);
 
     return () => clearInterval(interval);
   }, [lastResetDate]);
@@ -74,13 +261,17 @@ function TicketCounter() {
     loadInitialData();
   }, [dateFilter, page, customRange]);
 
+  // Calcular estatísticas quando o histórico muda
+  useEffect(() => {
+    calculateStatistics(history);
+  }, [history, calculateStatistics]);
+
   const loadTodayCount = async () => {
     try {
-      // Usando o novo método callApi com loading local
       const data = await callApi('/api/ticket-count', {}, {
         message: "Carregando contagem do dia...",
         type: "local",
-        showLoading: false // Usando o estado local
+        showLoading: false
       });
       
       setCount(data.count);
@@ -94,14 +285,12 @@ function TicketCounter() {
 
   const handleIncrement = async () => {
     try {
-      // Usando o novo sistema de loading
       startLoading({ 
         message: "Incrementando contagem...",
-        type: "local" // Usando loading local para não sobrepor a tela inteira
+        type: "local"
       });
       setLoading(true);
       
-      // Usando o novo método callApi
       const data = await callApi('/api/ticket-count', { 
         method: 'POST' 
       }, {
@@ -111,9 +300,10 @@ function TicketCounter() {
       
       setCount(prev => prev + 1);
       await loadHistoryData();
+      showToast('Chamado adicionado! (+1)', 'success');
     } catch (error) {
       console.error('Erro ao incrementar:', error);
-      Swal.fire('Erro', 'Erro ao adicionar contagem', 'error');
+      showToast('Erro ao adicionar contagem', 'error');
     } finally {
       stopLoading();
       setLoading(false);
@@ -122,14 +312,12 @@ function TicketCounter() {
 
   const handleDecrement = async () => {
     try {
-      // Usando o novo sistema de loading
       startLoading({ 
         message: "Decrementando contagem...",
-        type: "local" // Usando loading local para não sobrepor a tela inteira
+        type: "local"
       });
       setLoading(true);
       
-      // Usando o novo método callApi
       const data = await callApi('/api/ticket-count', { 
         method: 'DELETE' 
       }, {
@@ -139,9 +327,10 @@ function TicketCounter() {
       
       setCount(prev => Math.max(0, prev - 1));
       await loadHistoryData();
+      showToast('Chamado removido! (-1)', 'success');
     } catch (error) {
       console.error('Erro ao decrementar:', error);
-      Swal.fire('Erro', 'Erro ao remover contagem', 'error');
+      showToast('Erro ao remover contagem', 'error');
     } finally {
       stopLoading();
       setLoading(false);
@@ -155,19 +344,19 @@ function TicketCounter() {
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sim, limpar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      background: 'var(--box-color)',
+      color: 'var(--text-color)'
     });
 
     if (result.isConfirmed) {
       try {
-        // Usando o novo sistema de loading
         startLoading({ 
           message: "Limpando contagem...",
-          type: "local" // Usando loading local para não sobrepor a tela inteira
+          type: "local"
         });
         setLoading(true);
         
-        // Usando o novo método callApi
         await callApi('/api/ticket-count?action=clear', { 
           method: 'DELETE' 
         }, {
@@ -177,10 +366,10 @@ function TicketCounter() {
         
         setCount(0);
         await loadHistoryData();
-        Swal.fire('Sucesso', 'Contagem do dia zerada com sucesso', 'success');
+        showToast('Contagem zerada com sucesso!', 'success');
       } catch (error) {
         console.error('Erro ao limpar:', error);
-        Swal.fire('Erro', error.message || 'Erro ao limpar contagem', 'error');
+        showToast('Erro ao limpar contagem', 'error');
       } finally {
         stopLoading();
         setLoading(false);
@@ -226,7 +415,6 @@ function TicketCounter() {
           endDate = today;
       }
 
-      // Usando o novo método callApi com loading local
       const data = await callApi(
         `/api/ticket-count?period=true&startDate=${startDate}&endDate=${endDate}&page=${page}`,
         {},
@@ -239,7 +427,6 @@ function TicketCounter() {
 
       const processedRecords = [...data.records];
 
-      // Tratamento especial para incluir o dia atual no histórico
       const todayRecord = processedRecords.find(r => r.count_date === today);
       if (!todayRecord && count > 0) {
         processedRecords.unshift({
@@ -250,7 +437,6 @@ function TicketCounter() {
         todayRecord.total_count = Math.max(todayRecord.total_count, count);
       }
 
-      // Ordenar registros por data (mais recente primeiro)
       const sortedRecords = processedRecords.sort((a, b) => 
         dayjs(b.count_date).valueOf() - dayjs(a.count_date).valueOf()
       );
@@ -259,11 +445,9 @@ function TicketCounter() {
       setTotalPages(Math.max(1, data.totalPages));
       setTotalCount(data.totalCount + (todayRecord ? 0 : count > 0 ? 1 : 0));
 
-      // Calcular total de chamados do período
       const totalTickets = sortedRecords.reduce((sum, record) => sum + record.total_count, 0);
       setTotalTickets(totalTickets);
 
-      // Preparar dados para o gráfico
       const chartData = sortedRecords.map(record => ({
         date: dayjs(record.count_date).format('DD/MM/YYYY'),
         count: record.total_count
@@ -273,7 +457,7 @@ function TicketCounter() {
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
       if (!error.message.includes('no data')) {
-        Swal.fire('Erro', 'Erro ao carregar histórico', 'error');
+        showToast('Erro ao carregar histórico', 'error');
       }
       setHistory([]);
       setChartData(null);
@@ -375,22 +559,144 @@ function TicketCounter() {
         </motion.button>
       </motion.div>
 
-      <motion.button
-        className={styles.clearButton}
-        onClick={handleClear}
-        disabled={loading || count === 0}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ duration: 0.2 }}
-      >
-        <div className={styles.clearButtonContent}>
-          <Trash2 size={20} />
-          <span>Limpar Contagem do Dia</span>
-        </div>
-      </motion.button>
+      {/* Botões de ação melhorados */}
+      <div className={styles.actionButtons}>
+        <motion.button
+          className={styles.clearButton}
+          onClick={handleClear}
+          disabled={loading || count === 0}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className={styles.clearButtonContent}>
+            <Trash2 size={20} />
+            <span>Limpar Contagem do Dia</span>
+          </div>
+        </motion.button>
+
+        <motion.button
+          className={styles.exportButton}
+          onClick={exportToCSV}
+          disabled={loading || !history || history.length === 0}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className={styles.exportButtonContent}>
+            <Download size={20} />
+            <span>Exportar CSV</span>
+          </div>
+        </motion.button>
+
+        <motion.button
+          className={styles.shortcutsButton}
+          onClick={() => setShowShortcuts(!showShortcuts)}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className={styles.shortcutsButtonContent}>
+            <Keyboard size={20} />
+            <span>Atalhos</span>
+          </div>
+        </motion.button>
+      </div>
+
+      {/* Modal de Atalhos */}
+      <AnimatePresence>
+        {showShortcuts && (
+          <motion.div
+            className={styles.shortcutsModal}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className={styles.shortcutsContent}>
+              <h3>Atalhos de Teclado</h3>
+              <div className={styles.shortcutsList}>
+                <div className={styles.shortcutItem}>
+                  <kbd>+</kbd> <span>Incrementar contador</span>
+                </div>
+                <div className={styles.shortcutItem}>
+                  <kbd>-</kbd> <span>Decrementar contador</span>
+                </div>
+                <div className={styles.shortcutItem}>
+                  <kbd>C</kbd> <span>Limpar contagem</span>
+                </div>
+                <div className={styles.shortcutItem}>
+                  <kbd>E</kbd> <span>Exportar CSV</span>
+                </div>
+                <div className={styles.shortcutItem}>
+                  <kbd>H</kbd> <span>Mostrar/Ocultar atalhos</span>
+                </div>
+                <div className={styles.shortcutItem}>
+                  <kbd>ESC</kbd> <span>Fechar atalhos</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Barra de Progresso */}
       <ProgressBar count={count} />
+
+      {/* MELHORIA 3: Painel de Estatísticas */}
+      <motion.div 
+        className={styles.statisticsPanel}
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
+        <h3 className={styles.statisticsTitle}>
+          <TrendingUp size={20} />
+          Estatísticas
+        </h3>
+        
+        <div className={styles.statisticsGrid}>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>{statistics.dailyAverage}</div>
+            <div className={styles.statLabel}>Média Geral</div>
+          </div>
+          
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>{statistics.weeklyAverage}</div>
+            <div className={styles.statLabel}>Média (7 dias)</div>
+          </div>
+          
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>{statistics.monthlyAverage}</div>
+            <div className={styles.statLabel}>Média (30 dias)</div>
+          </div>
+          
+          <div className={styles.statCard}>
+            <div className={`${styles.statValue} ${statistics.comparisonYesterday >= 0 ? styles.positive : styles.negative}`}>
+              {statistics.comparisonYesterday > 0 ? '+' : ''}{statistics.comparisonYesterday}%
+            </div>
+            <div className={styles.statLabel}>vs Ontem</div>
+          </div>
+          
+          {statistics.bestDay && (
+            <div className={styles.statCard}>
+              <div className={styles.statValue}>{statistics.bestDay.total_count}</div>
+              <div className={styles.statLabel}>
+                Melhor Dia
+                <br />
+                <small>{dayjs(statistics.bestDay.count_date).format('DD/MM')}</small>
+              </div>
+            </div>
+          )}
+          
+          <div className={styles.statCard}>
+            <div className={`${styles.statValue} ${styles.trendIcon}`}>
+              {statistics.trend === 'up' ? '📈' : statistics.trend === 'down' ? '📉' : '📊'}
+            </div>
+            <div className={styles.statLabel}>Tendência</div>
+          </div>
+        </div>
+      </motion.div>
 
       {/* Histórico */}
       <div className={styles.historyContainer}>
