@@ -1978,4 +1978,228 @@
     padding: 8px 12px;
     font-size: 0.8rem;
   }
+}
+
+/* Filtros customizados melhorados */
+.customSelect {
+  position: relative;
+  background: var(--background-color);
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.customSelect:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.customSelect.customSelectActive {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg, rgba(59, 130, 246, 0.03));
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.customSelect .filterSelect {
+  width: 100%;
+  padding: 12px 50px 12px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  cursor: pointer;
+  appearance: none;
+  outline: none;
+  font-weight: 500;
+}
+
+.customSelect .filterSelect:focus {
+  outline: none;
+}
+
+.selectIcon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-color2);
+  font-size: 1rem;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.selectIconActive {
+  color: var(--color-primary);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.selectedIndicator {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 2;
+  background: var(--background-color);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  animation: slideInFilter 0.3s ease;
+}
+
+@keyframes slideInFilter {
+  from {
+    opacity: 0;
+    transform: translateY(-40%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
+.selectedText {
+  display: inline-block;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Melhorias nos dropdowns existentes */
+.filterDropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clearFilterButton {
+  position: relative;
+  background: var(--color-accent1);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+}
+
+.clearFilterButton:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+}
+
+/* Estados ativos melhorados */
+.filterSelectActive {
+  border-color: var(--color-primary) !important;
+  background-color: var(--color-primary-bg, rgba(59, 130, 246, 0.05)) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Indicadores visuais para filtros */
+.filterItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+  position: relative;
+}
+
+.filterItem::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--color-primary), var(--color-accent2));
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.filterItem:has(.customSelectActive)::before {
+  opacity: 0.1;
+}
+
+/* Melhorar aparência dos labels */
+.filterLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+.filterItem:has(.customSelectActive) .filterLabel {
+  color: var(--color-primary);
+}
+
+.filterIcon {
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.filterItem:has(.customSelectActive) .filterIcon {
+  transform: scale(1.1);
+  color: var(--color-primary);
+}
+
+/* Responsividade melhorada */
+@media (max-width: 768px) {
+  .filterItem {
+    min-width: 100%;
+  }
+  
+  .customSelect {
+    min-height: 40px;
+  }
+  
+  .customSelect .filterSelect {
+    padding: 10px 45px 10px 14px;
+    font-size: 0.85rem;
+  }
+  
+  .selectIcon {
+    right: 12px;
+    font-size: 0.9rem;
+  }
+  
+  .selectedIndicator {
+    left: 12px;
+    padding: 1px 6px;
+    font-size: 0.75rem;
+  }
+  
+  .selectedText {
+    max-width: 100px;
+  }
+  
+  .clearFilterButton {
+    width: 26px;
+    height: 26px;
+    font-size: 0.75rem;
+  }
 } 
