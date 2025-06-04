@@ -62,17 +62,17 @@ export default function ToolsPage({ user }) {
       const hash = window.location.hash;
       
       // Ajuste da lógica para determinar a aba correta baseada no hash e permissões
-      if (hash === '#TicketCounter' && hasTicketCounterAccess) {
+      if (hash === '#MinhaBase') {
         setCurrentTab(0);
-      } else if (hash === '#SharedMessages') {
-        setCurrentTab(hasTicketCounterAccess ? 1 : 0);
-      } else if (hash === '#CepIbgeValidator') {
-        setCurrentTab(hasTicketCounterAccess ? 2 : 1);
       } else if (hash === '#ErrosComuns') {
+        setCurrentTab(1);
+      } else if (hash === '#TicketCounter' && hasTicketCounterAccess) {
+        setCurrentTab(2);
+      } else if (hash === '#SharedMessages') {
         setCurrentTab(hasTicketCounterAccess ? 3 : 2);
-      } else if (hash === '#SheetSplitter') {
+      } else if (hash === '#CepIbgeValidator') {
         setCurrentTab(hasTicketCounterAccess ? 4 : 3);
-      } else if (hash === '#MinhaBase') {
+      } else if (hash === '#SheetSplitter') {
         setCurrentTab(hasTicketCounterAccess ? 5 : 4);
       } else {
         // Se não tiver hash ou o hash for inválido, mostra a primeira aba disponível para o usuário
@@ -90,22 +90,22 @@ export default function ToolsPage({ user }) {
     if (hasTicketCounterAccess) {
       switch (newValue) {
         case 0:
-          hash = '#TicketCounter';
+          hash = '#MinhaBase';
           break;
         case 1:
-          hash = '#SharedMessages';
-          break;
-        case 2:
-          hash = '#CepIbgeValidator';
-          break;
-        case 3:
           hash = '#ErrosComuns';
           break;
+        case 2:
+          hash = '#TicketCounter';
+          break;
+        case 3:
+          hash = '#SharedMessages';
+          break;
         case 4:
-          hash = '#SheetSplitter';
+          hash = '#CepIbgeValidator';
           break;
         case 5:
-          hash = '#MinhaBase';
+          hash = '#SheetSplitter';
           break;
         default:
           break;
@@ -113,19 +113,19 @@ export default function ToolsPage({ user }) {
     } else {
       switch (newValue) {
         case 0:
-          hash = '#SharedMessages';
+          hash = '#MinhaBase';
           break;
         case 1:
-          hash = '#CepIbgeValidator';
-          break;
-        case 2:
           hash = '#ErrosComuns';
           break;
+        case 2:
+          hash = '#SharedMessages';
+          break;
         case 3:
-          hash = '#SheetSplitter';
+          hash = '#CepIbgeValidator';
           break;
         case 4:
-          hash = '#MinhaBase';
+          hash = '#SheetSplitter';
           break;
         default:
           break;
@@ -155,26 +155,32 @@ export default function ToolsPage({ user }) {
         <ThemeProvider theme={theme}>
           <div className={styles.tabsContainer}>
             <Tabs value={currentTab} onChange={handleTabChange} centered>
+              <Tab label="Minha Base" />
+              <Tab label="Base de Erros" />
               {hasTicketCounterAccess && (
                 <Tab label="Contador de Chamados" />
               )}
               <Tab label="Respostas Compartilhadas" />
               <Tab label="Validador CEP x IBGE" />
-              <Tab label="Base de Erros" />
               <Tab label="Divisor de Planilhas" />
-              <Tab label="Minha Base" />
             </Tabs>
           </div>
         </ThemeProvider>
 
         <div className={styles.tabContent}>
-          {currentTab === 0 && hasTicketCounterAccess && (
+          {currentTab === 0 && (
+            <MinhaBase user={user} />
+          )}
+          {currentTab === 1 && (
+            <ErrosComuns user={user} />
+          )}
+          {currentTab === 2 && hasTicketCounterAccess && (
             <TicketCounter />
           )}
-          {((currentTab === 1 && hasTicketCounterAccess) || (currentTab === 0 && !hasTicketCounterAccess)) && (
+          {((currentTab === 3 && hasTicketCounterAccess) || (currentTab === 2 && !hasTicketCounterAccess)) && (
             <SharedMessages user={user} />
           )}
-          {((currentTab === 2 && hasTicketCounterAccess) || (currentTab === 1 && !hasTicketCounterAccess)) && (
+          {((currentTab === 4 && hasTicketCounterAccess) || (currentTab === 3 && !hasTicketCounterAccess)) && (
             <>
               <div className={styles.pageHeader}>
                 <h1 className={styles.pageTitle}>Validador CEP x IBGE</h1>
@@ -271,14 +277,8 @@ export default function ToolsPage({ user }) {
               </div>
             </>
           )}
-          {((currentTab === 3 && hasTicketCounterAccess) || (currentTab === 2 && !hasTicketCounterAccess)) && (
-            <ErrosComuns user={user} />
-          )}
-          {((currentTab === 4 && hasTicketCounterAccess) || (currentTab === 3 && !hasTicketCounterAccess)) && (
-              <SheetSplitter />
-          )}
           {((currentTab === 5 && hasTicketCounterAccess) || (currentTab === 4 && !hasTicketCounterAccess)) && (
-            <MinhaBase user={user} />
+              <SheetSplitter />
           )}
         </div>
       </main>
