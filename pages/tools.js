@@ -1,4 +1,3 @@
-// pages/tools.js
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
@@ -11,6 +10,7 @@ import SharedMessages from '../components/SharedMessages';
 import CepIbgeValidator from '../components/CepIbgeValidator';
 import ErrosComuns from '../components/ErrosComuns';
 import SheetSplitter from '../components/SheetSplitter';
+import MinhaBase from '../components/MinhaBase';
 import styles from '../styles/Tools.module.css';
 import Image from 'next/image';
 
@@ -72,6 +72,8 @@ export default function ToolsPage({ user }) {
         setCurrentTab(hasTicketCounterAccess ? 3 : 2);
       } else if (hash === '#SheetSplitter') {
         setCurrentTab(hasTicketCounterAccess ? 4 : 3);
+      } else if (hash === '#MinhaBase') {
+        setCurrentTab(hasTicketCounterAccess ? 5 : 4);
       } else {
         // Se não tiver hash ou o hash for inválido, mostra a primeira aba disponível para o usuário
         setCurrentTab(0);
@@ -102,6 +104,9 @@ export default function ToolsPage({ user }) {
         case 4:
           hash = '#SheetSplitter';
           break;
+        case 5:
+          hash = '#MinhaBase';
+          break;
         default:
           break;
       }
@@ -118,6 +123,9 @@ export default function ToolsPage({ user }) {
           break;
         case 3:
           hash = '#SheetSplitter';
+          break;
+        case 4:
+          hash = '#MinhaBase';
           break;
         default:
           break;
@@ -154,6 +162,7 @@ export default function ToolsPage({ user }) {
               <Tab label="Validador CEP x IBGE" />
               <Tab label="Base de Erros" />
               <Tab label="Divisor de Planilhas" />
+              <Tab label="Minha Base" />
             </Tabs>
           </div>
         </ThemeProvider>
@@ -268,6 +277,9 @@ export default function ToolsPage({ user }) {
           {((currentTab === 4 && hasTicketCounterAccess) || (currentTab === 3 && !hasTicketCounterAccess)) && (
               <SheetSplitter />
           )}
+          {((currentTab === 5 && hasTicketCounterAccess) || (currentTab === 4 && !hasTicketCounterAccess)) && (
+            <MinhaBase user={user} />
+          )}
         </div>
       </main>
 
@@ -297,4 +309,4 @@ export async function getServerSideProps(context) {
       },
     },
   };
-}
+} 
