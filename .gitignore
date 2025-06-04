@@ -37,3 +37,6 @@ API_KNOWLEDGE_BASE.md
 database_structure_updates.sql
 CORRECOES_BANCO.md
 database_fixes.sql
+IMGUR_SETUP.md
+database_fix_function.sql
+database_structure_images.sql

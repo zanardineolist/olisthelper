@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
         const { data: entries, error: fetchError } = await supabaseAdmin
           .rpc('search_user_knowledge_base', {
-            user_uuid: userId,
+            user_id_param: userId,
             search_term,
             filter_tags: tagsArray,
             filter_category,
@@ -47,7 +47,8 @@ export default async function handler(req, res) {
           link = '',
           tags = [],
           color = '#0A4EE4',
-          category = 'geral'
+          category = 'geral',
+          images = []
         } = req.body;
 
         if (!title || !description) {
@@ -59,6 +60,18 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Cor deve estar no formato hexadecimal (#RRGGBB)' });
         }
 
+        // Validar imagens (deve ser um array)
+        if (!Array.isArray(images)) {
+          return res.status(400).json({ error: 'Images deve ser um array' });
+        }
+
+        // Validar estrutura das imagens
+        for (const image of images) {
+          if (!image.id || !image.url) {
+            return res.status(400).json({ error: 'Cada imagem deve ter id e url' });
+          }
+        }
+
         const { data: newEntry, error: insertError } = await supabaseAdmin
           .from('knowledge_base_entries')
           .insert([{
@@ -68,7 +81,8 @@ export default async function handler(req, res) {
             link: link.trim(),
             tags: Array.isArray(tags) ? tags.filter(tag => tag.trim()) : [],
             color,
-            category: category.trim()
+            category: category.trim(),
+            images: images
           }])
           .select()
           .single();
