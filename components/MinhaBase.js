@@ -66,7 +66,7 @@ export default function MinhaBase({ user }) {
     if (user?.id) {
       loadEntries();
     }
-  }, [user, searchTerm, filterCategory, filterTags, sortBy, sortDirection]);
+  }, [user, searchTerm, filterCategory, filterTags, filterMarker, sortBy, sortDirection]);
 
   // Fechar sugestões ao clicar fora
   useEffect(() => {
@@ -611,26 +611,16 @@ export default function MinhaBase({ user }) {
                 Categoria
               </label>
               <div className={styles.filterDropdown}>
-                <div className={`${styles.customSelect} ${filterCategory ? styles.customSelectActive : ''}`}>
-                  <select
-                    value={filterCategory}
-                    onChange={(e) => setFilterCategory(e.target.value)}
-                    className={styles.filterSelect}
-                  >
-                    <option value="">Todas as categorias</option>
-                    {availableCategories.map(category => (
-                      <option key={category} value={category}>{category}</option>
-                    ))}
-                  </select>
-                  <div className={styles.selectIcon}>
-                    <FaFolder />
-                  </div>
-                  {filterCategory && (
-                    <div className={styles.selectedIndicator}>
-                      <span className={styles.selectedText}>{filterCategory}</span>
-                    </div>
-                  )}
-                </div>
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className={`${styles.filterSelect} ${filterCategory ? styles.filterSelectActive : ''}`}
+                >
+                  <option value="">Todas as categorias</option>
+                  {availableCategories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
                 {filterCategory && (
                   <button
                     onClick={() => setFilterCategory('')}
@@ -650,46 +640,18 @@ export default function MinhaBase({ user }) {
                 Marcador
               </label>
               <div className={styles.filterDropdown}>
-                <div className={`${styles.customSelect} ${filterMarker ? styles.customSelectActive : ''}`}>
-                  <select
-                    value={filterMarker}
-                    onChange={(e) => setFilterMarker(e.target.value)}
-                    className={styles.filterSelect}
-                  >
-                    <option value="">Todos os marcadores</option>
-                    {MARKER_OPTIONS.map(marker => (
-                      <option key={marker.value} value={marker.value}>
-                        {marker.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className={`${styles.selectIcon} ${filterMarker ? styles.selectIconActive : ''}`}>
-                    {filterMarker ? (
-                      (() => {
-                        const selectedMarker = MARKER_OPTIONS.find(m => m.value === filterMarker);
-                        if (selectedMarker) {
-                          const IconComponent = selectedMarker.icon;
-                          return <IconComponent style={{ color: selectedMarker.color }} />;
-                        }
-                        return <FaBookmark />;
-                      })()
-                    ) : (
-                      <FaBookmark />
-                    )}
-                  </div>
-                  {filterMarker && (
-                    <div className={styles.selectedIndicator}>
-                      <span 
-                        className={styles.selectedText}
-                        style={{ 
-                          color: MARKER_OPTIONS.find(m => m.value === filterMarker)?.color || 'inherit'
-                        }}
-                      >
-                        {MARKER_OPTIONS.find(m => m.value === filterMarker)?.name || filterMarker}
-                      </span>
-                    </div>
-                  )}
-                </div>
+                <select
+                  value={filterMarker}
+                  onChange={(e) => setFilterMarker(e.target.value)}
+                  className={`${styles.filterSelect} ${filterMarker ? styles.filterSelectActive : ''}`}
+                >
+                  <option value="">Todos os marcadores</option>
+                  {MARKER_OPTIONS.map(marker => (
+                    <option key={marker.value} value={marker.value}>
+                      {marker.name}
+                    </option>
+                  ))}
+                </select>
                 {filterMarker && (
                   <button
                     onClick={() => setFilterMarker('')}
