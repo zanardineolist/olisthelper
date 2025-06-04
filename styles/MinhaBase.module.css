@@ -257,13 +257,20 @@
   margin-bottom: 16px;
 }
 
+.entryTitleSection {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+  margin-right: 12px;
+}
+
 .entryTitle {
   font-size: 1.3rem;
   font-weight: 600;
   color: var(--title-color);
   margin: 0;
   flex: 1;
-  margin-right: 12px;
   line-height: 1.4;
 }
 
@@ -1636,4 +1643,57 @@
   .lightboxInfo p {
     font-size: 0.75rem;
   }
+}
+
+/* Marcadores nos cards */
+.entryMarker {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.markerBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.markerBadge:hover {
+  transform: scale(1.1);
+}
+
+/* Marcador no modal de visualização */
+.viewMarkerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Marcador no formulário */
+.markerPreview {
+  margin-top: 8px;
+}
+
+.markerPreviewBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  width: fit-content;
 } 

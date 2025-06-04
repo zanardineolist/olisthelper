@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink, FaFileAlt, FaAlignLeft, FaFolder, FaCalendarAlt, FaUser, FaImage, FaCloudUploadAlt, FaExpand } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink, FaFileAlt, FaAlignLeft, FaFolder, FaCalendarAlt, FaUser, FaImage, FaCloudUploadAlt, FaExpand, FaCog, FaDollarSign, FaBug, FaQuestionCircle, FaTicketAlt, FaBookmark } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import styles from '../styles/MinhaBase.module.css';
 
@@ -14,12 +14,22 @@ const COLOR_OPTIONS = [
   { color: '#06B6D4', name: 'Azul Claro', cssVar: 'custom-cyan' }
 ];
 
+const MARKER_OPTIONS = [
+  { value: 'tech', name: 'Tech', icon: FaCog, color: '#3B82F6' },
+  { value: 'fiscal', name: 'Fiscal', icon: FaFileAlt, color: '#10B981' },
+  { value: 'financeiro', name: 'Financeiro', icon: FaDollarSign, color: '#F59E0B' },
+  { value: 'bug', name: 'Bug', icon: FaBug, color: '#EF4444' },
+  { value: 'rfc', name: 'RFC (ajuda)', icon: FaQuestionCircle, color: '#8B5CF6' },
+  { value: 'ticket', name: 'Ticket', icon: FaTicketAlt, color: '#EC4899' }
+];
+
 export default function MinhaBase({ user }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterTags, setFilterTags] = useState([]);
+  const [filterMarker, setFilterMarker] = useState('');
   const [sortBy, setSortBy] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
   const [showModal, setShowModal] = useState(false);
@@ -35,6 +45,7 @@ export default function MinhaBase({ user }) {
     tags: [],
     color: 'var(--color-primary)',
     category: 'geral',
+    marker: 'tech',
     images: []
   });
 
@@ -78,6 +89,7 @@ export default function MinhaBase({ user }) {
         search_term: searchTerm,
         filter_tags: filterTags.join(','),
         filter_category: filterCategory,
+        filter_marker: filterMarker,
         order_by: sortBy,
         order_direction: sortDirection
       });
@@ -116,7 +128,7 @@ export default function MinhaBase({ user }) {
     } finally {
       setLoading(false);
     }
-  }, [user?.id, searchTerm, filterCategory, filterTags, sortBy, sortDirection]);
+  }, [user?.id, searchTerm, filterCategory, filterTags, filterMarker, sortBy, sortDirection]);
 
   // Verifica se há dados não salvos
   const hasUnsavedData = () => {
@@ -127,6 +139,7 @@ export default function MinhaBase({ user }) {
       tags: [],
       color: 'var(--color-primary)',
       category: 'geral',
+      marker: 'tech',
       images: []
     };
 
@@ -138,6 +151,7 @@ export default function MinhaBase({ user }) {
         JSON.stringify(formData.tags) !== JSON.stringify(editingEntry.tags || []) ||
         formData.color !== editingEntry.color ||
         formData.category !== editingEntry.category ||
+        formData.marker !== editingEntry.marker ||
         JSON.stringify(formData.images) !== JSON.stringify(editingEntry.images || [])
       );
     }
@@ -149,6 +163,7 @@ export default function MinhaBase({ user }) {
       formData.tags.length > 0 ||
       formData.color !== initialData.color ||
       formData.category !== initialData.category ||
+      formData.marker !== initialData.marker ||
       formData.images.length > 0
     );
   };
@@ -161,6 +176,7 @@ export default function MinhaBase({ user }) {
       tags: [],
       color: 'var(--color-primary)',
       category: 'geral',
+      marker: 'tech',
       images: []
     });
     setEditingEntry(null);
@@ -395,6 +411,7 @@ export default function MinhaBase({ user }) {
         tags: entry.tags || [],
         color: entry.color,
         category: entry.category,
+        marker: entry.marker,
         images: entry.images || []
       });
     } else {
@@ -557,6 +574,17 @@ export default function MinhaBase({ user }) {
             ))}
           </select>
 
+          <select
+            value={filterMarker}
+            onChange={(e) => setFilterMarker(e.target.value)}
+            className={styles.filterSelect}
+          >
+            <option value="">Todos os marcadores</option>
+            {MARKER_OPTIONS.map(marker => (
+              <option key={marker.value} value={marker.value}>{marker.name}</option>
+            ))}
+          </select>
+
           <button
             onClick={() => toggleSort('created_at')}
             className={styles.sortButton}
@@ -595,7 +623,32 @@ export default function MinhaBase({ user }) {
             onClick={() => handleCardClick(entry)}
           >
             <div className={styles.entryHeader}>
-              <h3 className={styles.entryTitle}>{entry.title}</h3>
+              <div className={styles.entryTitleSection}>
+                {/* Marcador */}
+                {entry.marker && (
+                  <div className={styles.entryMarker}>
+                    {(() => {
+                      const marker = MARKER_OPTIONS.find(m => m.value === entry.marker);
+                      if (marker) {
+                        const IconComponent = marker.icon;
+                        return (
+                          <div 
+                            className={styles.markerBadge}
+                            style={{ backgroundColor: marker.color }}
+                            title={marker.name}
+                          >
+                            <IconComponent />
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                )}
+                
+                <h3 className={styles.entryTitle}>{entry.title}</h3>
+              </div>
+              
               <div className={styles.entryActions} onClick={(e) => e.stopPropagation()}>
                 {entry.link && (
                   <button
@@ -723,6 +776,30 @@ export default function MinhaBase({ user }) {
               {/* Meta informações no header */}
               <div className={styles.viewMetaHeader}>
                 <div className={styles.viewMetaBadges}>
+                  {/* Marcador */}
+                  {viewingEntry.marker && (
+                    <span 
+                      className={styles.viewMarkerBadge}
+                      style={{
+                        backgroundColor: MARKER_OPTIONS.find(m => m.value === viewingEntry.marker)?.color || '#6B7280',
+                        color: 'white'
+                      }}
+                    >
+                      {(() => {
+                        const marker = MARKER_OPTIONS.find(m => m.value === viewingEntry.marker);
+                        if (marker) {
+                          const IconComponent = marker.icon;
+                          return (
+                            <>
+                              <IconComponent /> {marker.name}
+                            </>
+                          );
+                        }
+                        return <FaBookmark />;
+                      })()}
+                    </span>
+                  )}
+                  
                   <span 
                     className={styles.viewCategoryBadge}
                     style={{ 
@@ -964,6 +1041,49 @@ export default function MinhaBase({ user }) {
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>
                       <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
+                        <FaBookmark />
+                      </span>
+                      Marcador
+                    </label>
+                    <select
+                      value={formData.marker}
+                      onChange={(e) => setFormData({ ...formData, marker: e.target.value })}
+                      className={styles.filterSelect}
+                      style={{ borderColor: getColorValue(formData.color) }}
+                    >
+                      {MARKER_OPTIONS.map(marker => {
+                        const IconComponent = marker.icon;
+                        return (
+                          <option key={marker.value} value={marker.value}>
+                            {marker.name}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    
+                    {/* Preview do marcador selecionado */}
+                    <div className={styles.markerPreview}>
+                      {(() => {
+                        const selectedMarker = MARKER_OPTIONS.find(m => m.value === formData.marker);
+                        if (selectedMarker) {
+                          const IconComponent = selectedMarker.icon;
+                          return (
+                            <div 
+                              className={styles.markerPreviewBadge}
+                              style={{ backgroundColor: selectedMarker.color }}
+                            >
+                              <IconComponent /> {selectedMarker.name}
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>
+                      <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
                         <FaFolder />
                       </span>
                       Categoria
@@ -996,36 +1116,36 @@ export default function MinhaBase({ user }) {
                       )}
                     </div>
                   </div>
+                </div>
 
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>
-                      <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
-                        <FaPalette />
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>
+                    <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
+                      <FaPalette />
+                    </span>
+                    Cor da Categoria
+                  </label>
+                  <div className={styles.colorSelector}>
+                    <div className={styles.selectedColor}>
+                      <div 
+                        className={styles.colorPreview}
+                        style={{ backgroundColor: getColorValue(formData.color) }}
+                      />
+                      <span className={styles.colorName}>
+                        {COLOR_OPTIONS.find(c => c.color === formData.color)?.name || 'Personalizada'}
                       </span>
-                      Cor da Categoria
-                    </label>
-                    <div className={styles.colorSelector}>
-                      <div className={styles.selectedColor}>
-                        <div 
-                          className={styles.colorPreview}
-                          style={{ backgroundColor: getColorValue(formData.color) }}
+                    </div>
+                    <div className={styles.colorOptions}>
+                      {COLOR_OPTIONS.map(option => (
+                        <button
+                          key={option.color}
+                          className={`${styles.colorOption} ${formData.color === option.color ? styles.colorOptionSelected : ''}`}
+                          style={{ backgroundColor: getColorValue(option.color) }}
+                          onClick={() => setFormData({ ...formData, color: option.color })}
+                          title={option.name}
+                          type="button"
                         />
-                        <span className={styles.colorName}>
-                          {COLOR_OPTIONS.find(c => c.color === formData.color)?.name || 'Personalizada'}
-                        </span>
-                      </div>
-                      <div className={styles.colorOptions}>
-                        {COLOR_OPTIONS.map(option => (
-                          <button
-                            key={option.color}
-                            className={`${styles.colorOption} ${formData.color === option.color ? styles.colorOptionSelected : ''}`}
-                            style={{ backgroundColor: getColorValue(option.color) }}
-                            onClick={() => setFormData({ ...formData, color: option.color })}
-                            title={option.name}
-                            type="button"
-                          />
-                        ))}
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>
