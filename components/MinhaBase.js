@@ -552,56 +552,70 @@ export default function MinhaBase({ user }) {
       {showViewModal && viewingEntry && (
         <div className={styles.modalOverlay} onClick={handleCloseViewModal}>
           <div className={styles.viewModal} onClick={(e) => e.stopPropagation()}>
+            {/* Header do Modal */}
             <div className={styles.viewModalHeader}>
-              <div className={styles.viewModalTitle}>
-                <div className={styles.viewTitleSection}>
-                  <h2>{viewingEntry.title}</h2>
-                  <div className={styles.viewMetaBadges}>
-                    <span 
-                      className={styles.viewCategoryBadge}
-                      style={{ borderLeftColor: viewingEntry.color }}
-                    >
-                      <FaFolder /> {viewingEntry.category}
-                    </span>
-                    <span className={styles.viewDateBadge}>
-                      <FaCalendarAlt /> {formatDateTime(viewingEntry.created_at)}
-                    </span>
-                  </div>
+              <div className={styles.viewHeaderContent}>
+                <h2 className={styles.viewTitle}>{viewingEntry.title}</h2>
+                <div className={styles.viewActions}>
+                  <button
+                    onClick={() => {
+                      handleCloseViewModal();
+                      handleOpenModal(viewingEntry);
+                    }}
+                    className={styles.editIconButton}
+                    title="Editar"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button onClick={handleCloseViewModal} className={styles.closeButton}>
+                    <FaTimes />
+                  </button>
                 </div>
               </div>
-              <div className={styles.viewModalActions}>
-                <button
-                  onClick={() => {
-                    handleCloseViewModal();
-                    handleOpenModal(viewingEntry);
-                  }}
-                  className={styles.editIconButton}
-                  title="Editar"
-                >
-                  <FaEdit />
-                </button>
-                <button onClick={handleCloseViewModal} className={styles.closeButton}>
-                  <FaTimes />
-                </button>
+              
+              {/* Meta informações no header */}
+              <div className={styles.viewMetaHeader}>
+                <div className={styles.viewMetaBadges}>
+                  <span 
+                    className={styles.viewCategoryBadge}
+                    style={{ borderLeftColor: viewingEntry.color }}
+                  >
+                    <FaFolder /> {viewingEntry.category}
+                  </span>
+                  <span className={styles.viewDateBadge}>
+                    <FaCalendarAlt /> {formatDateTime(viewingEntry.created_at)}
+                  </span>
+                </div>
               </div>
             </div>
             
-            <div className={styles.viewModalContent}>
-              <div className={styles.viewDescriptionSection}>
+            {/* Conteúdo do Modal */}
+            <div className={styles.viewModalBody}>
+              {/* Descrição Principal */}
+              <div className={styles.viewMainContent}>
+                <div className={styles.viewSectionHeader}>
+                  <FaAlignLeft className={styles.viewSectionIcon} />
+                  <span className={styles.viewSectionTitle}>Descrição</span>
+                </div>
                 <div className={styles.viewDescription}>
                   {viewingEntry.description}
                 </div>
               </div>
 
+              {/* Link de Referência */}
               {viewingEntry.link && (
-                <div className={styles.viewLinkSection}>
-                  <div className={styles.viewLinkContainer}>
+                <div className={styles.viewContentSection}>
+                  <div className={styles.viewSectionHeader}>
+                    <FaLink className={styles.viewSectionIcon} />
+                    <span className={styles.viewSectionTitle}>Link de Referência</span>
+                  </div>
+                  <div className={styles.viewLinkCard}>
                     <FaExternalLinkAlt className={styles.viewLinkIcon} />
                     <a 
                       href={viewingEntry.link} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className={styles.viewLink}
+                      className={styles.viewLinkText}
                     >
                       {viewingEntry.link}
                     </a>
@@ -609,9 +623,14 @@ export default function MinhaBase({ user }) {
                 </div>
               )}
 
+              {/* Tags */}
               {viewingEntry.tags && viewingEntry.tags.length > 0 && (
-                <div className={styles.viewTagsSection}>
-                  <div className={styles.viewTags}>
+                <div className={styles.viewContentSection}>
+                  <div className={styles.viewSectionHeader}>
+                    <FaTag className={styles.viewSectionIcon} />
+                    <span className={styles.viewSectionTitle}>Tags</span>
+                  </div>
+                  <div className={styles.viewTagsContainer}>
                     {viewingEntry.tags.map(tag => (
                       <span key={tag} className={styles.viewTag}>
                         <FaTag /> {tag}
@@ -620,15 +639,19 @@ export default function MinhaBase({ user }) {
                   </div>
                 </div>
               )}
+            </div>
 
-              {viewingEntry.updated_at !== viewingEntry.created_at && (
+            {/* Footer com informações adicionais */}
+            {viewingEntry.updated_at !== viewingEntry.created_at && (
+              <div className={styles.viewModalFooter}>
                 <div className={styles.viewUpdateInfo}>
+                  <FaUser className={styles.viewUpdateIcon} />
                   <span className={styles.viewUpdateText}>
-                    <FaUser /> Última atualização: {formatDateTime(viewingEntry.updated_at)}
+                    Última atualização: {formatDateTime(viewingEntry.updated_at)}
                   </span>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}
