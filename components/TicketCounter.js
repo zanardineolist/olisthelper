@@ -308,66 +308,39 @@ function TicketCounter() {
     const result = await Swal.fire({
       title: 'Exportar Relatório CSV',
       html: `
-        <div style="text-align: left; padding: 10px;">
-          <p><strong>📊 Período que será exportado:</strong></p>
-          <div style="background: var(--box-color); padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid var(--color-border);">
+        <div style="text-align: left; padding: 10px; min-width: 400px;">
+          <p style="margin: 10px 0; color: #333; font-size: 14px;"><strong>📊 Período que será exportado:</strong></p>
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid #e9ecef; color: #495057;">
             ${periodDescription}
           </div>
           
-          <p><strong>📁 O arquivo incluirá:</strong></p>
-          <ul style="margin: 10px 0; padding-left: 20px;">
-            <li>Data de cada registro</li>
-            <li>Total de chamados por dia</li>
-            <li>Dia da semana</li>
+          <p style="margin: 15px 0 10px 0; color: #333; font-size: 14px;"><strong>📁 O arquivo incluirá:</strong></p>
+          <ul style="margin: 10px 0; padding-left: 20px; color: #495057; font-size: 14px;">
+            <li style="margin-bottom: 5px;">Data de cada registro</li>
+            <li style="margin-bottom: 5px;">Total de chamados por dia</li>
+            <li style="margin-bottom: 5px;">Dia da semana</li>
           </ul>
           
-          <div style="background: rgba(10, 78, 228, 0.1); padding: 12px; border-radius: 6px; border-left: 4px solid var(--color-primary); margin: 15px 0;">
-            <p style="margin: 0; font-size: 14px;"><strong>💡 Dica:</strong> Para alterar o período, use o filtro acima da tabela de histórico antes de exportar.</p>
+          <div style="background: rgba(13, 110, 253, 0.1); padding: 12px; border-radius: 6px; border-left: 4px solid #0d6efd; margin: 15px 0; color: #495057;">
+            <p style="margin: 0; font-size: 13px;"><strong>💡 Dica:</strong> Para alterar o período, use o filtro acima da tabela de histórico antes de exportar.</p>
           </div>
           
-          <p style="margin-top: 15px;"><strong>Total de registros:</strong> ${history.length}</p>
+          <p style="margin-top: 15px; color: #333; font-size: 14px;"><strong>Total de registros:</strong> ${history.length}</p>
         </div>
       `,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: '📥 Exportar CSV',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: 'var(--color-primary)',
-      cancelButtonColor: 'var(--neutral-color)',
-      background: 'var(--bg-secondary)',
-      color: 'var(--text-color)',
+      confirmButtonColor: '#0d6efd',
+      cancelButtonColor: '#6c757d',
+      width: '520px',
+      padding: '1.5rem',
+      allowOutsideClick: false,
+      allowEscapeKey: true,
+      backdrop: true,
       customClass: {
-        popup: 'export-csv-modal',
-        htmlContainer: 'export-csv-content'
-      },
-      didRender: () => {
-        // Adicionar estilos customizados para o modal
-        const style = document.createElement('style');
-        style.textContent = `
-          .export-csv-modal {
-            border: 1px solid var(--color-border) !important;
-            border-radius: 12px !important;
-            max-width: 500px !important;
-          }
-          .export-csv-content {
-            font-size: 14px !important;
-            line-height: 1.5 !important;
-          }
-          .export-csv-content ul {
-            color: var(--text-color) !important;
-          }
-          .export-csv-content li {
-            margin-bottom: 5px !important;
-          }
-        `;
-        document.head.appendChild(style);
-        
-        // Remover o estilo após 10 segundos
-        setTimeout(() => {
-          if (document.head.contains(style)) {
-            document.head.removeChild(style);
-          }
-        }, 10000);
+        popup: 'export-csv-modal-fixed'
       }
     });
 
