@@ -37,6 +37,7 @@ export default async function handler(req, res) {
           tags = [],
           color = '#0A4EE4',
           category = 'geral',
+          marker = 'tech',
           images = []
         } = req.body;
 
@@ -70,6 +71,7 @@ export default async function handler(req, res) {
             tags: Array.isArray(tags) ? tags.filter(tag => tag.trim()) : [],
             color,
             category: category.trim(),
+            marker,
             images: images,
             updated_at: new Date().toISOString()
           })

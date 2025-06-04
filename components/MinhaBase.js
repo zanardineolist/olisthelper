@@ -311,8 +311,6 @@ export default function MinhaBase({ user }) {
         images: formData.images || []
       };
 
-      console.log('Dados para salvar:', dataToSave); // Debug
-
       const method = editingEntry ? 'PUT' : 'POST';
       const endpoint = editingEntry 
         ? `/api/knowledge-base/${editingEntry.id}`

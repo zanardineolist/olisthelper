@@ -17,6 +17,7 @@ export default async function handler(req, res) {
           search_term = '',
           filter_tags = '',
           filter_category = '',
+          filter_marker = '',
           order_by = 'created_at',
           order_direction = 'desc'
         } = req.query;
@@ -29,6 +30,7 @@ export default async function handler(req, res) {
             search_term,
             filter_tags: tagsArray,
             filter_category,
+            filter_marker,
             order_by,
             order_direction
           });
@@ -48,6 +50,7 @@ export default async function handler(req, res) {
           tags = [],
           color = '#0A4EE4',
           category = 'geral',
+          marker = 'tech',
           images = []
         } = req.body;
 
@@ -82,6 +85,7 @@ export default async function handler(req, res) {
             tags: Array.isArray(tags) ? tags.filter(tag => tag.trim()) : [],
             color,
             category: category.trim(),
+            marker,
             images: images
           }])
           .select()
