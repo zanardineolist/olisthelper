@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink, FaFileAlt, FaAlignLeft, FaFolder, FaCalendarAlt, FaUser, FaImage, FaCloudUploadAlt, FaExpand, FaCog, FaDollarSign, FaBug, FaQuestionCircle, FaTicketAlt, FaBookmark } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink, FaFileAlt, FaAlignLeft, FaFolder, FaCalendarAlt, FaUser, FaImage, FaCloudUploadAlt, FaExpand, FaCog, FaDollarSign, FaBug, FaQuestionCircle, FaTicketAlt, FaBookmark, FaFileExcel, FaFileAlt as FaFileTxt, FaDownload } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import styles from '../styles/MinhaBase.module.css';
 
@@ -549,6 +549,182 @@ export default function MinhaBase({ user }) {
     return colorOption?.cssVar || 'primary';
   };
 
+  // NOVA FUNÇÃO: Exportação para TXT formatado
+  const exportToTXT = () => {
+    if (!entries || entries.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nenhuma anotação',
+        text: 'Não há anotações para exportar',
+        confirmButtonColor: '#3B82F6'
+      });
+      return;
+    }
+
+    try {
+      let txtContent = '=====================================\n';
+      txtContent += '    MINHA BASE DE CONHECIMENTO\n';
+      txtContent += '=====================================\n\n';
+      txtContent += `Exportado em: ${new Date().toLocaleString('pt-BR')}\n`;
+      txtContent += `Total de anotações: ${entries.length}\n\n`;
+      txtContent += '=====================================\n\n';
+
+      entries.forEach((entry, index) => {
+        txtContent += `ANOTAÇÃO ${index + 1}\n`;
+        txtContent += '-------------------------------------\n';
+        txtContent += `📋 TÍTULO: ${entry.title}\n\n`;
+        
+        txtContent += `📝 DESCRIÇÃO:\n${entry.description}\n\n`;
+        
+        if (entry.category) {
+          txtContent += `📁 CATEGORIA: ${entry.category}\n`;
+        }
+        
+        if (entry.marker) {
+          const marker = MARKER_OPTIONS.find(m => m.value === entry.marker);
+          txtContent += `🏷️ MARCADOR: ${marker ? marker.name : entry.marker}\n`;
+        }
+        
+        if (entry.tags && entry.tags.length > 0) {
+          txtContent += `🏷️ TAGS: ${entry.tags.join(', ')}\n`;
+        }
+        
+        if (entry.link) {
+          txtContent += `🔗 LINK: ${entry.link}\n`;
+        }
+        
+        if (entry.images && entry.images.length > 0) {
+          txtContent += `🖼️ IMAGENS (${entry.images.length}):\n`;
+          entry.images.forEach((image, imgIndex) => {
+            txtContent += `   ${imgIndex + 1}. ${image.url}\n`;
+            if (image.title) {
+              txtContent += `      Título: ${image.title}\n`;
+            }
+          });
+          txtContent += '\n';
+        }
+        
+        txtContent += `📅 CRIADO EM: ${formatDateTime(entry.created_at)}\n`;
+        
+        if (entry.updated_at !== entry.created_at) {
+          txtContent += `📅 ATUALIZADO EM: ${formatDateTime(entry.updated_at)}\n`;
+        }
+        
+        txtContent += '\n=====================================\n\n';
+      });
+
+      const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `minha-base-conhecimento-${new Date().toISOString().split('T')[0]}.txt`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Arquivo TXT exportado!',
+        text: `${entries.length} anotações exportadas com sucesso`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('Erro na exportação TXT:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro na exportação',
+        text: 'Erro ao gerar arquivo TXT',
+        confirmButtonColor: '#3B82F6'
+      });
+    }
+  };
+
+  // NOVA FUNÇÃO: Exportação para XLS (formato CSV que abre no Excel)
+  const exportToXLS = () => {
+    if (!entries || entries.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nenhuma anotação',
+        text: 'Não há anotações para exportar',
+        confirmButtonColor: '#3B82F6'
+      });
+      return;
+    }
+
+    try {
+      // Cabeçalhos da planilha
+      const headers = [
+        'Título',
+        'Descrição',
+        'Categoria',
+        'Marcador',
+        'Tags',
+        'Link de Referência',
+        'Links das Imagens',
+        'Cor',
+        'Data de Criação',
+        'Data de Atualização'
+      ];
+
+      // Preparar dados
+      const csvData = entries.map(entry => {
+        const marker = MARKER_OPTIONS.find(m => m.value === entry.marker);
+        const imageLinks = entry.images && entry.images.length > 0 
+          ? entry.images.map(img => `${img.url}${img.title ? ` (${img.title})` : ''}`).join('; ')
+          : '';
+        
+        return [
+          `"${(entry.title || '').replace(/"/g, '""')}"`,
+          `"${(entry.description || '').replace(/"/g, '""')}"`,
+          `"${entry.category || ''}"`,
+          `"${marker ? marker.name : (entry.marker || '')}"`,
+          `"${entry.tags ? entry.tags.join(', ') : ''}"`,
+          `"${entry.link || ''}"`,
+          `"${imageLinks}"`,
+          `"${entry.color || ''}"`,
+          `"${formatDateTime(entry.created_at)}"`,
+          `"${formatDateTime(entry.updated_at)}"`
+        ];
+      });
+
+      // Criar conteúdo CSV
+      const csvContent = [
+        headers.join(','),
+        ...csvData.map(row => row.join(','))
+      ].join('\n');
+
+      // Adicionar BOM para suporte a caracteres especiais no Excel
+      const BOM = '\uFEFF';
+      const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `minha-base-conhecimento-${new Date().toISOString().split('T')[0]}.xlsx`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Planilha Excel exportada!',
+        text: `${entries.length} anotações exportadas com sucesso`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+    } catch (error) {
+      console.error('Erro na exportação XLS:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro na exportação',
+        text: 'Erro ao gerar planilha Excel',
+        confirmButtonColor: '#3B82F6'
+      });
+    }
+  };
+
   if (loading && entries.length === 0) {
     return (
       <div className={styles.loadingContainer}>
@@ -568,12 +744,35 @@ export default function MinhaBase({ user }) {
           </p>
         </div>
 
-        <button
-          onClick={() => handleOpenModal()}
-          className={styles.addButton}
-        >
-          <FaPlus /> Nova Anotação
-        </button>
+        <div className={styles.headerActions}>
+          {/* Botões de Exportação */}
+          <div className={styles.exportButtons}>
+            <button
+              onClick={exportToXLS}
+              className={styles.exportButton}
+              disabled={!entries || entries.length === 0}
+              title="Exportar para Excel (.xlsx)"
+            >
+              <FaFileExcel /> Excel
+            </button>
+            
+            <button
+              onClick={exportToTXT}
+              className={styles.exportButton}
+              disabled={!entries || entries.length === 0}
+              title="Exportar para TXT formatado"
+            >
+              <FaFileTxt /> TXT
+            </button>
+          </div>
+
+          <button
+            onClick={() => handleOpenModal()}
+            className={styles.addButton}
+          >
+            <FaPlus /> Nova Anotação
+          </button>
+        </div>
       </div>
 
       {/* Controles de busca e filtros modernos */}
