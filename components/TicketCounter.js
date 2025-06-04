@@ -52,6 +52,22 @@ function TicketCounter() {
   const { callApi } = useApiLoader();
   const { startLoading, stopLoading } = useLoading();
 
+  // Carregar Animate.css para animações suaves do toast
+  useEffect(() => {
+    const animateCssLink = document.createElement('link');
+    animateCssLink.rel = 'stylesheet';
+    animateCssLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+    document.head.appendChild(animateCssLink);
+
+    return () => {
+      // Cleanup quando o componente for desmontado
+      const existingLink = document.querySelector('link[href*="animate.css"]');
+      if (existingLink) {
+        document.head.removeChild(existingLink);
+      }
+    };
+  }, []);
+
   const filterOptions = [
     { value: 'today', label: 'Hoje' },
     { value: '7days', label: 'Últimos 7 dias' },
@@ -106,19 +122,70 @@ function TicketCounter() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [loading, count, showShortcuts]);
 
-  // MELHORIA 2: Toast para feedback visual
+  // MELHORIA 2: Toast para feedback visual melhorado
   const showToast = (message, type = 'success') => {
     const Toast = Swal.mixin({
       toast: true,
       position: 'top-end',
       showConfirmButton: false,
-      timer: 2000,
+      timer: 3000,
       timerProgressBar: true,
-      background: 'var(--box-color)',
+      background: 'var(--bg-secondary)',
       color: 'var(--text-color)',
+      borderRadius: '12px',
+      padding: '16px 20px',
+      showClass: {
+        popup: 'animate__animated animate__slideInRight animate__faster'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__slideOutRight animate__faster'
+      },
+      customClass: {
+        popup: 'custom-toast',
+        timerProgressBar: 'custom-timer-bar'
+      },
       didOpen: (toast) => {
-        toast.addEventListener('mouseenter', Swal.stopTimer)
-        toast.addEventListener('mouseleave', Swal.resumeTimer)
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+        
+        // Adicionar estilos customizados
+        const style = document.createElement('style');
+        style.textContent = `
+          .custom-toast {
+            border: 1px solid var(--color-border) !important;
+            box-shadow: var(--shadow-md) !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+          }
+          .custom-timer-bar {
+            background: ${type === 'success' ? 'var(--excellent-color)' : 
+                         type === 'error' ? 'var(--poor-color)' : 
+                         'var(--good-color)'} !important;
+            height: 3px !important;
+          }
+          .swal2-icon {
+            border: none !important;
+            margin: 0 8px 0 0 !important;
+            width: 20px !important;
+            height: 20px !important;
+          }
+          .swal2-icon.swal2-success {
+            color: var(--excellent-color) !important;
+          }
+          .swal2-icon.swal2-error {
+            color: var(--poor-color) !important;
+          }
+          .swal2-icon.swal2-warning {
+            color: var(--good-color) !important;
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Remover o estilo após o toast desaparecer
+        setTimeout(() => {
+          document.head.removeChild(style);
+        }, 4000);
       }
     });
 
@@ -520,7 +587,7 @@ function TicketCounter() {
       {/* Container do contador com efeito de hover */}
       <motion.div 
         className={styles.counterDisplay}
-        whileHover={{ scale: 1.01 }}
+        whileHover={{ scale: 1.005 }}
         transition={{ type: "spring", stiffness: 400 }}
       >
         <motion.button
@@ -528,20 +595,20 @@ function TicketCounter() {
           onClick={handleDecrement}
           disabled={loading || count === 0}
           whileTap={{ scale: 0.95 }}
-          whileHover={{ scale: 1.05 }}
+          whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
         >
-          <Minus size={32} />
+          <Minus size={28} />
         </motion.button>
 
         <AnimatePresence mode="wait">
           <motion.div 
             key={count}
             className={styles.counterValue}
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.15 }}
           >
             {loading ? '...' : count}
           </motion.div>
@@ -552,93 +619,12 @@ function TicketCounter() {
           onClick={handleIncrement}
           disabled={loading}
           whileTap={{ scale: 0.95 }}
-          whileHover={{ scale: 1.05 }}
+          whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
         >
-          <Plus size={32} />
+          <Plus size={28} />
         </motion.button>
       </motion.div>
-
-      {/* Botões de ação melhorados */}
-      <div className={styles.actionButtons}>
-        <motion.button
-          className={styles.clearButton}
-          onClick={handleClear}
-          disabled={loading || count === 0}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          transition={{ duration: 0.2 }}
-        >
-          <div className={styles.clearButtonContent}>
-            <Trash2 size={20} />
-            <span>Limpar Contagem do Dia</span>
-          </div>
-        </motion.button>
-
-        <motion.button
-          className={styles.exportButton}
-          onClick={exportToCSV}
-          disabled={loading || !history || history.length === 0}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          transition={{ duration: 0.2 }}
-        >
-          <div className={styles.exportButtonContent}>
-            <Download size={20} />
-            <span>Exportar CSV</span>
-          </div>
-        </motion.button>
-
-        <motion.button
-          className={styles.shortcutsButton}
-          onClick={() => setShowShortcuts(!showShortcuts)}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          transition={{ duration: 0.2 }}
-        >
-          <div className={styles.shortcutsButtonContent}>
-            <Keyboard size={20} />
-            <span>Atalhos</span>
-          </div>
-        </motion.button>
-      </div>
-
-      {/* Modal de Atalhos */}
-      <AnimatePresence>
-        {showShortcuts && (
-          <motion.div
-            className={styles.shortcutsModal}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className={styles.shortcutsContent}>
-              <h3>Atalhos de Teclado</h3>
-              <div className={styles.shortcutsList}>
-                <div className={styles.shortcutItem}>
-                  <kbd>+</kbd> <span>Incrementar contador</span>
-                </div>
-                <div className={styles.shortcutItem}>
-                  <kbd>-</kbd> <span>Decrementar contador</span>
-                </div>
-                <div className={styles.shortcutItem}>
-                  <kbd>C</kbd> <span>Limpar contagem</span>
-                </div>
-                <div className={styles.shortcutItem}>
-                  <kbd>E</kbd> <span>Exportar CSV</span>
-                </div>
-                <div className={styles.shortcutItem}>
-                  <kbd>H</kbd> <span>Mostrar/Ocultar atalhos</span>
-                </div>
-                <div className={styles.shortcutItem}>
-                  <kbd>ESC</kbd> <span>Fechar atalhos</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Barra de Progresso */}
       <ProgressBar count={count} />
@@ -651,7 +637,7 @@ function TicketCounter() {
         transition={{ duration: 0.4, delay: 0.2 }}
       >
         <h3 className={styles.statisticsTitle}>
-          <TrendingUp size={20} />
+          <TrendingUp size={18} />
           Estatísticas
         </h3>
         
@@ -697,6 +683,100 @@ function TicketCounter() {
           </div>
         </div>
       </motion.div>
+
+      {/* Botões de ação */}
+      <motion.div 
+        className={styles.actionButtons}
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+      >
+        <motion.button
+          className={styles.clearButton}
+          onClick={handleClear}
+          disabled={loading || count === 0}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className={styles.clearButtonContent}>
+            <Trash2 size={18} />
+            <span>Limpar Contagem</span>
+          </div>
+        </motion.button>
+
+        <motion.button
+          className={styles.exportButton}
+          onClick={exportToCSV}
+          disabled={loading || !history || history.length === 0}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className={styles.exportButtonContent}>
+            <Download size={18} />
+            <span>Exportar CSV</span>
+          </div>
+        </motion.button>
+
+        <motion.button
+          className={styles.shortcutsButton}
+          onClick={() => setShowShortcuts(!showShortcuts)}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className={styles.shortcutsButtonContent}>
+            <Keyboard size={18} />
+            <span>Atalhos</span>
+          </div>
+        </motion.button>
+      </motion.div>
+
+      {/* Modal de Atalhos */}
+      <AnimatePresence>
+        {showShortcuts && (
+          <motion.div
+            className={styles.shortcutsModal}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setShowShortcuts(false)}
+          >
+            <motion.div
+              className={styles.shortcutsContent}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3>Atalhos de Teclado</h3>
+              <div className={styles.shortcutsList}>
+                <div className={styles.shortcutItem}>
+                  <kbd>+</kbd> <span>Incrementar contador</span>
+                </div>
+                <div className={styles.shortcutItem}>
+                  <kbd>-</kbd> <span>Decrementar contador</span>
+                </div>
+                <div className={styles.shortcutItem}>
+                  <kbd>C</kbd> <span>Limpar contagem</span>
+                </div>
+                <div className={styles.shortcutItem}>
+                  <kbd>E</kbd> <span>Exportar CSV</span>
+                </div>
+                <div className={styles.shortcutItem}>
+                  <kbd>H</kbd> <span>Mostrar/Ocultar atalhos</span>
+                </div>
+                <div className={styles.shortcutItem}>
+                  <kbd>ESC</kbd> <span>Fechar atalhos</span>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Histórico */}
       <div className={styles.historyContainer}>
