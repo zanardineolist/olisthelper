@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink, FaFileAlt, FaAlignLeft, FaFolder, FaCalendarAlt, FaUser } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import styles from '../styles/MinhaBase.module.css';
 
@@ -144,6 +144,21 @@ export default function MinhaBase({ user }) {
     );
   };
 
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      link: '',
+      tags: [],
+      color: '#0A4EE4',
+      category: 'geral'
+    });
+    setEditingEntry(null);
+    setNewTag('');
+    setShowTagSuggestions(false);
+    setShowCategorySuggestions(false);
+  };
+
   const handleSave = async () => {
     try {
       if (!formData.title.trim() || !formData.description.trim()) {
@@ -185,7 +200,9 @@ export default function MinhaBase({ user }) {
         showConfirmButton: false
       });
       
-      handleCloseModal();
+      // Reset form and close modal
+      resetForm();
+      setShowModal(false);
       loadEntries();
       
     } catch (error) {
@@ -267,15 +284,7 @@ export default function MinhaBase({ user }) {
         category: entry.category
       });
     } else {
-      setEditingEntry(null);
-      setFormData({
-        title: '',
-        description: '',
-        link: '',
-        tags: [],
-        color: '#0A4EE4',
-        category: 'geral'
-      });
+      resetForm();
     }
     setShowModal(true);
   };
@@ -298,11 +307,8 @@ export default function MinhaBase({ user }) {
       }
     }
 
+    resetForm();
     setShowModal(false);
-    setEditingEntry(null);
-    setNewTag('');
-    setShowTagSuggestions(false);
-    setShowCategorySuggestions(false);
   };
 
   const handleModalOverlayClick = (e) => {
@@ -356,6 +362,10 @@ export default function MinhaBase({ user }) {
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
+  const formatDateTime = (dateString) => {
+    return new Date(dateString).toLocaleString('pt-BR');
   };
 
   const toggleSort = (field) => {
@@ -542,8 +552,23 @@ export default function MinhaBase({ user }) {
       {showViewModal && viewingEntry && (
         <div className={styles.modalOverlay} onClick={handleCloseViewModal}>
           <div className={styles.viewModal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2>{viewingEntry.title}</h2>
+            <div className={styles.viewModalHeader}>
+              <div className={styles.viewModalTitle}>
+                <div className={styles.viewTitleSection}>
+                  <h2>{viewingEntry.title}</h2>
+                  <div className={styles.viewMetaBadges}>
+                    <span 
+                      className={styles.viewCategoryBadge}
+                      style={{ borderLeftColor: viewingEntry.color }}
+                    >
+                      <FaFolder /> {viewingEntry.category}
+                    </span>
+                    <span className={styles.viewDateBadge}>
+                      <FaCalendarAlt /> {formatDateTime(viewingEntry.created_at)}
+                    </span>
+                  </div>
+                </div>
+              </div>
               <div className={styles.viewModalActions}>
                 <button
                   onClick={() => {
@@ -562,28 +587,30 @@ export default function MinhaBase({ user }) {
             </div>
             
             <div className={styles.viewModalContent}>
-              <div className={styles.viewSection}>
-                <h4>Descrição</h4>
-                <p className={styles.viewDescription}>{viewingEntry.description}</p>
+              <div className={styles.viewDescriptionSection}>
+                <div className={styles.viewDescription}>
+                  {viewingEntry.description}
+                </div>
               </div>
 
               {viewingEntry.link && (
-                <div className={styles.viewSection}>
-                  <h4>Link</h4>
-                  <a 
-                    href={viewingEntry.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className={styles.viewLink}
-                  >
-                    <FaExternalLinkAlt /> {viewingEntry.link}
-                  </a>
+                <div className={styles.viewLinkSection}>
+                  <div className={styles.viewLinkContainer}>
+                    <FaExternalLinkAlt className={styles.viewLinkIcon} />
+                    <a 
+                      href={viewingEntry.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={styles.viewLink}
+                    >
+                      {viewingEntry.link}
+                    </a>
+                  </div>
                 </div>
               )}
 
               {viewingEntry.tags && viewingEntry.tags.length > 0 && (
-                <div className={styles.viewSection}>
-                  <h4>Tags</h4>
+                <div className={styles.viewTagsSection}>
                   <div className={styles.viewTags}>
                     {viewingEntry.tags.map(tag => (
                       <span key={tag} className={styles.viewTag}>
@@ -594,25 +621,13 @@ export default function MinhaBase({ user }) {
                 </div>
               )}
 
-              <div className={styles.viewMeta}>
-                <div className={styles.viewMetaItem}>
-                  <strong>Categoria:</strong> 
-                  <span 
-                    className={styles.viewCategory}
-                    style={{ borderLeftColor: viewingEntry.color }}
-                  >
-                    {viewingEntry.category}
+              {viewingEntry.updated_at !== viewingEntry.created_at && (
+                <div className={styles.viewUpdateInfo}>
+                  <span className={styles.viewUpdateText}>
+                    <FaUser /> Última atualização: {formatDateTime(viewingEntry.updated_at)}
                   </span>
                 </div>
-                <div className={styles.viewMetaItem}>
-                  <strong>Criado em:</strong> {formatDate(viewingEntry.created_at)}
-                </div>
-                {viewingEntry.updated_at !== viewingEntry.created_at && (
-                  <div className={styles.viewMetaItem}>
-                    <strong>Atualizado em:</strong> {formatDate(viewingEntry.updated_at)}
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -630,13 +645,11 @@ export default function MinhaBase({ user }) {
             </div>
             
             <div className={styles.modalContent}>
-              {/* Seção Principal */}
+              {/* Informações Principais */}
               <div className={styles.formSection}>
-                <h3 className={styles.sectionTitle}>Informações Principais</h3>
-                
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>
-                    <span className={styles.labelIcon}>📝</span>
+                    <span className={styles.labelIcon}><FaFileAlt /></span>
                     Título <span className={styles.required}>*</span>
                   </label>
                   <input
@@ -650,7 +663,7 @@ export default function MinhaBase({ user }) {
 
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>
-                    <span className={styles.labelIcon}>📄</span>
+                    <span className={styles.labelIcon}><FaAlignLeft /></span>
                     Descrição <span className={styles.required}>*</span>
                   </label>
                   <textarea
@@ -663,14 +676,12 @@ export default function MinhaBase({ user }) {
                 </div>
               </div>
 
-              {/* Seção Organização */}
+              {/* Organização */}
               <div className={styles.formSection}>
-                <h3 className={styles.sectionTitle}>Organização</h3>
-                
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>
-                      <span className={styles.labelIcon}>📂</span>
+                      <span className={styles.labelIcon}><FaFolder /></span>
                       Categoria
                     </label>
                     <div className={`${styles.autocompleteContainer} autocomplete-container`}>
@@ -733,10 +744,8 @@ export default function MinhaBase({ user }) {
                 </div>
               </div>
 
-              {/* Seção Tags */}
+              {/* Tags */}
               <div className={styles.formSection}>
-                <h3 className={styles.sectionTitle}>Tags</h3>
-                
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>
                     <span className={styles.labelIcon}><FaTag /></span>
@@ -801,10 +810,8 @@ export default function MinhaBase({ user }) {
                 </div>
               </div>
 
-              {/* Seção Link */}
+              {/* Link de Referência */}
               <div className={styles.formSection}>
-                <h3 className={styles.sectionTitle}>Link de Referência</h3>
-                
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>
                     <span className={styles.labelIcon}><FaLink /></span>

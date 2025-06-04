@@ -417,14 +417,14 @@
   border: 1px solid var(--color-border);
   border-radius: 16px;
   width: 100%;
-  max-width: 700px;
+  max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
 }
 
 .viewModal {
-  max-width: 700px;
+  max-width: 800px;
 }
 
 .modalHeader {
@@ -493,45 +493,114 @@
   transform: scale(1.1);
 }
 
-/* Modal de Visualização */
-.viewModalContent {
-  padding: 28px;
+/* Modal de Visualização Reformulado */
+.viewModalHeader {
+  background: var(--box-color2);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 16px 16px 0 0;
+  padding: 24px 28px;
 }
 
-.viewSection {
-  margin-bottom: 28px;
+.viewModalTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-.viewSection h4 {
+.viewTitleSection {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.viewTitleSection h2 {
   color: var(--title-color);
-  font-size: 1.1rem;
+  font-size: 1.6rem;
   font-weight: 600;
   margin: 0 0 12px 0;
-  border-bottom: 2px solid var(--color-primary);
-  padding-bottom: 6px;
+  line-height: 1.4;
+}
+
+.viewMetaBadges {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.viewCategoryBadge, .viewDateBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.viewCategoryBadge {
+  background: var(--labels-bg);
+  border: 1px solid var(--labels-border);
+  border-left: 4px solid var(--color-primary);
+  color: var(--text-color);
+}
+
+.viewDateBadge {
+  background: rgba(10, 78, 228, 0.1);
+  color: var(--color-primary);
+  border: 1px solid rgba(10, 78, 228, 0.2);
+}
+
+.viewModalContent {
+  padding: 0;
+}
+
+.viewDescriptionSection {
+  padding: 28px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .viewDescription {
   color: var(--text-color);
   line-height: 1.6;
-  font-size: 1rem;
-  margin: 0;
+  font-size: 1.05rem;
   white-space: pre-wrap;
+  margin: 0;
+}
+
+.viewLinkSection {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--box-color2);
+}
+
+.viewLinkContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--background-color);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.viewLinkIcon {
+  color: var(--color-primary);
+  font-size: 1.1rem;
 }
 
 .viewLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   color: var(--color-primary);
   text-decoration: none;
   font-weight: 500;
-  transition: all 0.3s ease;
+  word-break: break-all;
 }
 
 .viewLink:hover {
-  color: var(--color-primary-hover);
   text-decoration: underline;
+}
+
+.viewTagsSection {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .viewTags {
@@ -546,39 +615,25 @@
   gap: 6px;
   background: var(--color-primary);
   color: white;
-  padding: 6px 12px;
-  border-radius: 16px;
+  padding: 8px 14px;
+  border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 500;
 }
 
-.viewMeta {
-  background: var(--box-color2);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 20px;
-  margin-top: 24px;
+.viewUpdateInfo {
+  padding: 16px 28px;
+  background: var(--labels-bg);
+  border-radius: 0 0 16px 16px;
 }
 
-.viewMetaItem {
+.viewUpdateText {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
-  font-size: 0.95rem;
-}
-
-.viewMetaItem:last-child {
-  margin-bottom: 0;
-}
-
-.viewCategory {
-  background: var(--labels-bg);
-  border: 1px solid var(--labels-border);
-  border-left: 4px solid var(--color-primary);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: 500;
+  color: var(--text-color2);
+  font-size: 0.9rem;
+  font-style: italic;
 }
 
 /* Modal de Edição - Formulário organizado em seções */
@@ -593,18 +648,6 @@
 
 .formSection:last-child {
   border-bottom: none;
-}
-
-.sectionTitle {
-  color: var(--title-color);
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin: 0 0 20px 0;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--color-primary);
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .formGroup {
@@ -702,14 +745,14 @@
 
 .colorOptions {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
   padding: 4px;
 }
 
 .colorOption {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 3px solid transparent;
   cursor: pointer;
@@ -967,15 +1010,15 @@
     max-width: 95vw;
   }
 
-  .modalHeader {
+  .modalHeader, .viewModalHeader {
     padding: 20px;
   }
 
-  .modalHeader h2 {
+  .modalHeader h2, .viewTitleSection h2 {
     font-size: 1.4rem;
   }
 
-  .formSection {
+  .formSection, .viewDescriptionSection, .viewLinkSection, .viewTagsSection {
     padding: 20px;
   }
 
@@ -999,6 +1042,16 @@
   .tagsInput {
     flex-direction: column;
   }
+
+  .viewMetaBadges {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .viewModalTitle {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1014,19 +1067,16 @@
     font-size: 1.1rem;
   }
 
-  .modalHeader h2 {
+  .modalHeader h2, .viewTitleSection h2 {
     font-size: 1.2rem;
-  }
-
-  .sectionTitle {
-    font-size: 1.1rem;
-  }
-
-  .viewSection h4 {
-    font-size: 1rem;
   }
 
   .formLabel {
     font-size: 0.9rem;
+  }
+
+  .colorOption {
+    width: 32px;
+    height: 32px;
   }
 } 
