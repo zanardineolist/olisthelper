@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink, FaFileAlt, FaAlignLeft, FaFolder, FaCalendarAlt, FaUser } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink, FaFileAlt, FaAlignLeft, FaFolder, FaCalendarAlt, FaUser, FaImage, FaCloudUploadAlt, FaExpand } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import styles from '../styles/MinhaBase.module.css';
 
@@ -34,7 +34,8 @@ export default function MinhaBase({ user }) {
     link: '',
     tags: [],
     color: '#0A4EE4',
-    category: 'geral'
+    category: 'geral',
+    images: []
   });
 
   // Estados da UI
@@ -43,6 +44,12 @@ export default function MinhaBase({ user }) {
   const [newTag, setNewTag] = useState('');
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
+
+  // Estados para imagens
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const [showLightbox, setShowLightbox] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   // Carrega dados iniciais
   useEffect(() => {
@@ -120,7 +127,8 @@ export default function MinhaBase({ user }) {
       link: '',
       tags: [],
       color: '#0A4EE4',
-      category: 'geral'
+      category: 'geral',
+      images: []
     };
 
     if (editingEntry) {
@@ -130,7 +138,8 @@ export default function MinhaBase({ user }) {
         formData.link !== (editingEntry.link || '') ||
         JSON.stringify(formData.tags) !== JSON.stringify(editingEntry.tags || []) ||
         formData.color !== editingEntry.color ||
-        formData.category !== editingEntry.category
+        formData.category !== editingEntry.category ||
+        JSON.stringify(formData.images) !== JSON.stringify(editingEntry.images || [])
       );
     }
 
@@ -140,7 +149,8 @@ export default function MinhaBase({ user }) {
       formData.link !== initialData.link ||
       formData.tags.length > 0 ||
       formData.color !== initialData.color ||
-      formData.category !== initialData.category
+      formData.category !== initialData.category ||
+      formData.images.length > 0
     );
   };
 
@@ -151,12 +161,133 @@ export default function MinhaBase({ user }) {
       link: '',
       tags: [],
       color: '#0A4EE4',
-      category: 'geral'
+      category: 'geral',
+      images: []
     });
     setEditingEntry(null);
     setNewTag('');
     setShowTagSuggestions(false);
     setShowCategorySuggestions(false);
+  };
+
+  // Funções para upload de imagens
+  const handleImageUpload = async (files) => {
+    if (!files || files.length === 0) return;
+    
+    setUploadingImages(true);
+    const uploadedImages = [];
+
+    try {
+      for (const file of files) {
+        // Validar tipo de arquivo
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Tipo de arquivo não suportado',
+            text: `${file.name} - Use apenas JPEG, PNG, GIF ou WebP`,
+            confirmButtonColor: 'var(--color-primary)'
+          });
+          continue;
+        }
+
+        // Validar tamanho (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Arquivo muito grande',
+            text: `${file.name} - Tamanho máximo: 10MB`,
+            confirmButtonColor: 'var(--color-primary)'
+          });
+          continue;
+        }
+
+        // Fazer upload para Imgur
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('title', `Imagem - ${formData.title || 'Anotação'}`);
+
+        const response = await fetch('/api/imgur-upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          uploadedImages.push(result.image);
+        } else {
+          throw new Error(result.error || 'Erro no upload');
+        }
+      }
+
+      // Adicionar imagens ao estado
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, ...uploadedImages]
+      }));
+
+      if (uploadedImages.length > 0) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Upload concluído!',
+          text: `${uploadedImages.length} imagem(ns) carregada(s)`,
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+
+    } catch (error) {
+      console.error('Erro no upload:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro no upload',
+        text: error.message || 'Erro ao fazer upload das imagens',
+        confirmButtonColor: 'var(--color-primary)'
+      });
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+    const files = Array.from(e.dataTransfer.files);
+    handleImageUpload(files);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+  };
+
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    handleImageUpload(files);
+    e.target.value = ''; // Reset input
+  };
+
+  const removeImage = (imageIndex) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, index) => index !== imageIndex)
+    }));
+  };
+
+  const openLightbox = (image) => {
+    setLightboxImage(image);
+    setShowLightbox(true);
+  };
+
+  const closeLightbox = () => {
+    setShowLightbox(false);
+    setLightboxImage(null);
   };
 
   const handleSave = async () => {
@@ -281,7 +412,8 @@ export default function MinhaBase({ user }) {
         link: entry.link || '',
         tags: entry.tags || [],
         color: entry.color,
-        category: entry.category
+        category: entry.category,
+        images: entry.images || []
       });
     } else {
       resetForm();
@@ -502,6 +634,16 @@ export default function MinhaBase({ user }) {
                 }
               </p>
 
+              {/* Indicador de imagens */}
+              {entry.images && entry.images.length > 0 && (
+                <div className={styles.imageIndicator}>
+                  <FaImage className={styles.imageIcon} />
+                  <span className={styles.imageCount}>
+                    {entry.images.length} imagem{entry.images.length > 1 ? 'ns' : ''}
+                  </span>
+                </div>
+              )}
+
               {entry.tags && entry.tags.length > 0 && (
                 <div className={styles.tagsContainer}>
                   {entry.tags.slice(0, 3).map(tag => (
@@ -602,6 +744,33 @@ export default function MinhaBase({ user }) {
                 </div>
               </div>
 
+              {/* Gallery de Imagens */}
+              {viewingEntry.images && viewingEntry.images.length > 0 && (
+                <div className={styles.viewContentSection}>
+                  <div className={styles.viewSectionHeader}>
+                    <FaImage className={styles.viewSectionIcon} />
+                    <span className={styles.viewSectionTitle}>
+                      Imagens ({viewingEntry.images.length})
+                    </span>
+                  </div>
+                  <div className={styles.imageGallery}>
+                    {viewingEntry.images.map((image, index) => (
+                      <div key={index} className={styles.galleryItem}>
+                        <img
+                          src={image.url}
+                          alt={image.title || `Imagem ${index + 1}`}
+                          className={styles.galleryImage}
+                          onClick={() => openLightbox(image)}
+                        />
+                        <div className={styles.galleryOverlay}>
+                          <FaExpand className={styles.expandIcon} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Link de Referência */}
               {viewingEntry.link && (
                 <div className={styles.viewContentSection}>
@@ -696,6 +865,70 @@ export default function MinhaBase({ user }) {
                     rows={4}
                     className={styles.textarea}
                   />
+                </div>
+              </div>
+
+              {/* Upload de Imagens */}
+              <div className={styles.formSection}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>
+                    <span className={styles.labelIcon}><FaImage /></span>
+                    Imagens
+                  </label>
+                  
+                  {/* Área de Upload */}
+                  <div 
+                    className={`${styles.uploadArea} ${dragActive ? styles.dragActive : ''}`}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                  >
+                    <div className={styles.uploadContent}>
+                      <FaCloudUploadAlt className={styles.uploadIcon} />
+                      <p className={styles.uploadText}>
+                        {uploadingImages ? 'Fazendo upload...' : 'Arraste imagens aqui ou clique para selecionar'}
+                      </p>
+                      <p className={styles.uploadSubtext}>
+                        JPEG, PNG, GIF, WebP • Máximo 10MB por arquivo
+                      </p>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className={styles.fileInput}
+                        disabled={uploadingImages}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Preview das Imagens */}
+                  {formData.images.length > 0 && (
+                    <div className={styles.imagePreviewContainer}>
+                      <span className={styles.previewLabel}>
+                        Imagens adicionadas ({formData.images.length}):
+                      </span>
+                      <div className={styles.imagePreviewGrid}>
+                        {formData.images.map((image, index) => (
+                          <div key={index} className={styles.imagePreviewItem}>
+                            <img
+                              src={image.url}
+                              alt={image.title || `Imagem ${index + 1}`}
+                              className={styles.previewImage}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className={styles.removeImageButton}
+                              title="Remover imagem"
+                            >
+                              <FaTimes />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -868,9 +1101,33 @@ export default function MinhaBase({ user }) {
               <button onClick={handleCloseModal} className={styles.cancelButton}>
                 Cancelar
               </button>
-              <button onClick={handleSave} className={styles.saveButton}>
-                {editingEntry ? 'Salvar Alterações' : 'Criar Anotação'}
+              <button 
+                onClick={handleSave} 
+                className={styles.saveButton}
+                disabled={uploadingImages}
+              >
+                {uploadingImages ? 'Fazendo upload...' : (editingEntry ? 'Salvar Alterações' : 'Criar Anotação')}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox para visualização de imagens */}
+      {showLightbox && lightboxImage && (
+        <div className={styles.lightboxOverlay} onClick={closeLightbox}>
+          <div className={styles.lightboxContent} onClick={(e) => e.stopPropagation()}>
+            <button onClick={closeLightbox} className={styles.lightboxClose}>
+              <FaTimes />
+            </button>
+            <img
+              src={lightboxImage.url}
+              alt={lightboxImage.title || 'Imagem'}
+              className={styles.lightboxImage}
+            />
+            <div className={styles.lightboxInfo}>
+              <h4>{lightboxImage.title || 'Imagem'}</h4>
+              <p>{Math.round(lightboxImage.size / 1024)}KB • {lightboxImage.width}x{lightboxImage.height}</p>
             </div>
           </div>
         </div>

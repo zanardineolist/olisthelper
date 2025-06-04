@@ -206,19 +206,20 @@
 }
 
 .entryCard {
-  background: var(--box-color);
-  border: 1px solid var(--color-border);
-  border-left: 4px solid var(--color-primary);
+  background: #ffffff;
   border-radius: 12px;
-  padding: 20px;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid var(--color-primary);
+  padding: 1rem;
+  transition: all 0.2s ease;
   cursor: pointer;
+  height: fit-content;
+  position: relative;
 }
 
 .entryCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
 }
 
 .entryHeader {
@@ -1022,6 +1023,267 @@
   color: var(--text-color);
 }
 
+/* Indicadores de imagem */
+.imageIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0.5rem 0;
+  padding: 0.25rem 0.5rem;
+  background: #f8fafc;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: #475569;
+  width: fit-content;
+}
+
+.imageIcon {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.imageCount {
+  font-weight: 500;
+}
+
+/* Upload de Imagens */
+.uploadArea {
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 2rem 1rem;
+  text-align: center;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+  position: relative;
+  cursor: pointer;
+}
+
+.uploadArea:hover,
+.uploadArea.dragActive {
+  border-color: var(--color-primary);
+  background: #f0f6ff;
+}
+
+.uploadContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.uploadIcon {
+  font-size: 2rem;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
+.uploadText {
+  font-weight: 500;
+  color: #475569;
+  margin: 0;
+}
+
+.uploadSubtext {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.fileInput {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Preview de Imagens */
+.imagePreviewContainer {
+  margin-top: 1rem;
+}
+
+.previewLabel {
+  display: block;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.imagePreviewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+
+.imagePreviewItem {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  aspect-ratio: 1;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.removeImageButton {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.removeImageButton:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+/* Gallery no Modal de Visualização */
+.imageGallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.galleryItem {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  aspect-ratio: 16/9;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.galleryItem:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.galleryImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.galleryOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.galleryItem:hover .galleryOverlay {
+  opacity: 1;
+}
+
+.expandIcon {
+  color: white;
+  font-size: 1.5rem;
+}
+
+/* Lightbox */
+.lightboxOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 2rem;
+}
+
+.lightboxContent {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lightboxClose {
+  position: absolute;
+  top: -3rem;
+  right: 0;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.lightboxClose:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.lightboxImage {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.lightboxInfo {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+  text-align: center;
+  color: #374151;
+  min-width: 200px;
+}
+
+.lightboxInfo h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.lightboxInfo p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .container {
@@ -1137,6 +1399,61 @@
   .viewTagsContainer {
     gap: 8px;
   }
+
+  /* Upload responsivo */
+  .uploadArea {
+    padding: 1.5rem 0.75rem;
+  }
+  
+  .uploadIcon {
+    font-size: 1.5rem;
+  }
+  
+  .uploadText {
+    font-size: 0.875rem;
+  }
+  
+  .uploadSubtext {
+    font-size: 0.75rem;
+  }
+  
+  .imagePreviewGrid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .imageGallery {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .lightboxOverlay {
+    padding: 1rem;
+  }
+  
+  .lightboxClose {
+    top: -2.5rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+  
+  .lightboxImage {
+    max-height: 70vh;
+  }
+  
+  .lightboxInfo {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .lightboxInfo h4 {
+    font-size: 0.875rem;
+  }
+  
+  .lightboxInfo p {
+    font-size: 0.75rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1200,5 +1517,17 @@
 
   .viewLinkText {
     font-size: 0.9rem;
+  }
+
+  .imagePreviewGrid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  }
+  
+  .imageGallery {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .galleryItem {
+    aspect-ratio: 1;
   }
 } 
