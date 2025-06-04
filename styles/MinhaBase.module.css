@@ -207,14 +207,9 @@
   border: 1px solid var(--color-border);
   border-left: 4px solid var(--entry-color, var(--color-primary));
   padding: 20px;
-  transition: border-left-width 0.3s ease;
   cursor: pointer;
   height: fit-content;
   position: relative;
-}
-
-.entryCard:hover {
-  border-left-width: 6px;
 }
 
 /* Variações de cores baseadas no globals.css */
