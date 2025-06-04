@@ -1321,16 +1321,19 @@
 }
 
 .lightboxImage {
-  max-width: 100%;
-  max-height: 80vh;
+  max-width: min(100%, 1280px);
+  max-height: min(80vh, 720px);
   object-fit: contain;
   display: block;
+  width: auto;
+  height: auto;
 }
 
 .lightboxInfo {
-  padding: 16px 20px;
+  padding: 12px 20px;
   background: var(--background-color);
   border-top: 1px solid var(--color-border);
+  text-align: center;
 }
 
 .lightboxInfo h4 {
@@ -1344,6 +1347,7 @@
   margin: 0;
   color: var(--text-color2);
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
 /* Seção de imagens no modal de visualização */
@@ -1507,7 +1511,8 @@
   }
 
   .lightboxImage {
-    max-height: 70vh;
+    max-width: min(100%, 900px);
+    max-height: min(70vh, 500px);
   }
 
   .lightboxClose {
@@ -1516,6 +1521,14 @@
     width: 32px;
     height: 32px;
     font-size: 1rem;
+  }
+
+  .lightboxInfo {
+    padding: 10px 16px;
+  }
+
+  .lightboxInfo p {
+    font-size: 0.8rem;
   }
 }
 
@@ -1594,15 +1607,30 @@
     padding: 8px 0;
   }
 
-  .lightboxInfo {
-    padding: 12px 16px;
+  .lightboxContent {
+    margin: 5px;
+    max-width: calc(100vw - 10px);
+    max-height: calc(100vh - 10px);
   }
 
-  .lightboxInfo h4 {
-    font-size: 1rem;
+  .lightboxImage {
+    max-width: min(100%, 600px);
+    max-height: min(60vh, 400px);
+  }
+
+  .lightboxClose {
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+
+  .lightboxInfo {
+    padding: 8px 12px;
   }
 
   .lightboxInfo p {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 } 

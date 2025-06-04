@@ -1173,24 +1173,17 @@ export default function MinhaBase({ user }) {
               alt={lightboxImage.title || 'Imagem'}
               className={styles.lightboxImage}
             />
-            {lightboxImage.title || lightboxImage.size || lightboxImage.width || lightboxImage.height ? (
-              <div className={styles.lightboxInfo}>
-                <h4>{lightboxImage.title || 'Imagem sem título'}</h4>
-                <p>
-                  {lightboxImage.size && `${Math.round(lightboxImage.size / 1024)}KB`}
-                  {lightboxImage.width && lightboxImage.height && 
-                    ` • ${lightboxImage.width}x${lightboxImage.height}px`
-                  }
-                  {(!lightboxImage.size && !lightboxImage.width && !lightboxImage.height) && 
-                    'Clique fora da imagem para fechar'
-                  }
-                </p>
-              </div>
-            ) : (
-              <div className={styles.lightboxInfo}>
-                <p>Clique fora da imagem para fechar</p>
-              </div>
-            )}
+            <div className={styles.lightboxInfo}>
+              <p>
+                {lightboxImage.size && `${Math.round(lightboxImage.size / 1024)}KB`}
+                {lightboxImage.width && lightboxImage.height && 
+                  ` • ${lightboxImage.width}x${lightboxImage.height}px`
+                }
+                {(!lightboxImage.size && !lightboxImage.width && !lightboxImage.height) && 
+                  'Clique fora da imagem para fechar'
+                }
+              </p>
+            </div>
           </div>
         </div>
       )}
