@@ -37,7 +37,7 @@ import {
   Grid,
   Fab
 } from '@mui/material';
-import { supabase } from '../utils/supabase';
+import { supabase } from '../utils/supabase/supabaseClient';
 import styles from '../styles/MinhaBase.module.css';
 
 const PRIORITY_COLORS = {
