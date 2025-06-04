@@ -35,19 +35,12 @@ export default async function handler(req, res) {
           description,
           link = '',
           tags = [],
-          color = '#3B82F6',
-          priority = 'normal',
-          category = 'geral',
-          is_favorite = false
+          color = '#0A4EE4',
+          category = 'geral'
         } = req.body;
 
         if (!title || !description) {
           return res.status(400).json({ error: 'Título e descrição são obrigatórios' });
-        }
-
-        // Validar prioridade
-        if (!['low', 'normal', 'high', 'urgent'].includes(priority)) {
-          return res.status(400).json({ error: 'Prioridade inválida' });
         }
 
         // Validar cor (formato hexadecimal)
@@ -63,9 +56,7 @@ export default async function handler(req, res) {
             link: link.trim(),
             tags: Array.isArray(tags) ? tags.filter(tag => tag.trim()) : [],
             color,
-            priority,
             category: category.trim(),
-            is_favorite,
             updated_at: new Date().toISOString()
           })
           .eq('id', id)

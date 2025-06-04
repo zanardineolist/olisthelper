@@ -29,11 +29,8 @@ export default async function handler(req, res) {
     // A função retorna um array, pegamos o primeiro item
     const userStats = stats && stats.length > 0 ? stats[0] : {
       total_entries: 0,
-      total_favorites: 0,
-      total_views: 0,
-      most_viewed_entry_id: null,
-      most_used_tags: [],
-      categories_count: 0
+      categories_count: 0,
+      most_used_tags: []
     };
 
     return res.status(200).json({ stats: userStats });
