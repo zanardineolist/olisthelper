@@ -768,33 +768,29 @@ export default function MinhaBase({ user }) {
                     </span>
                   </div>
                   
-                  <div className={styles.imageGalleryContainer}>
-                    <div className={styles.imageGalleryHeader}>
-                      <span className={styles.imageGalleryInfo}>
-                        Clique em uma imagem para visualizar em tamanho real
-                      </span>
-                    </div>
-                    
-                    <div className={styles.imageGallery}>
-                      {viewingEntry.images.map((image, index) => (
-                        <div 
-                          key={index} 
-                          className={styles.galleryItem}
-                          title={image.title || `Imagem ${index + 1}`}
-                        >
-                          <img
-                            src={image.url}
-                            alt={image.title || `Imagem ${index + 1}`}
-                            className={styles.galleryImage}
-                            onClick={() => openLightbox(image)}
-                            loading="lazy"
-                          />
-                          <div className={styles.galleryOverlay}>
-                            <FaExpand className={styles.expandIcon} />
-                          </div>
+                  <div className={styles.imageGallery}>
+                    {viewingEntry.images.map((image, index) => (
+                      <div 
+                        key={index} 
+                        className={styles.galleryItem}
+                        title={image.title || `Imagem ${index + 1}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openLightbox(image);
+                        }}
+                      >
+                        <img
+                          src={image.url}
+                          alt={image.title || `Imagem ${index + 1}`}
+                          className={styles.galleryImage}
+                          loading="lazy"
+                          draggable={false}
+                        />
+                        <div className={styles.galleryOverlay}>
+                          <FaExpand className={styles.expandIcon} />
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}

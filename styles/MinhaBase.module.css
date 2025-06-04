@@ -1198,16 +1198,14 @@
   opacity: 1;
 }
 
+/* Gallery de imagens no modal de visualização - Miniaturas */
 .imageGallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   gap: 12px;
   max-height: 200px;
   overflow-y: auto;
-  padding: 8px;
-  background: var(--box-color);
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
+  padding: 16px 0;
 }
 
 .galleryItem {
@@ -1260,6 +1258,7 @@
   backdrop-filter: blur(2px);
 }
 
+/* Lightbox melhorado para expansão das imagens */
 .lightboxOverlay {
   position: fixed;
   top: 0;
@@ -1357,34 +1356,7 @@
   border-bottom: none;
 }
 
-/* Melhorias para seção de imagens especificamente */
-.viewContentSection:has(.imageGallery) {
-  padding: 20px 32px;
-}
-
-.imageGalleryContainer {
-  background: var(--box-color);
-  border-radius: 12px;
-  padding: 16px;
-  border: 1px solid var(--color-border);
-}
-
-.imageGalleryHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.imageGalleryInfo {
-  font-size: 0.9rem;
-  color: var(--text-color2);
-  font-style: italic;
-}
-
-/* Responsividade */
+/* Responsividade para gallery de imagens */
 @media (max-width: 768px) {
   .container {
     padding: 16px;
@@ -1520,10 +1492,12 @@
     gap: 8px;
   }
 
+  /* Gallery de imagens responsivo */
   .imageGallery {
     grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
     gap: 8px;
     max-height: 150px;
+    padding: 12px 0;
   }
 
   .lightboxContent {
@@ -1542,26 +1516,6 @@
     width: 32px;
     height: 32px;
     font-size: 1rem;
-  }
-
-  .viewContentSection:has(.imageGallery) {
-    padding: 16px 20px;
-  }
-
-  .imageGalleryContainer {
-    padding: 12px;
-  }
-
-  .lightboxInfo {
-    padding: 12px 16px;
-  }
-
-  .lightboxInfo h4 {
-    font-size: 1rem;
-  }
-
-  .lightboxInfo p {
-    font-size: 0.8rem;
   }
 }
 
@@ -1632,22 +1586,12 @@
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
   }
 
+  /* Gallery de imagens mobile */
   .imageGallery {
     grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
     gap: 6px;
     max-height: 120px;
-  }
-
-  .galleryItem {
-    aspect-ratio: 1;
-  }
-
-  .viewContentSection:has(.imageGallery) {
-    padding: 16px 20px;
-  }
-
-  .imageGalleryContainer {
-    padding: 12px;
+    padding: 8px 0;
   }
 
   .lightboxInfo {
