@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import styles from '../styles/MinhaBase.module.css';
 
@@ -23,8 +23,9 @@ export default function MinhaBase({ user }) {
   const [sortBy, setSortBy] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
   const [showModal, setShowModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
-  const [stats, setStats] = useState(null);
+  const [viewingEntry, setViewingEntry] = useState(null);
 
   // Estados do formulário
   const [formData, setFormData] = useState({
@@ -40,14 +41,28 @@ export default function MinhaBase({ user }) {
   const [availableTags, setAvailableTags] = useState([]);
   const [availableCategories, setAvailableCategories] = useState([]);
   const [newTag, setNewTag] = useState('');
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+  const [showCategorySuggestions, setShowCategorySuggestions] = useState(false);
 
   // Carrega dados iniciais
   useEffect(() => {
     if (user?.id) {
       loadEntries();
-      loadStats();
     }
   }, [user, searchTerm, filterCategory, filterTags, sortBy, sortDirection]);
+
+  // Fechar sugestões ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.autocomplete-container')) {
+        setShowTagSuggestions(false);
+        setShowCategorySuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const loadEntries = useCallback(async () => {
     try {
@@ -64,26 +79,28 @@ export default function MinhaBase({ user }) {
       const response = await fetch(`/api/knowledge-base?${queryParams}`);
       
       if (!response.ok) {
-        throw new Error('Erro ao carregar entradas');
+        throw new Error('Erro ao carregar anotações');
       }
 
       const data = await response.json();
       setEntries(data.entries || []);
       
-      // Extrai tags e categorias disponíveis
-      const allTags = new Set();
-      const allCategories = new Set();
-      
-      data.entries?.forEach(entry => {
-        entry.tags?.forEach(tag => allTags.add(tag));
-        if (entry.category) allCategories.add(entry.category);
-      });
-      
-      setAvailableTags([...allTags].sort());
-      setAvailableCategories([...allCategories].sort());
+      // Extrai tags e categorias disponíveis de TODAS as entradas (não apenas as filtradas)
+      if (!searchTerm && !filterCategory && filterTags.length === 0) {
+        const allTags = new Set();
+        const allCategories = new Set();
+        
+        data.entries?.forEach(entry => {
+          entry.tags?.forEach(tag => allTags.add(tag));
+          if (entry.category) allCategories.add(entry.category);
+        });
+        
+        setAvailableTags([...allTags].sort());
+        setAvailableCategories([...allCategories].sort());
+      }
       
     } catch (error) {
-      console.error('Erro ao carregar entradas:', error);
+      console.error('Erro ao carregar anotações:', error);
       Swal.fire({
         icon: 'error',
         title: 'Erro',
@@ -94,19 +111,6 @@ export default function MinhaBase({ user }) {
       setLoading(false);
     }
   }, [user?.id, searchTerm, filterCategory, filterTags, sortBy, sortDirection]);
-
-  const loadStats = async () => {
-    try {
-      const response = await fetch('/api/knowledge-base/stats');
-      
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data.stats);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar estatísticas:', error);
-    }
-  };
 
   const handleSave = async () => {
     try {
@@ -138,27 +142,26 @@ export default function MinhaBase({ user }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro ao salvar entrada');
+        throw new Error(errorData.error || 'Erro ao salvar anotação');
       }
 
       await Swal.fire({
         icon: 'success',
         title: 'Sucesso!',
-        text: editingEntry ? 'Entrada atualizada!' : 'Entrada criada!',
+        text: editingEntry ? 'Anotação atualizada!' : 'Anotação criada!',
         timer: 1500,
         showConfirmButton: false
       });
       
       handleCloseModal();
       loadEntries();
-      loadStats();
       
     } catch (error) {
       console.error('Erro ao salvar:', error);
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao salvar entrada',
+        text: 'Erro ao salvar anotação',
         confirmButtonColor: 'var(--color-primary)'
       });
     }
@@ -185,26 +188,25 @@ export default function MinhaBase({ user }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro ao excluir entrada');
+        throw new Error(errorData.error || 'Erro ao excluir anotação');
       }
 
       await Swal.fire({
         icon: 'success',
         title: 'Excluída!',
-        text: 'Entrada excluída com sucesso',
+        text: 'Anotação excluída com sucesso',
         timer: 1500,
         showConfirmButton: false
       });
 
       loadEntries();
-      loadStats();
       
     } catch (error) {
       console.error('Erro ao excluir:', error);
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao excluir entrada',
+        text: 'Erro ao excluir anotação',
         confirmButtonColor: 'var(--color-primary)'
       });
     }
@@ -214,6 +216,11 @@ export default function MinhaBase({ user }) {
     if (entry.link) {
       window.open(entry.link, '_blank');
     }
+  };
+
+  const handleCardClick = (entry) => {
+    setViewingEntry(entry);
+    setShowViewModal(true);
   };
 
   const handleOpenModal = (entry = null) => {
@@ -245,15 +252,24 @@ export default function MinhaBase({ user }) {
     setShowModal(false);
     setEditingEntry(null);
     setNewTag('');
+    setShowTagSuggestions(false);
+    setShowCategorySuggestions(false);
   };
 
-  const handleAddTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
+    setViewingEntry(null);
+  };
+
+  const handleAddTag = (tag = null) => {
+    const tagToAdd = tag || newTag.trim();
+    if (tagToAdd && !formData.tags.includes(tagToAdd)) {
       setFormData({
         ...formData,
-        tags: [...formData.tags, newTag.trim()]
+        tags: [...formData.tags, tagToAdd]
       });
       setNewTag('');
+      setShowTagSuggestions(false);
     }
   };
 
@@ -262,6 +278,25 @@ export default function MinhaBase({ user }) {
       ...formData,
       tags: formData.tags.filter(tag => tag !== tagToRemove)
     });
+  };
+
+  const handleCategorySelect = (category) => {
+    setFormData({ ...formData, category });
+    setShowCategorySuggestions(false);
+  };
+
+  const getFilteredCategories = () => {
+    return availableCategories.filter(cat => 
+      cat.toLowerCase().includes(formData.category.toLowerCase()) &&
+      cat !== formData.category
+    );
+  };
+
+  const getFilteredTags = () => {
+    return availableTags.filter(tag => 
+      tag.toLowerCase().includes(newTag.toLowerCase()) &&
+      !formData.tags.includes(tag)
+    );
   };
 
   const formatDate = (dateString) => {
@@ -300,27 +335,9 @@ export default function MinhaBase({ user }) {
           onClick={() => handleOpenModal()}
           className={styles.addButton}
         >
-          <FaPlus /> Nova Entrada
+          <FaPlus /> Nova Anotação
         </button>
       </div>
-
-      {/* Estatísticas */}
-      {stats && (
-        <div className={styles.statsContainer}>
-          <div className={styles.statCard}>
-            <span className={styles.statNumber}>{stats.total_entries || 0}</span>
-            <span className={styles.statLabel}>Entradas</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statNumber}>{stats.categories_count || 0}</span>
-            <span className={styles.statLabel}>Categorias</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statNumber}>{stats.most_used_tags?.length || 0}</span>
-            <span className={styles.statLabel}>Tags</span>
-          </div>
-        </div>
-      )}
 
       {/* Controles de busca e filtros */}
       <div className={styles.controls}>
@@ -365,17 +382,25 @@ export default function MinhaBase({ user }) {
         </div>
       </div>
 
-      {/* Grid de entradas */}
+      {/* Contador de resultados */}
+      {!loading && (
+        <div className={styles.resultsCounter}>
+          <span>{entries.length} anotaç{entries.length === 1 ? 'ão' : 'ões'} encontrada{entries.length === 1 ? '' : 's'}</span>
+        </div>
+      )}
+
+      {/* Grid de anotações */}
       <div className={styles.entriesGrid}>
         {entries.map(entry => (
           <div
             key={entry.id}
             className={styles.entryCard}
             style={{ borderLeftColor: entry.color }}
+            onClick={() => handleCardClick(entry)}
           >
             <div className={styles.entryHeader}>
               <h3 className={styles.entryTitle}>{entry.title}</h3>
-              <div className={styles.entryActions}>
+              <div className={styles.entryActions} onClick={(e) => e.stopPropagation()}>
                 {entry.link && (
                   <button
                     onClick={() => handleViewEntry(entry)}
@@ -442,19 +467,99 @@ export default function MinhaBase({ user }) {
       {entries.length === 0 && !loading && (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>📚</div>
-          <h3>Nenhuma entrada encontrada</h3>
+          <h3>Nenhuma anotação encontrada</h3>
           <p>
             {searchTerm || filterCategory 
               ? 'Tente ajustar os filtros de busca'
-              : 'Comece criando sua primeira entrada na base de conhecimento'
+              : 'Comece criando sua primeira anotação na base de conhecimento'
             }
           </p>
           <button
             onClick={() => handleOpenModal()}
             className={styles.primaryButton}
           >
-            <FaPlus /> Criar primeira entrada
+            <FaPlus /> Criar primeira anotação
           </button>
+        </div>
+      )}
+
+      {/* Modal de Visualização */}
+      {showViewModal && viewingEntry && (
+        <div className={styles.modalOverlay} onClick={handleCloseViewModal}>
+          <div className={styles.viewModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>{viewingEntry.title}</h2>
+              <div className={styles.viewModalActions}>
+                <button
+                  onClick={() => {
+                    handleCloseViewModal();
+                    handleOpenModal(viewingEntry);
+                  }}
+                  className={styles.editIconButton}
+                  title="Editar"
+                >
+                  <FaEdit />
+                </button>
+                <button onClick={handleCloseViewModal} className={styles.closeButton}>
+                  <FaTimes />
+                </button>
+              </div>
+            </div>
+            
+            <div className={styles.viewModalContent}>
+              <div className={styles.viewSection}>
+                <h4>Descrição</h4>
+                <p className={styles.viewDescription}>{viewingEntry.description}</p>
+              </div>
+
+              {viewingEntry.link && (
+                <div className={styles.viewSection}>
+                  <h4>Link</h4>
+                  <a 
+                    href={viewingEntry.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={styles.viewLink}
+                  >
+                    <FaExternalLinkAlt /> {viewingEntry.link}
+                  </a>
+                </div>
+              )}
+
+              {viewingEntry.tags && viewingEntry.tags.length > 0 && (
+                <div className={styles.viewSection}>
+                  <h4>Tags</h4>
+                  <div className={styles.viewTags}>
+                    {viewingEntry.tags.map(tag => (
+                      <span key={tag} className={styles.viewTag}>
+                        <FaTag /> {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.viewMeta}>
+                <div className={styles.viewMetaItem}>
+                  <strong>Categoria:</strong> 
+                  <span 
+                    className={styles.viewCategory}
+                    style={{ borderLeftColor: viewingEntry.color }}
+                  >
+                    {viewingEntry.category}
+                  </span>
+                </div>
+                <div className={styles.viewMetaItem}>
+                  <strong>Criado em:</strong> {formatDate(viewingEntry.created_at)}
+                </div>
+                {viewingEntry.updated_at !== viewingEntry.created_at && (
+                  <div className={styles.viewMetaItem}>
+                    <strong>Atualizado em:</strong> {formatDate(viewingEntry.updated_at)}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -463,7 +568,7 @@ export default function MinhaBase({ user }) {
         <div className={styles.modalOverlay} onClick={handleCloseModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>{editingEntry ? 'Editar Entrada' : 'Nova Entrada'}</h2>
+              <h2>{editingEntry ? 'Editar Anotação' : 'Nova Anotação'}</h2>
               <button onClick={handleCloseModal} className={styles.closeButton}>×</button>
             </div>
             
@@ -493,13 +598,32 @@ export default function MinhaBase({ user }) {
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label>Categoria</label>
-                  <input
-                    type="text"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    placeholder="Ex: Suporte, Fiscal, Técnico"
-                    className={styles.input}
-                  />
+                  <div className={`${styles.autocompleteContainer} autocomplete-container`}>
+                    <input
+                      type="text"
+                      value={formData.category}
+                      onChange={(e) => {
+                        setFormData({ ...formData, category: e.target.value });
+                        setShowCategorySuggestions(true);
+                      }}
+                      onFocus={() => setShowCategorySuggestions(true)}
+                      placeholder="Ex: Suporte, Fiscal, Técnico"
+                      className={styles.input}
+                    />
+                    {showCategorySuggestions && getFilteredCategories().length > 0 && (
+                      <div className={styles.suggestions}>
+                        {getFilteredCategories().slice(0, 5).map(category => (
+                          <div
+                            key={category}
+                            className={styles.suggestionItem}
+                            onClick={() => handleCategorySelect(category)}
+                          >
+                            {category}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className={styles.formGroup}>
@@ -531,18 +655,37 @@ export default function MinhaBase({ user }) {
 
               <div className={styles.formGroup}>
                 <label>Tags</label>
-                <div className={styles.tagsInput}>
-                  <input
-                    type="text"
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                    placeholder="Digite uma tag e pressione Enter"
-                    className={styles.input}
-                  />
-                  <button onClick={handleAddTag} className={styles.addTagButton}>
-                    <FaPlus />
-                  </button>
+                <div className={`${styles.autocompleteContainer} autocomplete-container`}>
+                  <div className={styles.tagsInput}>
+                    <input
+                      type="text"
+                      value={newTag}
+                      onChange={(e) => {
+                        setNewTag(e.target.value);
+                        setShowTagSuggestions(true);
+                      }}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                      onFocus={() => setShowTagSuggestions(true)}
+                      placeholder="Digite uma tag e pressione Enter"
+                      className={styles.input}
+                    />
+                    <button onClick={() => handleAddTag()} className={styles.addTagButton}>
+                      <FaPlus />
+                    </button>
+                  </div>
+                  {showTagSuggestions && getFilteredTags().length > 0 && (
+                    <div className={styles.suggestions}>
+                      {getFilteredTags().slice(0, 5).map(tag => (
+                        <div
+                          key={tag}
+                          className={styles.suggestionItem}
+                          onClick={() => handleAddTag(tag)}
+                        >
+                          <FaTag /> {tag}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className={styles.tagsList}>
@@ -561,7 +704,7 @@ export default function MinhaBase({ user }) {
                 Cancelar
               </button>
               <button onClick={handleSave} className={styles.saveButton}>
-                {editingEntry ? 'Salvar Alterações' : 'Criar Entrada'}
+                {editingEntry ? 'Salvar Alterações' : 'Criar Anotação'}
               </button>
             </div>
           </div>
