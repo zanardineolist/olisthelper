@@ -110,8 +110,14 @@
   margin: 0 1rem;
 }
 
+/* Container do botão Limpar Contagem */
+.clearButtonContainer {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0;
+}
+
 .clearButton {
-  margin: 1.5rem auto 0;
   background-color: var(--good-color);
   color: var(--color-white);
   border: none;

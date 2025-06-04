@@ -271,36 +271,138 @@ function TicketCounter() {
     });
   }, [count]);
 
-  // MELHORIA 4: Exportação CSV
-  const exportToCSV = () => {
+  // MELHORIA 4: Exportação CSV melhorada
+  const exportToCSV = async () => {
     if (!history || history.length === 0) {
       showToast('Nenhum dado para exportar', 'warning');
       return;
     }
 
-    const headers = ['Data', 'Total de Chamados', 'Dia da Semana'];
-    const csvData = history.map(record => [
-      dayjs(record.count_date).format('DD/MM/YYYY'),
-      record.total_count,
-      dayjs(record.count_date).format('dddd')
-    ]);
-
-    const csvContent = [
-      headers.join(','),
-      ...csvData.map(row => row.join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `contador-chamados-${dayjs().format('YYYY-MM-DD')}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Determinar o período atual
+    let periodDescription = '';
+    const today = dayjs().tz().format('DD/MM/YYYY');
     
-    showToast('Arquivo CSV exportado com sucesso!', 'success');
+    switch (dateFilter.value) {
+      case 'today':
+        periodDescription = `<strong>Hoje</strong> (${today})`;
+        break;
+      case '7days':
+        periodDescription = `<strong>Últimos 7 dias</strong><br><small>De ${dayjs().subtract(6, 'day').format('DD/MM/YYYY')} até ${today}</small>`;
+        break;
+      case '30days':
+        periodDescription = `<strong>Últimos 30 dias</strong><br><small>De ${dayjs().subtract(29, 'day').format('DD/MM/YYYY')} até ${today}</small>`;
+        break;
+      case 'month':
+        periodDescription = `<strong>Este mês</strong><br><small>De ${dayjs().startOf('month').format('DD/MM/YYYY')} até ${today}</small>`;
+        break;
+      case 'year':
+        periodDescription = `<strong>Este ano</strong><br><small>De ${dayjs().startOf('year').format('DD/MM/YYYY')} até ${today}</small>`;
+        break;
+      case 'custom':
+        periodDescription = `<strong>Período personalizado</strong><br><small>De ${dayjs(customRange.startDate).format('DD/MM/YYYY')} até ${dayjs(customRange.endDate).format('DD/MM/YYYY')}</small>`;
+        break;
+      default:
+        periodDescription = 'Período atual';
+    }
+
+    const result = await Swal.fire({
+      title: 'Exportar Relatório CSV',
+      html: `
+        <div style="text-align: left; padding: 10px;">
+          <p><strong>📊 Período que será exportado:</strong></p>
+          <div style="background: var(--box-color); padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid var(--color-border);">
+            ${periodDescription}
+          </div>
+          
+          <p><strong>📁 O arquivo incluirá:</strong></p>
+          <ul style="margin: 10px 0; padding-left: 20px;">
+            <li>Data de cada registro</li>
+            <li>Total de chamados por dia</li>
+            <li>Dia da semana</li>
+          </ul>
+          
+          <div style="background: rgba(10, 78, 228, 0.1); padding: 12px; border-radius: 6px; border-left: 4px solid var(--color-primary); margin: 15px 0;">
+            <p style="margin: 0; font-size: 14px;"><strong>💡 Dica:</strong> Para alterar o período, use o filtro acima da tabela de histórico antes de exportar.</p>
+          </div>
+          
+          <p style="margin-top: 15px;"><strong>Total de registros:</strong> ${history.length}</p>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: '📥 Exportar CSV',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: 'var(--color-primary)',
+      cancelButtonColor: 'var(--neutral-color)',
+      background: 'var(--bg-secondary)',
+      color: 'var(--text-color)',
+      customClass: {
+        popup: 'export-csv-modal',
+        htmlContainer: 'export-csv-content'
+      },
+      didRender: () => {
+        // Adicionar estilos customizados para o modal
+        const style = document.createElement('style');
+        style.textContent = `
+          .export-csv-modal {
+            border: 1px solid var(--color-border) !important;
+            border-radius: 12px !important;
+            max-width: 500px !important;
+          }
+          .export-csv-content {
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+          }
+          .export-csv-content ul {
+            color: var(--text-color) !important;
+          }
+          .export-csv-content li {
+            margin-bottom: 5px !important;
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Remover o estilo após 10 segundos
+        setTimeout(() => {
+          if (document.head.contains(style)) {
+            document.head.removeChild(style);
+          }
+        }, 10000);
+      }
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    try {
+      const headers = ['Data', 'Total de Chamados', 'Dia da Semana'];
+      const csvData = history.map(record => [
+        dayjs(record.count_date).format('DD/MM/YYYY'),
+        record.total_count,
+        dayjs(record.count_date).format('dddd')
+      ]);
+
+      const csvContent = [
+        headers.join(','),
+        ...csvData.map(row => row.join(','))
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `contador-chamados-${dayjs().format('YYYY-MM-DD')}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showToast('📊 Arquivo CSV exportado com sucesso!', 'success');
+    } catch (error) {
+      console.error('Erro na exportação:', error);
+      showToast('Erro ao exportar arquivo CSV', 'error');
+    }
   };
 
   useEffect(() => {
@@ -629,6 +731,28 @@ function TicketCounter() {
       {/* Barra de Progresso */}
       <ProgressBar count={count} />
 
+      {/* Botão Limpar Contagem - Movido para ficar após a barra de progresso */}
+      <motion.div
+        className={styles.clearButtonContainer}
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <motion.button
+          className={styles.clearButton}
+          onClick={handleClear}
+          disabled={loading || count === 0}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className={styles.clearButtonContent}>
+            <Trash2 size={18} />
+            <span>Limpar Contagem do Dia</span>
+          </div>
+        </motion.button>
+      </motion.div>
+
       {/* MELHORIA 3: Painel de Estatísticas */}
       <motion.div 
         className={styles.statisticsPanel}
@@ -684,27 +808,13 @@ function TicketCounter() {
         </div>
       </motion.div>
 
-      {/* Botões de ação */}
+      {/* Botões de ação - Removido o botão "Limpar Contagem" */}
       <motion.div 
         className={styles.actionButtons}
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.3 }}
       >
-        <motion.button
-          className={styles.clearButton}
-          onClick={handleClear}
-          disabled={loading || count === 0}
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.99 }}
-          transition={{ duration: 0.2 }}
-        >
-          <div className={styles.clearButtonContent}>
-            <Trash2 size={18} />
-            <span>Limpar Contagem</span>
-          </div>
-        </motion.button>
-
         <motion.button
           className={styles.exportButton}
           onClick={exportToCSV}
