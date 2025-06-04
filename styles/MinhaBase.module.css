@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 12px;
@@ -48,14 +48,11 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-md);
+  transition: background-color 0.3s ease;
 }
 
 .addButton:hover {
-  background: linear-gradient(135deg, var(--color-primary-hover), var(--color-primary));
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  background: var(--color-primary-hover);
 }
 
 /* Estatísticas */
@@ -72,13 +69,12 @@
   border-radius: 12px;
   padding: 20px;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
   box-shadow: var(--shadow-sm);
 }
 
 .statCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  background: var(--box-color2);
 }
 
 .statNumber {
@@ -211,16 +207,13 @@
   border: 1px solid var(--color-border);
   border-left: 4px solid var(--entry-color, var(--color-primary));
   padding: 20px;
-  transition: all 0.3s ease;
+  transition: border-left-width 0.3s ease;
   cursor: pointer;
   height: fit-content;
   position: relative;
-  box-shadow: var(--shadow-sm);
 }
 
 .entryCard:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-3px);
   border-left-width: 6px;
 }
 
@@ -290,7 +283,7 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
@@ -306,7 +299,6 @@
 
 .linkButton:hover {
   background: var(--color-primary-hover);
-  transform: scale(1.1);
 }
 
 .editButton {
@@ -316,7 +308,6 @@
 
 .editButton:hover {
   background: #e09020;
-  transform: scale(1.1);
 }
 
 .deleteButton {
@@ -326,7 +317,6 @@
 
 .deleteButton:hover {
   background: #d13d2a;
-  transform: scale(1.1);
 }
 
 .entryContent {
@@ -357,7 +347,6 @@
   border-radius: 16px;
   font-size: 0.8rem;
   font-weight: 500;
-  transition: all 0.3s ease;
 }
 
 .tag:hover {
@@ -430,7 +419,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 12px;
@@ -438,14 +427,11 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-md);
+  transition: background-color 0.3s ease;
 }
 
 .primaryButton:hover {
-  background: linear-gradient(135deg, var(--color-primary-hover), var(--color-primary));
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  background: var(--color-primary-hover);
 }
 
 /* Modal Base - Design Melhorado */
@@ -474,7 +460,7 @@
 .modal, .viewModal {
   background: var(--bg-secondary);
   border: 1px solid var(--color-border);
-  border-radius: 20px;
+  border-radius: 20px 0 0 20px;
   width: 100%;
   max-width: 900px;
   max-height: 90vh;
@@ -505,7 +491,7 @@
   padding: 28px 32px;
   border-bottom: 1px solid var(--color-border);
   background: var(--box-color);
-  border-radius: 20px 20px 0 0;
+  border-radius: 20px 0 0 0;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -537,14 +523,12 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
   font-size: 1.1rem;
 }
 
 .editIconButton:hover {
   background: #e09020;
-  transform: scale(1.1);
-  box-shadow: var(--shadow-md);
 }
 
 .closeButton {
@@ -566,14 +550,13 @@
 .closeButton:hover {
   background: var(--color-accent1);
   color: white;
-  transform: scale(1.1);
 }
 
 /* Modal de Visualização Reformulado */
 .viewModalHeader {
   background: var(--box-color);
   border-bottom: 1px solid var(--color-border);
-  border-radius: 20px 20px 0 0;
+  border-radius: 20px 0 0 0;
   padding: 28px 32px 24px 32px;
   position: sticky;
   top: 0;
@@ -692,13 +675,11 @@
   border: 1px solid var(--color-border);
   border-radius: 12px;
   border-left: 4px solid var(--color-primary);
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .viewLinkCard:hover {
   background: var(--box-color2);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 .viewLinkIcon {
@@ -735,7 +716,6 @@
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: all 0.3s ease;
 }
 
 .viewTag:hover {
@@ -747,7 +727,7 @@
   background: var(--box-color);
   border-top: 1px solid var(--color-border);
   padding: 20px 32px;
-  border-radius: 0 0 20px 20px;
+  border-radius: 0 0 0 20px;
 }
 
 .viewUpdateInfo {
@@ -880,18 +860,16 @@
   border-radius: 50%;
   border: 3px solid transparent;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease;
   position: relative;
 }
 
 .colorOption:hover {
-  transform: scale(1.1);
   border-color: var(--color-border);
 }
 
 .colorOptionSelected {
   border-color: var(--title-color);
-  transform: scale(1.15);
   box-shadow: var(--shadow-md);
 }
 
@@ -919,7 +897,7 @@
   cursor: pointer;
   color: var(--text-color);
   font-size: 0.95rem;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -946,7 +924,7 @@
   border-radius: 8px;
   padding: 14px 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -955,7 +933,6 @@
 
 .addTagButton:hover {
   background: var(--color-primary-hover);
-  transform: scale(1.05);
 }
 
 .tagsDisplayContainer {
@@ -986,7 +963,6 @@
   border-radius: 16px;
   font-size: 0.85rem;
   font-weight: 500;
-  transition: all 0.3s ease;
 }
 
 .formTag:hover {
@@ -1001,12 +977,11 @@
   margin-left: 4px;
   padding: 2px;
   border-radius: 50%;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .removeTagButton:hover {
   background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.2);
 }
 
 .linkPreview {
@@ -1039,7 +1014,7 @@
   padding: 24px 32px;
   background: var(--box-color);
   border-top: 1px solid var(--color-border);
-  border-radius: 0 0 20px 20px;
+  border-radius: 0 0 0 20px;
   position: sticky;
   bottom: 0;
 }
@@ -1053,7 +1028,7 @@
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .cancelButton:hover {
@@ -1070,19 +1045,17 @@
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease;
   box-shadow: var(--shadow-sm);
 }
 
 .saveButton:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  opacity: 0.9;
 }
 
 .saveButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
 }
 
 .loadingContainer {
@@ -1216,35 +1189,33 @@
   justify-content: center;
   cursor: pointer;
   font-size: 0.8rem;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
   opacity: 0.9;
 }
 
 .removeImageButton:hover {
   background: #d13d2a;
-  transform: scale(1.1);
   opacity: 1;
 }
 
 .imageGallery {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 16px;
 }
 
 .galleryItem {
   position: relative;
-  aspect-ratio: 16/9;
-  border-radius: 12px;
+  aspect-ratio: 1;
+  border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease;
   border: 1px solid var(--color-border);
 }
 
 .galleryItem:hover {
-  transform: scale(1.02);
-  box-shadow: var(--shadow-md);
+  opacity: 0.8;
 }
 
 .galleryImage {
@@ -1264,7 +1235,7 @@
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease;
 }
 
 .galleryItem:hover .galleryOverlay {
@@ -1273,7 +1244,7 @@
 
 .expandIcon {
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
 }
 
 .lightboxOverlay {
@@ -1316,12 +1287,11 @@
   cursor: pointer;
   font-size: 1.2rem;
   z-index: 10;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .lightboxClose:hover {
   background: var(--color-accent1);
-  transform: scale(1.1);
 }
 
 .lightboxImage {
