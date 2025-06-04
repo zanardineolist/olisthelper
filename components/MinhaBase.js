@@ -123,7 +123,7 @@ export default function MinhaBase({ user }) {
         icon: 'error',
         title: 'Erro',
         text: 'Erro ao carregar dados',
-        confirmButtonColor: 'var(--color-primary)'
+        confirmButtonColor: '#3B82F6'
       });
     } finally {
       setLoading(false);
@@ -201,7 +201,7 @@ export default function MinhaBase({ user }) {
             icon: 'warning',
             title: 'Tipo de arquivo não suportado',
             text: `${file.name} - Use apenas JPEG, PNG, GIF ou WebP`,
-            confirmButtonColor: 'var(--color-primary)'
+            confirmButtonColor: '#3B82F6'
           });
           continue;
         }
@@ -212,7 +212,7 @@ export default function MinhaBase({ user }) {
             icon: 'warning',
             title: 'Arquivo muito grande',
             text: `${file.name} - Tamanho máximo: 10MB`,
-            confirmButtonColor: 'var(--color-primary)'
+            confirmButtonColor: '#3B82F6'
           });
           continue;
         }
@@ -258,7 +258,7 @@ export default function MinhaBase({ user }) {
         icon: 'error',
         title: 'Erro no upload',
         text: error.message || 'Erro ao fazer upload das imagens',
-        confirmButtonColor: 'var(--color-primary)'
+        confirmButtonColor: '#3B82F6'
       });
     } finally {
       setUploadingImages(false);
@@ -295,15 +295,23 @@ export default function MinhaBase({ user }) {
           icon: 'warning',
           title: 'Campos obrigatórios',
           text: 'Título e descrição são obrigatórios',
-          confirmButtonColor: 'var(--color-primary)'
+          confirmButtonColor: '#3B82F6'
         });
         return;
       }
 
       const dataToSave = {
-        ...formData,
-        tags: formData.tags.filter(tag => tag.trim() !== '')
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        link: formData.link?.trim() || '',
+        tags: formData.tags.filter(tag => tag.trim() !== ''),
+        color: formData.color,
+        category: formData.category.trim(),
+        marker: formData.marker,
+        images: formData.images || []
       };
+
+      console.log('Dados para salvar:', dataToSave); // Debug
 
       const method = editingEntry ? 'PUT' : 'POST';
       const endpoint = editingEntry 
@@ -339,8 +347,8 @@ export default function MinhaBase({ user }) {
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao salvar anotação',
-        confirmButtonColor: 'var(--color-primary)'
+        text: error.message || 'Erro ao salvar anotação',
+        confirmButtonColor: '#3B82F6'
       });
     }
   };
@@ -354,8 +362,8 @@ export default function MinhaBase({ user }) {
         showCancelButton: true,
         confirmButtonText: 'Sim, excluir',
         cancelButtonText: 'Cancelar',
-        confirmButtonColor: 'var(--color-accent1)',
-        cancelButtonColor: 'var(--color-list)'
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#6B7280'
       });
 
       if (!result.isConfirmed) return;
@@ -385,7 +393,7 @@ export default function MinhaBase({ user }) {
         icon: 'error',
         title: 'Erro',
         text: 'Erro ao excluir anotação',
-        confirmButtonColor: 'var(--color-primary)'
+        confirmButtonColor: '#3B82F6'
       });
     }
   };
@@ -429,8 +437,8 @@ export default function MinhaBase({ user }) {
         showCancelButton: true,
         confirmButtonText: 'Sim, descartar',
         cancelButtonText: 'Continuar editando',
-        confirmButtonColor: 'var(--color-accent1)',
-        cancelButtonColor: 'var(--color-primary)'
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#3B82F6'
       });
 
       if (!result.isConfirmed) {
@@ -508,6 +516,27 @@ export default function MinhaBase({ user }) {
     }
   };
 
+  // Funções para gerenciar filtros
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setFilterCategory('');
+    setFilterMarker('');
+    setFilterTags([]);
+  };
+
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (searchTerm) count++;
+    if (filterCategory) count++;
+    if (filterMarker) count++;
+    if (filterTags.length > 0) count++;
+    return count;
+  };
+
+  const hasActiveFilters = () => {
+    return searchTerm || filterCategory || filterMarker || filterTags.length > 0;
+  };
+
   // Função para obter a cor CSS baseada na string de cor
   const getColorValue = (colorString) => {
     if (colorString.startsWith('var(')) {
@@ -549,64 +578,166 @@ export default function MinhaBase({ user }) {
         </button>
       </div>
 
-      {/* Controles de busca e filtros */}
-      <div className={styles.controls}>
-        <div className={styles.searchContainer}>
-          <FaSearch className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Buscar em títulos, descrições e tags..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={styles.searchInput}
-          />
+      {/* Controles de busca e filtros modernos */}
+      <div className={styles.controlsContainer}>
+        {/* Barra de busca principal */}
+        <div className={styles.searchSection}>
+          <div className={styles.searchContainer}>
+            <FaSearch className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Buscar em títulos, descrições e tags..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className={styles.clearSearchButton}
+                title="Limpar busca"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className={styles.filters}>
-          <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="">Todas as categorias</option>
-            {availableCategories.map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
+        {/* Seção de filtros e ordenação */}
+        <div className={styles.filtersSection}>
+          <div className={styles.filtersGroup}>
+            {/* Filtro de Categoria */}
+            <div className={styles.filterItem}>
+              <label className={styles.filterLabel}>
+                <FaFolder className={styles.filterIcon} />
+                Categoria
+              </label>
+              <div className={styles.filterDropdown}>
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className={`${styles.filterSelect} ${filterCategory ? styles.filterSelectActive : ''}`}
+                >
+                  <option value="">Todas</option>
+                  {availableCategories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+                {filterCategory && (
+                  <button
+                    onClick={() => setFilterCategory('')}
+                    className={styles.clearFilterButton}
+                    title="Limpar filtro"
+                  >
+                    <FaTimes />
+                  </button>
+                )}
+              </div>
+            </div>
 
-          <select
-            value={filterMarker}
-            onChange={(e) => setFilterMarker(e.target.value)}
-            className={styles.filterSelect}
-          >
-            <option value="">Todos os marcadores</option>
-            {MARKER_OPTIONS.map(marker => (
-              <option key={marker.value} value={marker.value}>{marker.name}</option>
-            ))}
-          </select>
+            {/* Filtro de Marcador */}
+            <div className={styles.filterItem}>
+              <label className={styles.filterLabel}>
+                <FaBookmark className={styles.filterIcon} />
+                Marcador
+              </label>
+              <div className={styles.filterDropdown}>
+                <select
+                  value={filterMarker}
+                  onChange={(e) => setFilterMarker(e.target.value)}
+                  className={`${styles.filterSelect} ${filterMarker ? styles.filterSelectActive : ''}`}
+                >
+                  <option value="">Todos</option>
+                  {MARKER_OPTIONS.map(marker => {
+                    const IconComponent = marker.icon;
+                    return (
+                      <option key={marker.value} value={marker.value}>
+                        {marker.name}
+                      </option>
+                    );
+                  })}
+                </select>
+                {filterMarker && (
+                  <button
+                    onClick={() => setFilterMarker('')}
+                    className={styles.clearFilterButton}
+                    title="Limpar filtro"
+                  >
+                    <FaTimes />
+                  </button>
+                )}
+              </div>
+            </div>
 
-          <button
-            onClick={() => toggleSort('created_at')}
-            className={styles.sortButton}
-            title="Ordenar por data"
-          >
-            Data {sortBy === 'created_at' && (sortDirection === 'asc' ? '↑' : '↓')}
-          </button>
+            {/* Botões de ordenação */}
+            <div className={styles.sortingGroup}>
+              <label className={styles.filterLabel}>
+                <FaFilter className={styles.filterIcon} />
+                Ordenar por
+              </label>
+              <div className={styles.sortButtons}>
+                <button
+                  onClick={() => toggleSort('created_at')}
+                  className={`${styles.sortButton} ${sortBy === 'created_at' ? styles.sortButtonActive : ''}`}
+                  title="Ordenar por data de criação"
+                >
+                  <FaCalendarAlt />
+                  Data
+                  {sortBy === 'created_at' && (
+                    <span className={styles.sortDirection}>
+                      {sortDirection === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </button>
 
-          <button
-            onClick={() => toggleSort('title')}
-            className={styles.sortButton}
-            title="Ordenar por título"
-          >
-            Título {sortBy === 'title' && (sortDirection === 'asc' ? '↑' : '↓')}
-          </button>
+                <button
+                  onClick={() => toggleSort('title')}
+                  className={`${styles.sortButton} ${sortBy === 'title' ? styles.sortButtonActive : ''}`}
+                  title="Ordenar por título"
+                >
+                  <FaFileAlt />
+                  Título
+                  {sortBy === 'title' && (
+                    <span className={styles.sortDirection}>
+                      {sortDirection === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Indicador de filtros ativos e botão de limpar */}
+          {hasActiveFilters() && (
+            <div className={styles.activeFiltersIndicator}>
+              <div className={styles.activeFiltersInfo}>
+                <FaFilter className={styles.activeFiltersIcon} />
+                <span className={styles.activeFiltersText}>
+                  {getActiveFiltersCount()} filtro{getActiveFiltersCount() > 1 ? 's' : ''} ativo{getActiveFiltersCount() > 1 ? 's' : ''}
+                </span>
+              </div>
+              <button
+                onClick={clearAllFilters}
+                className={styles.clearAllFiltersButton}
+                title="Limpar todos os filtros"
+              >
+                <FaTimes />
+                Limpar filtros
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Contador de resultados */}
       {!loading && (
         <div className={styles.resultsCounter}>
-          <span>{entries.length} anotaç{entries.length === 1 ? 'ão' : 'ões'} encontrada{entries.length === 1 ? '' : 's'}</span>
+          <span>
+            {entries.length} anotaç{entries.length === 1 ? 'ão' : 'ões'} encontrada{entries.length === 1 ? '' : 's'}
+            {hasActiveFilters() && (
+              <span className={styles.resultsFiltered}> (filtrados)</span>
+            )}
+          </span>
         </div>
       )}
 
