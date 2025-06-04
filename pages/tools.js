@@ -62,7 +62,7 @@ export default function ToolsPage({ user }) {
       const hash = window.location.hash;
       
       // Ajuste da lógica para determinar a aba correta baseada no hash e permissões
-      if (hash === '#MinhaBase') {
+      if (hash === '#MyBase') {
         setCurrentTab(0);
       } else if (hash === '#ErrosComuns') {
         setCurrentTab(1);
@@ -90,7 +90,7 @@ export default function ToolsPage({ user }) {
     if (hasTicketCounterAccess) {
       switch (newValue) {
         case 0:
-          hash = '#MinhaBase';
+          hash = '#MyBase';
           break;
         case 1:
           hash = '#ErrosComuns';
@@ -113,7 +113,7 @@ export default function ToolsPage({ user }) {
     } else {
       switch (newValue) {
         case 0:
-          hash = '#MinhaBase';
+          hash = '#MyBase';
           break;
         case 1:
           hash = '#ErrosComuns';
@@ -161,7 +161,7 @@ export default function ToolsPage({ user }) {
                 <Tab label="Contador de Chamados" />
               )}
               <Tab label="Respostas Compartilhadas" />
-              <Tab label="Validador CEP x IBGE" />
+              <Tab label="Validador CEP" />
               <Tab label="Divisor de Planilhas" />
             </Tabs>
           </div>
@@ -183,7 +183,7 @@ export default function ToolsPage({ user }) {
           {((currentTab === 4 && hasTicketCounterAccess) || (currentTab === 3 && !hasTicketCounterAccess)) && (
             <>
               <div className={styles.pageHeader}>
-                <h1 className={styles.pageTitle}>Validador CEP x IBGE</h1>
+                <h1 className={styles.pageTitle}>Validador CEP</h1>
                 <p className={styles.pageDescription}>
                   Ferramenta para verificar a correspondência entre a cidade retornada pelos Correios e a nomenclatura 
                   oficial do IBGE que é utilizada pela SEFAZ para validação de notas fiscais.
