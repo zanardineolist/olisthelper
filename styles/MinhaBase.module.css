@@ -929,6 +929,7 @@
   align-items: center;
   justify-content: center;
   min-width: 48px;
+  font-weight: 500;
 }
 
 .addTagButton:hover {
@@ -1028,29 +1029,30 @@
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .cancelButton:hover {
-  background: var(--color-list);
-  color: var(--background-color);
+  background: var(--color-accent1);
+  color: white;
+  border-color: var(--color-accent1);
 }
 
 .saveButton {
   padding: 12px 24px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 10px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  transition: opacity 0.3s ease;
+  transition: background-color 0.3s ease;
   box-shadow: var(--shadow-sm);
 }
 
 .saveButton:hover {
-  opacity: 0.9;
+  background: var(--color-primary-hover);
 }
 
 .saveButton:disabled {
@@ -1121,7 +1123,7 @@
 
 .uploadText {
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--title-color);
   margin: 0;
 }
@@ -1130,6 +1132,7 @@
   font-size: 0.9rem;
   color: var(--text-color2);
   margin: 0;
+  font-weight: 500;
 }
 
 .fileInput {

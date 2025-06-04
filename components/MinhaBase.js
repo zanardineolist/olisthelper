@@ -699,9 +699,7 @@ export default function MinhaBase({ user }) {
         <div className={styles.modalOverlay} onClick={handleCloseViewModal}>
           <div className={styles.viewModal} onClick={(e) => e.stopPropagation()}>
             {/* Header do Modal */}
-            <div className={styles.viewModalHeader} style={{
-              background: `linear-gradient(135deg, ${getColorValue(viewingEntry.color)}15, ${getColorValue(viewingEntry.color)}05)`
-            }}>
+            <div className={styles.viewModalHeader}>
               <div className={styles.viewHeaderContent}>
                 <h2 className={styles.viewTitle}>{viewingEntry.title}</h2>
                 <div className={styles.viewActions}>
@@ -749,7 +747,7 @@ export default function MinhaBase({ user }) {
             <div className={styles.viewModalBody}>
               {/* Descrição Principal */}
               <div className={styles.viewMainContent}>
-                <div className={styles.viewSectionHeader}>
+                <div className={styles.viewSectionHeader} style={{ borderBottomColor: getColorValue(viewingEntry.color) }}>
                   <FaAlignLeft className={styles.viewSectionIcon} style={{ color: getColorValue(viewingEntry.color) }} />
                   <span className={styles.viewSectionTitle}>Descrição</span>
                 </div>
@@ -854,9 +852,7 @@ export default function MinhaBase({ user }) {
       {showModal && (
         <div className={styles.modalOverlay} onClick={handleModalOverlayClick}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader} style={{
-              background: `linear-gradient(135deg, ${getColorValue(formData.color)}15, ${getColorValue(formData.color)}05)`
-            }}>
+            <div className={styles.modalHeader}>
               <h2>{editingEntry ? 'Editar Anotação' : 'Nova Anotação'}</h2>
               <button onClick={handleCloseModal} className={styles.closeButton}>
                 <FaTimes />
@@ -1062,7 +1058,10 @@ export default function MinhaBase({ user }) {
                         onClick={() => handleAddTag()} 
                         className={styles.addTagButton}
                         type="button"
-                        style={{ backgroundColor: getColorValue(formData.color) }}
+                        style={{ 
+                          backgroundColor: getColorValue(formData.color),
+                          borderColor: getColorValue(formData.color)
+                        }}
                       >
                         <FaPlus />
                       </button>
@@ -1150,7 +1149,7 @@ export default function MinhaBase({ user }) {
                 className={styles.saveButton}
                 disabled={uploadingImages}
                 style={{ 
-                  background: `linear-gradient(135deg, ${getColorValue(formData.color)}, ${getColorValue(formData.color)}dd)`,
+                  backgroundColor: getColorValue(formData.color),
                   borderColor: getColorValue(formData.color)
                 }}
               >
