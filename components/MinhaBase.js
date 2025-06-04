@@ -767,20 +767,34 @@ export default function MinhaBase({ user }) {
                       Imagens ({viewingEntry.images.length})
                     </span>
                   </div>
-                  <div className={styles.imageGallery}>
-                    {viewingEntry.images.map((image, index) => (
-                      <div key={index} className={styles.galleryItem}>
-                        <img
-                          src={image.url}
-                          alt={image.title || `Imagem ${index + 1}`}
-                          className={styles.galleryImage}
-                          onClick={() => openLightbox(image)}
-                        />
-                        <div className={styles.galleryOverlay}>
-                          <FaExpand className={styles.expandIcon} />
+                  
+                  <div className={styles.imageGalleryContainer}>
+                    <div className={styles.imageGalleryHeader}>
+                      <span className={styles.imageGalleryInfo}>
+                        Clique em uma imagem para visualizar em tamanho real
+                      </span>
+                    </div>
+                    
+                    <div className={styles.imageGallery}>
+                      {viewingEntry.images.map((image, index) => (
+                        <div 
+                          key={index} 
+                          className={styles.galleryItem}
+                          title={image.title || `Imagem ${index + 1}`}
+                        >
+                          <img
+                            src={image.url}
+                            alt={image.title || `Imagem ${index + 1}`}
+                            className={styles.galleryImage}
+                            onClick={() => openLightbox(image)}
+                            loading="lazy"
+                          />
+                          <div className={styles.galleryOverlay}>
+                            <FaExpand className={styles.expandIcon} />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -1163,10 +1177,24 @@ export default function MinhaBase({ user }) {
               alt={lightboxImage.title || 'Imagem'}
               className={styles.lightboxImage}
             />
-            <div className={styles.lightboxInfo}>
-              <h4>{lightboxImage.title || 'Imagem'}</h4>
-              <p>{Math.round(lightboxImage.size / 1024)}KB • {lightboxImage.width}x{lightboxImage.height}</p>
-            </div>
+            {lightboxImage.title || lightboxImage.size || lightboxImage.width || lightboxImage.height ? (
+              <div className={styles.lightboxInfo}>
+                <h4>{lightboxImage.title || 'Imagem sem título'}</h4>
+                <p>
+                  {lightboxImage.size && `${Math.round(lightboxImage.size / 1024)}KB`}
+                  {lightboxImage.width && lightboxImage.height && 
+                    ` • ${lightboxImage.width}x${lightboxImage.height}px`
+                  }
+                  {(!lightboxImage.size && !lightboxImage.width && !lightboxImage.height) && 
+                    'Clique fora da imagem para fechar'
+                  }
+                </p>
+              </div>
+            ) : (
+              <div className={styles.lightboxInfo}>
+                <p>Clique fora da imagem para fechar</p>
+              </div>
+            )}
           </div>
         </div>
       )}
