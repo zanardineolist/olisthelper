@@ -4,11 +4,11 @@ import Swal from 'sweetalert2';
 import styles from '../styles/MinhaBase.module.css';
 
 const COLOR_OPTIONS = [
-  { color: 'var(--color-primary)', name: 'Azul Primário', cssVar: 'primary' },
-  { color: 'var(--color-accent1)', name: 'Vermelho', cssVar: 'accent1' },
-  { color: 'var(--color-accent3)', name: 'Verde', cssVar: 'accent3' },
-  { color: 'var(--color-accent2)', name: 'Amarelo', cssVar: 'accent2' },
-  { color: 'var(--color-accent4)', name: 'Cinza Escuro', cssVar: 'accent4' },
+  { color: '#3B82F6', name: 'Azul Primário', cssVar: 'primary' },
+  { color: '#EF4444', name: 'Vermelho', cssVar: 'accent1' },
+  { color: '#10B981', name: 'Verde', cssVar: 'accent3' },
+  { color: '#F59E0B', name: 'Amarelo', cssVar: 'accent2' },
+  { color: '#6B7280', name: 'Cinza Escuro', cssVar: 'accent4' },
   { color: '#6B46C1', name: 'Roxo', cssVar: 'custom-purple' },
   { color: '#EC4899', name: 'Rosa', cssVar: 'custom-pink' },
   { color: '#06B6D4', name: 'Azul Claro', cssVar: 'custom-cyan' }
@@ -43,7 +43,7 @@ export default function MinhaBase({ user }) {
     description: '',
     link: '',
     tags: [],
-    color: 'var(--color-primary)',
+    color: '#3B82F6',
     category: 'geral',
     marker: 'tech',
     images: []
@@ -137,7 +137,7 @@ export default function MinhaBase({ user }) {
       description: '',
       link: '',
       tags: [],
-      color: 'var(--color-primary)',
+      color: '#3B82F6',
       category: 'geral',
       marker: 'tech',
       images: []
@@ -174,7 +174,7 @@ export default function MinhaBase({ user }) {
       description: '',
       link: '',
       tags: [],
-      color: 'var(--color-primary)',
+      color: '#3B82F6',
       category: 'geral',
       marker: 'tech',
       images: []
