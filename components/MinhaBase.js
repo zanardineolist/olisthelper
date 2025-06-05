@@ -109,7 +109,6 @@ export default function MinhaBase({ user }) {
       timerProgressBar: true,
       background: 'var(--bg-secondary)',
       color: 'var(--text-color)',
-      borderRadius: '12px',
       padding: '16px 20px',
       showClass: {
         popup: 'animate__animated animate__slideInRight animate__faster'
@@ -134,6 +133,7 @@ export default function MinhaBase({ user }) {
             font-family: 'Plus Jakarta Sans', sans-serif !important;
             font-size: 14px !important;
             font-weight: 500 !important;
+            border-radius: 12px !important;
           }
           .custom-timer-bar {
             background: ${type === 'success' ? 'var(--excellent-color)' : 

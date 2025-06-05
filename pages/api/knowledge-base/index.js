@@ -54,8 +54,8 @@ export default async function handler(req, res) {
           images = []
         } = req.body;
 
-        if (!title || !description) {
-          return res.status(400).json({ error: 'Título e descrição são obrigatórios' });
+        if (!title) {
+          return res.status(400).json({ error: 'Título é obrigatório' });
         }
 
         // Validar cor (formato hexadecimal)
@@ -80,7 +80,7 @@ export default async function handler(req, res) {
           .insert([{
             user_id: userId,
             title: title.trim(),
-            description: description.trim(),
+            description: description ? description.trim() : '',
             link: link.trim(),
             tags: Array.isArray(tags) ? tags.filter(tag => tag.trim()) : [],
             color,
