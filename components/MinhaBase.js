@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink, FaFileAlt, FaAlignLeft, FaFolder, FaCalendarAlt, FaUser, FaImage, FaCloudUploadAlt, FaExpand, FaCog, FaDollarSign, FaBug, FaQuestionCircle, FaTicketAlt, FaBookmark, FaFileExcel, FaFileAlt as FaFileTxt, FaDownload } from 'react-icons/fa';
 import Swal from 'sweetalert2';
+import { ThreeDotsLoader } from './LoadingIndicator';
 import styles from '../styles/MinhaBase.module.css';
 
 const COLOR_OPTIONS = [
@@ -26,6 +27,7 @@ const MARKER_OPTIONS = [
 export default function MinhaBase({ user }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterTags, setFilterTags] = useState([]);
@@ -237,7 +239,11 @@ export default function MinhaBase({ user }) {
       console.error('Erro ao carregar anotações:', error);
       showToast('Erro ao carregar dados da base de conhecimento', 'error');
     } finally {
-      setLoading(false);
+      // Pequeno delay para evitar "flickering" do loading
+      setTimeout(() => {
+        setLoading(false);
+        setInitialLoad(false);
+      }, 300);
     }
   }, [user?.id, searchTerm, filterCategory, filterTags, filterMarker, sortBy, sortDirection]);
 
@@ -417,6 +423,8 @@ export default function MinhaBase({ user }) {
       // Reset form and close modal
       resetForm();
       setShowModal(false);
+      
+      // Recarregar dados com loading suave
       loadEntries();
       
     } catch (error) {
@@ -447,6 +455,7 @@ export default function MinhaBase({ user }) {
 
       showToast('Anotação excluída com sucesso', 'success');
 
+      // Recarregar dados com loading suave
       loadEntries();
       
     } catch (error) {
@@ -748,7 +757,7 @@ export default function MinhaBase({ user }) {
     }
   };
 
-  if (loading && entries.length === 0) {
+  if (initialLoad) {
     return (
       <div className={styles.loadingContainer}>
         <div className="standardBoxLoader"></div>
@@ -960,128 +969,134 @@ export default function MinhaBase({ user }) {
 
       {/* Grid de anotações com cores melhoradas */}
       <div className={styles.entriesGrid}>
-        {entries.map(entry => (
-          <div
-            key={entry.id}
-            className={`${styles.entryCard} ${styles[`entryCard--${getColorClass(entry.color)}`]}`}
-            style={{ 
-              '--entry-color': getColorValue(entry.color),
-              borderLeftColor: getColorValue(entry.color)
-            }}
-            onClick={() => handleCardClick(entry)}
-          >
-            <div className={styles.entryHeader}>
-              <div className={styles.entryTitleSection}>
-                {/* Marcador */}
-                {entry.marker && (
-                  <div className={styles.entryMarker}>
-                    {(() => {
-                      const marker = MARKER_OPTIONS.find(m => m.value === entry.marker);
-                      if (marker) {
-                        const IconComponent = marker.icon;
-                        return (
-                          <div 
-                            className={styles.markerBadge}
-                            style={{ backgroundColor: marker.color }}
-                            title={marker.name}
-                          >
-                            <IconComponent />
-                          </div>
-                        );
-                      }
-                      return null;
-                    })()}
+        {loading ? (
+          <div className={styles.loadingContainer}>
+            <ThreeDotsLoader message="Carregando anotações..." size="medium" />
+          </div>
+        ) : (
+          entries.map(entry => (
+            <div
+              key={entry.id}
+              className={`${styles.entryCard} ${styles[`entryCard--${getColorClass(entry.color)}`]}`}
+              style={{ 
+                '--entry-color': getColorValue(entry.color),
+                borderLeftColor: getColorValue(entry.color)
+              }}
+              onClick={() => handleCardClick(entry)}
+            >
+              <div className={styles.entryHeader}>
+                <div className={styles.entryTitleSection}>
+                  {/* Marcador */}
+                  {entry.marker && (
+                    <div className={styles.entryMarker}>
+                      {(() => {
+                        const marker = MARKER_OPTIONS.find(m => m.value === entry.marker);
+                        if (marker) {
+                          const IconComponent = marker.icon;
+                          return (
+                            <div 
+                              className={styles.markerBadge}
+                              style={{ backgroundColor: marker.color }}
+                              title={marker.name}
+                            >
+                              <IconComponent />
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
+                  )}
+                  
+                  <h3 className={styles.entryTitle}>{entry.title}</h3>
+                </div>
+                
+                <div className={styles.entryActions} onClick={(e) => e.stopPropagation()}>
+                  {entry.link && (
+                    <button
+                      onClick={() => handleViewEntry(entry)}
+                      className={styles.linkButton}
+                      title="Abrir link"
+                    >
+                      <FaExternalLinkAlt />
+                    </button>
+                  )}
+                  
+                  <button
+                    onClick={() => handleOpenModal(entry)}
+                    className={styles.editButton}
+                    title="Editar"
+                  >
+                    <FaEdit />
+                  </button>
+                  
+                  <button
+                    onClick={() => handleDelete(entry.id)}
+                    className={styles.deleteButton}
+                    title="Excluir"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.entryContent}>
+                <p className={styles.entryDescription}>
+                  {entry.description && entry.description.length > 150 
+                    ? `${entry.description.substring(0, 150)}...` 
+                    : entry.description
+                  }
+                </p>
+
+                {/* Indicador de imagens */}
+                {entry.images && entry.images.length > 0 && (
+                  <div className={styles.imageIndicator}>
+                    <FaImage className={styles.imageIcon} />
+                    <span className={styles.imageCount}>
+                      {entry.images.length} imagem{entry.images.length > 1 ? 'ns' : ''}
+                    </span>
                   </div>
                 )}
-                
-                <h3 className={styles.entryTitle}>{entry.title}</h3>
-              </div>
-              
-              <div className={styles.entryActions} onClick={(e) => e.stopPropagation()}>
-                {entry.link && (
-                  <button
-                    onClick={() => handleViewEntry(entry)}
-                    className={styles.linkButton}
-                    title="Abrir link"
-                  >
-                    <FaExternalLinkAlt />
-                  </button>
+
+                {entry.tags && entry.tags.length > 0 && (
+                  <div className={styles.tagsContainer}>
+                    {entry.tags.slice(0, 3).map(tag => (
+                      <span key={tag} className={styles.tag} style={{ backgroundColor: getColorValue(entry.color) }}>
+                        <FaTag /> {tag}
+                      </span>
+                    ))}
+                    {entry.tags.length > 3 && (
+                      <span className={styles.moreTagsIndicator}>
+                        +{entry.tags.length - 3} tags
+                      </span>
+                    )}
+                  </div>
                 )}
-                
-                <button
-                  onClick={() => handleOpenModal(entry)}
-                  className={styles.editButton}
-                  title="Editar"
-                >
-                  <FaEdit />
-                </button>
-                
-                <button
-                  onClick={() => handleDelete(entry.id)}
-                  className={styles.deleteButton}
-                  title="Excluir"
-                >
-                  <FaTrash />
-                </button>
               </div>
-            </div>
 
-            <div className={styles.entryContent}>
-              <p className={styles.entryDescription}>
-                {entry.description && entry.description.length > 150 
-                  ? `${entry.description.substring(0, 150)}...` 
-                  : entry.description
-                }
-              </p>
-
-              {/* Indicador de imagens */}
-              {entry.images && entry.images.length > 0 && (
-                <div className={styles.imageIndicator}>
-                  <FaImage className={styles.imageIcon} />
-                  <span className={styles.imageCount}>
-                    {entry.images.length} imagem{entry.images.length > 1 ? 'ns' : ''}
+              <div className={styles.entryFooter}>
+                <div className={styles.entryMeta}>
+                  <span className={styles.category} style={{ 
+                    borderLeftColor: getColorValue(entry.color),
+                    background: `${getColorValue(entry.color)}15`
+                  }}>
+                    {entry.category}
                   </span>
+                  <span className={styles.date}>{formatDate(entry.created_at)}</span>
                 </div>
-              )}
-
-              {entry.tags && entry.tags.length > 0 && (
-                <div className={styles.tagsContainer}>
-                  {entry.tags.slice(0, 3).map(tag => (
-                    <span key={tag} className={styles.tag} style={{ backgroundColor: getColorValue(entry.color) }}>
-                      <FaTag /> {tag}
-                    </span>
-                  ))}
-                  {entry.tags.length > 3 && (
-                    <span className={styles.moreTagsIndicator}>
-                      +{entry.tags.length - 3} tags
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className={styles.entryFooter}>
-              <div className={styles.entryMeta}>
-                <span className={styles.category} style={{ 
-                  borderLeftColor: getColorValue(entry.color),
-                  background: `${getColorValue(entry.color)}15`
-                }}>
-                  {entry.category}
-                </span>
-                <span className={styles.date}>{formatDate(entry.created_at)}</span>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Estado vazio */}
-      {entries.length === 0 && !loading && (
+      {!loading && entries.length === 0 && (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>📚</div>
           <h3>Nenhuma anotação encontrada</h3>
           <p>
-            {searchTerm || filterCategory 
+            {searchTerm || filterCategory || filterMarker || filterTags.length > 0
               ? 'Tente ajustar os filtros de busca'
               : 'Comece criando sua primeira anotação na base de conhecimento'
             }
