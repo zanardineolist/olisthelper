@@ -672,7 +672,7 @@
 }
 
 /* Estilo fixo para o modal de exportação CSV */
-:global(.export-csv-modal-fixed) {
+.exportCsvModalFixed :global(.swal2-popup) {
   border-radius: 12px !important;
   font-family: 'Plus Jakarta Sans', sans-serif !important;
   min-width: 520px !important;
@@ -680,7 +680,7 @@
   width: 520px !important;
 }
 
-:global(.export-csv-modal-fixed .swal2-html-container) {
+.exportCsvModalFixed :global(.swal2-html-container) {
   font-size: 14px !important;
   line-height: 1.5 !important;
   text-align: left !important;

@@ -340,7 +340,7 @@ function TicketCounter() {
       allowEscapeKey: true,
       backdrop: true,
       customClass: {
-        popup: 'export-csv-modal-fixed'
+        popup: styles.exportCsvModalFixed
       }
     });
 
