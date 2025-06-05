@@ -386,8 +386,8 @@ export default function MinhaBase({ user }) {
 
   const handleSave = async () => {
     try {
-      if (!formData.title.trim() || !formData.description.trim()) {
-        showToast('Título e descrição são obrigatórios', 'warning');
+      if (!formData.title.trim()) {
+        showToast('Título é obrigatório', 'warning');
         return;
       }
 
@@ -1324,7 +1324,7 @@ export default function MinhaBase({ user }) {
                     <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
                       <FaAlignLeft />
                     </span>
-                    Descrição <span className={styles.required}>*</span>
+                    Descrição
                   </label>
                   <textarea
                     value={formData.description}
@@ -1334,6 +1334,38 @@ export default function MinhaBase({ user }) {
                     className={styles.textarea}
                     style={{ borderColor: formData.description ? getColorValue(formData.color) : undefined }}
                   />
+                </div>
+
+                {/* Link de Referência */}
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>
+                    <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
+                      <FaLink />
+                    </span>
+                    URL
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.link}
+                    onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                    placeholder="https://exemplo.com"
+                    className={styles.input}
+                    style={{ borderColor: formData.link ? getColorValue(formData.color) : undefined }}
+                  />
+                  {formData.link && (
+                    <div className={styles.linkPreview} style={{ borderLeftColor: getColorValue(formData.color) }}>
+                      <FaExternalLinkAlt style={{ color: getColorValue(formData.color) }} />
+                      <a 
+                        href={formData.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={styles.linkPreviewText}
+                        style={{ color: getColorValue(formData.color) }}
+                      >
+                        {formData.link}
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1583,40 +1615,6 @@ export default function MinhaBase({ user }) {
                           </span>
                         ))}
                       </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Link de Referência */}
-              <div className={styles.formSection}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
-                      <FaLink />
-                    </span>
-                    URL (opcional)
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.link}
-                    onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                    placeholder="https://exemplo.com"
-                    className={styles.input}
-                    style={{ borderColor: formData.link ? getColorValue(formData.color) : undefined }}
-                  />
-                  {formData.link && (
-                    <div className={styles.linkPreview} style={{ borderLeftColor: getColorValue(formData.color) }}>
-                      <FaExternalLinkAlt style={{ color: getColorValue(formData.color) }} />
-                      <a 
-                        href={formData.link} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className={styles.linkPreviewText}
-                        style={{ color: getColorValue(formData.color) }}
-                      >
-                        {formData.link}
-                      </a>
                     </div>
                   )}
                 </div>
