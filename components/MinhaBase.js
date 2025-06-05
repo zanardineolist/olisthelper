@@ -81,6 +81,122 @@ export default function MinhaBase({ user }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Carregar Animate.css para animações suaves do toast
+  useEffect(() => {
+    const animateCssLink = document.createElement('link');
+    animateCssLink.rel = 'stylesheet';
+    animateCssLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+    document.head.appendChild(animateCssLink);
+
+    return () => {
+      // Cleanup quando o componente for desmontado
+      const existingLink = document.querySelector('link[href*="animate.css"]');
+      if (existingLink) {
+        document.head.removeChild(existingLink);
+      }
+    };
+  }, []);
+
+  // Sistema de Toast melhorado
+  const showToast = (message, type = 'success') => {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      background: 'var(--bg-secondary)',
+      color: 'var(--text-color)',
+      borderRadius: '12px',
+      padding: '16px 20px',
+      showClass: {
+        popup: 'animate__animated animate__slideInRight animate__faster'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__slideOutRight animate__faster'
+      },
+      customClass: {
+        popup: 'custom-toast',
+        timerProgressBar: 'custom-timer-bar'
+      },
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+        
+        // Adicionar estilos customizados
+        const style = document.createElement('style');
+        style.textContent = `
+          .custom-toast {
+            border: 1px solid var(--color-border) !important;
+            box-shadow: var(--shadow-md) !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+          }
+          .custom-timer-bar {
+            background: ${type === 'success' ? 'var(--excellent-color)' : 
+                         type === 'error' ? 'var(--poor-color)' : 
+                         type === 'warning' ? 'var(--good-color)' :
+                         'var(--color-primary)'} !important;
+            height: 3px !important;
+          }
+          .swal2-icon {
+            border: none !important;
+            margin: 0 8px 0 0 !important;
+            width: 20px !important;
+            height: 20px !important;
+          }
+          .swal2-icon.swal2-success {
+            color: var(--excellent-color) !important;
+          }
+          .swal2-icon.swal2-error {
+            color: var(--poor-color) !important;
+          }
+          .swal2-icon.swal2-warning {
+            color: var(--good-color) !important;
+          }
+          .swal2-icon.swal2-info {
+            color: var(--color-primary) !important;
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Remover o estilo após o toast desaparecer
+        setTimeout(() => {
+          if (document.head.contains(style)) {
+            document.head.removeChild(style);
+          }
+        }, 4000);
+      }
+    });
+
+    Toast.fire({
+      icon: type,
+      title: message,
+      iconColor: type === 'success' ? 'var(--excellent-color)' : 
+                type === 'error' ? 'var(--poor-color)' : 
+                type === 'warning' ? 'var(--good-color)' :
+                'var(--color-primary)'
+    });
+  };
+
+  // Função para confirmação
+  const showConfirmation = async (title, text, confirmText = 'Sim', cancelText = 'Cancelar') => {
+    const result = await Swal.fire({
+      title,
+      text,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: confirmText,
+      cancelButtonText: cancelText,
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#6B7280',
+      background: 'var(--bg-secondary)',
+      color: 'var(--text-color)'
+    });
+    return result.isConfirmed;
+  };
+
   const loadEntries = useCallback(async () => {
     try {
       setLoading(true);
@@ -119,12 +235,7 @@ export default function MinhaBase({ user }) {
       
     } catch (error) {
       console.error('Erro ao carregar anotações:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro',
-        text: 'Erro ao carregar dados',
-        confirmButtonColor: '#3B82F6'
-      });
+      showToast('Erro ao carregar dados da base de conhecimento', 'error');
     } finally {
       setLoading(false);
     }
@@ -197,23 +308,13 @@ export default function MinhaBase({ user }) {
         // Validar tipo de arquivo
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
         if (!allowedTypes.includes(file.type)) {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Tipo de arquivo não suportado',
-            text: `${file.name} - Use apenas JPEG, PNG, GIF ou WebP`,
-            confirmButtonColor: '#3B82F6'
-          });
+          showToast(`${file.name} - Use apenas JPEG, PNG, GIF ou WebP`, 'warning');
           continue;
         }
 
         // Validar tamanho (10MB)
         if (file.size > 10 * 1024 * 1024) {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Arquivo muito grande',
-            text: `${file.name} - Tamanho máximo: 10MB`,
-            confirmButtonColor: '#3B82F6'
-          });
+          showToast(`${file.name} - Tamanho máximo: 10MB`, 'warning');
           continue;
         }
 
@@ -243,23 +344,12 @@ export default function MinhaBase({ user }) {
       }));
 
       if (uploadedImages.length > 0) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Upload concluído!',
-          text: `${uploadedImages.length} imagem(ns) carregada(s)`,
-          timer: 2000,
-          showConfirmButton: false
-        });
+        showToast(`${uploadedImages.length} imagem(ns) carregada(s) com sucesso!`, 'success');
       }
 
     } catch (error) {
       console.error('Erro no upload:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro no upload',
-        text: error.message || 'Erro ao fazer upload das imagens',
-        confirmButtonColor: '#3B82F6'
-      });
+      showToast(error.message || 'Erro ao fazer upload das imagens', 'error');
     } finally {
       setUploadingImages(false);
     }
@@ -291,12 +381,7 @@ export default function MinhaBase({ user }) {
   const handleSave = async () => {
     try {
       if (!formData.title.trim() || !formData.description.trim()) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Campos obrigatórios',
-          text: 'Título e descrição são obrigatórios',
-          confirmButtonColor: '#3B82F6'
-        });
+        showToast('Título e descrição são obrigatórios', 'warning');
         return;
       }
 
@@ -327,13 +412,7 @@ export default function MinhaBase({ user }) {
         throw new Error(errorData.error || 'Erro ao salvar anotação');
       }
 
-      await Swal.fire({
-        icon: 'success',
-        title: 'Sucesso!',
-        text: editingEntry ? 'Anotação atualizada!' : 'Anotação criada!',
-        timer: 1500,
-        showConfirmButton: false
-      });
+      showToast(editingEntry ? 'Anotação atualizada com sucesso!' : 'Anotação criada com sucesso!', 'success');
       
       // Reset form and close modal
       resetForm();
@@ -342,29 +421,20 @@ export default function MinhaBase({ user }) {
       
     } catch (error) {
       console.error('Erro ao salvar:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro',
-        text: error.message || 'Erro ao salvar anotação',
-        confirmButtonColor: '#3B82F6'
-      });
+      showToast(error.message || 'Erro ao salvar anotação', 'error');
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      const result = await Swal.fire({
-        title: 'Tem certeza?',
-        text: 'Esta ação não pode ser desfeita',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sim, excluir',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#EF4444',
-        cancelButtonColor: '#6B7280'
-      });
+      const confirmed = await showConfirmation(
+        'Tem certeza?',
+        'Esta ação não pode ser desfeita',
+        'Sim, excluir',
+        'Cancelar'
+      );
 
-      if (!result.isConfirmed) return;
+      if (!confirmed) return;
 
       const response = await fetch(`/api/knowledge-base/${id}`, {
         method: 'DELETE'
@@ -375,24 +445,13 @@ export default function MinhaBase({ user }) {
         throw new Error(errorData.error || 'Erro ao excluir anotação');
       }
 
-      await Swal.fire({
-        icon: 'success',
-        title: 'Excluída!',
-        text: 'Anotação excluída com sucesso',
-        timer: 1500,
-        showConfirmButton: false
-      });
+      showToast('Anotação excluída com sucesso', 'success');
 
       loadEntries();
       
     } catch (error) {
       console.error('Erro ao excluir:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro',
-        text: 'Erro ao excluir anotação',
-        confirmButtonColor: '#3B82F6'
-      });
+      showToast('Erro ao excluir anotação', 'error');
     }
   };
 
@@ -428,18 +487,14 @@ export default function MinhaBase({ user }) {
 
   const handleCloseModal = async () => {
     if (hasUnsavedData()) {
-      const result = await Swal.fire({
-        title: 'Descartar alterações?',
-        text: 'Você tem alterações não salvas. Deseja descartar?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sim, descartar',
-        cancelButtonText: 'Continuar editando',
-        confirmButtonColor: '#EF4444',
-        cancelButtonColor: '#3B82F6'
-      });
+      const confirmed = await showConfirmation(
+        'Descartar alterações?',
+        'Você tem alterações não salvas. Deseja descartar?',
+        'Sim, descartar',
+        'Continuar editando'
+      );
 
-      if (!result.isConfirmed) {
+      if (!confirmed) {
         return;
       }
     }
@@ -552,12 +607,7 @@ export default function MinhaBase({ user }) {
   // NOVA FUNÇÃO: Exportação para TXT formatado
   const exportToTXT = () => {
     if (!entries || entries.length === 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Nenhuma anotação',
-        text: 'Não há anotações para exportar',
-        confirmButtonColor: '#3B82F6'
-      });
+      showToast('Não há anotações para exportar', 'warning');
       return;
     }
 
@@ -623,33 +673,17 @@ export default function MinhaBase({ user }) {
       link.click();
       document.body.removeChild(link);
       
-      Swal.fire({
-        icon: 'success',
-        title: 'Arquivo TXT exportado!',
-        text: `${entries.length} anotações exportadas com sucesso`,
-        timer: 2000,
-        showConfirmButton: false
-      });
+      showToast(`${entries.length} anotações exportadas para TXT com sucesso`, 'success');
     } catch (error) {
       console.error('Erro na exportação TXT:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro na exportação',
-        text: 'Erro ao gerar arquivo TXT',
-        confirmButtonColor: '#3B82F6'
-      });
+      showToast('Erro ao gerar arquivo TXT', 'error');
     }
   };
 
   // NOVA FUNÇÃO: Exportação para XLS (formato CSV que abre no Excel)
   const exportToXLS = () => {
     if (!entries || entries.length === 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Nenhuma anotação',
-        text: 'Não há anotações para exportar',
-        confirmButtonColor: '#3B82F6'
-      });
+      showToast('Não há anotações para exportar', 'warning');
       return;
     }
 
@@ -707,21 +741,10 @@ export default function MinhaBase({ user }) {
       link.click();
       document.body.removeChild(link);
       
-      Swal.fire({
-        icon: 'success',
-        title: 'Planilha Excel exportada!',
-        text: `${entries.length} anotações exportadas com sucesso`,
-        timer: 2000,
-        showConfirmButton: false
-      });
+      showToast(`${entries.length} anotações exportadas para XLS com sucesso`, 'success');
     } catch (error) {
       console.error('Erro na exportação XLS:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro na exportação',
-        text: 'Erro ao gerar planilha Excel',
-        confirmButtonColor: '#3B82F6'
-      });
+      showToast('Erro ao gerar planilha Excel', 'error');
     }
   };
 
