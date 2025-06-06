@@ -971,7 +971,7 @@ export default function MinhaBase({ user }) {
       <div className={styles.entriesGrid}>
         {loading ? (
           <div className={styles.loadingContainer}>
-            <ThreeDotsLoader message="Carregando anotações..." size="medium" />
+            <ThreeDotsLoader size="medium" />
           </div>
         ) : (
           entries.map(entry => (
