@@ -259,17 +259,10 @@
   min-height: 280px;
   max-height: 320px;
   position: relative;
-  transition: all 0.3s ease;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.entryCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-  border-left-width: 5px;
 }
 
 /* Variações de cores baseadas no globals.css */
@@ -311,7 +304,7 @@
   align-items: flex-start;
   padding: 20px 20px 16px 20px;
   border-bottom: 1px solid var(--color-border);
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--box-color) 100%);
+  background: var(--bg-secondary);
   position: relative;
 }
 
@@ -321,7 +314,7 @@
   gap: 12px;
   flex: 1;
   margin-right: 12px;
-  min-height: 48px;
+  min-height: 60px;
 }
 
 .entryTitle {
@@ -336,7 +329,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-height: 2.8rem;
+  max-height: 3.4rem;
 }
 
 .entryActions {
@@ -491,19 +484,18 @@
 }
 
 .category {
-  background: linear-gradient(135deg, var(--entry-color, var(--color-primary))15, var(--entry-color, var(--color-primary))08);
-  border: 1px solid var(--entry-color, var(--color-primary))30;
+  background: var(--labels-bg);
+  border: 1px solid var(--labels-border);
   border-left: 3px solid var(--entry-color, var(--color-primary));
   padding: 6px 10px;
   border-radius: 8px;
   color: var(--text-color);
   font-weight: 600;
   font-size: 0.75rem;
-  transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   flex-shrink: 0;
-  max-width: 120px;
+  max-width: 180px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -1200,24 +1192,18 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(135deg, var(--entry-color, var(--color-primary))15, var(--entry-color, var(--color-primary))08);
-  border: 1px solid var(--entry-color, var(--color-primary))30;
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 4px 8px;
   font-size: 0.75rem;
   color: var(--text-color);
   margin-bottom: 8px;
   width: fit-content;
-  transition: all 0.2s ease;
-}
-
-.imageIndicator:hover {
-  transform: scale(1.05);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .imageIcon {
-  color: var(--entry-color, var(--color-primary));
+  color: var(--color-primary);
   font-size: 0.8rem;
 }
 
@@ -2345,7 +2331,7 @@
   .category {
     font-size: 0.7rem;
     padding: 4px 8px;
-    max-width: 100px;
+    max-width: 150px;
   }
 
   .imageIndicator {
