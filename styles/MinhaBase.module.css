@@ -243,9 +243,10 @@
 /* Grid de anotações com melhorias visuais */
 .entriesGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 20px;
   margin-bottom: 30px;
+  align-items: start;
 }
 
 .entryCard {
@@ -253,10 +254,22 @@
   border-radius: 16px;
   border: 1px solid var(--color-border);
   border-left: 4px solid var(--entry-color, var(--color-primary));
-  padding: 20px;
+  padding: 0;
   cursor: pointer;
-  height: fit-content;
+  min-height: 280px;
+  max-height: 320px;
   position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.entryCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border-left-width: 5px;
 }
 
 /* Variações de cores baseadas no globals.css */
@@ -296,7 +309,10 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 16px;
+  padding: 20px 20px 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--box-color) 100%);
+  position: relative;
 }
 
 .entryTitleSection {
@@ -305,40 +321,59 @@
   gap: 12px;
   flex: 1;
   margin-right: 12px;
+  min-height: 48px;
 }
 
 .entryTitle {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: var(--title-color);
   margin: 0;
   flex: 1;
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 2.8rem;
 }
 
 .entryActions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   opacity: 0;
   transition: all 0.3s ease;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 6px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .entryCard:hover .entryActions {
   opacity: 1;
+  transform: translateY(-2px);
 }
 
 .linkButton, .editButton, .deleteButton {
-  padding: 8px;
+  padding: 6px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
-  min-height: 32px;
+  min-width: 28px;
+  min-height: 28px;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .linkButton {
@@ -348,6 +383,8 @@
 
 .linkButton:hover {
   background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
 }
 
 .editButton {
@@ -357,6 +394,8 @@
 
 .editButton:hover {
   background: #e09020;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(245, 158, 11, 0.4);
 }
 
 .deleteButton {
@@ -366,74 +405,114 @@
 
 .deleteButton:hover {
   background: #d13d2a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
 }
 
 .entryContent {
-  margin-bottom: 16px;
+  padding: 16px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .entryDescription {
   color: var(--text-color);
   line-height: 1.6;
-  margin: 0 0 16px 0;
-  font-size: 0.95rem;
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 5.6rem;
+  flex: 1;
 }
 
 .tagsContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 8px;
+  min-height: 32px;
+  align-items: flex-start;
 }
 
 .tag {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   background: var(--entry-color, var(--color-primary));
   color: white;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
+  transition: all 0.2s ease;
+  opacity: 0.9;
+  max-width: 120px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .tag:hover {
   transform: scale(1.05);
+  opacity: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .moreTagsIndicator {
   color: var(--text-color2);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-style: italic;
-  padding: 6px 12px;
+  padding: 4px 8px;
+  background: var(--box-color);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
 }
 
 .entryFooter {
   border-top: 1px solid var(--color-border);
-  padding-top: 12px;
+  padding: 12px 20px;
+  background: var(--box-color);
+  margin-top: auto;
 }
 
 .entryMeta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  gap: 12px;
 }
 
 .category {
-  background: var(--labels-bg);
-  border: 1px solid var(--labels-border);
+  background: linear-gradient(135deg, var(--entry-color, var(--color-primary))15, var(--entry-color, var(--color-primary))08);
+  border: 1px solid var(--entry-color, var(--color-primary))30;
   border-left: 3px solid var(--entry-color, var(--color-primary));
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: 8px;
   color: var(--text-color);
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.75rem;
   transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+  max-width: 120px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .date {
   color: var(--text-color2);
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 /* Estado vazio */
@@ -1120,23 +1199,30 @@
 .imageIndicator {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: var(--box-color);
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
-  padding: 6px 12px;
-  font-size: 0.85rem;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--entry-color, var(--color-primary))15, var(--entry-color, var(--color-primary))08);
+  border: 1px solid var(--entry-color, var(--color-primary))30;
+  border-radius: 16px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
   color: var(--text-color);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   width: fit-content;
+  transition: all 0.2s ease;
+}
+
+.imageIndicator:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .imageIcon {
-  color: var(--color-primary);
+  color: var(--entry-color, var(--color-primary));
+  font-size: 0.8rem;
 }
 
 .imageCount {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* Área de Upload Simplificada - SEM DRAG & DROP */
@@ -1711,25 +1797,40 @@
 /* Marcadores nos cards */
 .entryMarker {
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 0;
+  position: relative;
 }
 
 .markerBadge {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: 12px;
   color: white;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.markerBadge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+  border-radius: inherit;
 }
 
 .markerBadge:hover {
-  transform: scale(1.1);
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
 /* Marcador no modal de visualização */
@@ -2101,11 +2202,46 @@
 
   .entriesGrid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 16px;
   }
 
   .entryCard {
-    padding: 1rem;
+    min-height: 260px;
+    max-height: 300px;
+  }
+
+  .entryHeader {
+    padding: 16px 16px 12px 16px;
+  }
+
+  .entryContent {
+    padding: 12px 16px;
+  }
+
+  .entryFooter {
+    padding: 10px 16px;
+  }
+
+  .entryTitle {
+    font-size: 1.1rem;
+  }
+
+  .entryActions {
+    top: 10px;
+    right: 10px;
+    padding: 4px;
+  }
+
+  .linkButton, .editButton, .deleteButton {
+    min-width: 26px;
+    min-height: 26px;
+    font-size: 0.8rem;
+  }
+
+  .markerBadge {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
   }
 }
 
@@ -2146,5 +2282,74 @@
 
   .modalContent {
     max-height: calc(100vh - 140px);
+  }
+
+  .entriesGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .entryCard {
+    min-height: 240px;
+    max-height: 280px;
+  }
+
+  .entryHeader {
+    padding: 14px 14px 10px 14px;
+  }
+
+  .entryContent {
+    padding: 10px 14px;
+  }
+
+  .entryFooter {
+    padding: 8px 14px;
+  }
+
+  .entryTitle {
+    font-size: 1rem;
+  }
+
+  .entryDescription {
+    font-size: 0.85rem;
+    -webkit-line-clamp: 3;
+    max-height: 4.2rem;
+  }
+
+  .entryActions {
+    top: 8px;
+    right: 8px;
+    padding: 3px;
+  }
+
+  .linkButton, .editButton, .deleteButton {
+    min-width: 24px;
+    min-height: 24px;
+    font-size: 0.75rem;
+    padding: 4px;
+  }
+
+  .markerBadge {
+    width: 26px;
+    height: 26px;
+    font-size: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .tag {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+    max-width: 100px;
+  }
+
+  .category {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    max-width: 100px;
+  }
+
+  .imageIndicator {
+    font-size: 0.7rem;
+    padding: 3px 6px;
   }
 } 
