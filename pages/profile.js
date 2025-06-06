@@ -4,30 +4,21 @@ import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import ProgressIndicator from '../components/ProgressIndicator';
 import styles from '../styles/ProfileSupport.module.css';
 import Footer from '../components/Footer';
 
-// Componente para card de performance aprimorado
-const PerformanceCard = ({ title, icon, data, type, lastUpdated }) => {
+// Componente para card de performance atualizado
+const PerformanceCard = ({ title, icon, data, type }) => {
   if (!data) return null;
 
-  const getMetricStatus = (colors, metric) => {
-    if (!colors || !colors[metric]) return 'neutral';
-    
-    const color = colors[metric];
-    if (color.includes('green') || color.includes('#779E3D')) return 'excellent';
-    if (color.includes('yellow') || color.includes('#F0A028')) return 'good';
-    if (color.includes('red') || color.includes('#E64E36')) return 'poor';
-    return 'neutral';
-  };
-
   const getOverallStatus = () => {
-    const tmaStatus = getMetricStatus(data.colors, 'tma');
-    const csatStatus = getMetricStatus(data.colors, 'csat');
+    if (!data.status) return 'neutral';
     
-    if (tmaStatus === 'excellent' && csatStatus === 'excellent') return 'excellent';
-    if (tmaStatus === 'poor' || csatStatus === 'poor') return 'poor';
-    if (tmaStatus === 'good' || csatStatus === 'good') return 'good';
+    const statuses = Object.values(data.status);
+    if (statuses.every(status => status === 'excellent')) return 'excellent';
+    if (statuses.some(status => status === 'poor')) return 'poor';
+    if (statuses.some(status => status === 'good')) return 'good';
     return 'neutral';
   };
 
@@ -35,49 +26,33 @@ const PerformanceCard = ({ title, icon, data, type, lastUpdated }) => {
     const metrics = [];
     
     // Métricas principais por tipo
-    if (data.totalChamados !== undefined) {
-      metrics.push(
-        { 
-          label: 'Total Chamados', 
-          value: data.totalChamados, 
-          icon: 'fa-ticket',
-          type: 'primary' 
-        },
-        { 
-          label: 'Média por Dia', 
-          value: data.mediaPorDia, 
-          icon: 'fa-calendar-day',
-          type: 'secondary' 
-        }
-      );
+    if (data.total !== undefined) {
+      metrics.push({
+        label: type === 'chamados' ? 'Total Chamados' : 
+               type === 'telefone' ? 'Total Ligações' : 'Total Conversas',
+        value: data.total,
+        icon: type === 'chamados' ? 'fa-ticket' : 
+              type === 'telefone' ? 'fa-phone-volume' : 'fa-message',
+        type: 'primary'
+      });
     }
     
-    if (data.totalTelefone !== undefined) {
-      metrics.push(
-        { 
-          label: 'Total Ligações', 
-          value: data.totalTelefone, 
-          icon: 'fa-phone-volume',
-          type: 'primary' 
-        },
-        { 
-          label: 'Perdidas', 
-          value: data.perdidas, 
-          icon: 'fa-phone-slash',
-          type: 'warning' 
-        }
-      );
+    if (data.mediaDia !== undefined) {
+      metrics.push({
+        label: 'Média por Dia',
+        value: data.mediaDia,
+        icon: 'fa-calendar-day',
+        type: 'secondary'
+      });
     }
     
-    if (data.totalChats !== undefined) {
-      metrics.push(
-        { 
-          label: 'Total Conversas', 
-          value: data.totalChats, 
-          icon: 'fa-message',
-          type: 'primary' 
-        }
-      );
+    if (data.perdidas !== undefined) {
+      metrics.push({
+        label: 'Perdidas',
+        value: data.perdidas,
+        icon: 'fa-phone-slash',
+        type: 'warning'
+      });
     }
 
     return metrics;
@@ -90,7 +65,7 @@ const PerformanceCard = ({ title, icon, data, type, lastUpdated }) => {
       kpis.push({ 
         label: 'TMA', 
         value: data.tma,
-        status: getMetricStatus(data.colors, 'tma'),
+        status: data.status?.tma || 'neutral',
         icon: 'fa-stopwatch'
       });
     }
@@ -99,7 +74,7 @@ const PerformanceCard = ({ title, icon, data, type, lastUpdated }) => {
       kpis.push({ 
         label: 'CSAT', 
         value: data.csat,
-        status: data.csat === "-" ? 'neutral' : getMetricStatus(data.colors, 'csat'),
+        status: data.csat === "-" ? 'neutral' : (data.status?.csat || 'neutral'),
         icon: 'fa-heart'
       });
     }
@@ -289,22 +264,22 @@ export default function MyPage({ user }) {
                 <h3>{user.name}</h3>
                 <p>{user.email}</p>
                 <div className={styles.tagsContainer}>
-                  {performanceData?.squad && (
+                  {performanceData?.supervisor && (
                     <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
-                      #{performanceData.squad}
+                      {performanceData.supervisor}
                     </div>
                   )}
-                  {performanceData?.chamado && (
+                  {performanceData?.canals?.chamado && (
                     <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
                       #Chamado
                     </div>
                   )}
-                  {performanceData?.telefone && (
+                  {performanceData?.canals?.telefone && (
                     <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
                       #Telefone
                     </div>
                   )}
-                  {performanceData?.chat && (
+                  {performanceData?.canals?.chat && (
                     <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
                       #Chat
                     </div>
@@ -385,7 +360,32 @@ export default function MyPage({ user }) {
           </div>
         </section>
 
-        {/* Seção 2: Indicadores de Performance */}
+        {/* Seção 2: Meta Mensal */}
+        {performanceData && (
+          <section className={styles.progressSection}>
+            {/* Progresso de Chamados */}
+            {performanceData.chamados && (
+              <ProgressIndicator
+                current={performanceData.chamados.total || 0}
+                target={performanceData.chamados.target?.quantity || 600}
+                label="Meta Mensal de Chamados"
+                type="chamados"
+              />
+            )}
+            
+            {/* Progresso de Chat se for o único canal */}
+            {!performanceData.chamados && performanceData.chat && (
+              <ProgressIndicator
+                current={performanceData.chat.total || 0}
+                target={performanceData.chat.target?.quantity || 32}
+                label="Meta Mensal de Conversas"
+                type="chat"
+              />
+            )}
+          </section>
+        )}
+
+        {/* Seção 3: Indicadores de Performance */}
         {performanceData && (
           <section className={styles.performanceSection}>
             <div className={styles.sectionHeader}>
@@ -405,7 +405,6 @@ export default function MyPage({ user }) {
                   icon="fa-headset"
                   data={performanceData.chamados}
                   type="chamados"
-                  lastUpdated={performanceData.atualizadoAte}
                 />
               )}
               
@@ -415,7 +414,6 @@ export default function MyPage({ user }) {
                   icon="fa-phone"
                   data={performanceData.telefone}
                   type="telefone"
-                  lastUpdated={performanceData.atualizadoAte}
                 />
               )}
               
@@ -425,7 +423,6 @@ export default function MyPage({ user }) {
                   icon="fa-comments"
                   data={performanceData.chat}
                   type="chat"
-                  lastUpdated={performanceData.atualizadoAte}
                 />
               )}
             </div>
