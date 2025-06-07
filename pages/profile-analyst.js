@@ -187,16 +187,6 @@ const PerformanceCard = ({ title, icon, data, type }) => {
 
 // Componente para ranking de categorias
 const CategoryRanking = ({ categories, loading }) => {
-  if (loading) {
-    return (
-      <div className={styles.categoryRanking}>
-        <div className={styles.loadingContainer}>
-          <div className="standardBoxLoader"></div>
-          <p>Carregando ranking...</p>
-        </div>
-      </div>
-    );
-  }
 
   if (!categories.length) {
     return (
@@ -551,65 +541,75 @@ export default function ProfileAnalystPage({ user }) {
           </div>
         </section>
 
-        {/* Seção 2: Indicadores de Performance */}
-        {performanceData && (
+        {/* Seção 2: Indicadores de Qualidade e RFC */}
+        {(user.role === 'analyst' || user.role === 'tax') && (
           <section className={styles.performanceSection}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
-                <i className="fa-solid fa-chart-bar"></i>
-                Indicadores de Performance
+                <i className="fa-solid fa-award"></i>
+                Indicadores de Qualidade e RFC
               </h2>
-              <p className={styles.sectionSubtitle}>
-                Período: {performanceData.atualizadoAte || "Data não disponível"}
-              </p>
+              {!loading && performanceData && (
+                <p className={styles.sectionSubtitle}>
+                  Período: {performanceData.atualizadoAte || "Data não disponível"}
+                </p>
+              )}
             </div>
             
-            <div className={styles.performanceGrid}>
-              {performanceData.chamados && (
-                <PerformanceCard 
-                  title="Chamados"
-                  icon="fa-headset"
-                  data={performanceData.chamados}
-                  type="chamados"
-                />
-              )}
-              
-              {performanceData.telefone && (
-                <PerformanceCard 
-                  title="Telefone"
-                  icon="fa-phone"
-                  data={performanceData.telefone}
-                  type="telefone"
-                />
-              )}
-              
-              {performanceData.chat && (
-                <PerformanceCard 
-                  title="Chat"
-                  icon="fa-comments"
-                  data={performanceData.chat}
-                  type="chat"
-                />
-              )}
-            </div>
+            {loading ? (
+              <div className={styles.loadingContainer}>
+                <div className="standardBoxLoader"></div>
+              </div>
+            ) : performanceData ? (
+              <div className={styles.performanceGrid}>
+                {/* Indicador de RFC/Chamados */}
+                {performanceData.chamados && (
+                  <PerformanceCard 
+                    title="RFC - Requisições e Controle"
+                    icon="fa-clipboard-check"
+                    data={performanceData.chamados}
+                    type="chamados"
+                  />
+                )}
+                
+                {/* Indicador de Qualidade - se existir */}
+                {performanceData.qualidade && (
+                  <PerformanceCard 
+                    title="Indicadores de Qualidade"
+                    icon="fa-star"
+                    data={performanceData.qualidade}
+                    type="qualidade"
+                  />
+                )}
+              </div>
+            ) : null}
           </section>
         )}
 
         {/* Seção 3: Ranking de Categorias */}
         <section className={styles.categorySection}>
-                      <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>
-                <i className="fa-solid fa-chart-line"></i>
-                Categorias Mais Solicitadas
-              </h2>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <i className="fa-solid fa-chart-line"></i>
+              Categorias Mais Solicitadas
+            </h2>
+            {!loading && (
               <p className={styles.sectionSubtitle}>
                 Áreas onde você recebe mais pedidos de ajuda - Oportunidades para criação de materiais
               </p>
+            )}
+          </div>
+          
+          {loading ? (
+            <div className={styles.loadingContainer}>
+              <div className="standardBoxLoader"></div>
             </div>
-          <CategoryRanking 
-            categories={categoryRanking} 
-            loading={loading} 
-          />
+          ) : (
+            <CategoryRanking 
+              categories={categoryRanking} 
+              loading={false} 
+            />
+          )}
         </section>
       </main>
 
