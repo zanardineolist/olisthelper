@@ -85,7 +85,7 @@ const ProgressIndicator = ({ current, target, label, type = 'chamados' }) => {
         <div className={styles.statusMessage}>
           {percentage >= 100 ? (
             <div className={styles.messageSuccess}>
-              <i className="fa-solid fa-party-horn"></i>
+              <i className="fa-solid fa-trophy"></i>
               <span>Parabéns! Meta superada!</span>
             </div>
           ) : percentage >= 75 ? (
@@ -95,12 +95,12 @@ const ProgressIndicator = ({ current, target, label, type = 'chamados' }) => {
             </div>
           ) : percentage >= 50 ? (
             <div className={styles.messageWarning}>
-              <i className="fa-solid fa-rocket"></i>
+              <i className="fa-solid fa-chart-line-up"></i>
               <span>Você está no caminho certo!</span>
             </div>
           ) : (
             <div className={styles.messageInfo}>
-              <i className="fa-solid fa-target"></i>
+              <i className="fa-solid fa-bullseye"></i>
               <span>Vamos juntos alcançar a meta!</span>
             </div>
           )}

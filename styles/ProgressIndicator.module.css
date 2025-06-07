@@ -122,10 +122,10 @@
   background: var(--box-color2);
 }
 
-.percentage.excellent { color: #779E3D; }
-.percentage.good { color: #3B82F6; }
-.percentage.warning { color: #F59E0B; }
-.percentage.info { color: var(--text-color2); }
+.percentage.excellent { color: #059669; }
+.percentage.good { color: #2563EB; }
+.percentage.warning { color: #D97706; }
+.percentage.info { color: #6B7280; }
 
 /* Barra de progresso sutil */
 .progressBarContainer {
@@ -147,19 +147,19 @@
 }
 
 .progressBarFill.excellent {
-  background: linear-gradient(90deg, #779E3D 0%, #8FB94A 100%);
+  background: linear-gradient(90deg, #059669 0%, #10B981 100%);
 }
 
 .progressBarFill.good {
-  background: linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%);
+  background: linear-gradient(90deg, #2563EB 0%, #3B82F6 100%);
 }
 
 .progressBarFill.warning {
-  background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%);
+  background: linear-gradient(90deg, #D97706 0%, #F59E0B 100%);
 }
 
 .progressBarFill.info {
-  background: linear-gradient(90deg, #9CA3AF 0%, #D1D5DB 100%);
+  background: linear-gradient(90deg, #6B7280 0%, #9CA3AF 100%);
 }
 
 /* Footer motivacional */
@@ -186,19 +186,19 @@
 }
 
 .messageSuccess {
-  color: #779E3D;
+  color: #059669;
 }
 
 .messageGood {
-  color: #3B82F6;
+  color: #2563EB;
 }
 
 .messageWarning {
-  color: #F59E0B;
+  color: #D97706;
 }
 
 .messageInfo {
-  color: var(--text-color2);
+  color: #6B7280;
 }
 
 .remainingInfo {
@@ -265,16 +265,16 @@
 }
 
 .progressContainer.excellent .iconContainer:hover {
-  background: rgba(119, 158, 61, 0.1);
-  color: #779E3D;
+  background: rgba(5, 150, 105, 0.1);
+  color: #059669;
 }
 
 .progressContainer.good .iconContainer:hover {
-  background: rgba(59, 130, 246, 0.1);
-  color: #3B82F6;
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563EB;
 }
 
 .progressContainer.warning .iconContainer:hover {
-  background: rgba(245, 158, 11, 0.1);
-  color: #F59E0B;
+  background: rgba(217, 119, 6, 0.1);
+  color: #D97706;
 } 
