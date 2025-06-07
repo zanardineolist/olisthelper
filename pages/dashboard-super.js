@@ -7,6 +7,7 @@ import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import DashboardData from '../components/DashboardData';
 import GraphData from '../components/GraphData';
 import HelpTopicsData from '../components/HelpTopicsData';
+import ProgressIndicator from '../components/ProgressIndicator';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Swal from 'sweetalert2';
@@ -46,11 +47,152 @@ const theme = createTheme({
   },
 });
 
+// Componente para card de performance
+const PerformanceCard = ({ title, icon, data, type }) => {
+  if (!data) return null;
+
+  const getOverallStatus = () => {
+    if (!data.status) return 'neutral';
+    
+    const statuses = Object.values(data.status);
+    if (statuses.every(status => status === 'excellent')) return 'excellent';
+    if (statuses.some(status => status === 'poor')) return 'poor';
+    if (statuses.some(status => status === 'good')) return 'good';
+    return 'neutral';
+  };
+
+  const renderMainMetrics = () => {
+    const metrics = [];
+    
+    // Métricas principais por tipo
+    if (data.total !== undefined) {
+      metrics.push({
+        label: type === 'chamados' ? 'Total Chamados' : 
+               type === 'telefone' ? 'Total Ligações' : 'Total Conversas',
+        value: data.total,
+        icon: type === 'chamados' ? 'fa-ticket' : 
+              type === 'telefone' ? 'fa-phone-volume' : 'fa-message',
+        type: 'primary'
+      });
+    }
+    
+    if (data.mediaDia !== undefined) {
+      metrics.push({
+        label: 'Média por Dia',
+        value: data.mediaDia,
+        icon: 'fa-calendar-day',
+        type: 'secondary'
+      });
+    }
+    
+    if (data.perdidas !== undefined) {
+      metrics.push({
+        label: 'Perdidas',
+        value: data.perdidas,
+        icon: 'fa-phone-slash',
+        type: 'warning'
+      });
+    }
+
+    return metrics;
+  };
+
+  const renderKPIMetrics = () => {
+    const kpis = [];
+    
+    if (data.tma !== undefined && data.tma !== null) {
+      kpis.push({ 
+        label: 'TMA', 
+        value: data.tma,
+        status: data.status?.tma || 'neutral',
+        icon: 'fa-stopwatch'
+      });
+    }
+    
+    if (data.csat !== undefined && data.csat !== null) {
+      kpis.push({ 
+        label: 'CSAT', 
+        value: data.csat,
+        status: data.csat === "-" ? 'neutral' : (data.status?.csat || 'neutral'),
+        icon: 'fa-heart'
+      });
+    }
+
+    return kpis;
+  };
+
+  const overallStatus = getOverallStatus();
+
+  return (
+    <div className={`${styles.performanceCard} ${styles[overallStatus]}`}>
+      <div className={styles.performanceCardHeader}>
+        <div className={styles.performanceIcon}>
+          <i className={`fa-solid ${icon}`}></i>
+        </div>
+        <div className={styles.performanceTitleSection}>
+          <h3 className={styles.performanceTitle}>{title}</h3>
+          <div className={`${styles.statusIndicator} ${styles[overallStatus]}`}>
+            <i className={`fa-solid ${
+              overallStatus === 'excellent' ? 'fa-circle-check' :
+              overallStatus === 'good' ? 'fa-circle-minus' :
+              overallStatus === 'poor' ? 'fa-circle-xmark' : 'fa-circle'
+            }`}></i>
+            <span>
+              {overallStatus === 'excellent' ? 'Excelente' :
+               overallStatus === 'good' ? 'Bom' :
+               overallStatus === 'poor' ? 'Atenção' : 'Normal'}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Métricas Principais */}
+      <div className={styles.mainMetrics}>
+        {renderMainMetrics().map((metric, index) => (
+          <div key={index} className={`${styles.mainMetric} ${styles[metric.type]}`}>
+            <div className={styles.mainMetricIcon}>
+              <i className={`fa-solid ${metric.icon}`}></i>
+            </div>
+            <div className={styles.mainMetricData}>
+              <span className={styles.mainMetricValue}>{metric.value}</span>
+              <span className={styles.mainMetricLabel}>{metric.label}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* KPIs com Status */}
+      <div className={styles.kpiMetrics}>
+        {renderKPIMetrics().map((kpi, index) => (
+          <div key={index} className={`${styles.kpiMetric} ${styles[kpi.status]}`}>
+            <div className={styles.kpiIcon}>
+              <i className={`fa-solid ${kpi.icon}`}></i>
+            </div>
+            <div className={styles.kpiData}>
+              <span className={styles.kpiValue}>{kpi.value}</span>
+              <span className={styles.kpiLabel}>{kpi.label}</span>
+            </div>
+            <div className={`${styles.kpiStatus} ${styles[kpi.status]}`}>
+              <i className={`fa-solid ${
+                kpi.status === 'excellent' ? 'fa-thumbs-up' :
+                kpi.status === 'good' ? 'fa-thumbs-up' :
+                kpi.status === 'poor' ? 'fa-thumbs-down' : 'fa-minus'
+              }`}></i>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default function DashboardSuper({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
   const [greeting, setGreeting] = useState('');
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
+  const [performanceData, setPerformanceData] = useState(null);
+  const [performanceLoading, setPerformanceLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -82,7 +224,28 @@ export default function DashboardSuper({ user }) {
       }
     };
 
+    // Carregar dados de performance do usuário
+    const loadPerformanceData = async () => {
+      if (user.role === 'support' || user.role === 'support+') {
+        try {
+          setPerformanceLoading(true);
+          const response = await fetch(`/api/get-user-performance?userEmail=${user.email}`);
+          if (response.ok) {
+            const data = await response.json();
+            setPerformanceData(data);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar dados de performance:', error);
+        } finally {
+          setPerformanceLoading(false);
+        }
+      } else {
+        setPerformanceLoading(false);
+      }
+    };
+
     loadUsers();
+    loadPerformanceData();
 
     // Simulando um pequeno atraso para exibir o loader
     setTimeout(() => {
@@ -95,7 +258,7 @@ export default function DashboardSuper({ user }) {
         setCurrentTab(2);
       }
     }, 500);
-  }, []);
+  }, [user.email, user.role]);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
@@ -186,6 +349,95 @@ export default function DashboardSuper({ user }) {
             {currentTab === 0 && (
               <div className={styles.tabPanel}>
                 <DashboardData user={user} />
+                
+                {/* Seção: Progresso da Meta */}
+                {(user.role === 'support' || user.role === 'support+') && (
+                  <section className={styles.progressSection}>
+                    <div className={styles.sectionHeader}>
+                      <h2 className={styles.sectionTitle}>
+                        <i className="fa-solid fa-bullseye"></i>
+                        Progresso da Meta
+                      </h2>
+                    </div>
+                    {performanceLoading ? (
+                      <div className={styles.loadingContainer}>
+                        <div className="standardBoxLoader"></div>
+                      </div>
+                    ) : performanceData ? (
+                      <>
+                        {/* Progresso de Chamados */}
+                        {performanceData.chamados && (
+                          <ProgressIndicator
+                            current={performanceData.chamados.total || 0}
+                            target={performanceData.chamados.target?.quantity || 600}
+                            type="chamados"
+                          />
+                        )}
+                        
+                        {/* Progresso de Chat se for o único canal */}
+                        {!performanceData.chamados && performanceData.chat && (
+                          <ProgressIndicator
+                            current={performanceData.chat.total || 0}
+                            target={performanceData.chat.target?.quantity || 32}
+                            type="chat"
+                          />
+                        )}
+                      </>
+                    ) : null}
+                  </section>
+                )}
+
+                {/* Seção: Indicadores de Performance */}
+                {(user.role === 'support' || user.role === 'support+') && (
+                  <section className={styles.performanceSection}>
+                    <div className={styles.sectionHeader}>
+                      <h2 className={styles.sectionTitle}>
+                        <i className="fa-solid fa-chart-bar"></i>
+                        Indicadores de Performance
+                      </h2>
+                      {!performanceLoading && performanceData && (
+                        <p className={styles.sectionSubtitle}>
+                          Período: {performanceData.atualizadoAte || "Data não disponível"}
+                        </p>
+                      )}
+                    </div>
+                    
+                    {performanceLoading ? (
+                      <div className={styles.loadingContainer}>
+                        <div className="standardBoxLoader"></div>
+                      </div>
+                    ) : performanceData ? (
+                      <div className={styles.performanceGrid}>
+                        {performanceData.chamados && (
+                          <PerformanceCard 
+                            title="Indicadores Chamados"
+                            icon="fa-headset"
+                            data={performanceData.chamados}
+                            type="chamados"
+                          />
+                        )}
+                        
+                        {performanceData.telefone && (
+                          <PerformanceCard 
+                            title="Indicadores Telefone"
+                            icon="fa-phone"
+                            data={performanceData.telefone}
+                            type="telefone"
+                          />
+                        )}
+                        
+                        {performanceData.chat && (
+                          <PerformanceCard 
+                            title="Indicadores Chat"
+                            icon="fa-comments"
+                            data={performanceData.chat}
+                            type="chat"
+                          />
+                        )}
+                      </div>
+                    ) : null}
+                  </section>
+                )}
               </div>
             )}
             
