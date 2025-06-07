@@ -6,86 +6,111 @@ const ProgressIndicator = ({ current, target, label, type = 'chamados' }) => {
   const percentage = Math.min((current / target) * 100, 100);
   const remaining = Math.max(target - current, 0);
   
-  // Determinar status baseado na porcentagem
-  let status = 'poor';
+  // Determinar status baseado na porcentagem - mais tolerante
+  let status = 'neutral';
   if (percentage >= 100) status = 'excellent';
-  else if (percentage >= 50) status = 'good';
+  else if (percentage >= 75) status = 'good';
+  else if (percentage >= 50) status = 'warning';
+  else status = 'info';
 
-  // Ícones por tipo
-  const getIcon = () => {
+  // Ícones e textos amigáveis por tipo
+  const getTypeInfo = () => {
     switch (type) {
-      case 'chamados': return 'fa-headset';
-      case 'chat': return 'fa-comments';
-      default: return 'fa-chart-line';
+      case 'chamados': 
+        return { 
+          icon: 'fa-headset',
+          title: 'Chamados',
+          subtitle: 'Atendimentos realizados',
+          unit: 'chamados'
+        };
+      case 'chat': 
+        return { 
+          icon: 'fa-comments',
+          title: 'Conversas',
+          subtitle: 'Chats atendidos',
+          unit: 'conversas'
+        };
+      default: 
+        return { 
+          icon: 'fa-chart-line',
+          title: 'Meta',
+          subtitle: 'Progresso atual',
+          unit: 'itens'
+        };
     }
   };
 
+  const typeInfo = getTypeInfo();
+
   return (
     <div className={`${styles.progressContainer} ${styles[status]}`}>
+      {/* Header mais amigável */}
       <div className={styles.progressHeader}>
-        <div className={styles.progressTitleSection}>
-          <div className={styles.progressIcon}>
-            <i className={`fa-solid ${getIcon()}`}></i>
+        <div className={styles.titleSection}>
+          <div className={styles.iconContainer}>
+            <i className={`fa-solid ${typeInfo.icon}`}></i>
           </div>
-          <div className={styles.progressTitle}>
-            <h3>{label}</h3>
-            <p className={styles.progressSubtitle}>Meta Mensal de {type}</p>
-          </div>
-        </div>
-        <div className={styles.progressStats}>
-          <div className={styles.progressStat}>
-            <span className={styles.progressValue}>{current.toLocaleString('pt-BR')}</span>
-            <span className={styles.progressLabel}>Atual</span>
-          </div>
-          <div className={styles.progressSeparator}>/</div>
-          <div className={styles.progressStat}>
-            <span className={styles.progressValue}>{target.toLocaleString('pt-BR')}</span>
-            <span className={styles.progressLabel}>Meta</span>
+          <div className={styles.titleInfo}>
+            <h3 className={styles.title}>{typeInfo.title}</h3>
+            <p className={styles.subtitle}>{typeInfo.subtitle}</p>
           </div>
         </div>
-      </div>
-
-      <div className={styles.progressBarContainer}>
-        <div className={styles.progressBarBackground}>
-          <div 
-            className={`${styles.progressBarFill} ${styles[status]}`}
-            style={{ width: `${percentage}%` }}
-          >
-            <div className={styles.progressBarGlow}></div>
+        
+        {/* Progresso visual mais clean */}
+        <div className={styles.progressDisplay}>
+          <div className={styles.numberDisplay}>
+            <span className={styles.currentValue}>{current.toLocaleString('pt-BR')}</span>
+            <span className={styles.targetValue}>de {target.toLocaleString('pt-BR')}</span>
           </div>
-        </div>
-        <div className={styles.progressPercentage}>
-          <span className={`${styles.percentageValue} ${styles[status]}`}>
-            {percentage.toFixed(1)}%
-          </span>
-        </div>
-      </div>
-
-      <div className={styles.progressFooter}>
-        <div className={styles.progressStatus}>
-          <div className={`${styles.statusIndicator} ${styles[status]}`}>
-            <i className={`fa-solid ${
-              status === 'excellent' ? 'fa-circle-check' :
-              status === 'good' ? 'fa-circle-minus' :
-              'fa-circle-xmark'
-            }`}></i>
-            <span>
-              {status === 'excellent' ? 'Meta Atingida!' :
-               status === 'good' ? 'Em Progresso' :
-               'Atenção Necessária'}
+          <div className={styles.percentageDisplay}>
+            <span className={`${styles.percentage} ${styles[status]}`}>
+              {percentage.toFixed(0)}%
             </span>
           </div>
         </div>
+      </div>
+
+      {/* Barra de progresso mais sutil */}
+      <div className={styles.progressBarContainer}>
+        <div className={styles.progressBarTrack}>
+          <div 
+            className={`${styles.progressBarFill} ${styles[status]}`}
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Footer com mensagem motivacional */}
+      <div className={styles.progressFooter}>
+        <div className={styles.statusMessage}>
+          {percentage >= 100 ? (
+            <div className={styles.messageSuccess}>
+              <i className="fa-solid fa-party-horn"></i>
+              <span>Parabéns! Meta superada!</span>
+            </div>
+          ) : percentage >= 75 ? (
+            <div className={styles.messageGood}>
+              <i className="fa-solid fa-thumbs-up"></i>
+              <span>Ótimo progresso! Continue assim!</span>
+            </div>
+          ) : percentage >= 50 ? (
+            <div className={styles.messageWarning}>
+              <i className="fa-solid fa-rocket"></i>
+              <span>Você está no caminho certo!</span>
+            </div>
+          ) : (
+            <div className={styles.messageInfo}>
+              <i className="fa-solid fa-target"></i>
+              <span>Vamos juntos alcançar a meta!</span>
+            </div>
+          )}
+        </div>
         
         {remaining > 0 && (
-          <div className={styles.progressRemaining}>
-            <span>Faltam <strong>{remaining.toLocaleString('pt-BR')}</strong> para a meta</span>
-          </div>
-        )}
-        
-        {percentage >= 100 && (
-          <div className={styles.progressExcess}>
-            <span>Meta superada em <strong>{(current - target).toLocaleString('pt-BR')}</strong>!</span>
+          <div className={styles.remainingInfo}>
+            <span className={styles.remainingText}>
+              Restam <strong>{remaining.toLocaleString('pt-BR')}</strong> {typeInfo.unit}
+            </span>
           </div>
         )}
       </div>

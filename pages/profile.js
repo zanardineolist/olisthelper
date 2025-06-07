@@ -360,7 +360,7 @@ export default function MyPage({ user }) {
           </div>
         </section>
 
-        {/* Seção 2: Meta Mensal */}
+        {/* Seção 2: Progresso da Meta */}
         {performanceData && (
           <section className={styles.progressSection}>
             {/* Progresso de Chamados */}
@@ -368,7 +368,6 @@ export default function MyPage({ user }) {
               <ProgressIndicator
                 current={performanceData.chamados.total || 0}
                 target={performanceData.chamados.target?.quantity || 600}
-                label="Meta Mensal de Chamados"
                 type="chamados"
               />
             )}
@@ -378,7 +377,6 @@ export default function MyPage({ user }) {
               <ProgressIndicator
                 current={performanceData.chat.total || 0}
                 target={performanceData.chat.target?.quantity || 32}
-                label="Meta Mensal de Conversas"
                 type="chat"
               />
             )}

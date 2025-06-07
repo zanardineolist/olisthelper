@@ -40,3 +40,4 @@ database_fixes.sql
 IMGUR_SETUP.md
 database_fix_function.sql
 database_structure_images.sql
+scripts/google-apps-script.js

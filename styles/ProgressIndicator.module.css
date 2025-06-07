@@ -1,122 +1,149 @@
-/* styles/ProgressIndicator.module.css */
+/* ProgressIndicator.module.css - Layout amigável e motivacional */
 
 .progressContainer {
   background: var(--box-color1);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 24px;
-  margin-bottom: 24px;
-  border: 2px solid transparent;
+  margin-bottom: 20px;
+  border: 1px solid var(--box-color3);
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+.progressContainer:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Estados mais suaves */
 .progressContainer.excellent {
-  border-color: #779E3D;
-  background: linear-gradient(135deg, var(--box-color1) 0%, rgba(119, 158, 61, 0.05) 100%);
+  border-color: rgba(119, 158, 61, 0.3);
+  background: linear-gradient(135deg, var(--box-color1) 0%, rgba(119, 158, 61, 0.02) 100%);
 }
 
 .progressContainer.good {
-  border-color: #F0A028;
-  background: linear-gradient(135deg, var(--box-color1) 0%, rgba(240, 160, 40, 0.05) 100%);
+  border-color: rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, var(--box-color1) 0%, rgba(59, 130, 246, 0.02) 100%);
 }
 
-.progressContainer.poor {
-  border-color: #E64E36;
-  background: linear-gradient(135deg, var(--box-color1) 0%, rgba(230, 78, 54, 0.05) 100%);
+.progressContainer.warning {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: linear-gradient(135deg, var(--box-color1) 0%, rgba(245, 158, 11, 0.02) 100%);
 }
 
+.progressContainer.info {
+  border-color: rgba(156, 163, 175, 0.3);
+  background: var(--box-color1);
+}
+
+/* Header limpo */
 .progressHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
 }
 
-.progressTitleSection {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.progressIcon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--box-color2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  color: var(--text-color1);
-}
-
-.progressTitle h3 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-color1);
-}
-
-.progressSubtitle {
-  margin: 4px 0 0 0;
-  font-size: 14px;
-  color: var(--text-color2);
-}
-
-.progressStats {
+.titleSection {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.progressStat {
+.iconContainer {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--box-color2);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--text-color1);
+  flex-shrink: 0;
 }
 
-.progressValue {
+.titleInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color1);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-color2);
+  font-weight: 400;
+}
+
+/* Display de progresso mais clean */
+.progressDisplay {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.numberDisplay {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.2;
+}
+
+.currentValue {
   font-size: 24px;
   font-weight: 700;
   color: var(--text-color1);
-  line-height: 1;
 }
 
-.progressLabel {
+.targetValue {
   font-size: 12px;
   color: var(--text-color2);
-  margin-top: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: 500;
 }
 
-.progressSeparator {
-  font-size: 20px;
-  color: var(--text-color3);
-  font-weight: 300;
+.percentageDisplay {
+  margin-top: 2px;
 }
 
-.progressBarContainer {
-  position: relative;
-  margin-bottom: 20px;
-}
-
-.progressBarBackground {
-  width: 100%;
-  height: 12px;
+.percentage {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
   background: var(--box-color2);
-  border-radius: 6px;
+}
+
+.percentage.excellent { color: #779E3D; }
+.percentage.good { color: #3B82F6; }
+.percentage.warning { color: #F59E0B; }
+.percentage.info { color: var(--text-color2); }
+
+/* Barra de progresso sutil */
+.progressBarContainer {
+  margin-bottom: 16px;
+}
+
+.progressBarTrack {
+  width: 100%;
+  height: 8px;
+  background: var(--box-color2);
+  border-radius: 4px;
   overflow: hidden;
-  position: relative;
 }
 
 .progressBarFill {
   height: 100%;
-  border-radius: 6px;
-  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  border-radius: 4px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .progressBarFill.excellent {
@@ -124,117 +151,97 @@
 }
 
 .progressBarFill.good {
-  background: linear-gradient(90deg, #F0A028 0%, #FFB84D 100%);
+  background: linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%);
 }
 
-.progressBarFill.poor {
-  background: linear-gradient(90deg, #E64E36 0%, #FF6B52 100%);
+.progressBarFill.warning {
+  background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%);
 }
 
-.progressBarGlow {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
-  animation: shimmer 2s infinite;
+.progressBarFill.info {
+  background: linear-gradient(90deg, #9CA3AF 0%, #D1D5DB 100%);
 }
 
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
-}
-
-.progressPercentage {
-  position: absolute;
-  top: -8px;
-  right: 0;
-  transform: translateY(-100%);
-}
-
-.percentageValue {
-  background: var(--box-color1);
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid var(--box-color3);
-}
-
-.percentageValue.excellent { color: #779E3D; }
-.percentageValue.good { color: #F0A028; }
-.percentageValue.poor { color: #E64E36; }
-
+/* Footer motivacional */
 .progressFooter {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   gap: 12px;
 }
 
-.progressStatus {
-  display: flex;
-  align-items: center;
+.statusMessage {
+  flex-grow: 1;
 }
 
-.statusIndicator {
+.messageSuccess,
+.messageGood,
+.messageWarning,
+.messageInfo {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
-  border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
 }
 
-.statusIndicator.excellent {
-  background: rgba(119, 158, 61, 0.1);
+.messageSuccess {
   color: #779E3D;
 }
 
-.statusIndicator.good {
-  background: rgba(240, 160, 40, 0.1);
-  color: #F0A028;
+.messageGood {
+  color: #3B82F6;
 }
 
-.statusIndicator.poor {
-  background: rgba(230, 78, 54, 0.1);
-  color: #E64E36;
+.messageWarning {
+  color: #F59E0B;
 }
 
-.progressRemaining {
-  font-size: 14px;
+.messageInfo {
   color: var(--text-color2);
 }
 
-.progressRemaining strong {
+.remainingInfo {
+  flex-shrink: 0;
+}
+
+.remainingText {
+  font-size: 13px;
+  color: var(--text-color2);
+}
+
+.remainingText strong {
   color: var(--text-color1);
   font-weight: 600;
 }
 
-.progressExcess {
-  font-size: 14px;
-  color: #779E3D;
-  font-weight: 500;
-}
-
-.progressExcess strong {
-  font-weight: 700;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
+  .progressContainer {
+    padding: 20px;
+  }
+
   .progressHeader {
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     align-items: flex-start;
   }
 
-  .progressStats {
+  .progressDisplay {
     align-self: stretch;
-    justify-content: space-around;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .numberDisplay {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .currentValue {
+    font-size: 20px;
   }
 
   .progressFooter {
@@ -243,11 +250,31 @@
     gap: 8px;
   }
 
-  .progressValue {
-    font-size: 20px;
+  .remainingInfo {
+    align-self: stretch;
   }
 
-  .progressTitle h3 {
-    font-size: 18px;
+  .title {
+    font-size: 16px;
   }
+}
+
+/* Estados de hover para melhor interação */
+.iconContainer {
+  transition: all 0.2s ease;
+}
+
+.progressContainer.excellent .iconContainer:hover {
+  background: rgba(119, 158, 61, 0.1);
+  color: #779E3D;
+}
+
+.progressContainer.good .iconContainer:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3B82F6;
+}
+
+.progressContainer.warning .iconContainer:hover {
+  background: rgba(245, 158, 11, 0.1);
+  color: #F59E0B;
 } 
