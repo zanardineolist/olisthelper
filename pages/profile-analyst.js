@@ -457,11 +457,21 @@ export default function ProfileAnalystPage({ user }) {
               
               <div className={styles.metricItem}>
                 <div className={styles.metricIcon}>
-                  <i className="fa-solid fa-ticket"></i>
+                  <i className="fa-solid fa-clipboard-check"></i>
                 </div>
                 <div className={styles.metricData}>
-                  <span className={styles.metricValue}>{performanceData?.chamados?.totalChamados || 0}</span>
-                  <span className={styles.metricLabel}>Total RFC</span>
+                  <span className={styles.metricValue}>{performanceData?.rfc || '-'}</span>
+                  <span className={styles.metricLabel}>RFC</span>
+                </div>
+              </div>
+              
+              <div className={styles.metricItem}>
+                <div className={styles.metricIcon}>
+                  <i className="fa-solid fa-star"></i>
+                </div>
+                <div className={styles.metricData}>
+                  <span className={styles.metricValue}>{performanceData?.nota_qualidade || '-'}</span>
+                  <span className={styles.metricLabel}>Nota Qualidade</span>
                 </div>
               </div>
               
@@ -541,52 +551,9 @@ export default function ProfileAnalystPage({ user }) {
           </div>
         </section>
 
-        {/* Seção 2: Indicadores de Qualidade e RFC */}
-        {(user.role === 'analyst' || user.role === 'tax') && (
-          <section className={styles.performanceSection}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>
-                <i className="fa-solid fa-award"></i>
-                Indicadores de Qualidade e RFC
-              </h2>
-              {!loading && performanceData && (
-                <p className={styles.sectionSubtitle}>
-                  Período: {performanceData.atualizadoAte || "Data não disponível"}
-                </p>
-              )}
-            </div>
-            
-            {loading ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-              </div>
-            ) : performanceData ? (
-              <div className={styles.performanceGrid}>
-                {/* Indicador de RFC/Chamados */}
-                {performanceData.chamados && (
-                  <PerformanceCard 
-                    title="RFC - Requisições e Controle"
-                    icon="fa-clipboard-check"
-                    data={performanceData.chamados}
-                    type="chamados"
-                  />
-                )}
-                
-                {/* Indicador de Qualidade - se existir */}
-                {performanceData.qualidade && (
-                  <PerformanceCard 
-                    title="Indicadores de Qualidade"
-                    icon="fa-star"
-                    data={performanceData.qualidade}
-                    type="qualidade"
-                  />
-                )}
-              </div>
-            ) : null}
-          </section>
-        )}
 
-        {/* Seção 3: Ranking de Categorias */}
+
+        {/* Seção 2: Ranking de Categorias */}
         <section className={styles.categorySection}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
