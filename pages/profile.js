@@ -361,69 +361,85 @@ export default function MyPage({ user }) {
         </section>
 
         {/* Seção 2: Progresso da Meta */}
-        {performanceData && (
+        {(user.role === 'support' || user.role === 'support+') && (
           <section className={styles.progressSection}>
-            {/* Progresso de Chamados */}
-            {performanceData.chamados && (
-              <ProgressIndicator
-                current={performanceData.chamados.total || 0}
-                target={performanceData.chamados.target?.quantity || 600}
-                type="chamados"
-              />
-            )}
-            
-            {/* Progresso de Chat se for o único canal */}
-            {!performanceData.chamados && performanceData.chat && (
-              <ProgressIndicator
-                current={performanceData.chat.total || 0}
-                target={performanceData.chat.target?.quantity || 32}
-                type="chat"
-              />
-            )}
+            {loading ? (
+              <div className={styles.loadingContainer}>
+                <div className="standardBoxLoader"></div>
+              </div>
+            ) : performanceData ? (
+              <>
+                {/* Progresso de Chamados */}
+                {performanceData.chamados && (
+                  <ProgressIndicator
+                    current={performanceData.chamados.total || 0}
+                    target={performanceData.chamados.target?.quantity || 600}
+                    type="chamados"
+                  />
+                )}
+                
+                {/* Progresso de Chat se for o único canal */}
+                {!performanceData.chamados && performanceData.chat && (
+                  <ProgressIndicator
+                    current={performanceData.chat.total || 0}
+                    target={performanceData.chat.target?.quantity || 32}
+                    type="chat"
+                  />
+                )}
+              </>
+            ) : null}
           </section>
         )}
 
         {/* Seção 3: Indicadores de Performance */}
-        {performanceData && (
+        {(user.role === 'support' || user.role === 'support+') && (
           <section className={styles.performanceSection}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>
                 <i className="fa-solid fa-chart-bar"></i>
                 Indicadores de Performance
               </h2>
-              <p className={styles.sectionSubtitle}>
-                Período: {performanceData.atualizadoAte || "Data não disponível"}
-              </p>
+              {!loading && performanceData && (
+                <p className={styles.sectionSubtitle}>
+                  Período: {performanceData.atualizadoAte || "Data não disponível"}
+                </p>
+              )}
             </div>
             
-            <div className={styles.performanceGrid}>
-              {performanceData.chamados && (
-                <PerformanceCard 
-                  title="Indicadores Chamados"
-                  icon="fa-headset"
-                  data={performanceData.chamados}
-                  type="chamados"
-                />
-              )}
-              
-              {performanceData.telefone && (
-                <PerformanceCard 
-                  title="Indicadores Telefone"
-                  icon="fa-phone"
-                  data={performanceData.telefone}
-                  type="telefone"
-                />
-              )}
-              
-              {performanceData.chat && (
-                <PerformanceCard 
-                  title="Indicadores Chat"
-                  icon="fa-comments"
-                  data={performanceData.chat}
-                  type="chat"
-                />
-              )}
-            </div>
+            {loading ? (
+              <div className={styles.loadingContainer}>
+                <div className="standardBoxLoader"></div>
+              </div>
+            ) : performanceData ? (
+              <div className={styles.performanceGrid}>
+                {performanceData.chamados && (
+                  <PerformanceCard 
+                    title="Indicadores Chamados"
+                    icon="fa-headset"
+                    data={performanceData.chamados}
+                    type="chamados"
+                  />
+                )}
+                
+                {performanceData.telefone && (
+                  <PerformanceCard 
+                    title="Indicadores Telefone"
+                    icon="fa-phone"
+                    data={performanceData.telefone}
+                    type="telefone"
+                  />
+                )}
+                
+                {performanceData.chat && (
+                  <PerformanceCard 
+                    title="Indicadores Chat"
+                    icon="fa-comments"
+                    data={performanceData.chat}
+                    type="chat"
+                  />
+                )}
+              </div>
+            ) : null}
           </section>
         )}
 
