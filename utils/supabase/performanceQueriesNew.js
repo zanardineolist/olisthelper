@@ -187,7 +187,6 @@ export async function getUserPerformanceByEmail(userEmail) {
         tma: formatDisplayTime(performance.telefone_tma_time),
         csat: performance.telefone_csat_rating,
         perdidas: performance.telefone_perdidas,
-        percentPerdidas: performance.telefone_percent_perdidas,
         target: {
           tma: telefoneTarget.target_tma,
           csat: telefoneTarget.target_csat,

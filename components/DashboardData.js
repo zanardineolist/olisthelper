@@ -964,13 +964,13 @@ export default function DashboardData({ user }) {
             </section>
           )}
 
-          {/* Métricas específicas de analista */}
-          {selectedUser.role === 'analyst' && (
+          {/* Métricas específicas de analista/fiscal */}
+          {(selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
             <section className={styles.analystSpecificSection || ''}>
               <div className={styles.sectionHeader || ''}>
                 <h2 className={styles.sectionTitle || ''}>
                   <i className="fa-solid fa-chart-line"></i>
-                  Métricas do Analista
+                  Métricas de {selectedUser.role === 'analyst' ? 'Analista' : 'Fiscal'}
                 </h2>
               </div>
               
@@ -983,14 +983,35 @@ export default function DashboardData({ user }) {
                   ) : (
                     <>
                       <div className={styles.analystMetricHeader || ''}>
-                        <i className="fa-solid fa-ticket"></i>
-                        <h3>Total de RFC</h3>
+                        <i className="fa-solid fa-clipboard-check"></i>
+                        <h3>RFC</h3>
                       </div>
                       <p className={styles.periodInfo || ''}>
                         {performanceData?.atualizadoAte || 'Data não disponível'}
                       </p>
                       <div className={styles.bigMetricValue || ''}>
-                        {performanceData?.totalChamados || 0}
+                        {performanceData?.rfc || '-'}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div className={styles.analystMetricCard || ''}>
+                  {loadingData ? (
+                    <div className={styles.loadingContainer || ''}>
+                      <div className="standardBoxLoader"></div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className={styles.analystMetricHeader || ''}>
+                        <i className="fa-solid fa-star"></i>
+                        <h3>Nota Qualidade</h3>
+                      </div>
+                      <p className={styles.metricHelpText || ''}>
+                        Avaliação de qualidade
+                      </p>
+                      <div className={styles.bigMetricValue || ''}>
+                        {performanceData?.notaQualidade || performanceData?.nota_qualidade || '-'}
                       </div>
                     </>
                   )}
@@ -1008,10 +1029,10 @@ export default function DashboardData({ user }) {
                         <h3>Total de Ajudas</h3>
                       </div>
                       <p className={styles.metricHelpText || ''}>
-                        (ajudas prestadas + RFC)
+                        Ajudas prestadas no período
                       </p>
                       <div className={styles.bigMetricValue || ''}>
-                        {(helpRequests.currentMonth || 0) + (performanceData?.totalChamados || 0)}
+                        {helpRequests.currentMonth || 0}
                       </div>
                     </>
                   )}
