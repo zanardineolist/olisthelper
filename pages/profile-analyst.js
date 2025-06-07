@@ -423,11 +423,19 @@ export default function ProfileAnalystPage({ user }) {
               <div className={styles.profileDetails}>
                 <h3>{user.name}</h3>
                 <p>{user.email}</p>
-                <div 
-                  className={`${styles.roleTag} ${user.role === 'tax' ? styles.tax : ''}`}
-                >
-                  <i className="fa-solid fa-user-tie"></i>
-                  {user.role === 'analyst' ? 'Analista' : 'Fiscal'}
+                <div className={styles.profileTags}>
+                  <div 
+                    className={`${styles.roleTag} ${user.role === 'tax' ? styles.tax : ''}`}
+                  >
+                    <i className="fa-solid fa-user-tie"></i>
+                    {user.role === 'analyst' ? 'Analista' : 'Fiscal'}
+                  </div>
+                  {performanceData?.supervisor && (
+                    <div className={styles.supervisorTag}>
+                      <i className="fa-solid fa-user-gear"></i>
+                      {performanceData.supervisor}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
