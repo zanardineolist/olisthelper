@@ -19,22 +19,22 @@ const ProgressIndicator = ({ current, target, label, type = 'chamados' }) => {
       case 'chamados': 
         return { 
           icon: 'fa-headset',
-          title: 'Chamados',
-          subtitle: 'Atendimentos realizados',
+          title: 'Meta de Chamados - Mês',
+          subtitle: 'Chamados respondidos e atuados',
           unit: 'chamados'
         };
       case 'chat': 
         return { 
           icon: 'fa-comments',
-          title: 'Conversas',
-          subtitle: 'Chats atendidos',
+          title: 'Meta de Conversas - Mês',
+          subtitle: 'Conversas atendidas e finalizadas',
           unit: 'conversas'
         };
       default: 
         return { 
           icon: 'fa-chart-line',
-          title: 'Meta',
-          subtitle: 'Progresso atual',
+          title: 'Meta Mensal',
+          subtitle: 'Progresso do período atual',
           unit: 'itens'
         };
     }
