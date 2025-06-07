@@ -193,6 +193,9 @@ export default function DashboardSuper({ user }) {
   const [users, setUsers] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
   const [performanceLoading, setPerformanceLoading] = useState(true);
+  const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
+  const [categoryRanking, setCategoryRanking] = useState([]);
+  const [helpLoading, setHelpLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -244,8 +247,37 @@ export default function DashboardSuper({ user }) {
       }
     };
 
+    // Carregar dados de ajudas e categorias
+    const loadHelpData = async () => {
+      try {
+        setHelpLoading(true);
+        const [helpResponse, categoryResponse] = await Promise.all([
+          fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
+          fetch(`/api/get-user-category-ranking?userEmail=${user.email}`)
+        ]);
+
+        if (helpResponse.ok) {
+          const helpData = await helpResponse.json();
+          setHelpRequests({
+            currentMonth: helpData.currentMonth,
+            lastMonth: helpData.lastMonth,
+          });
+        }
+
+        if (categoryResponse.ok) {
+          const categoryData = await categoryResponse.json();
+          setCategoryRanking(categoryData.categories || []);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados de ajuda:', error);
+      } finally {
+        setHelpLoading(false);
+      }
+    };
+
     loadUsers();
     loadPerformanceData();
+    loadHelpData();
 
     // Simulando um pequeno atraso para exibir o loader
     setTimeout(() => {
@@ -285,6 +317,13 @@ export default function DashboardSuper({ user }) {
         <div className="loader"></div>
       </div>
     );
+  }
+
+  // Calcular variação percentual das ajudas
+  const { currentMonth, lastMonth } = helpRequests;
+  let percentageChange = 0;
+  if (lastMonth > 0) {
+    percentageChange = ((currentMonth - lastMonth) / lastMonth) * 100;
   }
 
   return (
@@ -350,6 +389,116 @@ export default function DashboardSuper({ user }) {
               <div className={styles.tabPanel}>
                 <DashboardData user={user} />
                 
+                {/* Seção 1: Overview Pessoal */}
+                <section className={styles.overviewSection}>
+                  {/* Card de Perfil Expandido */}
+                  <div className={styles.profileExpandedCard}>
+                    <div className={styles.profileMainInfo}>
+                      <img 
+                        src={user.image} 
+                        alt={user.name} 
+                        className={styles.profileImage} 
+                      />
+                      <div className={styles.profileDetails}>
+                        <h3>{user.name}</h3>
+                        <p>{user.email}</p>
+                        <div className={styles.tagsContainer}>
+                          {performanceData?.supervisor && (
+                            <div className={styles.tag} style={{ backgroundColor: '#0A4EE4' }}>
+                              {performanceData.supervisor}
+                            </div>
+                          )}
+                          {performanceData?.canals?.chamado && (
+                            <div className={styles.tag} style={{ backgroundColor: '#F0A028' }}>
+                              #Chamado
+                            </div>
+                          )}
+                          {performanceData?.canals?.telefone && (
+                            <div className={styles.tag} style={{ backgroundColor: '#E64E36' }}>
+                              #Telefone
+                            </div>
+                          )}
+                          {performanceData?.canals?.chat && (
+                            <div className={styles.tag} style={{ backgroundColor: '#779E3D' }}>
+                              #Chat
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Métricas Integradas */}
+                    <div className={styles.integratedMetrics}>
+                      <div className={styles.metricItem}>
+                        <div className={styles.metricIcon}>
+                          <i className="fa-solid fa-calendar-days"></i>
+                        </div>
+                        <div className={styles.metricData}>
+                          <span className={styles.metricValue}>{performanceData?.diasTrabalhados || 0}</span>
+                          <span className={styles.metricLabel}>Dias Trabalhados</span>
+                          <span className={styles.metricSubtext}>/ {performanceData?.diasUteis || 0} dias úteis</span>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.metricItem}>
+                        <div className={styles.metricIcon}>
+                          <i className="fa-solid fa-chart-line"></i>
+                        </div>
+                        <div className={styles.metricData}>
+                          <span className={styles.metricValue}>{performanceData?.absenteismo || 0}%</span>
+                          <span className={styles.metricLabel}>Absenteísmo</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Card de Ajudas Solicitadas Expandido */}
+                  <div className={styles.helpExpandedCard}>
+                    <div className={styles.cardHeader}>
+                      <h3 className={styles.cardTitle}>
+                        <i className="fa-solid fa-handshake-angle"></i>
+                        Ajudas Solicitadas
+                      </h3>
+                    </div>
+                    
+                    <div className={styles.helpStatsExpanded}>
+                      <div className={styles.helpStatMain}>
+                        <div className={styles.helpStatIcon}>
+                          <i className="fa-solid fa-calendar"></i>
+                        </div>
+                        <div className={styles.helpStatContent}>
+                          <span className={styles.helpStatValue}>{currentMonth}</span>
+                          <span className={styles.helpStatLabel}>Mês Atual</span>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.helpStatMain}>
+                        <div className={styles.helpStatIcon}>
+                          <i className="fa-solid fa-calendar-xmark"></i>
+                        </div>
+                        <div className={styles.helpStatContent}>
+                          <span className={styles.helpStatValue}>{lastMonth}</span>
+                          <span className={styles.helpStatLabel}>Mês Anterior</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={styles.trendIndicator}>
+                      <div className={`${styles.trendValue} ${
+                        percentageChange > 0 ? styles.positive : 
+                        percentageChange < 0 ? styles.negative : styles.neutral
+                      }`}>
+                        <i className={`fa-solid ${
+                          percentageChange > 0 ? 'fa-trending-up' : 
+                          percentageChange < 0 ? 'fa-trending-down' : 'fa-minus'
+                        }`}></i>
+                        <span>{Math.abs(percentageChange).toFixed(1)}%</span>
+                      </div>
+                      <span className={styles.trendLabel}>Variação Mensal</span>
+                    </div>
+                  </div>
+                </section>
+
                 {/* Seção: Progresso da Meta */}
                 {(user.role === 'support' || user.role === 'support+') && (
                   <section className={styles.progressSection}>
@@ -438,6 +587,68 @@ export default function DashboardSuper({ user }) {
                     ) : null}
                   </section>
                 )}
+
+                {/* Seção: Ranking de Categorias */}
+                <section className={styles.categorySection}>
+                  <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>
+                      <i className="fa-solid fa-chart-line"></i>
+                      Top 10 - Temas de Maior Dúvida
+                    </h2>
+                    <p className={styles.sectionSubtitle}>
+                      Áreas onde você mais solicita ajuda - Oportunidades para aprendizado
+                    </p>
+                  </div>
+                  
+                  <div className={styles.categoryRanking}>
+                    <h3 className={styles.categoryTitle}>
+                      <i className="fa-solid fa-ranking-star"></i>
+                      Categorias Mais Solicitadas
+                    </h3>
+                    {helpLoading ? (
+                      <div className={styles.loadingContainer}>
+                        <div className="standardBoxLoader"></div>
+                        <p>Carregando ranking...</p>
+                      </div>
+                    ) : categoryRanking.length > 0 ? (
+                      <ul className={styles.list}>
+                        {categoryRanking.map((category, index) => (
+                          <li key={index} className={styles.listItem}>
+                            <span className={styles.rank}>{index + 1}.</span>
+                            <span className={styles.categoryName}>{category.name}</span>
+                            <div
+                              className={styles.progressBarCategory}
+                              style={{
+                                width: `${Math.min((category.count / 20) * 100, 100)}%`,
+                                backgroundColor: category.count > 10 ? '#F0A028' : '',
+                              }}
+                            />
+                            <span className={styles.count}>
+                              {category.count} pedidos de ajuda
+                              {category.count > 10 && (
+                                <div className={styles.tooltip}>
+                                  <i
+                                    className="fa-solid fa-circle-exclamation"
+                                    style={{ color: '#F0A028', cursor: 'pointer' }}
+                                    onClick={() => window.open('https://forms.clickup.com/30949570/f/xgg62-18893/6O57E8S7WVNULVS5HO', '_blank')}
+                                  ></i>
+                                  <span className={styles.tooltipText}>
+                                    Você já pediu ajuda para este tema mais de 10 vezes. Que tal agendar um Tiny Class com nossos analistas? Clique no ícone.
+                                  </span>
+                                </div>
+                              )}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className={styles.noData}>
+                        <i className="fa-solid fa-chart-simple"></i>
+                        <p>Nenhum dado disponível no momento.</p>
+                      </div>
+                    )}
+                  </div>
+                </section>
               </div>
             )}
             
