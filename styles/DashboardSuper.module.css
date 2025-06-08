@@ -1077,3 +1077,263 @@
     box-shadow: 0 0 0 2px rgba(10, 78, 228, 0.1);
     outline: none;
 }
+
+/* ==================================================
+   ESTILOS DO PROGRESS INDICATOR E PERFORMANCE CARD
+   ================================================== */
+
+/* Progress Section */
+.progressSection {
+    margin-bottom: 3rem;
+}
+
+/* Performance Section Otimizada */
+.performanceSection {
+    margin-bottom: 3rem;
+}
+
+.performanceGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+/* Performance Cards */
+.performanceCard {
+    background: var(--bg-color);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.performanceCard.excellent {
+    border-left: 4px solid var(--excellent-color);
+}
+
+.performanceCard.good {
+    border-left: 4px solid var(--good-color);
+}
+
+.performanceCard.poor {
+    border-left: 4px solid var(--poor-color);
+}
+
+.performanceCard.neutral {
+    border-left: 4px solid var(--neutral-color);
+}
+
+.performanceCardHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.performanceIcon {
+    width: 48px;
+    height: 48px;
+    background: var(--color-primary);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.performanceTitleSection {
+    flex: 1;
+}
+
+.performanceTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.statusIndicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.statusIndicator.excellent {
+    color: var(--excellent-color);
+}
+
+.statusIndicator.good {
+    color: var(--good-color);
+}
+
+.statusIndicator.poor {
+    color: var(--poor-color);
+}
+
+.statusIndicator.neutral {
+    color: var(--neutral-color);
+}
+
+/* Main Metrics */
+.mainMetrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.mainMetric {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+}
+
+.mainMetric.primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.mainMetric.primary .mainMetricIcon {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.mainMetric.secondary {
+    background: var(--neutral-bg);
+}
+
+.mainMetric.warning {
+    background: var(--warning-bg);
+}
+
+.mainMetricIcon {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    font-size: 1rem;
+}
+
+.mainMetricData {
+    display: flex;
+    flex-direction: column;
+}
+
+.mainMetricValue {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.mainMetricLabel {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-top: 0.25rem;
+}
+
+/* KPI Metrics */
+.kpiMetrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.kpiMetric {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.kpiMetric.excellent {
+    background: var(--excellent-bg);
+    border-color: var(--excellent-color);
+}
+
+.kpiMetric.good {
+    background: var(--good-bg);
+    border-color: var(--good-color);
+}
+
+.kpiMetric.poor {
+    background: var(--poor-bg);
+    border-color: var(--poor-color);
+}
+
+.kpiIcon {
+    width: 28px;
+    height: 28px;
+    background: var(--bg-color);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    font-size: 0.875rem;
+}
+
+.kpiMetric.excellent .kpiIcon {
+    background: var(--excellent-color);
+    color: white;
+}
+
+.kpiMetric.good .kpiIcon {
+    background: var(--good-color);
+    color: white;
+}
+
+.kpiMetric.poor .kpiIcon {
+    background: var(--poor-color);
+    color: white;
+}
+
+.kpiData {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.kpiValue {
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text-primary);
+}
+
+.kpiLabel {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+.kpiStatus {
+    font-size: 1rem;
+}
+
+.kpiStatus.excellent {
+    color: var(--excellent-color);
+}
+
+.kpiStatus.good {
+    color: var(--good-color);
+}
+
+.kpiStatus.poor {
+    color: var(--poor-color);
+}

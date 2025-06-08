@@ -7,6 +7,7 @@ import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
+import ProgressIndicator from './ProgressIndicator';
 
 // Componente de Avatar Padrão em SVG
 const DefaultAvatar = ({ name, className }) => {
@@ -77,29 +78,17 @@ const UserAvatar = ({ user, className }) => {
   );
 };
 
-// Componente para card de performance aprimorado
+// Componente para card de performance atualizado (igual ao profile.js)
 const PerformanceCard = ({ title, icon, data, type }) => {
   if (!data) return null;
 
-  const getMetricStatus = (colors, metric) => {
-    if (!colors || !colors[metric]) return 'neutral';
-    
-    const color = colors[metric];
-    if (color.includes('green') || color.includes('#779E3D')) return 'excellent';
-    if (color.includes('yellow') || color.includes('#F0A028')) return 'good';
-    if (color.includes('red') || color.includes('#E64E36')) return 'poor';
-    return 'neutral';
-  };
-
   const getOverallStatus = () => {
-    if (!data.colors) return 'neutral';
+    if (!data.status) return 'neutral';
     
-    const tmaStatus = getMetricStatus(data.colors, 'tma');
-    const csatStatus = getMetricStatus(data.colors, 'csat');
-    
-    if (tmaStatus === 'excellent' && csatStatus === 'excellent') return 'excellent';
-    if (tmaStatus === 'poor' || csatStatus === 'poor') return 'poor';
-    if (tmaStatus === 'good' || csatStatus === 'good') return 'good';
+    const statuses = Object.values(data.status);
+    if (statuses.every(status => status === 'excellent')) return 'excellent';
+    if (statuses.some(status => status === 'poor')) return 'poor';
+    if (statuses.some(status => status === 'good')) return 'good';
     return 'neutral';
   };
 
@@ -107,61 +96,33 @@ const PerformanceCard = ({ title, icon, data, type }) => {
     const metrics = [];
     
     // Métricas principais por tipo
-    if (data.totalChamados !== undefined) {
-      metrics.push(
-        { 
-          label: 'Total Chamados', 
-          value: data.totalChamados, 
-          icon: 'fa-ticket',
-          type: 'primary' 
-        },
-        { 
-          label: 'Média por Dia', 
-          value: data.mediaPorDia, 
-          icon: 'fa-calendar-day',
-          type: 'secondary' 
-        }
-      );
+    if (data.total !== undefined) {
+      metrics.push({
+        label: type === 'chamados' ? 'Total Chamados' : 
+               type === 'telefone' ? 'Total Ligações' : 'Total Conversas',
+        value: data.total,
+        icon: type === 'chamados' ? 'fa-ticket' : 
+              type === 'telefone' ? 'fa-phone-volume' : 'fa-message',
+        type: 'primary'
+      });
     }
     
-    if (data.totalTelefone !== undefined) {
-      metrics.push(
-        { 
-          label: 'Total Ligações', 
-          value: data.totalTelefone, 
-          icon: 'fa-phone-volume',
-          type: 'primary' 
-        },
-        { 
-          label: 'Média por Dia', 
-          value: data.mediaPorDia, 
-          icon: 'fa-calendar-day',
-          type: 'secondary' 
-        },
-        { 
-          label: 'Perdidas', 
-          value: data.perdidas, 
-          icon: 'fa-phone-slash',
-          type: 'warning' 
-        }
-      );
+    if (data.mediaDia !== undefined) {
+      metrics.push({
+        label: 'Média por Dia',
+        value: data.mediaDia,
+        icon: 'fa-calendar-day',
+        type: 'secondary'
+      });
     }
     
-    if (data.totalChats !== undefined) {
-      metrics.push(
-        { 
-          label: 'Total Conversas', 
-          value: data.totalChats, 
-          icon: 'fa-message',
-          type: 'primary' 
-        },
-        { 
-          label: 'Média por Dia', 
-          value: data.mediaPorDia, 
-          icon: 'fa-calendar-day',
-          type: 'secondary' 
-        }
-      );
+    if (data.perdidas !== undefined) {
+      metrics.push({
+        label: 'Perdidas',
+        value: data.perdidas,
+        icon: 'fa-phone-slash',
+        type: 'warning'
+      });
     }
 
     return metrics;
@@ -174,7 +135,7 @@ const PerformanceCard = ({ title, icon, data, type }) => {
       kpis.push({ 
         label: 'TMA', 
         value: data.tma,
-        status: getMetricStatus(data.colors, 'tma'),
+        status: data.status?.tma || 'neutral',
         icon: 'fa-stopwatch'
       });
     }
@@ -183,7 +144,7 @@ const PerformanceCard = ({ title, icon, data, type }) => {
       kpis.push({ 
         label: 'CSAT', 
         value: data.csat,
-        status: data.csat === "-" ? 'neutral' : getMetricStatus(data.colors, 'csat'),
+        status: data.csat === "-" ? 'neutral' : (data.status?.csat || 'neutral'),
         icon: 'fa-heart'
       });
     }
@@ -193,22 +154,15 @@ const PerformanceCard = ({ title, icon, data, type }) => {
 
   const overallStatus = getOverallStatus();
 
-  // Função helper para obter classe CSS segura
-  const getSafeStyle = (baseClass, modifier = '') => {
-    const baseStyle = styles[baseClass] || '';
-    const modifierStyle = modifier && styles[modifier] ? styles[modifier] : '';
-    return `${baseStyle} ${modifierStyle}`.trim();
-  };
-
   return (
-    <div className={getSafeStyle('dashboardPerformanceCard', overallStatus)}>
-      <div className={styles.dashboardPerformanceCardHeader || ''}>
-        <div className={styles.dashboardPerformanceIcon || ''}>
+    <div className={`${styles.performanceCard} ${styles[overallStatus]}`}>
+      <div className={styles.performanceCardHeader}>
+        <div className={styles.performanceIcon}>
           <i className={`fa-solid ${icon}`}></i>
         </div>
-        <div className={styles.dashboardPerformanceTitleSection || ''}>
-          <h3 className={styles.dashboardPerformanceTitle || ''}>{title}</h3>
-          <div className={getSafeStyle('dashboardStatusIndicator', overallStatus)}>
+        <div className={styles.performanceTitleSection}>
+          <h3 className={styles.performanceTitle}>{title}</h3>
+          <div className={`${styles.statusIndicator} ${styles[overallStatus]}`}>
             <i className={`fa-solid ${
               overallStatus === 'excellent' ? 'fa-circle-check' :
               overallStatus === 'good' ? 'fa-circle-minus' :
@@ -224,32 +178,32 @@ const PerformanceCard = ({ title, icon, data, type }) => {
       </div>
       
       {/* Métricas Principais */}
-      <div className={styles.dashboardMainMetrics || ''}>
+      <div className={styles.mainMetrics}>
         {renderMainMetrics().map((metric, index) => (
-          <div key={index} className={getSafeStyle('dashboardMainMetric', metric.type)}>
-            <div className={styles.dashboardMainMetricIcon || ''}>
+          <div key={index} className={`${styles.mainMetric} ${styles[metric.type]}`}>
+            <div className={styles.mainMetricIcon}>
               <i className={`fa-solid ${metric.icon}`}></i>
             </div>
-            <div className={styles.dashboardMainMetricData || ''}>
-              <span className={styles.dashboardMainMetricValue || ''}>{metric.value}</span>
-              <span className={styles.dashboardMainMetricLabel || ''}>{metric.label}</span>
+            <div className={styles.mainMetricData}>
+              <span className={styles.mainMetricValue}>{metric.value}</span>
+              <span className={styles.mainMetricLabel}>{metric.label}</span>
             </div>
           </div>
         ))}
       </div>
 
       {/* KPIs com Status */}
-      <div className={styles.dashboardKpiMetrics || ''}>
+      <div className={styles.kpiMetrics}>
         {renderKPIMetrics().map((kpi, index) => (
-          <div key={index} className={getSafeStyle('dashboardKpiMetric', kpi.status)}>
-            <div className={styles.dashboardKpiIcon || ''}>
+          <div key={index} className={`${styles.kpiMetric} ${styles[kpi.status]}`}>
+            <div className={styles.kpiIcon}>
               <i className={`fa-solid ${kpi.icon}`}></i>
             </div>
-            <div className={styles.dashboardKpiData || ''}>
-              <span className={styles.dashboardKpiValue || ''}>{kpi.value}</span>
-              <span className={styles.dashboardKpiLabel || ''}>{kpi.label}</span>
+            <div className={styles.kpiData}>
+              <span className={styles.kpiValue}>{kpi.value}</span>
+              <span className={styles.kpiLabel}>{kpi.label}</span>
             </div>
-            <div className={getSafeStyle('dashboardKpiStatus', kpi.status)}>
+            <div className={`${styles.kpiStatus} ${styles[kpi.status]}`}>
               <i className={`fa-solid ${
                 kpi.status === 'excellent' ? 'fa-thumbs-up' :
                 kpi.status === 'good' ? 'fa-thumbs-up' :
@@ -324,7 +278,7 @@ export default function DashboardData({ user }) {
     }
   };
 
-  // Função para buscar dados com base no período selecionado
+    // Função para buscar dados com base no período selecionado
   const fetchUserData = async () => {
     if (!selectedUser) return;
     
@@ -335,25 +289,24 @@ export default function DashboardData({ user }) {
       const { startDate, endDate } = getDateRange();
       
       if (selectedUser.role === 'support' || selectedUser.role === 'support+') {
-        // Para suporte, carregar desempenho completo
-        const [helpResponse, performanceResponse] = await Promise.all([
+        // Para suporte, usar a mesma lógica do profile.js
+        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
           fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
+          fetch(`/api/get-user-category-ranking?userEmail=${selectedUser.email}&startDate=${startDate}&endDate=${endDate}`),
           fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
-        ]);   
+        ]);
 
-        // Ajudas Solicitadas
         const helpData = await helpResponse.json();
         setHelpRequests({
           currentMonth: helpData.currentMonth,
           lastMonth: helpData.lastMonth,
         });
 
-        // Desempenho do Usuário
-        const performanceData = await performanceResponse.json();
-        setPerformanceData(performanceData);
-        
-        // Carrega ranking de categorias separadamente
-        fetchUserCategoryRanking(selectedUser.email, startDate, endDate);
+        const categoryData = await categoryResponse.json();
+        setCategoryRanking(categoryData.categories || []);
+
+        const performanceDataResult = await performanceResponse.json();
+        setPerformanceData(performanceDataResult);
         
       } else if (selectedUser.role === 'analyst') {
         // Para analyst, carregar dados de ajudas prestadas, ranking de categorias e total de chamados
@@ -376,8 +329,8 @@ export default function DashboardData({ user }) {
         // Total de Chamados e Data de Atualização
         const performanceData = await performanceResponse.json();
         setPerformanceData({
-          totalChamados: performanceData?.chamados?.totalChamados || 0,
-          totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.totalChamados || 0),
+          totalChamados: performanceData?.chamados?.total || 0,
+          totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.total || 0),
           atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
         });
 
@@ -403,13 +356,8 @@ export default function DashboardData({ user }) {
         });
 
         // Indicadores de Desempenho (similar ao suporte)
-        const performanceData = await performanceResponse.json();
-        setPerformanceData({
-          ...performanceData,
-          totalChamados: performanceData?.chamados?.totalChamados || 0,
-          totalAjudas: (helpData.currentMonth || 0) + (performanceData?.chamados?.totalChamados || 0),
-          atualizadoAte: performanceData?.atualizadoAte || "Data não disponível",
-        });
+        const performanceDataResult = await performanceResponse.json();
+        setPerformanceData(performanceDataResult);
 
         // Carrega ranking de categorias separadamente
         fetchAnalystCategoryRanking(selectedUser.id, startDate, endDate);
@@ -914,53 +862,86 @@ export default function DashboardData({ user }) {
             </div>
           </section>
 
+          {/* Seção de Progresso da Meta */}
+          {(selectedUser.role === 'support' || selectedUser.role === 'support+') && (
+            <section className={styles.progressSection}>
+              {loadingData ? (
+                <div className={styles.loadingContainer}>
+                  <div className="standardBoxLoader"></div>
+                </div>
+              ) : performanceData ? (
+                <>
+                  {/* Progresso de Chamados */}
+                  {performanceData.chamados && (
+                    <ProgressIndicator
+                      current={performanceData.chamados.total || 0}
+                      target={performanceData.chamados.target?.quantity || 600}
+                      type="chamados"
+                    />
+                  )}
+                  
+                  {/* Progresso de Chat se for o único canal */}
+                  {!performanceData.chamados && performanceData.chat && (
+                    <ProgressIndicator
+                      current={performanceData.chat.total || 0}
+                      target={performanceData.chat.target?.quantity || 32}
+                      type="chat"
+                    />
+                  )}
+                </>
+              ) : null}
+            </section>
+          )}
+
           {/* Seção de Indicadores de Performance */}
           {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && (
-            <section className={styles.dashboardPerformanceSection || ''}>
-              <div className={styles.sectionHeader || ''}>
-                <h2 className={styles.sectionTitle || ''}>
+            <section className={styles.performanceSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>
                   <i className="fa-solid fa-chart-bar"></i>
                   Indicadores de Performance
                 </h2>
-                <p className={styles.sectionSubtitle || ''}>
-                  Período: {performanceData?.atualizadoAte || "Data não disponível"}
-                </p>
+                {!loadingData && performanceData && (
+                  <p className={styles.sectionSubtitle}>
+                    Período: {performanceData.atualizadoAte || "Data não disponível"}
+                  </p>
+                )}
               </div>
               
               {loadingData ? (
-                <div className={styles.loadingContainer || ''}>
+                <div className={styles.loadingContainer}>
                   <div className="standardBoxLoader"></div>
                 </div>
-              ) : (
-                <div className={styles.dashboardPerformanceGrid || ''}>
-                  {performanceData?.chamados && (
+              ) : performanceData ? (
+                <div className={styles.performanceGrid}>
+                  {performanceData.chamados && (
                     <PerformanceCard 
-                      title="Chamados"
+                      title="Indicadores Chamados"
                       icon="fa-headset"
                       data={performanceData.chamados}
                       type="chamados"
                     />
                   )}
                   
-                  {performanceData?.telefone && (
+                  {performanceData.telefone && (
                     <PerformanceCard 
-                      title="Telefone"
+                      title="Indicadores Telefone"
                       icon="fa-phone"
                       data={performanceData.telefone}
                       type="telefone"
                     />
                   )}
                   
-                  {performanceData?.chat && (
+                  {performanceData.chat && (
                     <PerformanceCard 
-                      title="Chat"
+                      title="Indicadores Chat"
                       icon="fa-comments"
                       data={performanceData.chat}
                       type="chat"
                     />
                   )}
                 </div>
-              )}
+              ) : null}
             </section>
           )}
 
