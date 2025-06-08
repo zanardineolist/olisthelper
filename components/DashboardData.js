@@ -248,23 +248,6 @@ export default function DashboardData({ user }) {
   // Carregar lista de usuários (apenas uma vez)
   useEffect(() => {
     loadUsers();
-    
-    // Remover qualquer footer que apareça incorretamente no meio da página
-    const removeFootersFromContent = () => {
-      const footers = document.querySelectorAll('.dashboardMain footer, .dashboardMain .footer');
-      footers.forEach(footer => {
-        const text = footer.textContent || footer.innerText;
-        if (text && text.includes('© Desenvolvido por')) {
-          footer.style.display = 'none';
-        }
-      });
-    };
-    
-    // Executar imediatamente e após um delay
-    removeFootersFromContent();
-    const interval = setInterval(removeFootersFromContent, 1000);
-    
-    return () => clearInterval(interval);
   }, []);
 
   // Exibir/ocultar o seletor de datas personalizadas

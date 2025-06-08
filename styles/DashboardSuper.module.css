@@ -8,11 +8,8 @@
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: 20px 40px 40px 40px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
+    padding: 0 20px;
+    /* Remover propriedades flex conflitantes - usar as do globals.css */
 }
 
 /* ==================================================
@@ -21,7 +18,7 @@
 
 .pageHeader {
     margin-bottom: 20px;
-    flex-shrink: 0;
+    padding: 20px 0;
 }
 
 .headerContent {
@@ -125,7 +122,6 @@
 
 .navigationSection {
     margin-bottom: 20px;
-    flex-shrink: 0;
 }
 
 /* ==================================================
@@ -133,24 +129,16 @@
    ================================================== */
 
 .contentSection {
-    margin-bottom: 0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
 }
 
 .tabContent {
     width: 100%;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
 }
 
 .tabPanel {
     width: 100%;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
 }
 
 /* ==================================================
@@ -165,7 +153,6 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    flex: 1;
 }
 
 /* Seções com headers otimizadas */
@@ -734,7 +721,7 @@
 
 @media (max-width: 1200px) {
     .dashboardMain {
-        padding: 20px;
+        padding: 0 16px;
     }
     
     .headerContent {
@@ -779,7 +766,7 @@
 
 @media (max-width: 768px) {
     .dashboardMain {
-        padding: 12px 12px 24px 12px;
+        padding: 0 12px;
     }
     
     .greetingText {
@@ -833,7 +820,7 @@
 
 @media (max-width: 576px) {
     .dashboardMain {
-        padding: 8px 8px 16px 8px;
+        padding: 0 8px;
     }
     
     .greetingText {
@@ -1138,18 +1125,7 @@
     margin-bottom: 3rem;
 }
 
-/* Forçar que o footer da página não apareça no meio */
-.dashboardMain .footer,
-.dashboardMain footer,
-.dashboardContainer .footer,
-.dashboardContainer footer {
-    display: none !important;
-}
-
-/* Garantir que elementos com texto de footer não apareçam */
-.dashboardMain *[data-footer] {
-    display: none !important;
-}
+/* Removido - deixar o layout global gerenciar o footer */
 
 .performanceGrid {
     display: grid;
@@ -1397,18 +1373,4 @@
     color: var(--poor-color);
 }
 
-/* Limpar qualquer pseudo-elemento que possa estar criando footer */
-.dashboardMain *::after,
-.dashboardMain *::before {
-    content: none !important;
-}
-
-.dashboardMain *::after {
-    display: none !important;
-}
-
-.dashboardMain *::before {
-    display: none !important;
-}
-
-/* Remover qualquer elemento que contenha texto de copyright via JavaScript será necessário */
+/* Removido - deixar o layout natural */
