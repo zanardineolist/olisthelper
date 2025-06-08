@@ -17,42 +17,52 @@
    ================================================== */
 
 .pageHeader {
-    margin-bottom: 20px;
-    padding: 20px 0;
+    margin-bottom: 30px;
+    padding: 24px 0;
+    background: linear-gradient(135deg, var(--box-color) 0%, var(--bg-color) 100%);
+    border-radius: 16px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .headerContent {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 24px;
-    align-items: start;
+    gap: 32px;
+    align-items: center;
+    padding: 0 24px;
 }
 
 .welcomeSection {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
 }
 
 .greetingText {
-    font-size: 2rem;
-    color: var(--text-color);
+    font-size: 2.2rem;
+    color: var(--title-color);
     margin: 0;
-    font-weight: 600;
-    line-height: 1.2;
+    font-weight: 700;
+    line-height: 1.1;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .userName {
     color: var(--color-primary);
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .dashboardSubtitle {
-    font-size: 1rem;
-    color: var(--text-color2);
-    line-height: 1.5;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    line-height: 1.6;
     margin: 0;
-    max-width: 600px;
+    max-width: 700px;
+    opacity: 0.9;
 }
 
 .profileSection {
@@ -61,59 +71,80 @@
 }
 
 .profileCard {
-    background: var(--box-color);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
-    gap: 12px;
-    min-width: 280px;
+    gap: 16px;
+    min-width: 320px;
+    transition: all 0.3s ease;
+}
+
+.profileCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .profileImage {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid var(--color-primary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 3px solid var(--color-primary);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.profileImage:hover {
+    transform: scale(1.05);
+    border-color: var(--color-accent2);
 }
 
 .profileInfo {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 
 .profileName {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: var(--title-color);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .profileEmail {
     margin: 0;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--text-color2);
+    opacity: 0.8;
 }
 
 .roleBadge {
-    background: linear-gradient(135deg, var(--color-primary), #0056b3);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent2));
     color: white;
-    font-size: 0.7rem;
-    padding: 4px 8px;
-    border-radius: 12px;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    border-radius: 20px;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-weight: 600;
+    gap: 6px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
-    margin-top: 4px;
+    letter-spacing: 0.5px;
+    margin-top: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.roleBadge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ==================================================
@@ -709,6 +740,77 @@
 }
 
 /* ==================================================
+   MÉTRICAS INTEGRADAS - ABSENTEÍSMO
+   ================================================== */
+
+.integratedMetrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.metricItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--box-color2);
+    border-radius: 10px;
+    border: 1px solid var(--color-border);
+    transition: all 0.2s ease;
+}
+
+.metricItem:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.metricIcon {
+    width: 36px;
+    height: 36px;
+    background: var(--color-primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.metricData {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.metricValue {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--title-color);
+    line-height: 1;
+}
+
+.metricLabel {
+    font-size: 0.75rem;
+    color: var(--text-color2);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.metricSubtext {
+    font-size: 0.7rem;
+    color: var(--text-color2);
+    opacity: 0.8;
+    font-weight: 400;
+}
+
+/* ==================================================
    RESPONSIVIDADE OTIMIZADA
    ================================================== */
 
@@ -795,6 +897,10 @@
     
     .dashboardMainMetrics,
     .dashboardKpiMetrics {
+        grid-template-columns: 1fr;
+    }
+    
+    .integratedMetrics {
         grid-template-columns: 1fr;
     }
     

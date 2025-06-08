@@ -805,6 +805,32 @@ export default function DashboardData({ user }) {
                         </>
                       )}
                     </div>
+
+                    {/* Métricas Integradas de Absenteísmo */}
+                    {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
+                      <div className={styles.integratedMetrics}>
+                        <div className={styles.metricItem}>
+                          <div className={styles.metricIcon}>
+                            <i className="fa-solid fa-calendar-days"></i>
+                          </div>
+                          <div className={styles.metricData}>
+                            <span className={styles.metricValue}>{performanceData?.diasTrabalhados || 0}</span>
+                            <span className={styles.metricLabel}>Dias Trabalhados</span>
+                            <span className={styles.metricSubtext}>/ {performanceData?.diasUteis || 0} dias úteis</span>
+                          </div>
+                        </div>
+                        
+                        <div className={styles.metricItem}>
+                          <div className={styles.metricIcon}>
+                            <i className="fa-solid fa-chart-line"></i>
+                          </div>
+                          <div className={styles.metricData}>
+                            <span className={styles.metricValue}>{performanceData?.absenteismo || 0}%</span>
+                            <span className={styles.metricLabel}>Absenteísmo</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </div>
