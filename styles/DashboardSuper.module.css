@@ -5,9 +5,11 @@
    ================================================== */
 
 .dashboardMain {
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 20px;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 20px 40px;
+    min-height: 100vh;
 }
 
 /* ==================================================
@@ -146,17 +148,29 @@
     max-width: none;
     margin: 0;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
-/* Seções com headers mais compactos */
+/* Seções com headers otimizadas */
 .userSelectSection,
 .periodFilterSection {
     background: var(--box-color);
     border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px;
+    padding: 20px;
+    margin-bottom: 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
     border: 1px solid var(--color-border);
+    width: 100%;
+}
+
+/* Container para filtros lado a lado */
+.filtersContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
 }
 
 .sectionTitle {
@@ -181,17 +195,22 @@
 .userOverviewSection,
 .dashboardPerformanceSection,
 .analystSpecificSection,
-.categorySection {
-    margin-bottom: 20px;
+.categorySection,
+.progressSection,
+.performanceSection {
+    margin-bottom: 3rem;
+    width: 100%;
 }
 
 .sectionHeader {
-    margin-bottom: 16px;
-    padding: 12px 16px;
+    margin-bottom: 24px;
+    padding: 20px 24px;
     background: var(--box-color);
-    border-radius: 8px;
+    border-radius: 12px;
     border: 1px solid var(--color-border);
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .sectionHeader .sectionTitle {
@@ -212,18 +231,20 @@
 
 .overviewGrid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
 }
 
 .profileExpandedCard,
 .helpExpandedCard {
     background: var(--box-color);
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 16px;
+    padding: 24px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
     border: 1px solid var(--color-border);
     height: fit-content;
+    min-height: 200px;
 }
 
 .profileMainInfo {
@@ -698,7 +719,7 @@
 
 @media (max-width: 1200px) {
     .dashboardMain {
-        padding: 16px;
+        padding: 20px;
     }
     
     .headerContent {
@@ -716,7 +737,17 @@
         max-width: 400px;
     }
     
-    .overviewGrid,
+    .filtersContainer {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .overviewGrid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .performanceGrid,
     .dashboardPerformanceGrid,
     .analystMetricsGrid {
         grid-template-columns: 1fr;

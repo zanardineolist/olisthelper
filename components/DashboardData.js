@@ -658,117 +658,120 @@ export default function DashboardData({ user }) {
   const formattedPercentage = Math.abs(percentageChange).toFixed(1);
 
   return (
-    <div className={styles.dashboardContainer || ''}>
-      {/* Seleção de usuário */}
-      <div className={styles.userSelectSection || ''}>
-        <h3 className={styles.sectionTitle || ''}>
-          <i className="fa-solid fa-users"></i>
-          Selecione um Colaborador
-        </h3>
-        <Select
-          options={users
-            .filter((user) => user && ['support', 'support+', 'analyst', 'tax'].includes(user.role?.toLowerCase()))
-            .map((user) => ({
-              value: user,
-              label: user.name || 'Nome não disponível',
-              role: user.role || 'unknown',
-              color: getColorForRole(user.role || 'unknown'),
-              chamado: user.chamado || false,
-              telefone: user.telefone || false,
-              chat: user.chat || false,
-            }))}
-          onChange={handleUserSelect}
-          isClearable
-          placeholder="Selecione um colaborador"
-          styles={customSelectStyles}
-          classNamePrefix="react-select"
-          noOptionsMessage={() => 'Sem resultados'}
-          components={{ Option: CustomOption }}
-        />
+    <div className={styles.dashboardContainer}>
+      {/* Container para filtros lado a lado */}
+      <div className={styles.filtersContainer}>
+        {/* Seleção de usuário */}
+        <div className={styles.userSelectSection}>
+          <h3 className={styles.sectionTitle}>
+            <i className="fa-solid fa-users"></i>
+            Selecione um Colaborador
+          </h3>
+          <Select
+            options={users
+              .filter((user) => user && ['support', 'support+', 'analyst', 'tax'].includes(user.role?.toLowerCase()))
+              .map((user) => ({
+                value: user,
+                label: user.name || 'Nome não disponível',
+                role: user.role || 'unknown',
+                color: getColorForRole(user.role || 'unknown'),
+                chamado: user.chamado || false,
+                telefone: user.telefone || false,
+                chat: user.chat || false,
+              }))}
+            onChange={handleUserSelect}
+            isClearable
+            placeholder="Selecione um colaborador"
+            styles={customSelectStyles}
+            classNamePrefix="react-select"
+            noOptionsMessage={() => 'Sem resultados'}
+            components={{ Option: CustomOption }}
+          />
+        </div>
+
+        {/* Filtro de período */}
+        <div className={styles.periodFilterSection}>
+          <h3 className={styles.sectionTitle}>
+            <i className="fa-solid fa-calendar-range"></i>
+            Período de Análise
+          </h3>
+          <div className={styles.periodFilterControls}>
+            <Select
+              options={periodOptions}
+              value={periodFilter}
+              onChange={handlePeriodChange}
+              isSearchable={false}
+              placeholder="Selecione o período"
+              styles={{
+                ...customSelectStyles,
+                container: (provided) => ({
+                  ...provided,
+                  width: '100%',
+                  margin: '0',
+                })
+              }}
+              classNamePrefix="react-select"
+            />
+            
+            {showCustomDatePicker && (
+              <div className={styles.customDatePickerContainer}>
+                <div className={styles.datePickerWrapper}>
+                  <label>De:</label>
+                  <input
+                    type="date"
+                    value={customDateRange.startDate}
+                    max={customDateRange.endDate}
+                    onChange={handleStartDateChange}
+                    className={styles.dateInput}
+                  />
+                </div>
+                <div className={styles.datePickerWrapper}>
+                  <label>Até:</label>
+                  <input
+                    type="date"
+                    value={customDateRange.endDate}
+                    min={customDateRange.startDate}
+                    max={dayjs().format('YYYY-MM-DD')}
+                    onChange={handleEndDateChange}
+                    className={styles.dateInput}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {selectedUser && (
         <>
-          {/* Filtro de período */}
-          <div className={styles.periodFilterSection || ''}>
-            <h3 className={styles.sectionTitle || ''}>
-              <i className="fa-solid fa-calendar-range"></i>
-              Período de Análise
-            </h3>
-            <div className={styles.periodFilterControls || ''}>
-              <Select
-                options={periodOptions}
-                value={periodFilter}
-                onChange={handlePeriodChange}
-                isSearchable={false}
-                placeholder="Selecione o período"
-                styles={{
-                  ...customSelectStyles,
-                  container: (provided) => ({
-                    ...provided,
-                    width: '250px',
-                    margin: '0',
-                  })
-                }}
-                classNamePrefix="react-select"
-              />
-              
-              {showCustomDatePicker && (
-                <div className={styles.customDatePickerContainer || ''}>
-                  <div className={styles.datePickerWrapper || ''}>
-                    <label>De:</label>
-                    <input
-                      type="date"
-                      value={customDateRange.startDate}
-                      max={customDateRange.endDate}
-                      onChange={handleStartDateChange}
-                      className={styles.dateInput || ''}
-                    />
-                  </div>
-                  <div className={styles.datePickerWrapper || ''}>
-                    <label>Até:</label>
-                    <input
-                      type="date"
-                      value={customDateRange.endDate}
-                      min={customDateRange.startDate}
-                      max={dayjs().format('YYYY-MM-DD')}
-                      onChange={handleEndDateChange}
-                      className={styles.dateInput || ''}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Seção Overview do Usuário */}
-          <section className={styles.userOverviewSection || ''}>
-            <div className={styles.sectionHeader || ''}>
-              <h2 className={styles.sectionTitle || ''}>
+          <section className={styles.userOverviewSection}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>
                 <i className="fa-solid fa-user-circle"></i>
                 Overview do Colaborador
               </h2>
             </div>
 
-            <div className={styles.overviewGrid || ''}>
+            <div className={styles.overviewGrid}>
               {/* Perfil do usuário */}
-              <div className={styles.profileExpandedCard || ''}>
+              <div className={styles.profileExpandedCard}>
                 {loadingData ? (
-                  <div className={styles.loadingContainer || ''}>
+                  <div className={styles.loadingContainer}>
                     <div className="standardBoxLoader"></div>
                   </div>
                 ) : (
                   <>
-                    <div className={styles.profileMainInfo || ''}>
+                    <div className={styles.profileMainInfo}>
                       <UserAvatar 
                         user={selectedUser} 
-                        className={styles.profileImage || ''} 
+                        className={styles.profileImage} 
                       />
-                      <div className={styles.profileDetails || ''}>
+                      <div className={styles.profileDetails}>
                         <h3>{selectedUser.name || 'Nome não disponível'}</h3>
                         <p>{selectedUser.email || 'Email não disponível'}</p>
                         <div 
-                          className={`${styles.roleTag || ''} ${selectedUser.role === 'tax' ? styles.tax || '' : ''}`}
+                          className={`${styles.roleTag} ${selectedUser.role === 'tax' ? styles.tax : ''}`}
                         >
                           <i className="fa-solid fa-user-tie"></i>
                           {getRoleLabel(selectedUser.role)}
@@ -776,7 +779,7 @@ export default function DashboardData({ user }) {
                       </div>
                     </div>
                     
-                    <div className={styles.tagsContainer || ''}>
+                    <div className={styles.tagsContainer}>
                       {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
                         <>
                           {performanceData?.squad && (
@@ -947,15 +950,15 @@ export default function DashboardData({ user }) {
 
           {/* Métricas específicas de analista/fiscal */}
           {(selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
-            <section className={styles.analystSpecificSection || ''}>
-              <div className={styles.sectionHeader || ''}>
-                <h2 className={styles.sectionTitle || ''}>
+            <section className={styles.analystSpecificSection}>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>
                   <i className="fa-solid fa-chart-line"></i>
                   Métricas de {selectedUser.role === 'analyst' ? 'Analista' : 'Fiscal'}
                 </h2>
               </div>
               
-              <div className={styles.analystMetricsGrid || ''}>
+              <div className={styles.analystMetricsGrid}>
                 <div className={styles.analystMetricCard || ''}>
                   {loadingData ? (
                     <div className={styles.loadingContainer || ''}>
