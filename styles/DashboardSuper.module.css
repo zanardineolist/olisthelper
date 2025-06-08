@@ -1138,6 +1138,19 @@
     margin-bottom: 3rem;
 }
 
+/* Forçar que o footer da página não apareça no meio */
+.dashboardMain .footer,
+.dashboardMain footer,
+.dashboardContainer .footer,
+.dashboardContainer footer {
+    display: none !important;
+}
+
+/* Garantir que elementos com texto de footer não apareçam */
+.dashboardMain *[data-footer] {
+    display: none !important;
+}
+
 .performanceGrid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -1383,3 +1396,19 @@
 .kpiStatus.poor {
     color: var(--poor-color);
 }
+
+/* Limpar qualquer pseudo-elemento que possa estar criando footer */
+.dashboardMain *::after,
+.dashboardMain *::before {
+    content: none !important;
+}
+
+.dashboardMain *::after {
+    display: none !important;
+}
+
+.dashboardMain *::before {
+    display: none !important;
+}
+
+/* Remover qualquer elemento que contenha texto de copyright via JavaScript será necessário */
