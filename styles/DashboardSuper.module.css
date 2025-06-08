@@ -8,8 +8,11 @@
     width: 100%;
     max-width: none;
     margin: 0;
-    padding: 20px 40px;
-    min-height: 100vh;
+    padding: 20px 40px 40px 40px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 /* ==================================================
@@ -18,6 +21,7 @@
 
 .pageHeader {
     margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 .headerContent {
@@ -121,6 +125,7 @@
 
 .navigationSection {
     margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 /* ==================================================
@@ -128,15 +133,24 @@
    ================================================== */
 
 .contentSection {
-    margin-bottom: 16px;
+    margin-bottom: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .tabContent {
     width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .tabPanel {
     width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ==================================================
@@ -151,6 +165,7 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    flex: 1;
 }
 
 /* Seções com headers otimizadas */
@@ -764,7 +779,7 @@
 
 @media (max-width: 768px) {
     .dashboardMain {
-        padding: 12px;
+        padding: 12px 12px 24px 12px;
     }
     
     .greetingText {
@@ -818,7 +833,7 @@
 
 @media (max-width: 576px) {
     .dashboardMain {
-        padding: 8px;
+        padding: 8px 8px 16px 8px;
     }
     
     .greetingText {
