@@ -15,8 +15,13 @@ const calculatePerformanceStatus = (actual, target, type = 'higher_better') => {
     if (actual <= target) return 'excellent'; // Verde - Dentro da meta
     if (actual <= target * 1.5) return 'good'; // Amarelo - Até 50% acima da meta
     return 'poor'; // Vermelho - Muito acima da meta
+  } else if (type === 'percentage') {
+    // Para CSAT e percentagens - comparação direta
+    if (actual >= target) return 'excellent'; // Verde - Meta atingida ou superada
+    if (actual >= target * 0.8) return 'good'; // Amarelo - Pelo menos 80% da meta
+    return 'poor'; // Vermelho - Abaixo de 80% da meta
   } else {
-    // Para quantidade e CSAT - maior é melhor
+    // Para quantidade - maior é melhor
     const percentage = (actual / target) * 100;
     if (percentage >= 100) return 'excellent'; // Verde - Meta atingida ou superada
     if (percentage >= 50) return 'good'; // Amarelo - Pelo menos 50% da meta
@@ -164,13 +169,13 @@ export async function getUserPerformanceByEmail(userEmail) {
         status: {
           total: calculatePerformanceStatus(performance.chamados_total, chamadosTarget.target_quantity),
           tma: calculatePerformanceStatus(actualTmaMinutes, tmaTargetMinutes, 'lower_better'),
-          csat: calculatePerformanceStatus(performance.chamados_csat_percent, chamadosTarget.target_csat),
-          quality: calculatePerformanceStatus(performance.nota_qualidade, chamadosTarget.target_quality)
+          csat: calculatePerformanceStatus(performance.chamados_csat_percent, chamadosTarget.target_csat, 'percentage'),
+          quality: calculatePerformanceStatus(performance.nota_qualidade, chamadosTarget.target_quality, 'percentage')
         },
         colors: {
           total: getStatusColor(calculatePerformanceStatus(performance.chamados_total, chamadosTarget.target_quantity)),
           tma: getStatusColor(calculatePerformanceStatus(actualTmaMinutes, tmaTargetMinutes, 'lower_better')),
-          csat: getStatusColor(calculatePerformanceStatus(performance.chamados_csat_percent, chamadosTarget.target_csat))
+          csat: getStatusColor(calculatePerformanceStatus(performance.chamados_csat_percent, chamadosTarget.target_csat, 'percentage'))
         }
       };
     }
@@ -194,12 +199,12 @@ export async function getUserPerformanceByEmail(userEmail) {
         },
         status: {
           tma: calculatePerformanceStatus(actualTmaMinutes, tmaTargetMinutes, 'lower_better'),
-          csat: calculatePerformanceStatus(performance.telefone_csat_rating, telefoneTarget.target_csat),
-          quality: calculatePerformanceStatus(performance.nota_qualidade, telefoneTarget.target_quality)
+          csat: calculatePerformanceStatus(performance.telefone_csat_rating, telefoneTarget.target_csat, 'percentage'),
+          quality: calculatePerformanceStatus(performance.nota_qualidade, telefoneTarget.target_quality, 'percentage')
         },
         colors: {
           tma: getStatusColor(calculatePerformanceStatus(actualTmaMinutes, tmaTargetMinutes, 'lower_better')),
-          csat: getStatusColor(calculatePerformanceStatus(performance.telefone_csat_rating, telefoneTarget.target_csat))
+          csat: getStatusColor(calculatePerformanceStatus(performance.telefone_csat_rating, telefoneTarget.target_csat, 'percentage'))
         }
       };
     }
@@ -224,13 +229,13 @@ export async function getUserPerformanceByEmail(userEmail) {
         status: {
           total: calculatePerformanceStatus(performance.chat_total, chatTarget.target_quantity),
           tma: calculatePerformanceStatus(actualTmaMinutes, tmaTargetMinutes, 'lower_better'),
-          csat: performance.chat_csat_percent ? calculatePerformanceStatus(performance.chat_csat_percent, chatTarget.target_csat) : 'neutral',
-          quality: calculatePerformanceStatus(performance.nota_qualidade, chatTarget.target_quality)
+          csat: performance.chat_csat_percent ? calculatePerformanceStatus(performance.chat_csat_percent, chatTarget.target_csat, 'percentage') : 'neutral',
+          quality: calculatePerformanceStatus(performance.nota_qualidade, chatTarget.target_quality, 'percentage')
         },
         colors: {
           total: getStatusColor(calculatePerformanceStatus(performance.chat_total, chatTarget.target_quantity)),
           tma: getStatusColor(calculatePerformanceStatus(actualTmaMinutes, tmaTargetMinutes, 'lower_better')),
-          csat: performance.chat_csat_percent ? getStatusColor(calculatePerformanceStatus(performance.chat_csat_percent, chatTarget.target_csat)) : 'var(--box-color3)'
+          csat: performance.chat_csat_percent ? getStatusColor(calculatePerformanceStatus(performance.chat_csat_percent, chatTarget.target_csat, 'percentage')) : 'var(--box-color3)'
         }
       };
     }
