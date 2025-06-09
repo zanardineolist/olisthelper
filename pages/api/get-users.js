@@ -12,15 +12,34 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { data: users, error } = await supabase
-      .from('users')
-      .select('*')
-      .order('name');
+    // Buscar usuários e dados de performance para obter supervisores
+    const [usersResult, performanceResult] = await Promise.all([
+      supabase
+        .from('users')
+        .select('*')
+        .order('name'),
+      supabase
+        .from('performance_indicators')
+        .select('user_email, supervisor')
+    ]);
 
-    if (error) throw error;
+    const { data: users, error: usersError } = usersResult;
+    const { data: performanceData, error: performanceError } = performanceResult;
+
+    if (usersError) throw usersError;
 
     if (!users || users.length === 0) {
       return res.status(404).json({ error: 'Nenhum usuário encontrado.' });
+    }
+
+    // Criar mapa de supervisores por email
+    const supervisorMap = {};
+    if (performanceData && !performanceError) {
+      performanceData.forEach(item => {
+        if (item.user_email && item.supervisor) {
+          supervisorMap[item.user_email.toLowerCase()] = item.supervisor;
+        }
+      });
     }
 
     // Mapear dados para manter compatibilidade com o frontend
@@ -33,6 +52,7 @@ export default async function handler(req, res) {
       chamado: user.can_ticket,
       telefone: user.can_phone,
       chat: user.can_chat,
+      supervisor: supervisorMap[user.email?.toLowerCase()] || null,
       remoto: false, // Campo removido da nova estrutura
     }));
 

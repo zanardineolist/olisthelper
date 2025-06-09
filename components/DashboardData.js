@@ -582,6 +582,22 @@ export default function DashboardData({ user }) {
             {getRoleLabel(props.data.role)}
           </span>
 
+          {/* Supervisor tag */}
+          {props.data.supervisor && (
+            <span
+              style={{
+                backgroundColor: '#8A2BE2',
+                color: '#FFF',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                marginLeft: '10px',
+                fontSize: '0.8em',
+              }}
+            >
+              {props.data.supervisor}
+            </span>
+          )}
+
           {/* Adicionando novas tags para Chamado, Telefone e Chat se forem TRUE */}
           {props.data.chamado && (
             <span
@@ -675,6 +691,7 @@ export default function DashboardData({ user }) {
                 label: user.name || 'Nome não disponível',
                 role: user.role || 'unknown',
                 color: getColorForRole(user.role || 'unknown'),
+                supervisor: user.supervisor || null,
                 chamado: user.chamado || false,
                 telefone: user.telefone || false,
                 chat: user.chat || false,
@@ -783,6 +800,14 @@ export default function DashboardData({ user }) {
                         </div>
                         
                         <div className={styles.tagsContainer}>
+                          {/* Supervisor tag */}
+                          {(selectedUser.supervisor || performanceData?.supervisor) && (
+                            <div className={styles.tag || ''} style={{ backgroundColor: '#8A2BE2' }}>
+                              <i className="fa-solid fa-user-crown"></i>
+                              {selectedUser.supervisor || performanceData?.supervisor}
+                            </div>
+                          )}
+                          
                           {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
                             <>
                               {performanceData?.squad && (

@@ -300,6 +300,9 @@
     color: white;
     text-transform: uppercase;
     letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 /* Cards de ajuda expandidos - mais compactos */
