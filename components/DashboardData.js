@@ -237,6 +237,7 @@ export default function DashboardData({ user }) {
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
   const [categoryLoading, setCategoryLoading] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
   
   // Estados para filtro de período
   const [periodFilter, setPeriodFilter] = useState({ value: 'thisMonth', label: 'Este mês' });
@@ -684,8 +685,100 @@ export default function DashboardData({ user }) {
   
   const formattedPercentage = Math.abs(percentageChange).toFixed(1);
 
+  // Componente do Modal de Informações
+  const InfoModal = () => (
+    <div className={styles.modalOverlay} onClick={() => setShowInfoModal(false)}>
+      <div className={styles.infoModal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h3>
+            <i className="fa-solid fa-info-circle"></i>
+            Como Funcionam os Indicadores
+          </h3>
+          <button 
+            className={styles.closeButton}
+            onClick={() => setShowInfoModal(false)}
+          >
+            <i className="fa-solid fa-times"></i>
+          </button>
+        </div>
+        
+        <div className={styles.modalContent}>
+          <div className={styles.colorLegend}>
+            <h4>🎯 Significado das Cores</h4>
+            <div className={styles.legendItem}>
+              <span className={`${styles.colorIndicator} ${styles.excellent}`}></span>
+              <strong>🟢 Verde (Excelente)</strong> - Meta atingida ou superada
+            </div>
+            <div className={styles.legendItem}>
+              <span className={`${styles.colorIndicator} ${styles.good}`}></span>
+              <strong>🟡 Amarelo (Bom)</strong> - Performance satisfatória, pode melhorar
+            </div>
+            <div className={styles.legendItem}>
+              <span className={`${styles.colorIndicator} ${styles.poor}`}></span>
+              <strong>🔴 Vermelho (Atenção)</strong> - Abaixo do esperado, precisa apoio
+            </div>
+            <div className={styles.legendItem}>
+              <span className={`${styles.colorIndicator} ${styles.neutral}`}></span>
+              <strong>⚪ Cinza (Neutro)</strong> - Dados não disponíveis
+            </div>
+          </div>
+
+          <div className={styles.criteriaSection}>
+            <h4>📊 Critérios por Indicador</h4>
+            
+            <div className={styles.criteriaItem}>
+              <h5>📞 Quantidade de Chamados (Meta: 600/mês)</h5>
+              <ul>
+                <li>🟢 Verde: 600+ chamados (100%+)</li>
+                <li>🟡 Amarelo: 300-599 chamados (50-99%)</li>
+                <li>🔴 Vermelho: 0-299 chamados (0-49%)</li>
+              </ul>
+            </div>
+
+            <div className={styles.criteriaItem}>
+              <h5>⏱️ TMA - Tempo Médio (Menor é melhor!)</h5>
+              <ul>
+                <li><strong>Chamados (Meta: 30h):</strong></li>
+                <li>🟢 Verde: até 30h | 🟡 Amarelo: 30-45h | 🔴 Vermelho: acima 45h</li>
+                <li><strong>Telefone/Chat (Meta: 15min):</strong></li>
+                <li>🟢 Verde: até 15min | 🟡 Amarelo: 15-22min | 🔴 Vermelho: acima 22min</li>
+              </ul>
+            </div>
+
+            <div className={styles.criteriaItem}>
+              <h5>😊 CSAT - Satisfação do Cliente</h5>
+              <ul>
+                <li><strong>Chamados (0-100%, Meta: 90%):</strong></li>
+                <li>🟢 Verde: 90%+ | 🟡 Amarelo: 72-89% | 🔴 Vermelho: abaixo 72%</li>
+                <li><strong>Telefone (1-5, Meta: 4,5):</strong></li>
+                <li>🟢 Verde: 4,5+ | 🟡 Amarelo: 3,6-4,4 | 🔴 Vermelho: abaixo 3,6</li>
+                <li><strong>Chat (0-100, Meta: 95):</strong></li>
+                <li>🟢 Verde: 95+ | 🟡 Amarelo: 76-94 | 🔴 Vermelho: abaixo 76</li>
+              </ul>
+            </div>
+
+            <div className={styles.criteriaItem}>
+              <h5>⭐ Qualidade (Meta: 80%)</h5>
+              <ul>
+                <li>🟢 Verde: 80%+ | 🟡 Amarelo: 64-79% | 🔴 Vermelho: abaixo 64%</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className={styles.tipSection}>
+            <h4>💡 Dica</h4>
+            <p>O card geral mostra a <strong>cor mais crítica</strong>: se algum indicador está vermelho, o card fica vermelho. Se todos estão verdes, o card fica verde.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.dashboardContainer}>
+      {/* Modal de Informações */}
+      {showInfoModal && <InfoModal />}
+      
       {/* Container para filtros lado a lado */}
       <div className={styles.filtersContainer}>
         {/* Seleção de usuário */}
@@ -975,10 +1068,19 @@ export default function DashboardData({ user }) {
               {loadingData ? (
                 <>
                   <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>
-                      <i className="fa-solid fa-chart-bar"></i>
-                      Indicadores de Performance
-                    </h2>
+                    <div className={styles.sectionTitleWithInfo}>
+                      <h2 className={styles.sectionTitle}>
+                        <i className="fa-solid fa-chart-bar"></i>
+                        Indicadores de Performance
+                      </h2>
+                      <button 
+                        className={styles.infoButton}
+                        onClick={() => setShowInfoModal(true)}
+                        title="Como funcionam os indicadores"
+                      >
+                        <i className="fa-solid fa-info-circle"></i>
+                      </button>
+                    </div>
                   </div>
                   <div className={styles.loadingContainer}>
                     <div className="standardBoxLoader"></div>
@@ -987,10 +1089,19 @@ export default function DashboardData({ user }) {
               ) : performanceData ? (
                 <>
                   <div className={styles.sectionHeader}>
-                    <h2 className={styles.sectionTitle}>
-                      <i className="fa-solid fa-chart-bar"></i>
-                      Indicadores de Performance
-                    </h2>
+                    <div className={styles.sectionTitleWithInfo}>
+                      <h2 className={styles.sectionTitle}>
+                        <i className="fa-solid fa-chart-bar"></i>
+                        Indicadores de Performance
+                      </h2>
+                      <button 
+                        className={styles.infoButton}
+                        onClick={() => setShowInfoModal(true)}
+                        title="Como funcionam os indicadores"
+                      >
+                        <i className="fa-solid fa-info-circle"></i>
+                      </button>
+                    </div>
                     <p className={styles.sectionSubtitle}>
                       Período: {performanceData.atualizadoAte || "Data não disponível"}
                     </p>
