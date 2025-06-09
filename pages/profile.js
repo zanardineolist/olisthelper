@@ -290,13 +290,6 @@ export default function MyPage({ user }) {
             
             {/* Métricas Integradas */}
             <div className={styles.integratedMetrics}>
-              {performanceData && (
-                <div className={styles.metricsHeader}>
-                  <p className={styles.sectionSubtitle} style={{ fontSize: '0.9rem', color: 'var(--text-color2)', marginBottom: '15px', textAlign: 'center' }}>
-                    Período: {performanceData.atualizadoAte || "Data não disponível"}
-                  </p>
-                </div>
-              )}
               <div className={styles.metricItem}>
                 <div className={styles.metricIcon}>
                   <i className="fa-solid fa-calendar-days"></i>
@@ -317,6 +310,27 @@ export default function MyPage({ user }) {
                   <span className={styles.metricLabel}>Absenteísmo</span>
                 </div>
               </div>
+              
+              {/* Período de Referência */}
+              {performanceData && (
+                <div className={styles.periodInfo} style={{ 
+                  marginTop: '15px', 
+                  padding: '8px 12px', 
+                  backgroundColor: 'rgba(10, 78, 228, 0.1)', 
+                  borderRadius: '6px', 
+                  borderLeft: '3px solid #0A4EE4',
+                  textAlign: 'center'
+                }}>
+                  <span style={{ 
+                    fontSize: '0.85rem', 
+                    fontWeight: '500',
+                    color: '#0A4EE4'
+                  }}>
+                    <i className="fa-solid fa-calendar-range" style={{ marginRight: '6px' }}></i>
+                    {performanceData.atualizadoAte || "Data não disponível"}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
           
