@@ -1507,28 +1507,31 @@
 .sectionTitleWithInfo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .infoButton {
   background: var(--color-primary);
   border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   color: white;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
+  box-shadow: 0 2px 8px rgba(10, 78, 228, 0.2);
+  flex-shrink: 0;
 }
 
 .infoButton:hover {
   background: var(--color-primary-dark);
-  transform: scale(1.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(10, 78, 228, 0.3);
 }
 
 .modalOverlay {
