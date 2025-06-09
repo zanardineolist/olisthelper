@@ -280,17 +280,7 @@ export default function DashboardData({ user }) {
       if (!res.ok) throw new Error('Erro ao carregar usuários');
       const data = await res.json();
       
-      // Debug: Verificar roles dos usuários
-      const allUsers = data.users || [];
-      const allRoles = [...new Set(allUsers.map(u => u.role).filter(Boolean))];
-      const validUsers = allUsers.filter(user => isValidRole(user.role));
-      
-      console.log('Total de usuários:', allUsers.length);
-      console.log('Roles encontradas:', allRoles);
-      console.log('Usuários válidos (support/support+/analyst/tax):', validUsers.length);
-      console.log('Usuários válidos:', validUsers.map(u => `${u.name} (${u.role})`));
-      
-      setUsers(allUsers);
+      setUsers(data.users || []);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
       Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
