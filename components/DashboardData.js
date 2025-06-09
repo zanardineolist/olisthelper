@@ -946,6 +946,11 @@ export default function DashboardData({ user }) {
                             <i className="fa-solid fa-calendar-check"></i>
                             Dados de Presença
                           </h4>
+                          {performanceData.atualizadoAte && (
+                            <p className={styles.sectionSubtitle} style={{ fontSize: '0.85rem', color: 'var(--text-color2)', marginBottom: '15px', marginTop: '5px' }}>
+                              Período: {performanceData.atualizadoAte}
+                            </p>
+                          )}
                           <div className={styles.absMetrics}>
                             <div className={styles.absMetricItem}>
                               <div className={styles.absMetricIcon}>

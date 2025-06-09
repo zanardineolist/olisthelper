@@ -442,6 +442,13 @@ export default function ProfileAnalystPage({ user }) {
             
             {/* Métricas Integradas */}
             <div className={styles.integratedMetrics}>
+              {performanceData && (
+                <div className={styles.metricsHeader}>
+                  <p className={styles.sectionSubtitle} style={{ fontSize: '0.9rem', color: 'var(--text-color2)', marginBottom: '15px', textAlign: 'center' }}>
+                    Período: {performanceData.atualizadoAte || "Data não disponível"}
+                  </p>
+                </div>
+              )}
               <div className={styles.metricItem}>
                 <div className={styles.metricIcon}>
                   <i className="fa-solid fa-calendar-days"></i>
