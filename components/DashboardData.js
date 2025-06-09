@@ -870,7 +870,7 @@ export default function DashboardData({ user }) {
                                 <i className="fa-solid fa-chart-line"></i>
                               </div>
                               <div className={styles.absMetricData}>
-                                <span className={styles.absMetricValue}>{performanceData?.absenteismo || 0}</span>
+                                <span className={styles.absMetricValue}>{performanceData?.absenteismo || 0}%</span>
                                 <span className={styles.absMetricLabel}>Absenteísmo</span>
                               </div>
                             </div>

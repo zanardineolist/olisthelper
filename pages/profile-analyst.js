@@ -458,7 +458,7 @@ export default function ProfileAnalystPage({ user }) {
                   <i className="fa-solid fa-chart-line"></i>
                 </div>
                 <div className={styles.metricData}>
-                  <span className={styles.metricValue}>{performanceData?.absenteismo || 0}</span>
+                  <span className={styles.metricValue}>{performanceData?.absenteismo || 0}%</span>
                   <span className={styles.metricLabel}>Absenteísmo</span>
                 </div>
               </div>
