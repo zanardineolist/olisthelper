@@ -47,7 +47,7 @@ export default async function handler(req, res) {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.profile,
+      role: user.profile?.toLowerCase().trim(), // Normalizar role
       squad: user.squad,
       chamado: user.can_ticket,
       telefone: user.can_phone,

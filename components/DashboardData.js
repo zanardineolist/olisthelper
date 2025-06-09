@@ -217,6 +217,16 @@ const PerformanceCard = ({ title, icon, data, type }) => {
   );
 };
 
+// Roles válidas para exibição no dashboard
+const VALID_ROLES = ['support', 'support+', 'analyst', 'tax'];
+
+// Função para verificar se a role é válida
+const isValidRole = (role) => {
+  if (!role || typeof role !== 'string') return false;
+  const normalizedRole = role.toLowerCase().trim();
+  return VALID_ROLES.includes(normalizedRole);
+};
+
 export default function DashboardData({ user }) {
   // Estados básicos
   const [users, setUsers] = useState([]);
@@ -269,7 +279,18 @@ export default function DashboardData({ user }) {
       const res = await fetch('/api/get-users');
       if (!res.ok) throw new Error('Erro ao carregar usuários');
       const data = await res.json();
-      setUsers(data.users || []);
+      
+      // Debug: Verificar roles dos usuários
+      const allUsers = data.users || [];
+      const allRoles = [...new Set(allUsers.map(u => u.role).filter(Boolean))];
+      const validUsers = allUsers.filter(user => isValidRole(user.role));
+      
+      console.log('Total de usuários:', allUsers.length);
+      console.log('Roles encontradas:', allRoles);
+      console.log('Usuários válidos (support/support+/analyst/tax):', validUsers.length);
+      console.log('Usuários válidos:', validUsers.map(u => `${u.name} (${u.role})`));
+      
+      setUsers(allUsers);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
       Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
@@ -685,7 +706,7 @@ export default function DashboardData({ user }) {
           </h3>
           <Select
             options={users
-              .filter((user) => user && ['support', 'support+', 'analyst', 'tax'].includes(user.role?.toLowerCase()))
+              .filter((user) => user && isValidRole(user.role))
               .map((user) => ({
                 value: user,
                 label: user.name || 'Nome não disponível',
