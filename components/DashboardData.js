@@ -972,51 +972,58 @@ export default function DashboardData({ user }) {
           {/* Seção de Indicadores de Performance */}
           {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && (
             <section className={styles.performanceSection}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>
-                  <i className="fa-solid fa-chart-bar"></i>
-                  Indicadores de Performance
-                </h2>
-                {!loadingData && performanceData && (
-                  <p className={styles.sectionSubtitle}>
-                    Período: {performanceData.atualizadoAte || "Data não disponível"}
-                  </p>
-                )}
-              </div>
-              
               {loadingData ? (
-                <div className={styles.loadingContainer}>
-                  <div className="standardBoxLoader"></div>
-                </div>
+                <>
+                  <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>
+                      <i className="fa-solid fa-chart-bar"></i>
+                      Indicadores de Performance
+                    </h2>
+                  </div>
+                  <div className={styles.loadingContainer}>
+                    <div className="standardBoxLoader"></div>
+                  </div>
+                </>
               ) : performanceData ? (
-                <div className={styles.performanceGrid}>
-                  {performanceData.chamados && (
-                    <PerformanceCard 
-                      title="Indicadores Chamados"
-                      icon="fa-headset"
-                      data={performanceData.chamados}
-                      type="chamados"
-                    />
-                  )}
-                  
-                  {performanceData.telefone && (
-                    <PerformanceCard 
-                      title="Indicadores Telefone"
-                      icon="fa-phone"
-                      data={performanceData.telefone}
-                      type="telefone"
-                    />
-                  )}
-                  
-                  {performanceData.chat && (
-                    <PerformanceCard 
-                      title="Indicadores Chat"
-                      icon="fa-comments"
-                      data={performanceData.chat}
-                      type="chat"
-                    />
-                  )}
-                </div>
+                <>
+                  <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>
+                      <i className="fa-solid fa-chart-bar"></i>
+                      Indicadores de Performance
+                    </h2>
+                    <p className={styles.sectionSubtitle}>
+                      Período: {performanceData.atualizadoAte || "Data não disponível"}
+                    </p>
+                  </div>
+                  <div className={styles.performanceGrid}>
+                    {performanceData.chamados && (
+                      <PerformanceCard 
+                        title="Indicadores Chamados"
+                        icon="fa-headset"
+                        data={performanceData.chamados}
+                        type="chamados"
+                      />
+                    )}
+                    
+                    {performanceData.telefone && (
+                      <PerformanceCard 
+                        title="Indicadores Telefone"
+                        icon="fa-phone"
+                        data={performanceData.telefone}
+                        type="telefone"
+                      />
+                    )}
+                    
+                    {performanceData.chat && (
+                      <PerformanceCard 
+                        title="Indicadores Chat"
+                        icon="fa-comments"
+                        data={performanceData.chat}
+                        type="chat"
+                      />
+                    )}
+                  </div>
+                </>
               ) : null}
             </section>
           )}
@@ -1024,21 +1031,29 @@ export default function DashboardData({ user }) {
           {/* Métricas específicas de analista/fiscal */}
           {(selectedUser.role === 'analyst' || selectedUser.role === 'tax') && (
             <section className={styles.analystSpecificSection}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>
-                  <i className="fa-solid fa-chart-line"></i>
-                  Métricas de {selectedUser.role === 'analyst' ? 'Analista' : 'Fiscal'}
-                </h2>
-              </div>
-              
-              <div className={styles.analystMetricsGrid}>
-                <div className={styles.analystMetricCard || ''}>
-                  {loadingData ? (
-                    <div className={styles.loadingContainer || ''}>
-                      <div className="standardBoxLoader"></div>
-                    </div>
-                  ) : (
-                    <>
+              {loadingData ? (
+                <>
+                  <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>
+                      <i className="fa-solid fa-chart-line"></i>
+                      Métricas de {selectedUser.role === 'analyst' ? 'Analista' : 'Fiscal'}
+                    </h2>
+                  </div>
+                  <div className={styles.loadingContainer}>
+                    <div className="standardBoxLoader"></div>
+                  </div>
+                </>
+              ) : (performanceData || helpRequests) ? (
+                <>
+                  <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>
+                      <i className="fa-solid fa-chart-line"></i>
+                      Métricas de {selectedUser.role === 'analyst' ? 'Analista' : 'Fiscal'}
+                    </h2>
+                  </div>
+                  
+                  <div className={styles.analystMetricsGrid}>
+                    <div className={styles.analystMetricCard || ''}>
                       <div className={styles.analystMetricHeader || ''}>
                         <i className="fa-solid fa-clipboard-check"></i>
                         <h3>RFC</h3>
@@ -1049,17 +1064,9 @@ export default function DashboardData({ user }) {
                       <div className={styles.bigMetricValue || ''}>
                         {performanceData?.rfc || '-'}
                       </div>
-                    </>
-                  )}
-                </div>
-
-                <div className={styles.analystMetricCard || ''}>
-                  {loadingData ? (
-                    <div className={styles.loadingContainer || ''}>
-                      <div className="standardBoxLoader"></div>
                     </div>
-                  ) : (
-                    <>
+
+                    <div className={styles.analystMetricCard || ''}>
                       <div className={styles.analystMetricHeader || ''}>
                         <i className="fa-solid fa-star"></i>
                         <h3>Nota Qualidade</h3>
@@ -1070,17 +1077,9 @@ export default function DashboardData({ user }) {
                       <div className={styles.bigMetricValue || ''}>
                         {performanceData?.notaQualidade || performanceData?.nota_qualidade || '-'}
                       </div>
-                    </>
-                  )}
-                </div>
-
-                <div className={styles.analystMetricCard || ''}>
-                  {loadingData ? (
-                    <div className={styles.loadingContainer || ''}>
-                      <div className="standardBoxLoader"></div>
                     </div>
-                  ) : (
-                    <>
+
+                    <div className={styles.analystMetricCard || ''}>
                       <div className={styles.analystMetricHeader || ''}>
                         <i className="fa-solid fa-handshake-angle"></i>
                         <h3>Total de Ajudas</h3>
@@ -1091,34 +1090,47 @@ export default function DashboardData({ user }) {
                       <div className={styles.bigMetricValue || ''}>
                         {helpRequests.currentMonth || 0}
                       </div>
-                    </>
-                  )}
-                </div>
-              </div>
+                    </div>
+                  </div>
+                </>
+              ) : null}
             </section>
           )}
 
           {/* Ranking de Categorias */}
           <section className={styles.categorySection || ''}>
-            <div className={styles.sectionHeader || ''}>
-              <h2 className={styles.sectionTitle || ''}>
-                <i className="fa-solid fa-chart-line"></i>
-                {selectedUser.role === 'support' || selectedUser.role === 'support+' 
-                  ? 'Top 10 - Temas de maior dúvida' 
-                  : 'Top 10 - Temas mais auxiliados'}
-              </h2>
-              <p className={styles.sectionSubtitle || ''}>
-                Análise das principais categorias no período selecionado
-              </p>
-            </div>
-
-            <div className={styles.categoryRankingCard || ''}>
-              {categoryLoading ? (
-                <div className={styles.loadingContainer || ''}>
+            {categoryLoading ? (
+              <>
+                <div className={styles.sectionHeader || ''}>
+                  <h2 className={styles.sectionTitle || ''}>
+                    <i className="fa-solid fa-chart-line"></i>
+                    {selectedUser.role === 'support' || selectedUser.role === 'support+' 
+                      ? 'Top 10 - Temas de maior dúvida' 
+                      : 'Top 10 - Temas mais auxiliados'}
+                  </h2>
+                  <p className={styles.sectionSubtitle || ''}>
+                    Análise das principais categorias no período selecionado
+                  </p>
+                </div>
+                <div className={styles.loadingContainer}>
                   <div className="standardBoxLoader"></div>
                 </div>
-              ) : (
-                <>
+              </>
+            ) : (
+              <>
+                <div className={styles.sectionHeader || ''}>
+                  <h2 className={styles.sectionTitle || ''}>
+                    <i className="fa-solid fa-chart-line"></i>
+                    {selectedUser.role === 'support' || selectedUser.role === 'support+' 
+                      ? 'Top 10 - Temas de maior dúvida' 
+                      : 'Top 10 - Temas mais auxiliados'}
+                  </h2>
+                  <p className={styles.sectionSubtitle || ''}>
+                    Análise das principais categorias no período selecionado
+                  </p>
+                </div>
+
+                <div className={styles.categoryRankingCard || ''}>
                   {categoryRanking.length > 0 ? (
                     <div className={styles.categoryContent || ''}>
                       {/* Gráfico de barras */}
@@ -1208,9 +1220,9 @@ export default function DashboardData({ user }) {
                       <p>Nenhum registro de tema localizado no período selecionado.</p>
                     </div>
                   )}
-                </>
-              )}
-            </div>
+                </div>
+              </>
+            )}
           </section>
         </>
       )}
