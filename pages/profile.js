@@ -290,6 +290,27 @@ export default function MyPage({ user }) {
             
             {/* Métricas Integradas */}
             <div className={styles.integratedMetrics}>
+              {/* Período de Referência */}
+              {performanceData && (
+                <div className={styles.periodInfo} style={{ 
+                  marginBottom: '15px', 
+                  padding: '8px 12px', 
+                  backgroundColor: 'rgba(240, 160, 40, 0.1)', 
+                  borderRadius: '6px', 
+                  borderLeft: '3px solid #F0A028',
+                  textAlign: 'center'
+                }}>
+                  <span style={{ 
+                    fontSize: '0.85rem', 
+                    fontWeight: '600',
+                    color: '#F0A028'
+                  }}>
+                    <i className="fa-solid fa-calendar-range" style={{ marginRight: '6px' }}></i>
+                    {performanceData.atualizadoAte || "Data não disponível"}
+                  </span>
+                </div>
+              )}
+              
               <div className={styles.metricItem}>
                 <div className={styles.metricIcon}>
                   <i className="fa-solid fa-calendar-days"></i>
@@ -310,27 +331,6 @@ export default function MyPage({ user }) {
                   <span className={styles.metricLabel}>Absenteísmo</span>
                 </div>
               </div>
-              
-              {/* Período de Referência */}
-              {performanceData && (
-                <div className={styles.periodInfo} style={{ 
-                  marginTop: '15px', 
-                  padding: '8px 12px', 
-                  backgroundColor: 'rgba(10, 78, 228, 0.1)', 
-                  borderRadius: '6px', 
-                  borderLeft: '3px solid #0A4EE4',
-                  textAlign: 'center'
-                }}>
-                  <span style={{ 
-                    fontSize: '0.85rem', 
-                    fontWeight: '500',
-                    color: '#0A4EE4'
-                  }}>
-                    <i className="fa-solid fa-calendar-range" style={{ marginRight: '6px' }}></i>
-                    {performanceData.atualizadoAte || "Data não disponível"}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
           
