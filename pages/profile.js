@@ -298,7 +298,8 @@ export default function MyPage({ user }) {
                   backgroundColor: 'rgba(240, 160, 40, 0.1)', 
                   borderRadius: '6px', 
                   borderLeft: '3px solid #F0A028',
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  width: '100%'
                 }}>
                   <span style={{ 
                     fontSize: '0.85rem', 
@@ -311,24 +312,27 @@ export default function MyPage({ user }) {
                 </div>
               )}
               
-              <div className={styles.metricItem}>
-                <div className={styles.metricIcon}>
-                  <i className="fa-solid fa-calendar-days"></i>
+              {/* Container para as métricas de presença */}
+              <div style={{ display: 'flex', gap: '15px', width: '100%' }}>
+                <div className={styles.metricItem} style={{ flex: 1 }}>
+                  <div className={styles.metricIcon}>
+                    <i className="fa-solid fa-calendar-days"></i>
+                  </div>
+                  <div className={styles.metricData}>
+                    <span className={styles.metricValue}>{performanceData?.diasTrabalhados || 0}</span>
+                    <span className={styles.metricLabel}>Dias Trabalhados</span>
+                    <span className={styles.metricSubtext}>/ {performanceData?.diasUteis || 0} dias úteis</span>
+                  </div>
                 </div>
-                <div className={styles.metricData}>
-                  <span className={styles.metricValue}>{performanceData?.diasTrabalhados || 0}</span>
-                  <span className={styles.metricLabel}>Dias Trabalhados</span>
-                  <span className={styles.metricSubtext}>/ {performanceData?.diasUteis || 0} dias úteis</span>
-                </div>
-              </div>
-              
-              <div className={styles.metricItem}>
-                <div className={styles.metricIcon}>
-                  <i className="fa-solid fa-chart-line"></i>
-                </div>
-                <div className={styles.metricData}>
-                  <span className={styles.metricValue}>{performanceData?.absenteismo || 0}%</span>
-                  <span className={styles.metricLabel}>Absenteísmo</span>
+                
+                <div className={styles.metricItem} style={{ flex: 1 }}>
+                  <div className={styles.metricIcon}>
+                    <i className="fa-solid fa-chart-line"></i>
+                  </div>
+                  <div className={styles.metricData}>
+                    <span className={styles.metricValue}>{performanceData?.absenteismo || 0}%</span>
+                    <span className={styles.metricLabel}>Absenteísmo</span>
+                  </div>
                 </div>
               </div>
             </div>
