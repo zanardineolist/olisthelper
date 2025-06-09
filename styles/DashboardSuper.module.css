@@ -23,9 +23,14 @@
 
 .headerContent {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: flex-start;
     gap: 24px;
+}
+
+.profileSection {
+    flex-shrink: 0;
+    order: -1;
 }
 
 .welcomeSection {
@@ -54,10 +59,6 @@
     line-height: 1.5;
     margin: 0;
     max-width: 600px;
-}
-
-.profileSection {
-    flex-shrink: 0;
 }
 
 .profileCard {
@@ -152,7 +153,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
 }
 
 /* Seções com headers otimizadas */
@@ -171,8 +172,8 @@
 .filtersContainer {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .sectionTitle {
@@ -200,7 +201,7 @@
 .categorySection,
 .progressSection,
 .performanceSection {
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
     width: 100%;
 }
 
@@ -234,8 +235,8 @@
 .overviewGrid {
     display: grid;
     grid-template-columns: 1.2fr 0.8fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .profileExpandedCard,
@@ -715,14 +716,14 @@
 .profileContentGrid {
     display: grid;
     grid-template-columns: 1fr auto;
-    gap: 24px;
+    gap: 0;
     align-items: start;
 }
 
 .profileBasicInfo {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
 }
 
 /* ==================================================
@@ -730,7 +731,7 @@
    ================================================== */
 
 .absMetricsSection {
-    min-width: 200px;
+    width: 500px;
     padding: 16px;
     background: var(--box-color2);
     border-radius: 12px;
@@ -840,6 +841,7 @@
     
     .profileSection {
         width: 100%;
+        order: 0;
     }
     
     .profileCard {
@@ -917,7 +919,6 @@
     }
     
     .absMetricsSection {
-        min-width: auto;
         width: 100%;
     }
     
