@@ -18,7 +18,7 @@ const ProgressIndicator = ({ current, target, label, type = 'chamados' }) => {
     switch (type) {
       case 'chamados': 
         return { 
-          icon: 'fa-headset',
+          icon: 'fa-ticket',
           title: 'Meta de Chamados - Mês',
           subtitle: 'Chamados respondidos e atuados',
           unit: 'chamados'

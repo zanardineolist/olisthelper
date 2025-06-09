@@ -1,13 +1,13 @@
 /* ProgressIndicator.module.css - Layout amigável e motivacional */
 
 .progressContainer {
-  background: var(--box-color1);
+  background: var(--box-color);
   border-radius: 16px;
   padding: 24px;
   margin-bottom: 20px;
-  border: 1px solid var(--box-color3);
+  border: 1px solid var(--color-border);
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .progressContainer:hover {
@@ -18,22 +18,22 @@
 /* Estados mais suaves */
 .progressContainer.excellent {
   border-color: rgba(119, 158, 61, 0.3);
-  background: linear-gradient(135deg, var(--box-color1) 0%, rgba(119, 158, 61, 0.02) 100%);
+  background: linear-gradient(135deg, var(--box-color) 0%, rgba(119, 158, 61, 0.03) 100%);
 }
 
 .progressContainer.good {
-  border-color: rgba(59, 130, 246, 0.3);
-  background: linear-gradient(135deg, var(--box-color1) 0%, rgba(59, 130, 246, 0.02) 100%);
+  border-color: rgba(10, 78, 228, 0.3);
+  background: linear-gradient(135deg, var(--box-color) 0%, rgba(10, 78, 228, 0.03) 100%);
 }
 
 .progressContainer.warning {
-  border-color: rgba(245, 158, 11, 0.3);
-  background: linear-gradient(135deg, var(--box-color1) 0%, rgba(245, 158, 11, 0.02) 100%);
+  border-color: rgba(240, 160, 40, 0.3);
+  background: linear-gradient(135deg, var(--box-color) 0%, rgba(240, 160, 40, 0.03) 100%);
 }
 
 .progressContainer.info {
   border-color: rgba(156, 163, 175, 0.3);
-  background: var(--box-color1);
+  background: var(--box-color);
 }
 
 /* Header limpo */
@@ -51,16 +51,17 @@
 }
 
 .iconContainer {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
-  background: var(--box-color2);
+  background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  color: var(--text-color1);
+  font-size: 20px;
+  color: white;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(10, 78, 228, 0.2);
 }
 
 .titleInfo {
@@ -117,9 +118,10 @@
 .percentage {
   font-size: 14px;
   font-weight: 600;
-  padding: 2px 8px;
+  padding: 4px 8px;
   border-radius: 8px;
   background: var(--box-color2);
+  border: 1px solid var(--color-border);
 }
 
 .percentage.excellent { color: #059669; }

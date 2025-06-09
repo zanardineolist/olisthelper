@@ -999,7 +999,7 @@ export default function DashboardData({ user }) {
                     {performanceData.chamados && (
                       <PerformanceCard 
                         title="Indicadores Chamados"
-                        icon="fa-headset"
+                        icon="fa-ticket"
                         data={performanceData.chamados}
                         type="chamados"
                       />
