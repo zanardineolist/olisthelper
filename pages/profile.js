@@ -293,13 +293,11 @@ export default function MyPage({ user }) {
               {/* Período de Referência */}
               {performanceData && (
                 <div className={styles.periodInfo} style={{ 
-                  marginBottom: '15px', 
                   padding: '8px 12px', 
                   backgroundColor: 'rgba(240, 160, 40, 0.1)', 
                   borderRadius: '6px', 
                   borderLeft: '3px solid #F0A028',
-                  textAlign: 'center',
-                  width: '100%'
+                  textAlign: 'center'
                 }}>
                   <span style={{ 
                     fontSize: '0.85rem', 
@@ -312,9 +310,9 @@ export default function MyPage({ user }) {
                 </div>
               )}
               
-              {/* Container para as métricas de presença */}
-              <div style={{ display: 'flex', gap: '15px', width: '100%' }}>
-                <div className={styles.metricItem} style={{ flex: 1 }}>
+              {/* Métricas de Presença */}
+              <div className={styles.metricsRow}>
+                <div className={styles.metricItem}>
                   <div className={styles.metricIcon}>
                     <i className="fa-solid fa-calendar-days"></i>
                   </div>
@@ -325,7 +323,7 @@ export default function MyPage({ user }) {
                   </div>
                 </div>
                 
-                <div className={styles.metricItem} style={{ flex: 1 }}>
+                <div className={styles.metricItem}>
                   <div className={styles.metricIcon}>
                     <i className="fa-solid fa-chart-line"></i>
                   </div>
