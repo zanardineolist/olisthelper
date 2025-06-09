@@ -18,133 +18,102 @@
 
 .pageHeader {
     margin-bottom: 30px;
-    padding: 24px 0;
-    background: linear-gradient(135deg, var(--box-color) 0%, var(--bg-color) 100%);
-    border-radius: 16px;
-    border: 1px solid var(--color-border);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 20px 0;
 }
 
 .headerContent {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 32px;
-    align-items: center;
-    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
 }
 
 .welcomeSection {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 .greetingText {
-    font-size: 2.2rem;
+    font-size: 2rem;
     color: var(--title-color);
     margin: 0;
-    font-weight: 700;
-    line-height: 1.1;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-weight: 600;
+    line-height: 1.2;
 }
 
 .userName {
     color: var(--color-primary);
-    font-weight: 800;
+    font-weight: 700;
 }
 
 .dashboardSubtitle {
-    font-size: 1.1rem;
-    color: var(--text-color);
-    line-height: 1.6;
+    font-size: 1rem;
+    color: var(--text-color2);
+    line-height: 1.5;
     margin: 0;
-    max-width: 700px;
-    opacity: 0.9;
+    max-width: 600px;
 }
 
 .profileSection {
-    display: flex;
-    justify-content: flex-end;
+    flex-shrink: 0;
 }
 
 .profileCard {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--box-color);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--color-border);
     display: flex;
     align-items: center;
-    gap: 16px;
-    min-width: 320px;
-    transition: all 0.3s ease;
-}
-
-.profileCard:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    gap: 12px;
+    min-width: 280px;
 }
 
 .profileImage {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--color-primary);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    border: 2px solid var(--color-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     flex-shrink: 0;
-    transition: all 0.3s ease;
-}
-
-.profileImage:hover {
-    transform: scale(1.05);
-    border-color: var(--color-accent2);
 }
 
 .profileInfo {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
 .profileName {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: var(--title-color);
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .profileEmail {
     margin: 0;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--text-color2);
-    opacity: 0.8;
 }
 
 .roleBadge {
-    background: linear-gradient(135deg, var(--color-primary), var(--color-accent2));
+    background: linear-gradient(135deg, var(--color-primary), #0056b3);
     color: white;
-    font-size: 0.75rem;
-    padding: 6px 12px;
-    border-radius: 20px;
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 12px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-weight: 700;
+    gap: 4px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.roleBadge:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    letter-spacing: 0.3px;
+    margin-top: 4px;
 }
 
 /* ==================================================
@@ -740,71 +709,108 @@
 }
 
 /* ==================================================
-   MÉTRICAS INTEGRADAS - ABSENTEÍSMO
+   LAYOUT LADO A LADO DO PROFILE CARD
    ================================================== */
 
-.integratedMetrics {
+.profileContentGrid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid var(--color-border);
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: start;
 }
 
-.metricItem {
+.profileBasicInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ==================================================
+   MÉTRICAS DE ABSENTEÍSMO - LADO DIREITO
+   ================================================== */
+
+.absMetricsSection {
+    min-width: 200px;
+    padding: 16px;
+    background: var(--box-color2);
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+}
+
+.absTitle {
+    font-size: 0.9rem;
+    color: var(--title-color);
+    margin: 0 0 12px 0;
+    font-weight: 600;
     display: flex;
     align-items: center;
+    gap: 8px;
+}
+
+.absTitle i {
+    color: var(--color-primary);
+    font-size: 0.8rem;
+}
+
+.absMetrics {
+    display: flex;
+    flex-direction: column;
     gap: 12px;
-    padding: 12px;
-    background: var(--box-color2);
-    border-radius: 10px;
+}
+
+.absMetricItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--box-color);
+    border-radius: 8px;
     border: 1px solid var(--color-border);
     transition: all 0.2s ease;
 }
 
-.metricItem:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+.absMetricItem:hover {
+    transform: translateX(2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.metricIcon {
-    width: 36px;
-    height: 36px;
+.absMetricIcon {
+    width: 28px;
+    height: 28px;
     background: var(--color-primary);
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 1rem;
+    font-size: 0.8rem;
     flex-shrink: 0;
 }
 
-.metricData {
+.absMetricData {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
     flex: 1;
 }
 
-.metricValue {
-    font-size: 1.3rem;
+.absMetricValue {
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--title-color);
     line-height: 1;
 }
 
-.metricLabel {
-    font-size: 0.75rem;
+.absMetricLabel {
+    font-size: 0.7rem;
     color: var(--text-color2);
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
 }
 
-.metricSubtext {
-    font-size: 0.7rem;
+.absMetricSubtext {
+    font-size: 0.65rem;
     color: var(--text-color2);
     opacity: 0.8;
     font-weight: 400;
@@ -827,18 +833,24 @@
     }
     
     .headerContent {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: flex-start;
         gap: 16px;
     }
     
     .profileSection {
-        justify-content: flex-start;
+        width: 100%;
     }
     
     .profileCard {
         min-width: auto;
         width: 100%;
         max-width: 400px;
+    }
+    
+    .profileContentGrid {
+        grid-template-columns: 1fr;
+        gap: 16px;
     }
     
     .filtersContainer {
@@ -900,8 +912,13 @@
         grid-template-columns: 1fr;
     }
     
-    .integratedMetrics {
+    .profileContentGrid {
         grid-template-columns: 1fr;
+    }
+    
+    .absMetricsSection {
+        min-width: auto;
+        width: 100%;
     }
     
     .periodFilterControls {

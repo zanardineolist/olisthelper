@@ -762,75 +762,86 @@ export default function DashboardData({ user }) {
                   </div>
                 ) : (
                   <>
-                    <div className={styles.profileMainInfo}>
-                      <UserAvatar 
-                        user={selectedUser} 
-                        className={styles.profileImage} 
-                      />
-                      <div className={styles.profileDetails}>
-                        <h3>{selectedUser.name || 'Nome não disponível'}</h3>
-                        <p>{selectedUser.email || 'Email não disponível'}</p>
-                        <div 
-                          className={`${styles.roleTag} ${selectedUser.role === 'tax' ? styles.tax : ''}`}
-                        >
-                          <i className="fa-solid fa-user-tie"></i>
-                          {getRoleLabel(selectedUser.role)}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className={styles.tagsContainer}>
-                      {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
-                        <>
-                          {performanceData?.squad && (
-                            <div className={styles.tag || ''} style={{ backgroundColor: '#0A4EE4' }}>
-                              #{performanceData.squad}
+                    <div className={styles.profileContentGrid}>
+                      {/* Informações básicas do usuário */}
+                      <div className={styles.profileBasicInfo}>
+                        <div className={styles.profileMainInfo}>
+                          <UserAvatar 
+                            user={selectedUser} 
+                            className={styles.profileImage} 
+                          />
+                          <div className={styles.profileDetails}>
+                            <h3>{selectedUser.name || 'Nome não disponível'}</h3>
+                            <p>{selectedUser.email || 'Email não disponível'}</p>
+                            <div 
+                              className={`${styles.roleTag} ${selectedUser.role === 'tax' ? styles.tax : ''}`}
+                            >
+                              <i className="fa-solid fa-user-tie"></i>
+                              {getRoleLabel(selectedUser.role)}
                             </div>
-                          )}
-                          {performanceData?.chamado && (
-                            <div className={styles.tag || ''} style={{ backgroundColor: '#F0A028' }}>
-                              #Chamado
-                            </div>
-                          )}
-                          {performanceData?.telefone && (
-                            <div className={styles.tag || ''} style={{ backgroundColor: '#E64E36' }}>
-                              #Telefone
-                            </div>
-                          )}
-                          {performanceData?.chat && (
-                            <div className={styles.tag || ''} style={{ backgroundColor: '#779E3D' }}>
-                              #Chat
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-
-                    {/* Métricas Integradas de Absenteísmo */}
-                    {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
-                      <div className={styles.integratedMetrics}>
-                        <div className={styles.metricItem}>
-                          <div className={styles.metricIcon}>
-                            <i className="fa-solid fa-calendar-days"></i>
-                          </div>
-                          <div className={styles.metricData}>
-                            <span className={styles.metricValue}>{performanceData?.diasTrabalhados || 0}</span>
-                            <span className={styles.metricLabel}>Dias Trabalhados</span>
-                            <span className={styles.metricSubtext}>/ {performanceData?.diasUteis || 0} dias úteis</span>
                           </div>
                         </div>
                         
-                        <div className={styles.metricItem}>
-                          <div className={styles.metricIcon}>
-                            <i className="fa-solid fa-chart-line"></i>
-                          </div>
-                          <div className={styles.metricData}>
-                            <span className={styles.metricValue}>{performanceData?.absenteismo || 0}%</span>
-                            <span className={styles.metricLabel}>Absenteísmo</span>
-                          </div>
+                        <div className={styles.tagsContainer}>
+                          {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
+                            <>
+                              {performanceData?.squad && (
+                                <div className={styles.tag || ''} style={{ backgroundColor: '#0A4EE4' }}>
+                                  #{performanceData.squad}
+                                </div>
+                              )}
+                              {performanceData?.chamado && (
+                                <div className={styles.tag || ''} style={{ backgroundColor: '#F0A028' }}>
+                                  #Chamado
+                                </div>
+                              )}
+                              {performanceData?.telefone && (
+                                <div className={styles.tag || ''} style={{ backgroundColor: '#E64E36' }}>
+                                  #Telefone
+                                </div>
+                              )}
+                              {performanceData?.chat && (
+                                <div className={styles.tag || ''} style={{ backgroundColor: '#779E3D' }}>
+                                  #Chat
+                                </div>
+                              )}
+                            </>
+                          )}
                         </div>
                       </div>
-                    )}
+
+                      {/* Métricas de Absenteísmo */}
+                      {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
+                        <div className={styles.absMetricsSection}>
+                          <h4 className={styles.absTitle}>
+                            <i className="fa-solid fa-calendar-check"></i>
+                            Dados de Presença
+                          </h4>
+                          <div className={styles.absMetrics}>
+                            <div className={styles.absMetricItem}>
+                              <div className={styles.absMetricIcon}>
+                                <i className="fa-solid fa-calendar-days"></i>
+                              </div>
+                              <div className={styles.absMetricData}>
+                                <span className={styles.absMetricValue}>{performanceData?.diasTrabalhados || 0}</span>
+                                <span className={styles.absMetricLabel}>Dias Trabalhados</span>
+                                <span className={styles.absMetricSubtext}>/ {performanceData?.diasUteis || 0} dias úteis</span>
+                              </div>
+                            </div>
+                            
+                            <div className={styles.absMetricItem}>
+                              <div className={styles.absMetricIcon}>
+                                <i className="fa-solid fa-chart-line"></i>
+                              </div>
+                              <div className={styles.absMetricData}>
+                                <span className={styles.absMetricValue}>{performanceData?.absenteismo || 0}%</span>
+                                <span className={styles.absMetricLabel}>Absenteísmo</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
               </div>
