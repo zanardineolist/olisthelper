@@ -313,6 +313,10 @@
   border-left: 4px solid var(--neutral-color);
 }
 
+.performanceCard.warning {
+  border-left: 4px solid var(--warning-color);
+}
+
 .performanceCardHeader {
   display: flex;
   align-items: center;
@@ -375,6 +379,10 @@
   color: var(--neutral-color);
 }
 
+.statusIndicator.warning {
+  color: var(--warning-color);
+}
+
 /* Main Metrics */
 .mainMetrics {
   display: grid;
@@ -407,7 +415,7 @@
 }
 
 .mainMetric.warning {
-  background: var(--poor-bg);
+  background: var(--warning-bg);
 }
 
 .mainMetricIcon {
@@ -471,6 +479,16 @@
   border-color: var(--poor-color);
 }
 
+.kpiMetric.warning {
+  background: var(--warning-bg);
+  border-color: var(--warning-color);
+}
+
+.kpiMetric.neutral {
+  background: var(--neutral-bg);
+  border-color: var(--neutral-color);
+}
+
 .kpiIcon {
   width: 32px;
   height: 32px;
@@ -493,6 +511,14 @@
 
 .kpiMetric.poor .kpiIcon {
   background: var(--poor-color);
+}
+
+.kpiMetric.warning .kpiIcon {
+  background: var(--warning-color);
+}
+
+.kpiMetric.neutral .kpiIcon {
+  background: var(--neutral-color);
 }
 
 .kpiData {
@@ -529,6 +555,14 @@
 
 .kpiStatus.poor {
   color: var(--poor-color);
+}
+
+.kpiStatus.warning {
+  color: var(--warning-color);
+}
+
+.kpiStatus.neutral {
+  color: var(--neutral-color);
 }
 
 /* Performance Info - Mantendo para compatibilidade */

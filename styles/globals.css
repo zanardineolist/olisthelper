@@ -52,6 +52,9 @@
   --good-color: #F0A028;
   --good-light: #f2b34a;
   --good-bg: #fef8e6;
+  --warning-color: #D97706;
+  --warning-light: #f59e0b;
+  --warning-bg: #fef3c7;
   --poor-color: #E64E36;
   --poor-light: #ea6952;
   --poor-bg: #fdf2f0;
@@ -122,6 +125,9 @@
   --good-color: #f2b34a;
   --good-light: #f4c367;
   --good-bg: rgba(242, 179, 74, 0.1);
+  --warning-color: #fbbf24;
+  --warning-light: #fcd34d;
+  --warning-bg: rgba(251, 191, 36, 0.1);
   --poor-color: #ea6952;
   --poor-light: #ed7a6a;
   --poor-bg: rgba(234, 105, 82, 0.1);
