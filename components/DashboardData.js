@@ -96,7 +96,7 @@ const PerformanceCard = ({ title, icon, data, type }) => {
     const metrics = [];
     
     // Métricas principais por tipo
-    if (data.total !== undefined) {
+    if (data.total !== undefined && data.total !== null) {
       metrics.push({
         label: type === 'chamados' ? 'Total Chamados' : 
                type === 'telefone' ? 'Total Ligações' : 'Total Conversas',
@@ -107,7 +107,7 @@ const PerformanceCard = ({ title, icon, data, type }) => {
       });
     }
     
-    if (data.mediaDia !== undefined) {
+    if (data.mediaDia !== undefined && data.mediaDia !== null) {
       metrics.push({
         label: 'Média por Dia',
         value: data.mediaDia,
@@ -116,12 +116,12 @@ const PerformanceCard = ({ title, icon, data, type }) => {
       });
     }
     
-    if (data.perdidas !== undefined) {
+    if (data.perdidas !== undefined && data.perdidas !== null) {
       metrics.push({
         label: 'Perdidas',
         value: data.perdidas,
         icon: 'fa-phone-slash',
-        type: 'warning'
+        type: data.perdidas === 0 ? 'excellent' : 'warning'
       });
     }
 
@@ -131,7 +131,7 @@ const PerformanceCard = ({ title, icon, data, type }) => {
   const renderKPIMetrics = () => {
     const kpis = [];
     
-    if (data.tma !== undefined && data.tma !== null) {
+    if (data.tma !== undefined && data.tma !== null && data.tma !== "-") {
       kpis.push({ 
         label: 'TMA', 
         value: data.tma,
@@ -140,11 +140,11 @@ const PerformanceCard = ({ title, icon, data, type }) => {
       });
     }
     
-    if (data.csat !== undefined && data.csat !== null) {
+    if (data.csat !== undefined && data.csat !== null && data.csat !== "-") {
       kpis.push({ 
         label: 'CSAT', 
         value: data.csat,
-        status: data.csat === "-" ? 'neutral' : (data.status?.csat || 'neutral'),
+        status: data.status?.csat || 'neutral',
         icon: 'fa-heart'
       });
     }
