@@ -16,9 +16,31 @@ const PerformanceCard = ({ title, icon, data, type }) => {
     if (!data.status) return 'neutral';
     
     const statuses = Object.values(data.status);
-    if (statuses.every(status => status === 'excellent')) return 'excellent';
-    if (statuses.some(status => status === 'poor')) return 'poor';
-    if (statuses.some(status => status === 'good')) return 'good';
+    if (statuses.length === 0) return 'neutral';
+    
+    // Contar cada tipo de status
+    const statusCounts = statuses.reduce((acc, status) => {
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+    
+    const total = statuses.length;
+    const excellentCount = statusCounts.excellent || 0;
+    const goodCount = statusCounts.good || 0;
+    const poorCount = statusCounts.poor || 0;
+    
+    // Se há alguma métrica "poor" (abaixo da meta) → vermelho
+    if (poorCount > 0) return 'poor';
+    
+    // Se todas as métricas são "excellent" → verde
+    if (excellentCount === total) return 'excellent';
+    
+    // Se a maioria (mais de 50%) são "excellent" → amarelo/bom
+    if (excellentCount > total / 2) return 'good';
+    
+    // Se há pelo menos uma "good" e nenhuma "poor" → amarelo/bom
+    if (goodCount > 0 && poorCount === 0) return 'good';
+    
     return 'neutral';
   };
 

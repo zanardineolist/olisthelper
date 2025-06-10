@@ -26,9 +26,36 @@ const PerformanceCard = ({ title, icon, data, type }) => {
     const tmaStatus = getMetricStatus(data.colors, 'tma');
     const csatStatus = getMetricStatus(data.colors, 'csat');
     
-    if (tmaStatus === 'excellent' && csatStatus === 'excellent') return 'excellent';
-    if (tmaStatus === 'poor' || csatStatus === 'poor') return 'poor';
-    if (tmaStatus === 'good' || csatStatus === 'good') return 'good';
+    // Coletar todos os status válidos (não neutros)
+    const statuses = [];
+    if (tmaStatus && tmaStatus !== 'neutral') statuses.push(tmaStatus);
+    if (csatStatus && csatStatus !== 'neutral') statuses.push(csatStatus);
+    
+    if (statuses.length === 0) return 'neutral';
+    
+    // Contar cada tipo de status
+    const statusCounts = statuses.reduce((acc, status) => {
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+    
+    const total = statuses.length;
+    const excellentCount = statusCounts.excellent || 0;
+    const goodCount = statusCounts.good || 0;
+    const poorCount = statusCounts.poor || 0;
+    
+    // Se há alguma métrica "poor" (abaixo da meta) → vermelho
+    if (poorCount > 0) return 'poor';
+    
+    // Se todas as métricas são "excellent" → verde
+    if (excellentCount === total) return 'excellent';
+    
+    // Se a maioria (mais de 50%) são "excellent" → amarelo/bom
+    if (excellentCount > total / 2) return 'good';
+    
+    // Se há pelo menos uma "good" e nenhuma "poor" → amarelo/bom
+    if (goodCount > 0 && poorCount === 0) return 'good';
+    
     return 'neutral';
   };
 
