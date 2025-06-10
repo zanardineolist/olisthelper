@@ -59,8 +59,8 @@ const ProgressIndicator = ({ current, target, label, type = 'chamados' }) => {
         {/* Progresso visual mais clean */}
         <div className={styles.progressDisplay}>
           <div className={styles.numberDisplay}>
-            <span className={styles.currentValue}>{current.toLocaleString('pt-BR')}</span>
-            <span className={styles.targetValue}>de {target.toLocaleString('pt-BR')}</span>
+            <span className={`${styles.currentValue} ${styles[status]}`}>{current.toLocaleString('pt-BR')}</span>
+            <span className={styles.targetValue}>de {target.toLocaleString('pt-BR')} {typeInfo.unit}</span>
           </div>
           <div className={styles.percentageDisplay}>
             <span className={`${styles.percentage} ${styles[status]}`}>

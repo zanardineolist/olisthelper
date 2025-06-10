@@ -89,64 +89,143 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  gap: 8px;
 }
 
 .numberDisplay {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  line-height: 1.2;
+  line-height: 1;
+  gap: 4px;
 }
 
 .currentValue {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--color-primary);
+  font-size: 32px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #1E40AF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(10, 78, 228, 0.2);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  letter-spacing: -0.5px;
+  transition: all 0.3s ease;
+}
+
+.currentValue.excellent {
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(5, 150, 105, 0.3);
+  filter: drop-shadow(0 1px 2px rgba(5, 150, 105, 0.2));
+}
+
+.currentValue.good {
+  background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+  filter: drop-shadow(0 1px 2px rgba(37, 99, 235, 0.2));
+}
+
+.currentValue.warning {
+  background: linear-gradient(135deg, #D97706 0%, #F59E0B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(217, 119, 6, 0.3);
+  filter: drop-shadow(0 1px 2px rgba(217, 119, 6, 0.2));
+}
+
+.currentValue.info {
+  background: linear-gradient(135deg, #6B7280 0%, #9CA3AF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 4px rgba(107, 114, 128, 0.3);
+  filter: drop-shadow(0 1px 2px rgba(107, 114, 128, 0.2));
 }
 
 .targetValue {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-color1);
   font-weight: 600;
+  opacity: 0.8;
+  position: relative;
+  padding-left: 8px;
+}
+
+.targetValue::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  opacity: 0.6;
 }
 
 .percentageDisplay {
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .percentage {
-  font-size: 15px;
-  font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  font-weight: 800;
+  padding: 8px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
   border: 2px solid transparent;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.percentage::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  border-radius: inherit;
+  z-index: -1;
 }
 
 .percentage.excellent { 
   color: #059669; 
   border-color: #059669;
-  background: rgba(5, 150, 105, 0.1);
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
 }
 
 .percentage.good { 
   color: #2563EB; 
   border-color: #2563EB;
-  background: rgba(37, 99, 235, 0.1);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .percentage.warning { 
   color: #D97706; 
   border-color: #D97706;
-  background: rgba(217, 119, 6, 0.1);
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
 }
 
 .percentage.info { 
   color: #6B7280; 
   border-color: #6B7280;
-  background: rgba(107, 114, 128, 0.1);
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.15) 0%, rgba(156, 163, 175, 0.1) 100%);
+  box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
 }
 
 /* Barra de progresso sutil */
