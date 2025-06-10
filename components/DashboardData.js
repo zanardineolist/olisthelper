@@ -99,17 +99,14 @@ const PerformanceCard = ({ title, icon, data, type }) => {
     const goodCount = statusCounts.good || 0;
     const poorCount = statusCounts.poor || 0;
     
-    // Se há alguma métrica "poor" (abaixo da meta) → vermelho
-    if (poorCount > 0) return 'poor';
-    
     // Se todas as métricas são "excellent" → verde
     if (excellentCount === total) return 'excellent';
     
-    // Se a maioria (mais de 50%) são "excellent" → amarelo/bom
-    if (excellentCount > total / 2) return 'good';
+    // Se mais de 50% das métricas são "poor" → vermelho (crítico)
+    if (poorCount > total / 2) return 'poor';
     
-    // Se há pelo menos uma "good" e nenhuma "poor" → amarelo/bom
-    if (goodCount > 0 && poorCount === 0) return 'good';
+    // Se há mix de métricas ou equilíbrio → amarelo (atenção moderada)
+    if (poorCount > 0 || goodCount > 0 || excellentCount > 0) return 'good';
     
     return 'neutral';
   };
