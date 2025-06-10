@@ -166,6 +166,101 @@ const PerformanceCard = ({ title, icon, data, type }) => {
   );
 };
 
+// Componente do Modal de Informações
+const InfoModal = ({ onClose }) => (
+  <div className={styles.modalOverlay} onClick={onClose}>
+    <div className={styles.infoModal} onClick={(e) => e.stopPropagation()}>
+      <div className={styles.modalHeader}>
+        <h3>
+          <i className="fa-solid fa-info-circle"></i>
+          Como Funcionam os Indicadores
+        </h3>
+        <button 
+          className={styles.closeButton}
+          onClick={onClose}
+        >
+          <i className="fa-solid fa-times"></i>
+        </button>
+      </div>
+      
+      <div className={styles.modalContent}>
+        <div className={styles.colorLegend}>
+          <h4>🎯 Significado das Cores</h4>
+          <div className={styles.legendItem}>
+            <span className={`${styles.colorIndicator} ${styles.excellent}`}></span>
+            <strong>🟢 Verde (Excelente)</strong> - Meta atingida ou superada
+          </div>
+          <div className={styles.legendItem}>
+            <span className={`${styles.colorIndicator} ${styles.good}`}></span>
+            <strong>🟡 Amarelo (Bom)</strong> - Performance satisfatória, pode melhorar
+          </div>
+          <div className={styles.legendItem}>
+            <span className={`${styles.colorIndicator} ${styles.poor}`}></span>
+            <strong>🔴 Vermelho (Atenção)</strong> - Abaixo do esperado, precisa apoio
+          </div>
+          <div className={styles.legendItem}>
+            <span className={`${styles.colorIndicator} ${styles.neutral}`}></span>
+            <strong>⚪ Cinza (Neutro)</strong> - Dados não disponíveis
+          </div>
+        </div>
+
+        <div className={styles.criteriaSection}>
+          <h4>📊 Critérios por Indicador</h4>
+          
+          <div className={styles.criteriaItem}>
+            <h5>📞 Quantidade de Chamados (Meta: 600/mês)</h5>
+            <ul>
+              <li>🟢 Verde: 600+ chamados (100%+)</li>
+              <li>🟡 Amarelo: 300-599 chamados (50-99%)</li>
+              <li>🔴 Vermelho: 0-299 chamados (0-49%)</li>
+            </ul>
+          </div>
+
+          <div className={styles.criteriaItem}>
+            <h5>⏱️ TMA - Tempo Médio (Menor é melhor!)</h5>
+            <ul>
+              <li><strong>Chamados (Meta: 30h):</strong></li>
+              <li>🟢 Verde: até 30h | 🟡 Amarelo: 30-45h | 🔴 Vermelho: acima 45h</li>
+              <li><strong>Telefone/Chat (Meta: 15min):</strong></li>
+              <li>🟢 Verde: até 15min | 🟡 Amarelo: 15-22min | 🔴 Vermelho: acima 22min</li>
+            </ul>
+          </div>
+
+          <div className={styles.criteriaItem}>
+            <h5>😊 CSAT - Satisfação do Cliente</h5>
+            <ul>
+              <li><strong>Chamados (0-100%, Meta: 90%):</strong></li>
+              <li>🟢 Verde: 90%+ | 🟡 Amarelo: 72-89% | 🔴 Vermelho: abaixo 72%</li>
+              <li><strong>Telefone (1-5, Meta: 4,5):</strong></li>
+              <li>🟢 Verde: 4,5+ | 🟡 Amarelo: 3,6-4,4 | 🔴 Vermelho: abaixo 3,6</li>
+              <li><strong>Chat (0-100, Meta: 95):</strong></li>
+              <li>🟢 Verde: 95+ | 🟡 Amarelo: 76-94 | 🔴 Vermelho: abaixo 76</li>
+            </ul>
+          </div>
+
+          <div className={styles.criteriaItem}>
+            <h5>⭐ Qualidade (Meta: 80%)</h5>
+            <ul>
+              <li>🟢 Verde: 80%+ | 🟡 Amarelo: 64-79% | 🔴 Vermelho: abaixo 64%</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className={styles.tipSection}>
+          <h4>💡 Como Funciona a Cor do Card</h4>
+          <p>O card geral usa uma <strong>lógica balanceada</strong>:</p>
+          <ul>
+            <li>🟢 <strong>Verde</strong>: Todas as métricas estão excelentes</li>
+            <li>🔴 <strong>Vermelho</strong>: Mais de 50% das métricas precisam de atenção crítica</li>
+            <li>🟡 <strong>Amarelo</strong>: Mix de métricas ou situação equilibrada</li>
+            <li>⚪ <strong>Cinza</strong>: Dados insuficientes ou zerados</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 // Componente principal
 export default function MyPage({ user }) {
   const router = useRouter();
@@ -175,6 +270,7 @@ export default function MyPage({ user }) {
   const [performanceData, setPerformanceData] = useState(null);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [showInfoModal, setShowInfoModal] = useState(false);
 
   // Configurar saudação baseada no horário
   useEffect(() => {
@@ -263,6 +359,11 @@ export default function MyPage({ user }) {
       <Navbar user={user} />
 
       <main className={styles.container}>
+        {/* Modal de Informações */}
+        {showInfoModal && (
+          <InfoModal onClose={() => setShowInfoModal(false)} />
+        )}
+
         {/* Header */}
         <header className={styles.header}>
           <h1 className={styles.greeting}>{greeting}, {firstName}!</h1>
@@ -437,10 +538,19 @@ export default function MyPage({ user }) {
         {(user.role === 'support' || user.role === 'support+') && (
           <section className={styles.performanceSection}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>
-                <i className="fa-solid fa-chart-bar"></i>
-                Indicadores de Performance
-              </h2>
+              <div className={styles.sectionTitleWithInfo}>
+                <h2 className={styles.sectionTitle}>
+                  <i className="fa-solid fa-chart-bar"></i>
+                  Indicadores de Performance
+                </h2>
+                <button 
+                  className={styles.infoButton}
+                  onClick={() => setShowInfoModal(true)}
+                  title="Como funcionam os indicadores"
+                >
+                  <i className="fa-solid fa-info-circle"></i>
+                </button>
+              </div>
               {!loading && performanceData && (
                 <p className={styles.sectionSubtitle}>
                   Período: {performanceData.atualizadoAte || "Data não disponível"}

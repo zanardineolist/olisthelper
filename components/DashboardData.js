@@ -785,8 +785,14 @@ export default function DashboardData({ user }) {
           </div>
 
           <div className={styles.tipSection}>
-            <h4>💡 Dica</h4>
-            <p>O card geral mostra a <strong>cor mais crítica</strong>: se algum indicador está vermelho, o card fica vermelho. Se todos estão verdes, o card fica verde.</p>
+            <h4>💡 Como Funciona a Cor do Card</h4>
+            <p>O card geral usa uma <strong>lógica balanceada</strong>:</p>
+            <ul>
+              <li>🟢 <strong>Verde</strong>: Todas as métricas estão excelentes</li>
+              <li>🔴 <strong>Vermelho</strong>: Mais de 50% das métricas precisam de atenção crítica</li>
+              <li>🟡 <strong>Amarelo</strong>: Mix de métricas ou situação equilibrada</li>
+              <li>⚪ <strong>Cinza</strong>: Dados insuficientes ou zerados</li>
+            </ul>
           </div>
         </div>
       </div>
