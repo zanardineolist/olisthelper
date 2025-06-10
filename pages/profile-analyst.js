@@ -485,8 +485,8 @@ export default function ProfileAnalystPage({ user }) {
                 </div>
               )}
               
-              {/* Métricas de Presença */}
-              <div className={styles.metricsRow}>
+              {/* Linha 1: Dias trabalhados | Absenteísmo | Nota qualidade */}
+              <div className={styles.metricsRowThree}>
                 <div className={styles.metricItem}>
                   <div className={styles.metricIcon}>
                     <i className="fa-solid fa-calendar-days"></i>
@@ -507,19 +507,6 @@ export default function ProfileAnalystPage({ user }) {
                     <span className={styles.metricLabel}>Absenteísmo</span>
                   </div>
                 </div>
-              </div>
-              
-              {/* Outras Métricas */}
-              <div className={styles.metricsRow}>
-                <div className={styles.metricItem}>
-                  <div className={styles.metricIcon}>
-                    <i className="fa-solid fa-clipboard-check"></i>
-                  </div>
-                  <div className={styles.metricData}>
-                    <span className={styles.metricValue}>{performanceData?.rfc || '-'}</span>
-                    <span className={styles.metricLabel}>RFC</span>
-                  </div>
-                </div>
                 
                 <div className={styles.metricItem}>
                   <div className={styles.metricIcon}>
@@ -532,9 +519,19 @@ export default function ProfileAnalystPage({ user }) {
                 </div>
               </div>
               
-              {/* Total Ajudas - linha separada */}
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <div className={styles.metricItem} style={{ maxWidth: '300px' }}>
+              {/* Linha 2: RFC | Total de Ajudas */}
+              <div className={styles.metricsRowTwo}>
+                <div className={styles.metricItem}>
+                  <div className={styles.metricIcon}>
+                    <i className="fa-solid fa-clipboard-check"></i>
+                  </div>
+                  <div className={styles.metricData}>
+                    <span className={styles.metricValue}>{performanceData?.rfc || '-'}</span>
+                    <span className={styles.metricLabel}>RFC</span>
+                  </div>
+                </div>
+                
+                <div className={styles.metricItem}>
                   <div className={styles.metricIcon}>
                     <i className="fa-solid fa-handshake-angle"></i>
                   </div>
