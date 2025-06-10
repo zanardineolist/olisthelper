@@ -478,13 +478,12 @@ export default function MyPage({ user }) {
             <div className={styles.integratedMetrics}>
               {/* Período de Referência */}
               {performanceData && (
-                <div className={styles.periodInfo} style={{ 
-                  padding: '8px 12px', 
-                  backgroundColor: 'rgba(240, 160, 40, 0.1)', 
-                  borderRadius: '6px', 
-                  borderLeft: '3px solid #F0A028',
-                  textAlign: 'center'
-                }}>
+                              <div className={styles.periodInfo} style={{ 
+                padding: '8px 12px', 
+                backgroundColor: 'rgba(240, 160, 40, 0.1)', 
+                borderRadius: '6px',
+                textAlign: 'center'
+              }}>
                   <span style={{ 
                     fontSize: '0.85rem', 
                     fontWeight: '600',

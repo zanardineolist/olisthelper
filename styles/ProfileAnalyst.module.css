@@ -162,7 +162,15 @@
   gap: 1.5rem;
 }
 
-.metricsRow {
+.metricsRowThree {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.metricsRowTwo {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
@@ -849,6 +857,18 @@
   }
 }
 
+@media (max-width: 900px) {
+  .metricsRowThree {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .metricsRowTwo {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding-top: calc(64px + 1rem);
@@ -883,7 +903,13 @@
     gap: 1rem;
   }
   
-  .metricsRow {
+  .metricsRowThree {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .metricsRowTwo {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
