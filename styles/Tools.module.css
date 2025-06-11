@@ -18,7 +18,7 @@
   width: 100%;
   text-align: center;
   padding: 40px 20px 20px;
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--box-color) 100%);
+  background: linear-gradient(90deg, var(--box-color) 0%, var(--bg-secondary) 30%, var(--bg-secondary) 70%, var(--box-color) 100%);
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -70,48 +70,68 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border: none;
   background: var(--bg-secondary);
-  color: var(--text-primary);
+  color: var(--text-secondary);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  font-weight: 600;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-  transition: all 0.2s ease;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--border-color);
+  transition: all 0.3s ease;
   z-index: 10;
+  opacity: 0.8;
 }
 
-.scrollButton:hover {
+.scrollButton:hover:not(:disabled) {
   background: var(--color-primary);
   color: var(--color-white);
+  border-color: var(--color-primary);
   transform: translateY(-50%) scale(1.1);
+  opacity: 1;
+  box-shadow: var(--shadow-lg);
 }
 
 .scrollButton:disabled {
-  opacity: 0.3;
+  opacity: 0.2;
   cursor: not-allowed;
   transform: translateY(-50%);
+  background: var(--box-color);
+  color: var(--text-muted);
 }
 
 .scrollButtonLeft {
-  left: -16px;
+  left: -18px;
 }
 
 .scrollButtonRight {
-  right: -16px;
+  right: -18px;
 }
 
 .tabsListWrapper {
   flex: 1;
   overflow: hidden;
   position: relative;
+  cursor: grab;
+}
+
+.tabsListWrapper:active {
+  cursor: grabbing;
+}
+
+.tabsListWrapper.dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.tabsListWrapper.dragging .tabButton {
+  pointer-events: none;
 }
 
 .tabsListWrapper::before,
@@ -119,31 +139,31 @@
   content: '';
   position: absolute;
   top: 0;
-  bottom: 16px;
-  width: 20px;
+  bottom: 0;
+  width: 30px;
   pointer-events: none;
   z-index: 5;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
 }
 
 .tabsListWrapper::before {
   left: 0;
-  background: linear-gradient(to right, var(--bg-secondary), transparent);
+  background: linear-gradient(to right, var(--bg-secondary) 0%, var(--bg-secondary) 50%, transparent 100%);
   opacity: 0;
 }
 
 .tabsListWrapper::after {
   right: 0;
-  background: linear-gradient(to left, var(--bg-secondary), transparent);
+  background: linear-gradient(to left, var(--bg-secondary) 0%, var(--bg-secondary) 50%, transparent 100%);
   opacity: 0;
 }
 
 .tabsListWrapper.showLeftGradient::before {
-  opacity: 1;
+  opacity: 0.9;
 }
 
 .tabsListWrapper.showRightGradient::after {
-  opacity: 1;
+  opacity: 0.9;
 }
 
 .tabsList {
@@ -151,28 +171,14 @@
   align-items: center;
   gap: 4px;
   overflow-x: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) var(--box-color);
-  padding: 12px 0 16px 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 12px 0;
   position: relative;
 }
 
 .tabsList::-webkit-scrollbar {
-  height: 4px;
-}
-
-.tabsList::-webkit-scrollbar-track {
-  background: var(--box-color);
-  border-radius: 2px;
-}
-
-.tabsList::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
-  border-radius: 2px;
-}
-
-.tabsList::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-light);
+  display: none;
 }
 
 .tabButton {

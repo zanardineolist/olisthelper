@@ -94,6 +94,8 @@ export default function ToolsPage({ user }) {
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [showLeftGradient, setShowLeftGradient] = useState(false);
   const [showRightGradient, setShowRightGradient] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, scrollLeft: 0 });
   const router = useRouter();
   const tabsListRef = useRef(null);
   
@@ -158,20 +160,69 @@ export default function ToolsPage({ user }) {
     }
   };
 
+  // Scroll horizontal com mouse wheel
+  const handleWheelScroll = (e) => {
+    if (tabsListRef.current && !isMobile) {
+      e.preventDefault();
+      const scrollAmount = e.deltaY > 0 ? 100 : -100;
+      tabsListRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Drag to scroll
+  const handleMouseDown = (e) => {
+    if (!isMobile && tabsListRef.current) {
+      setIsDragging(true);
+      setDragStart({
+        x: e.pageX - tabsListRef.current.offsetLeft,
+        scrollLeft: tabsListRef.current.scrollLeft
+      });
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging || !tabsListRef.current || isMobile) return;
+    e.preventDefault();
+    const x = e.pageX - tabsListRef.current.offsetLeft;
+    const walk = (x - dragStart.x) * 2;
+    tabsListRef.current.scrollLeft = dragStart.scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
   // Monitora scroll das tabs
   useEffect(() => {
     const tabsList = tabsListRef.current;
     if (tabsList) {
       checkScrollButtons();
       tabsList.addEventListener('scroll', checkScrollButtons);
+      tabsList.addEventListener('wheel', handleWheelScroll, { passive: false });
+      tabsList.addEventListener('mousedown', handleMouseDown);
+      tabsList.addEventListener('mousemove', handleMouseMove);
+      tabsList.addEventListener('mouseup', handleMouseUp);
+      tabsList.addEventListener('mouseleave', handleMouseLeave);
       window.addEventListener('resize', checkScrollButtons);
       
       return () => {
         tabsList.removeEventListener('scroll', checkScrollButtons);
+        tabsList.removeEventListener('wheel', handleWheelScroll);
+        tabsList.removeEventListener('mousedown', handleMouseDown);
+        tabsList.removeEventListener('mousemove', handleMouseMove);
+        tabsList.removeEventListener('mouseup', handleMouseUp);
+        tabsList.removeEventListener('mouseleave', handleMouseLeave);
         window.removeEventListener('resize', checkScrollButtons);
       };
     }
-  }, [isMobile, availableTabs]);
+  }, [isMobile, availableTabs, isDragging, dragStart]);
 
   useEffect(() => {
     setLoading(true);
@@ -306,7 +357,7 @@ export default function ToolsPage({ user }) {
                )}
                
                {/* Lista de Tabs */}
-               <div className={`${styles.tabsListWrapper} ${showLeftGradient ? styles.showLeftGradient : ''} ${showRightGradient ? styles.showRightGradient : ''}`}>
+               <div className={`${styles.tabsListWrapper} ${showLeftGradient ? styles.showLeftGradient : ''} ${showRightGradient ? styles.showRightGradient : ''} ${isDragging ? styles.dragging : ''}`}>
                  <div className={styles.tabsList} ref={tabsListRef}>
                    {availableTabs.map((tab, index) => (
                      <button
