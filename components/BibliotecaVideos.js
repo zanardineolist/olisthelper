@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaPlay, FaEye, FaTag, FaFilter, FaTimes, FaFolder, FaCalendarAlt, FaUser, FaVideo, FaClock, FaFileAlt, FaAlignLeft, FaLink, FaExpand, FaCompress } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaPlay, FaEye, FaTag, FaFilter, FaTimes, FaFolder, FaCalendarAlt, FaUser, FaVideo, FaClock, FaFileAlt, FaAlignLeft, FaLink, FaExpand, FaCompress, FaCog, FaCheck } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { ThreeDotsLoader } from './LoadingIndicator';
 import styles from '../styles/BibliotecaVideos.module.css';
 
-const CATEGORY_OPTIONS = [
-  { value: 'geral', name: 'Geral', color: '#6B7280' },
-  { value: 'suporte-tecnico', name: 'Suporte Técnico', color: '#3B82F6' },
-  { value: 'fiscal', name: 'Fiscal', color: '#10B981' },
-  { value: 'financeiro', name: 'Financeiro', color: '#F59E0B' },
-  { value: 'onboarding', name: 'Onboarding', color: '#8B5CF6' },
-  { value: 'treinamento', name: 'Treinamento', color: '#EC4899' },
-  { value: 'produto', name: 'Produto', color: '#EF4444' },
-  { value: 'procedimentos', name: 'Procedimentos', color: '#06B6D4' }
+const DEFAULT_CATEGORIES = [
+  { value: 'geral', name: 'Geral' },
+  { value: 'suporte-tecnico', name: 'Suporte Técnico' },
+  { value: 'fiscal', name: 'Fiscal' },
+  { value: 'financeiro', name: 'Financeiro' },
+  { value: 'onboarding', name: 'Onboarding' },
+  { value: 'treinamento', name: 'Treinamento' },
+  { value: 'produto', name: 'Produto' },
+  { value: 'procedimentos', name: 'Procedimentos' }
 ];
 
 export default function BibliotecaVideos({ user }) {
@@ -26,6 +26,7 @@ export default function BibliotecaVideos({ user }) {
   const [sortDirection, setSortDirection] = useState('desc');
   const [showModal, setShowModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editingVideo, setEditingVideo] = useState(null);
   const [viewingVideo, setViewingVideo] = useState(null);
 
@@ -36,9 +37,13 @@ export default function BibliotecaVideos({ user }) {
     videoUrl: '',
     tags: [],
     category: 'geral',
-    duration: '',
     fileSize: ''
   });
+
+  // Estados para gerenciamento de categorias
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [editingCategory, setEditingCategory] = useState(null);
 
   // Estados da UI
   const [availableTags, setAvailableTags] = useState([]);
@@ -163,7 +168,6 @@ export default function BibliotecaVideos({ user }) {
       videoUrl: '',
       tags: [],
       category: 'geral',
-      duration: '',
       fileSize: ''
     });
     setEditingVideo(null);
@@ -194,7 +198,6 @@ export default function BibliotecaVideos({ user }) {
         videoUrl: formData.videoUrl.trim(),
         tags: formData.tags.filter(tag => tag.trim() !== ''),
         category: formData.category.trim(),
-        duration: formData.duration?.trim() || null,
         fileSize: formData.fileSize?.trim() || null
       };
 
@@ -281,7 +284,6 @@ export default function BibliotecaVideos({ user }) {
         videoUrl: video.video_url || '',
         tags: video.tags || [],
         category: video.category,
-        duration: video.duration || '',
         fileSize: video.file_size || ''
       });
     } else {
@@ -309,6 +311,47 @@ export default function BibliotecaVideos({ user }) {
       });
       setNewTag('');
       setShowTagSuggestions(false);
+    }
+  };
+
+  // Funções para gerenciar categorias
+  const addCategory = () => {
+    if (newCategoryName.trim() && !categories.find(cat => cat.name.toLowerCase() === newCategoryName.trim().toLowerCase())) {
+      const newCategory = {
+        value: newCategoryName.trim().toLowerCase().replace(/\s+/g, '-'),
+        name: newCategoryName.trim()
+      };
+      setCategories(prev => [...prev, newCategory]);
+      setNewCategoryName('');
+    }
+  };
+
+  const editCategory = (category) => {
+    setEditingCategory(category);
+    setNewCategoryName(category.name);
+  };
+
+  const saveEditCategory = () => {
+    if (newCategoryName.trim() && editingCategory) {
+      setCategories(prev => prev.map(cat => 
+        cat.value === editingCategory.value 
+          ? { ...cat, name: newCategoryName.trim() }
+          : cat
+      ));
+      setEditingCategory(null);
+      setNewCategoryName('');
+    }
+  };
+
+  const deleteCategory = (categoryValue) => {
+    if (categories.length > 1) { // Manter pelo menos uma categoria
+      setCategories(prev => prev.filter(cat => cat.value !== categoryValue));
+      // Se algum vídeo usar essa categoria, mudar para 'geral'
+      setVideos(prev => prev.map(video => 
+        video.category === categoryValue 
+          ? { ...video, category: 'geral' }
+          : video
+      ));
     }
   };
 
@@ -353,13 +396,8 @@ export default function BibliotecaVideos({ user }) {
     return searchTerm || filterCategory || filterTags.length > 0;
   };
 
-  const getCategoryColor = (categoryValue) => {
-    const category = CATEGORY_OPTIONS.find(cat => cat.value === categoryValue);
-    return category?.color || '#6B7280';
-  };
-
   const getCategoryName = (categoryValue) => {
-    const category = CATEGORY_OPTIONS.find(cat => cat.value === categoryValue);
+    const category = categories.find(cat => cat.value === categoryValue);
     return category?.name || categoryValue;
   };
 
@@ -391,6 +429,12 @@ export default function BibliotecaVideos({ user }) {
 
         {canAddVideos && (
           <div className={styles.headerActions}>
+            <button
+              onClick={() => setShowCategoryModal(true)}
+              className={styles.secondaryButton}
+            >
+              <FaCog /> Categorias
+            </button>
             <button
               onClick={() => handleOpenModal()}
               className={styles.addButton}
@@ -438,7 +482,7 @@ export default function BibliotecaVideos({ user }) {
                 className={styles.filterSelect}
               >
                 <option value="">Todas as categorias</option>
-                {CATEGORY_OPTIONS.map(category => (
+                {categories.map(category => (
                   <option key={category.value} value={category.value}>
                     {category.name}
                   </option>
@@ -700,11 +744,7 @@ export default function BibliotecaVideos({ user }) {
                   <div className={styles.metaItem}>
                     <FaEye /> <span>{viewingVideo.view_count || 0} visualizações</span>
                   </div>
-                  {viewingVideo.duration && (
-                    <div className={styles.metaItem}>
-                      <FaClock /> <span>{viewingVideo.duration}</span>
-                    </div>
-                  )}
+
                 </div>
 
                 <div className={styles.videoDescription}>
@@ -796,7 +836,7 @@ export default function BibliotecaVideos({ user }) {
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     className={styles.select}
                   >
-                    {CATEGORY_OPTIONS.map(category => (
+                    {categories.map(category => (
                       <option key={category.value} value={category.value}>
                         {category.name}
                       </option>
@@ -804,18 +844,7 @@ export default function BibliotecaVideos({ user }) {
                   </select>
                 </div>
 
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    <FaClock /> Duração
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.duration}
-                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                    placeholder="Ex: 5:30"
-                    className={styles.input}
-                  />
-                </div>
+
               </div>
 
               <div className={styles.formGroup}>
@@ -884,6 +913,108 @@ export default function BibliotecaVideos({ user }) {
               </button>
               <button onClick={handleSave} className={styles.saveButton}>
                 {editingVideo ? 'Salvar Alterações' : 'Adicionar Vídeo'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Gerenciamento de Categorias */}
+      {showCategoryModal && (
+        <div className={styles.modalOverlay} onClick={(e) => {
+          if (e.target === e.currentTarget) setShowCategoryModal(false);
+        }}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2>Gerenciar Categorias</h2>
+              <button onClick={() => setShowCategoryModal(false)} className={styles.closeButton}>
+                <FaTimes />
+              </button>
+            </div>
+            
+            <div className={styles.modalContent}>
+              {/* Adicionar nova categoria */}
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>
+                  <FaPlus /> Nova Categoria
+                </label>
+                <div className={styles.categoryInputGroup}>
+                  <input
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    placeholder="Nome da categoria"
+                    className={styles.input}
+                    onKeyPress={(e) => e.key === 'Enter' && addCategory()}
+                  />
+                  <button 
+                    onClick={addCategory} 
+                    className={styles.addButton}
+                    disabled={!newCategoryName.trim()}
+                  >
+                    <FaPlus /> Adicionar
+                  </button>
+                </div>
+              </div>
+
+              {/* Lista de categorias existentes */}
+              <div className={styles.categoriesList}>
+                <h4>Categorias Existentes:</h4>
+                {categories.map(category => (
+                  <div key={category.value} className={styles.categoryItem}>
+                    {editingCategory?.value === category.value ? (
+                      <div className={styles.categoryEditGroup}>
+                        <input
+                          type="text"
+                          value={newCategoryName}
+                          onChange={(e) => setNewCategoryName(e.target.value)}
+                          className={styles.input}
+                          onKeyPress={(e) => e.key === 'Enter' && saveEditCategory()}
+                        />
+                        <button onClick={saveEditCategory} className={styles.saveButton}>
+                          <FaCheck />
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setEditingCategory(null);
+                            setNewCategoryName('');
+                          }} 
+                          className={styles.cancelButton}
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={styles.categoryDisplay}>
+                        <span className={styles.categoryName}>{category.name}</span>
+                        <div className={styles.categoryActions}>
+                          <button 
+                            onClick={() => editCategory(category)}
+                            className={styles.editButton}
+                            title="Editar categoria"
+                          >
+                            <FaEdit />
+                          </button>
+                          {categories.length > 1 && (
+                            <button 
+                              onClick={() => deleteCategory(category.value)}
+                              className={styles.deleteButton}
+                              title="Excluir categoria"
+                            >
+                              <FaTrash />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button onClick={() => setShowCategoryModal(false)} className={styles.primaryButton}>
+                Concluído
               </button>
             </div>
           </div>

@@ -46,7 +46,7 @@
 }
 
 .addButton, .primaryButton {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 12px 20px;
@@ -58,12 +58,37 @@
   align-items: center;
   gap: 8px;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.25);
+  box-shadow: var(--shadow-sm);
 }
 
 .addButton:hover, .primaryButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  background: var(--primary-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.secondaryButton {
+  background: var(--box-color2);
+  color: var(--text-color);
+  border: 1px solid var(--color-border);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.secondaryButton:hover {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 /* Controles */
@@ -245,31 +270,32 @@
 /* Grid de vídeos */
 .videosGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
   margin-bottom: 40px;
 }
 
 .videoCard {
   background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   overflow: hidden;
-  transition: all 0.3s ease;
-  border-left: 4px solid #667eea;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .videoCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: var(--color-primary);
 }
 
 .videoThumbnail {
   position: relative;
-  height: 200px;
+  height: 180px;
   cursor: pointer;
   overflow: hidden;
-  background: var(--bg-primary);
+  background: var(--background-color);
 }
 
 .thumbnailImage {
@@ -289,12 +315,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-hover) 100%);
+  background: linear-gradient(135deg, var(--box-color) 0%, var(--background-color) 100%);
 }
 
 .videoIcon {
-  font-size: 48px;
-  color: var(--text-secondary);
+  font-size: 40px;
+  color: var(--text-color2);
 }
 
 .playOverlay {
@@ -302,25 +328,27 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  opacity: 0.9;
 }
 
 .playIcon {
   color: white;
-  font-size: 20px;
-  margin-left: 3px;
+  font-size: 18px;
+  margin-left: 2px;
 }
 
 .videoThumbnail:hover .playOverlay {
-  background: rgba(102, 126, 234, 0.9);
-  transform: translate(-50%, -50%) scale(1.1);
+  background: var(--color-primary);
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
 .durationBadge {
@@ -359,7 +387,7 @@
 
 .videoActions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -369,23 +397,27 @@
 }
 
 .editButton, .deleteButton {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
+  color: var(--text-color);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 6px;
+  border-radius: 6px;
   transition: all 0.2s ease;
+  font-size: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .editButton:hover {
-  color: #3b82f6;
-  background: rgba(59, 130, 246, 0.1);
+  background: var(--color-accent2);
+  color: white;
+  border-color: var(--color-accent2);
 }
 
 .deleteButton:hover {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--color-accent1);
+  color: white;
+  border-color: var(--color-accent1);
 }
 
 .videoDescription {
@@ -457,13 +489,15 @@
 }
 
 .category {
-  background: rgba(102, 126, 234, 0.1);
+  background: var(--labels-bg);
+  border: 1px solid var(--labels-border);
   color: var(--text-color);
-  padding: 2px 8px;
-  border-radius: 4px;
-  border-left: 3px solid #667eea;
+  padding: 4px 8px;
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .author {
@@ -536,25 +570,27 @@
 }
 
 .modal {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
   animation: modalSlideIn 0.3s ease;
+  box-shadow: var(--shadow-lg);
 }
 
 .viewModal {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   width: 100%;
   max-width: 1000px;
   max-height: 90vh;
   overflow-y: auto;
   animation: modalSlideIn 0.3s ease;
+  box-shadow: var(--shadow-lg);
 }
 
 .fullscreenModal {
@@ -580,7 +616,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .modalHeader h2, .viewTitle {
@@ -596,8 +632,8 @@
 }
 
 .fullscreenButton {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
   color: var(--text-color);
   padding: 8px;
   border-radius: 6px;
@@ -606,13 +642,15 @@
 }
 
 .fullscreenButton:hover {
-  background: var(--bg-hover);
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
 }
 
 .closeButton {
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: var(--text-color2);
   cursor: pointer;
   padding: 8px;
   border-radius: 6px;
@@ -620,8 +658,8 @@
 }
 
 .closeButton:hover {
-  color: var(--text-color);
-  background: var(--bg-hover);
+  color: white;
+  background: var(--color-accent1);
 }
 
 .modalContent {
@@ -656,7 +694,7 @@
   gap: 16px;
   margin-bottom: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .metaItem {
@@ -664,7 +702,7 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--text-color2);
 }
 
 .videoInfo h4 {
@@ -675,7 +713,7 @@
 }
 
 .videoInfo p {
-  color: var(--text-secondary);
+  color: var(--text-color2);
   margin: 0 0 16px 0;
   line-height: 1.6;
 }
@@ -693,39 +731,44 @@
   justify-content: flex-end;
   gap: 12px;
   padding: 20px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-border);
 }
 
 .cancelButton {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
+  background: var(--box-color2);
+  border: 1px solid var(--color-border);
   color: var(--text-color);
-  padding: 10px 20px;
-  border-radius: 6px;
+  padding: 12px 24px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
+  font-weight: 500;
   transition: all 0.2s ease;
 }
 
 .cancelButton:hover {
-  background: var(--bg-hover);
+  background: var(--color-accent1);
+  color: white;
+  border-color: var(--color-accent1);
 }
 
 .saveButton {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-primary);
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
+  padding: 12px 24px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
   transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .saveButton:hover {
+  background: var(--primary-light);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: var(--shadow-md);
 }
 
 /* Formulário */
@@ -759,9 +802,9 @@
 .input, .textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  background: var(--bg-primary);
+  background: var(--box-color);
   color: var(--text-color);
   font-size: 14px;
   transition: border-color 0.2s ease;
@@ -770,7 +813,7 @@
 
 .input:focus, .textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -783,7 +826,7 @@
   display: block;
   margin-top: 4px;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-color2);
 }
 
 .autocompleteContainer {
@@ -800,8 +843,8 @@
 }
 
 .addTagButton {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
   color: var(--text-color);
   padding: 10px 12px;
   border-radius: 6px;
@@ -811,7 +854,9 @@
 }
 
 .addTagButton:hover {
-  background: var(--bg-hover);
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
 }
 
 .suggestions {
@@ -819,14 +864,14 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   margin-top: 2px;
   max-height: 150px;
   overflow-y: auto;
   z-index: 10;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .suggestionItem {
@@ -841,7 +886,8 @@
 }
 
 .suggestionItem:hover {
-  background: var(--bg-hover);
+  background: var(--color-primary);
+  color: white;
 }
 
 .tagsDisplay {
@@ -915,4 +961,86 @@
   .tagsInput {
     flex-direction: column;
   }
+
+  .categoryInputGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .categoryDisplay {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .categoryActions {
+    align-self: flex-end;
+  }
+}
+
+/* Estilos para gerenciamento de categorias */
+.categoryInputGroup {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.categoryInputGroup .input {
+  flex: 1;
+}
+
+.categoriesList {
+  margin-top: 24px;
+}
+
+.categoriesList h4 {
+  color: var(--text-color);
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.categoryItem {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.categoryDisplay {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.categoryName {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.categoryActions {
+  display: flex;
+  gap: 8px;
+}
+
+.categoryEditGroup {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.categoryEditGroup .input {
+  flex: 1;
+  margin: 0;
+}
+
+.categoryEditGroup .saveButton,
+.categoryEditGroup .cancelButton {
+  padding: 8px 12px;
+  min-width: auto;
 } 
