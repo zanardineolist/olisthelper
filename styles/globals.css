@@ -164,8 +164,6 @@ html, body {
   background-color: var(--background-color);
   color: var(--text-color);
   font-family: 'Plus Jakarta Sans', sans-serif;
-  display: flex;
-  flex-direction: column;
 }
 
 #__next {
@@ -176,7 +174,6 @@ html, body {
 
 main {
   flex: 1;
-  padding: 20px;
   display: flex;
   flex-direction: column;
 }
@@ -187,7 +184,9 @@ main {
   text-align: center;
   padding: 15px 0;
   font-size: 0.9rem;
-  border-top: 1px solid #333;
+  border-top: 1px solid var(--color-border);
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 * {

@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
 import Navbar from '../components/Navbar';
@@ -90,7 +90,12 @@ export default function ToolsPage({ user }) {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [showLeftGradient, setShowLeftGradient] = useState(false);
+  const [showRightGradient, setShowRightGradient] = useState(false);
   const router = useRouter();
+  const tabsListRef = useRef(null);
   
   // Verifica se o usuário tem acesso ao contador de chamados
   const hasTicketCounterAccess = useMemo(() => 
@@ -124,6 +129,50 @@ export default function ToolsPage({ user }) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Verifica se pode fazer scroll nas tabs
+  const checkScrollButtons = () => {
+    if (tabsListRef.current && !isMobile) {
+      const { scrollLeft, scrollWidth, clientWidth } = tabsListRef.current;
+      const canLeft = scrollLeft > 0;
+      const canRight = scrollLeft < scrollWidth - clientWidth - 1;
+      
+      setCanScrollLeft(canLeft);
+      setCanScrollRight(canRight);
+      setShowLeftGradient(canLeft);
+      setShowRightGradient(canRight);
+    }
+  };
+
+  // Funções de scroll
+  const scrollTabs = (direction) => {
+    if (tabsListRef.current) {
+      const scrollAmount = 200;
+      const newScrollLeft = direction === 'left' 
+        ? tabsListRef.current.scrollLeft - scrollAmount
+        : tabsListRef.current.scrollLeft + scrollAmount;
+      
+      tabsListRef.current.scrollTo({
+        left: newScrollLeft,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Monitora scroll das tabs
+  useEffect(() => {
+    const tabsList = tabsListRef.current;
+    if (tabsList) {
+      checkScrollButtons();
+      tabsList.addEventListener('scroll', checkScrollButtons);
+      window.addEventListener('resize', checkScrollButtons);
+      
+      return () => {
+        tabsList.removeEventListener('scroll', checkScrollButtons);
+        window.removeEventListener('resize', checkScrollButtons);
+      };
+    }
+  }, [isMobile, availableTabs]);
+
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
@@ -147,6 +196,20 @@ export default function ToolsPage({ user }) {
     
     if (selectedTab) {
       router.push(`${window.location.pathname}${selectedTab.hash}`, undefined, { shallow: true });
+    }
+
+    // Scroll para mostrar a tab ativa em desktop
+    if (!isMobile && tabsListRef.current) {
+      setTimeout(() => {
+        const activeButton = tabsListRef.current.children[newValue];
+        if (activeButton) {
+          activeButton.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'center'
+          });
+        }
+      }, 100);
     }
   };
 
@@ -227,23 +290,52 @@ export default function ToolsPage({ user }) {
             </button>
           )}
 
-          {/* Tabs Container */}
-          <div className={`${styles.tabsContainer} ${isMobile && showMobileMenu ? styles.mobileMenuOpen : ''}`}>
-            <div className={styles.tabsList}>
-              {availableTabs.map((tab, index) => (
-                <button
-                  key={tab.id}
-                  className={`${styles.tabButton} ${currentTab === index ? styles.tabActive : ''}`}
-                  onClick={() => handleTabChange(index)}
-                  title={tab.description}
-                >
-                  <span className={styles.tabIcon}>{tab.icon}</span>
-                  <span className={styles.tabLabel}>{tab.label}</span>
-                  {currentTab === index && <div className={styles.tabIndicator} />}
-                </button>
-              ))}
-            </div>
-          </div>
+                     {/* Tabs Container */}
+           <div className={`${styles.tabsContainer} ${isMobile && showMobileMenu ? styles.mobileMenuOpen : ''}`}>
+             <div className={styles.tabsNavigation}>
+               {/* Botão Scroll Esquerda */}
+               {!isMobile && (
+                 <button
+                   className={`${styles.scrollButton} ${styles.scrollButtonLeft}`}
+                   onClick={() => scrollTabs('left')}
+                   disabled={!canScrollLeft}
+                   aria-label="Rolar tabs para esquerda"
+                 >
+                   ←
+                 </button>
+               )}
+               
+               {/* Lista de Tabs */}
+               <div className={`${styles.tabsListWrapper} ${showLeftGradient ? styles.showLeftGradient : ''} ${showRightGradient ? styles.showRightGradient : ''}`}>
+                 <div className={styles.tabsList} ref={tabsListRef}>
+                   {availableTabs.map((tab, index) => (
+                     <button
+                       key={tab.id}
+                       className={`${styles.tabButton} ${currentTab === index ? styles.tabActive : ''}`}
+                       onClick={() => handleTabChange(index)}
+                       title={tab.description}
+                     >
+                       <span className={styles.tabIcon}>{tab.icon}</span>
+                       <span className={styles.tabLabel}>{tab.label}</span>
+                       {currentTab === index && <div className={styles.tabIndicator} />}
+                     </button>
+                   ))}
+                 </div>
+               </div>
+
+               {/* Botão Scroll Direita */}
+               {!isMobile && (
+                 <button
+                   className={`${styles.scrollButton} ${styles.scrollButtonRight}`}
+                   onClick={() => scrollTabs('right')}
+                   disabled={!canScrollRight}
+                   aria-label="Rolar tabs para direita"
+                 >
+                   →
+                 </button>
+               )}
+             </div>
+           </div>
         </div>
 
         {/* Tab Content */}
