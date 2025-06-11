@@ -2,7 +2,6 @@ import Head from 'next/head';
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
-import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import TicketCounter from '../components/TicketCounter';
@@ -23,92 +22,74 @@ const TAB_CONFIG = [
   {
     id: 'MyBase',
     label: 'Minha Base',
+    icon: '📊',
     hash: '#MyBase',
     component: MinhaBase,
-    requiresTicketAccess: false
+    requiresTicketAccess: false,
+    description: 'Gerencie sua base de conhecimento pessoal'
   },
   {
     id: 'ErrosComuns',
     label: 'Base de Erros',
+    icon: '🔍',
     hash: '#ErrosComuns',
     component: ErrosComuns,
-    requiresTicketAccess: false
+    requiresTicketAccess: false,
+    description: 'Consulte erros comuns e suas soluções'
   },
   {
     id: 'TicketCounter',
     label: 'Contador de Chamados',
+    icon: '📈',
     hash: '#TicketCounter',
     component: TicketCounter,
-    requiresTicketAccess: true
+    requiresTicketAccess: true,
+    description: 'Acompanhe seus chamados e estatísticas'
   },
   {
     id: 'SharedMessages',
     label: 'Respostas Compartilhadas',
+    icon: '💬',
     hash: '#SharedMessages',
     component: SharedMessages,
-    requiresTicketAccess: false
+    requiresTicketAccess: false,
+    description: 'Acesse respostas padronizadas da equipe'
   },
   {
     id: 'CepIbgeValidator',
     label: 'Validador CEP',
+    icon: '📍',
     hash: '#CepIbgeValidator',
     component: CepIbgeValidator,
     requiresTicketAccess: false,
-    hasCustomContent: true
+    hasCustomContent: true,
+    description: 'Valide correspondência CEP x IBGE'
   },
   {
     id: 'SheetSplitter',
     label: 'Divisor de Planilhas',
+    icon: '📋',
     hash: '#SheetSplitter',
     component: SheetSplitter,
-    requiresTicketAccess: false
+    requiresTicketAccess: false,
+    description: 'Divida planilhas grandes em arquivos menores'
   },
   {
     id: 'BibliotecaVideos',
     label: 'Biblioteca de Vídeos',
+    icon: '🎥',
     hash: '#BibliotecaVideos',
     component: BibliotecaVideos,
-    requiresTicketAccess: false
+    requiresTicketAccess: false,
+    description: 'Acesse vídeos educativos e tutoriais'
   }
 ];
-
-const theme = createTheme({
-  components: {
-    MuiTabs: {
-      styleOverrides: {
-        root: {
-          backgroundColor: 'var(--tab-menu-bg)',
-          borderRadius: '5px',
-          marginBottom: '20px',
-          marginTop: '20px',
-        },
-        indicator: {
-          backgroundColor: 'var(--tab-menu-indicator)',
-          height: '4px',
-          borderRadius: '5px',
-        },
-      },
-    },
-    MuiTab: {
-      styleOverrides: {
-        root: {
-          color: 'var(--text-color)',
-          fontSize: '16px',
-          textTransform: 'none',
-          transition: 'color 0.3s ease, background-color 0.3s ease',
-          '&.Mui-selected': {
-            color: 'var(--color-white)',
-            backgroundColor: 'var(--color-primary)',
-          },
-        },
-      },
-    },
-  },
-});
 
 export default function ToolsPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const router = useRouter();
   
   // Verifica se o usuário tem acesso ao contador de chamados
@@ -132,6 +113,17 @@ export default function ToolsPage({ user }) {
     return mapping;
   }, [availableTabs]);
 
+  // Detecta se é mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
@@ -148,8 +140,9 @@ export default function ToolsPage({ user }) {
     }, 500);
   }, [hashToTabIndex]);
 
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (newValue) => {
     setCurrentTab(newValue);
+    setShowMobileMenu(false);
     const selectedTab = availableTabs[newValue];
     
     if (selectedTab) {
@@ -193,27 +186,71 @@ export default function ToolsPage({ user }) {
     );
   }
 
+  const currentTabConfig = availableTabs[currentTab];
+
   return (
     <>
       <Head>
-        <title>Ferramentas</title>
+        <title>Ferramentas - {currentTabConfig?.label || 'OlistHelper'}</title>
+        <meta name="description" content={currentTabConfig?.description || 'Ferramentas do OlistHelper'} />
       </Head>
 
       <Navbar user={user} />
 
       <main className={styles.main}>
-        <ThemeProvider theme={theme}>
-          <div className={styles.tabsContainer}>
-            <Tabs value={currentTab} onChange={handleTabChange} centered>
-              {availableTabs.map((tab) => (
-                <Tab key={tab.id} label={tab.label} />
-              ))}
-            </Tabs>
-          </div>
-        </ThemeProvider>
+        {/* Header da página */}
+        <div className={styles.pageHeader}>
+          <h1 className={styles.mainTitle}>Ferramentas</h1>
+          <p className={styles.mainDescription}>
+            Acesse todas as ferramentas disponíveis para otimizar seu trabalho
+          </p>
+        </div>
 
+        {/* Sistema de Tabs Moderno */}
+        <div className={styles.tabsWrapper}>
+          {/* Mobile Menu Button */}
+          {isMobile && (
+            <button 
+              className={styles.mobileMenuButton}
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              aria-label="Menu de ferramentas"
+            >
+              <span className={styles.mobileMenuIcon}>
+                {currentTabConfig?.icon}
+              </span>
+              <span className={styles.mobileMenuText}>
+                {currentTabConfig?.label}
+              </span>
+              <span className={styles.mobileMenuArrow}>
+                {showMobileMenu ? '▲' : '▼'}
+              </span>
+            </button>
+          )}
+
+          {/* Tabs Container */}
+          <div className={`${styles.tabsContainer} ${isMobile && showMobileMenu ? styles.mobileMenuOpen : ''}`}>
+            <div className={styles.tabsList}>
+              {availableTabs.map((tab, index) => (
+                <button
+                  key={tab.id}
+                  className={`${styles.tabButton} ${currentTab === index ? styles.tabActive : ''}`}
+                  onClick={() => handleTabChange(index)}
+                  title={tab.description}
+                >
+                  <span className={styles.tabIcon}>{tab.icon}</span>
+                  <span className={styles.tabLabel}>{tab.label}</span>
+                  {currentTab === index && <div className={styles.tabIndicator} />}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Content */}
         <div className={styles.tabContent}>
-          {renderTabContent()}
+          <div className={styles.tabPanel}>
+            {renderTabContent()}
+          </div>
         </div>
       </main>
 
