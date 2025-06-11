@@ -12,6 +12,7 @@ import CepIbgeInfo from '../components/CepIbgeInfo';
 import ErrosComuns from '../components/ErrosComuns';
 import SheetSplitter from '../components/SheetSplitter';
 import MinhaBase from '../components/MinhaBase';
+import BibliotecaVideos from '../components/BibliotecaVideos';
 import styles from '../styles/Tools.module.css';
 
 // Constantes para roles de usuário
@@ -60,6 +61,13 @@ const TAB_CONFIG = [
     label: 'Divisor de Planilhas',
     hash: '#SheetSplitter',
     component: SheetSplitter,
+    requiresTicketAccess: false
+  },
+  {
+    id: 'BibliotecaVideos',
+    label: 'Biblioteca de Vídeos',
+    hash: '#BibliotecaVideos',
+    component: BibliotecaVideos,
     requiresTicketAccess: false
   }
 ];
