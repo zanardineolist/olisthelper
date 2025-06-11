@@ -1,4 +1,5 @@
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 import { 
   getAllVideos, 
   createVideo, 
@@ -10,7 +11,15 @@ import {
 
 export default async function handler(req, res) {
   try {
-    const session = await getSession({ req });
+    const session = await getServerSession(req, res, authOptions);
+    
+    console.log('Session debug:', {
+      hasSession: !!session,
+      sessionId: session?.id,
+      sessionRole: session?.role,
+      userProfile: session?.user?.profile,
+      userEmail: session?.user?.email
+    });
     
     if (!session) {
       return res.status(401).json({ error: 'Não autorizado' });
@@ -83,7 +92,8 @@ async function handleGet(req, res, session) {
 async function handlePost(req, res, session) {
   try {
     // Verificar permissões (apenas analyst e tax podem criar)
-    if (!['analyst', 'tax'].includes(session.role)) {
+    const userProfile = session.role || session.user?.profile;
+    if (!['analyst', 'tax', 'super'].includes(userProfile)) {
       return res.status(403).json({ 
         error: 'Apenas analistas e usuários tax podem adicionar vídeos' 
       });

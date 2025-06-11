@@ -1,4 +1,5 @@
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../auth/[...nextauth]';
 import { 
   getVideoById, 
   updateVideo, 
@@ -9,7 +10,7 @@ import {
 
 export default async function handler(req, res) {
   try {
-    const session = await getSession({ req });
+    const session = await getServerSession(req, res, authOptions);
     
     if (!session) {
       return res.status(401).json({ error: 'Não autorizado' });
@@ -66,7 +67,8 @@ async function handlePut(req, res, session, videoId) {
     }
 
     // Verificar se o usuário pode editar (criador ou super)
-    const canEdit = existingVideo.created_by === session.id || session.role === 'super';
+    const userProfile = session.role || session.user?.profile;
+    const canEdit = existingVideo.created_by === session.id || userProfile === 'super';
     
     if (!canEdit) {
       return res.status(403).json({ error: 'Sem permissão para editar este vídeo' });
@@ -135,7 +137,8 @@ async function handleDelete(req, res, session, videoId) {
     }
 
     // Verificar se o usuário pode deletar (criador ou super)
-    const canDelete = existingVideo.created_by === session.id || session.role === 'super';
+    const userProfile = session.role || session.user?.profile;
+    const canDelete = existingVideo.created_by === session.id || userProfile === 'super';
     
     if (!canDelete) {
       return res.status(403).json({ error: 'Sem permissão para excluir este vídeo' });
