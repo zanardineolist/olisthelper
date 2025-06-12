@@ -56,7 +56,7 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 60px;
   position: relative;
 }
 
@@ -107,11 +107,11 @@
 }
 
 .scrollButtonLeft {
-  left: -18px;
+  left: -28px;
 }
 
 .scrollButtonRight {
-  right: -18px;
+  right: -28px;
 }
 
 .tabsListWrapper {
@@ -360,7 +360,7 @@
 
   .tabsContainer {
     display: none;
-    padding: 0;
+    padding: 0 20px;
     background-color: var(--box-color);
     border-top: 1px solid var(--border-color);
   }

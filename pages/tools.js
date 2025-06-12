@@ -135,8 +135,18 @@ export default function ToolsPage({ user }) {
   const checkScrollButtons = () => {
     if (tabsListRef.current && !isMobile) {
       const { scrollLeft, scrollWidth, clientWidth } = tabsListRef.current;
-      const canLeft = scrollLeft > 0;
-      const canRight = scrollLeft < scrollWidth - clientWidth - 1;
+      const canLeft = scrollLeft > 5; // Pequena margem para evitar problemas de precisão
+      const canRight = scrollLeft < scrollWidth - clientWidth - 5;
+      
+      // Debug temporário
+      console.log('Scroll Debug:', {
+        scrollLeft,
+        scrollWidth,
+        clientWidth,
+        canLeft,
+        canRight,
+        maxScroll: scrollWidth - clientWidth
+      });
       
       setCanScrollLeft(canLeft);
       setCanScrollRight(canRight);
@@ -149,26 +159,42 @@ export default function ToolsPage({ user }) {
   const scrollTabs = (direction) => {
     if (tabsListRef.current) {
       const scrollAmount = 200;
+      const currentScroll = tabsListRef.current.scrollLeft;
       const newScrollLeft = direction === 'left' 
-        ? tabsListRef.current.scrollLeft - scrollAmount
-        : tabsListRef.current.scrollLeft + scrollAmount;
+        ? Math.max(0, currentScroll - scrollAmount)
+        : currentScroll + scrollAmount;
       
       tabsListRef.current.scrollTo({
         left: newScrollLeft,
         behavior: 'smooth'
       });
+      
+      // Força verificação após scroll
+      setTimeout(() => {
+        checkScrollButtons();
+      }, 300);
     }
   };
 
   // Scroll horizontal com mouse wheel
   const handleWheelScroll = (e) => {
     if (tabsListRef.current && !isMobile) {
-      e.preventDefault();
-      const scrollAmount = e.deltaY > 0 ? 100 : -100;
-      tabsListRef.current.scrollBy({
-        left: scrollAmount,
-        behavior: 'smooth'
-      });
+      // Detecta se é scroll horizontal (deltaX) ou vertical (deltaY)
+      const deltaX = e.deltaX;
+      const deltaY = e.deltaY;
+      
+      // Se há deltaX (scroll horizontal nativo) ou deltaY (scroll vertical que queremos converter)
+      if (Math.abs(deltaX) > 0 || Math.abs(deltaY) > 0) {
+        e.preventDefault();
+        
+        // Usa deltaX se disponível, senão converte deltaY para horizontal
+        const scrollAmount = deltaX !== 0 ? deltaX : deltaY;
+        
+        tabsListRef.current.scrollBy({
+          left: scrollAmount,
+          behavior: 'smooth'
+        });
+      }
     }
   };
 
@@ -224,6 +250,15 @@ export default function ToolsPage({ user }) {
     }
   }, [isMobile, availableTabs, isDragging, dragStart]);
 
+  // Verifica botões quando as tabs disponíveis mudarem
+  useEffect(() => {
+    if (!loading) {
+      setTimeout(() => {
+        checkScrollButtons();
+      }, 200);
+    }
+  }, [availableTabs, loading]);
+
   useEffect(() => {
     setLoading(true);
     setTimeout(() => {
@@ -237,6 +272,11 @@ export default function ToolsPage({ user }) {
       }
       
       setLoading(false);
+      
+      // Força verificação dos botões após carregar
+      setTimeout(() => {
+        checkScrollButtons();
+      }, 100);
     }, 500);
   }, [hashToTabIndex]);
 
