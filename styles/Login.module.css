@@ -26,7 +26,7 @@
 }
 
 .leftSection {
-  padding: 70px 60px;
+  padding: 50px 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -35,9 +35,10 @@
   border-radius: 250px;
   position: relative;
   z-index: 2;
-  height: 100%;
+  height: 400px;
   width: 500px;
   min-width: 500px;
+  max-height: 400px;
 }
 
 .rightSection {
@@ -126,14 +127,16 @@
   }
   
   .leftSection {
-    flex: 0 0 400px;
-    height: 400px;
+    height: 350px;
+    max-height: 350px;
     width: 400px;
-    padding: 60px 50px;
+    min-width: 400px;
+    padding: 40px 50px;
   }
   
   .rightSection {
-    padding: 60px 50px;
+    padding: 60px 50px 60px 100px;
+    margin-left: -40px;
   }
 }
 
@@ -143,14 +146,16 @@
   }
   
   .leftSection {
-    flex: 0 0 350px;
-    height: 350px;
+    height: 320px;
+    max-height: 320px;
     width: 350px;
-    padding: 50px 40px;
+    min-width: 350px;
+    padding: 35px 40px;
   }
   
   .rightSection {
-    padding: 50px 40px;
+    padding: 50px 40px 50px 90px;
+    margin-left: -30px;
   }
 }
 
