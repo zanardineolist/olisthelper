@@ -32,10 +32,9 @@
   justify-content: center;
   align-items: center;
   background: white;
-  border-radius: 50%;
+  border-radius: 250px;
   position: relative;
   z-index: 2;
-  aspect-ratio: 1;
   height: 100%;
   width: 500px;
   min-width: 500px;
@@ -43,14 +42,14 @@
 
 .rightSection {
   flex: 1;
-  padding: 70px 60px;
+  padding: 70px 60px 70px 120px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   background: transparent;
   color: white;
   border-radius: 300px;
-  margin-left: -100px;
+  margin-left: -50px;
   position: relative;
   z-index: 1;
   min-height: 480px;
