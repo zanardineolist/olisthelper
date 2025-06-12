@@ -401,6 +401,20 @@ export default function BibliotecaVideos({ user }) {
     return category?.name || categoryValue;
   };
 
+  const getCategoryColor = (categoryValue) => {
+    const colors = {
+      'geral': 'var(--color-primary)',
+      'suporte-tecnico': 'var(--color-accent2)',
+      'fiscal': 'var(--color-accent1)',
+      'financeiro': 'var(--color-accent3)',
+      'onboarding': 'var(--color-accent4)',
+      'treinamento': '#6B46C1',
+      'produto': '#EC4899',
+      'procedimentos': '#06B6D4'
+    };
+    return colors[categoryValue] || 'var(--color-primary)';
+  };
+
   const toggleFullscreen = (videoId) => {
     setVideoPlayer(prev => ({
       isFullscreen: !prev.isFullscreen,
@@ -543,6 +557,12 @@ export default function BibliotecaVideos({ user }) {
 
           {hasActiveFilters() && (
             <div className={styles.activeFiltersIndicator}>
+              <div className={styles.activeFiltersInfo}>
+                <FaFilter className={styles.activeFiltersIcon} />
+                <span className={styles.activeFiltersText}>
+                  Filtros ativos aplicados
+                </span>
+              </div>
               <button
                 onClick={clearAllFilters}
                 className={styles.clearAllFiltersButton}
@@ -558,8 +578,9 @@ export default function BibliotecaVideos({ user }) {
       {/* Contador de resultados */}
       {!loading && (
         <div className={styles.resultsCounter}>
-          <span>
+          <span className={hasActiveFilters() ? styles.resultsFiltered : ''}>
             {videos.length} vídeo{videos.length === 1 ? '' : 's'} encontrado{videos.length === 1 ? '' : 's'}
+            {hasActiveFilters() && ' (filtrado)'}
           </span>
         </div>
       )}
