@@ -54,9 +54,9 @@
 
 .tabsContainer {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 0 110px;
+  padding: 0 140px;
   position: relative;
 }
 
@@ -84,7 +84,6 @@
   font-weight: 700;
   box-shadow: var(--shadow-lg);
   border: 2px solid var(--border-color);
-  transition: all 0.3s ease;
   z-index: 10;
   opacity: 0.8;
 }
@@ -93,7 +92,6 @@
   background: var(--color-primary);
   color: var(--color-white);
   border-color: var(--color-primary);
-  transform: translateY(-50%) scale(1.1);
   opacity: 1;
   box-shadow: var(--shadow-lg);
 }
@@ -101,17 +99,16 @@
 .scrollButton:disabled {
   opacity: 0.2;
   cursor: not-allowed;
-  transform: translateY(-50%);
   background: var(--box-color);
   color: var(--text-muted);
 }
 
 .scrollButtonLeft {
-  left: -70px;
+  left: -100px;
 }
 
 .scrollButtonRight {
-  right: -70px;
+  right: -100px;
 }
 
 .tabsListWrapper {
@@ -143,7 +140,6 @@
   width: 30px;
   pointer-events: none;
   z-index: 5;
-  transition: opacity 0.4s ease;
 }
 
 .tabsListWrapper::before {
@@ -169,7 +165,7 @@
 .tabsList {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 14px;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -194,7 +190,6 @@
   font-weight: 500;
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
   white-space: nowrap;
   min-height: 48px;
   font-family: inherit;
@@ -203,7 +198,6 @@
 .tabButton:hover {
   background-color: var(--box-color);
   color: var(--text-primary);
-  transform: translateY(-1px);
 }
 
 .tabButton.tabActive {
@@ -215,7 +209,6 @@
 
 .tabButton.tabActive:hover {
   background-color: var(--primary-light);
-  transform: translateY(-1px);
 }
 
 .tabIcon {
@@ -293,21 +286,9 @@
 
 .tabPanel {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 32px 20px;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* ========================================
