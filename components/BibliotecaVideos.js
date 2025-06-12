@@ -669,7 +669,6 @@ export default function BibliotecaVideos({ user }) {
             <div
               key={video.id}
               className={styles.videoCard}
-              style={{ borderLeftColor: getCategoryColor(video.category) }}
             >
               {/* Thumbnail/Preview */}
               <div className={styles.videoThumbnail} onClick={() => handleViewVideo(video)}>
