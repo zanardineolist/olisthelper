@@ -422,19 +422,7 @@
   transform: translate(-50%, -50%) scale(1.05);
 }
 
-.durationBadge {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
+
 
 .videoContent {
   padding: 16px;

@@ -97,7 +97,7 @@ export async function createVideo(videoData) {
         thumbnail_url: videoData.thumbnailUrl || null,
         tags: videoData.tags || [],
         category: videoData.category || 'geral',
-        duration: videoData.duration || null,
+
         file_size: videoData.fileSize || null,
         created_by: videoData.userId
       }])
@@ -129,7 +129,7 @@ export async function updateVideo(videoId, updates) {
         thumbnail_url: updates.thumbnailUrl,
         tags: updates.tags,
         category: updates.category,
-        duration: updates.duration,
+
         file_size: updates.fileSize,
         updated_at: new Date()
       })

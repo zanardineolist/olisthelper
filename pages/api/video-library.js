@@ -99,7 +99,7 @@ async function handlePost(req, res, session) {
       });
     }
 
-    const { title, description, videoUrl, tags, category, duration, fileSize } = req.body;
+    const { title, description, videoUrl, tags, category, fileSize } = req.body;
 
     // Validação básica
     if (!title || !title.trim()) {
@@ -128,7 +128,7 @@ async function handlePost(req, res, session) {
       thumbnailUrl: urlValidation.thumbnailUrl,
       tags: tags || [],
       category: category?.trim() || 'geral',
-      duration: duration?.trim() || null,
+
       fileSize: fileSize?.trim() || null,
       userId: session.id
     };

@@ -74,7 +74,7 @@ async function handlePut(req, res, session, videoId) {
       return res.status(403).json({ error: 'Sem permissão para editar este vídeo' });
     }
 
-    const { title, description, videoUrl, tags, category, duration, fileSize } = req.body;
+    const { title, description, videoUrl, tags, category, fileSize } = req.body;
 
     // Validação básica
     if (!title || !title.trim()) {
@@ -110,7 +110,7 @@ async function handlePut(req, res, session, videoId) {
       thumbnailUrl,
       tags: tags || [],
       category: category?.trim() || 'geral',
-      duration: duration?.trim() || null,
+
       fileSize: fileSize?.trim() || null
     };
 

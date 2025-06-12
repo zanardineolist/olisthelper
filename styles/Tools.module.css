@@ -47,7 +47,7 @@
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
-  top: 75px;
+  top: 65px;
   z-index: 100;
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.3s ease;

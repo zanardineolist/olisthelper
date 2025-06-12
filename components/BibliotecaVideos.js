@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaPlay, FaEye, FaTag, FaFilter, FaTimes, FaFolder, FaCalendarAlt, FaUser, FaVideo, FaClock, FaFileAlt, FaAlignLeft, FaLink, FaExpand, FaCompress, FaCog, FaCheck, FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaPlay, FaEye, FaTag, FaFilter, FaTimes, FaFolder, FaCalendarAlt, FaUser, FaVideo, FaFileAlt, FaAlignLeft, FaLink, FaExpand, FaCompress, FaCog, FaCheck, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { ThreeDotsLoader } from './LoadingIndicator';
 import styles from '../styles/BibliotecaVideos.module.css';
@@ -617,11 +617,7 @@ export default function BibliotecaVideos({ user }) {
                 <div className={styles.playOverlay}>
                   <FaPlay className={styles.playIcon} />
                 </div>
-                {video.duration && (
-                  <div className={styles.durationBadge}>
-                    <FaClock /> {video.duration}
-                  </div>
-                )}
+
               </div>
 
               {/* Conteúdo do Card */}
