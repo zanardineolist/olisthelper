@@ -107,6 +107,7 @@ export default function ToolsPage({ user }) {
   const [showRightGradient, setShowRightGradient] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, scrollLeft: 0 });
+  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
   const tabsListRef = useRef(null);
   
@@ -140,6 +141,17 @@ export default function ToolsPage({ user }) {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Detecta scroll da página para aplicar efeito nas tabs
+  useEffect(() => {
+    const handlePageScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      setIsScrolled(scrollTop > 100); // Aplica efeito após 100px de scroll
+    };
+
+    window.addEventListener('scroll', handlePageScroll);
+    return () => window.removeEventListener('scroll', handlePageScroll);
   }, []);
 
   // Verifica se pode fazer scroll nas tabs
@@ -386,7 +398,7 @@ export default function ToolsPage({ user }) {
         </div>
 
         {/* Sistema de Tabs Moderno */}
-        <div className={styles.tabsWrapper}>
+        <div className={`${styles.tabsWrapper} ${isScrolled ? styles.scrolled : ''}`}>
           {/* Mobile Menu Button */}
           {isMobile && (
                          <button 

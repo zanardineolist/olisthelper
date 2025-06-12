@@ -47,9 +47,14 @@
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
-  top: 50px;
+  top: 75px;
   z-index: 100;
   box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s ease;
+}
+
+.tabsWrapper.scrolled {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .tabsContainer {
