@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Erro ao buscar metas:', error);
+
     res.status(500).json({ 
       success: false,
       message: 'Erro interno do servidor',

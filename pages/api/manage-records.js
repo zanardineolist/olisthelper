@@ -26,7 +26,7 @@ export default async function handler(req, res) {
   try {
     switch (method) {
       case 'GET':
-        console.log('Método GET chamado - Carregando registros...');
+    
         const { data: records, error: fetchError } = await supabaseAdmin
           .from('help_records')
           .select(`
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ records: formattedRecords });
 
       case 'PUT':
-        console.log('Método PUT chamado - Atualizando registro...');
+
         const { record } = req.body;
         const recordId = record.id;
 
@@ -123,7 +123,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ message: 'Registro atualizado com sucesso' });
 
       case 'DELETE':
-        console.log('Método DELETE chamado - Excluindo registro...');
+
         const deleteId = req.query.recordId;
 
         if (!deleteId) {
@@ -172,7 +172,7 @@ export default async function handler(req, res) {
         return res.status(405).end(`Método ${method} não permitido`);
     }
   } catch (error) {
-    console.error('Erro ao processar requisição de registros:', error);
+
     return res.status(500).json({ error: 'Erro ao processar requisição' });
   }
 }

@@ -9,16 +9,7 @@ export async function logAction(userId, userName, userRole, action, target, prev
       return;
     }
 
-    console.log("Tentando registrar log no Firebase com os seguintes dados:", {
-      userId,
-      userName,
-      userRole,
-      action,
-      target,
-      previousData,
-      updatedData,
-      endpointName,
-    });
+
 
     // Cria uma coleção específica para o endpoint
     const logsCollection = collection(db, `logs_${endpointName}`);
@@ -33,7 +24,7 @@ export async function logAction(userId, userName, userRole, action, target, prev
       timestamp: serverTimestamp(),
     });
 
-    console.log(`Log registrado com sucesso na coleção logs_${endpointName} com ID: ${docRef.id}`);
+
   } catch (error) {
     console.error("Erro ao registrar log no Firebase:", error);
   }

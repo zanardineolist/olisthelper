@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ topics });
   } catch (error) {
-    console.error('Erro ao buscar temas de dúvidas:', error);
+
     return res.status(500).json({ message: 'Erro interno do servidor' });
   }
 } 

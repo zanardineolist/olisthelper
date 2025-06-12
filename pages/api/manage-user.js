@@ -26,7 +26,7 @@ export default async function handler(req, res) {
   try {
     switch (method) {
       case 'GET':
-        console.log('Método GET chamado - Carregando usuários...');
+
         const { data: users, error: fetchError } = await supabase
           .from('users')
           .select('*')
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ users: mappedUsers });
 
       case 'POST':
-        console.log('Método POST chamado - Adicionando novo usuário...');
+
         const newUser = req.body;
 
         // Verificar email duplicado
@@ -93,7 +93,7 @@ export default async function handler(req, res) {
         return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: insertedUser.id });
 
       case 'PUT':
-        console.log('Método PUT chamado - Atualizando usuário...');
+
         const updatedUser = req.body;
         const originalEmail = updatedUser.originalEmail; // E-mail original
 
@@ -143,7 +143,7 @@ export default async function handler(req, res) {
             .eq('requester_email', originalEmail);
 
           if (helpRecordsError) {
-            console.error('Erro ao atualizar email em help_records:', helpRecordsError);
+  
           }
 
           // Atualizar outros registros que possam ter referência ao e-mail do usuário
@@ -179,7 +179,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ message: 'Usuário atualizado com sucesso.' });
 
       case 'DELETE':
-        console.log('Método DELETE chamado - Inativando usuário...');
+
         const deleteUserId = req.query.id;
 
         if (!deleteUserId) {
@@ -229,7 +229,7 @@ export default async function handler(req, res) {
       return res.status(405).end(`Método ${method} não permitido.`);
   }
 } catch (error) {
-  console.error('Erro ao processar requisição de usuário:', error);
+  
   return res.status(500).json({ error: 'Erro ao processar requisição.' });
 }
 }

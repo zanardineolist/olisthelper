@@ -89,8 +89,7 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
       const todayCount = todayData.length;
       
       // Log para debug
-      console.log(`Contagem do dia atual para analista ${analystId}: ${todayCount}`);
-      console.log(`Período: ${today.toISOString()} até ${tomorrow.toISOString()}`);
+      
 
       return {
         currentMonth: currentMonthCount,

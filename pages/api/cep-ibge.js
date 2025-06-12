@@ -22,14 +22,14 @@ export default async function handler(req, res) {
   try {
     // Verificar se o resultado está em cache
     if (cepCache.has(cepNumerico)) {
-      console.log(`Usando cache para o CEP ${cepNumerico}`);
+
       
       // Incrementar contador de buscas no banco mesmo quando usar o cache em memória
       try {
         await supabaseAdmin
           .rpc('increment_cep_search_count', { cep_param: cepNumerico });
       } catch (counterError) {
-        console.error('Erro ao incrementar contador de buscas:', counterError);
+        // Falha silenciosa no contador
       }
       
       return res.status(200).json(cepCache.get(cepNumerico));
@@ -43,14 +43,14 @@ export default async function handler(req, res) {
       .single();
 
     if (!cepCacheError && cepCacheData) {
-      console.log(`Usando cache do banco para o CEP ${cepNumerico}`);
+      
       
       // Incrementar contador de buscas no banco
       try {
         await supabaseAdmin
           .rpc('increment_cep_search_count', { cep_param: cepNumerico });
       } catch (counterError) {
-        console.error('Erro ao incrementar contador de buscas:', counterError);
+        // Falha silenciosa no contador
       }
       
       // Atualizar o cache em memória
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     }
 
     // Consultar API do ViaCEP
-    console.log(`Consultando ViaCEP para o CEP ${cepNumerico}`);
+    
     const viaCepResponse = await fetch(`https://viacep.com.br/ws/${cepNumerico}/json/`);
     
     if (!viaCepResponse.ok) {
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
     }
 
     // Consultar API do IBGE para obter a nomenclatura oficial
-    console.log(`Consultando IBGE para o código ${codigoIBGE}`);
+    
     const ibgeResponse = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/municipios/${codigoIBGE}`);
     
     if (!ibgeResponse.ok) {
@@ -134,13 +134,11 @@ export default async function handler(req, res) {
           search_count: 1
         });
     } catch (cacheError) {
-      // Apenas registrar erro de cache, não interromper a resposta
-      console.error('Erro ao armazenar no cache:', cacheError);
+      // Falha silenciosa no cache
     }
 
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Erro ao processar solicitação:', error);
     return res.status(500).json({ error: 'Erro ao processar solicitação', message: error.message });
   }
 }

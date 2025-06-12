@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   try {
     switch (method) {
       case 'GET':
-        console.log('Método GET chamado - Carregando categorias...');
+
         const categories = await getAllCategories();
         
         // Mapear UUIDs para IDs incrementais para manter compatibilidade com frontend
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
         });
 
       case 'POST':
-        console.log('Método POST chamado - Adicionando nova categoria...');
+
         const newCategoryName = req.body.name;
         
         if (!newCategoryName) {
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
         return res.status(201).json({ message: 'Categoria adicionada com sucesso.' });
 
       case 'PUT':
-        console.log('Método PUT chamado - Atualizando categoria...');
+
         const { name: updatedName, uuid: categoryUuid } = req.body;
 
         if (!updatedName || !categoryUuid) {
@@ -102,7 +102,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ message: 'Categoria atualizada com sucesso.' });
 
       case 'DELETE':
-        console.log('Método DELETE chamado - Excluindo categoria...');
+
         const deleteId = req.query.index;
 
         // Primeiro obtemos todas as categorias para mapear o ID incremental para UUID
@@ -143,7 +143,7 @@ export default async function handler(req, res) {
         return res.status(405).end(`Método ${method} não permitido.`);
     }
   } catch (error) {
-    console.error('Erro ao processar requisição de categoria:', error);
+
     return res.status(500).json({ error: 'Erro ao processar requisição.' });
   }
 }
@@ -159,7 +159,7 @@ async function getCategoryById(categoryId) {
     if (error) throw error;
     return data;
   } catch (error) {
-    console.error('Erro ao buscar categoria por ID:', error);
+
     return null;
   }
 }

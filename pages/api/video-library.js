@@ -13,13 +13,7 @@ export default async function handler(req, res) {
   try {
     const session = await getServerSession(req, res, authOptions);
     
-    console.log('Session debug:', {
-      hasSession: !!session,
-      sessionId: session?.id,
-      sessionRole: session?.role,
-      userProfile: session?.user?.profile,
-      userEmail: session?.user?.email
-    });
+
     
     if (!session) {
       return res.status(401).json({ error: 'Não autorizado' });
@@ -37,7 +31,6 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Método não permitido' });
     }
   } catch (error) {
-    console.error('Erro na API video-library:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -84,7 +77,6 @@ async function handleGet(req, res, session) {
         });
     }
   } catch (error) {
-    console.error('Erro ao buscar vídeos:', error);
     return res.status(500).json({ error: 'Erro ao buscar vídeos' });
   }
 }
@@ -146,7 +138,6 @@ async function handlePost(req, res, session) {
     });
 
   } catch (error) {
-    console.error('Erro ao criar vídeo:', error);
     return res.status(500).json({ error: 'Erro ao adicionar vídeo' });
   }
 } 

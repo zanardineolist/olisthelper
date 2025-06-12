@@ -161,15 +161,7 @@ export default function ToolsPage({ user }) {
       const canLeft = scrollLeft > 5; // Pequena margem para evitar problemas de precisão
       const canRight = scrollLeft < scrollWidth - clientWidth - 5;
       
-      // Debug temporário
-      console.log('Scroll Debug:', {
-        scrollLeft,
-        scrollWidth,
-        clientWidth,
-        canLeft,
-        canRight,
-        maxScroll: scrollWidth - clientWidth
-      });
+
       
       setCanScrollLeft(canLeft);
       setCanScrollRight(canRight);

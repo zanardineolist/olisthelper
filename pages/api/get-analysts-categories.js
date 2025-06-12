@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({ analysts, categories: formattedCategories });
   } catch (error) {
-    console.error('Erro ao obter analistas e categorias:', error);
+
     res.status(500).json({ error: 'Erro ao carregar dados.' });
   }
 }
