@@ -32,7 +32,7 @@
   justify-content: center;
   align-items: center;
   background: white;
-  border-radius: 240px;
+  border-radius: 120px;
   position: relative;
   z-index: 2;
   height: 480px;
@@ -128,12 +128,12 @@
   }
   
   .leftSection {
-    height: 400px;
-    max-height: 400px;
+    height: 480px;
+    max-height: 480px;
     width: 400px;
     min-width: 400px;
-    padding: 50px 50px;
-    border-radius: 200px;
+    padding: 60px 50px;
+    border-radius: 120px;
     margin-left: 15px;
   }
   
@@ -149,12 +149,12 @@
   }
   
   .leftSection {
-    height: 350px;
-    max-height: 350px;
+    height: 480px;
+    max-height: 480px;
     width: 350px;
     min-width: 350px;
-    padding: 45px 40px;
-    border-radius: 175px;
+    padding: 60px 40px;
+    border-radius: 120px;
     margin-left: 10px;
   }
   
