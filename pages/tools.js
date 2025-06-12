@@ -2,6 +2,17 @@ import Head from 'next/head';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
+import { 
+  FaDatabase, 
+  FaSearch, 
+  FaChartLine, 
+  FaComments, 
+  FaMapMarkerAlt, 
+  FaFileExcel, 
+  FaVideo,
+  FaChevronLeft,
+  FaChevronRight
+} from 'react-icons/fa';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import TicketCounter from '../components/TicketCounter';
@@ -22,7 +33,7 @@ const TAB_CONFIG = [
   {
     id: 'MyBase',
     label: 'Minha Base',
-    icon: '📊',
+    icon: FaDatabase,
     hash: '#MyBase',
     component: MinhaBase,
     requiresTicketAccess: false,
@@ -31,7 +42,7 @@ const TAB_CONFIG = [
   {
     id: 'ErrosComuns',
     label: 'Base de Erros',
-    icon: '🔍',
+    icon: FaSearch,
     hash: '#ErrosComuns',
     component: ErrosComuns,
     requiresTicketAccess: false,
@@ -40,7 +51,7 @@ const TAB_CONFIG = [
   {
     id: 'TicketCounter',
     label: 'Contador de Chamados',
-    icon: '📈',
+    icon: FaChartLine,
     hash: '#TicketCounter',
     component: TicketCounter,
     requiresTicketAccess: true,
@@ -49,7 +60,7 @@ const TAB_CONFIG = [
   {
     id: 'SharedMessages',
     label: 'Respostas Compartilhadas',
-    icon: '💬',
+    icon: FaComments,
     hash: '#SharedMessages',
     component: SharedMessages,
     requiresTicketAccess: false,
@@ -58,7 +69,7 @@ const TAB_CONFIG = [
   {
     id: 'CepIbgeValidator',
     label: 'Validador CEP',
-    icon: '📍',
+    icon: FaMapMarkerAlt,
     hash: '#CepIbgeValidator',
     component: CepIbgeValidator,
     requiresTicketAccess: false,
@@ -68,7 +79,7 @@ const TAB_CONFIG = [
   {
     id: 'SheetSplitter',
     label: 'Divisor de Planilhas',
-    icon: '📋',
+    icon: FaFileExcel,
     hash: '#SheetSplitter',
     component: SheetSplitter,
     requiresTicketAccess: false,
@@ -77,7 +88,7 @@ const TAB_CONFIG = [
   {
     id: 'BibliotecaVideos',
     label: 'Biblioteca de Vídeos',
-    icon: '🎥',
+    icon: FaVideo,
     hash: '#BibliotecaVideos',
     component: BibliotecaVideos,
     requiresTicketAccess: false,
@@ -378,21 +389,21 @@ export default function ToolsPage({ user }) {
         <div className={styles.tabsWrapper}>
           {/* Mobile Menu Button */}
           {isMobile && (
-            <button 
-              className={styles.mobileMenuButton}
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              aria-label="Menu de ferramentas"
-            >
-              <span className={styles.mobileMenuIcon}>
-                {currentTabConfig?.icon}
-              </span>
-              <span className={styles.mobileMenuText}>
-                {currentTabConfig?.label}
-              </span>
-              <span className={styles.mobileMenuArrow}>
-                {showMobileMenu ? '▲' : '▼'}
-              </span>
-            </button>
+                         <button 
+               className={styles.mobileMenuButton}
+               onClick={() => setShowMobileMenu(!showMobileMenu)}
+               aria-label="Menu de ferramentas"
+             >
+               <span className={styles.mobileMenuIcon}>
+                 {currentTabConfig?.icon && <currentTabConfig.icon />}
+               </span>
+               <span className={styles.mobileMenuText}>
+                 {currentTabConfig?.label}
+               </span>
+               <span className={styles.mobileMenuArrow}>
+                 {showMobileMenu ? '▲' : '▼'}
+               </span>
+             </button>
           )}
 
                      {/* Tabs Container */}
@@ -406,7 +417,7 @@ export default function ToolsPage({ user }) {
                    disabled={!canScrollLeft}
                    aria-label="Rolar tabs para esquerda"
                  >
-                   ←
+                   <FaChevronLeft />
                  </button>
                )}
                
@@ -420,7 +431,9 @@ export default function ToolsPage({ user }) {
                        onClick={() => handleTabChange(index)}
                        title={tab.description}
                      >
-                       <span className={styles.tabIcon}>{tab.icon}</span>
+                       <span className={styles.tabIcon}>
+                         <tab.icon />
+                       </span>
                        <span className={styles.tabLabel}>{tab.label}</span>
                        {currentTab === index && <div className={styles.tabIndicator} />}
                      </button>
@@ -436,7 +449,7 @@ export default function ToolsPage({ user }) {
                    disabled={!canScrollRight}
                    aria-label="Rolar tabs para direita"
                  >
-                   →
+                   <FaChevronRight />
                  </button>
                )}
              </div>

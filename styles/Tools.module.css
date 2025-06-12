@@ -80,7 +80,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   box-shadow: var(--shadow-lg);
   border: 2px solid var(--border-color);
@@ -212,11 +212,12 @@
 }
 
 .tabIcon {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 20px;
+  color: inherit;
 }
 
 .tabLabel {
@@ -256,7 +257,11 @@
 }
 
 .mobileMenuIcon {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
 }
 
 .mobileMenuText {
