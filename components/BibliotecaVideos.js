@@ -4,16 +4,7 @@ import Swal from 'sweetalert2';
 import { ThreeDotsLoader } from './LoadingIndicator';
 import styles from '../styles/BibliotecaVideos.module.css';
 
-const DEFAULT_CATEGORIES = [
-  { value: 'geral', name: 'Geral' },
-  { value: 'suporte-tecnico', name: 'Suporte Técnico' },
-  { value: 'fiscal', name: 'Fiscal' },
-  { value: 'financeiro', name: 'Financeiro' },
-  { value: 'onboarding', name: 'Onboarding' },
-  { value: 'treinamento', name: 'Treinamento' },
-  { value: 'produto', name: 'Produto' },
-  { value: 'procedimentos', name: 'Procedimentos' }
-];
+
 
 export default function BibliotecaVideos({ user }) {
   const [videos, setVideos] = useState([]);
@@ -41,7 +32,7 @@ export default function BibliotecaVideos({ user }) {
   });
 
   // Estados para gerenciamento de categorias
-  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [categories, setCategories] = useState([]);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [editingCategory, setEditingCategory] = useState(null);
 
@@ -56,6 +47,13 @@ export default function BibliotecaVideos({ user }) {
 
   // Verificar se o usuário pode adicionar vídeos
   const canAddVideos = ['analyst', 'tax'].includes(user?.profile);
+
+  // Carrega categorias apenas uma vez
+  useEffect(() => {
+    if (user?.id && categories.length === 0) {
+      loadCategories();
+    }
+  }, [user?.id]);
 
   // Carrega dados iniciais
   useEffect(() => {
@@ -118,6 +116,31 @@ export default function BibliotecaVideos({ user }) {
     return result.isConfirmed;
   };
 
+  const loadCategories = async () => {
+    try {
+      const response = await fetch('/api/video-categories');
+      
+      if (!response.ok) {
+        throw new Error('Erro ao carregar categorias');
+      }
+
+      const data = await response.json();
+      setCategories(data.categories || []);
+      
+      // Se não há categoria selecionada no form e há categorias disponíveis, selecionar a primeira
+      if (!formData.category && data.categories && data.categories.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          category: data.categories[0].value
+        }));
+      }
+      
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error);
+      showToast('Erro ao carregar categorias', 'error');
+    }
+  };
+
   const loadVideos = useCallback(async () => {
     try {
       setLoading(true);
@@ -167,7 +190,7 @@ export default function BibliotecaVideos({ user }) {
       description: '',
       videoUrl: '',
       tags: [],
-      category: 'geral',
+      category: categories.length > 0 ? categories[0].value : '',
       fileSize: ''
     });
     setEditingVideo(null);
@@ -315,14 +338,34 @@ export default function BibliotecaVideos({ user }) {
   };
 
   // Funções para gerenciar categorias
-  const addCategory = () => {
-    if (newCategoryName.trim() && !categories.find(cat => cat.name.toLowerCase() === newCategoryName.trim().toLowerCase())) {
-      const newCategory = {
-        value: newCategoryName.trim().toLowerCase().replace(/\s+/g, '-'),
-        name: newCategoryName.trim()
-      };
-      setCategories(prev => [...prev, newCategory]);
+  const addCategory = async () => {
+    if (!newCategoryName.trim()) return;
+    
+    try {
+      const categoryValue = newCategoryName.trim().toLowerCase().replace(/\s+/g, '-');
+      
+      const response = await fetch('/api/video-categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newCategoryName.trim(),
+          value: categoryValue
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Erro ao criar categoria');
+      }
+
+      showToast('Categoria criada com sucesso!', 'success');
       setNewCategoryName('');
+      loadCategories(); // Recarregar categorias
+      
+    } catch (error) {
+      console.error('Erro ao criar categoria:', error);
+      showToast(error.message || 'Erro ao criar categoria', 'error');
     }
   };
 
@@ -331,27 +374,63 @@ export default function BibliotecaVideos({ user }) {
     setNewCategoryName(category.name);
   };
 
-  const saveEditCategory = () => {
-    if (newCategoryName.trim() && editingCategory) {
-      setCategories(prev => prev.map(cat => 
-        cat.value === editingCategory.value 
-          ? { ...cat, name: newCategoryName.trim() }
-          : cat
-      ));
+  const saveEditCategory = async () => {
+    if (!newCategoryName.trim() || !editingCategory) return;
+    
+    try {
+      const response = await fetch(`/api/video-categories/${editingCategory.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newCategoryName.trim()
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Erro ao atualizar categoria');
+      }
+
+      showToast('Categoria atualizada com sucesso!', 'success');
       setEditingCategory(null);
       setNewCategoryName('');
+      loadCategories(); // Recarregar categorias
+      
+    } catch (error) {
+      console.error('Erro ao atualizar categoria:', error);
+      showToast(error.message || 'Erro ao atualizar categoria', 'error');
     }
   };
 
-  const deleteCategory = (categoryValue) => {
-    if (categories.length > 1) { // Manter pelo menos uma categoria
-      setCategories(prev => prev.filter(cat => cat.value !== categoryValue));
-      // Se algum vídeo usar essa categoria, mudar para 'geral'
-      setVideos(prev => prev.map(video => 
-        video.category === categoryValue 
-          ? { ...video, category: 'geral' }
-          : video
-      ));
+  const deleteCategory = async (categoryId) => {
+    try {
+      const confirmed = await showConfirmation(
+        'Excluir categoria?',
+        'Esta ação não pode ser desfeita. Vídeos associados a esta categoria não poderão ser excluídos.',
+        'Sim, excluir',
+        'Cancelar'
+      );
+
+      if (!confirmed) return;
+
+      const response = await fetch(`/api/video-categories/${categoryId}`, {
+        method: 'DELETE'
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Erro ao excluir categoria');
+      }
+
+      showToast('Categoria excluída com sucesso!', 'success');
+      loadCategories(); // Recarregar categorias
+      loadVideos(); // Recarregar vídeos para atualizar as categorias
+      
+    } catch (error) {
+      console.error('Erro ao excluir categoria:', error);
+      showToast(error.message || 'Erro ao excluir categoria', 'error');
     }
   };
 
@@ -980,8 +1059,8 @@ export default function BibliotecaVideos({ user }) {
               <div className={styles.categoriesList}>
                 <h4>Categorias Existentes:</h4>
                 {categories.map(category => (
-                  <div key={category.value} className={styles.categoryItem}>
-                    {editingCategory?.value === category.value ? (
+                  <div key={category.id} className={styles.categoryItem}>
+                    {editingCategory?.id === category.id ? (
                       <div className={styles.categoryEditGroup}>
                         <input
                           type="text"
@@ -1005,18 +1084,25 @@ export default function BibliotecaVideos({ user }) {
                       </div>
                     ) : (
                       <div className={styles.categoryDisplay}>
-                        <span className={styles.categoryName}>{category.name}</span>
+                        <span className={styles.categoryName}>
+                          {category.name}
+                          {category.is_default && (
+                            <span className={styles.defaultBadge}>Padrão</span>
+                          )}
+                        </span>
                         <div className={styles.categoryActions}>
-                          <button 
-                            onClick={() => editCategory(category)}
-                            className={styles.editButton}
-                            title="Editar categoria"
-                          >
-                            <FaEdit />
-                          </button>
-                          {categories.length > 1 && (
+                          {!category.is_default && (
                             <button 
-                              onClick={() => deleteCategory(category.value)}
+                              onClick={() => editCategory(category)}
+                              className={styles.editButton}
+                              title="Editar categoria"
+                            >
+                              <FaEdit />
+                            </button>
+                          )}
+                          {!category.is_default && (
+                            <button 
+                              onClick={() => deleteCategory(category.id)}
                               className={styles.deleteButton}
                               title="Excluir categoria"
                             >
