@@ -67,6 +67,15 @@ const TAB_CONFIG = [
     description: 'Acesse respostas padronizadas da equipe'
   },
   {
+    id: 'BibliotecaVideos',
+    label: 'Biblioteca de Vídeos',
+    icon: FaVideo,
+    hash: '#BibliotecaVideos',
+    component: BibliotecaVideos,
+    requiresTicketAccess: false,
+    description: 'Acesse vídeos educativos e tutoriais'
+  },
+  {
     id: 'CepIbgeValidator',
     label: 'Validador CEP',
     icon: FaMapMarkerAlt,
@@ -84,15 +93,6 @@ const TAB_CONFIG = [
     component: SheetSplitter,
     requiresTicketAccess: false,
     description: 'Divida planilhas grandes em arquivos menores'
-  },
-  {
-    id: 'BibliotecaVideos',
-    label: 'Biblioteca de Vídeos',
-    icon: FaVideo,
-    hash: '#BibliotecaVideos',
-    component: BibliotecaVideos,
-    requiresTicketAccess: false,
-    description: 'Acesse vídeos educativos e tutoriais'
   }
 ];
 
