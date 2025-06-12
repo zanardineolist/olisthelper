@@ -26,31 +26,32 @@
 }
 
 .leftSection {
-  padding: 50px 60px;
+  padding: 60px 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   background: white;
-  border-radius: 150px;
+  border-radius: 240px;
   position: relative;
   z-index: 2;
-  height: 320px;
+  height: 480px;
   width: 480px;
   min-width: 480px;
-  max-height: 320px;
+  max-height: 480px;
+  margin-left: 20px;
 }
 
 .rightSection {
   flex: 1;
-  padding: 70px 60px 70px 120px;
+  padding: 70px 60px 70px 140px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   background: transparent;
   color: white;
   border-radius: 300px;
-  margin-left: -50px;
+  margin-left: -80px;
   position: relative;
   z-index: 1;
   min-height: 480px;
@@ -127,17 +128,18 @@
   }
   
   .leftSection {
-    height: 280px;
-    max-height: 280px;
+    height: 400px;
+    max-height: 400px;
     width: 400px;
     min-width: 400px;
-    padding: 45px 50px;
-    border-radius: 130px;
+    padding: 50px 50px;
+    border-radius: 200px;
+    margin-left: 15px;
   }
   
   .rightSection {
-    padding: 60px 50px 60px 100px;
-    margin-left: -40px;
+    padding: 60px 50px 60px 120px;
+    margin-left: -60px;
   }
 }
 
@@ -147,17 +149,18 @@
   }
   
   .leftSection {
-    height: 250px;
-    max-height: 250px;
+    height: 350px;
+    max-height: 350px;
     width: 350px;
     min-width: 350px;
-    padding: 40px 40px;
-    border-radius: 110px;
+    padding: 45px 40px;
+    border-radius: 175px;
+    margin-left: 10px;
   }
   
   .rightSection {
-    padding: 50px 40px 50px 90px;
-    margin-left: -30px;
+    padding: 50px 40px 50px 100px;
+    margin-left: -50px;
   }
 }
 
