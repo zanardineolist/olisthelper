@@ -28,10 +28,12 @@
   gap: 12px;
 }
 
-.titleSection h1.title::before {
-  content: '🎥';
-  font-size: 32px;
+.titleSection h1.title svg {
+  font-size: 24px;
+  color: var(--color-primary);
 }
+
+
 
 .subtitle {
   color: var(--text-secondary);
@@ -234,6 +236,13 @@
 .sortDirection {
   font-size: 10px;
   margin-left: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sortDirection svg {
+  font-size: 10px;
 }
 
 .activeFiltersIndicator {

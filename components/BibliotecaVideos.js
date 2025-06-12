@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaPlay, FaEye, FaTag, FaFilter, FaTimes, FaFolder, FaCalendarAlt, FaUser, FaVideo, FaClock, FaFileAlt, FaAlignLeft, FaLink, FaExpand, FaCompress, FaCog, FaCheck } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaPlay, FaEye, FaTag, FaFilter, FaTimes, FaFolder, FaCalendarAlt, FaUser, FaVideo, FaClock, FaFileAlt, FaAlignLeft, FaLink, FaExpand, FaCompress, FaCog, FaCheck, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { ThreeDotsLoader } from './LoadingIndicator';
 import styles from '../styles/BibliotecaVideos.module.css';
@@ -421,7 +421,9 @@ export default function BibliotecaVideos({ user }) {
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.titleSection}>
-          <h1 className={styles.title}>Biblioteca de Vídeos</h1>
+          <h1 className={styles.title}>
+            <FaVideo /> Biblioteca de Vídeos
+          </h1>
           <p className={styles.subtitle}>
             Vídeos explicativos e tutoriais para consulta rápida da equipe
           </p>
@@ -505,7 +507,7 @@ export default function BibliotecaVideos({ user }) {
                   Data
                   {sortBy === 'created_at' && (
                     <span className={styles.sortDirection}>
-                      {sortDirection === 'asc' ? '↑' : '↓'}
+                      {sortDirection === 'asc' ? <FaChevronUp /> : <FaChevronDown />}
                     </span>
                   )}
                 </button>
@@ -518,7 +520,7 @@ export default function BibliotecaVideos({ user }) {
                   Título
                   {sortBy === 'title' && (
                     <span className={styles.sortDirection}>
-                      {sortDirection === 'asc' ? '↑' : '↓'}
+                      {sortDirection === 'asc' ? <FaChevronUp /> : <FaChevronDown />}
                     </span>
                   )}
                 </button>
@@ -531,7 +533,7 @@ export default function BibliotecaVideos({ user }) {
                   Visualizações
                   {sortBy === 'view_count' && (
                     <span className={styles.sortDirection}>
-                      {sortDirection === 'asc' ? '↑' : '↓'}
+                      {sortDirection === 'asc' ? <FaChevronUp /> : <FaChevronDown />}
                     </span>
                   )}
                 </button>
