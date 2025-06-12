@@ -18,7 +18,7 @@
   width: 100%;
   text-align: center;
   padding: 40px 20px 20px;
-  background: linear-gradient(90deg, var(--box-color) 0%, var(--bg-secondary) 30%, var(--bg-secondary) 70%, var(--box-color) 100%);
+  background: linear-gradient(90deg, var(--bg-secondary) 0%, var(--box-color) 30%, var(--box-color) 70%, var(--bg-secondary) 100%);
   border-bottom: 1px solid var(--border-color);
 }
 
