@@ -24,7 +24,6 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: `Method ${method} not allowed` });
     }
   } catch (error) {
-    console.error('Erro na API video-categories/[id]:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
   }
 }
@@ -84,13 +83,11 @@ async function handlePut(req, res, id) {
       .single();
 
     if (error) {
-      console.error('Erro ao atualizar categoria:', error);
       return res.status(500).json({ error: 'Erro ao atualizar categoria' });
     }
 
     return res.status(200).json({ category });
   } catch (error) {
-    console.error('Erro ao processar PUT:', error);
     return res.status(500).json({ error: 'Erro ao processar solicitação' });
   }
 }
@@ -121,7 +118,6 @@ async function handleDelete(req, res, id) {
       .limit(1);
 
     if (videosError) {
-      console.error('Erro ao verificar vídeos:', videosError);
       return res.status(500).json({ error: 'Erro ao verificar dependências' });
     }
 
@@ -137,13 +133,11 @@ async function handleDelete(req, res, id) {
       .eq('id', id);
 
     if (error) {
-      console.error('Erro ao excluir categoria:', error);
       return res.status(500).json({ error: 'Erro ao excluir categoria' });
     }
 
     return res.status(200).json({ message: 'Categoria excluída com sucesso' });
   } catch (error) {
-    console.error('Erro ao processar DELETE:', error);
     return res.status(500).json({ error: 'Erro ao processar solicitação' });
   }
 } 

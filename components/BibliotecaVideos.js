@@ -136,7 +136,6 @@ export default function BibliotecaVideos({ user }) {
       }
       
     } catch (error) {
-      console.error('Erro ao carregar categorias:', error);
       showToast('Erro ao carregar categorias', 'error');
     }
   };
@@ -174,7 +173,6 @@ export default function BibliotecaVideos({ user }) {
       }
       
     } catch (error) {
-      console.error('Erro ao carregar vídeos:', error);
       showToast('Erro ao carregar biblioteca de vídeos', 'error');
     } finally {
       setTimeout(() => {
@@ -248,7 +246,6 @@ export default function BibliotecaVideos({ user }) {
       loadVideos();
       
     } catch (error) {
-      console.error('Erro ao salvar:', error);
       showToast(error.message || 'Erro ao salvar vídeo', 'error');
     }
   };
@@ -277,7 +274,6 @@ export default function BibliotecaVideos({ user }) {
       loadVideos();
       
     } catch (error) {
-      console.error('Erro ao excluir:', error);
       showToast('Erro ao excluir vídeo', 'error');
     }
   };
@@ -294,7 +290,7 @@ export default function BibliotecaVideos({ user }) {
         body: JSON.stringify({ action: 'view' })
       });
     } catch (error) {
-      console.error('Erro ao registrar visualização:', error);
+      // Falha silenciosa na visualização
     }
   };
 
@@ -349,7 +345,8 @@ export default function BibliotecaVideos({ user }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: newCategoryName.trim(),
-          value: categoryValue
+          value: categoryValue,
+          userId: user.id
         })
       });
 
@@ -364,7 +361,6 @@ export default function BibliotecaVideos({ user }) {
       loadCategories(); // Recarregar categorias
       
     } catch (error) {
-      console.error('Erro ao criar categoria:', error);
       showToast(error.message || 'Erro ao criar categoria', 'error');
     }
   };
@@ -398,7 +394,6 @@ export default function BibliotecaVideos({ user }) {
       loadCategories(); // Recarregar categorias
       
     } catch (error) {
-      console.error('Erro ao atualizar categoria:', error);
       showToast(error.message || 'Erro ao atualizar categoria', 'error');
     }
   };
@@ -429,7 +424,6 @@ export default function BibliotecaVideos({ user }) {
       loadVideos(); // Recarregar vídeos para atualizar as categorias
       
     } catch (error) {
-      console.error('Erro ao excluir categoria:', error);
       showToast(error.message || 'Erro ao excluir categoria', 'error');
     }
   };
