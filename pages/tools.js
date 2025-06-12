@@ -385,7 +385,7 @@ export default function ToolsPage({ user }) {
         <div className={styles.pageHeader}>
           <h1 className={styles.mainTitle}>Ferramentas</h1>
           <p className={styles.mainDescription}>
-            Acesse todas as ferramentas disponíveis para otimizar seu trabalho
+            Acesse todas as ferramentas disponíveis para otimizar seu dia a dia
           </p>
         </div>
 

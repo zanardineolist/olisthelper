@@ -512,7 +512,7 @@ export default function BibliotecaVideos({ user }) {
             <FaVideo /> Biblioteca de Vídeos
           </h1>
           <p className={styles.subtitle}>
-            Vídeos explicativos e tutoriais para consulta rápida da equipe
+            Vídeos explicativos e tutoriais para consulta rápida
           </p>
         </div>
 
