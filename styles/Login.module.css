@@ -26,19 +26,19 @@
 }
 
 .leftSection {
-  padding: 40px 60px;
+  padding: 50px 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   background: white;
-  border-radius: 120px;
+  border-radius: 150px;
   position: relative;
   z-index: 2;
-  height: 250px;
+  height: 320px;
   width: 480px;
   min-width: 480px;
-  max-height: 250px;
+  max-height: 320px;
 }
 
 .rightSection {
@@ -127,12 +127,12 @@
   }
   
   .leftSection {
-    height: 220px;
-    max-height: 220px;
+    height: 280px;
+    max-height: 280px;
     width: 400px;
     min-width: 400px;
-    padding: 35px 50px;
-    border-radius: 100px;
+    padding: 45px 50px;
+    border-radius: 130px;
   }
   
   .rightSection {
@@ -147,12 +147,12 @@
   }
   
   .leftSection {
-    height: 200px;
-    max-height: 200px;
+    height: 250px;
+    max-height: 250px;
     width: 350px;
     min-width: 350px;
-    padding: 30px 40px;
-    border-radius: 90px;
+    padding: 40px 40px;
+    border-radius: 110px;
   }
   
   .rightSection {
