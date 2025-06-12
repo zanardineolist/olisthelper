@@ -176,24 +176,36 @@ export default function ToolsPage({ user }) {
     }
   };
 
-  // Scroll horizontal com mouse wheel
+  // Scroll horizontal com mouse wheel (apenas na área das tabs)
   const handleWheelScroll = (e) => {
     if (tabsListRef.current && !isMobile) {
-      // Detecta se é scroll horizontal (deltaX) ou vertical (deltaY)
-      const deltaX = e.deltaX;
-      const deltaY = e.deltaY;
+      // Verifica se o elemento ou seus pais têm classes relacionadas às tabs
+      const target = e.target;
+      const isInTabsArea = target.closest('.tabsWrapper') || 
+                          target.closest('.tabsContainer') || 
+                          target.closest('.tabsNavigation') ||
+                          target.closest('.tabsListWrapper') ||
+                          target.closest('.tabsList') ||
+                          target.classList.contains('tabButton') ||
+                          target.classList.contains('scrollButton');
       
-      // Se há deltaX (scroll horizontal nativo) ou deltaY (scroll vertical que queremos converter)
-      if (Math.abs(deltaX) > 0 || Math.abs(deltaY) > 0) {
-        e.preventDefault();
+      if (isInTabsArea) {
+        // Detecta se é scroll horizontal (deltaX) ou vertical (deltaY)
+        const deltaX = e.deltaX;
+        const deltaY = e.deltaY;
         
-        // Usa deltaX se disponível, senão converte deltaY para horizontal
-        const scrollAmount = deltaX !== 0 ? deltaX : deltaY;
-        
-        tabsListRef.current.scrollBy({
-          left: scrollAmount,
-          behavior: 'smooth'
-        });
+        // Se há deltaX (scroll horizontal nativo) ou deltaY (scroll vertical que queremos converter)
+        if (Math.abs(deltaX) > 0 || Math.abs(deltaY) > 0) {
+          e.preventDefault();
+          
+          // Usa deltaX se disponível, senão converte deltaY para horizontal
+          const scrollAmount = deltaX !== 0 ? deltaX : deltaY;
+          
+          tabsListRef.current.scrollBy({
+            left: scrollAmount,
+            behavior: 'smooth'
+          });
+        }
       }
     }
   };
@@ -231,20 +243,22 @@ export default function ToolsPage({ user }) {
     if (tabsList) {
       checkScrollButtons();
       tabsList.addEventListener('scroll', checkScrollButtons);
-      tabsList.addEventListener('wheel', handleWheelScroll, { passive: false });
       tabsList.addEventListener('mousedown', handleMouseDown);
       tabsList.addEventListener('mousemove', handleMouseMove);
       tabsList.addEventListener('mouseup', handleMouseUp);
       tabsList.addEventListener('mouseleave', handleMouseLeave);
+      
+      // Adiciona wheel listener no documento para capturar em qualquer lugar
+      document.addEventListener('wheel', handleWheelScroll, { passive: false });
       window.addEventListener('resize', checkScrollButtons);
       
       return () => {
         tabsList.removeEventListener('scroll', checkScrollButtons);
-        tabsList.removeEventListener('wheel', handleWheelScroll);
         tabsList.removeEventListener('mousedown', handleMouseDown);
         tabsList.removeEventListener('mousemove', handleMouseMove);
         tabsList.removeEventListener('mouseup', handleMouseUp);
         tabsList.removeEventListener('mouseleave', handleMouseLeave);
+        document.removeEventListener('wheel', handleWheelScroll);
         window.removeEventListener('resize', checkScrollButtons);
       };
     }
