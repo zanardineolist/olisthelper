@@ -39,7 +39,7 @@
   width: 650px;
   min-width: 650px;
   max-height: 480px;
-  margin-left: -20px;
+  margin-left: 0px;
 }
 
 .rightSection {
@@ -134,7 +134,7 @@
     min-width: 550px;
     padding: 60px 70px;
     border-radius: 300px;
-    margin-left: -10px;
+    margin-left: 0px;
   }
   
   .rightSection {
@@ -155,7 +155,7 @@
     min-width: 480px;
     padding: 60px 60px;
     border-radius: 300px;
-    margin-left: -5px;
+    margin-left: 0px;
   }
   
   .rightSection {
