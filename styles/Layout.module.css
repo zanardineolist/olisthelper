@@ -31,17 +31,18 @@
 }
 
 .mainContent.sidebarExpanded {
-  margin-left: 302px; /* 270px + 32px margin */
+  margin-left: 270px;
 }
 
 .mainContent.sidebarCollapsed {
-  margin-left: 117px; /* 85px + 32px margin */
+  margin-left: 80px;
 }
 
 .content {
   flex: 1;
-  padding: 80px 24px 24px 24px; /* Top padding accounts for fixed navbar */
+  padding: 80px 32px 32px 32px; /* Top padding accounts for fixed navbar */
   overflow-x: auto;
+  background-color: var(--background-color);
 }
 
 /* Responsive adjustments */
@@ -52,12 +53,12 @@
   }
 
   .content {
-    padding: 80px 16px 24px 16px;
+    padding: 80px 24px 24px 24px;
   }
 }
 
 @media (max-width: 768px) {
   .content {
-    padding: 80px 12px 20px 12px;
+    padding: 80px 16px 20px 16px;
   }
 }

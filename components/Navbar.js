@@ -3,7 +3,7 @@ import styles from '../styles/Navbar.module.css';
 import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FaBell, FaCheckDouble, FaCheck, FaMoon, FaSun } from 'react-icons/fa';
+import { FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { markNotificationAsRead, markMultipleNotificationsAsRead } from '../utils/firebase/firebaseNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -12,7 +12,6 @@ import { collection, query, where, onSnapshot, limit, startAfter } from 'firebas
 import _ from 'lodash';
 
 export default function Navbar({ user, isSidebarCollapsed }) {
-  const [theme, setTheme] = useState('dark');
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [lastVisible, setLastVisible] = useState(null);
@@ -36,20 +35,6 @@ export default function Navbar({ user, isSidebarCollapsed }) {
       handleClickOutsideDebounced.cancel();
     };
   }, []);
-
-  // Theme management
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(savedTheme);
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-  };
 
   // Notifications
   useEffect(() => {
@@ -151,6 +136,35 @@ export default function Navbar({ user, isSidebarCollapsed }) {
     }
   };
 
+  const getPageTitle = () => {
+    switch(router.pathname) {
+      case '/profile':
+        return 'Meu Perfil';
+      case '/profile-analyst':
+        return 'Perfil do Analista';
+      case '/dashboard-analyst':
+        return 'Dashboard Analista';
+      case '/dashboard-super':
+        return 'Dashboard Super';
+      case '/dashboard-quality':
+        return 'Dashboard Qualidade';
+      case '/tools':
+        return 'Ferramentas';
+      case '/registro':
+        return 'Registrar Ajuda';
+      case '/manager':
+        return 'Gerenciador';
+      case '/remote':
+        return 'Acesso Remoto';
+      case '/admin-notifications':
+        return 'Administrar Notificações';
+      case '/':
+        return 'OlistHelper';
+      default:
+        return 'OlistHelper';
+    }
+  };
+
   return (
     <div className={`${styles.navbarWrapper} ${topNotification ? styles.withBanner : ''}`}>
       {topNotification && (
@@ -168,33 +182,12 @@ export default function Navbar({ user, isSidebarCollapsed }) {
         ref={navbarRef} 
         className={`${styles.navbar} ${isSidebarCollapsed ? styles.sidebarCollapsed : styles.sidebarExpanded}`}
       >
-        {/* Page Title or Breadcrumb */}
+        {/* Page Title */}
         <div className={styles.pageTitle}>
-          <h1 className={styles.title}>
-            {router.pathname === '/profile' && 'Meu Perfil'}
-            {router.pathname === '/profile-analyst' && 'Perfil do Analista'}
-            {router.pathname === '/dashboard-analyst' && 'Dashboard Analista'}
-            {router.pathname === '/dashboard-super' && 'Dashboard Super'}
-            {router.pathname === '/dashboard-quality' && 'Dashboard Qualidade'}
-            {router.pathname === '/tools' && 'Ferramentas'}
-            {router.pathname === '/registro' && 'Registrar Ajuda'}
-            {router.pathname === '/manager' && 'Gerenciador'}
-            {router.pathname === '/remote' && 'Acesso Remoto'}
-            {router.pathname === '/admin-notifications' && 'Administrar Notificações'}
-            {router.pathname === '/' && 'OlistHelper'}
-          </h1>
+          <h1 className={styles.title}>{getPageTitle()}</h1>
         </div>
 
         <div className={styles.rightSection}>
-          {/* Theme Toggle */}
-          <button onClick={toggleTheme} className={styles.themeToggle} aria-label="Alternar tema">
-            <div className={styles.themeToggleTrack}>
-              <div className={`${styles.themeToggleThumb} ${theme === 'dark' ? styles.dark : ''}`}>
-                {theme === 'dark' ? <FaMoon className={styles.moonIcon} /> : <FaSun className={styles.sunIcon} />}
-              </div>
-            </div>
-          </button>
-
           {/* Notifications */}
           {['analyst', 'tax', 'super', 'support+', 'dev', 'quality'].includes(user.role) && (
             <div className={styles.notificationsWrapper}>

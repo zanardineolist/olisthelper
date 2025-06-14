@@ -14,10 +14,12 @@ import {
   FaBell, 
   FaChevronLeft, 
   FaBars,
-  FaSpinner 
+  FaSpinner,
+  FaMoon,
+  FaSun
 } from 'react-icons/fa';
 
-export default function Sidebar({ user, isCollapsed, setIsCollapsed }) {
+export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, toggleTheme }) {
   const [clickedLinks, setClickedLinks] = useState({});
   const [isMobileMenuActive, setIsMobileMenuActive] = useState(false);
   const router = useRouter();
@@ -134,20 +136,6 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed }) {
       ];
     }
 
-    // Menu secundário (sempre presente)
-    menuItems.secondary = [
-      { 
-        href: user.role === 'analyst' || user.role === 'tax' 
-          ? '/profile-analyst' 
-          : user.role === 'quality'
-            ? '/dashboard-quality'
-            : '/profile', 
-        icon: FaUser, 
-        label: 'Perfil', 
-        tooltip: 'Perfil' 
-      }
-    ];
-
     return menuItems;
   };
 
@@ -168,9 +156,10 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed }) {
               : '/profile'
         } className={styles.headerLogo}>
           <img 
-            src="/images/logos/olist_helper_logo.png"
-            alt="OlistHelper Logo"
+            src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
+            alt="OlistHelper"
           />
+          <span className={styles.logoText}>OlistHelper</span>
         </Link>
 
         {/* Desktop Toggler */}
@@ -209,15 +198,26 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed }) {
 
         {/* Secondary Navigation */}
         <ul className={`${styles.navList} ${styles.secondaryNav}`}>
-          {menuItems.secondary.map((item, index) => (
-            <NavLink
-              key={index}
-              href={item.href}
-              icon={item.icon}
-              label={item.label}
-              tooltip={item.tooltip}
-            />
-          ))}
+          {/* Theme Toggle */}
+          <li className={styles.navItem}>
+            <button 
+              onClick={toggleTheme} 
+              className={`${styles.navLink} ${styles.themeToggle}`}
+              aria-label="Alternar tema"
+            >
+              <span className={styles.navIcon}>
+                {theme === 'dark' ? <FaSun /> : <FaMoon />}
+              </span>
+              <span className={styles.navLabel}>
+                {theme === 'dark' ? 'Tema Claro' : 'Tema Escuro'}
+              </span>
+            </button>
+            <span className={styles.navTooltip}>
+              {theme === 'dark' ? 'Tema Claro' : 'Tema Escuro'}
+            </span>
+          </li>
+
+          {/* Logout */}
           <li className={styles.navItem}>
             <button 
               onClick={() => signOut({ callbackUrl: '/' })} 
