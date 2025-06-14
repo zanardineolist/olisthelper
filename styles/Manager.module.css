@@ -1,18 +1,40 @@
-/* ================== Estilo Geral da Página ================== */
-.main {
-  padding: 20px;
-  margin-top: 50px;
-  background-color: var(--background-color);
-  color: var(--text-color);
+/* ===== CONTAINER PRINCIPAL ===== */
+.container {
+  width: 100%;
+  padding-top: 0px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.main h1 {
-  margin-bottom: 20px;
-  text-align: center;
-  color: #8b8b8b;
+/* ===== HEADER ===== */
+.pageHeader {
+  width: 100%;
+  text-align: left;
+  padding: 0 0 2rem 0;
+  margin-bottom: 1.5rem;
+}
+
+.mainTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.25rem 0;
+}
+
+.mainDescription {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ===== TAB CONTENT ===== */
+.tabContent {
+  width: 100%;
+  margin-top: 1rem;
 }
 
 /* ================== Botão Adicionar Item ================== */
@@ -169,4 +191,31 @@
 
 .ReactModal__Content {
   overflow: visible;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+  .container {
+    padding-top: calc(64px + 1rem);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .pageHeader {
+    padding: 0 0 1rem 0;
+    margin-bottom: 1rem;
+  }
+
+  .mainTitle {
+    font-size: 2rem;
+  }
+
+  .mainDescription {
+    font-size: 1rem;
+  }
+
+  .cardContainer {
+    padding: 15px;
+  }
 }

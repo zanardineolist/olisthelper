@@ -3,11 +3,10 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
 import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
+import Layout from '../components/Layout';
 import ManageUsers from '../components/ManageUsers';
 import ManageCategories from '../components/ManageCategories';
 import ManageRecords from '../components/ManageRecords';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import styles from '../styles/Manager.module.css';
 
 const theme = createTheme({
@@ -93,14 +92,20 @@ export default function ManagerPage({ user }) {
   }
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Gerenciar Dados</title>
       </Head>
 
-      <Navbar user={user} />
+      <div className={styles.container}>
+        {/* Header da página */}
+        <div className={styles.pageHeader}>
+          <h1 className={styles.mainTitle}>Gerenciador</h1>
+          <p className={styles.mainDescription}>
+            Gerencie usuários, categorias e registros do sistema
+          </p>
+        </div>
 
-      <main className={styles.main}>
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
             <Tab label="Gerenciar Usuários" />
@@ -118,10 +123,8 @@ export default function ManagerPage({ user }) {
             <ManageRecords user={user} />
           )}
         </div>
-      </main>
-
-      <Footer />
-    </>
+      </div>
+    </Layout>
   );
 }
 
