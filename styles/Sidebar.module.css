@@ -139,7 +139,7 @@
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.3s ease;
+  transition: opacity 0.3s ease;
   z-index: 9999;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--color-primary);
@@ -204,6 +204,14 @@
 
 .navItem {
   position: relative;
+}
+
+.secondaryNav .navItem {
+  margin-bottom: 8px;
+}
+
+.secondaryNav .navItem:last-child {
+  margin-bottom: 0;
 }
 
 .navLink {
