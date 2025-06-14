@@ -22,8 +22,10 @@ import {
 export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, toggleTheme }) {
   const [clickedLinks, setClickedLinks] = useState({});
   const [isMobileMenuActive, setIsMobileMenuActive] = useState(false);
+  const [togglerTooltipStyle, setTogglerTooltipStyle] = useState({});
   const router = useRouter();
   const sidebarRef = useRef(null);
+  const togglerRef = useRef(null);
 
   // Resetar estado de clique quando a navegação for concluída
   useEffect(() => {
@@ -61,10 +63,36 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
     setIsMobileMenuActive(!isMobileMenuActive);
   };
 
+  // Handle toggler tooltip positioning
+  const handleTogglerMouseEnter = () => {
+    if (togglerRef.current) {
+      const rect = togglerRef.current.getBoundingClientRect();
+      setTogglerTooltipStyle({
+        position: 'fixed',
+        top: `${rect.top + rect.height / 2}px`,
+        left: `${rect.right + 12}px`,
+        transform: 'translateY(-50%)'
+      });
+    }
+  };
+
   // Componente NavLink personalizado
   const NavLink = ({ href, icon: Icon, label, tooltip }) => {
     const isActive = router.pathname === href;
     const isClicked = clickedLinks[href];
+    const [tooltipStyle, setTooltipStyle] = useState({});
+    
+    const handleMouseEnter = (e) => {
+      if (isCollapsed) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setTooltipStyle({
+          position: 'fixed',
+          top: `${rect.top + rect.height / 2}px`,
+          left: `${rect.right + 12}px`,
+          transform: 'translateY(-50%)'
+        });
+      }
+    };
     
     return (
       <li className={styles.navItem}>
@@ -72,6 +100,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
           href={href} 
           className={`${styles.navLink} ${isActive ? styles.active : ''} ${isClicked ? styles.clicked : ''}`}
           onClick={(e) => handleNavLinkClick(e, href)}
+          onMouseEnter={handleMouseEnter}
           tabIndex={isClicked ? -1 : 0}
           aria-disabled={isClicked}
         >
@@ -80,7 +109,12 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
           </span>
           <span className={styles.navLabel}>{label}</span>
         </Link>
-        <span className={styles.navTooltip}>{tooltip}</span>
+        <span 
+          className={styles.navTooltip} 
+          style={isCollapsed ? tooltipStyle : {}}
+        >
+          {tooltip}
+        </span>
       </li>
     );
   };
@@ -180,13 +214,18 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       {/* Desktop Toggler - Positioned separately */}
       <div className={styles.togglerContainer}>
         <button 
+          ref={togglerRef}
           className={`${styles.toggler} ${styles.sidebarToggler}`}
           onClick={toggleSidebar}
+          onMouseEnter={handleTogglerMouseEnter}
           aria-label={isCollapsed ? "Expandir Sidebar" : "Recolher Sidebar"}
         >
           <FaChevronLeft />
         </button>
-        <span className={styles.togglerTooltip}>
+        <span 
+          className={styles.togglerTooltip}
+          style={togglerTooltipStyle}
+        >
           {isCollapsed ? "Expandir Menu" : "Recolher Menu"}
         </span>
       </div>

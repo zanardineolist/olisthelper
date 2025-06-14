@@ -128,10 +128,7 @@
 
 /* Toggle Button Tooltip */
 .togglerTooltip {
-  position: absolute;
-  top: 50%;
-  left: calc(100% + 12px);
-  transform: translateY(-50%);
+  position: fixed;
   background: var(--box-color);
   color: var(--title-color);
   padding: 8px 12px;
@@ -142,7 +139,7 @@
   opacity: 0;
   pointer-events: none;
   transition: all 0.3s ease;
-  z-index: 1002;
+  z-index: 9999;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
 }
@@ -150,7 +147,6 @@
 .togglerContainer:hover .togglerTooltip {
   opacity: 1;
   pointer-events: auto;
-  left: calc(100% + 8px);
 }
 
 /* Sidebar Navigation */
@@ -159,7 +155,7 @@
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: visible;
   padding: 16px 0;
 }
 
@@ -338,8 +334,7 @@
 
 /* Navigation Tooltips */
 .navTooltip {
-  position: absolute;
-  top: 50%;
+  position: fixed;
   opacity: 0;
   color: var(--title-color);
   display: none;
@@ -348,13 +343,11 @@
   border-radius: 8px;
   white-space: nowrap;
   background: var(--box-color);
-  left: calc(100% + 20px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border: 1px solid var(--border-color);
-  transform: translateY(-50%);
   transition: all 0.3s ease;
   font-size: 13px;
-  z-index: 1001;
+  z-index: 9999;
   font-weight: 500;
   min-width: max-content;
 }
@@ -363,11 +356,9 @@
   display: block;
 }
 
-.navItem:hover .navTooltip {
+.sidebar.collapsed .navItem:hover .navTooltip {
   opacity: 1;
   pointer-events: auto;
-  left: calc(100% + 12px);
-  transform: translateY(-50%) translateX(0);
 }
 
 /* Enhanced tooltip animation */
