@@ -3,10 +3,17 @@
 /* ===== CONTAINER PRINCIPAL ===== */
 .container {
   width: 100%;
-  padding-top: 0px;
+  padding-top: calc(64px + 1rem);
   padding-left: 2rem;
   padding-right: 2rem;
   padding-bottom: 2rem;
+  transition: filter 0.3s ease;
+}
+
+.container.blurred {
+  filter: blur(2px);
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 /* ===== HEADER ===== */
@@ -731,20 +738,7 @@
   border-color: var(--text-primary) transparent transparent transparent;
 }
 
-/* Loading e Empty States */
-.loadingContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem;
-  text-align: center;
-}
-
-.loadingContainer p {
-  margin-top: 1rem;
-  color: var(--text-secondary);
-}
+/* Empty States */
 
 .noData {
   display: flex;

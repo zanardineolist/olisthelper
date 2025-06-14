@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import ProgressIndicator from '../components/ProgressIndicator';
 import { ThreeDotsLoader } from '../components/LoadingIndicator';
+import { useLoading } from '../contexts/LoadingProvider';
 import styles from '../styles/ProfileSupport.module.css';
 
 // Componente para card de performance atualizado
@@ -327,11 +328,14 @@ const InfoModal = ({ onClose }) => {
 // Componente principal
 export default function MyPage({ user }) {
   const router = useRouter();
+  const { loading: routerLoading } = useLoading();
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [progressLoading, setProgressLoading] = useState(false);
+  const [indicatorsLoading, setIndicatorsLoading] = useState(false);
+  const [rankingLoading, setRankingLoading] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
 
   // Configurar saudação baseada no horário
@@ -354,14 +358,14 @@ export default function MyPage({ user }) {
   // Buscar dados do usuário
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      if (!user?.email) return;
+
       try {
-        const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
+        // Carregar dados de ajuda
+        setRankingLoading(true);
+        const [helpResponse, categoryResponse] = await Promise.all([
           fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
-          fetch(`/api/get-user-category-ranking?userEmail=${user.email}`),
-          (user.role === 'support' || user.role === 'support+') ? 
-            fetch(`/api/get-user-performance?userEmail=${user.email}`) : 
-            Promise.resolve({ json: () => null })
+          fetch(`/api/get-user-category-ranking?userEmail=${user.email}`)
         ]);
 
         const helpData = await helpResponse.json();
@@ -372,24 +376,30 @@ export default function MyPage({ user }) {
 
         const categoryData = await categoryResponse.json();
         setCategoryRanking(categoryData.categories || []);
+        setRankingLoading(false);
 
+        // Carregar dados de performance se for support
         if (user.role === 'support' || user.role === 'support+') {
+          setProgressLoading(true);
+          setIndicatorsLoading(true);
+          
+          const performanceResponse = await fetch(`/api/get-user-performance?userEmail=${user.email}`);
           const performanceDataResult = await performanceResponse.json();
           setPerformanceData(performanceDataResult);
+          
+          setProgressLoading(false);
+          setIndicatorsLoading(false);
         }
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
-      } finally {
-        setLoading(false);
+        setRankingLoading(false);
+        setProgressLoading(false);
+        setIndicatorsLoading(false);
       }
     };
 
-    if (user?.email) {
-      fetchData();
-    }
+    fetchData();
   }, [user.email, user.role]);
-
-
 
   const firstName = user.name.split(' ')[0];
   const { currentMonth, lastMonth } = helpRequests;
@@ -406,7 +416,7 @@ export default function MyPage({ user }) {
         <meta name="description" content="Perfil do usuário com métricas e indicadores de solicitações de ajuda" />
       </Head>
 
-      <div className={styles.container}>
+      <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
         {/* Modal de Informações */}
         {showInfoModal && (
           <InfoModal onClose={() => setShowInfoModal(false)} />
@@ -460,12 +470,12 @@ export default function MyPage({ user }) {
             <div className={styles.integratedMetrics}>
               {/* Período de Referência */}
               {performanceData && (
-                              <div className={styles.periodInfo} style={{ 
-                padding: '8px 12px', 
-                backgroundColor: 'rgba(240, 160, 40, 0.1)', 
-                borderRadius: '6px',
-                textAlign: 'center'
-              }}>
+                <div className={styles.periodInfo} style={{ 
+                  padding: '8px 12px', 
+                  backgroundColor: 'rgba(240, 160, 40, 0.1)', 
+                  borderRadius: '6px',
+                  textAlign: 'center'
+                }}>
                   <span style={{ 
                     fontSize: '0.85rem', 
                     fontWeight: '600',
@@ -553,7 +563,7 @@ export default function MyPage({ user }) {
         {/* Seção 2: Progresso da Meta */}
         {(user.role === 'support' || user.role === 'support+') && (
           <section className={styles.progressSection}>
-            {loading ? (
+            {progressLoading ? (
               <ThreeDotsLoader message="Carregando progresso..." />
             ) : performanceData ? (
               <>
@@ -596,14 +606,14 @@ export default function MyPage({ user }) {
                   <i className="fa-solid fa-info-circle"></i>
                 </button>
               </div>
-              {!loading && performanceData && (
+              {!indicatorsLoading && performanceData && (
                 <p className={styles.sectionSubtitle}>
                   Período: {performanceData.atualizadoAte || "Data não disponível"}
                 </p>
               )}
             </div>
             
-            {loading ? (
+            {indicatorsLoading ? (
               <ThreeDotsLoader message="Carregando indicadores..." />
             ) : performanceData ? (
               <div className={styles.performanceGrid}>
@@ -638,7 +648,7 @@ export default function MyPage({ user }) {
           </section>
         )}
 
-        {/* Seção 3: Ranking de Categorias */}
+        {/* Seção 4: Ranking de Categorias */}
         <section className={styles.categorySection}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
@@ -655,7 +665,7 @@ export default function MyPage({ user }) {
               <i className="fa-solid fa-ranking-star"></i>
               Categorias Mais Solicitadas
             </h3>
-            {loading ? (
+            {rankingLoading ? (
               <ThreeDotsLoader message="Carregando ranking..." />
             ) : categoryRanking.length > 0 ? (
               <ul className={styles.list}>
