@@ -15,3 +15,49 @@
 .withBanner .main {
   padding-top: 100px;
 }
+
+.layoutContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--background-color);
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s ease;
+  min-height: 100vh;
+}
+
+.mainContent.sidebarExpanded {
+  margin-left: 302px; /* 270px + 32px margin */
+}
+
+.mainContent.sidebarCollapsed {
+  margin-left: 117px; /* 85px + 32px margin */
+}
+
+.content {
+  flex: 1;
+  padding: 80px 24px 24px 24px; /* Top padding accounts for fixed navbar */
+  overflow-x: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .mainContent.sidebarExpanded,
+  .mainContent.sidebarCollapsed {
+    margin-left: 0;
+  }
+
+  .content {
+    padding: 80px 16px 24px 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 80px 12px 20px 12px;
+  }
+}

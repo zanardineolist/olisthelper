@@ -2,8 +2,7 @@
 import Head from 'next/head';
 import { getSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Layout from '../components/Layout';
 import styles from '../styles/ProfileAnalyst.module.css';
 
 
@@ -419,15 +418,13 @@ export default function ProfileAnalystPage({ user }) {
   const firstName = user.name.split(' ')[0];
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Meu Perfil - Analista</title>
         <meta name="description" content="Perfil do analista com métricas e indicadores de performance" />
       </Head>
 
-      <Navbar user={user} />
-
-      <main className={styles.container}>
+      <div className={styles.container}>
         {/* Header */}
         <header className={styles.header}>
           <h1 className={styles.greeting}>{greeting}, {firstName}!</h1>
@@ -635,10 +632,8 @@ export default function ProfileAnalystPage({ user }) {
             />
           )}
         </section>
-      </main>
-
-      <Footer />
-    </>
+      </div>
+    </Layout>
   );
 }
 

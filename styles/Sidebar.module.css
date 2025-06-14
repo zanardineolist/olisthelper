@@ -1,0 +1,375 @@
+/* Sidebar.module.css */
+
+.sidebar {
+  position: fixed;
+  width: 270px;
+  margin: 16px;
+  border-radius: 16px;
+  background: var(--box-color);
+  height: calc(100vh - 32px);
+  transition: all 0.4s ease;
+  z-index: 1000;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.sidebar.collapsed {
+  width: 85px;
+}
+
+/* Sidebar Header */
+.sidebarHeader {
+  display: flex;
+  position: relative;
+  padding: 25px 20px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.headerLogo img {
+  width: 46px;
+  height: 46px;
+  display: block;
+  object-fit: contain;
+  border-radius: 50%;
+  transition: opacity 0.2s ease;
+}
+
+.headerLogo img:hover {
+  opacity: 0.9;
+}
+
+.toggler {
+  height: 35px;
+  width: 35px;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  display: flex;
+  background: var(--box-color2);
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.4s ease;
+}
+
+.sidebarToggler {
+  position: absolute;
+  right: 20px;
+}
+
+.menuToggler {
+  display: none;
+}
+
+.sidebar.collapsed .sidebarToggler {
+  transform: translate(-4px, 65px);
+}
+
+.toggler:hover {
+  background: var(--box-color3);
+  color: var(--title-color);
+}
+
+.sidebar.collapsed .sidebarToggler svg {
+  transform: rotate(180deg);
+}
+
+/* Sidebar Navigation */
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 100px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 0;
+}
+
+.sidebarNav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebarNav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebarNav::-webkit-scrollbar-thumb {
+  background: var(--scroll);
+  border-radius: 3px;
+}
+
+.navList {
+  list-style: none;
+  display: flex;
+  gap: 4px;
+  padding: 0 15px;
+  flex-direction: column;
+  margin: 0;
+  transition: 0.4s ease;
+}
+
+.primaryNav {
+  flex: 1;
+  transform: translateY(0);
+}
+
+.sidebar.collapsed .primaryNav {
+  transform: translateY(50px);
+}
+
+.secondaryNav {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.navItem {
+  position: relative;
+}
+
+.navLink {
+  color: var(--text-color);
+  display: flex;
+  gap: 12px;
+  white-space: nowrap;
+  border-radius: 8px;
+  padding: 12px 15px;
+  align-items: center;
+  text-decoration: none;
+  transition: all 0.4s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.sidebar.collapsed .navLink {
+  border-radius: 12px;
+  justify-content: center;
+}
+
+.navIcon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+}
+
+.navLabel {
+  transition: opacity 0.3s ease;
+  font-weight: 500;
+}
+
+.sidebar.collapsed .navLabel {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.navLink:hover {
+  color: var(--title-color);
+  background: var(--box-color2);
+}
+
+.navLink.active {
+  color: var(--color-primary);
+  background: var(--box-color2);
+}
+
+.navLink.clicked {
+  opacity: 0.7;
+  pointer-events: none;
+  cursor: wait;
+}
+
+.spinnerIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.logoutButton {
+  color: var(--color-accent1) !important;
+}
+
+.logoutButton:hover {
+  background: rgba(230, 78, 54, 0.1) !important;
+}
+
+/* Tooltips */
+.navTooltip {
+  position: absolute;
+  top: 50%;
+  opacity: 0;
+  color: var(--title-color);
+  display: none;
+  pointer-events: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  background: var(--box-color);
+  left: calc(100% + 25px);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transform: translateY(-50%);
+  transition: all 0.4s ease;
+  font-size: 12px;
+  z-index: 1001;
+}
+
+.sidebar.collapsed .navTooltip {
+  display: block;
+}
+
+.navItem:hover .navTooltip {
+  opacity: 1;
+  pointer-events: auto;
+  left: calc(100% + 15px);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .sidebar {
+    height: 56px;
+    margin: 13px;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    width: calc(100% - 26px);
+    max-height: calc(100vh - 26px);
+    border-radius: 16px;
+  }
+
+  .sidebar.menuActive {
+    height: auto;
+    max-height: calc(100vh - 26px);
+    overflow-y: auto;
+  }
+
+  .sidebarHeader {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    border-radius: 16px 16px 0 0;
+    background: var(--box-color);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .headerLogo img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .sidebarToggler,
+  .navItem:hover .navTooltip {
+    display: none;
+  }
+  
+  .menuToggler {
+    display: flex;
+    height: 30px;
+    width: 30px;
+  }
+
+  .sidebarNav {
+    height: auto;
+    padding: 10px 0;
+  }
+
+  .navList {
+    padding: 0 10px;
+  }
+
+  .navLink {
+    gap: 10px;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .navIcon {
+    font-size: 16px;
+  }
+
+  .secondaryNav {
+    position: relative;
+    margin: 20px 0 10px;
+    padding-top: 15px;
+  }
+
+  .primaryNav {
+    transform: translateY(0);
+  }
+
+  .sidebar.collapsed .primaryNav {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    margin: 8px;
+    width: calc(100% - 16px);
+  }
+
+  .sidebarHeader {
+    padding: 6px 8px;
+  }
+
+  .headerLogo img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .menuToggler {
+    height: 28px;
+    width: 28px;
+  }
+
+  .navList {
+    padding: 0 8px;
+  }
+
+  .navLink {
+    padding: 8px;
+    font-size: 13px;
+  }
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .sidebar {
+  background: var(--box-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .toggler {
+  background: var(--box-color2);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .toggler:hover {
+  background: var(--box-color3);
+  color: var(--title-color);
+}
+
+[data-theme="dark"] .navLink:hover {
+  background: var(--box-color2);
+  color: var(--title-color);
+}
+
+[data-theme="dark"] .navLink.active {
+  color: var(--color-primary);
+  background: var(--box-color2);
+}
+
+[data-theme="dark"] .navTooltip {
+  background: var(--box-color);
+  border-color: var(--border-color);
+  color: var(--title-color);
+} 

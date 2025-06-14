@@ -3,7 +3,7 @@ import styles from '../styles/Navbar.module.css';
 import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FaSignOutAlt, FaBell, FaCheckDouble, FaCheck, FaMoon, FaSun, FaSpinner } from 'react-icons/fa';
+import { FaBell, FaCheckDouble, FaCheck, FaMoon, FaSun } from 'react-icons/fa';
 import { markNotificationAsRead, markMultipleNotificationsAsRead } from '../utils/firebase/firebaseNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -11,15 +11,13 @@ import { db } from '../utils/firebase/firebaseConfig';
 import { collection, query, where, onSnapshot, limit, startAfter } from 'firebase/firestore';
 import _ from 'lodash';
 
-export default function Navbar({ user }) {
-  const [menuOpen, setMenuOpen] = useState(false);
+export default function Navbar({ user, isSidebarCollapsed }) {
   const [theme, setTheme] = useState('dark');
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [lastVisible, setLastVisible] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [topNotification, setTopNotification] = useState(null);
-  const [clickedLinks, setClickedLinks] = useState({});
   const router = useRouter();
   const notificationRef = useRef(null);
   const navbarRef = useRef(null);
@@ -28,7 +26,6 @@ export default function Navbar({ user }) {
   useEffect(() => {
     const handleClickOutsideDebounced = _.debounce((event) => {
       if (navbarRef.current && !navbarRef.current.contains(event.target)) {
-        setMenuOpen(false);
         setShowNotifications(false);
       }
     }, 200);
@@ -39,18 +36,6 @@ export default function Navbar({ user }) {
       handleClickOutsideDebounced.cancel();
     };
   }, []);
-
-  // Resetar estado de clique quando a navegação for concluída
-  useEffect(() => {
-    const handleRouteComplete = () => {
-      setClickedLinks({});
-    };
-
-    router.events.on('routeChangeComplete', handleRouteComplete);
-    return () => {
-      router.events.off('routeChangeComplete', handleRouteComplete);
-    };
-  }, [router]);
 
   // Theme management
   useEffect(() => {
@@ -64,43 +49,6 @@ export default function Navbar({ user }) {
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
-  };
-
-  // Função para lidar com o clique em links de navegação
-  const handleNavLinkClick = (e, path) => {
-    // Se o link já foi clicado, impedir a navegação duplicada
-    if (clickedLinks[path]) {
-      e.preventDefault();
-      return;
-    }
-
-    // Marcar o link como clicado
-    setClickedLinks(prev => ({
-      ...prev,
-      [path]: true
-    }));
-
-    // Fechar menu em dispositivos móveis
-    setMenuOpen(false);
-  };
-
-  // Componente NavLink personalizado com feedback visual
-  const NavLink = ({ href, children, className }) => {
-    const isActive = router.pathname === href;
-    const isClicked = clickedLinks[href];
-    
-    return (
-      <Link 
-        href={href} 
-        className={`${className || ''} ${isActive ? styles.active : ''} ${isClicked ? styles.clicked : ''}`}
-        onClick={(e) => handleNavLinkClick(e, href)}
-        tabIndex={isClicked ? -1 : 0}
-        aria-disabled={isClicked}
-      >
-        {children}
-        {isClicked && <FaSpinner className={styles.spinnerIcon} />}
-      </Link>
-    );
   };
 
   // Notifications
@@ -150,15 +98,8 @@ export default function Navbar({ user }) {
     });
   };
 
-  const handleNavigation = (path) => {
-    router.push(path);
-    setMenuOpen(false);
-    setShowNotifications(false);
-  };
-
   const toggleNotifications = () => {
     setShowNotifications(prev => !prev);
-    setMenuOpen(false);
   };
 
   const handleMarkAsRead = async (notificationId) => {
@@ -223,19 +164,26 @@ export default function Navbar({ user }) {
         </div>
       )}
 
-      <nav ref={navbarRef} className={styles.navbar}>
-        <Link href={
-          user.role === 'analyst' || user.role === 'tax' 
-            ? '/profile-analyst' 
-            : user.role === 'quality'
-              ? '/dashboard-quality'
-              : '/profile'
-        } className={styles.logo}>
-          <img 
-            src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
-            alt="Logo"
-          />
-        </Link>
+      <nav 
+        ref={navbarRef} 
+        className={`${styles.navbar} ${isSidebarCollapsed ? styles.sidebarCollapsed : styles.sidebarExpanded}`}
+      >
+        {/* Page Title or Breadcrumb */}
+        <div className={styles.pageTitle}>
+          <h1 className={styles.title}>
+            {router.pathname === '/profile' && 'Meu Perfil'}
+            {router.pathname === '/profile-analyst' && 'Perfil do Analista'}
+            {router.pathname === '/dashboard-analyst' && 'Dashboard Analista'}
+            {router.pathname === '/dashboard-super' && 'Dashboard Super'}
+            {router.pathname === '/dashboard-quality' && 'Dashboard Qualidade'}
+            {router.pathname === '/tools' && 'Ferramentas'}
+            {router.pathname === '/registro' && 'Registrar Ajuda'}
+            {router.pathname === '/manager' && 'Gerenciador'}
+            {router.pathname === '/remote' && 'Acesso Remoto'}
+            {router.pathname === '/admin-notifications' && 'Administrar Notificações'}
+            {router.pathname === '/' && 'OlistHelper'}
+          </h1>
+        </div>
 
         <div className={styles.rightSection}>
           {/* Theme Toggle */}
@@ -312,98 +260,7 @@ export default function Navbar({ user }) {
               )}
             </div>
           )}
-
-          {/* Menu Toggle */}
-          <button 
-            onClick={() => setMenuOpen(!menuOpen)} 
-            className={`${styles.menuToggle} ${menuOpen ? styles.active : ''}`}
-            aria-label="Menu"
-          >
-            <span className={styles.hamburgerIcon}></span>
-            <span className={styles.hamburgerIcon}></span>
-            <span className={styles.hamburgerIcon}></span>
-          </button>
         </div>
-
-        {/* Menu Dropdown */}
-        {menuOpen && (
-          <div className={styles.menu}>
-            {(user.role === 'support' || user.role === 'support+') && (
-              <>
-                <NavLink href="/profile" className={styles.menuButton}>
-                  Meu Perfil
-                </NavLink>
-                <NavLink href="/tools" className={styles.menuButton}>
-                  Ferramentas
-                </NavLink>
-              </>
-            )}
-
-            {(user.role === 'analyst' || user.role === 'tax') && (
-              <>
-                <NavLink href="/profile-analyst" className={styles.menuButton}>
-                  Meu Perfil
-                </NavLink>
-                <NavLink href="/registro" className={styles.menuButton}>
-                  Registrar Ajuda
-                </NavLink>
-                <NavLink href="/dashboard-analyst" className={styles.menuButton}>
-                  Dashboard
-                </NavLink>
-                <NavLink href="/tools" className={styles.menuButton}>
-                  Ferramentas
-                </NavLink>
-              </>
-            )}
-
-            {user.role === 'super' && (
-              <>
-                <NavLink href="/dashboard-super" className={styles.menuButton}>
-                  Dashboard
-                </NavLink>
-                <NavLink href="/tools" className={styles.menuButton}>
-                  Ferramentas
-                </NavLink>
-              </>
-            )}
-
-            {user.role === 'quality' && (
-              <>
-                <NavLink href="/dashboard-quality" className={styles.menuButton}>
-                  Dashboard Qualidade
-                </NavLink>
-                <NavLink href="/tools" className={styles.menuButton}>
-                  Ferramentas
-                </NavLink>
-              </>
-            )}
-
-            {(user.role === 'analyst' || user.role === 'tax' || user.role === 'super') && (
-              <NavLink href="/manager" className={styles.menuButton}>
-                Gerenciador
-              </NavLink>
-            )}
-
-            {(user.role === 'support+' || user.role === 'super') && (
-              <NavLink href="/remote" className={styles.menuButton}>
-                Acesso Remoto
-              </NavLink>
-            )}
-
-            {user.role === 'dev' && (
-              <NavLink href="/admin-notifications" className={styles.menuButton}>
-                Admin Notificações
-              </NavLink>
-            )}
-
-            <button 
-              onClick={() => signOut({ callbackUrl: '/' })} 
-              className={`${styles.menuButton} ${styles.logoutButton}`}
-            >
-              <FaSignOutAlt style={{ marginRight: '8px', fontSize: '20px' }} /> Logout
-            </button>
-          </div>
-        )}
       </nav>
     </div>
   );
