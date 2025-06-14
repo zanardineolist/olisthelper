@@ -86,14 +86,6 @@ export default function ManagerPage({ user }) {
       </Head>
 
       <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
-        {/* Header da página */}
-        <div className={styles.pageHeader}>
-          <h1 className={styles.mainTitle}>Gerenciador</h1>
-          <p className={styles.mainDescription}>
-            Gerencie usuários, categorias e registros do sistema
-          </p>
-        </div>
-
         <ThemeProvider theme={theme}>
           <Tabs value={currentTab} onChange={handleTabChange} centered>
             <Tab label="Gerenciar Usuários" />
