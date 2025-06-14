@@ -9,7 +9,80 @@
   --color-white: #fff;
   --color-overlay: #282828;
 
-  /* Tema claro */
+  /* Tema escuro como padrão */
+  --background-color: #212121;
+  --navbar-bg: #171717;
+  --footer-bg: #171717;
+  --text-color: #B4B4B4;
+  --text-color2: #555555;
+  --title-color: #ECECEC;
+  --box-color: #2F2F2F;
+  --box-color2: #222;
+  --box-color3: #5d5d5d;
+  --box-color4: #282828;
+  --labels-bg: #282828;
+  --labels-border: #383838;
+  --color-icons: #686868;
+  --menu-bg: #2f2f2f;
+  --color-border: #383838;
+  --color-list: #2A2A2A;
+  --color-list2: #2A2A2A;
+  --color-thead: #515151;
+  --text-th: #fff;
+  --color-trodd: #1d1d1d;
+  --color-treven: #2b2b2b;
+  --scroll-bg: #121212;
+  --scroll: #555;
+  --tab-menu-indicator: #fff;
+  --tab-menu-bg: #5d5d5d;
+  --manager-menu-bg-hover: #414141;
+  --modals-inputs: #282828;
+  --bg-tooltip: #747474;
+  --text-tooltip: #c0c0c0;
+
+  /* Profile Analyst - Cores principais (Dark Theme como padrão) */
+  --primary-color: #174cbd;
+  --primary-light: #2563eb;
+  --primary-dark: #0A4EE4;
+  
+  /* Profile Analyst - Status colors (Dark Theme como padrão) */
+  --excellent-color: #8bb246;
+  --excellent-light: #9bc054;
+  --excellent-bg: rgba(139, 178, 70, 0.1);
+  --good-color: #f2b34a;
+  --good-light: #f4c367;
+  --good-bg: rgba(242, 179, 74, 0.1);
+  --warning-color: #fbbf24;
+  --warning-light: #fcd34d;
+  --warning-bg: rgba(251, 191, 36, 0.1);
+  --poor-color: #ea6952;
+  --poor-light: #ed7a6a;
+  --poor-bg: rgba(234, 105, 82, 0.1);
+  --neutral-color: #B4B4B4;
+  --neutral-light: #c8c8c8;
+  --neutral-bg: rgba(180, 180, 180, 0.1);
+  
+  /* Profile Analyst - Ranking colors (Dark Theme como padrão) */
+  --first-color: #f2b34a;
+  --first-bg: rgba(242, 179, 74, 0.1);
+  --second-color: #B4B4B4;
+  --second-bg: rgba(180, 180, 180, 0.1);
+  --third-color: #ea6952;
+  --third-bg: rgba(234, 105, 82, 0.1);
+  
+  /* Profile Analyst - Background and text (Dark Theme como padrão) */
+  --bg-color: #2F2F2F;
+  --bg-secondary: #212121;
+  --text-primary: #ECECEC;
+  --text-secondary: #B4B4B4;
+  --text-muted: #686868;
+  --border-color: #383838;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-md: 0 2px 4px 0 rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 4px 8px 0 rgb(0 0 0 / 0.6);
+}
+
+[data-theme="light"] {
   --background-color: #ffffff;
   --navbar-bg: #ECECEC;
   --footer-bg: #ECECEC;
@@ -40,7 +113,7 @@
   --bg-tooltip: #5D5D5D;
   --text-tooltip: #c0c0c0;
 
-  /* Profile Analyst - Cores principais (Light Theme) */
+  /* Profile Analyst - Light mode overrides */
   --primary-color: #0A4EE4;
   --primary-light: #174cbd;
   --primary-dark: #083bb8;
@@ -80,79 +153,6 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 2px 4px 0 rgb(0 0 0 / 0.1);
   --shadow-lg: 0 4px 8px 0 rgb(0 0 0 / 0.15);
-}
-
-[data-theme="dark"] {
-  --background-color: #212121;
-  --navbar-bg: #171717;
-  --footer-bg: #171717;
-  --text-color: #B4B4B4;
-  --text-color2: #555555;
-  --title-color: #ECECEC;
-  --box-color: #2F2F2F;
-  --box-color2: #222;
-  --box-color3: #5d5d5d;
-  --box-color4: #282828;
-  --labels-bg: #282828;
-  --labels-border: #383838;
-  --color-icons: #686868;
-  --menu-bg: #2f2f2f;
-  --color-border: #383838;
-  --color-list: #2A2A2A;
-  --color-list2: #2A2A2A;
-  --color-thead: #515151;
-  --text-th: #fff;
-  --color-trodd: #1d1d1d;
-  --color-treven: #2b2b2b;
-  --scroll-bg: #121212;
-  --scroll: #555;
-  --tab-menu-indicator: #fff;
-  --tab-menu-bg: #5d5d5d;
-  --manager-menu-bg-hover: #414141;
-  --modals-inputs: #282828;
-  --bg-tooltip: #747474;
-  --text-tooltip: #c0c0c0;
-
-  /* Profile Analyst - Dark mode overrides */
-  --primary-color: #174cbd;
-  --primary-light: #2563eb;
-  --primary-dark: #0A4EE4;
-  
-  /* Profile Analyst - Status colors (Dark Theme) */
-  --excellent-color: #8bb246;
-  --excellent-light: #9bc054;
-  --excellent-bg: rgba(139, 178, 70, 0.1);
-  --good-color: #f2b34a;
-  --good-light: #f4c367;
-  --good-bg: rgba(242, 179, 74, 0.1);
-  --warning-color: #fbbf24;
-  --warning-light: #fcd34d;
-  --warning-bg: rgba(251, 191, 36, 0.1);
-  --poor-color: #ea6952;
-  --poor-light: #ed7a6a;
-  --poor-bg: rgba(234, 105, 82, 0.1);
-  --neutral-color: #B4B4B4;
-  --neutral-light: #c8c8c8;
-  --neutral-bg: rgba(180, 180, 180, 0.1);
-  
-  /* Profile Analyst - Ranking colors (Dark Theme) */
-  --first-color: #f2b34a;
-  --first-bg: rgba(242, 179, 74, 0.1);
-  --second-color: #B4B4B4;
-  --second-bg: rgba(180, 180, 180, 0.1);
-  --third-color: #ea6952;
-  --third-bg: rgba(234, 105, 82, 0.1);
-  
-  /* Profile Analyst - Background and text (Dark Theme) */
-  --bg-color: #2F2F2F;
-  --bg-secondary: #212121;
-  --text-primary: #ECECEC;
-  --text-secondary: #B4B4B4;
-  --text-muted: #686868;
-  --border-color: #383838;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
-  --shadow-md: 0 2px 4px 0 rgb(0 0 0 / 0.5);
-  --shadow-lg: 0 4px 8px 0 rgb(0 0 0 / 0.6);
 }
 
 /* Corpo da página */

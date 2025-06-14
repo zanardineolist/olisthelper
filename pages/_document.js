@@ -14,6 +14,21 @@ class MyDocument extends Document {
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
           />
+          {/* Script para evitar flash do tema claro */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  try {
+                    var theme = localStorage.getItem('theme') || 'dark';
+                    document.documentElement.setAttribute('data-theme', theme);
+                  } catch (e) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                  }
+                })();
+              `,
+            }}
+          />
         </Head>
         <body>
           <Main />
