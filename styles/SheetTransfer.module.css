@@ -1,5 +1,8 @@
 .main {
-  padding: 2rem;
+  padding: 0.5rem 2rem 2rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: transparent;
   min-height: calc(100vh - 150px);
   display: flex;
   flex-direction: column;

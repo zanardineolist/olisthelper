@@ -214,6 +214,14 @@
   margin-bottom: 0;
 }
 
+.sidebar.collapsed .secondaryNav .navItem {
+  margin-bottom: 16px;
+}
+
+.sidebar.collapsed .secondaryNav .navItem:last-child {
+  margin-bottom: 0;
+}
+
 .navLink {
   color: var(--text-color);
   display: flex;

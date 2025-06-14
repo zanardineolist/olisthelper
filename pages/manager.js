@@ -9,6 +9,8 @@ import ManageRecords from '../components/ManageRecords';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import styles from '../styles/Manager.module.css';
+import Layout from '../components/Layout';
+import ManagerTable from '../components/ManagerTable';
 
 const theme = createTheme({
   components: {
@@ -98,31 +100,30 @@ export default function ManagerPage({ user }) {
         <title>Gerenciar Dados</title>
       </Head>
 
-      <Navbar user={user} />
+      <Layout user={user}>
+        <main className={styles.main}>
+          <ThemeProvider theme={theme}>
+            <Tabs value={currentTab} onChange={handleTabChange} centered>
+              <Tab label="Gerenciar Usuários" />
+              <Tab label="Gerenciar Categorias" />
+              {(user.role === 'analyst' || user.role === 'tax') && (
+                <Tab label="Gerenciar Registros" />
+              )}
+            </Tabs>
+          </ThemeProvider>
 
-      <main className={styles.main}>
-        <ThemeProvider theme={theme}>
-          <Tabs value={currentTab} onChange={handleTabChange} centered>
-            <Tab label="Gerenciar Usuários" />
-            <Tab label="Gerenciar Categorias" />
-            {(user.role === 'analyst' || user.role === 'tax') && (
-              <Tab label="Gerenciar Registros" />
+          <div className={styles.tabContent}>
+            {currentTab === 0 && <ManageUsers user={user} />}
+            {currentTab === 1 && <ManageCategories user={user} />}
+            {currentTab === 2 && (user.role === 'analyst' || user.role === 'tax') && (
+              <ManageRecords user={user} />
             )}
-          </Tabs>
-        </ThemeProvider>
+          </div>
+        </main>
+      </Layout>
 
-        <div className={styles.tabContent}>
-          {currentTab === 0 && <ManageUsers user={user} />}
-          {currentTab === 1 && <ManageCategories user={user} />}
-          {currentTab === 2 && (user.role === 'analyst' || user.role === 'tax') && (
-            <ManageRecords user={user} />
-          )}
-        </div>
-      </main>
-
-      <Footer />
-    </>
-  );
+            </>
+    );
 }
 
 export async function getServerSideProps(context) {

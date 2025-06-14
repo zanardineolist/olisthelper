@@ -9,8 +9,10 @@ import Modal from 'react-modal';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
 import managerStyles from '../styles/Manager.module.css';
-import Footer from '../components/Footer';
-import Navbar from '../components/Navbar';
+
+import Layout from '../components/Layout';
+import RegistroForm from '../components/RegistroForm';
+import RecordsList from '../components/RecordsList';
 
 export default function RegistroPage({ user }) {
   const router = useRouter();
@@ -575,12 +577,10 @@ const customSelectStyles = {
   }
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Registrar Ajuda</title>
       </Head>
-
-      <Navbar user={user} />
 
       <main className={styles.mainContent}>
         <div className={styles.formContainerWithSpacing}>
@@ -745,8 +745,7 @@ const customSelectStyles = {
         </div>
       </Modal>
 
-      <Footer />
-    </>
+    </Layout>
   );
 }
 

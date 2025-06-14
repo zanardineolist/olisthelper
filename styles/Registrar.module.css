@@ -14,11 +14,12 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding: 2rem 1rem;
+  padding: 0.5rem 2rem 2rem 2rem;
   width: 100%;
-  max-width: 1300px;
+  max-width: 1200px;
   margin: 0 auto;
   gap: 2rem;
+  background: transparent;
 }
 
 /* Container para o formulário, com espaçamento */

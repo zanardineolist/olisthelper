@@ -1,8 +1,9 @@
 /* Main container */
 .dashboardMain {
+  padding: 0.5rem 2rem 2rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 30px 20px;
+  background: transparent;
 }
 
 /* Page header */

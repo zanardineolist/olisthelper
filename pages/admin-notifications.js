@@ -1,12 +1,12 @@
 // pages/admin-notifications.js
 import Head from 'next/head';
-import { useState } from 'react';
 import { getSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
+import Layout from '../components/Layout';
+import styles from '../styles/AdminNotifications.module.css';
 import { TextField, Button, ThemeProvider, createTheme, FormControlLabel, Checkbox, FormGroup, RadioGroup, Radio } from '@mui/material';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+
 import managerStyles from '../styles/Manager.module.css';
-import adminStyles from '../styles/AdminNotifications.module.css';
 
 const theme = createTheme({
   components: {
@@ -107,19 +107,17 @@ export default function AdminNotificationsPage({ user }) {
   };
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Administração de Notificações</title>
       </Head>
 
-      <Navbar user={user} />
-
-      <main className={adminStyles.mainContent}>
+      <main className={styles.mainContent}>
         <ThemeProvider theme={theme}>
-          <div className={adminStyles.formContainer}>
-            <h2 className={adminStyles.formTitle}>Enviar Nova Notificação</h2>
+          <div className={styles.formContainer}>
+            <h2 className={styles.formTitle}>Enviar Nova Notificação</h2>
             <TextField
-              className={adminStyles.textField}
+              className={styles.textField}
               label="Título da Notificação"
               variant="outlined"
               fullWidth
@@ -128,7 +126,7 @@ export default function AdminNotificationsPage({ user }) {
               required
             />
             <TextField
-              className={adminStyles.textarea}
+              className={styles.textarea}
               label="Mensagem da Notificação"
               variant="outlined"
               fullWidth
@@ -181,7 +179,7 @@ export default function AdminNotificationsPage({ user }) {
               />
              </FormGroup>
               <RadioGroup
-                className={adminStyles.radioGroup}
+                className={styles.radioGroup}
                 value={notificationType}
                 onChange={(e) => setNotificationType(e.target.value)}
                 row
@@ -191,7 +189,7 @@ export default function AdminNotificationsPage({ user }) {
                 <FormControlLabel value="both" control={<Radio />} label="Ambos" />
               </RadioGroup>
               <RadioGroup
-                className={adminStyles.radioGroup}
+                className={styles.radioGroup}
                 value={notificationStyle}
                 onChange={(e) => setNotificationStyle(e.target.value)}
                 row
@@ -199,24 +197,22 @@ export default function AdminNotificationsPage({ user }) {
                 <FormControlLabel value="aviso" control={<Radio />} label="Aviso" />
                 <FormControlLabel value="informacao" control={<Radio />} label="Informação" />
               </RadioGroup>
-              <div className={adminStyles.formButtonContainer}>
+              <div className={styles.formButtonContainer}>
                 <Button
                   variant="contained"
                   fullWidth
                   onClick={handleSubmit}
                   disabled={loading || !title || !message}
-                  className={adminStyles.submitButton}
+                  className={styles.submitButton}
                 >
                   {loading ? 'Enviando...' : 'Enviar Notificação'}
                 </Button>
               </div>
             </div>
           </ThemeProvider>
-        </main>
-
-      <Footer />
-    </>
-  );
+                </main>
+      </Layout>
+    );
 }
 
 export async function getServerSideProps(context) {

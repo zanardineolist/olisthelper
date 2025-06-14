@@ -2,11 +2,10 @@
 
 /* ===== CONTAINER PRINCIPAL ===== */
 .container {
-  width: 100%;
-  padding-top: calc(64px + 2rem);
-  padding-left: 2rem;
-  padding-right: 2rem;
-  padding-bottom: 2rem;
+  padding: 0.5rem 2rem 2rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: transparent;
 }
 
 /* ===== HEADER ===== */

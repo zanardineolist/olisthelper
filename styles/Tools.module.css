@@ -1,13 +1,11 @@
 .main {
-  padding: 0;
-  margin-top: 50px;
-  background-color: var(--background-color);
-  color: var(--text-color);
+  padding: 0.5rem 2rem 2rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: transparent;
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 1400px;
-  margin: 50px auto 0;
   flex: 1;
 }
 
@@ -324,10 +322,6 @@
    RESPONSIVIDADE
    ======================================== */
 @media (max-width: 768px) {
-  .main {
-    margin-top: 50px;
-  }
-
   .pageHeader {
     padding: 24px 16px 16px;
   }
@@ -822,8 +816,6 @@
 .customSelect {
   width: 100%;
 }
-
-
 
 .counterContainer {
   position: relative;

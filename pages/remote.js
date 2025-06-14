@@ -1,9 +1,9 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import { getSession } from 'next-auth/react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Layout from '../components/Layout';
+import RemoteCard from '../components/RemoteCard';
 import RegisterAccess from '../components/RegisterAccess';
 import MyAccessRecords from '../components/MyAccessRecords';
 import AllAccessRecords from '../components/AllAccessRecords';
@@ -67,47 +67,43 @@ export default function RemotePage({ user }) {
   }
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Acesso Remoto</title>
       </Head>
 
-      <Navbar user={user} />
-
       <main className={styles.main}>
-        <ThemeProvider theme={theme}>
-          <Tabs value={currentTab} onChange={handleTabChange} centered>
-            {user.role === 'support+' && <Tab label="Registrar" />}
-            {user.role === 'support+' && <Tab label="Meus Acessos" />}
-            {user.role === 'super' && <Tab label="Todos os Acessos" />}
-            {user.role === 'super' && <Tab label="Agenda" />}
-          </Tabs>
-        </ThemeProvider>
+          <ThemeProvider theme={theme}>
+            <Tabs value={currentTab} onChange={handleTabChange} centered>
+              {user.role === 'support+' && <Tab label="Registrar" />}
+              {user.role === 'support+' && <Tab label="Meus Acessos" />}
+              {user.role === 'super' && <Tab label="Todos os Acessos" />}
+              {user.role === 'super' && <Tab label="Agenda" />}
+            </Tabs>
+          </ThemeProvider>
 
-        <div className={styles.tabContent}>
-          {user.role === 'support+' && currentTab === 0 && (
-            <RegisterAccess user={user} />
-          )}
-          {user.role === 'support+' && currentTab === 1 && (
-            <MyAccessRecords user={user} />
-          )}
-          {user.role === 'super' && currentTab === 0 && (
-            <AllAccessRecords user={user} currentTab={currentTab} />
-          )}
-          {user.role === 'super' && currentTab === 1 && (
-            <GoogleCalendar />
-          )}
-        </div>
-      </main>
-
-      <Footer />
-    </>
-  );
-}
+          <div className={styles.tabContent}>
+            {user.role === 'support+' && currentTab === 0 && (
+              <RegisterAccess user={user} />
+            )}
+            {user.role === 'support+' && currentTab === 1 && (
+              <MyAccessRecords user={user} />
+            )}
+            {user.role === 'super' && currentTab === 0 && (
+              <AllAccessRecords user={user} currentTab={currentTab} />
+            )}
+            {user.role === 'super' && currentTab === 1 && (
+              <GoogleCalendar />
+            )}
+          </div>
+        </main>
+      </Layout>
+    );
+  }
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  if (!session || !['support+', 'super'].includes(session.role)) {
+  if (!session || (session.role !== 'support+' && session.role !== 'super')) {
     return {
       redirect: {
         destination: '/',
@@ -115,15 +111,12 @@ export async function getServerSideProps(context) {
       },
     };
   }
-
   return {
     props: {
       user: {
         ...session.user,
         role: session.role,
         id: session.id,
-        name: session.user.name,
-        email: session.user.email,
       },
     },
   };

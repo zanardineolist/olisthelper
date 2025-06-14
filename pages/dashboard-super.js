@@ -7,10 +7,10 @@ import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import DashboardData from '../components/DashboardData';
 import GraphData from '../components/GraphData';
 import HelpTopicsData from '../components/HelpTopicsData';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Layout from '../components/Layout';
+
 import Swal from 'sweetalert2';
-import styles from '../styles/DashboardSuper.module.css';
+import styles from '../styles/Dashboard.module.css';
 
 const theme = createTheme({
   components: {
@@ -125,13 +125,11 @@ export default function DashboardSuper({ user }) {
   }
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Dashboard Supervisor</title>
         <meta name="description" content="Painel de controle para supervisores visualizarem métricas de desempenho" />
       </Head>
-
-      <Navbar user={user} />
 
       <main className={styles.dashboardMain}>
         {/* Header da página */}
@@ -203,9 +201,7 @@ export default function DashboardSuper({ user }) {
           </div>
         </section>
       </main>
-
-      <Footer />
-    </>
+    </Layout>
   );
 }
 
