@@ -156,10 +156,15 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
               : '/profile'
         } className={styles.headerLogo}>
           <img 
-            src={theme === 'dark' ? '/images/logos/olist_helper_logo.png' : '/images/logos/olist_helper_dark_logo.png'}
+            src={isCollapsed 
+              ? '/images/logos/olist_helper_favicon.png'
+              : theme === 'dark' 
+                ? '/images/logos/olist_helper_logo.png' 
+                : '/images/logos/olist_helper_dark_logo.png'
+            }
             alt="OlistHelper"
+            className={isCollapsed ? styles.faviconLogo : styles.fullLogo}
           />
-          <span className={styles.logoText}>OlistHelper</span>
         </Link>
 
         {/* Desktop Toggler */}
@@ -205,8 +210,12 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
               className={`${styles.navLink} ${styles.themeToggle}`}
               aria-label="Alternar tema"
             >
-              <span className={styles.navIcon}>
-                {theme === 'dark' ? <FaSun /> : <FaMoon />}
+              <span className={styles.themeToggleContainer}>
+                <span className={styles.themeToggleTrack}>
+                  <span className={`${styles.themeToggleThumb} ${theme === 'dark' ? styles.dark : styles.light}`}>
+                    {theme === 'dark' ? <FaMoon /> : <FaSun />}
+                  </span>
+                </span>
               </span>
               <span className={styles.navLabel}>
                 {theme === 'dark' ? 'Tema Claro' : 'Tema Escuro'}

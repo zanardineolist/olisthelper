@@ -42,7 +42,7 @@
   opacity: 0.8;
 }
 
-.headerLogo img {
+.fullLogo {
   width: 40px;
   height: 40px;
   object-fit: contain;
@@ -50,18 +50,12 @@
   transition: all 0.3s ease;
 }
 
-.logoText {
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--title-color);
-  transition: opacity 0.3s ease;
-  white-space: nowrap;
-}
-
-.sidebar.collapsed .logoText {
-  opacity: 0;
-  pointer-events: none;
-  width: 0;
+.faviconLogo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 }
 
 .toggler {
@@ -219,12 +213,56 @@
 }
 
 .themeToggle {
-  color: var(--color-accent2) !important;
+  color: var(--text-color) !important;
 }
 
 .themeToggle:hover {
-  background: rgba(240, 160, 40, 0.1) !important;
-  color: var(--color-accent2) !important;
+  background: var(--box-color2) !important;
+  color: var(--title-color) !important;
+}
+
+.themeToggleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+}
+
+.themeToggleTrack {
+  width: 40px;
+  height: 20px;
+  background: var(--box-color3);
+  border-radius: 20px;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.themeToggleThumb {
+  width: 16px;
+  height: 16px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.themeToggleThumb.dark {
+  left: 20px;
+  background: var(--color-accent2);
+}
+
+.themeToggleThumb.light {
+  left: 2px;
+  background: var(--color-accent2);
 }
 
 .logoutButton {
@@ -289,13 +327,14 @@
     min-height: 60px;
   }
 
-  .headerLogo img {
+  .fullLogo {
     width: 36px;
     height: 36px;
   }
 
-  .logoText {
-    font-size: 1.1rem;
+  .faviconLogo {
+    width: 28px;
+    height: 28px;
   }
 
   .sidebarToggler,
@@ -341,12 +380,6 @@
     pointer-events: auto;
     width: auto;
   }
-
-  .sidebar.collapsed .logoText {
-    opacity: 1;
-    pointer-events: auto;
-    width: auto;
-  }
 }
 
 @media (max-width: 768px) {
@@ -354,13 +387,14 @@
     padding: 10px 12px;
   }
 
-  .headerLogo img {
+  .fullLogo {
     width: 32px;
     height: 32px;
   }
 
-  .logoText {
-    font-size: 1rem;
+  .faviconLogo {
+    width: 24px;
+    height: 24px;
   }
 
   .menuToggler {
