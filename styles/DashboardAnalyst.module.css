@@ -1,8 +1,12 @@
-/* Main container */
-.dashboardMain {
+/* ===== CONTAINER PRINCIPAL ===== */
+.container {
+  width: 100%;
+  padding-top: 0px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 30px 20px;
 }
 
 /* Page header */
@@ -369,16 +373,19 @@
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding-top: calc(64px + 1rem);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 1rem;
+  }
+
   .summaryContent {
     grid-template-columns: 1fr;
   }
   
   .chartWrapper {
     height: 300px;
-  }
-  
-  .dashboardMain {
-    padding: 20px 15px;
   }
 }
 
