@@ -167,15 +167,6 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
           />
         </Link>
 
-        {/* Desktop Toggler */}
-        <button 
-          className={`${styles.toggler} ${styles.sidebarToggler}`}
-          onClick={toggleSidebar}
-          aria-label="Toggle Sidebar"
-        >
-          <FaChevronLeft />
-        </button>
-
         {/* Mobile Toggler */}
         <button 
           className={`${styles.toggler} ${styles.menuToggler}`}
@@ -185,6 +176,16 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
           <FaBars />
         </button>
       </header>
+
+      {/* Desktop Toggler - Positioned separately */}
+      <button 
+        className={`${styles.toggler} ${styles.sidebarToggler}`}
+        onClick={toggleSidebar}
+        aria-label={isCollapsed ? "Expandir Sidebar" : "Recolher Sidebar"}
+        title={isCollapsed ? "Expandir Sidebar" : "Recolher Sidebar"}
+      >
+        <FaChevronLeft />
+      </button>
 
       {/* Sidebar Navigation */}
       <nav className={styles.sidebarNav}>
