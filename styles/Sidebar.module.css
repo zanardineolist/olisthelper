@@ -280,6 +280,46 @@
   color: var(--title-color) !important;
 }
 
+.themeToggleContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+}
+
+.themeToggleTrack {
+  width: 48px;
+  height: 24px;
+  background-color: var(--box-color2);
+  border-radius: 12px;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.themeToggleThumb {
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.themeToggleThumb.dark {
+  transform: translateX(24px);
+}
+
+.moonIcon,
+.sunIcon {
+  color: white;
+  font-size: 12px;
+}
+
 .logoutButton {
   color: var(--color-accent1) !important;
 }

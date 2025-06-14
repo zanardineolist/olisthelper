@@ -252,10 +252,27 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
             <button 
               onClick={toggleTheme} 
               className={`${styles.navLink} ${styles.themeToggle}`}
+              onMouseEnter={(e) => {
+                if (isCollapsed) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  // Atualiza tooltip para theme toggle especificamente
+                  const tooltipEl = e.currentTarget.nextElementSibling;
+                  if (tooltipEl) {
+                    tooltipEl.style.position = 'fixed';
+                    tooltipEl.style.top = `${rect.top + rect.height / 2}px`;
+                    tooltipEl.style.left = `${rect.right + 12}px`;
+                    tooltipEl.style.transform = 'translateY(-50%)';
+                  }
+                }
+              }}
               aria-label="Alternar tema"
             >
-              <span className={styles.navIcon}>
-                {theme === 'dark' ? <FaMoon /> : <FaSun />}
+              <span className={styles.themeToggleContainer}>
+                <span className={styles.themeToggleTrack}>
+                  <span className={`${styles.themeToggleThumb} ${theme === 'dark' ? styles.dark : ''}`}>
+                    {theme === 'dark' ? <FaMoon className={styles.moonIcon} /> : <FaSun className={styles.sunIcon} />}
+                  </span>
+                </span>
               </span>
               <span className={styles.navLabel}>
                 {theme === 'dark' ? 'Tema Claro' : 'Tema Escuro'}
@@ -271,6 +288,19 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
             <button 
               onClick={() => signOut({ callbackUrl: '/' })} 
               className={`${styles.navLink} ${styles.logoutButton}`}
+              onMouseEnter={(e) => {
+                if (isCollapsed) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  // Atualiza tooltip para logout especificamente
+                  const tooltipEl = e.currentTarget.nextElementSibling;
+                  if (tooltipEl) {
+                    tooltipEl.style.position = 'fixed';
+                    tooltipEl.style.top = `${rect.top + rect.height / 2}px`;
+                    tooltipEl.style.left = `${rect.right + 12}px`;
+                    tooltipEl.style.transform = 'translateY(-50%)';
+                  }
+                }
+              }}
             >
               <span className={styles.navIcon}>
                 <FaSignOutAlt />
