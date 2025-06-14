@@ -24,10 +24,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 16px;
+  padding: 16px;
   border-bottom: 1px solid var(--border-color);
   background: var(--box-color);
-  min-height: 80px;
+  min-height: 72px;
 }
 
 .headerLogo {
@@ -36,6 +36,8 @@
   gap: 12px;
   text-decoration: none;
   transition: all 0.3s ease;
+  flex: 1;
+  min-width: 0;
 }
 
 .headerLogo:hover {
@@ -43,18 +45,18 @@
 }
 
 .fullLogo {
-  width: 40px;
-  height: 40px;
+  width: 120px;
+  height: auto;
   object-fit: contain;
-  border-radius: 8px;
   transition: all 0.3s ease;
+  max-height: 40px;
 }
 
 .faviconLogo {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: all 0.3s ease;
 }
 
@@ -328,13 +330,14 @@
   }
 
   .fullLogo {
-    width: 36px;
-    height: 36px;
+    width: 100px;
+    height: auto;
+    max-height: 36px;
   }
 
   .faviconLogo {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
   }
 
   .sidebarToggler,
@@ -388,13 +391,14 @@
   }
 
   .fullLogo {
-    width: 32px;
-    height: 32px;
+    width: 90px;
+    height: auto;
+    max-height: 32px;
   }
 
   .faviconLogo {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
   }
 
   .menuToggler {
