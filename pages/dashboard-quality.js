@@ -1,8 +1,7 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { getSession } from 'next-auth/react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Layout from '../components/Layout';
 import HelpTopicsData from '../components/HelpTopicsData';
 import styles from '../styles/DashboardSuper.module.css';
 
@@ -38,15 +37,13 @@ export default function DashboardQuality({ user }) {
   }
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Dashboard Qualidade</title>
         <meta name="description" content="Painel de controle para equipe de qualidade visualizar temas de dúvidas" />
       </Head>
 
-      <Navbar user={user} />
-
-      <main className={styles.dashboardMain}>
+      <div className={styles.container}>
         <div className={styles.pageHeader}>
           <div className={styles.welcomeContainer}>
             <div className={styles.greetingText}>
@@ -75,10 +72,8 @@ export default function DashboardQuality({ user }) {
         <div className={styles.tabContent}>
           <HelpTopicsData />
         </div>
-      </main>
-
-      <Footer />
-    </>
+      </div>
+    </Layout>
   );
 }
 

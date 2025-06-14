@@ -1,5 +1,16 @@
 /* styles/DashboardSuper.module.css */
 
+/* ===== CONTAINER PRINCIPAL ===== */
+.container {
+    width: 100%;
+    padding-top: 0px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 2rem;
+    max-width: none;
+    margin: 0;
+}
+
 /* ==================================================
    LAYOUT PRINCIPAL SIMPLIFICADO - MELHOR DENSIDADE
    ================================================== */
@@ -884,6 +895,13 @@
 }
 
 @media (max-width: 768px) {
+    .container {
+        padding-top: calc(64px + 1rem);
+        padding-left: 1rem;
+        padding-right: 1rem;
+        padding-bottom: 1rem;
+    }
+
     .dashboardMain {
         padding: 0 12px;
     }
