@@ -192,15 +192,15 @@ export default function ToolsPage({ user }) {
   // Scroll horizontal com mouse wheel (apenas na área das tabs)
   const handleWheelScroll = (e) => {
     if (tabsListRef.current && !isMobile) {
-      // Verifica se o elemento ou seus pais têm classes relacionadas às tabs
+      // Verifica se o elemento ou seus pais estão na área das tabs
       const target = e.target;
-      const isInTabsArea = target.closest('.tabsWrapper') || 
-                          target.closest('.tabsContainer') || 
-                          target.closest('.tabsNavigation') ||
-                          target.closest('.tabsListWrapper') ||
-                          target.closest('.tabsList') ||
-                          target.classList.contains('tabButton') ||
-                          target.classList.contains('scrollButton');
+      const isInTabsArea = target.closest(`[class*="tabsWrapper"]`) || 
+                          target.closest(`[class*="tabsContainer"]`) || 
+                          target.closest(`[class*="tabsNavigation"]`) ||
+                          target.closest(`[class*="tabsListWrapper"]`) ||
+                          target.closest(`[class*="tabsList"]`) ||
+                          target.closest(`[class*="tabButton"]`) ||
+                          target.closest(`[class*="scrollButton"]`);
       
       if (isInTabsArea) {
         // Detecta se é scroll horizontal (deltaX) ou vertical (deltaY)
@@ -226,6 +226,11 @@ export default function ToolsPage({ user }) {
   // Drag to scroll
   const handleMouseDown = (e) => {
     if (!isMobile && tabsListRef.current) {
+      // Não inicia drag se clicar diretamente em um botão de tab
+      if (e.target.closest(`[class*="tabButton"]`) || e.target.closest(`[class*="tabIcon"]`) || e.target.closest(`[class*="tabLabel"]`)) {
+        return;
+      }
+      
       setIsDragging(true);
       setDragStart({
         x: e.pageX - tabsListRef.current.offsetLeft,
@@ -256,30 +261,26 @@ export default function ToolsPage({ user }) {
     if (tabsList) {
       checkScrollButtons();
       tabsList.addEventListener('scroll', checkScrollButtons);
+      tabsList.addEventListener('mousedown', handleMouseDown);
+      tabsList.addEventListener('mouseleave', handleMouseLeave);
       
       // Adiciona wheel listener no documento para capturar em qualquer lugar
       document.addEventListener('wheel', handleWheelScroll, { passive: false });
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
       window.addEventListener('resize', checkScrollButtons);
-      
-      // Event listeners para drag apenas no container
-      const handleMouseDownOnContainer = (e) => handleMouseDown(e);
-      const handleMouseMoveOnDocument = (e) => handleMouseMove(e);
-      const handleMouseUpOnDocument = () => handleMouseUp();
-      
-      tabsList.addEventListener('mousedown', handleMouseDownOnContainer);
-      document.addEventListener('mousemove', handleMouseMoveOnDocument);
-      document.addEventListener('mouseup', handleMouseUpOnDocument);
       
       return () => {
         tabsList.removeEventListener('scroll', checkScrollButtons);
-        tabsList.removeEventListener('mousedown', handleMouseDownOnContainer);
-        document.removeEventListener('mousemove', handleMouseMoveOnDocument);
-        document.removeEventListener('mouseup', handleMouseUpOnDocument);
+        tabsList.removeEventListener('mousedown', handleMouseDown);
+        tabsList.removeEventListener('mouseleave', handleMouseLeave);
         document.removeEventListener('wheel', handleWheelScroll);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
         window.removeEventListener('resize', checkScrollButtons);
       };
     }
-  }, [isMobile, availableTabs]);
+  }, [isMobile, availableTabs, isDragging, dragStart]);
 
   // Verifica botões quando as tabs disponíveis mudarem
   useEffect(() => {
@@ -308,12 +309,16 @@ export default function ToolsPage({ user }) {
     // Previne mudança de tab durante o drag
     if (isDragging) return;
     
+    console.log('Clicou na tab:', newValue, availableTabs[newValue]?.label);
+    
     setCurrentTab(newValue);
     setShowMobileMenu(false);
     const selectedTab = availableTabs[newValue];
     
     if (selectedTab) {
-      router.push(`${window.location.pathname}${selectedTab.hash}`, undefined, { shallow: true });
+      console.log('Navegando para:', selectedTab.hash);
+      // Use replace em vez de push para evitar problemas de navegação
+      window.history.replaceState(null, '', `${window.location.pathname}${selectedTab.hash}`);
     }
 
     // Scroll para mostrar a tab ativa em desktop (necessário para UX)
@@ -413,6 +418,7 @@ export default function ToolsPage({ user }) {
                       key={tab.id}
                       className={`${styles.tabButton} ${currentTab === index ? styles.tabActive : ''}`}
                       onClick={() => handleTabChange(index)}
+                      onMouseDown={(e) => e.stopPropagation()}
                       title={tab.description}
                     >
                       <span className={styles.tabIcon}>
