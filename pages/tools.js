@@ -256,26 +256,30 @@ export default function ToolsPage({ user }) {
     if (tabsList) {
       checkScrollButtons();
       tabsList.addEventListener('scroll', checkScrollButtons);
-      tabsList.addEventListener('mousedown', handleMouseDown);
-      tabsList.addEventListener('mousemove', handleMouseMove);
-      tabsList.addEventListener('mouseup', handleMouseUp);
-      tabsList.addEventListener('mouseleave', handleMouseLeave);
       
       // Adiciona wheel listener no documento para capturar em qualquer lugar
       document.addEventListener('wheel', handleWheelScroll, { passive: false });
       window.addEventListener('resize', checkScrollButtons);
       
+      // Event listeners para drag apenas no container
+      const handleMouseDownOnContainer = (e) => handleMouseDown(e);
+      const handleMouseMoveOnDocument = (e) => handleMouseMove(e);
+      const handleMouseUpOnDocument = () => handleMouseUp();
+      
+      tabsList.addEventListener('mousedown', handleMouseDownOnContainer);
+      document.addEventListener('mousemove', handleMouseMoveOnDocument);
+      document.addEventListener('mouseup', handleMouseUpOnDocument);
+      
       return () => {
         tabsList.removeEventListener('scroll', checkScrollButtons);
-        tabsList.removeEventListener('mousedown', handleMouseDown);
-        tabsList.removeEventListener('mousemove', handleMouseMove);
-        tabsList.removeEventListener('mouseup', handleMouseUp);
-        tabsList.removeEventListener('mouseleave', handleMouseLeave);
+        tabsList.removeEventListener('mousedown', handleMouseDownOnContainer);
+        document.removeEventListener('mousemove', handleMouseMoveOnDocument);
+        document.removeEventListener('mouseup', handleMouseUpOnDocument);
         document.removeEventListener('wheel', handleWheelScroll);
         window.removeEventListener('resize', checkScrollButtons);
       };
     }
-  }, [isMobile, availableTabs, isDragging, dragStart]);
+  }, [isMobile, availableTabs]);
 
   // Verifica botões quando as tabs disponíveis mudarem
   useEffect(() => {
@@ -301,6 +305,9 @@ export default function ToolsPage({ user }) {
   }, [hashToTabIndex]);
 
   const handleTabChange = (newValue) => {
+    // Previne mudança de tab durante o drag
+    if (isDragging) return;
+    
     setCurrentTab(newValue);
     setShowMobileMenu(false);
     const selectedTab = availableTabs[newValue];
@@ -362,14 +369,6 @@ export default function ToolsPage({ user }) {
       </Head>
 
       <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
-        {/* Header da página */}
-        <div className={styles.pageHeader}>
-          <h1 className={styles.mainTitle}>Ferramentas</h1>
-          <p className={styles.mainDescription}>
-            Acesse todas as ferramentas disponíveis para otimizar seu dia a dia
-          </p>
-        </div>
-
         {/* Sistema de Tabs Moderno */}
         <div className={`${styles.tabsWrapper} ${isScrolled ? styles.scrolled : ''}`}>
           {/* Mobile Menu Button */}
