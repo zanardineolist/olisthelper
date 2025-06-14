@@ -15,7 +15,7 @@ export function LoadingProvider({ children }) {
   const [state, setState] = useState({
     isLoading: false,
     message: 'Carregando...',
-    loadingType: 'fullscreen' // 'fullscreen', 'local', 'inline'
+    loadingType: 'local' // Apenas loading local, sem fullscreen
   });
 
   const startLoading = (options = {}) => {
@@ -23,7 +23,7 @@ export function LoadingProvider({ children }) {
       ...prev,
       isLoading: true,
       message: options.message || prev.message,
-      loadingType: options.type || 'fullscreen'
+      loadingType: options.type || 'local'
     }));
   };
 
@@ -41,26 +41,21 @@ export function LoadingProvider({ children }) {
     }));
   };
 
-  // Gerenciar loading automático nas mudanças de rota
+  // Gerenciar loading automático nas mudanças de rota (apenas para detectar estado)
   const router = useRouter();
+  const [routerLoading, setRouterLoading] = useState(false);
 
   useEffect(() => {
-    const handleStart = (url) => {
-      // Só mostrar o loading se estiver mudando para uma página diferente
-      if (url !== router.asPath) {
-        startLoading({ 
-          message: 'Carregando página...', 
-          type: 'fullscreen'  // Sempre usar overlay para mudanças de página
-        });
-      }
+    const handleStart = () => {
+      setRouterLoading(true);
     };
 
     const handleComplete = () => {
-      stopLoading();
+      setRouterLoading(false);
     };
 
     const handleError = () => {
-      stopLoading();
+      setRouterLoading(false);
     };
 
     router.events.on('routeChangeStart', handleStart);
@@ -76,7 +71,7 @@ export function LoadingProvider({ children }) {
 
   return (
     <LoadingContext.Provider value={{ 
-      isLoading: state.isLoading, 
+      isLoading: routerLoading, // Usar routerLoading para compatibilidade
       message: state.message,
       loadingType: state.loadingType,
       startLoading, 
@@ -84,22 +79,7 @@ export function LoadingProvider({ children }) {
       setLoadingMessage 
     }}>
       {children}
-      
-      {/* Loading overlay para carregamento de página inteira */}
-      {state.isLoading && state.loadingType === 'fullscreen' && (
-        <div className="loaderOverlay">
-          <div className="loader"></div>
-          {state.message && (
-            <p style={{ 
-              color: 'var(--text-color)', 
-              marginLeft: '15px', 
-              fontWeight: '500' 
-            }}>
-              {state.message}
-            </p>
-          )}
-        </div>
-      )}
+      {/* Overlay fullscreen removido - usando apenas sidebar spinner + blur effect */}
     </LoadingContext.Provider>
   );
 }

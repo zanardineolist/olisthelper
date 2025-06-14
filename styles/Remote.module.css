@@ -1,7 +1,18 @@
 /* ================== Estilo Geral da Página ================== */
+.container {
+  width: 100%;
+  padding-top: calc(64px + 1rem);
+  transition: filter 0.3s ease;
+}
+
+.container.blurred {
+  filter: blur(2px);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
 .main {
   padding: 20px;
-  margin-top: 50px;
   background-color: var(--background-color);
   color: var(--text-color);
   display: flex;
@@ -390,91 +401,7 @@
   transform: scale(1.2);
 }
 
-/* ================== Loader ================== */
-/* Spinner Loader */
-.loaderOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--color-overlay);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
-.loader {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: inline-block;
-  border-top: 4px solid var(--text-color);
-  border-right: 4px solid transparent;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
-
-.loader::after {
-  content: '';
-  box-sizing: border-box;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border-left: 4px solid var(--color-primary);
-  border-bottom: 4px solid transparent;
-  animation: rotation 0.5s linear infinite reverse;
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Standard Box Loader */
-.standardBoxLoader, .standardBoxLoader:before, .standardBoxLoader:after {
-  border-radius: 50%;
-  width: 2.5em;
-  height: 2.5em;
-  animation-fill-mode: both;
-  animation: bblFadInOut 1.8s infinite ease-in-out;
-}
-.standardBoxLoader {
-  color: var(--text-color);
-  font-size: 7px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-indent: -9999em;
-  animation-delay: -0.16s;
-}
-.standardBoxLoader:before,
-.standardBoxLoader:after {
-  content: '';
-  position: absolute;
-  top: 0;
-}
-.standardBoxLoader:before {
-  left: -3.5em;
-  animation-delay: -0.32s;
-}
-.standardBoxLoader:after {
-  left: 3.5em;
-}
-
-@keyframes bblFadInOut {
-  0%, 80%, 100% { box-shadow: 0 2.5em 0 -1.3em }
-  40% { box-shadow: 0 2.5em 0 0 }
-}
 
 /* ================== Estilos Responsivos ================== */
 @media (max-width: 600px) {

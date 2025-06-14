@@ -2,8 +2,8 @@ import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import { getSession } from 'next-auth/react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Layout from '../components/Layout';
+import { useLoading } from '../components/LoadingIndicator';
 import RegisterAccess from '../components/RegisterAccess';
 import MyAccessRecords from '../components/MyAccessRecords';
 import AllAccessRecords from '../components/AllAccessRecords';
@@ -46,62 +46,46 @@ const theme = createTheme({
 
 export default function RemotePage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
-  const [initialLoading, setInitialLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setInitialLoading(false);
-    }, 500);
-  }, []);
+  const { loading: routerLoading } = useLoading();
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);
   };
 
-  if (initialLoading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
-
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Acesso Remoto</title>
       </Head>
 
-      <Navbar user={user} />
+      <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
+        <main className={styles.main}>
+          <ThemeProvider theme={theme}>
+            <Tabs value={currentTab} onChange={handleTabChange} centered>
+              {user.role === 'support+' && <Tab label="Registrar" />}
+              {user.role === 'support+' && <Tab label="Meus Acessos" />}
+              {user.role === 'super' && <Tab label="Todos os Acessos" />}
+              {user.role === 'super' && <Tab label="Agenda" />}
+            </Tabs>
+          </ThemeProvider>
 
-      <main className={styles.main}>
-        <ThemeProvider theme={theme}>
-          <Tabs value={currentTab} onChange={handleTabChange} centered>
-            {user.role === 'support+' && <Tab label="Registrar" />}
-            {user.role === 'support+' && <Tab label="Meus Acessos" />}
-            {user.role === 'super' && <Tab label="Todos os Acessos" />}
-            {user.role === 'super' && <Tab label="Agenda" />}
-          </Tabs>
-        </ThemeProvider>
-
-        <div className={styles.tabContent}>
-          {user.role === 'support+' && currentTab === 0 && (
-            <RegisterAccess user={user} />
-          )}
-          {user.role === 'support+' && currentTab === 1 && (
-            <MyAccessRecords user={user} />
-          )}
-          {user.role === 'super' && currentTab === 0 && (
-            <AllAccessRecords user={user} currentTab={currentTab} />
-          )}
-          {user.role === 'super' && currentTab === 1 && (
-            <GoogleCalendar />
-          )}
-        </div>
-      </main>
-
-      <Footer />
-    </>
+          <div className={styles.tabContent}>
+            {user.role === 'support+' && currentTab === 0 && (
+              <RegisterAccess user={user} />
+            )}
+            {user.role === 'support+' && currentTab === 1 && (
+              <MyAccessRecords user={user} />
+            )}
+            {user.role === 'super' && currentTab === 0 && (
+              <AllAccessRecords user={user} currentTab={currentTab} />
+            )}
+            {user.role === 'super' && currentTab === 1 && (
+              <GoogleCalendar />
+            )}
+          </div>
+        </main>
+      </div>
+    </Layout>
   );
 }
 
