@@ -1,9 +1,12 @@
 /* ================== Estilo Geral da Página ================== */
 .main {
-  padding: 0.5rem 2rem 2rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  background: transparent;
+  padding: 20px;
+  margin-top: 50px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .main h1 {

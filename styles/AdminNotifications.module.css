@@ -14,10 +14,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 0.5rem 2rem 2rem 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    background: transparent;
+    padding: 20px;
   }
   
   /* Container para o formulário de notificações */

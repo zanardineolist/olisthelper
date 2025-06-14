@@ -4,9 +4,9 @@ import { getSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
-import Layout from '../components/Layout';
+import Navbar from '../components/Navbar';
 import styles from '../styles/DashboardAnalyst.module.css';
-
+import Footer from '../components/Footer';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import Select from 'react-select';
@@ -342,11 +342,13 @@ export default function DashboardAnalyst({ user }) {
   }
 
   return (
-    <Layout user={user}>
+    <>
       <Head>
         <title>Dashboard Analista</title>
         <meta name="description" content="Dashboard de analista com métricas de desempenho e tendências" />
       </Head>
+
+      <Navbar user={user} />
 
       <main className={styles.dashboardMain}>
         <div className={styles.pageHeader}>
@@ -610,7 +612,9 @@ export default function DashboardAnalyst({ user }) {
           </div>
         </div>
       </main>
-    </Layout>
+
+      <Footer />
+    </>
   );
 }
 

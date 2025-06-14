@@ -13,7 +13,8 @@ import {
   FaChevronLeft,
   FaChevronRight
 } from 'react-icons/fa';
-import Layout from '../components/Layout';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import TicketCounter from '../components/TicketCounter';
 import SharedMessages from '../components/SharedMessages';
 import CepIbgeValidator from '../components/CepIbgeValidator';
@@ -377,95 +378,97 @@ export default function ToolsPage({ user }) {
         <meta name="description" content={currentTabConfig?.description || 'Ferramentas do OlistHelper'} />
       </Head>
 
-      <Layout user={user}>
-        <main className={styles.main}>
-          {/* Header da página */}
-          <div className={styles.pageHeader}>
-            <h1 className={styles.mainTitle}>Ferramentas</h1>
-            <p className={styles.mainDescription}>
-              Acesse todas as ferramentas disponíveis para otimizar seu dia a dia
-            </p>
-          </div>
+      <Navbar user={user} />
 
-          {/* Sistema de Tabs Moderno */}
-          <div className={`${styles.tabsWrapper} ${isScrolled ? styles.scrolled : ''}`}>
-            {/* Mobile Menu Button */}
-            {isMobile && (
-                           <button 
-                 className={styles.mobileMenuButton}
-                 onClick={() => setShowMobileMenu(!showMobileMenu)}
-                 aria-label="Menu de ferramentas"
-               >
-                 <span className={styles.mobileMenuIcon}>
-                   {currentTabConfig?.icon && <currentTabConfig.icon />}
-                 </span>
-                 <span className={styles.mobileMenuText}>
-                   {currentTabConfig?.label}
-                 </span>
-                 <span className={styles.mobileMenuArrow}>
-                   {showMobileMenu ? '▲' : '▼'}
-                 </span>
-               </button>
-            )}
+      <main className={styles.main}>
+        {/* Header da página */}
+        <div className={styles.pageHeader}>
+          <h1 className={styles.mainTitle}>Ferramentas</h1>
+          <p className={styles.mainDescription}>
+            Acesse todas as ferramentas disponíveis para otimizar seu dia a dia
+          </p>
+        </div>
 
-                           {/* Tabs Container */}
-             <div className={`${styles.tabsContainer} ${isMobile && showMobileMenu ? styles.mobileMenuOpen : ''}`}>
-               <div className={styles.tabsNavigation}>
-                 {/* Botão Scroll Esquerda */}
-                 {!isMobile && (
-                   <button
-                     className={`${styles.scrollButton} ${styles.scrollButtonLeft}`}
-                     onClick={() => scrollTabs('left')}
-                     disabled={!canScrollLeft}
-                     aria-label="Rolar tabs para esquerda"
-                   >
-                     <FaChevronLeft />
-                   </button>
-                 )}
-                 
-                 {/* Lista de Tabs */}
-                 <div className={`${styles.tabsListWrapper} ${showLeftGradient ? styles.showLeftGradient : ''} ${showRightGradient ? styles.showRightGradient : ''} ${isDragging ? styles.dragging : ''}`}>
-                   <div className={styles.tabsList} ref={tabsListRef}>
-                     {availableTabs.map((tab, index) => (
-                       <button
-                         key={tab.id}
-                         className={`${styles.tabButton} ${currentTab === index ? styles.tabActive : ''}`}
-                         onClick={() => handleTabChange(index)}
-                         title={tab.description}
-                       >
-                         <span className={styles.tabIcon}>
-                           <tab.icon />
-                         </span>
-                         <span className={styles.tabLabel}>{tab.label}</span>
-                         {currentTab === index && <div className={styles.tabIndicator} />}
-                       </button>
-                     ))}
-                   </div>
+        {/* Sistema de Tabs Moderno */}
+        <div className={`${styles.tabsWrapper} ${isScrolled ? styles.scrolled : ''}`}>
+          {/* Mobile Menu Button */}
+          {isMobile && (
+                         <button 
+               className={styles.mobileMenuButton}
+               onClick={() => setShowMobileMenu(!showMobileMenu)}
+               aria-label="Menu de ferramentas"
+             >
+               <span className={styles.mobileMenuIcon}>
+                 {currentTabConfig?.icon && <currentTabConfig.icon />}
+               </span>
+               <span className={styles.mobileMenuText}>
+                 {currentTabConfig?.label}
+               </span>
+               <span className={styles.mobileMenuArrow}>
+                 {showMobileMenu ? '▲' : '▼'}
+               </span>
+             </button>
+          )}
+
+                     {/* Tabs Container */}
+           <div className={`${styles.tabsContainer} ${isMobile && showMobileMenu ? styles.mobileMenuOpen : ''}`}>
+             <div className={styles.tabsNavigation}>
+               {/* Botão Scroll Esquerda */}
+               {!isMobile && (
+                 <button
+                   className={`${styles.scrollButton} ${styles.scrollButtonLeft}`}
+                   onClick={() => scrollTabs('left')}
+                   disabled={!canScrollLeft}
+                   aria-label="Rolar tabs para esquerda"
+                 >
+                   <FaChevronLeft />
+                 </button>
+               )}
+               
+               {/* Lista de Tabs */}
+               <div className={`${styles.tabsListWrapper} ${showLeftGradient ? styles.showLeftGradient : ''} ${showRightGradient ? styles.showRightGradient : ''} ${isDragging ? styles.dragging : ''}`}>
+                 <div className={styles.tabsList} ref={tabsListRef}>
+                   {availableTabs.map((tab, index) => (
+                     <button
+                       key={tab.id}
+                       className={`${styles.tabButton} ${currentTab === index ? styles.tabActive : ''}`}
+                       onClick={() => handleTabChange(index)}
+                       title={tab.description}
+                     >
+                       <span className={styles.tabIcon}>
+                         <tab.icon />
+                       </span>
+                       <span className={styles.tabLabel}>{tab.label}</span>
+                       {currentTab === index && <div className={styles.tabIndicator} />}
+                     </button>
+                   ))}
                  </div>
-
-                 {/* Botão Scroll Direita */}
-                 {!isMobile && (
-                   <button
-                     className={`${styles.scrollButton} ${styles.scrollButtonRight}`}
-                     onClick={() => scrollTabs('right')}
-                     disabled={!canScrollRight}
-                     aria-label="Rolar tabs para direita"
-                   >
-                     <FaChevronRight />
-                   </button>
-                 )}
                </div>
-             </div>
-          </div>
 
-          {/* Tab Content */}
-          <div className={styles.tabContent}>
-            <div className={styles.tabPanel}>
-              {renderTabContent()}
-            </div>
+               {/* Botão Scroll Direita */}
+               {!isMobile && (
+                 <button
+                   className={`${styles.scrollButton} ${styles.scrollButtonRight}`}
+                   onClick={() => scrollTabs('right')}
+                   disabled={!canScrollRight}
+                   aria-label="Rolar tabs para direita"
+                 >
+                   <FaChevronRight />
+                 </button>
+               )}
+             </div>
+           </div>
+        </div>
+
+        {/* Tab Content */}
+        <div className={styles.tabContent}>
+          <div className={styles.tabPanel}>
+            {renderTabContent()}
           </div>
-        </main>
-      </Layout>
+        </div>
+      </main>
+
+      <Footer />
     </>
   );
 }

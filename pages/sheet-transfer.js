@@ -1,10 +1,9 @@
 // pages/sheet-transfer.js
 import { useState } from 'react';
 import Head from 'next/head';
-import { getSession } from 'next-auth/react';
-import { useState, useRef } from 'react';
-import Layout from '../components/Layout';
 import styles from '../styles/SheetTransfer.module.css';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 export default function SheetTransfer({ user }) {
   const [novaPlanilhaId, setNovaPlanilhaId] = useState('');
@@ -53,11 +52,12 @@ export default function SheetTransfer({ user }) {
   };
 
   return (
-    <Layout user={user}>
+    <>
       <Head>
-        <title>Transferir Dados da Planilha</title>
-        <meta name="description" content="Ferramenta para transferir dados entre planilhas" />
+        <title>Transferência de Planilha</title>
       </Head>
+
+      <Navbar user={user} />
 
       <main className={styles.main}>
         <div className={styles.container}>
@@ -125,7 +125,9 @@ export default function SheetTransfer({ user }) {
           )}
         </div>
       </main>
-    </Layout>
+
+      <Footer />
+    </>
   );
 }
 
