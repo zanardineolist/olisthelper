@@ -7,6 +7,14 @@
   padding-left: 2rem;
   padding-right: 2rem;
   padding-bottom: 2rem;
+  transition: filter 0.3s ease;
+}
+
+/* Efeito de blur durante carregamento do router */
+.container.blurred {
+  filter: blur(2px);
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 /* ===== HEADER ===== */

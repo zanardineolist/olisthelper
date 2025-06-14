@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { getSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
-import { ThreeDotsLoader } from '../components/LoadingIndicator';
+import { ThreeDotsLoader, useLoading } from '../components/LoadingIndicator';
 import styles from '../styles/ProfileAnalyst.module.css';
 
 
@@ -332,29 +332,26 @@ export default function ProfileAnalystPage({ user }) {
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0, today: 0 });
   const [performanceData, setPerformanceData] = useState(null);
   const [categoryRanking, setCategoryRanking] = useState([]);
-  const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(true);
+  
+  // Hook para detectar loading do router
+  const { isLoading: routerLoading } = useLoading();
 
   // Configurar saudação baseada no horário
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-      const currentHour = new Date(brtDate).getHours();
-      
-      let greetingMessage = '';
-      if (currentHour >= 5 && currentHour < 12) {
-        greetingMessage = 'Bom dia';
-      } else if (currentHour >= 12 && currentHour < 18) {
-        greetingMessage = 'Boa tarde';
-      } else {
-        greetingMessage = 'Boa noite';
-      }
+    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+    const currentHour = new Date(brtDate).getHours();
+    
+    let greetingMessage = '';
+    if (currentHour >= 5 && currentHour < 12) {
+      greetingMessage = 'Bom dia';
+    } else if (currentHour >= 12 && currentHour < 18) {
+      greetingMessage = 'Boa tarde';
+    } else {
+      greetingMessage = 'Boa noite';
+    }
 
-      setGreeting(greetingMessage);
-      setInitialLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
+    setGreeting(greetingMessage);
   }, []);
 
   // Buscar dados do usuário
@@ -407,14 +404,7 @@ export default function ProfileAnalystPage({ user }) {
     fetchUserData();
   }, [user.id, user.email, user.role]);
 
-  // Loading inicial
-  if (initialLoading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
+
 
   const firstName = user.name.split(' ')[0];
 
@@ -425,7 +415,7 @@ export default function ProfileAnalystPage({ user }) {
         <meta name="description" content="Perfil do analista com métricas e indicadores de performance" />
       </Head>
 
-      <div className={styles.container}>
+      <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
         {/* Header */}
         <header className={styles.header}>
           <h1 className={styles.greeting}>{greeting}, {firstName}!</h1>
