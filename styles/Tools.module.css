@@ -1,14 +1,10 @@
-.main {
-  padding: 0;
-  margin-top: 50px;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  display: flex;
-  flex-direction: column;
+/* ===== CONTAINER PRINCIPAL ===== */
+.container {
   width: 100%;
-  max-width: 1400px;
-  margin: 50px auto 0;
-  flex: 1;
+  padding-top: 0px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
 }
 
 /* ========================================
@@ -16,10 +12,9 @@
    ======================================== */
 .pageHeader {
   width: 100%;
-  text-align: center;
-  padding: 40px 20px 20px;
-  background: linear-gradient(90deg, var(--bg-secondary) 0%, var(--box-color) 30%, var(--box-color) 70%, var(--bg-secondary) 100%);
-  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+  padding: 0 0 2rem 0;
+  margin-bottom: 1.5rem;
 }
 
 .mainTitle {
@@ -47,7 +42,7 @@
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
-  top: 65px;
+  top: 64px;
   z-index: 100;
   box-shadow: var(--shadow-sm);
   transition: box-shadow 0.3s ease;
@@ -324,12 +319,16 @@
    RESPONSIVIDADE
    ======================================== */
 @media (max-width: 768px) {
-  .main {
-    margin-top: 50px;
+  .container {
+    padding-top: calc(64px + 1rem);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 1rem;
   }
 
   .pageHeader {
-    padding: 24px 16px 16px;
+    padding: 0 0 1rem 0;
+    margin-bottom: 1rem;
   }
 
   .mainTitle {

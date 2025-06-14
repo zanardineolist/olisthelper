@@ -13,8 +13,7 @@ import {
   FaChevronLeft,
   FaChevronRight
 } from 'react-icons/fa';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Layout from '../components/Layout';
 import TicketCounter from '../components/TicketCounter';
 import SharedMessages from '../components/SharedMessages';
 import CepIbgeValidator from '../components/CepIbgeValidator';
@@ -372,15 +371,13 @@ export default function ToolsPage({ user }) {
   const currentTabConfig = availableTabs[currentTab];
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Ferramentas - {currentTabConfig?.label || 'OlistHelper'}</title>
         <meta name="description" content={currentTabConfig?.description || 'Ferramentas do OlistHelper'} />
       </Head>
 
-      <Navbar user={user} />
-
-      <main className={styles.main}>
+      <div className={styles.container}>
         {/* Header da página */}
         <div className={styles.pageHeader}>
           <h1 className={styles.mainTitle}>Ferramentas</h1>
@@ -466,10 +463,8 @@ export default function ToolsPage({ user }) {
             {renderTabContent()}
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </>
+      </div>
+    </Layout>
   );
 }
 
