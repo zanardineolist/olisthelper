@@ -157,7 +157,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
         } className={styles.headerLogo}>
           <img 
             src={isCollapsed 
-              ? '/images/logos/olist_helper_logo.png'
+              ? '/images/logos/olist_helper_favicon.png'
               : theme === 'dark' 
                 ? '/images/logos/olist_helper_logo.png' 
                 : '/images/logos/olist_helper_dark_logo.png'
