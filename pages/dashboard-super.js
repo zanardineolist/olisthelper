@@ -8,6 +8,8 @@ import DashboardData from '../components/DashboardData';
 import GraphData from '../components/GraphData';
 import HelpTopicsData from '../components/HelpTopicsData';
 import Layout from '../components/Layout';
+import { ThreeDotsLoader } from '../components/LoadingIndicator';
+import { useLoading } from '../contexts/LoadingProvider';
 import Swal from 'sweetalert2';
 import styles from '../styles/DashboardSuper.module.css';
 
@@ -48,8 +50,9 @@ const theme = createTheme({
 export default function DashboardSuper({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
   const [greeting, setGreeting] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { loading: routerLoading } = useLoading();
   const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
@@ -68,14 +71,17 @@ export default function DashboardSuper({ user }) {
     // Carregar lista de usuários ao montar o componente
     const loadUsers = async () => {
       try {
+        setUsersLoading(true);
         const res = await fetch('/api/get-users');
         if (!res.ok) throw new Error('Erro ao carregar usuários');
         const data = await res.json();
         setUsers(data.users.filter(user => ['analyst', 'tax'].includes(user.role.toLowerCase())));
-              } catch (err) {
-          console.error('Erro ao carregar usuários:', err);
-          Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
-        }
+      } catch (err) {
+        console.error('Erro ao carregar usuários:', err);
+        Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
+      } finally {
+        setUsersLoading(false);
+      }
     };
 
     loadUsers();
@@ -109,8 +115,6 @@ export default function DashboardSuper({ user }) {
     router.push(`${window.location.pathname}${hash}`, undefined, { shallow: true });
   };
 
-
-
   return (
     <Layout user={user}>
       <Head>
@@ -118,7 +122,7 @@ export default function DashboardSuper({ user }) {
         <meta name="description" content="Painel de controle para supervisores visualizarem métricas de desempenho" />
       </Head>
 
-      <div className={styles.container}>
+      <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
         {/* Header da página */}
         <header className={styles.pageHeader}>
           <div className={styles.headerContent}>
@@ -176,7 +180,11 @@ export default function DashboardSuper({ user }) {
             
             {currentTab === 1 && (
               <div className={styles.tabPanel}>
-                <GraphData users={users} />
+                {usersLoading ? (
+                  <ThreeDotsLoader message="Carregando dados da equipe..." />
+                ) : (
+                  <GraphData users={users} />
+                )}
               </div>
             )}
             

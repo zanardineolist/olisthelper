@@ -7,6 +7,7 @@ import Layout from '../components/Layout';
 import ManageUsers from '../components/ManageUsers';
 import ManageCategories from '../components/ManageCategories';
 import ManageRecords from '../components/ManageRecords';
+import { useLoading } from '../contexts/LoadingProvider';
 import styles from '../styles/Manager.module.css';
 
 const theme = createTheme({
@@ -45,7 +46,7 @@ const theme = createTheme({
 
 export default function ManagerPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const { loading: routerLoading } = useLoading();
   const router = useRouter();
 
   useEffect(() => {
@@ -78,15 +79,13 @@ export default function ManagerPage({ user }) {
     router.push(`${window.location.pathname}${hash}`, undefined, { shallow: true });
   };
 
-
-
   return (
     <Layout user={user}>
       <Head>
         <title>Gerenciar Dados</title>
       </Head>
 
-      <div className={styles.container}>
+      <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
         {/* Header da página */}
         <div className={styles.pageHeader}>
           <h1 className={styles.mainTitle}>Gerenciador</h1>

@@ -1,7 +1,7 @@
 /* ===== CONTAINER PRINCIPAL ===== */
 .container {
   width: 100%;
-  padding-top: 0px;
+  padding-top: calc(64px + 1rem);
   padding-left: 2rem;
   padding-right: 2rem;
   padding-bottom: 2rem;
@@ -10,6 +10,13 @@
   justify-content: flex-start;
   align-items: center;
   gap: 2rem;
+  transition: filter 0.3s ease;
+}
+
+.container.blurred {
+  filter: blur(2px);
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 /* Container para o formulário, com espaçamento */

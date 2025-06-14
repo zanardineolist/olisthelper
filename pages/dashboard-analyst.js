@@ -12,6 +12,7 @@ import Select from 'react-select';
 import Swal from 'sweetalert2';
 import { useApiLoader } from '../utils/apiLoader';
 import { ThreeDotsLoader } from '../components/LoadingIndicator';
+import { useLoading } from '../contexts/LoadingProvider';
 
 export default function DashboardAnalyst({ user }) {
   const [recordCount, setRecordCount] = useState(0);
@@ -24,6 +25,7 @@ export default function DashboardAnalyst({ user }) {
   const [categoryLoading, setCategoryLoading] = useState(false);
   
   const { callApi } = useApiLoader();
+  const { loading: routerLoading } = useLoading();
   
   const [periodFilter, setPeriodFilter] = useState({ value: 'last7days', label: 'Últimos 7 dias' });
   const [customDateRange, setCustomDateRange] = useState({
@@ -332,7 +334,7 @@ export default function DashboardAnalyst({ user }) {
         <meta name="description" content="Dashboard de analista com métricas de desempenho e tendências" />
       </Head>
 
-      <div className={styles.container}>
+      <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
         <div className={styles.pageHeader}>
           <div className={styles.welcomeContainer}>
             <div className={styles.greetingText}>

@@ -7,15 +7,19 @@ import Select from 'react-select';
 import Swal from 'sweetalert2';
 import Modal from 'react-modal';
 import Layout from '../components/Layout';
+import { ThreeDotsLoader } from '../components/LoadingIndicator';
+import { useLoading } from '../contexts/LoadingProvider';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
 import managerStyles from '../styles/Manager.module.css';
 
 export default function RegistroPage({ user }) {
   const router = useRouter();
+  const { loading: routerLoading } = useLoading();
   const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [helpRequests, setHelpRequests] = useState({ today: 0 });
   const [recentHelps, setRecentHelps] = useState([]);
@@ -33,25 +37,36 @@ export default function RegistroPage({ user }) {
   useEffect(() => {
     const loadUsersAndCategories = async () => {
       try {
-        const usersRes = await fetch('/api/get-users');
-        const usersData = await usersRes.json();
-        setUsers(usersData.users);
-
-        const categoriesRes = await fetch('/api/get-analysts-categories');
-        const categoriesData = await categoriesRes.json();
-        setCategories(categoriesData.categories);
-
-        // Buscar dados de ajudas prestadas
-        await fetchHelpRequests();
+        setFormLoading(true);
+        const [usersRes, categoriesRes] = await Promise.all([
+          fetch('/api/get-users'),
+          fetch('/api/get-analysts-categories')
+        ]);
         
-        // Buscar registros recentes
-        await fetchRecentHelps();
+        const usersData = await usersRes.json();
+        const categoriesData = await categoriesRes.json();
+        
+        setUsers(usersData.users);
+        setCategories(categoriesData.categories);
+        setFormLoading(false);
+
+        // Buscar dados de estatísticas em paralelo
+        setStatsLoading(true);
+        await Promise.all([
+          fetchHelpRequests(),
+          fetchRecentHelps()
+        ]);
+        setStatsLoading(false);
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
+        setFormLoading(false);
+        setStatsLoading(false);
       }
     };
 
-    loadUsersAndCategories();
+    if (user?.id) {
+      loadUsersAndCategories();
+    }
   }, [user.id]);
 
   // Função para buscar ajudas prestadas
@@ -459,8 +474,12 @@ export default function RegistroPage({ user }) {
         setFormData({ user: null, category: null, description: '' });
         
         // Atualizar o contador de ajudas e registros recentes após o registro bem-sucedido
-        await fetchHelpRequests();
-        await fetchRecentHelps();
+        setStatsLoading(true);
+        await Promise.all([
+          fetchHelpRequests(),
+          fetchRecentHelps()
+        ]);
+        setStatsLoading(false);
       } else {
         Swal.fire({
           icon: 'error',
@@ -562,13 +581,7 @@ const customSelectStyles = {
   }),
 };
 
-  if (loading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
+
 
   return (
     <Layout user={user}>
@@ -576,80 +589,85 @@ const customSelectStyles = {
         <title>Registrar Ajuda</title>
       </Head>
 
-      <div className={styles.container}>
+      <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
         <div className={styles.formContainerWithSpacing}>
           <h2 className={styles.formTitle}>Registrar Ajuda</h2>
-          <form onSubmit={handleSubmit}>
-            <div className={styles.formGroup}>
-              <label htmlFor="user">Selecione o usuário</label>
-              <Select
-                id="user"
-                name="user"
-                options={users.map((user) => ({
-                  value: user.id,
-                  label: user.name,
-                  email: user.email,
-                }))}
-                value={formData.user}
-                onChange={handleChange}
-                isClearable
-                placeholder="Selecione um usuário"
-                styles={customSelectStyles}
-                classNamePrefix="react-select"
-                noOptionsMessage={() => "Sem resultados"}
-                required
-              />
-            </div>
+          
+          {formLoading ? (
+            <ThreeDotsLoader message="Carregando formulário..." />
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <div className={styles.formGroup}>
+                <label htmlFor="user">Selecione o usuário</label>
+                <Select
+                  id="user"
+                  name="user"
+                  options={users.map((user) => ({
+                    value: user.id,
+                    label: user.name,
+                    email: user.email,
+                  }))}
+                  value={formData.user}
+                  onChange={handleChange}
+                  isClearable
+                  placeholder="Selecione um usuário"
+                  styles={customSelectStyles}
+                  classNamePrefix="react-select"
+                  noOptionsMessage={() => "Sem resultados"}
+                  required
+                />
+              </div>
 
-            <div className={styles.formGroup}>
-              <div className={styles.categoryHeader}>
-                <label htmlFor="category">Tema da ajuda</label>
-                <button 
-                  type="button"
-                  className={styles.newCategoryButton}
-                  onClick={openCategoryModal}
-                >
-                  <i className="fa-solid fa-plus"></i> Nova categoria
+              <div className={styles.formGroup}>
+                <div className={styles.categoryHeader}>
+                  <label htmlFor="category">Tema da ajuda</label>
+                  <button 
+                    type="button"
+                    className={styles.newCategoryButton}
+                    onClick={openCategoryModal}
+                  >
+                    <i className="fa-solid fa-plus"></i> Nova categoria
+                  </button>
+                </div>
+                <Select
+                  id="category"
+                  name="category"
+                  options={categories.map((category) => ({
+                    value: category,
+                    label: category,
+                  }))}
+                  value={formData.category}
+                  onChange={handleChange}
+                  isClearable
+                  placeholder="Selecione um tema"
+                  styles={customSelectStyles}
+                  classNamePrefix="react-select"
+                  noOptionsMessage={() => "Sem resultados"}
+                  required
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="description">Descrição da ajuda</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Descreva brevemente sua dúvida."
+                  required
+                  rows="4"
+                  className={`${styles.formTextarea} ${styles.formFieldHover}`}
+                />
+              </div>
+
+              <div className={styles.formButtonContainer}>
+                <button type="submit" className={styles.submitButton} disabled={submitting}>
+                  {submitting ? 'Registrando...' : 'Registrar'}
                 </button>
               </div>
-              <Select
-                id="category"
-                name="category"
-                options={categories.map((category) => ({
-                  value: category,
-                  label: category,
-                }))}
-                value={formData.category}
-                onChange={handleChange}
-                isClearable
-                placeholder="Selecione um tema"
-                styles={customSelectStyles}
-                classNamePrefix="react-select"
-                noOptionsMessage={() => "Sem resultados"}
-                required
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="description">Descrição da ajuda</label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                placeholder="Descreva brevemente sua dúvida."
-                required
-                rows="4"
-                className={`${styles.formTextarea} ${styles.formFieldHover}`}
-              />
-            </div>
-
-            <div className={styles.formButtonContainer}>
-              <button type="submit" className={styles.submitButton} disabled={submitting}>
-                {submitting ? 'Registrando...' : 'Registrar'}
-              </button>
-            </div>
-          </form>
+            </form>
+          )}
         </div>
         
         {/* Seção de estatísticas e registros recentes */}
@@ -659,7 +677,11 @@ const customSelectStyles = {
             <div className={styles.counterHeader}>
               <h3>Ajudas prestadas hoje</h3>
             </div>
-            <div className={styles.counterValue}>{helpRequests.today || 0}</div>
+            {statsLoading ? (
+              <ThreeDotsLoader message="Carregando estatísticas..." />
+            ) : (
+              <div className={styles.counterValue}>{helpRequests.today || 0}</div>
+            )}
           </div>
           
           {/* Lista de registros recentes */}
@@ -675,7 +697,9 @@ const customSelectStyles = {
             </div>
             
             <div className={styles.recentHelpsList}>
-              {recentHelps.length > 0 ? (
+              {statsLoading ? (
+                <ThreeDotsLoader message="Carregando registros..." />
+              ) : recentHelps.length > 0 ? (
                 recentHelps.map((help) => (
                   <div key={help.id} className={styles.recentHelpCard}>
                     <div className={styles.recentHelpHeader}>

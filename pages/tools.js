@@ -22,6 +22,7 @@ import ErrosComuns from '../components/ErrosComuns';
 import SheetSplitter from '../components/SheetSplitter';
 import MinhaBase from '../components/MinhaBase';
 import BibliotecaVideos from '../components/BibliotecaVideos';
+import { useLoading } from '../contexts/LoadingProvider';
 import styles from '../styles/Tools.module.css';
 
 // Constantes para roles de usuário
@@ -97,7 +98,7 @@ const TAB_CONFIG = [
 
 export default function ToolsPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const { loading: routerLoading } = useLoading();
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -160,8 +161,6 @@ export default function ToolsPage({ user }) {
       const canLeft = scrollLeft > 5; // Pequena margem para evitar problemas de precisão
       const canRight = scrollLeft < scrollWidth - clientWidth - 5;
       
-
-      
       setCanScrollLeft(canLeft);
       setCanScrollRight(canRight);
       setShowLeftGradient(canLeft);
@@ -183,7 +182,7 @@ export default function ToolsPage({ user }) {
         behavior: 'smooth'
       });
       
-      // Força verificação após scroll
+      // Força verificação após scroll (necessário para animação)
       setTimeout(() => {
         checkScrollButtons();
       }, 300);
@@ -280,12 +279,10 @@ export default function ToolsPage({ user }) {
 
   // Verifica botões quando as tabs disponíveis mudarem
   useEffect(() => {
-    if (!loading) {
-      setTimeout(() => {
-        checkScrollButtons();
-      }, 200);
-    }
-  }, [availableTabs, loading]);
+    setTimeout(() => {
+      checkScrollButtons();
+    }, 200);
+  }, [availableTabs]);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -297,7 +294,7 @@ export default function ToolsPage({ user }) {
       setCurrentTab(0); // Primeira aba disponível
     }
     
-    // Força verificação dos botões após carregar
+    // Força verificação dos botões após carregar (necessário para inicialização)
     setTimeout(() => {
       checkScrollButtons();
     }, 100);
@@ -312,7 +309,7 @@ export default function ToolsPage({ user }) {
       router.push(`${window.location.pathname}${selectedTab.hash}`, undefined, { shallow: true });
     }
 
-    // Scroll para mostrar a tab ativa em desktop
+    // Scroll para mostrar a tab ativa em desktop (necessário para UX)
     if (!isMobile && tabsListRef.current) {
       setTimeout(() => {
         const activeButton = tabsListRef.current.children[newValue];
@@ -355,8 +352,6 @@ export default function ToolsPage({ user }) {
     return <Component user={user} />;
   };
 
-
-
   const currentTabConfig = availableTabs[currentTab];
 
   return (
@@ -366,7 +361,7 @@ export default function ToolsPage({ user }) {
         <meta name="description" content={currentTabConfig?.description || 'Ferramentas do OlistHelper'} />
       </Head>
 
-      <div className={styles.container}>
+      <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
         {/* Header da página */}
         <div className={styles.pageHeader}>
           <h1 className={styles.mainTitle}>Ferramentas</h1>
@@ -379,71 +374,71 @@ export default function ToolsPage({ user }) {
         <div className={`${styles.tabsWrapper} ${isScrolled ? styles.scrolled : ''}`}>
           {/* Mobile Menu Button */}
           {isMobile && (
-                         <button 
-               className={styles.mobileMenuButton}
-               onClick={() => setShowMobileMenu(!showMobileMenu)}
-               aria-label="Menu de ferramentas"
-             >
-               <span className={styles.mobileMenuIcon}>
-                 {currentTabConfig?.icon && <currentTabConfig.icon />}
-               </span>
-               <span className={styles.mobileMenuText}>
-                 {currentTabConfig?.label}
-               </span>
-               <span className={styles.mobileMenuArrow}>
-                 {showMobileMenu ? '▲' : '▼'}
-               </span>
-             </button>
+            <button 
+              className={styles.mobileMenuButton}
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              aria-label="Menu de ferramentas"
+            >
+              <span className={styles.mobileMenuIcon}>
+                {currentTabConfig?.icon && <currentTabConfig.icon />}
+              </span>
+              <span className={styles.mobileMenuText}>
+                {currentTabConfig?.label}
+              </span>
+              <span className={styles.mobileMenuArrow}>
+                {showMobileMenu ? '▲' : '▼'}
+              </span>
+            </button>
           )}
 
-                     {/* Tabs Container */}
-           <div className={`${styles.tabsContainer} ${isMobile && showMobileMenu ? styles.mobileMenuOpen : ''}`}>
-             <div className={styles.tabsNavigation}>
-               {/* Botão Scroll Esquerda */}
-               {!isMobile && (
-                 <button
-                   className={`${styles.scrollButton} ${styles.scrollButtonLeft}`}
-                   onClick={() => scrollTabs('left')}
-                   disabled={!canScrollLeft}
-                   aria-label="Rolar tabs para esquerda"
-                 >
-                   <FaChevronLeft />
-                 </button>
-               )}
-               
-               {/* Lista de Tabs */}
-               <div className={`${styles.tabsListWrapper} ${showLeftGradient ? styles.showLeftGradient : ''} ${showRightGradient ? styles.showRightGradient : ''} ${isDragging ? styles.dragging : ''}`}>
-                 <div className={styles.tabsList} ref={tabsListRef}>
-                   {availableTabs.map((tab, index) => (
-                     <button
-                       key={tab.id}
-                       className={`${styles.tabButton} ${currentTab === index ? styles.tabActive : ''}`}
-                       onClick={() => handleTabChange(index)}
-                       title={tab.description}
-                     >
-                       <span className={styles.tabIcon}>
-                         <tab.icon />
-                       </span>
-                       <span className={styles.tabLabel}>{tab.label}</span>
-                       {currentTab === index && <div className={styles.tabIndicator} />}
-                     </button>
-                   ))}
-                 </div>
-               </div>
+          {/* Tabs Container */}
+          <div className={`${styles.tabsContainer} ${isMobile && showMobileMenu ? styles.mobileMenuOpen : ''}`}>
+            <div className={styles.tabsNavigation}>
+              {/* Botão Scroll Esquerda */}
+              {!isMobile && (
+                <button
+                  className={`${styles.scrollButton} ${styles.scrollButtonLeft}`}
+                  onClick={() => scrollTabs('left')}
+                  disabled={!canScrollLeft}
+                  aria-label="Rolar tabs para esquerda"
+                >
+                  <FaChevronLeft />
+                </button>
+              )}
+              
+              {/* Lista de Tabs */}
+              <div className={`${styles.tabsListWrapper} ${showLeftGradient ? styles.showLeftGradient : ''} ${showRightGradient ? styles.showRightGradient : ''} ${isDragging ? styles.dragging : ''}`}>
+                <div className={styles.tabsList} ref={tabsListRef}>
+                  {availableTabs.map((tab, index) => (
+                    <button
+                      key={tab.id}
+                      className={`${styles.tabButton} ${currentTab === index ? styles.tabActive : ''}`}
+                      onClick={() => handleTabChange(index)}
+                      title={tab.description}
+                    >
+                      <span className={styles.tabIcon}>
+                        <tab.icon />
+                      </span>
+                      <span className={styles.tabLabel}>{tab.label}</span>
+                      {currentTab === index && <div className={styles.tabIndicator} />}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-               {/* Botão Scroll Direita */}
-               {!isMobile && (
-                 <button
-                   className={`${styles.scrollButton} ${styles.scrollButtonRight}`}
-                   onClick={() => scrollTabs('right')}
-                   disabled={!canScrollRight}
-                   aria-label="Rolar tabs para direita"
-                 >
-                   <FaChevronRight />
-                 </button>
-               )}
-             </div>
-           </div>
+              {/* Botão Scroll Direita */}
+              {!isMobile && (
+                <button
+                  className={`${styles.scrollButton} ${styles.scrollButtonRight}`}
+                  onClick={() => scrollTabs('right')}
+                  disabled={!canScrollRight}
+                  aria-label="Rolar tabs para direita"
+                >
+                  <FaChevronRight />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Tab Content */}
