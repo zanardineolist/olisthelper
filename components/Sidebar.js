@@ -178,14 +178,18 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       </header>
 
       {/* Desktop Toggler - Positioned separately */}
-      <button 
-        className={`${styles.toggler} ${styles.sidebarToggler}`}
-        onClick={toggleSidebar}
-        aria-label={isCollapsed ? "Expandir Sidebar" : "Recolher Sidebar"}
-        title={isCollapsed ? "Expandir Sidebar" : "Recolher Sidebar"}
-      >
-        <FaChevronLeft />
-      </button>
+      <div className={styles.togglerContainer}>
+        <button 
+          className={`${styles.toggler} ${styles.sidebarToggler}`}
+          onClick={toggleSidebar}
+          aria-label={isCollapsed ? "Expandir Sidebar" : "Recolher Sidebar"}
+        >
+          <FaChevronLeft />
+        </button>
+        <span className={styles.togglerTooltip}>
+          {isCollapsed ? "Expandir Menu" : "Recolher Menu"}
+        </span>
+      </div>
 
       {/* Sidebar Navigation */}
       <nav className={styles.sidebarNav}>
