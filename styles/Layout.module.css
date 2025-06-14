@@ -40,7 +40,7 @@
 
 .content {
   flex: 1;
-  padding: 80px 32px 32px 32px; /* Top padding accounts for fixed navbar */
+  padding: 64px 32px 32px 32px; /* Top padding accounts for fixed navbar */
   overflow-x: auto;
   background-color: var(--background-color);
 }
@@ -53,12 +53,12 @@
   }
 
   .content {
-    padding: 80px 24px 24px 24px;
+    padding: 64px 24px 24px 24px;
   }
 }
 
 @media (max-width: 768px) {
   .content {
-    padding: 80px 16px 20px 16px;
+    padding: 64px 16px 20px 16px;
   }
 }
