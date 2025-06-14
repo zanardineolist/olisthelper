@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
+import Layout from '../components/Layout';
 import ProgressIndicator from '../components/ProgressIndicator';
 import styles from '../styles/ProfileSupport.module.css';
 import Footer from '../components/Footer';
@@ -416,15 +416,13 @@ export default function MyPage({ user }) {
   }
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Meu Perfil - Support</title>
         <meta name="description" content="Perfil do usuário com métricas e indicadores de solicitações de ajuda" />
       </Head>
 
-      <Navbar user={user} />
-
-      <main className={styles.container}>
+      <div className={styles.container}>
         {/* Modal de Informações */}
         {showInfoModal && (
           <InfoModal onClose={() => setShowInfoModal(false)} />
@@ -721,10 +719,8 @@ export default function MyPage({ user }) {
             )}
           </div>
         </section>
-      </main>
-
-      <Footer />
-    </>
+      </div>
+    </Layout>
   );
 }
 

@@ -3,7 +3,7 @@
 /* ===== CONTAINER PRINCIPAL ===== */
 .container {
   width: 100%;
-  padding-top: calc(64px + 2rem);
+  padding-top: 0px;
   padding-left: 2rem;
   padding-right: 2rem;
   padding-bottom: 2rem;
@@ -11,8 +11,8 @@
 
 /* ===== HEADER ===== */
 .header {
-  margin-bottom: 2rem;
-  text-align: center;
+  margin-bottom: 1.5rem;
+  text-align: left;
 }
 
 .greeting {
@@ -60,6 +60,11 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* ===== SEÇÃO 2: PROGRESSO DA META ===== */
+.progressSection {
   margin-bottom: 3rem;
 }
 
