@@ -17,6 +17,7 @@
 
 .sidebar.collapsed {
   width: 80px;
+  overflow: visible;
 }
 
 /* Sidebar Header */
@@ -155,7 +156,7 @@
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
-  overflow-x: visible;
+  overflow-x: hidden;
   padding: 16px 0;
 }
 
@@ -277,50 +278,6 @@
 .themeToggle:hover {
   background: var(--box-color2) !important;
   color: var(--title-color) !important;
-}
-
-.themeToggleContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-}
-
-.themeToggleTrack {
-  width: 40px;
-  height: 20px;
-  background: var(--box-color3);
-  border-radius: 20px;
-  position: relative;
-  transition: all 0.3s ease;
-  border: 1px solid var(--border-color);
-}
-
-.themeToggleThumb {
-  width: 16px;
-  height: 16px;
-  background: var(--color-primary);
-  border-radius: 50%;
-  position: absolute;
-  top: 1px;
-  left: 2px;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 8px;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.themeToggleThumb.dark {
-  left: 20px;
-  background: var(--color-accent2);
-}
-
-.themeToggleThumb.light {
-  left: 2px;
-  background: var(--color-accent2);
 }
 
 .logoutButton {

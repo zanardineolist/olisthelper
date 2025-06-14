@@ -254,12 +254,8 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
               className={`${styles.navLink} ${styles.themeToggle}`}
               aria-label="Alternar tema"
             >
-              <span className={styles.themeToggleContainer}>
-                <span className={styles.themeToggleTrack}>
-                  <span className={`${styles.themeToggleThumb} ${theme === 'dark' ? styles.dark : styles.light}`}>
-                    {theme === 'dark' ? <FaMoon /> : <FaSun />}
-                  </span>
-                </span>
+              <span className={styles.navIcon}>
+                {theme === 'dark' ? <FaMoon /> : <FaSun />}
               </span>
               <span className={styles.navLabel}>
                 {theme === 'dark' ? 'Tema Claro' : 'Tema Escuro'}
