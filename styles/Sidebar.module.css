@@ -316,6 +316,7 @@
 }
 
 .themeToggle:hover {
+  background: transparent !important;
   color: var(--title-color) !important;
 }
 

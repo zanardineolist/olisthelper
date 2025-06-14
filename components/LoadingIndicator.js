@@ -117,18 +117,29 @@ export function ThreeDotsLoader({ message, inline = false, size = 'medium' }) {
         justifyContent: 'center',
         padding: '20px',
         width: '100%',
-        minHeight: '100px'
+        minHeight: '100px',
+        textAlign: 'center'
       };
 
   return (
     <div style={containerStyle}>
-      <div className="standardBoxLoader" style={{ fontSize: calculatedSize.fontSize }}></div>
+      <div 
+        className="standardBoxLoader" 
+        style={{ 
+          fontSize: calculatedSize.fontSize,
+          position: 'relative',
+          display: 'inline-block'
+        }}
+      ></div>
       {message && (
         <p style={{ 
-          marginTop: inline ? 0 : '40px', 
-          marginLeft: inline ? '50px' : 0,
+          marginTop: inline ? 0 : '20px', 
+          marginLeft: inline ? '15px' : 0,
           color: 'var(--text-color)',
-          fontSize: '14px'
+          fontSize: '14px',
+          fontWeight: '500',
+          margin: inline ? '0 0 0 15px' : '20px 0 0 0',
+          whiteSpace: 'nowrap'
         }}>
           {message}
         </p>

@@ -73,6 +73,11 @@
 /* ===== SEÇÃO 2: PROGRESSO DA META ===== */
 .progressSection {
   margin-bottom: 3rem;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Card de Perfil Expandido */
@@ -298,6 +303,13 @@
 /* ===== SEÇÃO 2: PERFORMANCE ===== */
 .performanceSection {
   margin-bottom: 3rem;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.performanceSection > div:first-child {
+  margin-bottom: 2rem;
 }
 
 .performanceGrid {
@@ -625,6 +637,10 @@
   padding: 2rem;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .categoryTitle {

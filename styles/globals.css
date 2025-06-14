@@ -210,8 +210,6 @@ html::-webkit-scrollbar-thumb {
   border: 2px solid var(--scroll-bg);
 }
 
-
-
 /* Standard Box Loader */
 .standardBoxLoader, .standardBoxLoader:before, .standardBoxLoader:after {
   border-radius: 50%;
@@ -223,12 +221,10 @@ html::-webkit-scrollbar-thumb {
 .standardBoxLoader {
   color: var(--text-color);
   font-size: 7px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   text-indent: -9999em;
   animation-delay: -0.16s;
+  margin: 0 auto;
 }
 .standardBoxLoader:before,
 .standardBoxLoader:after {
