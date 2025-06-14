@@ -6,11 +6,10 @@ import { useRouter } from 'next/router';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
 import Modal from 'react-modal';
+import Layout from '../components/Layout';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
 import managerStyles from '../styles/Manager.module.css';
-import Footer from '../components/Footer';
-import Navbar from '../components/Navbar';
 
 export default function RegistroPage({ user }) {
   const router = useRouter();
@@ -575,14 +574,12 @@ const customSelectStyles = {
   }
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Registrar Ajuda</title>
       </Head>
 
-      <Navbar user={user} />
-
-      <main className={styles.mainContent}>
+      <div className={styles.container}>
         <div className={styles.formContainerWithSpacing}>
           <h2 className={styles.formTitle}>Registrar Ajuda</h2>
           <form onSubmit={handleSubmit}>
@@ -710,7 +707,7 @@ const customSelectStyles = {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Modal para adicionar nova categoria */}
       <Modal
@@ -744,9 +741,7 @@ const customSelectStyles = {
           </button>
         </div>
       </Modal>
-
-      <Footer />
-    </>
+    </Layout>
   );
 }
 

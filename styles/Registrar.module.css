@@ -1,23 +1,14 @@
-/* Estilos principais para o container da página */
+/* ===== CONTAINER PRINCIPAL ===== */
 .container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: var(--background-color);
-  color: var(--text-color);
-}
-
-/* Conteúdo principal da página */
-.mainContent {
-  flex: 1;
+  width: 100%;
+  padding-top: 0px;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  padding: 2rem 1rem;
-  width: 100%;
-  max-width: 1300px;
-  margin: 0 auto;
   gap: 2rem;
 }
 
@@ -388,7 +379,7 @@
 
 /* Responsividade */
 @media (min-width: 1024px) {
-  .mainContent {
+  .container {
     flex-direction: row;
     align-items: flex-start;
   }
@@ -405,9 +396,8 @@
 }
 
 @media (max-width: 1023px) {
-  .mainContent {
+  .container {
     flex-direction: column;
-    padding: 1.5rem;
   }
   
   .formContainerWithSpacing, 
@@ -417,6 +407,13 @@
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding-top: calc(64px + 1rem);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 1rem;
+  }
+
   .formContainerWithSpacing, 
   .statsContainer {
     max-width: 100%;
