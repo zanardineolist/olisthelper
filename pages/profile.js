@@ -5,8 +5,8 @@ import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import ProgressIndicator from '../components/ProgressIndicator';
+import { ThreeDotsLoader } from '../components/LoadingIndicator';
 import styles from '../styles/ProfileSupport.module.css';
-import Footer from '../components/Footer';
 
 // Componente para card de performance atualizado
 const PerformanceCard = ({ title, icon, data, type }) => {
@@ -217,10 +217,7 @@ const InfoModal = ({ onClose }) => {
         
         <div className={styles.modalContent}>
           {loadingTargets && (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-              <p>Carregando metas...</p>
-            </div>
+            <ThreeDotsLoader message="Carregando metas..." />
           )}
 
           {!loadingTargets && (
@@ -334,30 +331,24 @@ export default function MyPage({ user }) {
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0 });
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [performanceData, setPerformanceData] = useState(null);
-  const [initialLoading, setInitialLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [showInfoModal, setShowInfoModal] = useState(false);
 
   // Configurar saudação baseada no horário
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-      const currentHour = new Date(brtDate).getHours();
-      let greetingMessage = '';
+    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+    const currentHour = new Date(brtDate).getHours();
+    let greetingMessage = '';
 
-      if (currentHour >= 5 && currentHour < 12) {
-        greetingMessage = 'Bom dia';
-      } else if (currentHour >= 12 && currentHour < 18) {
-        greetingMessage = 'Boa tarde';
-      } else {
-        greetingMessage = 'Boa noite';
-      }
+    if (currentHour >= 5 && currentHour < 12) {
+      greetingMessage = 'Bom dia';
+    } else if (currentHour >= 12 && currentHour < 18) {
+      greetingMessage = 'Boa tarde';
+    } else {
+      greetingMessage = 'Boa noite';
+    }
 
-      setGreeting(greetingMessage);
-      setInitialLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
+    setGreeting(greetingMessage);
   }, []);
 
   // Buscar dados do usuário
@@ -398,14 +389,7 @@ export default function MyPage({ user }) {
     }
   }, [user.email, user.role]);
 
-  // Loading inicial
-  if (initialLoading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
+
 
   const firstName = user.name.split(' ')[0];
   const { currentMonth, lastMonth } = helpRequests;
@@ -570,9 +554,7 @@ export default function MyPage({ user }) {
         {(user.role === 'support' || user.role === 'support+') && (
           <section className={styles.progressSection}>
             {loading ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-              </div>
+              <ThreeDotsLoader message="Carregando progresso..." />
             ) : performanceData ? (
               <>
                 {/* Progresso de Chamados */}
@@ -622,9 +604,7 @@ export default function MyPage({ user }) {
             </div>
             
             {loading ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-              </div>
+              <ThreeDotsLoader message="Carregando indicadores..." />
             ) : performanceData ? (
               <div className={styles.performanceGrid}>
                 {performanceData.chamados && (
@@ -676,10 +656,7 @@ export default function MyPage({ user }) {
               Categorias Mais Solicitadas
             </h3>
             {loading ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-                <p>Carregando ranking...</p>
-              </div>
+              <ThreeDotsLoader message="Carregando ranking..." />
             ) : categoryRanking.length > 0 ? (
               <ul className={styles.list}>
                 {categoryRanking.map((category, index) => (

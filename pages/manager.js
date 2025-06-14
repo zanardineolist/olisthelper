@@ -45,23 +45,18 @@ const theme = createTheme({
 
 export default function ManagerPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    // Simulando um pequeno atraso para exibir o loader
-    setLoading(true);
-    setTimeout(() => {
-      const hash = window.location.hash;
-      if (hash === '#Usuarios') {
-        setCurrentTab(0);
-      } else if (hash === '#Categorias') {
-        setCurrentTab(1);
-      } else if (hash === '#Registros' && (user.role === 'analyst' || user.role === 'tax')) {
-        setCurrentTab(2);
-      }
-      setLoading(false);
-    }, 500);
+    const hash = window.location.hash;
+    if (hash === '#Usuarios') {
+      setCurrentTab(0);
+    } else if (hash === '#Categorias') {
+      setCurrentTab(1);
+    } else if (hash === '#Registros' && (user.role === 'analyst' || user.role === 'tax')) {
+      setCurrentTab(2);
+    }
   }, [user.role]);
 
   const handleTabChange = (event, newValue) => {
@@ -83,13 +78,7 @@ export default function ManagerPage({ user }) {
     router.push(`${window.location.pathname}${hash}`, undefined, { shallow: true });
   };
 
-  if (loading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
+
 
   return (
     <Layout user={user}>

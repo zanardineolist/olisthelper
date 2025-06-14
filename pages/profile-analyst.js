@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { getSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import { ThreeDotsLoader } from '../components/LoadingIndicator';
 import styles from '../styles/ProfileAnalyst.module.css';
 
 
@@ -622,9 +623,7 @@ export default function ProfileAnalystPage({ user }) {
           </div>
           
           {loading ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
+            <ThreeDotsLoader message="Carregando categorias..." />
           ) : (
             <CategoryRanking 
               categories={categoryRanking} 

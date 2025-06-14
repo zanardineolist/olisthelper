@@ -11,20 +11,19 @@ import 'dayjs/locale/pt-br';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
 import { useApiLoader } from '../utils/apiLoader';
-import { useLoading, LocalLoader } from '../components/LoadingIndicator';
+import { ThreeDotsLoader } from '../components/LoadingIndicator';
 
 export default function DashboardAnalyst({ user }) {
-  const [initialLoading, setInitialLoading] = useState(true);
   const [recordCount, setRecordCount] = useState(0);
   const [chartData, setChartData] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [greeting, setGreeting] = useState('');
+  const [recordsLoading, setRecordsLoading] = useState(false);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [categoryLoading, setCategoryLoading] = useState(false);
   
   const { callApi } = useApiLoader();
-  const { startLoading, stopLoading } = useLoading();
   
   const [periodFilter, setPeriodFilter] = useState({ value: 'last7days', label: 'Últimos 7 dias' });
   const [customDateRange, setCustomDateRange] = useState({
@@ -42,22 +41,19 @@ export default function DashboardAnalyst({ user }) {
   ];
 
   useEffect(() => {
-    setTimeout(() => {
-      const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-      const currentHour = new Date(brtDate).getHours();
-      let greetingMessage = '';
+    const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+    const currentHour = new Date(brtDate).getHours();
+    let greetingMessage = '';
 
-      if (currentHour >= 5 && currentHour < 12) {
-        greetingMessage = 'Bom dia';
-      } else if (currentHour >= 12 && currentHour < 18) {
-        greetingMessage = 'Boa tarde';
-      } else {
-        greetingMessage = 'Boa noite';
-      }
+    if (currentHour >= 5 && currentHour < 12) {
+      greetingMessage = 'Bom dia';
+    } else if (currentHour >= 12 && currentHour < 18) {
+      greetingMessage = 'Boa tarde';
+    } else {
+      greetingMessage = 'Boa noite';
+    }
 
-      setGreeting(greetingMessage);
-      setInitialLoading(false);
-    }, 500);
+    setGreeting(greetingMessage);
   }, []);
 
   useEffect(() => {
@@ -65,12 +61,12 @@ export default function DashboardAnalyst({ user }) {
   }, [periodFilter]);
 
   useEffect(() => {
-    if (!initialLoading && user?.id) {
+    if (user?.id) {
       fetchRecords();
       fetchLeaderboard();
       fetchCategoryRanking();
     }
-  }, [initialLoading, periodFilter, customDateRange, user]);
+  }, [periodFilter, customDateRange, user]);
 
   const getDateRange = () => {
     const today = dayjs();
@@ -118,7 +114,7 @@ export default function DashboardAnalyst({ user }) {
     }
 
     try {
-      startLoading({ message: "Carregando dados de registros..." });
+      setRecordsLoading(true);
       
       const { filter, startDate, endDate } = getDateRange();
       
@@ -131,8 +127,7 @@ export default function DashboardAnalyst({ user }) {
       }
       
       const data = await callApi(url, {}, {
-        message: "Carregando dados de registros...",
-        showLoading: true
+        showLoading: false
       });
       
       setRecordCount(data.count);
@@ -160,7 +155,7 @@ export default function DashboardAnalyst({ user }) {
       setRecordCount(0);
       setChartData(null);
     } finally {
-      stopLoading();
+      setRecordsLoading(false);
     }
   };
 
@@ -177,8 +172,6 @@ export default function DashboardAnalyst({ user }) {
       const url = `/api/get-analyst-leaderboard?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}`;
       
       const data = await callApi(url, {}, {
-        message: "Carregando classificação...",
-        type: "local",
         showLoading: false
       });
       
@@ -224,8 +217,6 @@ export default function DashboardAnalyst({ user }) {
       const url = `/api/get-category-ranking?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}`;
       
       const data = await callApi(url, {}, {
-        message: "Carregando ranking de categorias...",
-        type: "local",
         showLoading: false
       });
       
@@ -332,13 +323,7 @@ export default function DashboardAnalyst({ user }) {
     }),
   };
 
-  if (initialLoading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <LocalLoader message="Carregando dashboard..." size="large" />
-      </div>
-    );
-  }
+
 
   return (
     <Layout user={user}>
@@ -453,10 +438,8 @@ export default function DashboardAnalyst({ user }) {
 
         <div className={styles.chartContainer}>
           <h3 className={styles.chartTitle}>Distribuição de Auxilios</h3>
-          {leaderboardLoading ? (
-            <div className={styles.loadingContainer}>
-              <div className="standardBoxLoader"></div>
-            </div>
+          {recordsLoading ? (
+            <ThreeDotsLoader message="Carregando gráfico..." />
           ) : chartData ? (
             <div className={styles.chartWrapper}>
               <Bar
@@ -534,9 +517,7 @@ export default function DashboardAnalyst({ user }) {
           <div className={styles.rankingCard}>
             <h3 className={styles.rankingTitle}>Top 5 - Usuários com Mais Ajudas</h3>
             {leaderboardLoading ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-              </div>
+              <ThreeDotsLoader message="Carregando ranking..." />
             ) : leaderboard.length > 0 ? (
               <ul className={styles.rankingList}>
                 {leaderboard.map((user, index) => (
@@ -568,9 +549,7 @@ export default function DashboardAnalyst({ user }) {
           <div className={styles.rankingCard}>
             <h3 className={styles.rankingTitle}>Top 10 - Temas de Dúvidas</h3>
             {categoryLoading ? (
-              <div className={styles.loadingContainer}>
-                <div className="standardBoxLoader"></div>
-              </div>
+              <ThreeDotsLoader message="Carregando temas..." />
             ) : categoryRanking.length > 0 ? (
               <ul className={styles.rankingList}>
                 {categoryRanking.map((category, index) => (

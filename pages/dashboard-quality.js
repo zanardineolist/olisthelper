@@ -7,7 +7,7 @@ import styles from '../styles/DashboardSuper.module.css';
 
 export default function DashboardQuality({ user }) {
   const [greeting, setGreeting] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Definir a saudação com base na hora do dia
@@ -22,19 +22,10 @@ export default function DashboardQuality({ user }) {
   }, []);
 
   useEffect(() => {
-    // Simular um pequeno atraso para exibir o loader
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    // Configuração inicial se necessário
   }, []);
 
-  if (loading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
+
 
   return (
     <Layout user={user}>

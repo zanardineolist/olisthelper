@@ -15,7 +15,7 @@ export default function RegistroPage({ user }) {
   const router = useRouter();
   const [users, setUsers] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [helpRequests, setHelpRequests] = useState({ today: 0 });
   const [recentHelps, setRecentHelps] = useState([]);
@@ -33,7 +33,6 @@ export default function RegistroPage({ user }) {
   useEffect(() => {
     const loadUsersAndCategories = async () => {
       try {
-        setLoading(true);
         const usersRes = await fetch('/api/get-users');
         const usersData = await usersRes.json();
         setUsers(usersData.users);
@@ -49,8 +48,6 @@ export default function RegistroPage({ user }) {
         await fetchRecentHelps();
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
-      } finally {
-        setLoading(false);
       }
     };
 

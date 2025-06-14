@@ -48,7 +48,7 @@ const theme = createTheme({
 export default function DashboardSuper({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
   const [greeting, setGreeting] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const router = useRouter();
 
@@ -68,32 +68,26 @@ export default function DashboardSuper({ user }) {
     // Carregar lista de usuários ao montar o componente
     const loadUsers = async () => {
       try {
-        setLoading(true);
         const res = await fetch('/api/get-users');
         if (!res.ok) throw new Error('Erro ao carregar usuários');
         const data = await res.json();
         setUsers(data.users.filter(user => ['analyst', 'tax'].includes(user.role.toLowerCase())));
-      } catch (err) {
-        console.error('Erro ao carregar usuários:', err);
-        Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
-      } finally {
-        setLoading(false);
-      }
+              } catch (err) {
+          console.error('Erro ao carregar usuários:', err);
+          Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
+        }
     };
 
     loadUsers();
 
-    // Simulando um pequeno atraso para exibir o loader
-    setTimeout(() => {
-      const hash = window.location.hash;
-      if (hash === '#Dashboard') {
-        setCurrentTab(0);
-      } else if (hash === '#DataChart') {
-        setCurrentTab(1);
-      } else if (hash === '#HelpTopics') {
-        setCurrentTab(2);
-      }
-    }, 500);
+    const hash = window.location.hash;
+    if (hash === '#Dashboard') {
+      setCurrentTab(0);
+    } else if (hash === '#DataChart') {
+      setCurrentTab(1);
+    } else if (hash === '#HelpTopics') {
+      setCurrentTab(2);
+    }
   }, []);
 
   const handleTabChange = (event, newValue) => {
@@ -115,13 +109,7 @@ export default function DashboardSuper({ user }) {
     router.push(`${window.location.pathname}${hash}`, undefined, { shallow: true });
   };
 
-  if (loading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
+
 
   return (
     <Layout user={user}>

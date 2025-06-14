@@ -97,7 +97,7 @@ const TAB_CONFIG = [
 
 export default function ToolsPage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -288,24 +288,19 @@ export default function ToolsPage({ user }) {
   }, [availableTabs, loading]);
 
   useEffect(() => {
-    setLoading(true);
+    const hash = window.location.hash;
+    const tabIndex = hashToTabIndex[hash];
+    
+    if (tabIndex !== undefined) {
+      setCurrentTab(tabIndex);
+    } else {
+      setCurrentTab(0); // Primeira aba disponível
+    }
+    
+    // Força verificação dos botões após carregar
     setTimeout(() => {
-      const hash = window.location.hash;
-      const tabIndex = hashToTabIndex[hash];
-      
-      if (tabIndex !== undefined) {
-        setCurrentTab(tabIndex);
-      } else {
-        setCurrentTab(0); // Primeira aba disponível
-      }
-      
-      setLoading(false);
-      
-      // Força verificação dos botões após carregar
-      setTimeout(() => {
-        checkScrollButtons();
-      }, 100);
-    }, 500);
+      checkScrollButtons();
+    }, 100);
   }, [hashToTabIndex]);
 
   const handleTabChange = (newValue) => {
@@ -360,13 +355,7 @@ export default function ToolsPage({ user }) {
     return <Component user={user} />;
   };
 
-  if (loading) {
-    return (
-      <div className="loaderOverlay">
-        <div className="loader"></div>
-      </div>
-    );
-  }
+
 
   const currentTabConfig = availableTabs[currentTab];
 
