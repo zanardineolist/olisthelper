@@ -22,7 +22,7 @@ import ErrosComuns from '../components/ErrosComuns';
 import SheetSplitter from '../components/SheetSplitter';
 import MinhaBase from '../components/MinhaBase';
 import BibliotecaVideos from '../components/BibliotecaVideos';
-import { useLoading } from '../contexts/LoadingProvider';
+import { useLoading } from '../components/LoadingIndicator';
 import styles from '../styles/Tools.module.css';
 
 // Constantes para roles de usuário

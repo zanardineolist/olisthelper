@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import ProgressIndicator from '../components/ProgressIndicator';
 import { ThreeDotsLoader } from '../components/LoadingIndicator';
-import { useLoading } from '../contexts/LoadingProvider';
+import { useLoading } from '../components/LoadingIndicator';
 import styles from '../styles/ProfileSupport.module.css';
 
 // Componente para card de performance atualizado

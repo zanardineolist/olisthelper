@@ -7,7 +7,7 @@ import Layout from '../components/Layout';
 import ManageUsers from '../components/ManageUsers';
 import ManageCategories from '../components/ManageCategories';
 import ManageRecords from '../components/ManageRecords';
-import { useLoading } from '../contexts/LoadingProvider';
+import { useLoading } from '../components/LoadingIndicator';
 import styles from '../styles/Manager.module.css';
 
 const theme = createTheme({

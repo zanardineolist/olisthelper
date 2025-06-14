@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
 import Modal from 'react-modal';
 import Layout from '../components/Layout';
 import { ThreeDotsLoader } from '../components/LoadingIndicator';
-import { useLoading } from '../contexts/LoadingProvider';
+import { useLoading } from '../components/LoadingIndicator';
 import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
 import managerStyles from '../styles/Manager.module.css';

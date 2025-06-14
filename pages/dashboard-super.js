@@ -9,7 +9,7 @@ import GraphData from '../components/GraphData';
 import HelpTopicsData from '../components/HelpTopicsData';
 import Layout from '../components/Layout';
 import { ThreeDotsLoader } from '../components/LoadingIndicator';
-import { useLoading } from '../contexts/LoadingProvider';
+import { useLoading } from '../components/LoadingIndicator';
 import Swal from 'sweetalert2';
 import styles from '../styles/DashboardSuper.module.css';
 

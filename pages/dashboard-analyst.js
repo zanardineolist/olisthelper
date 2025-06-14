@@ -12,7 +12,7 @@ import Select from 'react-select';
 import Swal from 'sweetalert2';
 import { useApiLoader } from '../utils/apiLoader';
 import { ThreeDotsLoader } from '../components/LoadingIndicator';
-import { useLoading } from '../contexts/LoadingProvider';
+import { useLoading } from '../components/LoadingIndicator';
 
 export default function DashboardAnalyst({ user }) {
   const [recordCount, setRecordCount] = useState(0);

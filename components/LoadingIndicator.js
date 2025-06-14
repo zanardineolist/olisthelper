@@ -106,7 +106,11 @@ export function LoadingProvider({ children }) {
 
 // Hook personalizado para usar o contexto de loading
 export function useLoading() {
-  return useContext(LoadingContext);
+  const context = useContext(LoadingContext);
+  return {
+    ...context,
+    loading: context.isLoading // Alias para compatibilidade
+  };
 }
 
 // Componente de loading de três bolinhas, para uso em containers específicos
