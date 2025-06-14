@@ -130,8 +130,8 @@
 /* Toggle Button Tooltip */
 .togglerTooltip {
   position: fixed;
-  background: var(--box-color);
-  color: var(--title-color);
+  background: var(--color-primary);
+  color: white;
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 12px;
@@ -142,7 +142,7 @@
   transition: all 0.3s ease;
   z-index: 9999;
   box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-primary);
 }
 
 .togglerContainer:hover .togglerTooltip {
@@ -273,6 +273,8 @@
 
 .themeToggle {
   color: var(--text-color) !important;
+  justify-content: center !important;
+  padding: 12px !important;
 }
 
 .themeToggle:hover {
@@ -333,15 +335,15 @@
 .navTooltip {
   position: fixed;
   opacity: 0;
-  color: var(--title-color);
+  color: white;
   display: none;
   pointer-events: none;
   padding: 10px 14px;
   border-radius: 8px;
   white-space: nowrap;
-  background: var(--box-color);
+  background: var(--color-primary);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-primary);
   transition: all 0.3s ease;
   font-size: 13px;
   z-index: 9999;
@@ -369,7 +371,7 @@
   height: 0;
   border-style: solid;
   border-width: 6px 6px 6px 0;
-  border-color: transparent var(--box-color) transparent transparent;
+  border-color: transparent var(--color-primary) transparent transparent;
   z-index: -1;
 }
 
@@ -383,7 +385,7 @@
   height: 0;
   border-style: solid;
   border-width: 7px 7px 7px 0;
-  border-color: transparent var(--border-color) transparent transparent;
+  border-color: transparent var(--color-primary) transparent transparent;
 }
 
 /* Responsive Design */
@@ -523,9 +525,9 @@
 }
 
 [data-theme="dark"] .navTooltip {
-  background: var(--box-color);
-  border-color: var(--border-color);
-  color: var(--title-color);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
 }
 
 [data-theme="dark"] .sidebarToggler {
@@ -538,16 +540,16 @@
 }
 
 [data-theme="dark"] .togglerTooltip {
-  background: var(--box-color);
-  border-color: var(--border-color);
-  color: var(--title-color);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme="dark"] .navTooltip::before {
-  border-right-color: var(--box-color);
+  border-right-color: var(--color-primary);
 }
 
 [data-theme="dark"] .navTooltip::after {
-  border-right-color: var(--border-color);
+  border-right-color: var(--color-primary);
 } 

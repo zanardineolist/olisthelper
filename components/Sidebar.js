@@ -274,9 +274,6 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
                   </span>
                 </span>
               </span>
-              <span className={styles.navLabel}>
-                {theme === 'dark' ? 'Tema Claro' : 'Tema Escuro'}
-              </span>
             </button>
             <span className={styles.navTooltip}>
               {theme === 'dark' ? 'Tema Claro' : 'Tema Escuro'}
