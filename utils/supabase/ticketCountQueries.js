@@ -1,5 +1,5 @@
 // utils/supabase/ticketCountQueries.js
-import { supabaseAdmin } from './supabaseClient';
+import { supabase } from './supabaseClient';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -31,7 +31,7 @@ export async function getTicketCountHistory(userId, startDate, endDate, page = 1
     }
 
     // Buscar registros do período
-    const { data: allData, error: allDataError } = await supabaseAdmin
+    const { data: allData, error: allDataError } = await supabase
       .from('ticket_counts')
       .select('count_date, count_time, count_value')
       .eq('user_id', userId)
@@ -101,7 +101,7 @@ export async function addTicketCount(userId) {
   try {
     const now = dayjs().tz();
     
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('ticket_counts')
       .insert([{
         user_id: userId,
@@ -131,7 +131,7 @@ export async function removeLastTicketCount(userId) {
     const tomorrow = today.add(1, 'day');
 
     // Buscar o último registro do dia
-    const { data: lastCount, error: fetchError } = await supabaseAdmin
+    const { data: lastCount, error: fetchError } = await supabase
       .from('ticket_counts')
       .select('id')
       .eq('user_id', userId)
@@ -149,7 +149,7 @@ export async function removeLastTicketCount(userId) {
     }
 
     // Deletar o registro encontrado
-    const { error: deleteError } = await supabaseAdmin
+    const { error: deleteError } = await supabase
       .from('ticket_counts')
       .delete()
       .eq('id', lastCount.id);
@@ -171,7 +171,7 @@ export async function getTodayCount(userId) {
     const today = now.startOf('day');
     const tomorrow = today.add(1, 'day');
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('ticket_counts')
       .select('count_value')
       .eq('user_id', userId)
@@ -198,7 +198,7 @@ export async function clearTodayCounts(userId) {
     const today = now.startOf('day');
     const tomorrow = today.add(1, 'day');
 
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('ticket_counts')
       .delete()
       .eq('user_id', userId)

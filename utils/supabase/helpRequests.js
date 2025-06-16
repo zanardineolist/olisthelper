@@ -1,12 +1,12 @@
 // utils/supabase/helpRequests.js
-import { supabaseAdmin } from './supabaseClient';
+import { supabase } from './supabaseClient';
 
 /**
  * Registra uma nova dúvida/pedido de ajuda
  */
 export async function createHelpRequest(data) {
   try {
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('help_records')
       .insert([{
         analyst_id: data.analystId,

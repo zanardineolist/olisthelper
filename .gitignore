@@ -46,3 +46,8 @@ docs/GUIA_INDICADORES_PERFORMANCE.md
 docs/RESUMO_CORES_INDICADORES.txt
 database_structure_video_library.sql
 SIDEBAR_MIGRATION_GUIDE.md
+INSTRUCOES_EXECUCAO_CORRECOES.md
+supabase_functions_search_path_fixes.sql
+supabase_rpc_fixed.sql
+supabase_rpc_functions_fixed.sql
+supabase_rpc_functions.sql

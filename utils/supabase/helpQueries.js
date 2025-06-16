@@ -1,5 +1,5 @@
 // utils/supabase/helpQueries.js
-import { supabaseAdmin } from './supabaseClient';
+import { supabase } from './supabaseClient';
 import { setStartOfDay, setEndOfDay, getDaysAgo, getStartOfCurrentMonth, getStartOfLastMonth, getStartOfNextMonth, formatDateBR, formatTimeBR, applyDateFilters } from './dateUtils';
 
 /**
@@ -13,7 +13,7 @@ import { setStartOfDay, setEndOfDay, getDaysAgo, getStartOfCurrentMonth, getStar
  */
 export async function getAnalystRecords(analystId, days = 30, mode = 'standard', endDate = null, includeUserDetails = false, includeCategoryDetails = false) {
   try {
-    let query = supabaseAdmin
+    let query = supabase
       .from('help_records')
       .select(`
         *,
@@ -78,7 +78,7 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
       tomorrow.setDate(tomorrow.getDate() + 1);
       
       // Consulta separada para obter contagem precisa do dia atual
-      const { data: todayData, error: todayError } = await supabaseAdmin
+      const { data: todayData, error: todayError } = await supabase
         .from('help_records')
         .select('id', { count: 'exact' })
         .eq('analyst_id', analystId)
@@ -147,7 +147,7 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
  */
 export async function getAnalystLeaderboard(analystId, startDate = null, endDate = null) {
   try {
-    let query = supabaseAdmin
+    let query = supabase
       .from('help_records')
       .select('requester_name, requester_email')
       .eq('analyst_id', analystId);
@@ -157,7 +157,7 @@ export async function getAnalystLeaderboard(analystId, startDate = null, endDate
     
     // Se não temos datas específicas, usar o mês atual
     if (!startDate && !endDate) {
-      query = supabaseAdmin
+      query = supabase
         .from('help_records')
         .select('requester_name, requester_email')
         .eq('analyst_id', analystId)
@@ -195,7 +195,7 @@ export async function getAnalystLeaderboard(analystId, startDate = null, endDate
  */
 export async function getCategoryRanking(analystId, startDate = null, endDate = null) {
   try {
-    let query = supabaseAdmin
+    let query = supabase
       .from('help_records')
       .select(`
         *,
@@ -208,7 +208,7 @@ export async function getCategoryRanking(analystId, startDate = null, endDate = 
     
     // Se não temos datas específicas, usar o mês atual
     if (!startDate && !endDate) {
-      query = supabaseAdmin
+      query = supabase
         .from('help_records')
         .select(`
           *,
@@ -254,7 +254,7 @@ export async function getUserHelpRequests(userEmail) {
     const startOfNextMonth = getStartOfNextMonth();
 
     // Buscar contagem do mês atual
-    const { data: currentMonthData, error: currentError } = await supabaseAdmin
+    const { data: currentMonthData, error: currentError } = await supabase
       .from('help_records')
       .select('id', { count: 'exact' })
       .eq('requester_email', userEmail)
@@ -264,7 +264,7 @@ export async function getUserHelpRequests(userEmail) {
     if (currentError) throw currentError;
 
     // Buscar contagem do mês anterior
-    const { data: lastMonthData, error: lastError } = await supabaseAdmin
+    const { data: lastMonthData, error: lastError } = await supabase
       .from('help_records')
       .select('id', { count: 'exact' })
       .eq('requester_email', userEmail)
@@ -291,7 +291,7 @@ export async function getUserHelpRequests(userEmail) {
  */
 export async function getUserCategoryRanking(userEmail, startDate = null, endDate = null) {
   try {
-    let query = supabaseAdmin
+    let query = supabase
       .from('help_records')
       .select(`
         categories:category_id (
@@ -346,7 +346,7 @@ export async function getUserCategoryRanking(userEmail, startDate = null, endDat
 export async function getHelpTopicsRanking(startDate = null, endDate = null) {
   try {
     // Construir a consulta base
-    let query = supabaseAdmin
+    let query = supabase
       .from('help_records')
       .select(`
         categories:category_id (
@@ -409,7 +409,7 @@ export async function getHelpTopicsRanking(startDate = null, endDate = null) {
 export async function getHelpTopicDetails(categoryId, startDate = null, endDate = null) {
   try {
     // Construir a consulta base
-    let query = supabaseAdmin
+    let query = supabase
       .from('help_records')
       .select(`
         id,

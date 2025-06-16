@@ -1,4 +1,4 @@
-import { supabaseAdmin } from './supabaseClient';
+import { supabase } from './supabaseClient';
 
 /**
  * Calcula o status de performance baseado em metas
@@ -76,7 +76,7 @@ const formatDisplayTime = (value, format = 'time') => {
  */
 export async function getChannelTargets() {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('channel_targets')
       .select('*')
       .eq('is_active', true);
@@ -101,7 +101,7 @@ export async function getChannelTargets() {
 export async function getUserPerformanceByEmail(userEmail) {
   try {
     // Buscar dados de performance
-    const { data: performance, error: performanceError } = await supabaseAdmin
+    const { data: performance, error: performanceError } = await supabase
       .from('performance_indicators')
       .select('*')
       .eq('user_email', userEmail.toLowerCase())
@@ -113,7 +113,7 @@ export async function getUserPerformanceByEmail(userEmail) {
     }
 
     // Buscar permissões do usuário
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: user, error: userError } = await supabase
       .from('users')
       .select('can_ticket, can_phone, can_chat, profile')
       .eq('email', userEmail.toLowerCase())
@@ -267,7 +267,7 @@ const getStatusColor = (status) => {
  */
 export async function getUsersWithSupervisors() {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('performance_indicators')
       .select('user_email, user_name, supervisor')
       .order('user_name');
@@ -287,7 +287,7 @@ export async function getUsersWithSupervisors() {
  */
 export async function getUsersBySupervisor(supervisor) {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('performance_indicators')
       .select('user_email, user_name, supervisor')
       .eq('supervisor', supervisor)

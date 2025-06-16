@@ -1,4 +1,4 @@
-import { supabaseAdmin } from './supabaseClient';
+import { supabase } from './supabaseClient';
 
 /**
  * Cria um novo registro de acesso remoto
@@ -8,7 +8,7 @@ import { supabaseAdmin } from './supabaseClient';
 export async function createRemoteAccess(accessData) {
   try {
     // Primeiro, buscar o ID do usuário através do email
-    const { data: userData, error: userError } = await supabaseAdmin
+    const { data: userData, error: userError } = await supabase
       .from('users')
       .select('id')
       .eq('email', accessData.email)
@@ -16,7 +16,7 @@ export async function createRemoteAccess(accessData) {
     
     if (userError) throw userError;
     
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('remote_access')
       .insert([{
         support_id: userData.id,
@@ -45,7 +45,7 @@ export async function createRemoteAccess(accessData) {
  */
 export async function getAllRemoteAccess() {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('remote_access')
       .select('*')
       .order('created_at', { ascending: false });
@@ -65,7 +65,7 @@ export async function getAllRemoteAccess() {
  */
 export async function getUserRemoteAccess(email) {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('remote_access')
       .select('*')
       .eq('email', email)
@@ -90,7 +90,7 @@ export async function getUserCurrentMonthRemoteAccess(email) {
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
     
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('remote_access')
       .select('*')
       .eq('email', email)

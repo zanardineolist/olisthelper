@@ -1,12 +1,12 @@
 // utils/supabase/sharedResponsesQueries.js
-import { supabaseAdmin } from './supabaseClient';
+import { supabase } from './supabaseClient';
 
 /**
  * Busca todas as respostas públicas e as privadas do usuário
  */
 export async function getAllResponses(userId, searchTerm = '', tags = []) {
   try {
-    let query = supabaseAdmin
+    let query = supabase
       .from('shared_responses')
       .select(`
         *,
@@ -51,7 +51,7 @@ export async function getAllResponses(userId, searchTerm = '', tags = []) {
  */
 export async function getUserResponses(userId, searchTerm = '', tags = []) {
   try {
-    let query = supabaseAdmin
+    let query = supabase
       .from('shared_responses')
       .select(`
         *,
@@ -94,7 +94,7 @@ export async function getUserResponses(userId, searchTerm = '', tags = []) {
  */
 export async function getFavoriteResponses(userId) {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('user_favorites')
       .select(`
         response_id,
@@ -133,7 +133,7 @@ export async function getFavoriteResponses(userId) {
  */
 export async function addResponse(response) {
   try {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('shared_responses')
       .insert([{
         user_id: response.userId,
@@ -162,7 +162,7 @@ export async function addResponse(response) {
 export async function updateResponse(responseId, updates) {
   try {
     // Manter apenas os campos que precisam ser atualizados
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('shared_responses')
       .update({
         title: updates.title,
@@ -188,7 +188,7 @@ export async function updateResponse(responseId, updates) {
  */
 export async function incrementCopyCount(responseId) {
   try {
-    const { data, error } = await supabaseAdmin.rpc(
+    const { data, error } = await supabase.rpc(
       'update_message_copy_count',
       { message_id: responseId }
     );
@@ -207,13 +207,13 @@ export async function incrementCopyCount(responseId) {
 export async function deleteResponse(responseId) {
   try {
     // Primeiro remove os favoritos
-    await supabaseAdmin
+    await supabase
       .from('user_favorites')
       .delete()
       .eq('response_id', responseId);
 
     // Depois remove a mensagem
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from('shared_responses')
       .delete()
       .eq('id', responseId);
@@ -230,7 +230,7 @@ export async function deleteResponse(responseId) {
  * Adiciona/Remove um favorito
  */
 export async function toggleFavorite(userId, responseId) {
-  const { data: existingFavorite, error: checkError } = await supabaseAdmin
+  const { data: existingFavorite, error: checkError } = await supabase
     .from('user_favorites')
     .select('id')
     .eq('user_id', userId)
@@ -244,7 +244,7 @@ export async function toggleFavorite(userId, responseId) {
   try {
     if (existingFavorite) {
       // Remove o favorito
-      const { error } = await supabaseAdmin
+      const { error } = await supabase
         .from('user_favorites')
         .delete()
         .eq('user_id', userId)
@@ -254,7 +254,7 @@ export async function toggleFavorite(userId, responseId) {
       return false; // não é mais favorito
     } else {
       // Adiciona o favorito
-      const { error } = await supabaseAdmin
+      const { error } = await supabase
         .from('user_favorites')
         .insert([{ 
           user_id: userId, 
