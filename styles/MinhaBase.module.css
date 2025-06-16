@@ -320,7 +320,7 @@
   align-items: flex-start;
   gap: 12px;
   flex: 1;
-  margin-right: 12px;
+  margin-right: 60px; /* Espaço reservado para os badges de status/marcador */
   min-height: 60px;
 }
 
@@ -353,6 +353,7 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10; /* Garante que os botões fiquem por cima */
 }
 
 .entryCard:hover .entryActions {
@@ -1866,9 +1867,11 @@
 
 /* Marcadores nos cards */
 .entryMarker {
+  position: absolute;
+  top: 16px;
+  right: 84px; /* Posicionado antes do status */
+  z-index: 5;
   flex-shrink: 0;
-  margin-top: 0;
-  position: relative;
 }
 
 .markerBadge {
@@ -1885,6 +1888,7 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.1); /* Contorno sutil */
 }
 
 .markerBadge::before {
@@ -2302,6 +2306,20 @@
     padding: 4px;
   }
 
+  .entryStatus {
+    right: 42px;
+    top: 12px;
+  }
+
+  .entryMarker {
+    right: 70px;
+    top: 12px;
+  }
+
+  .entryTitleSection {
+    margin-right: 80px;
+  }
+
   .linkButton, .editButton, .deleteButton {
     min-width: 26px;
     min-height: 26px;
@@ -2392,6 +2410,20 @@
     padding: 3px;
   }
 
+  .entryStatus {
+    right: 38px;
+    top: 10px;
+  }
+
+  .entryMarker {
+    right: 64px;
+    top: 10px;
+  }
+
+  .entryTitleSection {
+    margin-right: 90px;
+  }
+
   .linkButton, .editButton, .deleteButton {
     min-width: 24px;
     min-height: 24px;
@@ -2438,6 +2470,7 @@
   margin-left: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
+  border: 2px solid rgba(255, 255, 255, 0.2); /* Contorno sutil */
 }
 
 .statusBadge:hover {
@@ -2448,7 +2481,10 @@
 .entryStatus {
   display: flex;
   align-items: center;
-  margin-left: auto;
+  position: absolute;
+  top: 16px;
+  right: 52px; /* Posicionado antes dos botões de ação */
+  z-index: 5;
 }
 
 .statusPreview {
