@@ -1036,8 +1036,6 @@ export default function MinhaBase({ user }) {
             >
               <div className={styles.entryHeader}>
                 <div className={styles.entryTitleSection}>
-                  <h3 className={styles.entryTitle}>{entry.title}</h3>
-                  
                   {/* Container dos badges */}
                   <div className={styles.entryBadges}>
                     {/* Marcador */}
@@ -1084,6 +1082,8 @@ export default function MinhaBase({ user }) {
                       </div>
                     )}
                   </div>
+                  
+                  <h3 className={styles.entryTitle}>{entry.title}</h3>
                 </div>
                 
                 <div className={styles.entryActions} onClick={(e) => e.stopPropagation()}>

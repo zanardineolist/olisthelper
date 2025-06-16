@@ -317,12 +317,11 @@
 
 .entryTitleSection {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   flex: 1;
   margin-right: 12px;
   min-height: 60px;
-  position: relative;
 }
 
 .entryTitle {
@@ -338,17 +337,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-height: 3.4rem;
-  margin-right: 60px; /* Espaço para os badges */
 }
 
 .entryBadges {
-  position: absolute;
-  top: 0;
-  right: 0;
   display: flex;
   align-items: center;
   gap: 8px;
-  z-index: 5;
+  flex-shrink: 0;
 }
 
 .entryActions {
@@ -1897,6 +1892,7 @@
   position: relative;
   overflow: hidden;
   border: 2px solid rgba(255, 255, 255, 0.1); /* Contorno sutil */
+  flex-shrink: 0;
 }
 
 .markerBadge::before {
@@ -2315,13 +2311,11 @@
   }
 
   .entryBadges {
-    top: 0;
-    right: 0;
     gap: 6px;
   }
 
-  .entryTitle {
-    margin-right: 70px;
+  .entryTitleSection {
+    gap: 8px;
   }
 
   .linkButton, .editButton, .deleteButton {
@@ -2421,13 +2415,11 @@
   }
 
   .entryBadges {
-    top: 0;
-    right: 0;
     gap: 4px;
   }
 
-  .entryTitle {
-    margin-right: 80px;
+  .entryTitleSection {
+    gap: 6px;
   }
 
   .linkButton, .editButton, .deleteButton {
@@ -2479,10 +2471,10 @@
   color: white;
   font-size: 12px;
   font-weight: 500;
-  margin-left: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
   border: 2px solid rgba(255, 255, 255, 0.2); /* Contorno sutil */
+  flex-shrink: 0;
 }
 
 .statusBadge:hover {
