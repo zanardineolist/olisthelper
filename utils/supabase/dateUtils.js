@@ -139,3 +139,28 @@ export function formatTimeBR(date) {
     return 'Hora inválida';
   }
 }
+
+/**
+ * Obtém o início e fim do dia atual no timezone do Brasil (São Paulo)
+ * @returns {Object} Objeto com start e end do dia atual em BRT
+ */
+export function getTodayBrazilRange() {
+  // Obter a data atual no timezone do Brasil
+  const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+  const today = new Date(brtDate);
+  
+  // Início do dia (00:00:00.000)
+  const startOfToday = new Date(today);
+  startOfToday.setHours(0, 0, 0, 0);
+  
+  // Fim do dia (23:59:59.999)
+  const endOfToday = new Date(today);
+  endOfToday.setHours(23, 59, 59, 999);
+  
+  return {
+    start: startOfToday,
+    end: endOfToday,
+    dateStr: today.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+    timeZone: 'America/Sao_Paulo'
+  };
+}

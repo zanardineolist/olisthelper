@@ -1,6 +1,6 @@
 // utils/supabase/helpQueries.js
 import { supabaseAdmin } from './supabaseClient';
-import { setStartOfDay, setEndOfDay, getDaysAgo, getStartOfCurrentMonth, getStartOfLastMonth, getStartOfNextMonth, formatDateBR, formatTimeBR, applyDateFilters } from './dateUtils';
+import { setStartOfDay, setEndOfDay, getDaysAgo, getStartOfCurrentMonth, getStartOfLastMonth, getStartOfNextMonth, formatDateBR, formatTimeBR, applyDateFilters, getTodayBrazilRange } from './dateUtils';
 
 /**
  * Busca os registros de ajuda de um analista com filtro de data
@@ -22,7 +22,7 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
       .eq('analyst_id', analystId)
       .order('created_at', { ascending: false });
 
-    // Se for modo profile, não aplica filtro de data inicialmente
+    // Se for modo profile, buscar todos os registros para calcular contagens
     if (mode !== 'profile') {
       // Verifica se days é uma string que contém "-" (indicativo de data ISO)
       if (typeof days === 'string' && days.includes('-')) {
@@ -51,7 +51,7 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
     const { data, error } = await query;
     if (error) throw error;
 
-    // Se for modo profile, calcular contagens por mês
+    // Se for modo profile, calcular contagens por mês e por dia atual
     if (mode === 'profile') {
       const now = new Date();
       const currentMonth = now.getMonth();
@@ -69,27 +69,45 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
         return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
       }).length;
       
-      // Calcular contagem de ajudas do dia atual diretamente do Supabase usando o fuso horário do Brasil
-      const brtDate = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
-      const today = new Date(brtDate);
-      today.setHours(0, 0, 0, 0);
+      // Calcular contagem de ajudas do dia atual usando métodos otimizados
+      let todayCount = 0;
+      const todayRange = getTodayBrazilRange();
       
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      
-      // Consulta separada para obter contagem precisa do dia atual
-      const { data: todayData, error: todayError } = await supabaseAdmin
-        .from('help_records')
-        .select('id', { count: 'exact' })
-        .eq('analyst_id', analystId)
-        .gte('created_at', today.toISOString())
-        .lt('created_at', tomorrow.toISOString());
-      
-      if (todayError) throw todayError;
-      const todayCount = todayData.length;
-      
-      // Log para debug
-      
+      try {
+        // Primeiro tentar usar a função SQL específica do banco
+        const { data: todayCountData, error: todayCountError } = await supabaseAdmin
+          .rpc('get_today_help_count', { analyst_id_param: analystId });
+        
+        if (todayCountError) {
+          console.warn('Função RPC não disponível, usando query manual:', todayCountError.message);
+          
+          // Fallback para query manual com timezone correto
+          const { data: todayData, error: todayError } = await supabaseAdmin
+            .from('help_records')
+            .select('id')
+            .eq('analyst_id', analystId)
+            .gte('created_at', todayRange.start.toISOString())
+            .lte('created_at', todayRange.end.toISOString());
+          
+          if (todayError) throw todayError;
+          todayCount = todayData?.length || 0;
+          
+          console.log('Debug contagem manual:', {
+            analystId,
+            start: todayRange.start.toISOString(),
+            end: todayRange.end.toISOString(),
+            dataAtual: todayRange.dateStr,
+            registrosEncontrados: todayCount
+          });
+        } else {
+          todayCount = todayCountData || 0;
+          console.log('Contagem via RPC:', { todayCount, analystId });
+        }
+      } catch (error) {
+        console.error('Erro ao buscar dados do dia atual:', error);
+        // Último fallback com valor 0
+        todayCount = 0;
+      }
 
       return {
         currentMonth: currentMonthCount,
