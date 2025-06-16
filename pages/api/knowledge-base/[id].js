@@ -38,6 +38,7 @@ export default async function handler(req, res) {
           color = '#0A4EE4',
           category = 'geral',
           marker = 'tech',
+          status = 'pendente',
           images = []
         } = req.body;
 
@@ -72,6 +73,7 @@ export default async function handler(req, res) {
             color,
             category: category.trim(),
             marker,
+            status,
             images: images,
             updated_at: new Date().toISOString()
           })

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink, FaFileAlt, FaAlignLeft, FaFolder, FaCalendarAlt, FaUser, FaImage, FaCloudUploadAlt, FaExpand, FaCog, FaDollarSign, FaBug, FaQuestionCircle, FaTicketAlt, FaBookmark, FaFileExcel, FaFileAlt as FaFileTxt, FaDownload } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaEdit, FaTrash, FaExternalLinkAlt, FaTag, FaFilter, FaTimes, FaEye, FaPalette, FaLink, FaFileAlt, FaAlignLeft, FaFolder, FaCalendarAlt, FaUser, FaImage, FaCloudUploadAlt, FaExpand, FaCog, FaDollarSign, FaBug, FaQuestionCircle, FaTicketAlt, FaBookmark, FaFileExcel, FaFileAlt as FaFileTxt, FaDownload, FaClock, FaCheckCircle, FaPlayCircle, FaPauseCircle, FaTimesCircle } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 import { ThreeDotsLoader } from './LoadingIndicator';
 import styles from '../styles/MinhaBase.module.css';
@@ -24,6 +24,14 @@ const MARKER_OPTIONS = [
   { value: 'ticket', name: 'Ticket', icon: FaTicketAlt, color: '#EC4899' }
 ];
 
+const STATUS_OPTIONS = [
+  { value: 'pendente', name: 'Pendente', icon: FaClock, color: '#F59E0B' },
+  { value: 'em_andamento', name: 'Em Andamento', icon: FaPlayCircle, color: '#3B82F6' },
+  { value: 'pausado', name: 'Pausado', icon: FaPauseCircle, color: '#6B7280' },
+  { value: 'resolvido', name: 'Resolvido', icon: FaCheckCircle, color: '#10B981' },
+  { value: 'cancelado', name: 'Cancelado', icon: FaTimesCircle, color: '#EF4444' }
+];
+
 export default function MinhaBase({ user }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,6 +40,7 @@ export default function MinhaBase({ user }) {
   const [filterCategory, setFilterCategory] = useState('');
   const [filterTags, setFilterTags] = useState([]);
   const [filterMarker, setFilterMarker] = useState('');
+  const [filterStatus, setFilterStatus] = useState('');
   const [sortBy, setSortBy] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
   const [showModal, setShowModal] = useState(false);
@@ -48,6 +57,7 @@ export default function MinhaBase({ user }) {
     color: '#3B82F6',
     category: 'geral',
     marker: 'tech',
+    status: 'pendente',
     images: []
   });
 
@@ -68,7 +78,7 @@ export default function MinhaBase({ user }) {
     if (user?.id) {
       loadEntries();
     }
-  }, [user, searchTerm, filterCategory, filterTags, filterMarker, sortBy, sortDirection]);
+  }, [user, searchTerm, filterCategory, filterTags, filterMarker, filterStatus, sortBy, sortDirection]);
 
   // Fechar sugestões ao clicar fora
   useEffect(() => {
@@ -208,6 +218,7 @@ export default function MinhaBase({ user }) {
         filter_tags: filterTags.join(','),
         filter_category: filterCategory,
         filter_marker: filterMarker,
+        filter_status: filterStatus,
         order_by: sortBy,
         order_direction: sortDirection
       });
@@ -222,7 +233,7 @@ export default function MinhaBase({ user }) {
       setEntries(data.entries || []);
       
       // Extrai tags e categorias disponíveis de TODAS as entradas (não apenas as filtradas)
-      if (!searchTerm && !filterCategory && !filterMarker && filterTags.length === 0) {
+      if (!searchTerm && !filterCategory && !filterMarker && !filterStatus && filterTags.length === 0) {
         const allTags = new Set();
         const allCategories = new Set();
         
@@ -245,7 +256,7 @@ export default function MinhaBase({ user }) {
         setInitialLoad(false);
       }, 300);
     }
-  }, [user?.id, searchTerm, filterCategory, filterTags, filterMarker, sortBy, sortDirection]);
+  }, [user?.id, searchTerm, filterCategory, filterTags, filterMarker, filterStatus, sortBy, sortDirection]);
 
   // Verifica se há dados não salvos
   const hasUnsavedData = () => {
@@ -257,6 +268,7 @@ export default function MinhaBase({ user }) {
       color: '#3B82F6',
       category: 'geral',
       marker: 'tech',
+      status: 'pendente',
       images: []
     };
 
@@ -269,6 +281,7 @@ export default function MinhaBase({ user }) {
         formData.color !== editingEntry.color ||
         formData.category !== editingEntry.category ||
         formData.marker !== editingEntry.marker ||
+        formData.status !== (editingEntry.status || 'pendente') ||
         JSON.stringify(formData.images) !== JSON.stringify(editingEntry.images || [])
       );
     }
@@ -281,6 +294,7 @@ export default function MinhaBase({ user }) {
       formData.color !== initialData.color ||
       formData.category !== initialData.category ||
       formData.marker !== initialData.marker ||
+      formData.status !== initialData.status ||
       formData.images.length > 0
     );
   };
@@ -294,6 +308,7 @@ export default function MinhaBase({ user }) {
       color: '#3B82F6',
       category: 'geral',
       marker: 'tech',
+      status: 'pendente',
       images: []
     });
     setEditingEntry(null);
@@ -391,16 +406,17 @@ export default function MinhaBase({ user }) {
         return;
       }
 
-      const dataToSave = {
-        title: formData.title.trim(),
-        description: formData.description.trim(),
-        link: formData.link?.trim() || '',
-        tags: formData.tags.filter(tag => tag.trim() !== ''),
-        color: formData.color,
-        category: formData.category.trim(),
-        marker: formData.marker,
-        images: formData.images || []
-      };
+              const dataToSave = {
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          link: formData.link?.trim() || '',
+          tags: formData.tags.filter(tag => tag.trim() !== ''),
+          color: formData.color,
+          category: formData.category.trim(),
+          marker: formData.marker,
+          status: formData.status,
+          images: formData.images || []
+        };
 
       const method = editingEntry ? 'PUT' : 'POST';
       const endpoint = editingEntry 
@@ -486,6 +502,7 @@ export default function MinhaBase({ user }) {
         color: entry.color,
         category: entry.category,
         marker: entry.marker,
+        status: entry.status || 'pendente',
         images: entry.images || []
       });
     } else {
@@ -583,6 +600,7 @@ export default function MinhaBase({ user }) {
     setSearchTerm('');
     setFilterCategory('');
     setFilterMarker('');
+    setFilterStatus('');
     setFilterTags([]);
   };
 
@@ -591,12 +609,13 @@ export default function MinhaBase({ user }) {
     if (searchTerm) count++;
     if (filterCategory) count++;
     if (filterMarker) count++;
+    if (filterStatus) count++;
     if (filterTags.length > 0) count++;
     return count;
   };
 
   const hasActiveFilters = () => {
-    return searchTerm || filterCategory || filterMarker || filterTags.length > 0;
+    return searchTerm || filterCategory || filterMarker || filterStatus || filterTags.length > 0;
   };
 
   // Função para obter a cor CSS baseada na string de cor
@@ -895,6 +914,37 @@ export default function MinhaBase({ user }) {
               </div>
             </div>
 
+            {/* Filtro de Status */}
+            <div className={styles.filterItem}>
+              <label className={styles.filterLabel}>
+                <FaClock className={styles.filterIcon} />
+                Status
+              </label>
+              <div className={styles.filterDropdown}>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className={`${styles.filterSelect} ${filterStatus ? styles.filterSelectActive : ''}`}
+                >
+                  <option value="">Todos os status</option>
+                  {STATUS_OPTIONS.map(status => (
+                    <option key={status.value} value={status.value}>
+                      {status.name}
+                    </option>
+                  ))}
+                </select>
+                {filterStatus && (
+                  <button
+                    onClick={() => setFilterStatus('')}
+                    className={styles.clearFilterButton}
+                    title="Limpar filtro"
+                  >
+                    <FaTimes />
+                  </button>
+                )}
+              </div>
+            </div>
+
             {/* Botões de ordenação */}
             <div className={styles.sortingGroup}>
               <label className={styles.filterLabel}>
@@ -1009,6 +1059,28 @@ export default function MinhaBase({ user }) {
                   )}
                   
                   <h3 className={styles.entryTitle}>{entry.title}</h3>
+                  
+                  {/* Status */}
+                  {entry.status && (
+                    <div className={styles.entryStatus}>
+                      {(() => {
+                        const status = STATUS_OPTIONS.find(s => s.value === entry.status);
+                        if (status) {
+                          const IconComponent = status.icon;
+                          return (
+                            <div 
+                              className={styles.statusBadge}
+                              style={{ backgroundColor: status.color }}
+                              title={status.name}
+                            >
+                              <IconComponent />
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
+                  )}
                 </div>
                 
                 <div className={styles.entryActions} onClick={(e) => e.stopPropagation()}>
@@ -1159,6 +1231,30 @@ export default function MinhaBase({ user }) {
                           );
                         }
                         return <FaBookmark />;
+                      })()}
+                    </span>
+                  )}
+                  
+                  {/* Status */}
+                  {viewingEntry.status && (
+                    <span 
+                      className={styles.viewStatusBadge}
+                      style={{
+                        backgroundColor: STATUS_OPTIONS.find(s => s.value === viewingEntry.status)?.color || '#6B7280',
+                        color: 'white'
+                      }}
+                    >
+                      {(() => {
+                        const status = STATUS_OPTIONS.find(s => s.value === viewingEntry.status);
+                        if (status) {
+                          const IconComponent = status.icon;
+                          return (
+                            <>
+                              <IconComponent /> {status.name}
+                            </>
+                          );
+                        }
+                        return <FaClock />;
                       })()}
                     </span>
                   )}
@@ -1468,6 +1564,49 @@ export default function MinhaBase({ user }) {
                               style={{ backgroundColor: selectedMarker.color }}
                             >
                               <IconComponent /> {selectedMarker.name}
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>
+                      <span className={styles.labelIcon} style={{ color: getColorValue(formData.color) }}>
+                        <FaClock />
+                      </span>
+                      Status
+                    </label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                      className={styles.filterSelect}
+                      style={{ borderColor: getColorValue(formData.color) }}
+                    >
+                      {STATUS_OPTIONS.map(status => {
+                        const IconComponent = status.icon;
+                        return (
+                          <option key={status.value} value={status.value}>
+                            {status.name}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    
+                    {/* Preview do status selecionado */}
+                    <div className={styles.statusPreview}>
+                      {(() => {
+                        const selectedStatus = STATUS_OPTIONS.find(s => s.value === formData.status);
+                        if (selectedStatus) {
+                          const IconComponent = selectedStatus.icon;
+                          return (
+                            <div 
+                              className={styles.statusPreviewBadge}
+                              style={{ backgroundColor: selectedStatus.color }}
+                            >
+                              <IconComponent /> {selectedStatus.name}
                             </div>
                           );
                         }

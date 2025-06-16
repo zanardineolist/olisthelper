@@ -18,6 +18,7 @@ export default async function handler(req, res) {
           filter_tags = '',
           filter_category = '',
           filter_marker = '',
+          filter_status = '',
           order_by = 'created_at',
           order_direction = 'desc'
         } = req.query;
@@ -31,6 +32,7 @@ export default async function handler(req, res) {
             filter_tags: tagsArray,
             filter_category,
             filter_marker,
+            filter_status,
             order_by,
             order_direction
           });
@@ -51,6 +53,7 @@ export default async function handler(req, res) {
           color = '#0A4EE4',
           category = 'geral',
           marker = 'tech',
+          status = 'pendente',
           images = []
         } = req.body;
 
@@ -86,6 +89,7 @@ export default async function handler(req, res) {
             color,
             category: category.trim(),
             marker,
+            status,
             images: images
           }])
           .select()
