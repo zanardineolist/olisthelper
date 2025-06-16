@@ -1,87 +1,96 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
-import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import { getSession } from 'next-auth/react';
 import Layout from '../components/Layout';
 import { useLoading } from '../components/LoadingIndicator';
 import RegisterAccess from '../components/RegisterAccess';
 import MyAccessRecords from '../components/MyAccessRecords';
 import AllAccessRecords from '../components/AllAccessRecords';
-import GoogleCalendar from '../components/GoogleCalendar';
 import styles from '../styles/Remote.module.css';
-
-const theme = createTheme({
-  components: {
-    MuiTabs: {
-      styleOverrides: {
-        root: {
-          backgroundColor: 'var(--tab-menu-bg)',
-          borderRadius: '5px',
-          marginBottom: '20px',
-          marginTop: '20px',
-        },
-        indicator: {
-          backgroundColor: 'var(--tab-menu-indicator)',
-          height: '4px',
-          borderRadius: '5px',
-        },
-      },
-    },
-    MuiTab: {
-      styleOverrides: {
-        root: {
-          color: 'var(--text-color)',
-          fontSize: '16px',
-          textTransform: 'none',
-          transition: 'color 0.3s ease, background-color 0.3s ease',
-          '&.Mui-selected': {
-            color: 'var(--color-white)',
-            backgroundColor: 'var(--color-primary)',
-          },
-        },
-      },
-    },
-  },
-});
 
 export default function RemotePage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
   const { loading: routerLoading } = useLoading();
 
-  const handleTabChange = (event, newValue) => {
-    setCurrentTab(newValue);
+  // Definir tabs baseadas no role do usuário
+  const getTabs = () => {
+    if (user.role === 'support+') {
+      return [
+        { id: 'register', label: 'Registrar Acesso', icon: 'fa-plus-circle' },
+        { id: 'my-records', label: 'Meus Registros', icon: 'fa-list-alt' }
+      ];
+    } else if (user.role === 'super') {
+      return [
+        { id: 'all-records', label: 'Todos os Registros', icon: 'fa-database' }
+      ];
+    }
+    return [];
+  };
+
+  const tabs = getTabs();
+
+  const handleTabChange = (tabIndex) => {
+    setCurrentTab(tabIndex);
+  };
+
+  const renderTabContent = () => {
+    if (user.role === 'support+') {
+      switch (currentTab) {
+        case 0:
+          return <RegisterAccess user={user} />;
+        case 1:
+          return <MyAccessRecords user={user} />;
+        default:
+          return <RegisterAccess user={user} />;
+      }
+    } else if (user.role === 'super') {
+      return <AllAccessRecords user={user} currentTab={currentTab} />;
+    }
+    return null;
   };
 
   return (
     <Layout user={user}>
       <Head>
-        <title>Acesso Remoto</title>
+        <title>Acesso Remoto - Olist Helper</title>
+        <meta name="description" content="Gestão de acessos remotos" />
       </Head>
 
       <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
-        <main className={styles.main}>
-          <ThemeProvider theme={theme}>
-            <Tabs value={currentTab} onChange={handleTabChange} centered>
-              {user.role === 'support+' && <Tab label="Registrar" />}
-              {user.role === 'support+' && <Tab label="Meus Acessos" />}
-              {user.role === 'super' && <Tab label="Todos os Acessos" />}
-              {user.role === 'super' && <Tab label="Agenda" />}
-            </Tabs>
-          </ThemeProvider>
+        <div className={styles.headerSection}>
+          <div className={styles.pageHeader}>
+            <div className={styles.headerContent}>
+              <div className={styles.headerTitle}>
+                <i className="fa-solid fa-desktop"></i>
+                <h1>Acesso Remoto</h1>
+              </div>
+              <p className={styles.headerSubtitle}>
+                Gerencie registros de acesso remoto e suporte técnico
+              </p>
+            </div>
+          </div>
+        </div>
 
+        <main className={styles.main}>
+          {/* Navigation Tabs */}
+          <div className={styles.tabsContainer}>
+            <nav className={styles.tabsNav}>
+              {tabs.map((tab, index) => (
+                <button
+                  key={tab.id}
+                  className={`${styles.tabButton} ${currentTab === index ? styles.active : ''}`}
+                  onClick={() => handleTabChange(index)}
+                >
+                  <i className={`fa-solid ${tab.icon}`}></i>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          {/* Tab Content */}
           <div className={styles.tabContent}>
-            {user.role === 'support+' && currentTab === 0 && (
-              <RegisterAccess user={user} />
-            )}
-            {user.role === 'support+' && currentTab === 1 && (
-              <MyAccessRecords user={user} />
-            )}
-            {user.role === 'super' && currentTab === 0 && (
-              <AllAccessRecords user={user} currentTab={currentTab} />
-            )}
-            {user.role === 'super' && currentTab === 1 && (
-              <GoogleCalendar />
-            )}
+            {renderTabContent()}
           </div>
         </main>
       </div>
