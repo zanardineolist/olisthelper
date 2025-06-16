@@ -3,7 +3,7 @@
   width: 100%;
   min-height: 100vh;
   padding-top: calc(64px + 0.5rem);
-  background: linear-gradient(135deg, var(--background-color) 0%, var(--background-secondary, var(--background-color)) 100%);
+  background-color: var(--background-color);
   transition: filter 0.3s ease;
 }
 
@@ -69,20 +69,20 @@
 
 /* ================== ÁREA PRINCIPAL ================== */
 .main {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 0 2rem 2rem;
+  padding: 1rem 2rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 /* ================== SISTEMA DE TABS ================== */
 .tabsContainer {
-  background: var(--box-color);
-  border-radius: 16px;
+  background-color: var(--box-color);
+  border-radius: 8px;
   padding: 0.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--color-border);
 }
 
@@ -101,220 +101,163 @@
 .tabButton {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
   border: none;
-  border-radius: 12px;
-  background: transparent;
+  border-radius: 6px;
+  background-color: transparent;
   color: var(--text-color);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
-  position: relative;
-  overflow: hidden;
 }
 
-.tabButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover, var(--color-primary)) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: -1;
-}
-
-.tabButton:hover::before {
-  opacity: 0.1;
+.tabButton:hover {
+  background-color: var(--color-hover);
 }
 
 .tabButton.active {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover, var(--color-primary)) 100%);
+  background-color: var(--color-primary);
   color: white;
-  box-shadow: 0 4px 12px rgba(var(--color-primary-rgb, 59, 130, 246), 0.3);
-  transform: translateY(-1px);
-}
-
-.tabButton.active::before {
-  opacity: 0;
 }
 
 .tabButton i {
-  font-size: 1.1rem;
-  transition: transform 0.3s ease;
-}
-
-.tabButton:hover i {
-  transform: scale(1.1);
-}
-
-.tabButton span {
-  font-weight: 600;
+  font-size: 1rem;
 }
 
 /* ================== CONTEÚDO DAS TABS ================== */
 .tabContent {
   width: 100%;
-  animation: fadeIn 0.4s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* ================== CONTAINERS DE CARDS ================== */
 .cardContainer {
-  background: var(--box-color);
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background-color: var(--box-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--color-border);
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.cardContainer:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  margin-bottom: 1.5rem;
 }
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
   flex-wrap: wrap;
   gap: 1rem;
 }
 
 .cardTitle {
   color: var(--title-color);
-  font-size: 1.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ================== CAIXAS DE CONTADORES ================== */
+.statsContainer {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.statBox {
+  background-color: var(--box-color);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  flex: 1;
+  min-width: 200px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.statBox h3 {
+  color: var(--title-color);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statBox .statNumber {
+  color: var(--color-primary);
+  font-size: 2rem;
   font-weight: 700;
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
 }
 
-.cardTitle::before {
-  content: '';
-  width: 4px;
-  height: 2rem;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover, var(--color-primary)) 100%);
-  border-radius: 2px;
-}
-
-/* ================== FORMULÁRIO MODERNO ================== */
+/* ================== FORMULÁRIO ================== */
 .formContainer {
   display: grid;
-  gap: 2rem;
-  background: var(--box-color);
-  padding: 2.5rem;
-  border-radius: 20px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  gap: 1.5rem;
+  background-color: var(--box-color);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--color-border);
-  position: relative;
-  overflow: hidden;
-}
-
-.formContainer::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-hover, var(--color-primary)) 100%);
 }
 
 .formTitle {
   color: var(--title-color);
   text-align: center;
-  margin: 0 0 1.5rem;
-  font-size: 2rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--title-color) 0%, var(--color-primary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .formGroup label {
   color: var(--title-color);
   font-weight: 600;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.formGroup label::before {
-  content: '';
-  width: 3px;
-  height: 1rem;
-  background: var(--color-primary);
-  border-radius: 2px;
+  font-size: 0.9rem;
 }
 
 .inputField {
-  padding: 1rem 1.25rem;
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--labels-bg);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: var(--labels-bg);
   color: var(--text-color);
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
 }
 
 .inputField:focus,
 .inputField:hover {
   border-color: var(--color-primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 59, 130, 246), 0.1);
-  transform: translateY(-1px);
 }
 
 .formTextarea {
-  padding: 1rem 1.25rem;
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--labels-bg);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: var(--labels-bg);
   color: var(--text-color);
-  font-size: 1rem;
-  min-height: 120px;
+  font-size: 0.9rem;
+  min-height: 100px;
   resize: vertical;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease;
 }
 
 .formTextarea:focus,
 .formTextarea:hover {
   border-color: var(--color-primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 59, 130, 246), 0.1);
-  transform: translateY(-1px);
 }
 
 .formButtonContainer {
@@ -324,62 +267,39 @@
 }
 
 .submitButton {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover, var(--color-primary)) 100%);
+  background-color: var(--color-primary);
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 1rem 2.5rem;
-  font-size: 1.1rem;
+  border-radius: 6px;
+  padding: 0.75rem 2rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(var(--color-primary-rgb, 59, 130, 246), 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.submitButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: left 0.5s ease;
+  transition: background-color 0.2s ease;
 }
 
 .submitButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(var(--color-primary-rgb, 59, 130, 246), 0.4);
-}
-
-.submitButton:hover::before {
-  left: 100%;
+  background-color: var(--color-primary-hover);
 }
 
 .submitButton:disabled {
-  background: var(--color-disabled);
+  background-color: var(--color-disabled);
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
-/* ================== REACT SELECT PERSONALIZADO ================== */
+/* ================== REACT SELECT ================== */
 .react-select__control {
-  background: var(--labels-bg) !important;
-  border: 2px solid var(--color-border) !important;
-  border-radius: 12px !important;
-  padding: 0.5rem !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-  min-height: 52px !important;
+  background-color: var(--labels-bg) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 6px !important;
+  padding: 0.25rem !important;
+  transition: border-color 0.2s ease !important;
+  min-height: 42px !important;
 }
 
 .react-select__control--is-focused {
   border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 59, 130, 246), 0.1) !important;
-  transform: translateY(-1px);
+  box-shadow: none !important;
 }
 
 .react-select__input {
@@ -387,27 +307,25 @@
 }
 
 .react-select__menu {
-  background: var(--labels-bg) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+  background-color: var(--labels-bg) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
   border: 1px solid var(--color-border) !important;
-  overflow: hidden !important;
 }
 
 .react-select__option {
-  background: var(--labels-bg) !important;
+  background-color: var(--labels-bg) !important;
   color: var(--text-color) !important;
-  padding: 1rem !important;
+  padding: 0.75rem !important;
   cursor: pointer !important;
-  transition: all 0.2s ease !important;
 }
 
 .react-select__option--is-focused {
-  background: var(--color-trodd) !important;
+  background-color: var(--color-trodd) !important;
 }
 
 .react-select__option--is-selected {
-  background: var(--color-primary) !important;
+  background-color: var(--color-primary) !important;
   color: white !important;
 }
 
@@ -419,200 +337,248 @@
   color: var(--text-color2) !important;
 }
 
-/* ================== TABELA MODERNA ================== */
+/* ================== TABELA ================== */
 .tableContainer {
-  background: var(--box-color);
-  border-radius: 16px;
+  background-color: var(--box-color);
+  border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--color-border);
+  width: 100%;
 }
 
 .recordsTable {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+  min-width: 1200px;
 }
 
 .recordsTable thead {
-  background: linear-gradient(135deg, var(--color-thead) 0%, var(--color-primary) 100%);
+  background-color: var(--color-thead);
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
 .recordsTable th {
-  padding: 1.25rem 1rem;
+  padding: 1rem 0.75rem;
   text-align: left;
-  color: white;
-  font-weight: 700;
-  font-size: 0.9rem;
+  color: var(--text-th);
+  font-weight: 600;
+  font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border: none;
-  position: relative;
-}
-
-.recordsTable th::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 25%;
-  height: 50%;
-  width: 1px;
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.recordsTable th:last-child::after {
-  display: none;
+  border-bottom: 2px solid var(--color-border);
 }
 
 .recordsTable td {
-  padding: 1rem;
+  padding: 0.75rem;
   text-align: left;
   color: var(--text-color);
   border: none;
   border-bottom: 1px solid var(--color-border);
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  vertical-align: middle;
 }
 
 .tableRow {
-  transition: all 0.2s ease;
-  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .tableRow:hover {
-  background: var(--color-hover) !important;
-  transform: scale(1.001);
+  background-color: var(--color-hover) !important;
 }
 
 .recordsTable tbody tr:nth-child(odd) {
-  background: var(--color-trodd);
+  background-color: var(--color-trodd);
 }
 
 .recordsTable tbody tr:nth-child(even) {
-  background: var(--color-treven);
+  background-color: var(--color-treven);
+}
+
+/* Tamanhos das colunas */
+.dateColumn {
+  width: 10%;
+  min-width: 100px;
+}
+
+.timeColumn {
+  width: 8%;
+  min-width: 80px;
+}
+
+.nameColumn {
+  width: 15%;
+  min-width: 150px;
+}
+
+.ticketColumn {
+  width: 10%;
+  min-width: 100px;
+}
+
+.themeColumn {
+  width: 15%;
+  min-width: 150px;
+}
+
+.descriptionColumn {
+  width: 40%;
+  min-width: 300px;
+}
+
+.actionsColumn {
+  width: 2%;
+  min-width: 50px;
+  text-align: center;
+}
+
+/* Estilo para descrição truncada */
+.descriptionCell {
+  position: relative;
+}
+
+.truncatedText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.expandButton:hover {
+  background-color: var(--color-primary);
+  color: white;
 }
 
 .noRecordsMessage {
   text-align: center;
-  padding: 3rem 2rem !important;
+  padding: 2rem !important;
   color: var(--text-color2) !important;
   font-style: italic;
-  font-size: 1.1rem;
+  font-size: 1rem;
+}
+
+/* ================== MODAL ================== */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background-color: var(--box-color);
+  border-radius: 8px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--color-border);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modalTitle {
+  color: var(--title-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.modalCloseButton {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.modalCloseButton:hover {
+  background-color: var(--color-hover);
+}
+
+.modalBody {
+  color: var(--text-color);
+  line-height: 1.6;
 }
 
 /* ================== CAMPO DE BUSCA ================== */
 .searchContainer {
   position: relative;
-  max-width: 400px;
+  max-width: 350px;
 }
 
 .searchInput {
   width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
-  background: var(--labels-bg);
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: var(--labels-bg);
   color: var(--text-color);
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
 }
 
 .searchInput:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb, 59, 130, 246), 0.1);
-  transform: translateY(-1px);
 }
 
 .searchIcon {
   position: absolute;
-  left: 1rem;
+  left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-color2);
-  font-size: 1.1rem;
-  transition: color 0.3s ease;
-}
-
-.searchInput:focus + .searchIcon {
-  color: var(--color-primary);
+  font-size: 1rem;
 }
 
 /* ================== RESPONSIVIDADE ================== */
 @media (max-width: 768px) {
-  .container {
-    padding-top: calc(64px + 0.5rem);
-  }
-
-  .headerSection {
-    padding: 1.5rem 0;
-    margin-bottom: 1.5rem;
-  }
-
-  .pageHeader {
-    padding: 0 1rem;
-  }
-
-  .headerTitle h1 {
-    font-size: 2rem;
-  }
-
-  .headerSubtitle {
-    font-size: 1rem;
-  }
-
   .main {
-    padding: 0 1rem 1rem;
+    padding: 1rem;
   }
 
-  .tabsNav {
-    justify-content: center;
-  }
-
-  .tabButton {
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-  }
-
-  .cardContainer,
-  .formContainer {
-    padding: 1.5rem;
-    border-radius: 12px;
-  }
-
-  .cardTitle {
-    font-size: 1.5rem;
-  }
-
-  .formTitle {
-    font-size: 1.75rem;
-  }
-
-  .tableContainer {
-    overflow-x: auto;
-  }
-
-  .recordsTable {
-    min-width: 800px;
-  }
-}
-
-@media (max-width: 480px) {
-  .headerTitle {
+  .statsContainer {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
   }
 
-  .headerTitle i {
-    font-size: 1.5rem;
-  }
-
-  .headerTitle h1 {
-    font-size: 1.75rem;
+  .statBox {
+    min-width: auto;
   }
 
   .tabButton span {
@@ -621,6 +587,31 @@
 
   .tabButton {
     padding: 0.75rem;
-    min-width: auto;
+  }
+
+  .cardContainer,
+  .formContainer {
+    padding: 1rem;
+  }
+
+  .tableContainer {
+    overflow-x: auto;
+  }
+
+  .modalContent {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding: 0.5rem;
+  }
+
+  .cardContainer,
+  .formContainer {
+    padding: 1rem;
+    border-radius: 6px;
   }
 }

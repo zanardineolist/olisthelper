@@ -57,20 +57,6 @@ export default function RemotePage({ user }) {
       </Head>
 
       <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
-        <div className={styles.headerSection}>
-          <div className={styles.pageHeader}>
-            <div className={styles.headerContent}>
-              <div className={styles.headerTitle}>
-                <i className="fa-solid fa-desktop"></i>
-                <h1>Acesso Remoto</h1>
-              </div>
-              <p className={styles.headerSubtitle}>
-                Gerencie registros de acesso remoto e suporte técnico
-              </p>
-            </div>
-          </div>
-        </div>
-
         <main className={styles.main}>
           {/* Navigation Tabs */}
           <div className={styles.tabsContainer}>

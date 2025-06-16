@@ -1,7 +1,4 @@
 import { useEffect, useState } from 'react';
-import Swal from 'sweetalert2';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInfoCircle, faSearch } from '@fortawesome/free-solid-svg-icons';
 import styles from '../styles/Remote.module.css';
 
 export default function MyAccessRecords({ user }) {
@@ -10,6 +7,9 @@ export default function MyAccessRecords({ user }) {
   const [userTotal, setUserTotal] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredRecords, setFilteredRecords] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+  const [modalTitle, setModalTitle] = useState('');
 
   useEffect(() => {
     loadUserRecords();
@@ -53,11 +53,10 @@ export default function MyAccessRecords({ user }) {
         setUserMonthTotal(data.monthRecords.length);
         setUserTotal(data.allRecords.length);
       } else {
-        Swal.fire('Erro', 'Erro ao buscar registros do usuário.', 'error');
+        console.error('Erro ao buscar registros do usuário');
       }
     } catch (error) {
       console.error('Erro ao buscar registros do usuário:', error);
-      Swal.fire('Erro', 'Erro ao buscar registros do usuário. Tente novamente.', 'error');
     }
   };
 
@@ -84,61 +83,44 @@ export default function MyAccessRecords({ user }) {
   };
 
   const handleDescriptionClick = (description, theme, date, time, ticket) => {
-    Swal.fire({
-      title: `<div class="modal-title">${theme || 'Detalhes do Registro'}</div>`,
-      html: `
-        <div class="modal-content">
-          <div class="modal-info-row">
-            <span class="modal-label">Data:</span>
-            <span class="modal-value">${date || 'N/A'}</span>
-          </div>
-          <div class="modal-info-row">
-            <span class="modal-label">Hora:</span>
-            <span class="modal-value">${time || 'N/A'}</span>
-          </div>
-          <div class="modal-info-row">
-            <span class="modal-label">Chamado:</span>
-            <span class="modal-value">${ticket || 'N/A'}</span>
-          </div>
-          <div class="modal-description">
-            <div class="modal-label">Descrição:</div>
-            <div class="modal-description-text">${description || 'Sem descrição disponível'}</div>
-          </div>
-        </div>
-      `,
-      showCloseButton: true,
-      showConfirmButton: false,
-      customClass: {
-        popup: 'custom-modal-popup',
-        title: 'custom-modal-title',
-        content: 'custom-modal-content',
-        closeButton: 'custom-modal-close'
-      }
+    setModalTitle(`${theme || 'Detalhes do Registro'} - ${ticket || 'N/A'}`);
+    setModalContent({
+      description: description || 'Sem descrição disponível',
+      date: date || 'N/A',
+      time: time || 'N/A',
+      ticket: ticket || 'N/A'
     });
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setModalContent('');
+    setModalTitle('');
   };
 
   return (
     <>
-      {/* Contadores de Performance */}
-      <div className={styles.performanceWrapper}>
-        <div className={styles.performanceContainer}>
-          <h2>Acessos no Mês Atual</h2>
-          <span className={styles.totalCount}>{userMonthTotal}</span>
+      {/* Caixas de Contadores */}
+      <div className={styles.statsContainer}>
+        <div className={styles.statBox}>
+          <h3>Acessos no Mês Atual</h3>
+          <div className={styles.statNumber}>{userMonthTotal}</div>
         </div>
-        <div className={styles.performanceContainer}>
-          <h2>Acessos Realizados</h2>
-          <span className={styles.totalCount}>{userTotal}</span>
+        <div className={styles.statBox}>
+          <h3>Acessos Realizados</h3>
+          <div className={styles.statNumber}>{userTotal}</div>
         </div>
       </div>
 
       {/* Tabela de Registros */}
-      <div className={`${styles.cardContainer} ${styles.dashboard}`}>
-        <div className={styles.cardHeaderColumn}>
+      <div className={styles.cardContainer}>
+        <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Meus Acessos</h2>
           
           {/* Campo de busca */}
           <div className={styles.searchContainer}>
-            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <i className="fa-solid fa-search" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-color2)', fontSize: '1rem' }}></i>
             <input
               type="text"
               placeholder="Buscar por chamado, tema ou descrição..."
@@ -159,45 +141,45 @@ export default function MyAccessRecords({ user }) {
                 <th className={styles.ticketColumn}>Chamado</th>
                 <th className={styles.themeColumn}>Tema</th>
                 <th className={styles.descriptionColumn}>Descrição</th>
+                <th className={styles.actionsColumn}></th>
               </tr>
             </thead>
             <tbody>
               {filteredRecords.length > 0 ? (
                 filteredRecords.map((record, index) => (
                   <tr key={record.id || index} className={styles.tableRow}>
-                    <td className={styles.dateColumn}>{formatDateToBR(record.date)}</td>
-                    <td className={styles.timeColumn}>{record.time}</td>
-                    <td className={styles.nameColumn}>{record.name}</td>
-                    <td className={styles.ticketColumn}>{record.ticket_number}</td>
-                    <td className={styles.themeColumn}>{record.theme}</td>
-                    <td className={styles.descriptionColumn}>
-                      <div className={styles.descriptionWithIcon}>
-                        <span className={styles.truncatedText}>
-                          {record.description?.length > 30 
-                            ? `${record.description.substring(0, 30)}...` 
-                            : record.description || 'N/A'}
-                        </span>
-                        {record.description && record.description.length > 30 && (
-                          <button 
-                            className={styles.seeMoreButton}
-                            onClick={() => handleDescriptionClick(
-                              record.description, 
-                              record.theme,
-                              record.date,
-                              record.time,
-                              record.ticket_number
-                            )}
-                          >
-                            Ver mais
-                          </button>
-                        )}
+                    <td>{formatDateToBR(record.date)}</td>
+                    <td>{record.time}</td>
+                    <td>{record.name}</td>
+                    <td>{record.ticket_number}</td>
+                    <td>{record.theme}</td>
+                    <td className={styles.descriptionCell}>
+                      <div className={styles.truncatedText}>
+                        {record.description || 'N/A'}
                       </div>
+                    </td>
+                    <td>
+                      {record.description && (
+                        <button
+                          className={styles.expandButton}
+                          onClick={() => handleDescriptionClick(
+                            record.description, 
+                            record.theme,
+                            record.date,
+                            record.time,
+                            record.ticket_number
+                          )}
+                          title="Ver descrição completa"
+                        >
+                          Ver mais
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className={styles.noRecordsMessage}>
+                  <td colSpan="7" className={styles.noRecordsMessage}>
                     {searchTerm ? 'Nenhum registro encontrado para a busca.' : 'Nenhum registro encontrado.'}
                   </td>
                 </tr>
@@ -207,85 +189,52 @@ export default function MyAccessRecords({ user }) {
         </div>
       </div>
 
-      {/* CSS para o modal - será injetado no SweetAlert2 */}
-      <style jsx global>{`
-        .custom-modal-popup {
-          background-color: var(--box-color);
-          border-radius: 12px;
-          box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
-          padding: 20px;
-          max-width: 600px;
-          width: 90%;
-        }
-        
-        .modal-title {
-          color: var(--title-color);
-          font-size: 1.5rem;
-          font-weight: bold;
-          border-bottom: 1px solid var(--color-border);
-          padding-bottom: 15px;
-          margin-bottom: 10px;
-          text-align: left;
-        }
-        
-        .modal-content {
-          text-align: left;
-          padding: 10px 5px;
-          color: var(--text-color);
-        }
-        
-        .modal-info-row {
-          display: flex;
-          margin-bottom: 10px;
-          align-items: center;
-        }
-        
-        .modal-label {
-          font-weight: bold;
-          width: 100px;
-          color: var(--color-primary);
-        }
-        
-        .modal-value {
-          flex: 1;
-        }
-        
-        .modal-description {
-          display: flex;
-          flex-direction: column;
-          margin-top: 15px;
-          border-top: 1px solid var(--color-border);
-          padding-top: 15px;
-        }
-        
-        .modal-description-text {
-          margin-top: 10px;
-          white-space: pre-line;
-          line-height: 1.5;
-          max-height: 300px;
-          overflow-y: auto;
-          padding: 10px;
-          background-color: var(--labels-bg);
-          border-radius: 8px;
-          border: 1px solid var(--color-border);
-        }
-        
-        .custom-modal-close {
-          color: var(--text-color) !important;
-          background-color: var(--labels-bg) !important;
-          border-radius: 50% !important;
-          width: 32px !important;
-          height: 32px !important;
-          top: 15px !important;
-          right: 15px !important;
-          transition: all 0.2s ease !important;
-        }
-        
-        .custom-modal-close:hover {
-          background-color: var(--color-primary) !important;
-          color: #fff !important;
-        }
-      `}</style>
+      {/* Modal */}
+      {modalOpen && (
+        <div className={styles.modalOverlay} onClick={closeModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>{modalTitle}</h3>
+              <button className={styles.modalCloseButton} onClick={closeModal}>
+                <i className="fa-solid fa-times"></i>
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              {modalContent && (
+                <>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', marginBottom: '0.5rem' }}>
+                      <strong style={{ width: '80px', color: 'var(--color-primary)' }}>Data:</strong>
+                      <span>{modalContent.date}</span>
+                    </div>
+                    <div style={{ display: 'flex', marginBottom: '0.5rem' }}>
+                      <strong style={{ width: '80px', color: 'var(--color-primary)' }}>Hora:</strong>
+                      <span>{modalContent.time}</span>
+                    </div>
+                    <div style={{ display: 'flex', marginBottom: '1rem' }}>
+                      <strong style={{ width: '80px', color: 'var(--color-primary)' }}>Chamado:</strong>
+                      <span>{modalContent.ticket}</span>
+                    </div>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1rem' }}>
+                    <strong style={{ color: 'var(--color-primary)', display: 'block', marginBottom: '0.5rem' }}>Descrição:</strong>
+                    <div style={{ 
+                      backgroundColor: 'var(--labels-bg)', 
+                      padding: '1rem', 
+                      borderRadius: '6px', 
+                      border: '1px solid var(--color-border)',
+                      lineHeight: '1.6',
+                      whiteSpace: 'pre-line'
+                    }}>
+                      {modalContent.description}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

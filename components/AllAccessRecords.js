@@ -1,7 +1,4 @@
 import { useEffect, useState } from 'react';
-import Swal from 'sweetalert2';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import styles from '../styles/Remote.module.css';
@@ -11,6 +8,9 @@ export default function AllAccessRecords({ user, currentTab }) {
   const [allMonthTotal, setAllMonthTotal] = useState(0);
   const [allTotal, setAllTotal] = useState(0);
   const [chartData, setChartData] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+  const [modalTitle, setModalTitle] = useState('');
 
   useEffect(() => {
     if (currentTab === 0) {
@@ -47,11 +47,10 @@ export default function AllAccessRecords({ user, currentTab }) {
         // Preparar os dados para o gráfico
         prepareChartData(records);
       } else {
-        Swal.fire('Erro', 'Erro ao buscar todos os registros.', 'error');
+        console.error('Erro ao buscar todos os registros');
       }
     } catch (error) {
       console.error('Erro ao buscar todos os registros:', error);
-      Swal.fire('Erro', 'Erro ao buscar todos os registros. Tente novamente.', 'error');
     }
   };
 
@@ -89,74 +88,81 @@ export default function AllAccessRecords({ user, currentTab }) {
     });
   };
 
-  const handleDescriptionClick = (description) => {
-    Swal.fire({
-      title: 'Descrição Completa',
-      text: description || 'Sem descrição disponível',
-      icon: 'info',
-      confirmButtonText: 'Fechar',
-    });
+  const handleDescriptionClick = (description, recordInfo) => {
+    setModalTitle(`Descrição do Acesso - ${recordInfo.ticket_number || 'N/A'}`);
+    setModalContent(description || 'Sem descrição disponível');
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setModalContent('');
+    setModalTitle('');
   };
 
   return (
     <>
-      {/* Contadores de Performance */}
-      <div className={styles.performanceWrapper}>
-        <div className={styles.performanceContainer}>
-          <h2>Acessos no Mês Atual</h2>
-          <span className={styles.totalCount}>{allMonthTotal}</span>
+      {/* Caixas de Contadores */}
+      <div className={styles.statsContainer}>
+        <div className={styles.statBox}>
+          <h3>Acessos no Mês Atual</h3>
+          <div className={styles.statNumber}>{allMonthTotal}</div>
         </div>
-        <div className={styles.performanceContainer}>
-          <h2>Acessos Realizados</h2>
-          <span className={styles.totalCount}>{allTotal}</span>
+        <div className={styles.statBox}>
+          <h3>Acessos Realizados</h3>
+          <div className={styles.statNumber}>{allTotal}</div>
         </div>
       </div>
 
       {/* Tabela de Registros */}
-      <div className={`${styles.cardContainer} ${styles.dashboard}`}>
+      <div className={styles.cardContainer}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Acessos Realizados</h2>
         </div>
-        <div className={styles.recordsTable}>
-          <table>
+        
+        <div className={styles.tableContainer}>
+          <table className={styles.recordsTable}>
             <thead>
               <tr>
-                <th>Data</th>
-                <th>Hora</th>
-                <th>Nome</th>
-                <th>Chamado</th>
-                <th>Tema</th>
-                <th>Descrição</th>
+                <th className={styles.dateColumn}>Data</th>
+                <th className={styles.timeColumn}>Hora</th>
+                <th className={styles.nameColumn}>Nome</th>
+                <th className={styles.ticketColumn}>Chamado</th>
+                <th className={styles.themeColumn}>Tema</th>
+                <th className={styles.descriptionColumn}>Descrição</th>
+                <th className={styles.actionsColumn}></th>
               </tr>
             </thead>
             <tbody>
               {allRecords.length > 0 ? (
                 allRecords.map((record, index) => (
-                  <tr key={record.id || index}>
+                  <tr key={record.id || index} className={styles.tableRow}>
                     <td>{record.date}</td>
                     <td>{record.time}</td>
                     <td>{record.name}</td>
                     <td>{record.ticket_number}</td>
                     <td>{record.theme}</td>
+                    <td className={styles.descriptionCell}>
+                      <div className={styles.truncatedText}>
+                        {record.description || 'N/A'}
+                      </div>
+                    </td>
                     <td>
-                      <span style={{ display: 'flex', alignItems: 'center' }}>
-                        <span style={{ marginRight: '8px' }}>
-                          {record.description?.length > 20 
-                            ? `${record.description.substring(0, 20)}...` 
-                            : record.description || 'N/A'}
-                        </span>
-                        <FontAwesomeIcon
-                          icon={faInfoCircle}
-                          className={styles.infoIcon}
-                          onClick={() => handleDescriptionClick(record.description)}
-                        />
-                      </span>
+                      {record.description && (
+                        <button
+                          className={styles.expandButton}
+                          onClick={() => handleDescriptionClick(record.description, record)}
+                          title="Ver descrição completa"
+                        >
+                          Ver mais
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: 'center' }}>
+                  <td colSpan="7" className={styles.noRecordsMessage}>
                     Nenhum registro encontrado.
                   </td>
                 </tr>
@@ -168,9 +174,50 @@ export default function AllAccessRecords({ user, currentTab }) {
 
       {/* Gráfico de Linha */}
       {chartData && (
-        <div className={styles.chartContainer}>
-          <h2>Progressão dos Acessos Mensais</h2>
-          <Line data={chartData} options={{ responsive: true, animation: { duration: 1000 } }} />
+        <div className={styles.cardContainer}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Progressão dos Acessos Mensais</h2>
+          </div>
+          <div style={{ padding: '1rem' }}>
+            <Line 
+              data={chartData} 
+              options={{ 
+                responsive: true, 
+                animation: { duration: 1000 },
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'top',
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: {
+                      stepSize: 1
+                    }
+                  }
+                }
+              }} 
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Modal */}
+      {modalOpen && (
+        <div className={styles.modalOverlay} onClick={closeModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>{modalTitle}</h3>
+              <button className={styles.modalCloseButton} onClick={closeModal}>
+                <i className="fa-solid fa-times"></i>
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <p>{modalContent}</p>
+            </div>
+          </div>
         </div>
       )}
     </>
