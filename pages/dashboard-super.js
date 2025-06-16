@@ -124,31 +124,13 @@ export default function DashboardSuper({ user }) {
 
       <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
         {/* Header da página */}
-        <header className={styles.pageHeader}>
-          <div className={styles.headerContent}>
-            <div className={styles.welcomeSection}>
-              <div className={styles.greetingText}>
-                {greeting}, <span className={styles.userName}>{user.name.split(' ')[0]}</span>
-              </div>
-              <p className={styles.dashboardSubtitle}>
-                Bem-vindo ao seu painel de controle. Aqui você pode monitorar o desempenho da sua equipe.
-              </p>
-            </div>
-            
-            <div className={styles.profileSection}>
-              <div className={styles.profileCard}>
-                <img src={user.image} alt={user.name} className={styles.profileImage} />
-                <div className={styles.profileInfo}>
-                  <h2 className={styles.profileName}>{user.name}</h2>
-                  <p className={styles.profileEmail}>{user.email}</p>
-                  <span className={styles.roleBadge}>
-                    <i className="fa-solid fa-crown"></i>
-                    Supervisor
-                  </span>
-                </div>
-              </div>
-            </div>
+        <header className={styles.header}>
+          <div className={styles.greetingText}>
+            {greeting}, <span className={styles.userName}>{user.name.split(' ')[0]}</span>
           </div>
+          <p className={styles.subtitle}>
+            Bem-vindo ao seu painel de controle. Aqui você pode monitorar o desempenho da sua equipe.
+          </p>
         </header>
 
         {/* Sistema de navegação por abas */}
