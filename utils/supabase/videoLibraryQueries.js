@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import { supabaseAdmin } from './supabaseClient';
 
 /**
  * Busca todos os vídeos com filtros opcionais
@@ -11,7 +11,7 @@ import { supabase } from './supabaseClient';
  */
 export async function getAllVideos(searchTerm = '', category = '', tags = [], orderBy = 'created_at', orderDirection = 'desc') {
   try {
-    let query = supabase
+    let query = supabaseAdmin
       .from('video_library')
       .select(`
         *,
@@ -57,7 +57,7 @@ export async function getAllVideos(searchTerm = '', category = '', tags = [], or
  */
 export async function getVideoById(videoId) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('video_library')
       .select(`
         *,
@@ -88,7 +88,7 @@ export async function getVideoById(videoId) {
  */
 export async function createVideo(videoData) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('video_library')
       .insert([{
         title: videoData.title,
@@ -120,7 +120,7 @@ export async function createVideo(videoData) {
  */
 export async function updateVideo(videoId, updates) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('video_library')
       .update({
         title: updates.title,
@@ -152,7 +152,7 @@ export async function updateVideo(videoId, updates) {
  */
 export async function deleteVideo(videoId) {
   try {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('video_library')
       .update({ is_active: false })
       .eq('id', videoId);
@@ -173,7 +173,7 @@ export async function deleteVideo(videoId) {
  */
 export async function recordVideoView(videoId, userId) {
   try {
-    const { error } = await supabase.rpc(
+    const { error } = await supabaseAdmin.rpc(
       'increment_video_view_count',
       { 
         video_id_param: videoId,
@@ -196,7 +196,7 @@ export async function recordVideoView(videoId, userId) {
 export async function getVideoLibraryStats() {
   try {
     // Total de vídeos ativos
-    const { count: totalVideos, error: countError } = await supabase
+    const { count: totalVideos, error: countError } = await supabaseAdmin
       .from('video_library')
       .select('*', { count: 'exact', head: true })
       .eq('is_active', true);
@@ -204,7 +204,7 @@ export async function getVideoLibraryStats() {
     if (countError) throw countError;
 
     // Vídeos por categoria
-    const { data: categoryStats, error: categoryError } = await supabase
+    const { data: categoryStats, error: categoryError } = await supabaseAdmin
       .from('video_library')
       .select('category')
       .eq('is_active', true);
@@ -217,7 +217,7 @@ export async function getVideoLibraryStats() {
     }, {});
 
     // Total de visualizações
-    const { count: totalViews, error: viewsError } = await supabase
+    const { count: totalViews, error: viewsError } = await supabaseAdmin
       .from('video_views')
       .select('*', { count: 'exact', head: true });
 
@@ -244,7 +244,7 @@ export async function getVideoLibraryStats() {
  */
 export async function getVideoCategories() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('video_library')
       .select('category')
       .eq('is_active', true);
@@ -265,7 +265,7 @@ export async function getVideoCategories() {
  */
 export async function getVideoTags() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('video_library')
       .select('tags')
       .eq('is_active', true);

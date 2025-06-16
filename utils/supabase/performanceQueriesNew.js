@@ -1,4 +1,4 @@
-import { supabase } from './supabaseClient';
+import { supabaseAdmin } from './supabaseClient';
 
 /**
  * Calcula o status de performance baseado em metas
@@ -71,26 +71,12 @@ const formatDisplayTime = (value, format = 'time') => {
 };
 
 /**
- * Converte status em cor
- * @param {string} status - Status da performance
- * @returns {string} Código da cor
- */
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'excellent': return '#779E3D'; // Verde
-    case 'good': return '#F0A028'; // Amarelo
-    case 'poor': return '#E64E36'; // Vermelho
-    default: return 'var(--box-color3)'; // Neutro
-  }
-};
-
-/**
  * Busca as metas dos canais
  * @returns {Promise<Object>} Metas organizadas por canal
  */
 export async function getChannelTargets() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('channel_targets')
       .select('*')
       .eq('is_active', true);
@@ -115,7 +101,7 @@ export async function getChannelTargets() {
 export async function getUserPerformanceByEmail(userEmail) {
   try {
     // Buscar dados de performance
-    const { data: performance, error: performanceError } = await supabase
+    const { data: performance, error: performanceError } = await supabaseAdmin
       .from('performance_indicators')
       .select('*')
       .eq('user_email', userEmail.toLowerCase())
@@ -127,7 +113,7 @@ export async function getUserPerformanceByEmail(userEmail) {
     }
 
     // Buscar permissões do usuário
-    const { data: user, error: userError } = await supabase
+    const { data: user, error: userError } = await supabaseAdmin
       .from('users')
       .select('can_ticket, can_phone, can_chat, profile')
       .eq('email', userEmail.toLowerCase())
@@ -262,12 +248,26 @@ export async function getUserPerformanceByEmail(userEmail) {
 }
 
 /**
+ * Converte status em cor
+ * @param {string} status - Status da performance
+ * @returns {string} Código da cor
+ */
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'excellent': return '#779E3D'; // Verde
+    case 'good': return '#F0A028'; // Amarelo
+    case 'poor': return '#E64E36'; // Vermelho
+    default: return 'var(--box-color3)'; // Neutro
+  }
+};
+
+/**
  * Busca todos os usuários com seus supervisores
  * @returns {Promise<Array>} Lista de usuários com supervisores
  */
 export async function getUsersWithSupervisors() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('performance_indicators')
       .select('user_email, user_name, supervisor')
       .order('user_name');
@@ -287,7 +287,7 @@ export async function getUsersWithSupervisors() {
  */
 export async function getUsersBySupervisor(supervisor) {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('performance_indicators')
       .select('user_email, user_name, supervisor')
       .eq('supervisor', supervisor)
