@@ -71,6 +71,20 @@ const formatDisplayTime = (value, format = 'time') => {
 };
 
 /**
+ * Converte status em cor
+ * @param {string} status - Status da performance
+ * @returns {string} Código da cor
+ */
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'excellent': return '#779E3D'; // Verde
+    case 'good': return '#F0A028'; // Amarelo
+    case 'poor': return '#E64E36'; // Vermelho
+    default: return 'var(--box-color3)'; // Neutro
+  }
+};
+
+/**
  * Busca as metas dos canais
  * @returns {Promise<Object>} Metas organizadas por canal
  */
@@ -246,20 +260,6 @@ export async function getUserPerformanceByEmail(userEmail) {
     throw error;
   }
 }
-
-/**
- * Converte status em cor
- * @param {string} status - Status da performance
- * @returns {string} Código da cor
- */
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'excellent': return '#779E3D'; // Verde
-    case 'good': return '#F0A028'; // Amarelo
-    case 'poor': return '#E64E36'; // Vermelho
-    default: return 'var(--box-color3)'; // Neutro
-  }
-};
 
 /**
  * Busca todos os usuários com seus supervisores
