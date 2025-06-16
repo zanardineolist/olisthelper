@@ -72,6 +72,7 @@
 
 /* ===== SEÇÃO 2: PROGRESSO DA META ===== */
 .progressSection {
+  width: 100%;
   margin-bottom: 3rem;
   min-height: 120px;
   display: flex;
