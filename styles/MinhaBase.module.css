@@ -320,8 +320,9 @@
   align-items: flex-start;
   gap: 12px;
   flex: 1;
-  margin-right: 60px; /* Espaço reservado para os badges de status/marcador */
+  margin-right: 12px;
   min-height: 60px;
+  position: relative;
 }
 
 .entryTitle {
@@ -337,6 +338,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-height: 3.4rem;
+  margin-right: 60px; /* Espaço para os badges */
+}
+
+.entryBadges {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
 }
 
 .entryActions {
@@ -1867,10 +1879,6 @@
 
 /* Marcadores nos cards */
 .entryMarker {
-  position: absolute;
-  top: 16px;
-  right: 84px; /* Posicionado antes do status */
-  z-index: 5;
   flex-shrink: 0;
 }
 
@@ -2306,18 +2314,14 @@
     padding: 4px;
   }
 
-  .entryStatus {
-    right: 42px;
-    top: 12px;
+  .entryBadges {
+    top: 0;
+    right: 0;
+    gap: 6px;
   }
 
-  .entryMarker {
-    right: 70px;
-    top: 12px;
-  }
-
-  .entryTitleSection {
-    margin-right: 80px;
+  .entryTitle {
+    margin-right: 70px;
   }
 
   .linkButton, .editButton, .deleteButton {
@@ -2327,9 +2331,15 @@
   }
 
   .markerBadge {
-    width: 28px;
-    height: 28px;
-    font-size: 0.8rem;
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+
+  .statusBadge {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
   }
 }
 
@@ -2410,18 +2420,14 @@
     padding: 3px;
   }
 
-  .entryStatus {
-    right: 38px;
-    top: 10px;
+  .entryBadges {
+    top: 0;
+    right: 0;
+    gap: 4px;
   }
 
-  .entryMarker {
-    right: 64px;
-    top: 10px;
-  }
-
-  .entryTitleSection {
-    margin-right: 90px;
+  .entryTitle {
+    margin-right: 80px;
   }
 
   .linkButton, .editButton, .deleteButton {
@@ -2432,10 +2438,16 @@
   }
 
   .markerBadge {
-    width: 26px;
-    height: 26px;
-    font-size: 0.75rem;
-    border-radius: 10px;
+    width: 22px;
+    height: 22px;
+    font-size: 0.7rem;
+    border-radius: 8px;
+  }
+
+  .statusBadge {
+    width: 18px;
+    height: 18px;
+    font-size: 0.65rem;
   }
 
   .tag {
@@ -2481,10 +2493,6 @@
 .entryStatus {
   display: flex;
   align-items: center;
-  position: absolute;
-  top: 16px;
-  right: 52px; /* Posicionado antes dos botões de ação */
-  z-index: 5;
 }
 
 .statusPreview {

@@ -1036,51 +1036,54 @@ export default function MinhaBase({ user }) {
             >
               <div className={styles.entryHeader}>
                 <div className={styles.entryTitleSection}>
-                  {/* Marcador */}
-                  {entry.marker && (
-                    <div className={styles.entryMarker}>
-                      {(() => {
-                        const marker = MARKER_OPTIONS.find(m => m.value === entry.marker);
-                        if (marker) {
-                          const IconComponent = marker.icon;
-                          return (
-                            <div 
-                              className={styles.markerBadge}
-                              style={{ backgroundColor: marker.color }}
-                              title={marker.name}
-                            >
-                              <IconComponent />
-                            </div>
-                          );
-                        }
-                        return null;
-                      })()}
-                    </div>
-                  )}
-                  
                   <h3 className={styles.entryTitle}>{entry.title}</h3>
                   
-                  {/* Status */}
-                  {entry.status && (
-                    <div className={styles.entryStatus}>
-                      {(() => {
-                        const status = STATUS_OPTIONS.find(s => s.value === entry.status);
-                        if (status) {
-                          const IconComponent = status.icon;
-                          return (
-                            <div 
-                              className={styles.statusBadge}
-                              style={{ backgroundColor: status.color }}
-                              title={status.name}
-                            >
-                              <IconComponent />
-                            </div>
-                          );
-                        }
-                        return null;
-                      })()}
-                    </div>
-                  )}
+                  {/* Container dos badges */}
+                  <div className={styles.entryBadges}>
+                    {/* Marcador */}
+                    {entry.marker && (
+                      <div className={styles.entryMarker}>
+                        {(() => {
+                          const marker = MARKER_OPTIONS.find(m => m.value === entry.marker);
+                          if (marker) {
+                            const IconComponent = marker.icon;
+                            return (
+                              <div 
+                                className={styles.markerBadge}
+                                style={{ backgroundColor: marker.color }}
+                                title={marker.name}
+                              >
+                                <IconComponent />
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </div>
+                    )}
+                    
+                    {/* Status */}
+                    {entry.status && (
+                      <div className={styles.entryStatus}>
+                        {(() => {
+                          const status = STATUS_OPTIONS.find(s => s.value === entry.status);
+                          if (status) {
+                            const IconComponent = status.icon;
+                            return (
+                              <div 
+                                className={styles.statusBadge}
+                                style={{ backgroundColor: status.color }}
+                                title={status.name}
+                              >
+                                <IconComponent />
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <div className={styles.entryActions} onClick={(e) => e.stopPropagation()}>
