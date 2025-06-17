@@ -3,7 +3,7 @@ import styles from '../styles/Navbar.module.css';
 import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
+import { FaBell, FaCheckDouble, FaCheck, FaChartBar } from 'react-icons/fa';
 import { markNotificationAsRead, markMultipleNotificationsAsRead } from '../utils/firebase/firebaseNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -190,6 +190,14 @@ export default function Navbar({ user, isSidebarCollapsed }) {
         </div>
 
         <div className={styles.rightSection}>
+          {/* Analytics Link for Admin Users */}
+          {user?.admin && (
+            <Link href="/analytics" className={styles.analyticsLink}>
+              <FaChartBar />
+              <span className={styles.analyticsText}>Analytics</span>
+            </Link>
+          )}
+
           {/* Notifications */}
           {['analyst', 'tax', 'super', 'support+', 'dev', 'quality'].includes(user.role) && (
             <div className={styles.notificationsWrapper}>
