@@ -143,6 +143,16 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
         { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' },
         { href: '/manager', icon: FaCogs, label: 'Gerenciador', tooltip: 'Gerenciador' }
       ];
+      
+      // Adicionar Analytics após o Gerenciador para usuários admin
+      if (user?.admin === true) {
+        menuItems.primary.push({ 
+          href: '/analytics', 
+          icon: FaChartLine, 
+          label: 'Analytics', 
+          tooltip: 'Analytics & Métricas' 
+        });
+      }
     }
 
     if (user.role === 'super') {
@@ -152,6 +162,19 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
         { href: '/manager', icon: FaCogs, label: 'Gerenciador', tooltip: 'Gerenciador' },
         { href: '/remote', icon: FaDesktop, label: 'Acesso Remoto', tooltip: 'Acesso Remoto' }
       ];
+      
+      // Adicionar Analytics após o Gerenciador para usuários admin
+      if (user?.admin === true) {
+        const managerIndex = menuItems.primary.findIndex(item => item.href === '/manager');
+        if (managerIndex !== -1) {
+          menuItems.primary.splice(managerIndex + 1, 0, { 
+            href: '/analytics', 
+            icon: FaChartLine, 
+            label: 'Analytics', 
+            tooltip: 'Analytics & Métricas' 
+          });
+        }
+      }
     }
 
     if (user.role === 'quality') {
@@ -171,15 +194,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       ];
     }
 
-    // Adicionar Analytics para usuários admin
-    if (user?.admin === true) {
-      menuItems.secondary.unshift({ 
-        href: '/analytics', 
-        icon: FaChartLine, 
-        label: 'Analytics', 
-        tooltip: 'Analytics & Métricas' 
-      });
-    }
+
 
     return menuItems;
   };
