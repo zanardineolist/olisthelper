@@ -30,7 +30,8 @@ export async function middleware(req) {
     '/manager': allowedRoles,
     '/admin-notifications': ['dev'],
     '/remote': ['support+', 'super'],
-    '/tools': ['support', 'support+', 'analyst', 'super', 'tax', 'quality']
+    '/tools': ['support', 'support+', 'analyst', 'super', 'tax', 'quality'],
+    '/analytics': 'admin_only' // Nova rota apenas para admins
   };
 
   // Verificar acesso à rota atual
@@ -38,8 +39,19 @@ export async function middleware(req) {
     req.nextUrl.pathname.startsWith(route)
   );
 
-  if (matchedRoute && !routesWithAllowedRoles[matchedRoute].includes(permissions.profile)) {
-    return NextResponse.redirect(new URL('/', req.url));
+  if (matchedRoute) {
+    const routeConfig = routesWithAllowedRoles[matchedRoute];
+    
+    // Verificar se é rota admin_only
+    if (routeConfig === 'admin_only') {
+      if (!permissions.admin) {
+        return NextResponse.redirect(new URL('/', req.url));
+      }
+    } 
+    // Verificar roles normais
+    else if (!routeConfig.includes(permissions.profile)) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
   }
 
   // Criar resposta com cookies atualizados
@@ -49,10 +61,12 @@ export async function middleware(req) {
   response.cookies.set('user-id', token.id);
   response.cookies.set('user-name', token.name);
   response.cookies.set('user-role', permissions.profile);
+  response.cookies.set('user-admin', permissions.admin ? 'true' : 'false');
   response.cookies.set('user-permissions', JSON.stringify({
     can_ticket: permissions.can_ticket,
     can_phone: permissions.can_phone,
-    can_chat: permissions.can_chat
+    can_chat: permissions.can_chat,
+    admin: permissions.admin
   }));
 
   return response;
@@ -72,5 +86,6 @@ export const config = {
     '/admin-notifications',
     '/remote',
     '/tools',
+    '/analytics',
   ],
 };

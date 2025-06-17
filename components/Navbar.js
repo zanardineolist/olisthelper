@@ -158,6 +158,8 @@ export default function Navbar({ user, isSidebarCollapsed }) {
         return 'Acesso Remoto';
       case '/admin-notifications':
         return 'Administrar Notificações';
+      case '/analytics':
+        return 'Analytics & Métricas';
       case '/':
         return 'OlistHelper';
       default:

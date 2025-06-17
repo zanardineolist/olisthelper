@@ -170,6 +170,16 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       ];
     }
 
+    // Adicionar Analytics para usuários admin
+    if (user.admin) {
+      menuItems.secondary.push({ 
+        href: '/analytics', 
+        icon: FaTachometerAlt, 
+        label: 'Analytics', 
+        tooltip: 'Analytics & Métricas' 
+      });
+    }
+
     return menuItems;
   };
 

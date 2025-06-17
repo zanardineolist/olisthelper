@@ -263,7 +263,7 @@ export async function getUserPermissions(userId) {
   try {
     const { data, error } = await supabaseAdmin
       .from('users')
-      .select('profile, can_ticket, can_phone, can_chat')
+      .select('profile, can_ticket, can_phone, can_chat, admin')
       .eq('id', userId)
       .single();
 
