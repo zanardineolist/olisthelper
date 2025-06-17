@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/analytics/cleanup-sessions",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 2 * * *"
     }
   ]
 } 

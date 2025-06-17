@@ -8,6 +8,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Limpeza automática ocasional (executa aleatoriamente, ~5% das chamadas)
+    if (Math.random() < 0.05) {
+      try {
+        await supabaseAdmin.rpc('close_inactive_sessions');
+        console.log('🧹 Limpeza automática ocasional executada');
+      } catch (cleanupError) {
+        console.warn('⚠️ Erro na limpeza automática:', cleanupError.message);
+      }
+    }
     // Verificar autenticação
     const session = await getServerSession(req, res, authOptions);
     if (!session) {

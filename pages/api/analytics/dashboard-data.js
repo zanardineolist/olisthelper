@@ -8,6 +8,21 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Limpeza automática de sessões inativas (executa uma vez por hora no máximo)
+    const lastCleanup = global.lastCleanup || 0;
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000; // 1 hora em ms
+    
+    if (now - lastCleanup > oneHour) {
+      try {
+        await supabaseAdmin.rpc('close_inactive_sessions');
+        global.lastCleanup = now;
+        console.log('🧹 Limpeza automática de sessões executada');
+      } catch (cleanupError) {
+        console.warn('⚠️ Erro na limpeza automática:', cleanupError.message);
+      }
+    }
+
     // Verificar autenticação
     const session = await getServerSession(req, res, authOptions);
     if (!session) {
