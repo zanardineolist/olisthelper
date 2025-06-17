@@ -16,7 +16,8 @@ import {
   FaBars,
   FaSpinner,
   FaMoon,
-  FaSun
+  FaSun,
+  FaChartLine
 } from 'react-icons/fa';
 
 export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, toggleTheme }) {
@@ -172,9 +173,9 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
 
     // Adicionar Analytics para usuários admin
     if (user.admin) {
-      menuItems.secondary.push({ 
+      menuItems.secondary.unshift({ 
         href: '/analytics', 
-        icon: FaTachometerAlt, 
+        icon: FaChartLine, 
         label: 'Analytics', 
         tooltip: 'Analytics & Métricas' 
       });
@@ -257,6 +258,17 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
 
         {/* Secondary Navigation */}
         <ul className={`${styles.navList} ${styles.secondaryNav}`}>
+          {/* Secondary Menu Items (Admin features) */}
+          {menuItems.secondary.map((item, index) => (
+            <NavLink
+              key={index}
+              href={item.href}
+              icon={item.icon}
+              label={item.label}
+              tooltip={item.tooltip}
+            />
+          ))}
+          
           {/* Theme Toggle */}
           <li className={styles.navItem}>
             <button 

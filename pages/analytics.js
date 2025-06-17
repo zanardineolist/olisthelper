@@ -346,13 +346,17 @@ export async function getServerSideProps(context) {
     };
   }
 
-  // A verificação de admin será feita pelo middleware
+  // Buscar dados completos do usuário incluindo campo admin
+  const { getUserWithPermissions } = await import('../utils/supabase/supabaseClient');
+  const userData = await getUserWithPermissions(session.id);
+
   return {
     props: {
       user: {
         ...session.user,
         role: session.role,
         id: session.id,
+        admin: userData?.admin || false,
         name: session.user.name,
         email: session.user.email,
       },

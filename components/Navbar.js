@@ -3,7 +3,7 @@ import styles from '../styles/Navbar.module.css';
 import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FaBell, FaCheckDouble, FaCheck, FaChartBar } from 'react-icons/fa';
+import { FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { markNotificationAsRead, markMultipleNotificationsAsRead } from '../utils/firebase/firebaseNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -17,32 +17,9 @@ export default function Navbar({ user, isSidebarCollapsed }) {
   const [lastVisible, setLastVisible] = useState(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [topNotification, setTopNotification] = useState(null);
-  const [userAdmin, setUserAdmin] = useState(false);
   const router = useRouter();
   const notificationRef = useRef(null);
   const navbarRef = useRef(null);
-
-  // Verificar se usuário é admin (carregar se não estiver disponível)
-  useEffect(() => {
-    if (user?.admin !== undefined) {
-      // Se já tem o campo admin, usar diretamente
-      setUserAdmin(user.admin);
-    } else if (user?.id) {
-      // Se não tem o campo admin, buscar do banco
-      const fetchUserAdmin = async () => {
-        try {
-          const response = await fetch('/api/get-users');
-          const data = await response.json();
-          const currentUser = data.users?.find(u => u.id === user.id);
-          setUserAdmin(currentUser?.admin || false);
-        } catch (error) {
-          console.error('Erro ao verificar admin:', error);
-          setUserAdmin(false);
-        }
-      };
-      fetchUserAdmin();
-    }
-  }, [user]);
 
   // Handle click outside
   useEffect(() => {
@@ -213,14 +190,6 @@ export default function Navbar({ user, isSidebarCollapsed }) {
         </div>
 
         <div className={styles.rightSection}>
-          {/* Analytics Link for Admin Users */}
-          {userAdmin && (
-            <Link href="/analytics" className={styles.analyticsLink}>
-              <FaChartBar />
-              <span className={styles.analyticsText}>Analytics</span>
-            </Link>
-          )}
-
           {/* Notifications */}
           {['analyst', 'tax', 'super', 'support+', 'dev', 'quality'].includes(user.role) && (
             <div className={styles.notificationsWrapper}>
