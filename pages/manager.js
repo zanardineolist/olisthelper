@@ -119,6 +119,10 @@ export async function getServerSideProps(context) {
     };
   }
 
+  // Buscar dados completos do usuário incluindo campo admin
+  const { getUserWithPermissions } = await import('../utils/supabase/supabaseClient');
+  const userData = await getUserWithPermissions(session.id);
+
   const name = session.user?.name ?? 'Unknown';
 
   return {
@@ -127,7 +131,13 @@ export async function getServerSideProps(context) {
         ...session.user,
         role: session.role,
         id: session.id,
+        admin: userData?.admin || false,
         name: name,
+        // Incluir outros campos importantes se necessário
+        profile: userData?.profile,
+        can_ticket: userData?.can_ticket,
+        can_phone: userData?.can_phone,
+        can_chat: userData?.can_chat,
       },
     },
   };

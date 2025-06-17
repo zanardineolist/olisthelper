@@ -172,7 +172,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
     }
 
     // Adicionar Analytics para usuários admin
-    if (user.admin) {
+    if (user?.admin === true) {
       menuItems.secondary.unshift({ 
         href: '/analytics', 
         icon: FaChartLine, 
