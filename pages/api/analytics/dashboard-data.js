@@ -71,37 +71,70 @@ export default async function handler(req, res) {
       .select('id', { count: 'exact' })
       .filter('created_at', 'gte', getDateFromPeriod(period));
 
-    // Páginas mais visitadas
-    const { data: topPages } = await supabaseAdmin
+    // Páginas mais visitadas - processar no JavaScript
+    const { data: pageVisitsForPages } = await supabaseAdmin
       .from('page_visits')
-      .select('page_path, count(*)')
-      .filter('created_at', 'gte', getDateFromPeriod(period))
-      .not('page_path', 'like', '/_next%')
-      .not('page_path', 'like', '/api%')
-      .group('page_path')
-      .order('count', { ascending: false })
-      .limit(10);
+      .select('page_path')
+      .filter('created_at', 'gte', getDateFromPeriod(period));
 
-    // Sessões ativas por dia
-    const { data: dailySessions } = await supabaseAdmin
+    // Processar páginas mais visitadas
+    const pageCountMap = {};
+    pageVisitsForPages?.forEach(visit => {
+      if (!visit.page_path.startsWith('/_next') && !visit.page_path.startsWith('/api')) {
+        const path = visit.page_path;
+        pageCountMap[path] = (pageCountMap[path] || 0) + 1;
+      }
+    });
+
+    const topPages = Object.entries(pageCountMap)
+      .map(([page_path, count]) => ({ page_path, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    // Sessões ativas por dia - processar no JavaScript
+    const { data: sessionsForDaily } = await supabaseAdmin
       .from('user_sessions')
-      .select('started_at::date as date, count(*)')
-      .filter('started_at', 'gte', getDateFromPeriod(period))
-      .group('date')
-      .order('date', { ascending: true });
+      .select('started_at')
+      .filter('started_at', 'gte', getDateFromPeriod(period));
 
-    // Usuários mais ativos
-    const { data: activeUsers } = await supabaseAdmin
+    // Processar sessões diárias
+    const dailySessionMap = {};
+    sessionsForDaily?.forEach(session => {
+      const date = new Date(session.started_at).toISOString().split('T')[0];
+      dailySessionMap[date] = (dailySessionMap[date] || 0) + 1;
+    });
+
+    const dailySessions = Object.entries(dailySessionMap)
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Usuários mais ativos - buscar dados separadamente e processar no JavaScript
+    const { data: pageVisitsData } = await supabaseAdmin
       .from('page_visits')
       .select(`
         user_id,
-        users!inner(name, email),
-        count(*)
+        users!inner(name, email)
       `)
-      .filter('created_at', 'gte', getDateFromPeriod(period))
-      .group('user_id, users.name, users.email')
-      .order('count', { ascending: false })
-      .limit(10);
+      .filter('created_at', 'gte', getDateFromPeriod(period));
+
+    // Processar usuários mais ativos no JavaScript
+    const userActivityMap = {};
+    pageVisitsData?.forEach(visit => {
+      const userId = visit.user_id;
+      if (!userActivityMap[userId]) {
+        userActivityMap[userId] = {
+          user_id: userId,
+          name: visit.users.name,
+          email: visit.users.email,
+          count: 0
+        };
+      }
+      userActivityMap[userId].count++;
+    });
+
+    const activeUsers = Object.values(userActivityMap)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
 
     // Tempo médio de sessão
     const { data: avgSessionTime } = await supabaseAdmin
