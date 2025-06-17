@@ -288,8 +288,8 @@ export default function Analytics({ user }) {
                     {analyticsData?.activeUsers?.slice(0, 10)?.map((user, index) => (
                       <div key={index} className={styles.userItem}>
                         <div className={styles.userInfo}>
-                          <span className={styles.userName}>{user.users.name}</span>
-                          <span className={styles.userEmail}>{user.users.email}</span>
+                          <span className={styles.userName}>{user.name}</span>
+                          <span className={styles.userEmail}>{user.email}</span>
                         </div>
                         <span className={styles.userCount}>{user.count} views</span>
                       </div>
