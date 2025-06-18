@@ -915,86 +915,151 @@ export default function BibliotecaVideos({ user }) {
         </div>
       )}
 
-      {/* Modal de Criação/Edição */}
+      {/* Modal de Criação/Edição Moderno */}
       {showModal && (
         <div className={styles.modalOverlay} onClick={(e) => {
           if (e.target === e.currentTarget) handleCloseModal();
         }}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2>{editingVideo ? 'Editar Vídeo' : 'Novo Vídeo'}</h2>
-              <button onClick={handleCloseModal} className={styles.closeButton}>
+          <div className={styles.modernModal} onClick={(e) => e.stopPropagation()}>
+            {/* Header Moderno */}
+            <div className={styles.modernModalHeader}>
+              <div className={styles.modalHeaderContent}>
+                <div className={styles.modalIcon}>
+                  {editingVideo ? <FaEdit /> : <FaPlus />}
+                </div>
+                <div className={styles.modalTitleSection}>
+                  <h2 className={styles.modalTitle}>
+                    {editingVideo ? 'Editar Vídeo' : 'Novo Vídeo'}
+                  </h2>
+                  <p className={styles.modalSubtitle}>
+                    {editingVideo 
+                      ? 'Atualize as informações do vídeo' 
+                      : 'Adicione um novo vídeo à biblioteca'
+                    }
+                  </p>
+                </div>
+              </div>
+              <button onClick={handleCloseModal} className={styles.modernCloseButton}>
                 <FaTimes />
               </button>
             </div>
             
-            <div className={styles.modalContent}>
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  <FaFileAlt /> Título <span className={styles.required}>*</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Ex: Como resolver problemas de conexão"
-                  className={styles.input}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  <FaAlignLeft /> Descrição <span className={styles.required}>*</span>
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Descreva o conteúdo do vídeo..."
-                  rows={4}
-                  className={styles.textarea}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  <FaLink /> URL do Google Drive <span className={styles.required}>*</span>
-                </label>
-                <input
-                  type="url"
-                  value={formData.videoUrl}
-                  onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                  placeholder="https://drive.google.com/file/d/..."
-                  className={styles.input}
-                />
-                <small className={styles.helpText}>
-                  Cole o link de compartilhamento do vídeo no Google Drive
-                </small>
-              </div>
-
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    <FaFolder /> Categoria
-                  </label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className={styles.select}
-                  >
-                    {categories.map(category => (
-                      <option key={category.value} value={category.value}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
+            {/* Content com Seções Organizadas */}
+            <div className={styles.modernModalContent}>
+              {/* Seção 1: Informações Básicas */}
+              <div className={styles.formSection}>
+                <div className={styles.sectionHeader}>
+                  <FaFileAlt className={styles.sectionIcon} />
+                  <h3 className={styles.sectionTitle}>Informações Básicas</h3>
                 </div>
+                
+                <div className={styles.sectionContent}>
+                  <div className={styles.modernFormGroup}>
+                    <label className={styles.modernFormLabel}>
+                      Título do Vídeo <span className={styles.required}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="Ex: Como resolver problemas de conexão"
+                      className={styles.modernInput}
+                    />
+                  </div>
 
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>
-                    <i className="fa-solid fa-shield-alt"></i> Tipo de Uso <span className={styles.required}>*</span>
-                  </label>
-                  <div className={styles.shareTypeContainer}>
-                    <label className={`${styles.shareTypeOption} ${formData.shareType === 'internal' ? styles.shareTypeSelected : ''}`}>
+                  <div className={styles.modernFormGroup}>
+                    <label className={styles.modernFormLabel}>
+                      Descrição <span className={styles.required}>*</span>
+                    </label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      placeholder="Descreva o conteúdo do vídeo de forma clara e objetiva..."
+                      rows={4}
+                      className={styles.modernTextarea}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção 2: Configurações do Vídeo */}
+              <div className={styles.formSection}>
+                <div className={styles.sectionHeader}>
+                  <FaVideo className={styles.sectionIcon} />
+                  <h3 className={styles.sectionTitle}>Configurações do Vídeo</h3>
+                </div>
+                
+                <div className={styles.sectionContent}>
+                  <div className={styles.modernFormGroup}>
+                    <label className={styles.modernFormLabel}>
+                      URL do Google Drive <span className={styles.required}>*</span>
+                    </label>
+                    <div className={styles.inputWithIcon}>
+                      <FaLink className={styles.inputIcon} />
+                      <input
+                        type="url"
+                        value={formData.videoUrl}
+                        onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                        placeholder="https://drive.google.com/file/d/..."
+                        className={styles.modernInputWithIcon}
+                      />
+                    </div>
+                    <small className={styles.modernHelpText}>
+                      <i className="fa-solid fa-info-circle"></i>
+                      Cole o link de compartilhamento do vídeo no Google Drive
+                    </small>
+                  </div>
+
+                  <div className={styles.modernFormRow}>
+                    <div className={styles.modernFormGroup}>
+                      <label className={styles.modernFormLabel}>
+                        Categoria
+                      </label>
+                      <div className={styles.selectWrapper}>
+                        <FaFolder className={styles.selectIcon} />
+                        <select
+                          value={formData.category}
+                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                          className={styles.modernSelect}
+                        >
+                          {categories.map(category => (
+                            <option key={category.value} value={category.value}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className={styles.modernFormGroup}>
+                      <label className={styles.modernFormLabel}>
+                        Tamanho do Arquivo
+                      </label>
+                      <div className={styles.inputWithIcon}>
+                        <i className="fa-solid fa-hard-drive" style={{ fontSize: '14px' }}></i>
+                        <input
+                          type="text"
+                          value={formData.fileSize}
+                          onChange={(e) => setFormData({ ...formData, fileSize: e.target.value })}
+                          placeholder="Ex: 150MB"
+                          className={styles.modernInputWithIcon}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Seção 3: Tipo de Compartilhamento */}
+              <div className={styles.formSection}>
+                <div className={styles.sectionHeader}>
+                  <i className="fa-solid fa-shield-alt" style={{ fontSize: '16px' }}></i>
+                  <h3 className={styles.sectionTitle}>Tipo de Compartilhamento</h3>
+                </div>
+                
+                <div className={styles.sectionContent}>
+                  <div className={styles.modernShareTypeContainer}>
+                    <label className={`${styles.modernShareTypeOption} ${formData.shareType === 'internal' ? styles.modernShareTypeSelected : ''}`}>
                       <input
                         type="radio"
                         name="shareType"
@@ -1003,16 +1068,19 @@ export default function BibliotecaVideos({ user }) {
                         onChange={(e) => setFormData({ ...formData, shareType: e.target.value })}
                         className={styles.shareTypeRadio}
                       />
-                      <div className={styles.shareTypeContent}>
-                        <i className="fa-solid fa-lock" style={{ color: '#EF4444' }}></i>
-                        <div className={styles.shareTypeText}>
-                          <strong>Uso Interno</strong>
-                          <small>Apenas para a equipe</small>
+                      <div className={styles.modernShareTypeContent}>
+                        <div className={styles.shareTypeIconWrapper} style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }}>
+                          <i className="fa-solid fa-lock" style={{ color: '#EF4444' }}></i>
                         </div>
+                        <div className={styles.shareTypeInfo}>
+                          <strong>Uso Interno</strong>
+                          <small>Restrito à equipe interna</small>
+                        </div>
+                        <div className={styles.radioIndicator}></div>
                       </div>
                     </label>
                     
-                    <label className={`${styles.shareTypeOption} ${formData.shareType === 'shareable' ? styles.shareTypeSelected : ''}`}>
+                    <label className={`${styles.modernShareTypeOption} ${formData.shareType === 'shareable' ? styles.modernShareTypeSelected : ''}`}>
                       <input
                         type="radio"
                         name="shareType"
@@ -1021,83 +1089,99 @@ export default function BibliotecaVideos({ user }) {
                         onChange={(e) => setFormData({ ...formData, shareType: e.target.value })}
                         className={styles.shareTypeRadio}
                       />
-                      <div className={styles.shareTypeContent}>
-                        <i className="fa-solid fa-share-alt" style={{ color: '#10B981' }}></i>
-                        <div className={styles.shareTypeText}>
-                          <strong>Compartilhável</strong>
-                          <small>Pode ser compartilhado</small>
+                      <div className={styles.modernShareTypeContent}>
+                        <div className={styles.shareTypeIconWrapper} style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)' }}>
+                          <i className="fa-solid fa-share-alt" style={{ color: '#10B981' }}></i>
                         </div>
+                        <div className={styles.shareTypeInfo}>
+                          <strong>Compartilhável</strong>
+                          <small>Pode ser compartilhado externamente</small>
+                        </div>
+                        <div className={styles.radioIndicator}></div>
                       </div>
                     </label>
                   </div>
                 </div>
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.formLabel}>
-                  <FaTag /> Tags
-                </label>
-                <div className={`${styles.autocompleteContainer} autocomplete-container`}>
-                  <div className={styles.tagsInput}>
-                    <input
-                      type="text"
-                      value={newTag}
-                      onChange={(e) => {
-                        setNewTag(e.target.value);
-                        setShowTagSuggestions(true);
-                      }}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                      onFocus={() => setShowTagSuggestions(true)}
-                      placeholder="Digite uma tag e pressione Enter"
-                      className={styles.input}
-                    />
-                    <button 
-                      onClick={() => handleAddTag()} 
-                      className={styles.addTagButton}
-                      type="button"
-                    >
-                      <FaPlus />
-                    </button>
-                  </div>
-                  {showTagSuggestions && getFilteredTags().length > 0 && (
-                    <div className={styles.suggestions}>
-                      {getFilteredTags().slice(0, 5).map(tag => (
-                        <div
-                          key={tag}
-                          className={styles.suggestionItem}
-                          onClick={() => handleAddTag(tag)}
-                        >
-                          <FaTag /> {tag}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+              {/* Seção 4: Tags e Categorização */}
+              <div className={styles.formSection}>
+                <div className={styles.sectionHeader}>
+                  <FaTag className={styles.sectionIcon} />
+                  <h3 className={styles.sectionTitle}>Tags e Categorização</h3>
                 </div>
-
-                {formData.tags.length > 0 && (
-                  <div className={styles.tagsDisplay}>
-                    {formData.tags.map(tag => (
-                      <span key={tag} className={styles.formTag}>
-                        <FaTag /> {tag}
+                
+                <div className={styles.sectionContent}>
+                  <div className={styles.modernFormGroup}>
+                    <label className={styles.modernFormLabel}>
+                      Tags
+                    </label>
+                    <div className={`${styles.modernAutocompleteContainer} autocomplete-container`}>
+                      <div className={styles.modernTagsInput}>
+                        <input
+                          type="text"
+                          value={newTag}
+                          onChange={(e) => {
+                            setNewTag(e.target.value);
+                            setShowTagSuggestions(true);
+                          }}
+                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                          onFocus={() => setShowTagSuggestions(true)}
+                          placeholder="Digite uma tag e pressione Enter..."
+                          className={styles.modernTagInput}
+                        />
                         <button 
-                          onClick={() => handleRemoveTag(tag)}
+                          onClick={() => handleAddTag()} 
+                          className={styles.modernAddTagButton}
                           type="button"
-                          className={styles.removeTagButton}
                         >
-                          <FaTimes />
+                          <FaPlus />
                         </button>
-                      </span>
-                    ))}
+                      </div>
+                      {showTagSuggestions && getFilteredTags().length > 0 && (
+                        <div className={styles.modernSuggestions}>
+                          {getFilteredTags().slice(0, 5).map(tag => (
+                            <div
+                              key={tag}
+                              className={styles.modernSuggestionItem}
+                              onClick={() => handleAddTag(tag)}
+                            >
+                              <FaTag /> {tag}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {formData.tags.length > 0 && (
+                      <div className={styles.modernTagsDisplay}>
+                        {formData.tags.map(tag => (
+                          <span key={tag} className={styles.modernFormTag}>
+                            <FaTag /> {tag}
+                            <button 
+                              onClick={() => handleRemoveTag(tag)}
+                              type="button"
+                              className={styles.modernRemoveTagButton}
+                            >
+                              <FaTimes />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
-            <div className={styles.modalFooter}>
-              <button onClick={handleCloseModal} className={styles.cancelButton}>
+            {/* Footer Moderno */}
+            <div className={styles.modernModalFooter}>
+              <button onClick={handleCloseModal} className={styles.modernCancelButton}>
+                <FaTimes />
                 Cancelar
               </button>
-              <button onClick={handleSave} className={styles.saveButton}>
+              <button onClick={handleSave} className={styles.modernSaveButton}>
+                {editingVideo ? <FaEdit /> : <FaPlus />}
                 {editingVideo ? 'Salvar Alterações' : 'Adicionar Vídeo'}
               </button>
             </div>
