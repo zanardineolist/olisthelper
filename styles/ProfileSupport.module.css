@@ -81,6 +81,15 @@
   align-items: center;
 }
 
+/* Container do ProgressIndicator com width 100% */
+.progressSection :global(.ProgressIndicator_progressContainer__qkhZw) {
+  width: 100% !important;
+}
+
+.progressSection :global(.ProgressIndicator_progressContainer__qkhZw).ProgressIndicator_info__bOCbv {
+  width: 100% !important;
+}
+
 /* Card de Perfil Expandido */
 .profileExpandedCard {
   background: var(--bg-color);
