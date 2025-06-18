@@ -98,7 +98,7 @@ export async function createVideo(videoData) {
         tags: videoData.tags || [],
         category: videoData.category || 'geral',
         share_type: videoData.shareType || 'internal',
-        file_size: videoData.fileSize || null,
+
         created_by: videoData.userId
       }])
       .select()
@@ -130,7 +130,7 @@ export async function updateVideo(videoId, updates) {
         tags: updates.tags,
         category: updates.category,
         share_type: updates.shareType,
-        file_size: updates.fileSize,
+
         updated_at: new Date()
       })
       .eq('id', videoId)

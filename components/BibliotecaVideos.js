@@ -28,7 +28,6 @@ export default function BibliotecaVideos({ user }) {
     videoUrl: '',
     tags: [],
     category: 'geral',
-    fileSize: '',
     shareType: 'internal'
   });
 
@@ -190,7 +189,6 @@ export default function BibliotecaVideos({ user }) {
       videoUrl: '',
       tags: [],
       category: categories.length > 0 ? categories[0].value : '',
-      fileSize: '',
       shareType: 'internal'
     });
     setEditingVideo(null);
@@ -221,7 +219,6 @@ export default function BibliotecaVideos({ user }) {
         videoUrl: formData.videoUrl.trim(),
         tags: formData.tags.filter(tag => tag.trim() !== ''),
         category: formData.category.trim(),
-        fileSize: formData.fileSize?.trim() || null,
         shareType: formData.shareType
       };
 
@@ -306,7 +303,6 @@ export default function BibliotecaVideos({ user }) {
         videoUrl: video.video_url || '',
         tags: video.tags || [],
         category: video.category,
-        fileSize: video.file_size || '',
         shareType: video.share_type || 'internal'
       });
     } else {
@@ -1010,41 +1006,23 @@ export default function BibliotecaVideos({ user }) {
                     </small>
                   </div>
 
-                  <div className={styles.modernFormRow}>
-                    <div className={styles.modernFormGroup}>
-                      <label className={styles.modernFormLabel}>
-                        Categoria
-                      </label>
-                      <div className={styles.selectWrapper}>
-                        <FaFolder className={styles.selectIcon} />
-                        <select
-                          value={formData.category}
-                          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                          className={styles.modernSelect}
-                        >
-                          {categories.map(category => (
-                            <option key={category.value} value={category.value}>
-                              {category.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className={styles.modernFormGroup}>
-                      <label className={styles.modernFormLabel}>
-                        Tamanho do Arquivo
-                      </label>
-                      <div className={styles.inputWithIcon}>
-                        <i className="fa-solid fa-hard-drive" style={{ fontSize: '14px' }}></i>
-                        <input
-                          type="text"
-                          value={formData.fileSize}
-                          onChange={(e) => setFormData({ ...formData, fileSize: e.target.value })}
-                          placeholder="Ex: 150MB"
-                          className={styles.modernInputWithIcon}
-                        />
-                      </div>
+                  <div className={styles.modernFormGroup}>
+                    <label className={styles.modernFormLabel}>
+                      Categoria
+                    </label>
+                    <div className={styles.selectWrapper}>
+                      <FaFolder className={styles.selectIcon} />
+                      <select
+                        value={formData.category}
+                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                        className={styles.modernSelect}
+                      >
+                        {categories.map(category => (
+                          <option key={category.value} value={category.value}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
