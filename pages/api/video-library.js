@@ -91,7 +91,7 @@ async function handlePost(req, res, session) {
       });
     }
 
-    const { title, description, videoUrl, tags, category, fileSize } = req.body;
+    const { title, description, videoUrl, tags, category, fileSize, shareType } = req.body;
 
     // Validação básica
     if (!title || !title.trim()) {
@@ -105,6 +105,10 @@ async function handlePost(req, res, session) {
     if (!videoUrl || !videoUrl.trim()) {
       return res.status(400).json({ error: 'URL do vídeo é obrigatória' });
     }
+
+    // Validar shareType
+    const validShareTypes = ['internal', 'shareable'];
+    const finalShareType = validShareTypes.includes(shareType) ? shareType : 'internal';
 
     // Validar e converter URL do Google Drive
     const urlValidation = validateAndConvertGoogleDriveUrl(videoUrl.trim());
@@ -120,7 +124,7 @@ async function handlePost(req, res, session) {
       thumbnailUrl: urlValidation.thumbnailUrl,
       tags: tags || [],
       category: category?.trim() || 'geral',
-
+      shareType: finalShareType,
       fileSize: fileSize?.trim() || null,
       userId: session.id
     };

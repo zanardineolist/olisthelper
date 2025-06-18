@@ -51,3 +51,4 @@ supabase_functions_search_path_fixes.sql
 supabase_rpc_fixed.sql
 supabase_rpc_functions_fixed.sql
 supabase_rpc_functions.sql
+migration_add_share_type.sql

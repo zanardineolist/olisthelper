@@ -28,7 +28,8 @@ export default function BibliotecaVideos({ user }) {
     videoUrl: '',
     tags: [],
     category: 'geral',
-    fileSize: ''
+    fileSize: '',
+    shareType: 'internal'
   });
 
   // Estados para gerenciamento de categorias
@@ -189,7 +190,8 @@ export default function BibliotecaVideos({ user }) {
       videoUrl: '',
       tags: [],
       category: categories.length > 0 ? categories[0].value : '',
-      fileSize: ''
+      fileSize: '',
+      shareType: 'internal'
     });
     setEditingVideo(null);
     setNewTag('');
@@ -219,7 +221,8 @@ export default function BibliotecaVideos({ user }) {
         videoUrl: formData.videoUrl.trim(),
         tags: formData.tags.filter(tag => tag.trim() !== ''),
         category: formData.category.trim(),
-        fileSize: formData.fileSize?.trim() || null
+        fileSize: formData.fileSize?.trim() || null,
+        shareType: formData.shareType
       };
 
       const method = editingVideo ? 'PUT' : 'POST';
@@ -303,7 +306,8 @@ export default function BibliotecaVideos({ user }) {
         videoUrl: video.video_url || '',
         tags: video.tags || [],
         category: video.category,
-        fileSize: video.file_size || ''
+        fileSize: video.file_size || '',
+        shareType: video.share_type || 'internal'
       });
     } else {
       resetForm();
@@ -493,6 +497,26 @@ export default function BibliotecaVideos({ user }) {
       isFullscreen: !prev.isFullscreen,
       currentVideoId: prev.isFullscreen ? null : videoId
     }));
+  };
+
+  const getShareTypeInfo = (shareType) => {
+    const shareTypes = {
+      'internal': {
+        label: 'Uso Interno',
+        icon: 'fa-lock',
+        color: '#EF4444',
+        background: 'rgba(239, 68, 68, 0.1)',
+        description: 'Apenas para uso interno da equipe'
+      },
+      'shareable': {
+        label: 'Compartilhável',
+        icon: 'fa-share-alt',
+        color: '#10B981',
+        background: 'rgba(16, 185, 129, 0.1)',
+        description: 'Pode ser compartilhado externamente'
+      }
+    };
+    return shareTypes[shareType] || shareTypes['internal'];
   };
 
   if (initialLoad) {
@@ -751,6 +775,18 @@ export default function BibliotecaVideos({ user }) {
                     >
                       {getCategoryName(video.category)}
                     </span>
+                    <span 
+                      className={styles.shareTypeBadge}
+                      style={{
+                        color: getShareTypeInfo(video.share_type).color,
+                        background: getShareTypeInfo(video.share_type).background,
+                        borderColor: getShareTypeInfo(video.share_type).color
+                      }}
+                      title={getShareTypeInfo(video.share_type).description}
+                    >
+                      <i className={`fa-solid ${getShareTypeInfo(video.share_type).icon}`}></i>
+                      {getShareTypeInfo(video.share_type).label}
+                    </span>
                     <span className={styles.author}>por {video.author_name}</span>
                   </div>
                   <div className={styles.videoStats}>
@@ -855,6 +891,24 @@ export default function BibliotecaVideos({ user }) {
                     </div>
                   </div>
                 )}
+
+                <div className={styles.shareTypeInfo}>
+                  <h4>Tipo de Uso:</h4>
+                  <div 
+                    className={styles.shareTypeDisplay}
+                    style={{
+                      color: getShareTypeInfo(viewingVideo.share_type).color,
+                      background: getShareTypeInfo(viewingVideo.share_type).background,
+                      borderColor: getShareTypeInfo(viewingVideo.share_type).color
+                    }}
+                  >
+                    <i className={`fa-solid ${getShareTypeInfo(viewingVideo.share_type).icon}`}></i>
+                    <div>
+                      <strong>{getShareTypeInfo(viewingVideo.share_type).label}</strong>
+                      <small>{getShareTypeInfo(viewingVideo.share_type).description}</small>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -935,7 +989,48 @@ export default function BibliotecaVideos({ user }) {
                   </select>
                 </div>
 
-
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>
+                    <i className="fa-solid fa-shield-alt"></i> Tipo de Uso <span className={styles.required}>*</span>
+                  </label>
+                  <div className={styles.shareTypeContainer}>
+                    <label className={`${styles.shareTypeOption} ${formData.shareType === 'internal' ? styles.shareTypeSelected : ''}`}>
+                      <input
+                        type="radio"
+                        name="shareType"
+                        value="internal"
+                        checked={formData.shareType === 'internal'}
+                        onChange={(e) => setFormData({ ...formData, shareType: e.target.value })}
+                        className={styles.shareTypeRadio}
+                      />
+                      <div className={styles.shareTypeContent}>
+                        <i className="fa-solid fa-lock" style={{ color: '#EF4444' }}></i>
+                        <div className={styles.shareTypeText}>
+                          <strong>Uso Interno</strong>
+                          <small>Apenas para a equipe</small>
+                        </div>
+                      </div>
+                    </label>
+                    
+                    <label className={`${styles.shareTypeOption} ${formData.shareType === 'shareable' ? styles.shareTypeSelected : ''}`}>
+                      <input
+                        type="radio"
+                        name="shareType"
+                        value="shareable"
+                        checked={formData.shareType === 'shareable'}
+                        onChange={(e) => setFormData({ ...formData, shareType: e.target.value })}
+                        className={styles.shareTypeRadio}
+                      />
+                      <div className={styles.shareTypeContent}>
+                        <i className="fa-solid fa-share-alt" style={{ color: '#10B981' }}></i>
+                        <div className={styles.shareTypeText}>
+                          <strong>Compartilhável</strong>
+                          <small>Pode ser compartilhado</small>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <div className={styles.formGroup}>

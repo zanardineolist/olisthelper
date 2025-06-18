@@ -74,7 +74,7 @@ async function handlePut(req, res, session, videoId) {
       return res.status(403).json({ error: 'Sem permissão para editar este vídeo' });
     }
 
-    const { title, description, videoUrl, tags, category, fileSize } = req.body;
+    const { title, description, videoUrl, tags, category, fileSize, shareType } = req.body;
 
     // Validação básica
     if (!title || !title.trim()) {
@@ -88,6 +88,10 @@ async function handlePut(req, res, session, videoId) {
     if (!videoUrl || !videoUrl.trim()) {
       return res.status(400).json({ error: 'URL do vídeo é obrigatória' });
     }
+
+    // Validar shareType
+    const validShareTypes = ['internal', 'shareable'];
+    const finalShareType = validShareTypes.includes(shareType) ? shareType : 'internal';
 
     // Validar URL do Google Drive se foi alterada
     let finalVideoUrl = videoUrl.trim();
@@ -110,7 +114,7 @@ async function handlePut(req, res, session, videoId) {
       thumbnailUrl,
       tags: tags || [],
       category: category?.trim() || 'geral',
-
+      shareType: finalShareType,
       fileSize: fileSize?.trim() || null
     };
 
