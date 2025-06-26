@@ -1371,3 +1371,38 @@
     max-width: 150px;
   }
 }
+
+/* Estilos para validação de URL */
+.inputError {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1) !important;
+}
+
+.errorMessage {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 6px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.errorMessage::before {
+  content: "⚠️";
+  font-size: 14px;
+}
+
+.urlExample {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+  color: #0369a1;
+  font-size: 12px;
+}
+
+.urlExample strong {
+  color: #1e40af;
+}

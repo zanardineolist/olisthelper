@@ -26,6 +26,7 @@ function TicketLogger() {
   const [ticketUrl, setTicketUrl] = useState('');
   const [description, setDescription] = useState('');
   const [modalLoading, setModalLoading] = useState(false);
+  const [urlValidationError, setUrlValidationError] = useState('');
   
   // Estados para histórico e filtros
   const [history, setHistory] = useState([]);
@@ -338,17 +339,97 @@ function TicketLogger() {
     }
   };
 
+  // Função para validar URL do Tiny
+  const validateTinyUrl = (url) => {
+    // Padrão: https://erp.tiny.com.br/suporte#edit/ID_NUMERICO
+    const tinyUrlPattern = /^https:\/\/erp\.tiny\.com\.br\/suporte#edit\/\d+$/;
+    return tinyUrlPattern.test(url.trim());
+  };
+
+  // Validação em tempo real da URL
+  const handleUrlChange = (value) => {
+    setTicketUrl(value);
+    
+    if (value.trim() === '') {
+      setUrlValidationError('');
+      return;
+    }
+
+    // Verificar se é uma URL válida primeiro
+    try {
+      new URL(value);
+    } catch {
+      setUrlValidationError('URL inválida');
+      return;
+    }
+
+    // Verificar se segue o padrão do Tiny
+    if (!validateTinyUrl(value)) {
+      setUrlValidationError('URL deve seguir o padrão: https://erp.tiny.com.br/suporte#edit/ID_NUMERICO');
+    } else {
+      setUrlValidationError('');
+    }
+  };
+
   const handleAddTicket = async () => {
     if (!ticketUrl.trim()) {
       showToast('URL do chamado é obrigatória', 'error');
       return;
     }
 
-    // Validar URL
+    // Validar se é uma URL válida
     try {
       new URL(ticketUrl);
     } catch {
       showToast('URL inválida', 'error');
+      return;
+    }
+
+    // Validar se segue o padrão do Tiny
+    if (!validateTinyUrl(ticketUrl)) {
+      await Swal.fire({
+        title: 'URL Inválida',
+        html: `
+          <div style="text-align: left; padding: 10px;">
+            <p style="margin-bottom: 15px; color: #dc2626; font-weight: 500;">
+              ❌ A URL não segue o padrão exigido do sistema Tiny.
+            </p>
+            
+            <p style="margin-bottom: 10px; font-weight: 500; color: #333;">
+              📋 <strong>Formato correto:</strong>
+            </p>
+            <div style="background: #f3f4f6; padding: 12px; border-radius: 6px; border: 1px solid #d1d5db; margin-bottom: 15px;">
+              <code style="color: #059669; font-family: monospace; font-size: 13px;">
+                https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO
+              </code>
+            </div>
+            
+            <p style="margin-bottom: 10px; font-weight: 500; color: #333;">
+              💡 <strong>Exemplo válido:</strong>
+            </p>
+            <div style="background: #ecfdf5; padding: 12px; border-radius: 6px; border: 1px solid #bbf7d0; margin-bottom: 15px;">
+              <code style="color: #059669; font-family: monospace; font-size: 13px;">
+                https://erp.tiny.com.br/suporte#edit/1062209674
+              </code>
+            </div>
+            
+            <p style="margin-bottom: 5px; color: #6b7280; font-size: 14px;">
+              <strong>Verifique se:</strong>
+            </p>
+            <ul style="margin: 5px 0 0 20px; color: #6b7280; font-size: 14px;">
+              <li>A URL começa com <code>https://erp.tiny.com.br/suporte#edit/</code></li>
+              <li>Termina com o ID numérico do chamado</li>
+              <li>Não possui caracteres extras no final</li>
+            </ul>
+          </div>
+        `,
+        icon: 'error',
+        confirmButtonText: 'Entendi',
+        confirmButtonColor: '#dc2626',
+        background: 'var(--box-color)',
+        color: 'var(--text-color)',
+        width: '550px'
+      });
       return;
     }
 
@@ -369,6 +450,7 @@ function TicketLogger() {
       // Resetar modal
       setTicketUrl('');
       setDescription('');
+      setUrlValidationError('');
       setShowModal(false);
       
       // Recarregar dados
@@ -622,7 +704,14 @@ function TicketLogger() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => !modalLoading && setShowModal(false)}
+            onClick={() => {
+              if (!modalLoading) {
+                setTicketUrl('');
+                setDescription('');
+                setUrlValidationError('');
+                setShowModal(false);
+              }
+            }}
           >
             <motion.div
               className={styles.modalContent}
@@ -638,7 +727,14 @@ function TicketLogger() {
                 </h3>
                 <button
                   className={styles.modalCloseButton}
-                  onClick={() => !modalLoading && setShowModal(false)}
+                  onClick={() => {
+                    if (!modalLoading) {
+                      setTicketUrl('');
+                      setDescription('');
+                      setUrlValidationError('');
+                      setShowModal(false);
+                    }
+                  }}
                   disabled={modalLoading}
                 >
                   <X size={20} />
@@ -652,11 +748,21 @@ function TicketLogger() {
                     id="ticketUrl"
                     type="url"
                     value={ticketUrl}
-                    onChange={(e) => setTicketUrl(e.target.value)}
-                    placeholder="https://..."
-                    className={styles.modalInput}
+                    onChange={(e) => handleUrlChange(e.target.value)}
+                    placeholder="https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO"
+                    className={`${styles.modalInput} ${urlValidationError ? styles.inputError : ''}`}
                     disabled={modalLoading}
                   />
+                  {urlValidationError && (
+                    <div className={styles.errorMessage}>
+                      {urlValidationError}
+                    </div>
+                  )}
+                  <div className={styles.urlExample}>
+                    <small>
+                      <strong>Exemplo:</strong> https://erp.tiny.com.br/suporte#edit/1062209674
+                    </small>
+                  </div>
                 </div>
 
                 <div className={styles.inputGroup}>
@@ -676,7 +782,12 @@ function TicketLogger() {
               <div className={styles.modalFooter}>
                 <button
                   className={styles.modalSecondaryButton}
-                  onClick={() => setShowModal(false)}
+                  onClick={() => {
+                    setTicketUrl('');
+                    setDescription('');
+                    setUrlValidationError('');
+                    setShowModal(false);
+                  }}
                   disabled={modalLoading}
                 >
                   Cancelar
@@ -684,7 +795,7 @@ function TicketLogger() {
                 <button
                   className={styles.modalPrimaryButton}
                   onClick={handleAddTicket}
-                  disabled={modalLoading || !ticketUrl.trim()}
+                  disabled={modalLoading || !ticketUrl.trim() || urlValidationError !== ''}
                 >
                   {modalLoading ? 'Registrando...' : 'Registrar Chamado'}
                 </button>
