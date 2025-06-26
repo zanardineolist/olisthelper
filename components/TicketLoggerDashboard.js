@@ -502,12 +502,12 @@ export default function TicketLoggerDashboard({ user }) {
                 </div>
               ) : (
                 <>
-                  <div className={styles.sectionHeader}>
-                    <h3 className={styles.sectionTitle}>
+                  <div className={styles.summaryHeader}>
+                    <h3 className={styles.summaryTitle}>
                       <i className="fa-solid fa-chart-pie"></i>
                       Resumo do Período
                     </h3>
-                    <p className={styles.sectionSubtitle}>
+                    <p className={styles.summarySubtitle}>
                       {periodFilter.label}
                     </p>
                   </div>
