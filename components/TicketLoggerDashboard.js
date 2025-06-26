@@ -494,65 +494,61 @@ export default function TicketLoggerDashboard({ user }) {
               </p>
             </div>
 
-            <div className={styles.overviewGrid}>
-              {/* Card de resumo */}
-              <div className={styles.summaryCard}>
-                {loadingData ? (
-                  <div className={styles.loadingContainer}>
-                    <div className="standardBoxLoader"></div>
-                  </div>
-                ) : (
-                  <>
-                    <div className={styles.cardHeader}>
-                      <div className={styles.cardIcon}>
-                        <i className="fa-solid fa-clipboard-list"></i>
-                      </div>
-                      <div className={styles.cardTitleSection}>
-                        <h3>Resumo do Período</h3>
-                        <p>{periodFilter.label}</p>
-                      </div>
+            {/* Card de resumo melhorado */}
+            <div className={styles.summaryCard}>
+              {loadingData ? (
+                <div className={styles.loadingContainer}>
+                  <div className="standardBoxLoader"></div>
+                </div>
+              ) : (
+                <>
+                  <div className={styles.cardHeader}>
+                    <div className={styles.cardIcon}>
+                      <i className="fa-solid fa-clipboard-list"></i>
                     </div>
-                    
-                    <div className={styles.summaryMetrics}>
-                      <div className={styles.summaryMetric}>
+                    <div className={styles.cardTitleSection}>
+                      <h3>Resumo do Período - {selectedUser.name}</h3>
+                      <p>{periodFilter.label}</p>
+                    </div>
+                  </div>
+                  
+                  <div className={styles.summaryMetrics}>
+                    <div className={styles.summaryMetricCard}>
+                      <div className={styles.metricIcon}>
+                        <i className="fa-solid fa-list-check"></i>
+                      </div>
+                      <div className={styles.metricContent}>
                         <span className={styles.metricValue}>{history.length}</span>
                         <span className={styles.metricLabel}>Total de Registros</span>
                       </div>
-                      
-                      {periodFilter.value === 'today' && (
-                        <div className={styles.summaryMetric}>
+                    </div>
+                    
+                    {periodFilter.value === 'today' && (
+                      <div className={styles.summaryMetricCard}>
+                        <div className={styles.metricIcon}>
+                          <i className="fa-solid fa-calendar-day"></i>
+                        </div>
+                        <div className={styles.metricContent}>
                           <span className={styles.metricValue}>{todayCount}</span>
                           <span className={styles.metricLabel}>Hoje</span>
                         </div>
-                      )}
-                      
-                      <div className={styles.summaryMetric}>
+                      </div>
+                    )}
+                    
+                    <div className={styles.summaryMetricCard}>
+                      <div className={styles.metricIcon}>
+                        <i className="fa-solid fa-chart-line"></i>
+                      </div>
+                      <div className={styles.metricContent}>
                         <span className={styles.metricValue}>
                           {history.length > 0 ? Math.round(history.length / Math.max(1, dayjs(getDateRange().endDate).diff(dayjs(getDateRange().startDate), 'day') + 1)) : 0}
                         </span>
                         <span className={styles.metricLabel}>Média/Dia</span>
                       </div>
                     </div>
-                  </>
-                )}
-              </div>
-
-              {/* Perfil do usuário */}
-              <div className={styles.profileCard}>
-                <div className={styles.profileHeader}>
-                  <UserAvatar 
-                    user={selectedUser} 
-                    className={styles.profileAvatar} 
-                  />
-                  <div className={styles.profileInfo}>
-                    <h3>{selectedUser.name}</h3>
-                    <p>{selectedUser.email}</p>
-                    <div className={styles.roleTag} style={{ backgroundColor: getColorForRole(selectedUser.role) }}>
-                      {getRoleLabel(selectedUser.role)}
-                    </div>
                   </div>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           </section>
 
