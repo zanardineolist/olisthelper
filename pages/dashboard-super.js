@@ -7,6 +7,7 @@ import { Tabs, Tab, ThemeProvider, createTheme } from '@mui/material';
 import DashboardData from '../components/DashboardData';
 import GraphData from '../components/GraphData';
 import HelpTopicsData from '../components/HelpTopicsData';
+import TicketLoggerDashboard from '../components/TicketLoggerDashboard';
 import Layout from '../components/Layout';
 import { ThreeDotsLoader } from '../components/LoadingIndicator';
 import { useLoading } from '../components/LoadingIndicator';
@@ -93,6 +94,8 @@ export default function DashboardSuper({ user }) {
       setCurrentTab(1);
     } else if (hash === '#HelpTopics') {
       setCurrentTab(2);
+    } else if (hash === '#TicketLogger') {
+      setCurrentTab(3);
     }
   }, []);
 
@@ -108,6 +111,9 @@ export default function DashboardSuper({ user }) {
         break;
       case 2:
         hash = '#HelpTopics';
+        break;
+      case 3:
+        hash = '#TicketLogger';
         break;
       default:
         break;
@@ -146,6 +152,7 @@ export default function DashboardSuper({ user }) {
                 <Tab label="Dashboard Individual" />
                 <Tab label="Comparativo de Equipe" />
                 <Tab label="Temas de Dúvidas" />
+                <Tab label="Registro de Chamados" />
               </Tabs>
             </div>
           </ThemeProvider>
@@ -173,6 +180,12 @@ export default function DashboardSuper({ user }) {
             {currentTab === 2 && (
               <div className={styles.tabPanel}>
                 <HelpTopicsData />
+              </div>
+            )}
+            
+            {currentTab === 3 && (
+              <div className={styles.tabPanel}>
+                <TicketLoggerDashboard user={user} />
               </div>
             )}
           </div>

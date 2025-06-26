@@ -1607,3 +1607,196 @@
 }
 
 /* Removido - deixar o layout natural */
+
+/* ==================================================
+   TICKET LOGGER DASHBOARD STYLES
+   ================================================== */
+
+/* Estilos específicos para o TicketLoggerDashboard */
+.summaryCard {
+  background: var(--box-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+}
+
+.summaryMetrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.summaryMetric {
+  text-align: center;
+}
+
+.metricValue {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-bottom: 5px;
+}
+
+.metricLabel {
+  font-size: 0.9rem;
+  color: var(--text-color2);
+}
+
+.profileCard {
+  background: var(--box-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.profileAvatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileInfo h3 {
+  margin: 0 0 5px 0;
+  color: var(--text-color);
+}
+
+.profileInfo p {
+  margin: 0 0 10px 0;
+  color: var(--text-color2);
+  font-size: 0.9rem;
+}
+
+.chartSection {
+  margin: 30px 0;
+}
+
+.chartCard {
+  background: var(--box-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+}
+
+.historySection {
+  margin: 30px 0;
+}
+
+.historyCard {
+  background: var(--box-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+}
+
+.historyTable {
+  overflow-x: auto;
+}
+
+.historyTable table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.historyTable th,
+.historyTable td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.historyTable th {
+  background: var(--modals-inputs);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.historyTable td {
+  color: var(--text-color);
+}
+
+.dateCell {
+  white-space: nowrap;
+}
+
+.dateCell small {
+  color: var(--text-color2);
+  font-size: 0.8rem;
+}
+
+.ticketLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.ticketLink:hover {
+  background: var(--color-trodd);
+  text-decoration: none;
+}
+
+.descriptionCell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.descriptionCell em {
+  color: var(--text-color2);
+  font-style: italic;
+}
+
+/* Responsividade específica para TicketLoggerDashboard */
+@media (max-width: 768px) {
+  .summaryMetrics {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+  }
+
+  .metricValue {
+    font-size: 1.5rem;
+  }
+
+  .profileHeader {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .profileAvatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  .historyTable {
+    font-size: 0.9rem;
+  }
+
+  .historyTable th,
+  .historyTable td {
+    padding: 8px;
+  }
+
+  .descriptionCell {
+    max-width: 100px;
+  }
+}
