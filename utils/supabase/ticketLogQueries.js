@@ -74,7 +74,7 @@ export async function getTicketLogs(userId, startDate, endDate, page = 1, pageSi
     // Buscar registros do período com paginação
     const { data, error, count } = await supabaseAdmin
       .from('ticket_logs')
-      .select('*', { count: 'exact' })
+      .select('id, user_id, ticket_url, description, logged_date, logged_time::text, timezone, created_at', { count: 'exact' })
       .eq('user_id', userId)
       .gte('logged_date', start.format('YYYY-MM-DD'))
       .lte('logged_date', end.format('YYYY-MM-DD'))
@@ -133,7 +133,7 @@ export async function getTodayHourlyData(userId) {
 
     const { data, error } = await supabaseAdmin
       .from('ticket_logs')
-      .select('logged_time')
+      .select('logged_time::text')
       .eq('user_id', userId)
       .eq('logged_date', today);
 
@@ -149,8 +149,27 @@ export async function getTodayHourlyData(userId) {
 
     // Contar chamados por hora
     data?.forEach(record => {
-      const hour = parseInt(dayjs(record.logged_time, 'HH:mm:ss').format('H'));
-      hourlyData[hour]++;
+      try {
+        const timeStr = record.logged_time;
+        let hour = 0;
+        
+        if (timeStr) {
+          // Se for um timestamp completo, extrair apenas a hora
+          if (timeStr.includes('T') || timeStr.includes(' ')) {
+            hour = parseInt(dayjs(timeStr).format('H'));
+          } else if (timeStr.includes(':')) {
+            // Se for apenas time, pegar a primeira parte
+            const timeParts = timeStr.split(':');
+            hour = parseInt(timeParts[0]);
+          }
+        }
+        
+        if (hour >= 0 && hour <= 23) {
+          hourlyData[hour]++;
+        }
+      } catch (error) {
+        console.error('Erro ao processar hora do registro:', record, error);
+      }
     });
 
     // Converter para formato do gráfico

@@ -561,7 +561,23 @@ function TicketLogger() {
       const headers = ['Data', 'Hora', 'URL do Chamado', 'Descrição'];
       const csvData = history.map(record => [
         dayjs(record.logged_date).format('DD/MM/YYYY'),
-        dayjs(record.logged_time, 'HH:mm:ss').format('HH:mm'),
+        (() => {
+          const timeStr = record.logged_time;
+          if (!timeStr) return '--:--';
+          
+          // Se for um timestamp completo, extrair apenas a hora
+          if (timeStr.includes('T') || timeStr.includes(' ')) {
+            return dayjs(timeStr).format('HH:mm');
+          }
+          
+          // Se for apenas time, usar formato simples
+          if (timeStr.includes(':')) {
+            const timeParts = timeStr.split(':');
+            return `${timeParts[0]}:${timeParts[1]}`;
+          }
+          
+          return timeStr;
+        })(),
         record.ticket_url,
         record.description || ''
       ]);
@@ -967,7 +983,26 @@ function TicketLogger() {
                       <td className={`${tableStyles.tableCell} ${tableStyles.dateCell}`}>
                         <div>
                           <div>{dayjs(record.logged_date).format('DD/MM/YYYY')}</div>
-                          <small>{dayjs(record.logged_time, 'HH:mm:ss').format('HH:mm')}</small>
+                          <small>
+                            {(() => {
+                              // Tentar diferentes formatos para o logged_time
+                              const timeStr = record.logged_time;
+                              if (!timeStr) return '--:--';
+                              
+                              // Se for um timestamp completo, extrair apenas a hora
+                              if (timeStr.includes('T') || timeStr.includes(' ')) {
+                                return dayjs(timeStr).format('HH:mm');
+                              }
+                              
+                              // Se for apenas time, usar formato simples
+                              if (timeStr.includes(':')) {
+                                const timeParts = timeStr.split(':');
+                                return `${timeParts[0]}:${timeParts[1]}`;
+                              }
+                              
+                              return timeStr;
+                            })()}
+                          </small>
                         </div>
                       </td>
                       <td className={`${tableStyles.tableCell} ${styles.linkCell}`}>
