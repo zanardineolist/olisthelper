@@ -90,11 +90,11 @@ export default function DashboardSuper({ user }) {
     const hash = window.location.hash;
     if (hash === '#Dashboard') {
       setCurrentTab(0);
-    } else if (hash === '#DataChart') {
-      setCurrentTab(1);
-    } else if (hash === '#HelpTopics') {
-      setCurrentTab(2);
     } else if (hash === '#TicketLogger') {
+      setCurrentTab(1);
+    } else if (hash === '#DataChart') {
+      setCurrentTab(2);
+    } else if (hash === '#HelpTopics') {
       setCurrentTab(3);
     }
   }, []);
@@ -107,13 +107,13 @@ export default function DashboardSuper({ user }) {
         hash = '#Dashboard';
         break;
       case 1:
-        hash = '#DataChart';
+        hash = '#TicketLogger';
         break;
       case 2:
-        hash = '#HelpTopics';
+        hash = '#DataChart';
         break;
       case 3:
-        hash = '#TicketLogger';
+        hash = '#HelpTopics';
         break;
       default:
         break;
@@ -150,9 +150,9 @@ export default function DashboardSuper({ user }) {
                 aria-label="Dashboard navigation tabs"
               >
                 <Tab label="Dashboard Individual" />
+                <Tab label="Registro de Chamados" />
                 <Tab label="Comparativo de Equipe" />
                 <Tab label="Temas de Dúvidas" />
-                <Tab label="Registro de Chamados" />
               </Tabs>
             </div>
           </ThemeProvider>
@@ -169,6 +169,12 @@ export default function DashboardSuper({ user }) {
             
             {currentTab === 1 && (
               <div className={styles.tabPanel}>
+                <TicketLoggerDashboard user={user} />
+              </div>
+            )}
+            
+            {currentTab === 2 && (
+              <div className={styles.tabPanel}>
                 {usersLoading ? (
                   <ThreeDotsLoader message="Carregando dados da equipe..." />
                 ) : (
@@ -177,15 +183,9 @@ export default function DashboardSuper({ user }) {
               </div>
             )}
             
-            {currentTab === 2 && (
-              <div className={styles.tabPanel}>
-                <HelpTopicsData />
-              </div>
-            )}
-            
             {currentTab === 3 && (
               <div className={styles.tabPanel}>
-                <TicketLoggerDashboard user={user} />
+                <HelpTopicsData />
               </div>
             )}
           </div>
