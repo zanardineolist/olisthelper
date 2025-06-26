@@ -561,7 +561,7 @@ function TicketLogger() {
       const headers = ['Data', 'Hora', 'URL do Chamado', 'Descrição'];
       const csvData = history.map(record => [
         dayjs(record.logged_date).format('DD/MM/YYYY'),
-        dayjs(record.logged_time).format('HH:mm'),
+        dayjs(record.logged_time, 'HH:mm:ss').format('HH:mm'),
         record.ticket_url,
         record.description || ''
       ]);
@@ -967,7 +967,7 @@ function TicketLogger() {
                       <td className={`${tableStyles.tableCell} ${tableStyles.dateCell}`}>
                         <div>
                           <div>{dayjs(record.logged_date).format('DD/MM/YYYY')}</div>
-                          <small>{dayjs(record.logged_time).format('HH:mm')}</small>
+                          <small>{dayjs(record.logged_time, 'HH:mm:ss').format('HH:mm')}</small>
                         </div>
                       </td>
                       <td className={`${tableStyles.tableCell} ${styles.linkCell}`}>

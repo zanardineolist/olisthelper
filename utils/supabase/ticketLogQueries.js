@@ -33,7 +33,7 @@ export async function addTicketLog(userId, ticketUrl, description = '') {
         ticket_url: ticketUrl.trim(),
         description: description?.trim() || null,
         logged_date: now.format('YYYY-MM-DD'),
-        logged_time: now.format('HH:mm:ss.SSSZ'),
+        logged_time: now.format('HH:mm:ss'),
         timezone: 'America/Sao_Paulo'
       })
       .select()
@@ -149,7 +149,7 @@ export async function getTodayHourlyData(userId) {
 
     // Contar chamados por hora
     data?.forEach(record => {
-      const hour = parseInt(dayjs(record.logged_time, 'HH:mm:ss.SSSZ').format('H'));
+      const hour = parseInt(dayjs(record.logged_time, 'HH:mm:ss').format('H'));
       hourlyData[hour]++;
     });
 
