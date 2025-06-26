@@ -1111,3 +1111,295 @@
   margin: 0 !important;
   padding: 0 !important;
 }
+
+/* ===== ESTILOS ESPECÍFICOS PARA TICKETLOGGER ===== */
+
+/* Modal para adicionar chamado */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background: var(--box-color);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--bg-secondary);
+}
+
+.modalHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modalCloseButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.modalCloseButton:hover {
+  background: var(--color-trodd);
+  color: var(--text-color);
+}
+
+.modalBody {
+  padding: 24px;
+}
+
+.inputGroup {
+  margin-bottom: 20px;
+}
+
+.inputGroup label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.modalInput,
+.modalTextarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--modals-inputs);
+  color: var(--text-color);
+  font-size: 14px;
+  transition: all 0.2s ease;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.modalInput:focus,
+.modalTextarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.modalFooter {
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--color-border);
+}
+
+.modalSecondaryButton,
+.modalPrimaryButton {
+  flex: 1;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.modalSecondaryButton {
+  background: var(--color-trodd);
+  color: var(--text-color);
+}
+
+.modalSecondaryButton:hover {
+  background: var(--color-border);
+}
+
+.modalPrimaryButton {
+  background: var(--color-primary);
+  color: white;
+}
+
+.modalPrimaryButton:hover:not(:disabled) {
+  background: var(--color-accent3);
+}
+
+.modalPrimaryButton:disabled {
+  background: var(--color-border);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Botão para adicionar chamado */
+.addButton {
+  background: var(--color-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.addButton:hover:not(:disabled) {
+  background: var(--color-accent3);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.addButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.counterLabel {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* Seção do gráfico */
+.chartSection {
+  background: var(--box-color);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  padding: 24px;
+  margin: 24px 0;
+}
+
+.chartTitle {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.emptyChart {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Links e botões da tabela */
+.ticketLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.ticketLink:hover {
+  color: var(--color-accent3);
+  text-decoration: underline;
+}
+
+.removeButton {
+  background: var(--poor-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.removeButton:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+/* Células específicas da tabela */
+.linkCell {
+  min-width: 120px;
+}
+
+.descriptionCell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actionCell {
+  width: 60px;
+  text-align: center;
+}
+
+/* Responsividade para mobile */
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95%;
+    max-width: none;
+  }
+  
+  .modalHeader,
+  .modalBody,
+  .modalFooter {
+    padding: 16px;
+  }
+  
+  .modalFooter {
+    flex-direction: column;
+  }
+  
+  .modalSecondaryButton,
+  .modalPrimaryButton {
+    width: 100%;
+  }
+  
+  .addButton {
+    padding: 14px 20px;
+    font-size: 13px;
+  }
+  
+  .chartSection {
+    padding: 16px;
+  }
+  
+  .descriptionCell {
+    max-width: 150px;
+  }
+}

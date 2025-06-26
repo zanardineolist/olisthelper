@@ -22,6 +22,7 @@ import ErrosComuns from '../components/ErrosComuns';
 import SheetSplitter from '../components/SheetSplitter';
 import MinhaBase from '../components/MinhaBase';
 import BibliotecaVideos from '../components/BibliotecaVideos';
+import TicketLogger from '../components/TicketLogger';
 import { useLoading } from '../components/LoadingIndicator';
 import styles from '../styles/Tools.module.css';
 
@@ -56,6 +57,15 @@ const TAB_CONFIG = [
     component: TicketCounter,
     requiresTicketAccess: true,
     description: 'Acompanhe seus chamados e estatísticas'
+  },
+  {
+    id: 'TicketLogger',
+    label: 'Registro de Chamados',
+    icon: FaChartLine,
+    hash: '#TicketLogger',
+    component: TicketLogger,
+    requiresTicketAccess: true,
+    description: 'Registre chamados com links e acompanhe evolução por hora'
   },
   {
     id: 'SharedMessages',
