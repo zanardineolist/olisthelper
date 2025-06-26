@@ -234,9 +234,7 @@ const ProgressBarLogger = ({ count }) => {
           </AnimatePresence>
         )}
 
-        <div className={styles.progressCount}>
-          {count} / {maxTarget} chamados
-        </div>
+
       </div>
     </motion.div>
   );

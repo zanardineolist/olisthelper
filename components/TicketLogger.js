@@ -341,9 +341,16 @@ function TicketLogger() {
 
   // Função para validar URL do Tiny
   const validateTinyUrl = (url) => {
+    const cleanUrl = url.trim();
+    
+    // Bloquear URL de exemplo
+    if (cleanUrl === 'https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO') {
+      return false;
+    }
+    
     // Padrão: https://erp.tiny.com.br/suporte#edit/ID_NUMERICO
     const tinyUrlPattern = /^https:\/\/erp\.tiny\.com\.br\/suporte#edit\/\d+$/;
-    return tinyUrlPattern.test(url.trim());
+    return tinyUrlPattern.test(cleanUrl);
   };
 
   // Validação em tempo real da URL
@@ -554,7 +561,7 @@ function TicketLogger() {
       const headers = ['Data', 'Hora', 'URL do Chamado', 'Descrição'];
       const csvData = history.map(record => [
         dayjs(record.logged_date).format('DD/MM/YYYY'),
-        dayjs(record.logged_time, 'HH:mm:ss.SSSZ').format('HH:mm'),
+        dayjs(record.logged_time).format('HH:mm'),
         record.ticket_url,
         record.description || ''
       ]);
@@ -960,7 +967,7 @@ function TicketLogger() {
                       <td className={`${tableStyles.tableCell} ${tableStyles.dateCell}`}>
                         <div>
                           <div>{dayjs(record.logged_date).format('DD/MM/YYYY')}</div>
-                          <small>{dayjs(record.logged_time, 'HH:mm:ss.SSSZ').format('HH:mm')}</small>
+                          <small>{dayjs(record.logged_time).format('HH:mm')}</small>
                         </div>
                       </td>
                       <td className={`${tableStyles.tableCell} ${styles.linkCell}`}>
