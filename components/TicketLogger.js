@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Download, TrendingUp, BarChart3, ExternalLink, Trash2, X, Link } from 'lucide-react';
+import { Plus, Minus, Trash2, Download, TrendingUp, BarChart3, ExternalLink, X, Link } from 'lucide-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -9,6 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import Swal from 'sweetalert2';
 import styles from '../styles/Tools.module.css';
 import tableStyles from '../styles/HistoryTable.module.css';
+import ProgressBarLogger from './ProgressBarLogger';
 import { useApiLoader } from '../utils/apiLoader';
 import { ThreeDotsLoader } from './LoadingIndicator';
 
@@ -78,6 +79,42 @@ function TicketLogger() {
       title: message
     });
   };
+
+  // Atalhos de teclado
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      // Não processar se estivermos em um input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      // Não processar se Ctrl ou Cmd estiver pressionado
+      if (e.ctrlKey || e.metaKey) return;
+      
+      switch(e.key) {
+        case '+':
+        case '=':
+          e.preventDefault();
+          if (!loading) handleIncrement();
+          break;
+        case '-':
+          e.preventDefault();
+          if (!loading && count > 0) handleDecrement();
+          break;
+        case 'c':
+        case 'C':
+          e.preventDefault();
+          if (!loading && count > 0) handleClear();
+          break;
+        case 'e':
+        case 'E':
+          e.preventDefault();
+          exportToCSV();
+          break;
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [loading, count]);
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -247,6 +284,60 @@ function TicketLogger() {
     }
   };
 
+  const handleIncrement = () => {
+    setShowModal(true);
+  };
+
+  const handleDecrement = async () => {
+    // Buscar o último registro do dia para remover
+    if (count === 0) {
+      showToast('Nenhum chamado para remover', 'warning');
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'Remover último chamado?',
+      text: 'Esta ação não pode ser desfeita.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sim, remover',
+      cancelButtonText: 'Cancelar',
+      background: 'var(--box-color)',
+      color: 'var(--text-color)'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // Buscar o último registro do dia
+        const today = dayjs().tz().format('YYYY-MM-DD');
+        const data = await callApi(
+          `/api/ticket-logs?type=history&startDate=${today}&endDate=${today}&page=1`,
+          {},
+          { showLoading: false }
+        );
+
+        if (data.records && data.records.length > 0) {
+          // Remover o primeiro registro (mais recente)
+          const lastRecord = data.records[0];
+          await callApi(`/api/ticket-logs?logId=${lastRecord.id}`, {
+            method: 'DELETE'
+          });
+
+          await loadTodayCount();
+          await loadHistoryData();
+          await loadHourlyData();
+          
+          showToast('Último chamado removido com sucesso!', 'success');
+        } else {
+          showToast('Nenhum chamado encontrado para remover', 'warning');
+        }
+      } catch (error) {
+        console.error('Erro ao remover último chamado:', error);
+        showToast('Erro ao remover chamado', 'error');
+      }
+    }
+  };
+
   const handleAddTicket = async () => {
     if (!ticketUrl.trim()) {
       showToast('URL do chamado é obrigatória', 'error');
@@ -291,6 +382,53 @@ function TicketLogger() {
       showToast('Erro ao registrar chamado', 'error');
     } finally {
       setModalLoading(false);
+    }
+  };
+
+  const handleClear = async () => {
+    const result = await Swal.fire({
+      title: 'Limpar contagem do dia?',
+      text: 'Esta ação irá remover todos os chamados registrados hoje. Não pode ser desfeita.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sim, limpar',
+      cancelButtonText: 'Cancelar',
+      background: 'var(--box-color)',
+      color: 'var(--text-color)'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // Buscar todos os registros do dia
+        const today = dayjs().tz().format('YYYY-MM-DD');
+        const data = await callApi(
+          `/api/ticket-logs?type=history&startDate=${today}&endDate=${today}&page=1`,
+          {},
+          { showLoading: false }
+        );
+
+        if (data.records && data.records.length > 0) {
+          // Remover todos os registros do dia
+          const deletePromises = data.records.map(record => 
+            callApi(`/api/ticket-logs?logId=${record.id}`, {
+              method: 'DELETE'
+            })
+          );
+
+          await Promise.all(deletePromises);
+
+          await loadTodayCount();
+          await loadHistoryData();
+          await loadHourlyData();
+          
+          showToast('Contagem zerada com sucesso!', 'success');
+        } else {
+          showToast('Nenhum registro encontrado para limpar', 'warning');
+        }
+      } catch (error) {
+        console.error('Erro ao limpar contagem:', error);
+        showToast('Erro ao limpar contagem', 'error');
+      }
     }
   };
 
@@ -409,32 +547,70 @@ function TicketLogger() {
         {dayjs().tz().format('DD/MM/YYYY')}
       </motion.div>
 
-      {/* Display do contador */}
+      {/* Container do contador com efeito de hover */}
       <motion.div 
         className={styles.counterDisplay}
         whileHover={{ scale: 1.005 }}
         transition={{ type: "spring", stiffness: 400 }}
       >
-        <motion.div 
-          className={styles.counterValue}
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.15 }}
+        <motion.button
+          className={`${styles.counterButton} ${styles.decrementButton}`}
+          onClick={handleDecrement}
+          disabled={loading || count === 0}
+          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.2 }}
         >
-          {loading ? '...' : count}
-          <div className={styles.counterLabel}>Chamados Hoje</div>
-        </motion.div>
+          <Minus size={28} />
+        </motion.button>
+
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={count}
+            className={styles.counterValue}
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            {loading ? '...' : count}
+          </motion.div>
+        </AnimatePresence>
 
         <motion.button
-          className={`${styles.counterButton} ${styles.addButton}`}
-          onClick={() => setShowModal(true)}
+          className={`${styles.counterButton} ${styles.incrementButton}`}
+          onClick={handleIncrement}
           disabled={loading}
           whileTap={{ scale: 0.95 }}
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
         >
           <Plus size={28} />
-          <span>Adicionar Chamado</span>
+        </motion.button>
+      </motion.div>
+
+      {/* Barra de Progresso */}
+      <ProgressBarLogger count={count} />
+
+      {/* Botão Limpar Contagem */}
+      <motion.div
+        className={styles.clearButtonContainer}
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <motion.button
+          className={styles.clearButton}
+          onClick={handleClear}
+          disabled={loading || count === 0}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className={styles.clearButtonContent}>
+            <Trash2 size={18} />
+            <span>Limpar Contagem do Dia</span>
+          </div>
         </motion.button>
       </motion.div>
 
