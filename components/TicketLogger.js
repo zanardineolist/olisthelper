@@ -783,7 +783,7 @@ function TicketLogger() {
                   )}
                   <div className={styles.urlExample}>
                     <small>
-                      <strong>Exemplo:</strong> https://erp.tiny.com.br/suporte#edit/1062209674
+                      <strong>Exemplo:</strong> https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO
                     </small>
                   </div>
                 </div>
