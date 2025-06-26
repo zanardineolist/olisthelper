@@ -9,16 +9,32 @@ import {
 
 export default async function handler(req, res) {
   // Extrair informações do usuário dos cookies
-  const userId = req.cookies['user-id'];
+  const currentUserId = req.cookies['user-id'];
+  const userRole = req.cookies['user-role'];
   
-  if (!userId) {
+  if (!currentUserId) {
     return res.status(401).json({ error: 'Usuário não autenticado' });
+  }
+
+  // Para supervisores, permitir consulta de dados de outros usuários
+  const { userId: targetUserId } = req.query;
+  let userId = currentUserId;
+
+  // Se um userId específico foi fornecido e o usuário atual é supervisor
+  if (targetUserId && userRole === 'super') {
+    userId = targetUserId;
+  } else if (targetUserId && userRole !== 'super') {
+    return res.status(403).json({ error: 'Sem permissão para acessar dados de outros usuários' });
   }
 
   try {
     switch (req.method) {
       case 'POST':
-        // Adicionar novo log de chamado
+        // Adicionar novo log de chamado (apenas o próprio usuário)
+        if (userId !== currentUserId) {
+          return res.status(403).json({ error: 'Você só pode adicionar logs para sua própria conta' });
+        }
+
         const { ticketUrl, description } = req.body;
         
         if (!ticketUrl) {
@@ -29,7 +45,11 @@ export default async function handler(req, res) {
         return res.status(201).json(newLog);
 
       case 'DELETE':
-        // Remover log específico
+        // Remover log específico (apenas o próprio usuário)
+        if (userId !== currentUserId) {
+          return res.status(403).json({ error: 'Você só pode remover logs da sua própria conta' });
+        }
+
         const { logId } = req.query;
         
         if (!logId) {
@@ -68,7 +88,7 @@ export default async function handler(req, res) {
               return res.status(400).json({ error: 'Datas de início e fim são obrigatórias' });
             }
             
-            const pageSize = 10;
+            const pageSize = parseInt(req.query.pageSize) || 10;
             const historyData = await getTicketLogs(
               userId, 
               startDate, 
