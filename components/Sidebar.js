@@ -128,7 +128,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
     };
 
     // Menu baseado no role
-    if (user.role === 'support' || user.role === 'support+') {
+    if (user.role === 'support') {
       menuItems.primary = [
         { href: '/profile', icon: FaUser, label: 'Meu Perfil', tooltip: 'Meu Perfil' },
         { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' }
@@ -184,7 +184,8 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       ];
     }
 
-    if (user.role === 'support+' && !menuItems.primary.some(item => item.href === '/remote')) {
+    // Adicionar menu remoto baseado na permissão específica (SISTEMA MODULAR)
+    if (user.can_remote_access && !menuItems.primary.some(item => item.href === '/remote')) {
       menuItems.primary.push({ href: '/remote', icon: FaDesktop, label: 'Acesso Remoto', tooltip: 'Acesso Remoto' });
     }
 

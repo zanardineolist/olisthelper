@@ -126,7 +126,7 @@ export async function getUserPerformanceByEmail(userEmail) {
 
     // Verificar autorização
     const userProfile = user.profile.toLowerCase();
-    if (!['support', 'support+', 'analyst', 'tax'].includes(userProfile)) {
+    if (!['support', 'analyst', 'tax'].includes(userProfile)) {
       throw new Error('Usuário não autorizado a visualizar dados de performance.');
     }
 

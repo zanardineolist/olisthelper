@@ -17,44 +17,50 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
-  // Mapear papéis e rotas permitidas
+  // Mapear papéis e rotas permitidas (SISTEMA MODULAR)
   const analystRoles = ['analyst', 'tax'];
-  const allowedRoles = [...analystRoles, 'super', 'dev', 'support+', 'quality'];
+  const allowedRoles = [...analystRoles, 'super', 'dev', 'quality'];
 
-  const routesWithAllowedRoles = {
-    '/profile-analyst': analystRoles,
-    '/dashboard-analyst': allowedRoles,
-    '/dashboard-super': ['super'],
-    '/dashboard-quality': ['quality'],
-    '/registro': allowedRoles,
-    '/manager': allowedRoles,
-    '/admin-notifications': ['dev'],
-    '/remote': ['support+', 'super'],
-    '/tools': ['support', 'support+', 'analyst', 'super', 'tax', 'quality'],
-    '/analytics': 'admin_only' // Nova rota apenas para admins
+  const routesWithPermissions = {
+    // Rotas baseadas em perfil (sistema legado mantido)
+    '/profile-analyst': { profiles: analystRoles },
+    '/dashboard-analyst': { profiles: allowedRoles },
+    '/dashboard-super': { profiles: ['super'] },
+    '/dashboard-quality': { profiles: ['quality'] },
+    '/registro': { profiles: allowedRoles },
+    '/manager': { profiles: allowedRoles },
+    '/admin-notifications': { profiles: ['dev'] },
+    '/tools': { profiles: ['support', 'analyst', 'super', 'tax', 'quality'] },
+    
+    // Rotas baseadas em permissões específicas (NOVO SISTEMA MODULAR)
+    '/analytics': { permission: 'admin' },
+    '/register-help': { permission: 'can_register_help' },
+    '/remote': { permission: 'can_remote_access' }
   };
 
   // Verificar acesso à rota atual
-  const matchedRoute = Object.keys(routesWithAllowedRoles).find(route => 
+  const matchedRoute = Object.keys(routesWithPermissions).find(route => 
     req.nextUrl.pathname.startsWith(route)
   );
 
   if (matchedRoute) {
-    const routeConfig = routesWithAllowedRoles[matchedRoute];
+    const routeConfig = routesWithPermissions[matchedRoute];
     
-    // Verificar se é rota admin_only
-    if (routeConfig === 'admin_only') {
-      if (!permissions.admin) {
+    // NOVA LÓGICA: Verificar se é rota baseada em permissão específica
+    if (routeConfig.permission) {
+      if (!permissions[routeConfig.permission]) {
+        console.log(`Acesso negado para ${req.nextUrl.pathname}: usuário não possui permissão ${routeConfig.permission}`);
         return NextResponse.redirect(new URL('/', req.url));
       }
     } 
-    // Verificar roles normais
-    else if (!routeConfig.includes(permissions.profile)) {
+    // SISTEMA LEGADO: Verificar roles tradicionais
+    else if (routeConfig.profiles && !routeConfig.profiles.includes(permissions.profile)) {
+      console.log(`Acesso negado para ${req.nextUrl.pathname}: perfil ${permissions.profile} não autorizado`);
       return NextResponse.redirect(new URL('/', req.url));
     }
   }
 
-  // Criar resposta com cookies atualizados
+  // Criar resposta com cookies atualizados (INCLUINDO NOVAS PERMISSÕES)
   const response = NextResponse.next();
   
   // Definir cookies com informações do usuário e suas permissões
@@ -66,6 +72,8 @@ export async function middleware(req) {
     can_ticket: permissions.can_ticket,
     can_phone: permissions.can_phone,
     can_chat: permissions.can_chat,
+    can_register_help: permissions.can_register_help, // NOVO
+    can_remote_access: permissions.can_remote_access, // NOVO
     admin: permissions.admin
   }));
 
@@ -87,5 +95,6 @@ export const config = {
     '/remote',
     '/tools',
     '/analytics',
+    '/register-help', // NOVA ROTA
   ],
 };

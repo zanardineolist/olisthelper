@@ -191,7 +191,7 @@ export default function Navbar({ user, isSidebarCollapsed }) {
 
         <div className={styles.rightSection}>
           {/* Notifications */}
-          {['analyst', 'tax', 'super', 'support+', 'dev', 'quality'].includes(user.role) && (
+          {['analyst', 'tax', 'super', 'dev', 'quality', 'support'].includes(user.role) && (
             <div className={styles.notificationsWrapper}>
               <button className={styles.notificationToggle} onClick={toggleNotifications}>
                 <FaBell />

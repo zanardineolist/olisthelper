@@ -6,25 +6,31 @@ import { useLoading } from '../components/LoadingIndicator';
 import RegisterAccess from '../components/RegisterAccess';
 import MyAccessRecords from '../components/MyAccessRecords';
 import AllAccessRecords from '../components/AllAccessRecords';
+import { getUserPermissions } from '../utils/supabase/supabaseClient';
 import styles from '../styles/Remote.module.css';
 
 export default function RemotePage({ user }) {
   const [currentTab, setCurrentTab] = useState(0);
   const { loading: routerLoading } = useLoading();
 
-  // Definir tabs baseadas no role do usuário
+  // Definir tabs baseadas nas permissões do usuário (SISTEMA MODULAR)
   const getTabs = () => {
-    if (user.role === 'support+') {
-      return [
+    const tabs = [];
+    
+    // Qualquer usuário com permissão de acesso remoto pode registrar e ver seus registros
+    if (user.can_remote_access) {
+      tabs.push(
         { id: 'register', label: 'Registrar Acesso', icon: 'fa-plus-circle' },
         { id: 'my-records', label: 'Meus Registros', icon: 'fa-list-alt' }
-      ];
-    } else if (user.role === 'super') {
-      return [
-        { id: 'all-records', label: 'Todos os Registros', icon: 'fa-database' }
-      ];
+      );
     }
-    return [];
+    
+    // Apenas supervisores podem ver todos os registros
+    if (user.role === 'super') {
+      tabs.push({ id: 'all-records', label: 'Todos os Registros', icon: 'fa-database' });
+    }
+    
+    return tabs;
   };
 
   const tabs = getTabs();
@@ -34,19 +40,19 @@ export default function RemotePage({ user }) {
   };
 
   const renderTabContent = () => {
-    if (user.role === 'support+') {
-      switch (currentTab) {
-        case 0:
-          return <RegisterAccess user={user} />;
-        case 1:
-          return <MyAccessRecords user={user} />;
-        default:
-          return <RegisterAccess user={user} />;
-      }
-    } else if (user.role === 'super') {
-      return <AllAccessRecords user={user} currentTab={currentTab} />;
+    const tab = tabs[currentTab];
+    if (!tab) return null;
+
+    switch (tab.id) {
+      case 'register':
+        return <RegisterAccess user={user} />;
+      case 'my-records':
+        return <MyAccessRecords user={user} />;
+      case 'all-records':
+        return <AllAccessRecords user={user} currentTab={currentTab} />;
+      default:
+        return <RegisterAccess user={user} />;
     }
-    return null;
   };
 
   return (
@@ -86,7 +92,28 @@ export default function RemotePage({ user }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  if (!session || !['support+', 'super'].includes(session.role)) {
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  // Buscar permissões atualizadas do usuário (SISTEMA MODULAR)
+  const userPermissions = await getUserPermissions(session.id);
+  if (!userPermissions) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  // Verificar se tem permissão de acesso remoto OU é supervisor
+  if (!userPermissions.can_remote_access && userPermissions.profile !== 'super') {
     return {
       redirect: {
         destination: '/',
@@ -99,7 +126,7 @@ export async function getServerSideProps(context) {
     props: {
       user: {
         ...session.user,
-        role: session.role,
+        ...userPermissions,
         id: session.id,
         name: session.user.name,
         email: session.user.email,

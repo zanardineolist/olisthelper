@@ -52,3 +52,4 @@ supabase_rpc_fixed.sql
 supabase_rpc_functions_fixed.sql
 supabase_rpc_functions.sql
 migration_add_share_type.sql
+migration_sistema_modular_REVISADO.sql

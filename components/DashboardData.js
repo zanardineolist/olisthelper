@@ -237,7 +237,7 @@ const PerformanceCard = ({ title, icon, data, type }) => {
 };
 
 // Roles válidas para exibição no dashboard
-const VALID_ROLES = ['support', 'support+', 'analyst', 'tax'];
+  const VALID_ROLES = ['support', 'analyst', 'tax'];
 
 // Função para verificar se a role é válida
 const isValidRole = (role) => {
@@ -319,7 +319,7 @@ export default function DashboardData({ user }) {
       // Calcular datas com base no filtro selecionado
       const { startDate, endDate } = getDateRange();
       
-      if (selectedUser.role === 'support' || selectedUser.role === 'support+') {
+              if (selectedUser.role === 'support') {
         // Para suporte, usar a mesma lógica do profile.js
         const [helpResponse, categoryResponse, performanceResponse] = await Promise.all([
           fetch(`/api/get-user-help-requests?userEmail=${selectedUser.email}`),
@@ -496,7 +496,7 @@ export default function DashboardData({ user }) {
   const getColorForRole = (role) => {
     switch (role.toLowerCase()) {
       case 'support': return '#779E3D';
-      case 'support+': return '#779E3D';
+      // Removido support+ do sistema modular
       case 'analyst': return '#0A4EE4';
       case 'tax': return '#8A2BE2';
       case 'super': return '#E64E36';
@@ -507,7 +507,7 @@ export default function DashboardData({ user }) {
   const getRoleLabel = (role) => {
     switch (role.toLowerCase()) {
       case 'support': return 'Suporte';
-      case 'support+': return 'Suporte+';
+      // Removido support+ do sistema modular
       case 'analyst': return 'Analista';
       case 'tax': return 'Fiscal';
       case 'super': return 'Supervisor';
@@ -1003,7 +1003,7 @@ export default function DashboardData({ user }) {
                             </div>
                           )}
                           
-                          {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
+                          {(selectedUser.role === 'support' || selectedUser.role === 'tax') && performanceData && (
                             <>
                               {performanceData?.squad && (
                                 <div className={styles.tag || ''} style={{ backgroundColor: '#0A4EE4' }}>
@@ -1031,7 +1031,7 @@ export default function DashboardData({ user }) {
                       </div>
 
                       {/* Métricas de Absenteísmo */}
-                      {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && performanceData && (
+                      {(selectedUser.role === 'support' || selectedUser.role === 'tax') && performanceData && (
                         <div className={styles.absMetricsSection}>
                           <h4 className={styles.absTitle}>
                             <i className="fa-solid fa-calendar-check"></i>
@@ -1082,7 +1082,7 @@ export default function DashboardData({ user }) {
                     <div className={styles.cardHeader || ''}>
                       <h3 className={styles.cardTitle || ''}>
                         <i className="fa-solid fa-heart-hand"></i>
-                        {selectedUser.role === 'support' || selectedUser.role === 'support+' 
+                        {selectedUser.role === 'support'
                           ? 'Ajudas Solicitadas' 
                           : 'Ajudas Prestadas'}
                       </h3>
@@ -1128,7 +1128,7 @@ export default function DashboardData({ user }) {
           </section>
 
           {/* Seção de Progresso da Meta */}
-          {(selectedUser.role === 'support' || selectedUser.role === 'support+') && (
+          {selectedUser.role === 'support' && (
             <section className={styles.progressSection}>
               {loadingData ? (
                 <div className={styles.loadingContainer}>
@@ -1159,7 +1159,7 @@ export default function DashboardData({ user }) {
           )}
 
           {/* Seção de Indicadores de Performance */}
-          {(selectedUser.role === 'support' || selectedUser.role === 'support+' || selectedUser.role === 'tax') && (
+          {(selectedUser.role === 'support' || selectedUser.role === 'tax') && (
             <section className={styles.performanceSection}>
               {loadingData ? (
                 <>
@@ -1311,7 +1311,7 @@ export default function DashboardData({ user }) {
                 <div className={styles.sectionHeader || ''}>
                   <h2 className={styles.sectionTitle || ''}>
                     <i className="fa-solid fa-chart-line"></i>
-                    {selectedUser.role === 'support' || selectedUser.role === 'support+' 
+                    {selectedUser.role === 'support'
                       ? 'Top 10 - Temas de maior dúvida' 
                       : 'Top 10 - Temas mais auxiliados'}
                   </h2>
@@ -1328,7 +1328,7 @@ export default function DashboardData({ user }) {
                 <div className={styles.sectionHeader || ''}>
                   <h2 className={styles.sectionTitle || ''}>
                     <i className="fa-solid fa-chart-line"></i>
-                    {selectedUser.role === 'support' || selectedUser.role === 'support+' 
+                    {selectedUser.role === 'support'
                       ? 'Top 10 - Temas de maior dúvida' 
                       : 'Top 10 - Temas mais auxiliados'}
                   </h2>

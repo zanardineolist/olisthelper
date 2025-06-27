@@ -121,6 +121,8 @@ async function getOrCreateUser(user) {
         can_ticket: false,
         can_phone: false,
         can_chat: false,
+        can_register_help: false, // Nova permissão padrão
+        can_remote_access: false, // Nova permissão padrão
         active: true,
         last_sign_in: new Date()
       }])

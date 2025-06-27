@@ -21,6 +21,9 @@ export default function ManageUsers({ user }) {
     chamado: false,
     telefone: false,
     chat: false,
+    // Novas permissões modulares
+    registerHelp: false,
+    remoteAccess: false,
   });
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -33,10 +36,11 @@ export default function ManageUsers({ user }) {
 
   const profileOptions = [
     { value: 'support', label: 'Suporte' },
-    { value: 'support+', label: 'Suporte Remoto' },
     { value: 'analyst', label: 'Analista' },
     { value: 'super', label: 'Supervisor' },
     { value: 'tax', label: 'Fiscal' },
+    { value: 'quality', label: 'Qualidade' },
+    { value: 'dev', label: 'Desenvolvedor' },
     { value: 'partner', label: 'Parceiro' },
     { value: 'other', label: 'Outro' },
   ];
@@ -291,7 +295,9 @@ export default function ManageUsers({ user }) {
       squad: '',
       chamado: false,
       telefone: false,
-      chat: false
+      chat: false,
+      registerHelp: false,
+      remoteAccess: false
     });
     setIsEditing(false);
     setOriginalEmail('');
@@ -448,6 +454,24 @@ export default function ManageUsers({ user }) {
               />
               Chat
             </label>
+            <label>
+              <input
+                type="checkbox"
+                name="registerHelp"
+                checked={newUser.registerHelp}
+                onChange={handleInputChange}
+              />
+              Registrar Ajudas
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                name="remoteAccess"
+                checked={newUser.remoteAccess}
+                onChange={handleInputChange}
+              />
+              Acesso Remoto
+            </label>
           </div>
           <button onClick={handleSaveUser} disabled={loading} className={generalStyles.saveButton}>
             {isEditing ? 'Atualizar Usuário' : 'Adicionar Usuário'}
@@ -481,6 +505,8 @@ export default function ManageUsers({ user }) {
                   <th>Chamado</th>
                   <th>Telefone</th>
                   <th>Chat</th>
+                  <th>Ajudas</th>
+                  <th>Remoto</th>
                   <th>Ações</th>
                 </tr>
               </thead>
@@ -508,6 +534,20 @@ export default function ManageUsers({ user }) {
                         type="checkbox"
                         disabled
                         checked={user.chat}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        disabled
+                        checked={user.registerHelp}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        disabled
+                        checked={user.remoteAccess}
                       />
                     </td>
                     <td className={generalStyles.actionButtons}>

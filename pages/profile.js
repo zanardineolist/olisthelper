@@ -379,7 +379,7 @@ export default function MyPage({ user }) {
         setRankingLoading(false);
 
         // Carregar dados de performance se for support
-        if (user.role === 'support' || user.role === 'support+') {
+        if (user.role === 'support') {
           setProgressLoading(true);
           setIndicatorsLoading(true);
           
@@ -561,7 +561,7 @@ export default function MyPage({ user }) {
         </section>
 
         {/* Seção 2: Progresso da Meta */}
-        {(user.role === 'support' || user.role === 'support+') && (
+        {user.role === 'support' && (
           <section className={styles.progressSection}>
             {progressLoading ? (
               <ThreeDotsLoader message="Carregando progresso..." />
@@ -590,7 +590,7 @@ export default function MyPage({ user }) {
         )}
 
         {/* Seção 3: Indicadores de Performance */}
-        {(user.role === 'support' || user.role === 'support+') && (
+        {user.role === 'support' && (
           <section className={styles.performanceSection}>
             <div className={styles.sectionHeader}>
               <div className={styles.sectionTitleWithInfo}>

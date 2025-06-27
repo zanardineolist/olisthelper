@@ -61,6 +61,8 @@ export async function createUser(userData) {
         can_ticket: userData.can_ticket || false,
         can_phone: userData.can_phone || false,
         can_chat: userData.can_chat || false,
+        can_register_help: userData.can_register_help || false,
+        can_remote_access: userData.can_remote_access || false,
         active: true,
         created_at: new Date(),
         updated_at: new Date(),
@@ -156,11 +158,6 @@ export async function getAllActiveUsers() {
   }
 }
 
-/**
- * Verifica e retorna as permissões de um usuário
- * @param {string} userId - ID do usuário
- * @returns {Promise<Object>} - Objeto com as permissões
- */
 /**
  * Busca todas as categorias ativas
  * @returns {Promise<Array>} - Lista de categorias
@@ -263,7 +260,7 @@ export async function getUserPermissions(userId) {
   try {
     const { data, error } = await supabaseAdmin
       .from('users')
-      .select('profile, can_ticket, can_phone, can_chat, admin')
+      .select('profile, can_ticket, can_phone, can_chat, can_register_help, can_remote_access, admin')
       .eq('id', userId)
       .single();
 

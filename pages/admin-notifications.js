@@ -61,7 +61,7 @@ export default function AdminNotificationsPage({ user }) {
 
       // Usar os valores exatos da planilha
       const profilesMap = {
-        supportPlus: 'support+',
+        // Removido support+ do sistema modular
         analyst: 'analyst',
         tax: 'tax',
         super: 'super',

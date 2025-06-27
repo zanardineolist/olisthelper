@@ -44,6 +44,8 @@ export default async function handler(req, res) {
           chamado: user.can_ticket,
           telefone: user.can_phone,
           chat: user.can_chat,
+          registerHelp: user.can_register_help, // NOVA PERMISSÃO
+          remoteAccess: user.can_remote_access, // NOVA PERMISSÃO
           active: user.active
         }));
         
@@ -75,6 +77,8 @@ export default async function handler(req, res) {
             can_ticket: newUser.chamado,
             can_phone: newUser.telefone,
             can_chat: newUser.chat,
+            can_register_help: newUser.registerHelp || false, // NOVA PERMISSÃO
+            can_remote_access: newUser.remoteAccess || false, // NOVA PERMISSÃO
             active: true
           }])
           .select()
@@ -126,6 +130,8 @@ export default async function handler(req, res) {
             can_ticket: updatedUser.chamado,
             can_phone: updatedUser.telefone,
             can_chat: updatedUser.chat,
+            can_register_help: updatedUser.registerHelp || false, // NOVA PERMISSÃO
+            can_remote_access: updatedUser.remoteAccess || false, // NOVA PERMISSÃO
             updated_at: new Date()
           })
           .eq('id', updatedUser.id)

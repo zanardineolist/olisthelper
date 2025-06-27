@@ -106,7 +106,7 @@ export default function TicketLoggerDashboard({ user }) {
   ];
 
   // Roles válidas para exibição
-  const VALID_ROLES = ['support', 'support+', 'analyst', 'tax'];
+  const VALID_ROLES = ['support', 'analyst', 'tax'];
 
   const isValidRole = (role) => {
     if (!role || typeof role !== 'string') return false;
@@ -237,7 +237,7 @@ export default function TicketLoggerDashboard({ user }) {
   const getColorForRole = (role) => {
     switch (role.toLowerCase()) {
       case 'support': return '#779E3D';
-      case 'support+': return '#779E3D';
+      // Removido support+ do sistema modular
       case 'analyst': return '#0A4EE4';
       case 'tax': return '#8A2BE2';
       case 'super': return '#E64E36';
@@ -248,7 +248,7 @@ export default function TicketLoggerDashboard({ user }) {
   const getRoleLabel = (role) => {
     switch (role.toLowerCase()) {
       case 'support': return 'Suporte';
-      case 'support+': return 'Suporte+';
+      // Removido support+ do sistema modular
       case 'analyst': return 'Analista';
       case 'tax': return 'Fiscal';
       case 'super': return 'Supervisor';

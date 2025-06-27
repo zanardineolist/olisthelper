@@ -27,7 +27,7 @@ import { useLoading } from '../components/LoadingIndicator';
 import styles from '../styles/Tools.module.css';
 
 // Constantes para roles de usuário
-const ROLES_WITH_TICKET_ACCESS = ['support', 'support+', 'analyst', 'super', 'tax'];
+  const ROLES_WITH_TICKET_ACCESS = ['support', 'analyst', 'super', 'tax'];
 
 // Configuração centralizada das abas
 const TAB_CONFIG = [
