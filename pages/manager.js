@@ -138,6 +138,9 @@ export async function getServerSideProps(context) {
         can_ticket: userData?.can_ticket,
         can_phone: userData?.can_phone,
         can_chat: userData?.can_chat,
+        // NOVAS PERMISSÕES MODULARES
+        can_register_help: userData?.can_register_help || false,
+        can_remote_access: userData?.can_remote_access || false,
       },
     },
   };
