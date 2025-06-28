@@ -1,47 +1,185 @@
-import { useSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 
 /**
- * Hook personalizado para verificações de permissão modulares
- * @returns {Object} Objeto com todas as permissões do usuário atual
+ * Hook para verificar permissões do usuário de forma robusta
+ * Inclui fallbacks e verificações defensivas
  */
-export function usePermissions() {
-  const { data: session } = useSession();
-  
-  const permissions = {
-    // Permissões básicas (sistema legado)
-    canTicket: session?.user?.can_ticket || false,
-    canPhone: session?.user?.can_phone || false,
-    canChat: session?.user?.can_chat || false,
-    
-    // Novas permissões modulares
-    canRegisterHelp: session?.user?.can_register_help || false,
-    canRemoteAccess: session?.user?.can_remote_access || false,
-    
-    // Permissão administrativa
-    isAdmin: session?.user?.admin || false,
-    
-    // Perfil do usuário
-    profile: session?.user?.profile || 'support',
-    
-    // Verificações de perfil específicas
-    isSupport: session?.user?.profile === 'support',
-    isAnalyst: session?.user?.profile === 'analyst',
-    isTax: session?.user?.profile === 'tax',
-    isSuper: session?.user?.profile === 'super',
-    isQuality: session?.user?.profile === 'quality',
-    isDev: session?.user?.profile === 'dev',
-    
-    // Verificações de grupos
-    isAnalystOrTax: ['analyst', 'tax'].includes(session?.user?.profile),
-    isElevatedUser: ['analyst', 'tax', 'super', 'quality', 'dev'].includes(session?.user?.profile),
-    
-    // Dados básicos do usuário
-    userId: session?.user?.id,
-    userName: session?.user?.name,
-    userEmail: session?.user?.email
-  };
-  
+export function usePermissions(user = {}) {
+  const [permissions, setPermissions] = useState({
+    isLoading: true,
+    hasError: false,
+    data: null
+  });
+
+  useEffect(() => {
+    try {
+      // Verificação defensiva dos dados do usuário
+      if (!user || typeof user !== 'object') {
+        console.warn('usePermissions: Dados do usuário inválidos:', user);
+        setPermissions({
+          isLoading: false,
+          hasError: true,
+          data: getDefaultPermissions()
+        });
+        return;
+      }
+
+      // Extrair permissões com fallbacks seguros
+      const userPermissions = {
+        // Dados básicos
+        id: user.id || null,
+        name: user.name || 'Usuário',
+        email: user.email || '',
+        role: user.role || 'support',
+        
+        // Permissões tradicionais
+        admin: Boolean(user.admin),
+        can_ticket: Boolean(user.can_ticket),
+        can_phone: Boolean(user.can_phone),
+        can_chat: Boolean(user.can_chat),
+        
+        // NOVAS PERMISSÕES MODULARES
+        can_register_help: Boolean(user.can_register_help),
+        can_remote_access: Boolean(user.can_remote_access),
+        
+        // Permissões derivadas (para compatibilidade)
+        canAccessManager: canAccessManager(user),
+        canAccessDashboard: canAccessDashboard(user),
+        canAccessAnalytics: Boolean(user.admin),
+        canAccessTools: canAccessTools(user),
+        canAccessRemote: Boolean(user.can_remote_access), // SISTEMA MODULAR
+        
+        // Métodos de verificação
+        hasRole: (roleToCheck) => hasRole(user, roleToCheck),
+        hasAnyRole: (rolesToCheck) => hasAnyRole(user, rolesToCheck),
+        hasPermission: (permission) => hasPermission(user, permission)
+      };
+
+      setPermissions({
+        isLoading: false,
+        hasError: false,
+        data: userPermissions
+      });
+
+    } catch (error) {
+      console.error('Erro no usePermissions:', error);
+      setPermissions({
+        isLoading: false,
+        hasError: true,
+        data: getDefaultPermissions()
+      });
+    }
+  }, [user]);
+
   return permissions;
+}
+
+/**
+ * Permissões padrão para casos de erro
+ */
+function getDefaultPermissions() {
+  return {
+    id: null,
+    name: 'Usuário',
+    email: '',
+    role: 'support',
+    admin: false,
+    can_ticket: false,
+    can_phone: false,
+    can_chat: false,
+    can_register_help: false,
+    can_remote_access: false,
+    canAccessManager: false,
+    canAccessDashboard: false,
+    canAccessAnalytics: false,
+    canAccessTools: true,
+    canAccessRemote: false,
+    hasRole: () => false,
+    hasAnyRole: () => false,
+    hasPermission: () => false
+  };
+}
+
+/**
+ * Verifica se o usuário pode acessar o manager
+ */
+function canAccessManager(user) {
+  const allowedRoles = ['analyst', 'tax', 'super'];
+  return allowedRoles.includes(user?.role?.toLowerCase());
+}
+
+/**
+ * Verifica se o usuário pode acessar dashboard
+ */
+function canAccessDashboard(user) {
+  const allowedRoles = ['analyst', 'tax', 'super', 'quality'];
+  return allowedRoles.includes(user?.role?.toLowerCase());
+}
+
+/**
+ * Verifica se o usuário pode acessar ferramentas
+ */
+function canAccessTools(user) {
+  const allowedRoles = ['support', 'analyst', 'super', 'tax', 'quality'];
+  return allowedRoles.includes(user?.role?.toLowerCase());
+}
+
+/**
+ * Verifica se o usuário possui um role específico
+ */
+function hasRole(user, roleToCheck) {
+  if (!user?.role || !roleToCheck) return false;
+  return user.role.toLowerCase() === roleToCheck.toLowerCase();
+}
+
+/**
+ * Verifica se o usuário possui qualquer um dos roles especificados
+ */
+function hasAnyRole(user, rolesToCheck) {
+  if (!user?.role || !Array.isArray(rolesToCheck)) return false;
+  return rolesToCheck.some(role => 
+    user.role.toLowerCase() === role.toLowerCase()
+  );
+}
+
+/**
+ * Verifica se o usuário possui uma permissão específica
+ */
+function hasPermission(user, permission) {
+  if (!user || !permission) return false;
+  
+  // Verificações especiais
+  switch (permission) {
+    case 'admin':
+      return Boolean(user.admin);
+    case 'can_register_help':
+      return Boolean(user.can_register_help);
+    case 'can_remote_access':
+      return Boolean(user.can_remote_access);
+    case 'can_ticket':
+      return Boolean(user.can_ticket);
+    case 'can_phone':
+      return Boolean(user.can_phone);
+    case 'can_chat':
+      return Boolean(user.can_chat);
+    default:
+      return Boolean(user[permission]);
+  }
+}
+
+/**
+ * Utilitário para debug de permissões (apenas desenvolvimento)
+ */
+export function debugPermissions(user, context = '') {
+  if (process.env.NODE_ENV === 'development') {
+    console.group(`🔍 Debug Permissões ${context}`);
+    console.log('Usuário completo:', user);
+    console.log('Role:', user?.role);
+    console.log('Admin:', user?.admin);
+    console.log('Can Remote Access:', user?.can_remote_access);
+    console.log('Can Register Help:', user?.can_register_help);
+    console.groupEnd();
+  }
 }
 
 /**

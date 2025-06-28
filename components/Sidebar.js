@@ -17,7 +17,8 @@ import {
   FaSpinner,
   FaMoon,
   FaSun,
-  FaChartLine
+  FaChartLine,
+  FaHandsHelping
 } from 'react-icons/fa';
 
 export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, toggleTheme }) {
@@ -127,75 +128,122 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       secondary: []
     };
 
-    // Menu baseado no role
-    if (user.role === 'support') {
-      menuItems.primary = [
-        { href: '/profile', icon: FaUser, label: 'Meu Perfil', tooltip: 'Meu Perfil' },
-        { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' }
-      ];
+    // Verificação defensiva dos dados do usuário
+    if (!user || !user.role) {
+      console.warn('Dados do usuário incompletos no Sidebar:', user);
+      return menuItems;
     }
 
-    if (user.role === 'analyst' || user.role === 'tax') {
-      menuItems.primary = [
-        { href: '/profile-analyst', icon: FaUser, label: 'Meu Perfil', tooltip: 'Meu Perfil' },
-        { href: '/registro', icon: FaClipboardList, label: 'Registrar Ajuda', tooltip: 'Registrar Ajuda' },
-        { href: '/dashboard-analyst', icon: FaTachometerAlt, label: 'Dashboard', tooltip: 'Dashboard' },
-        { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' },
-        { href: '/manager', icon: FaCogs, label: 'Gerenciador', tooltip: 'Gerenciador' }
-      ];
-      
-      // Adicionar Analytics após o Gerenciador para usuários admin
-      if (user?.admin === true) {
-        menuItems.primary.push({ 
-          href: '/analytics', 
-          icon: FaChartLine, 
-          label: 'Analytics', 
-          tooltip: 'Analytics & Métricas' 
-        });
+    // DEFINIR MENUS BASE POR ROLE (sem duplicatas)
+    switch (user.role.toLowerCase()) {
+      case 'support':
+        menuItems.primary = [
+          { href: '/profile', icon: FaUser, label: 'Meu Perfil', tooltip: 'Meu Perfil' },
+          { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' }
+        ];
+        break;
+
+      case 'analyst':
+      case 'tax':
+        menuItems.primary = [
+          { href: '/profile-analyst', icon: FaUser, label: 'Meu Perfil', tooltip: 'Meu Perfil' },
+          { href: '/registro', icon: FaClipboardList, label: 'Registrar Ajuda', tooltip: 'Registrar Ajuda' },
+          { href: '/dashboard-analyst', icon: FaTachometerAlt, label: 'Dashboard', tooltip: 'Dashboard' },
+          { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' },
+          { href: '/manager', icon: FaCogs, label: 'Gerenciador', tooltip: 'Gerenciador' }
+        ];
+        break;
+
+      case 'super':
+        menuItems.primary = [
+          { href: '/dashboard-super', icon: FaTachometerAlt, label: 'Dashboard', tooltip: 'Dashboard' },
+          { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' },
+          { href: '/manager', icon: FaCogs, label: 'Gerenciador', tooltip: 'Gerenciador' }
+        ];
+        break;
+
+      case 'quality':
+        menuItems.primary = [
+          { href: '/dashboard-quality', icon: FaTachometerAlt, label: 'Dashboard Qualidade', tooltip: 'Dashboard Qualidade' },
+          { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' }
+        ];
+        break;
+
+      case 'dev':
+        menuItems.primary = [
+          { href: '/admin-notifications', icon: FaBell, label: 'Admin Notificações', tooltip: 'Admin Notificações' }
+        ];
+        break;
+
+      default:
+        // Fallback para roles desconhecidos
+        menuItems.primary = [
+          { href: '/profile', icon: FaUser, label: 'Meu Perfil', tooltip: 'Meu Perfil' },
+          { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' }
+        ];
+        console.warn('Role desconhecido no Sidebar:', user.role);
+        break;
+    }
+
+    // ADICIONAR PERMISSÕES MODULARES (sem duplicatas)
+    const addMenuItemIfNotExists = (menuItem) => {
+      if (!menuItems.primary.some(item => item.href === menuItem.href)) {
+        menuItems.primary.push(menuItem);
       }
+    };
+
+    // Menu de Acesso Remoto (SISTEMA MODULAR)
+    if (user.can_remote_access === true) {
+      addMenuItemIfNotExists({
+        href: '/remote',
+        icon: FaDesktop,
+        label: 'Acesso Remoto',
+        tooltip: 'Acesso Remoto'
+      });
     }
 
-    if (user.role === 'super') {
-      menuItems.primary = [
-        { href: '/dashboard-super', icon: FaTachometerAlt, label: 'Dashboard', tooltip: 'Dashboard' },
-        { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' },
-        { href: '/manager', icon: FaCogs, label: 'Gerenciador', tooltip: 'Gerenciador' },
-        { href: '/remote', icon: FaDesktop, label: 'Acesso Remoto', tooltip: 'Acesso Remoto' }
-      ];
-      
-      // Adicionar Analytics após o Gerenciador para usuários admin
-      if (user?.admin === true) {
-        const managerIndex = menuItems.primary.findIndex(item => item.href === '/manager');
-        if (managerIndex !== -1) {
-          menuItems.primary.splice(managerIndex + 1, 0, { 
-            href: '/analytics', 
-            icon: FaChartLine, 
-            label: 'Analytics', 
-            tooltip: 'Analytics & Métricas' 
-          });
+    // Menu de Registrar Ajudas (FUTURO - quando implementado)
+    if (user.can_register_help === true) {
+      addMenuItemIfNotExists({
+        href: '/register-help',
+        icon: FaHandsHelping,
+        label: 'Registrar Ajudas',
+        tooltip: 'Registrar Ajudas'
+      });
+    }
+
+    // Menu de Analytics (para admins)
+    if (user.admin === true) {
+      // Inserir Analytics após Gerenciador se existir, ou no final
+      const managerIndex = menuItems.primary.findIndex(item => item.href === '/manager');
+      const analyticsMenu = {
+        href: '/analytics',
+        icon: FaChartLine,
+        label: 'Analytics',
+        tooltip: 'Analytics & Métricas'
+      };
+
+      if (managerIndex !== -1) {
+        // Inserir após o Gerenciador
+        if (!menuItems.primary.some(item => item.href === '/analytics')) {
+          menuItems.primary.splice(managerIndex + 1, 0, analyticsMenu);
         }
+      } else {
+        // Adicionar no final se não há Gerenciador
+        addMenuItemIfNotExists(analyticsMenu);
       }
     }
 
-    if (user.role === 'quality') {
-      menuItems.primary = [
-        { href: '/dashboard-quality', icon: FaTachometerAlt, label: 'Dashboard Qualidade', tooltip: 'Dashboard Qualidade' },
-        { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' }
-      ];
+    // DEBUG: Log para desenvolvimento (remover em produção)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Sidebar - Dados do usuário:', {
+        role: user.role,
+        can_remote_access: user.can_remote_access,
+        can_register_help: user.can_register_help,
+        admin: user.admin,
+        menus_gerados: menuItems.primary.length
+      });
     }
-
-    // Adicionar menu remoto baseado na permissão específica (SISTEMA MODULAR)
-    if (user.can_remote_access && !menuItems.primary.some(item => item.href === '/remote')) {
-      menuItems.primary.push({ href: '/remote', icon: FaDesktop, label: 'Acesso Remoto', tooltip: 'Acesso Remoto' });
-    }
-
-    if (user.role === 'dev') {
-      menuItems.primary = [
-        { href: '/admin-notifications', icon: FaBell, label: 'Admin Notificações', tooltip: 'Admin Notificações' }
-      ];
-    }
-
-
 
     return menuItems;
   };
@@ -348,4 +396,4 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       </nav>
     </aside>
   );
-} 
+}
