@@ -531,12 +531,20 @@ export async function getServerSideProps(context) {
     };
   }
 
-  // Buscar dados completos do usuário incluindo permissões modulares
-  const { getUserWithPermissions } = await import('../utils/supabase/supabaseClient');
-  const userData = await getUserWithPermissions(session.id);
+  // Buscar permissões atualizadas do usuário (SISTEMA MODULAR) - igual ao remote.js
+  const { getUserPermissions } = await import('../utils/supabase/supabaseClient');
+  const userPermissions = await getUserPermissions(session.id);
+  if (!userPermissions) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
 
   // Verificar se tem permissão can_register_help
-  if (!userData?.can_register_help) {
+  if (!userPermissions.can_register_help) {
     return {
       redirect: {
         destination: '/',
@@ -549,19 +557,11 @@ export async function getServerSideProps(context) {
     props: {
       user: {
         ...session.user,
-        role: session.role,
+        ...userPermissions, // <-- SPREAD direto das permissões (igual ao remote.js)
         id: session.id,
-        
-        // PERMISSÕES TRADICIONAIS
-        admin: userData?.admin || false,
-        profile: userData?.profile,
-        can_ticket: userData?.can_ticket || false,
-        can_phone: userData?.can_phone || false,
-        can_chat: userData?.can_chat || false,
-        
-        // NOVAS PERMISSÕES MODULARES
-        can_register_help: userData?.can_register_help || false,
-        can_remote_access: userData?.can_remote_access || false,
+        name: session.user.name,
+        email: session.user.email,
+        role: session.role, // Manter para compatibilidade
       },
     },
   };
