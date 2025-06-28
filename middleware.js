@@ -37,7 +37,6 @@ export async function middleware(req) {
     '/dashboard-analyst': { profiles: allowedRoles },
     '/dashboard-super': { profiles: ['super'] },
     '/dashboard-quality': { profiles: ['quality'] },
-    '/registro': { profiles: allowedRoles },
     '/manager': { profiles: allowedRoles },
     '/admin-notifications': { profiles: ['dev'] },
     '/tools': { profiles: ['support', 'analyst', 'super', 'tax', 'quality'] },
@@ -45,11 +44,15 @@ export async function middleware(req) {
     // Rotas baseadas em permissões específicas (NOVO SISTEMA MODULAR)
     '/analytics': { permission: 'admin' },
     '/registro-agentes': { permission: 'can_register_help' },
-    '/remote': { permission: 'can_remote_access' }
+    '/remote': { permission: 'can_remote_access' },
+    
+    // IMPORTANTE: Rotas com prefixos similares devem vir DEPOIS das mais específicas
+    '/registro': { profiles: allowedRoles }
   };
 
-  // Verificar acesso à rota atual
-  const matchedRoute = Object.keys(routesWithPermissions).find(route => 
+  // Verificar acesso à rota atual - ORDENAR POR ESPECIFICIDADE (mais longo primeiro)
+  const sortedRoutes = Object.keys(routesWithPermissions).sort((a, b) => b.length - a.length);
+  const matchedRoute = sortedRoutes.find(route => 
     req.nextUrl.pathname.startsWith(route)
   );
 
