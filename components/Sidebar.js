@@ -44,15 +44,6 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
 
   // Função para lidar com o clique em links de navegação
   const handleNavLinkClick = (e, path) => {
-    // DEBUG: Log do clique
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 SIDEBAR CLICK:', {
-        path: path,
-        alreadyClicked: clickedLinks[path],
-        userCanRegisterHelp: user?.can_register_help
-      });
-    }
-    
     if (clickedLinks[path]) {
       e.preventDefault();
       return;
@@ -243,17 +234,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       }
     }
 
-    // DEBUG: Log para desenvolvimento (remover em produção)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 SIDEBAR DEBUG - Dados do usuário:', {
-        role: user.role,
-        can_remote_access: user.can_remote_access,
-        can_register_help: user.can_register_help,
-        admin: user.admin,
-        menus_gerados: menuItems.primary.length,
-        menu_registro_agentes_visible: user.can_register_help === true
-      });
-    }
+
 
     return menuItems;
   };
