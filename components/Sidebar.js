@@ -202,13 +202,13 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       });
     }
 
-    // Menu de Registrar Ajudas (FUTURO - quando implementado)
+    // Menu de Registrar Ajuda entre Agentes (SISTEMA MODULAR)
     if (user.can_register_help === true) {
       addMenuItemIfNotExists({
-        href: '/register-help',
+        href: '/registro-agentes',
         icon: FaHandsHelping,
-        label: 'Registrar Ajudas',
-        tooltip: 'Registrar Ajudas'
+        label: 'Ajuda Agentes',
+        tooltip: 'Registrar Ajuda entre Agentes'
       });
     }
 
