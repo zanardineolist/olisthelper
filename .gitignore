@@ -53,3 +53,7 @@ supabase_rpc_functions_fixed.sql
 supabase_rpc_functions.sql
 migration_add_share_type.sql
 migration_sistema_modular_REVISADO.sql
+scripts/quick_fix_remote_access.sql
+scripts/README_RESOLVER_ERRO_ACESSO_REMOTO.md
+scripts/REVISAO_COMPLETA_SIDEBAR.md
+scripts/verify_remote_access_setup.sql

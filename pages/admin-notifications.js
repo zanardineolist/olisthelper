@@ -230,6 +230,10 @@ export async function getServerSideProps(context) {
     };
   }
 
+  // Buscar dados completos do usuário incluindo permissões modulares
+  const { getUserWithPermissions } = await import('../utils/supabase/supabaseClient');
+  const userData = await getUserWithPermissions(session.id);
+
   return {
     props: {
       user: {
@@ -237,6 +241,16 @@ export async function getServerSideProps(context) {
         role: session.role,
         id: session.id,
         name: session.user?.name ?? 'Unknown',
+        
+        // PERMISSÕES TRADICIONAIS
+        admin: userData?.admin || false,
+        can_ticket: userData?.can_ticket || false,
+        can_phone: userData?.can_phone || false,
+        can_chat: userData?.can_chat || false,
+        
+        // NOVAS PERMISSÕES MODULARES
+        can_register_help: userData?.can_register_help || false,
+        can_remote_access: userData?.can_remote_access || false,
       },
     },
   };
