@@ -17,6 +17,16 @@ export async function middleware(req) {
     return NextResponse.redirect(new URL('/', req.url));
   }
 
+  // DEBUG: Log detalhado para desenvolvimento
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 MIDDLEWARE DEBUG:', {
+      path: req.nextUrl.pathname,
+      userId: token.id,
+      userName: token.name,
+      permissions: permissions
+    });
+  }
+
   // Mapear papéis e rotas permitidas (SISTEMA MODULAR)
   const analystRoles = ['analyst', 'tax'];
   const allowedRoles = [...analystRoles, 'super', 'dev', 'quality'];
@@ -46,16 +56,28 @@ export async function middleware(req) {
   if (matchedRoute) {
     const routeConfig = routesWithPermissions[matchedRoute];
     
+    // DEBUG: Log da verificação específica
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 ROUTE CHECK:', {
+        route: matchedRoute,
+        config: routeConfig,
+        userHasPermission: routeConfig.permission ? permissions[routeConfig.permission] : 'N/A'
+      });
+    }
+    
     // NOVA LÓGICA: Verificar se é rota baseada em permissão específica
     if (routeConfig.permission) {
       if (!permissions[routeConfig.permission]) {
-        console.log(`Acesso negado para ${req.nextUrl.pathname}: usuário não possui permissão ${routeConfig.permission}`);
+        console.log(`❌ ACESSO NEGADO para ${req.nextUrl.pathname}: usuário não possui permissão ${routeConfig.permission}`);
+        console.log(`   Valor da permissão: ${permissions[routeConfig.permission]}`);
         return NextResponse.redirect(new URL('/', req.url));
+      } else {
+        console.log(`✅ ACESSO PERMITIDO para ${req.nextUrl.pathname}: permissão ${routeConfig.permission} = ${permissions[routeConfig.permission]}`);
       }
     } 
     // SISTEMA LEGADO: Verificar roles tradicionais
     else if (routeConfig.profiles && !routeConfig.profiles.includes(permissions.profile)) {
-      console.log(`Acesso negado para ${req.nextUrl.pathname}: perfil ${permissions.profile} não autorizado`);
+      console.log(`❌ ACESSO NEGADO para ${req.nextUrl.pathname}: perfil ${permissions.profile} não autorizado`);
       return NextResponse.redirect(new URL('/', req.url));
     }
   }
@@ -96,5 +118,6 @@ export const config = {
     '/remote',
     '/tools',
     '/analytics',
+    '/debug-permissions', // Adicionar rota de debug
   ],
 };
