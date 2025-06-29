@@ -35,7 +35,7 @@ export async function middleware(req) {
     
     // Rotas baseadas em permissões específicas (NOVO SISTEMA MODULAR)
     '/analytics': { permission: 'admin' },
-    '/registro-agentes': { permission: 'can_register_help' },
+    '/registrar-ajuda': { permission: 'can_register_help' },
     '/remote': { permission: 'can_remote_access' },
     
     // IMPORTANTE: Rotas com prefixos similares devem vir DEPOIS das mais específicas
@@ -87,7 +87,7 @@ export const config = {
   matcher: [
     '/registrar',
     '/registro',
-    '/registro-agentes', // NOVA ROTA
+    '/registrar-ajuda', // NOVA ROTA
     '/profile',
     '/dashboard-analyst',
     '/dashboard-super',

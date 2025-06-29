@@ -12,7 +12,7 @@ import commonStyles from '../styles/commonStyles.module.css';
 import styles from '../styles/Registrar.module.css';
 import managerStyles from '../styles/Manager.module.css';
 
-export default function RegistroAgentesPage({ user }) {
+export default function RegistrarAjudaPage({ user }) {
   const router = useRouter();
   const { loading: routerLoading } = useLoading();
   const [agents, setAgents] = useState([]);
@@ -45,11 +45,8 @@ export default function RegistroAgentesPage({ user }) {
         const usersData = await usersRes.json();
         const categoriesData = await categoriesRes.json();
         
-        // Filtrar para incluir TODOS os usuários ativos (incluindo support) e excluir o próprio usuário
-        const filteredAgents = (usersData.users || []).filter(agent => 
-          agent.id !== user.id && agent.active === true
-        );
-        setAgents(filteredAgents);
+        // Seguindo a mesma linha do registro.js - sem filtros
+        setAgents(usersData.users);
         setCategories(categoriesData.categories);
         setFormLoading(false);
 
@@ -72,7 +69,7 @@ export default function RegistroAgentesPage({ user }) {
     }
   }, [user.id]);
 
-  // Função para buscar estatísticas de ajuda entre agentes
+  // Função para buscar estatísticas das ajudas prestadas
   const fetchHelpStats = async () => {
     try {
       const statsResponse = await fetch(`/api/get-agent-help-stats?helperAgentId=${user.id}`);
@@ -89,7 +86,7 @@ export default function RegistroAgentesPage({ user }) {
     }
   };
   
-  // Função para buscar os registros recentes de ajuda entre agentes
+  // Função para buscar os registros recentes de ajuda prestadas
   const fetchRecentHelps = async () => {
     try {
       const recentResponse = await fetch(`/api/get-recent-agent-helps?helperAgentId=${user.id}`);
@@ -199,7 +196,7 @@ export default function RegistroAgentesPage({ user }) {
     }
   };
 
-  // Submeter o formulário de registro de ajuda entre agentes
+  // Submeter o formulário de registro de ajuda
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -225,7 +222,7 @@ export default function RegistroAgentesPage({ user }) {
         Swal.fire({
           icon: 'success',
           title: 'Ajuda registrada com sucesso!',
-          text: `Registrado ajuda para: ${responseData.data?.helpedAgent}`,
+          text: `Registrado ajuda prestada para: ${responseData.data?.helpedAgent}`,
           showConfirmButton: false,
           timer: 2000,
         });
@@ -340,14 +337,14 @@ const customSelectStyles = {
   return (
     <Layout user={user}>
       <Head>
-        <title>Registrar Ajuda - Agentes</title>
+        <title>Registrar Ajuda | OlistHelper</title>
       </Head>
 
       <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
         <div className={styles.formContainerWithSpacing}>
-          <h2 className={styles.formTitle}>Registrar Ajuda entre Agentes</h2>
+          <h2 className={styles.formTitle}>Registrar Ajuda</h2>
           <p className={styles.formSubtitle}>
-            Use esta página para registrar ajuda que você prestou para outros agentes internos
+            Registre aqui as ajudas que você prestou para outros colaboradores da equipe
           </p>
           
           {formLoading ? (
@@ -355,7 +352,7 @@ const customSelectStyles = {
           ) : (
             <form onSubmit={handleSubmit}>
               <div className={styles.formGroup}>
-                <label htmlFor="agent">Selecione o agente ajudado</label>
+                <label htmlFor="agent">Colaborador que recebeu a ajuda</label>
                 <Select
                   id="agent"
                   name="agent"
@@ -367,7 +364,7 @@ const customSelectStyles = {
                   value={formData.agent}
                   onChange={handleChange}
                   isClearable
-                  placeholder="Selecione um agente"
+                  placeholder="Selecione um colaborador"
                   styles={customSelectStyles}
                   classNamePrefix="react-select"
                   noOptionsMessage={() => "Sem resultados"}
@@ -377,7 +374,7 @@ const customSelectStyles = {
 
               <div className={styles.formGroup}>
                 <div className={styles.categoryHeader}>
-                  <label htmlFor="category">Tema da ajuda</label>
+                  <label htmlFor="category">Categoria da ajuda</label>
                   <button 
                     type="button"
                     className={styles.newCategoryButton}
@@ -396,7 +393,7 @@ const customSelectStyles = {
                   value={formData.category}
                   onChange={handleChange}
                   isClearable
-                  placeholder="Selecione um tema"
+                  placeholder="Selecione uma categoria"
                   styles={customSelectStyles}
                   classNamePrefix="react-select"
                   noOptionsMessage={() => "Sem resultados"}
@@ -411,7 +408,7 @@ const customSelectStyles = {
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
-                  placeholder="Descreva brevemente a ajuda que você prestou ao agente."
+                  placeholder="Descreva brevemente a ajuda que você prestou ao colaborador."
                   required
                   rows="4"
                   className={`${styles.formTextarea} ${styles.formFieldHover}`}
@@ -434,7 +431,7 @@ const customSelectStyles = {
             <div className={styles.cardHeader}>
               <h3 className={styles.cardTitle}>
                 <i className="fa-solid fa-handshake-angle"></i>
-                Ajudas Prestadas a Agentes
+                Minhas Ajudas Prestadas
               </h3>
             </div>
             
@@ -501,7 +498,7 @@ const customSelectStyles = {
           {/* Lista de registros recentes */}
           <div className={styles.recentHelpsContainer}>
             <div className={styles.recentHelpsHeader}>
-              <h3>Últimos registros - Agentes</h3>
+              <h3>Últimos registros de ajuda</h3>
               <button 
                 className={styles.viewAllButton}
                 onClick={navigateToAllRecords}
@@ -536,7 +533,7 @@ const customSelectStyles = {
               ) : (
                 <div className={styles.noRecentHelps}>
                   <i className="fa-solid fa-clipboard-list"></i>
-                  <p>Nenhum registro recente encontrado</p>
+                  <p>Nenhuma ajuda registrada ainda</p>
                 </div>
               )}
             </div>
@@ -553,12 +550,12 @@ const customSelectStyles = {
         overlayClassName={managerStyles.overlay}
         ariaHideApp={false}
       >
-        <h2 className={managerStyles.modalTitle}>Adicionar Nova Categoria</h2>
+        <h2 className={managerStyles.modalTitle}>Nova Categoria de Ajuda</h2>
         <div className={managerStyles.formContainer}>
           <input
             type="text"
             value={newCategory}
-            placeholder="Nome da Categoria"
+            placeholder="Nome da nova categoria"
             className={managerStyles.inputField}
             onChange={handleNewCategoryChange}
             required
@@ -569,7 +566,7 @@ const customSelectStyles = {
             disabled={savingCategory} 
             className={managerStyles.saveButton}
           >
-            {savingCategory ? 'Salvando...' : 'Adicionar Categoria'}
+            {savingCategory ? 'Salvando...' : 'Criar Categoria'}
           </button>
           <button onClick={closeCategoryModal} className={managerStyles.cancelButton}>
             Cancelar

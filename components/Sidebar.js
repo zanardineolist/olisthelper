@@ -205,9 +205,9 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
     // Menu de Registrar Ajuda entre Agentes (SISTEMA MODULAR)
     if (user.can_register_help === true) {
       addMenuItemIfNotExists({
-        href: '/registro-agentes',
+        href: '/registrar-ajuda',
         icon: FaHandsHelping,
-        label: 'Ajuda Agentes',
+        label: 'Registrar Ajuda',
         tooltip: 'Registrar Ajuda entre Agentes'
       });
     }
