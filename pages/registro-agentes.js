@@ -20,7 +20,7 @@ export default function RegistroAgentesPage({ user }) {
   const [formLoading, setFormLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [helpStats, setHelpStats] = useState({ today: 0 });
+  const [helpStats, setHelpStats] = useState({ today: 0, currentMonth: 0, lastMonth: 0 });
   const [recentHelps, setRecentHelps] = useState([]);
   const [formData, setFormData] = useState({
     agent: null,
@@ -76,11 +76,13 @@ export default function RegistroAgentesPage({ user }) {
   // Função para buscar estatísticas de ajuda entre agentes
   const fetchHelpStats = async () => {
     try {
-      const statsResponse = await fetch(`/api/get-agent-help-stats?helperAgentId=${user.id}&filter=1`);
+      const statsResponse = await fetch(`/api/get-agent-help-stats?helperAgentId=${user.id}`);
       if (statsResponse.ok) {
         const statsData = await statsResponse.json();
         setHelpStats({
-          today: statsData.today || 0
+          today: statsData.today || 0,
+          currentMonth: statsData.currentMonth || 0,
+          lastMonth: statsData.lastMonth || 0
         });
       }
     } catch (err) {
@@ -428,15 +430,72 @@ const customSelectStyles = {
         
         {/* Seção de estatísticas e registros recentes */}
         <div className={styles.statsContainer}>
-          {/* Contador de ajudas prestadas no dia */}
-          <div className={styles.helpCounter}>
-            <div className={styles.counterHeader}>
-              <h3>Ajudas a agentes hoje</h3>
+          {/* Painel expandido de ajudas prestadas */}
+          <div className={styles.helpExpandedCard}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>
+                <i className="fa-solid fa-handshake-angle"></i>
+                Ajudas Prestadas a Agentes
+              </h3>
             </div>
+            
             {statsLoading ? (
               <ThreeDotsLoader message="Carregando estatísticas..." />
             ) : (
-              <div className={styles.counterValue}>{helpStats.today || 0}</div>
+              <>
+                <div className={styles.helpStatsExpanded}>
+                  <div className={styles.helpStatMain}>
+                    <div className={styles.helpStatIcon}>
+                      <i className="fa-solid fa-calendar-day"></i>
+                    </div>
+                    <div className={styles.helpStatContent}>
+                      <span className={styles.helpStatValue}>{helpStats.today}</span>
+                      <span className={styles.helpStatLabel}>Hoje</span>
+                    </div>
+                  </div>
+                  
+                  <div className={styles.helpStatMain}>
+                    <div className={styles.helpStatIcon}>
+                      <i className="fa-solid fa-calendar"></i>
+                    </div>
+                    <div className={styles.helpStatContent}>
+                      <span className={styles.helpStatValue}>{helpStats.currentMonth}</span>
+                      <span className={styles.helpStatLabel}>Mês Atual</span>
+                    </div>
+                  </div>
+                  
+                  <div className={styles.helpStatMain}>
+                    <div className={styles.helpStatIcon}>
+                      <i className="fa-solid fa-calendar-xmark"></i>
+                    </div>
+                    <div className={styles.helpStatContent}>
+                      <span className={styles.helpStatValue}>{helpStats.lastMonth}</span>
+                      <span className={styles.helpStatLabel}>Mês Anterior</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.trendIndicator}>
+                  <div className={`${styles.trendValue} ${(() => {
+                    const percentageChange = helpStats.lastMonth > 0 ? 
+                      ((helpStats.currentMonth - helpStats.lastMonth) / helpStats.lastMonth) * 100 : 0;
+                    return percentageChange > 0 ? styles.positive : percentageChange < 0 ? styles.negative : styles.neutral;
+                  })()}`}>
+                    <i className={`fa-solid ${(() => {
+                      const percentageChange = helpStats.lastMonth > 0 ? 
+                        ((helpStats.currentMonth - helpStats.lastMonth) / helpStats.lastMonth) * 100 : 0;
+                      return percentageChange > 0 ? 'fa-trending-up' : percentageChange < 0 ? 'fa-trending-down' : 'fa-minus';
+                    })()}`}></i>
+                    <span>
+                      {helpStats.lastMonth > 0 ? 
+                        Math.abs(((helpStats.currentMonth - helpStats.lastMonth) / helpStats.lastMonth) * 100).toFixed(1) : 
+                        '0.0'
+                      }%
+                    </span>
+                  </div>
+                  <span className={styles.trendLabel}>Variação Mensal</span>
+                </div>
+              </>
             )}
           </div>
           

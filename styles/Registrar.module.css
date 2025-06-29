@@ -435,3 +435,169 @@
     margin-bottom: 0.5rem;
   }
 }
+
+/* =================================
+   PAINEL EXPANDIDO DE AJUDAS
+   ================================= */
+
+.helpExpandedCard {
+  background-color: var(--box-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.helpExpandedCard:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.cardHeader {
+  margin-bottom: 1.5rem;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cardTitle i {
+  color: var(--color-primary);
+  font-size: 1.1rem;
+}
+
+.helpStatsExpanded {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.helpStatMain {
+  flex: 1;
+  background-color: var(--labels-bg);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+}
+
+.helpStatMain:hover {
+  background-color: var(--color-trodd);
+  transform: translateY(-1px);
+}
+
+.helpStatIcon {
+  margin-bottom: 0.5rem;
+}
+
+.helpStatIcon i {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+}
+
+.helpStatContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.helpStatValue {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-color);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.helpStatLabel {
+  font-size: 0.85rem;
+  color: var(--text-color2);
+  font-weight: 500;
+}
+
+.trendIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: var(--labels-bg);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.trendValue {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.trendValue i {
+  font-size: 1.1rem;
+}
+
+.trendValue.positive {
+  color: #22c55e;
+}
+
+.trendValue.negative {
+  color: #ef4444;
+}
+
+.trendValue.neutral {
+  color: var(--text-color2);
+}
+
+.trendLabel {
+  font-size: 0.85rem;
+  color: var(--text-color2);
+  font-weight: 500;
+}
+
+/* Responsividade adicional para o painel expandido */
+@media (max-width: 768px) {
+  .helpStatsExpanded {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .helpStatMain {
+    padding: 0.75rem;
+  }
+  
+  .helpStatValue {
+    font-size: 1.5rem;
+  }
+  
+  .trendIndicator {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .helpExpandedCard {
+    padding: 1rem;
+  }
+  
+  .cardTitle {
+    font-size: 1.1rem;
+  }
+  
+  .helpStatValue {
+    font-size: 1.4rem;
+  }
+  
+  .helpStatIcon i {
+    font-size: 1.3rem;
+  }
+}
