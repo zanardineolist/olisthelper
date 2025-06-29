@@ -32,21 +32,24 @@ export default function RegistroAgentesPage({ user }) {
   const [newCategory, setNewCategory] = useState('');
   const [savingCategory, setSavingCategory] = useState(false);
 
-  // Carregar agentes e categorias
+  // Carregar usuários e categorias
   useEffect(() => {
-    const loadAgentsAndCategories = async () => {
+    const loadUsersAndCategories = async () => {
       try {
         setFormLoading(true);
-        const [agentsRes, categoriesRes] = await Promise.all([
-          fetch('/api/get-agents'),
+        const [usersRes, categoriesRes] = await Promise.all([
+          fetch('/api/get-users'),
           fetch('/api/get-analysts-categories')
         ]);
         
-        const agentsData = await agentsRes.json();
+        const usersData = await usersRes.json();
         const categoriesData = await categoriesRes.json();
         
-        // Filtrar agentes para excluir o próprio usuário
-        const filteredAgents = (agentsData.agents || []).filter(agent => agent.id !== user.id);
+        // Filtrar usuários para agentes (igual ao registro.js) e excluir o próprio usuário
+        const validAgentRoles = ['analyst', 'tax', 'super', 'quality', 'dev'];
+        const filteredAgents = (usersData.users || []).filter(agent => 
+          agent.id !== user.id && validAgentRoles.includes(agent.role)
+        );
         setAgents(filteredAgents);
         setCategories(categoriesData.categories);
         setFormLoading(false);
@@ -66,7 +69,7 @@ export default function RegistroAgentesPage({ user }) {
     };
 
     if (user?.id) {
-      loadAgentsAndCategories();
+      loadUsersAndCategories();
     }
   }, [user.id]);
 
@@ -357,9 +360,8 @@ const customSelectStyles = {
                   name="agent"
                   options={agents.map((agent) => ({
                     value: agent.id,
-                    label: `${agent.name} (${agent.profile})`,
+                    label: agent.name,
                     email: agent.email,
-                    profile: agent.profile,
                   }))}
                   value={formData.agent}
                   onChange={handleChange}
