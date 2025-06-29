@@ -45,10 +45,9 @@ export default function RegistroAgentesPage({ user }) {
         const usersData = await usersRes.json();
         const categoriesData = await categoriesRes.json();
         
-        // Filtrar usuários para agentes (igual ao registro.js) e excluir o próprio usuário
-        const validAgentRoles = ['analyst', 'tax', 'super', 'quality', 'dev'];
+        // Filtrar para incluir TODOS os usuários ativos (incluindo support) e excluir o próprio usuário
         const filteredAgents = (usersData.users || []).filter(agent => 
-          agent.id !== user.id && validAgentRoles.includes(agent.role)
+          agent.id !== user.id && agent.active === true
         );
         setAgents(filteredAgents);
         setCategories(categoriesData.categories);
