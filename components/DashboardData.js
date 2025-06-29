@@ -406,8 +406,8 @@ export default function DashboardData({ user }) {
   const fetchUserCategoryRanking = async (userEmail, startDate, endDate) => {
     try {
       setCategoryLoading(true);
-      // API atualizada que aceita parâmetros de data
-      const response = await fetch(`/api/get-user-category-ranking?userEmail=${userEmail}&startDate=${startDate}&endDate=${endDate}`);
+      // API atualizada que aceita parâmetros de data e inclui ajudas entre agentes
+      const response = await fetch(`/api/get-user-category-ranking?userEmail=${userEmail}&startDate=${startDate}&endDate=${endDate}&includeAgentHelps=true`);
       
       if (!response.ok) {
         throw new Error('Erro ao buscar ranking de categorias.');

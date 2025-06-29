@@ -263,6 +263,7 @@ export async function getCategoryRanking(analystId, startDate = null, endDate = 
 
 /**
  * Busca a contagem de ajudas solicitadas por um usuário nos últimos dois meses
+ * VERSÃO ORIGINAL: Apenas help_records
  */
 export async function getUserHelpRequests(userEmail) {
   try {
@@ -297,6 +298,96 @@ export async function getUserHelpRequests(userEmail) {
     };
   } catch (error) {
     console.error('Erro ao buscar ajudas solicitadas:', error);
+    throw error;
+  }
+}
+
+/**
+ * Busca a contagem de ajudas solicitadas por um usuário nos últimos dois meses
+ * VERSÃO NOVA: Inclui ajudas recebidas de outros agentes
+ */
+export async function getUserHelpRequestsComplete(userEmail) {
+  try {
+    // Buscar o ID do usuário primeiro
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('email', userEmail)
+      .single();
+
+    if (userError || !userData) {
+      console.warn('Usuário não encontrado:', userEmail);
+      // Se não encontrar o usuário, usar apenas help_records
+      return await getUserHelpRequests(userEmail);
+    }
+
+    const userId = userData.id;
+
+    // Usar funções utilitárias para obter as datas
+    const startOfCurrentMonth = getStartOfCurrentMonth();
+    const startOfLastMonth = getStartOfLastMonth();
+    const startOfNextMonth = getStartOfNextMonth();
+
+    // 1. Buscar ajudas SOLICITADAS (help_records) - mês atual
+    const { data: currentMonthHelpRecords, error: currentHelpError } = await supabaseAdmin
+      .from('help_records')
+      .select('id', { count: 'exact' })
+      .eq('requester_email', userEmail)
+      .gte('created_at', startOfCurrentMonth.toISOString())
+      .lt('created_at', startOfNextMonth.toISOString());
+
+    if (currentHelpError) throw currentHelpError;
+
+    // 2. Buscar ajudas RECEBIDAS de agentes (agent_help_records) - mês atual
+    const { data: currentMonthAgentHelps, error: currentAgentError } = await supabaseAdmin
+      .from('agent_help_records')
+      .select('id', { count: 'exact' })
+      .eq('helped_agent_id', userId) // Usar ID do usuário
+      .gte('created_at', startOfCurrentMonth.toISOString())
+      .lt('created_at', startOfNextMonth.toISOString());
+
+    if (currentAgentError) throw currentAgentError;
+
+    // 3. Buscar ajudas SOLICITADAS (help_records) - mês anterior
+    const { data: lastMonthHelpRecords, error: lastHelpError } = await supabaseAdmin
+      .from('help_records')
+      .select('id', { count: 'exact' })
+      .eq('requester_email', userEmail)
+      .gte('created_at', startOfLastMonth.toISOString())
+      .lt('created_at', startOfCurrentMonth.toISOString());
+
+    if (lastHelpError) throw lastHelpError;
+
+    // 4. Buscar ajudas RECEBIDAS de agentes (agent_help_records) - mês anterior
+    const { data: lastMonthAgentHelps, error: lastAgentError } = await supabaseAdmin
+      .from('agent_help_records')
+      .select('id', { count: 'exact' })
+      .eq('helped_agent_id', userId) // Usar ID do usuário
+      .gte('created_at', startOfLastMonth.toISOString())
+      .lt('created_at', startOfCurrentMonth.toISOString());
+
+    if (lastAgentError) throw lastAgentError;
+
+    // 5. Somar os totais
+    const currentMonthTotal = (currentMonthHelpRecords?.length || 0) + (currentMonthAgentHelps?.length || 0);
+    const lastMonthTotal = (lastMonthHelpRecords?.length || 0) + (lastMonthAgentHelps?.length || 0);
+
+    return {
+      currentMonth: currentMonthTotal,
+      lastMonth: lastMonthTotal,
+      breakdown: {
+        currentMonth: {
+          helpRequests: currentMonthHelpRecords?.length || 0,
+          agentHelps: currentMonthAgentHelps?.length || 0
+        },
+        lastMonth: {
+          helpRequests: lastMonthHelpRecords?.length || 0,
+          agentHelps: lastMonthAgentHelps?.length || 0
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Erro ao buscar ajudas completas:', error);
     throw error;
   }
 }
@@ -351,6 +442,98 @@ export async function getUserCategoryRanking(userEmail, startDate = null, endDat
     return { categories: sortedCategories };
   } catch (error) {
     console.error('Erro ao buscar ranking de categorias:', error);
+    throw error;
+  }
+}
+
+/**
+ * Busca o ranking de categorias completo incluindo ajudas recebidas de outros agentes
+ * @param {string} userEmail - Email do usuário
+ * @param {string} startDate - Data inicial para filtro (opcional)
+ * @param {string} endDate - Data final para filtro (opcional)
+ */
+export async function getUserCategoryRankingComplete(userEmail, startDate = null, endDate = null) {
+  try {
+    // Buscar o ID do usuário primeiro
+    const { data: userData, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('email', userEmail)
+      .single();
+
+    if (userError || !userData) {
+      console.warn('Usuário não encontrado:', userEmail);
+      // Se não encontrar o usuário, usar apenas help_records
+      return await getUserCategoryRanking(userEmail, startDate, endDate);
+    }
+
+    const userId = userData.id;
+
+    // 1. Query para ajudas SOLICITADAS (help_records)
+    let helpRecordsQuery = supabaseAdmin
+      .from('help_records')
+      .select(`
+        categories:category_id (
+          id,
+          name
+        )
+      `)
+      .eq('requester_email', userEmail);
+
+    // 2. Query para ajudas RECEBIDAS de agentes (agent_help_records)
+    let agentHelpsQuery = supabaseAdmin
+      .from('agent_help_records')
+      .select(`
+        categories:category_id (
+          id,
+          name
+        )
+      `)
+      .eq('helped_agent_id', userId);
+
+    // Aplicar filtros de data em ambas as queries
+    helpRecordsQuery = applyDateFilters(helpRecordsQuery, 'created_at', startDate, endDate, 30);
+    agentHelpsQuery = applyDateFilters(agentHelpsQuery, 'created_at', startDate, endDate, 30);
+    
+    // Se não temos datas específicas, usar o mês atual
+    if (!startDate && !endDate) {
+      const startOfCurrentMonth = getStartOfCurrentMonth().toISOString();
+      helpRecordsQuery = helpRecordsQuery.gte('created_at', startOfCurrentMonth);
+      agentHelpsQuery = agentHelpsQuery.gte('created_at', startOfCurrentMonth);
+    }
+
+    // Executar ambas as queries
+    const [helpRecordsResult, agentHelpsResult] = await Promise.all([
+      helpRecordsQuery.order('created_at', { ascending: false }),
+      agentHelpsQuery.order('created_at', { ascending: false })
+    ]);
+
+    if (helpRecordsResult.error) throw helpRecordsResult.error;
+    if (agentHelpsResult.error) throw agentHelpsResult.error;
+
+    // Combinar os dados e agrupar por categoria
+    const allRecords = [
+      ...(helpRecordsResult.data || []),
+      ...(agentHelpsResult.data || [])
+    ];
+
+    const categoryCounts = allRecords.reduce((acc, record) => {
+      const categoryName = record.categories?.name;
+      if (categoryName) {
+        acc[categoryName] = (acc[categoryName] || 0) + 1;
+      }
+      return acc;
+    }, {});
+
+    // Converter para array, ordenar e pegar top 10
+    const sortedCategories = Object.entries(categoryCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+
+    return { categories: sortedCategories };
+  } catch (error) {
+    console.error('Erro ao buscar ranking completo de categorias:', error);
     throw error;
   }
 }

@@ -361,11 +361,11 @@ export default function MyPage({ user }) {
       if (!user?.email) return;
 
       try {
-        // Carregar dados de ajuda
+        // Carregar dados de ajuda (incluindo ajudas entre agentes)
         setRankingLoading(true);
         const [helpResponse, categoryResponse] = await Promise.all([
-          fetch(`/api/get-user-help-requests?userEmail=${user.email}`),
-          fetch(`/api/get-user-category-ranking?userEmail=${user.email}`)
+          fetch(`/api/get-user-help-requests?userEmail=${user.email}&includeAgentHelps=true`),
+          fetch(`/api/get-user-category-ranking?userEmail=${user.email}&includeAgentHelps=true`)
         ]);
 
         const helpData = await helpResponse.json();
