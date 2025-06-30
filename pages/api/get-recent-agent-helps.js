@@ -19,7 +19,7 @@ export default async function handler(req, res) {
         id,
         description,
         created_at,
-        helped_agent:users!agent_help_records_helped_agent_id_fkey(name, email, profile),
+        helped_agent:users!agent_help_records_helped_agent_id_fkey(name, email),
         category:categories(name)
       `)
       .eq('helper_agent_id', helperAgentId)
@@ -40,9 +40,8 @@ export default async function handler(req, res) {
       
       return {
         id: help.id,
-        helpedAgentName: help.helped_agent?.name || 'Agente não encontrado',
+        helpedAgentName: help.helped_agent?.name || 'Colaborador não encontrado',
         helpedAgentEmail: help.helped_agent?.email || '',
-        helpedAgentProfile: help.helped_agent?.profile || '',
         category: help.category?.name || 'Categoria não encontrada',
         description: help.description,
         formattedDate: saoPauloTime.toLocaleDateString('pt-BR'),

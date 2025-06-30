@@ -522,7 +522,7 @@ const customSelectStyles = {
                       </div>
                     </div>
                     <div className={styles.recentHelpUser}>
-                      <i className="fa-solid fa-user-tie"></i> {help.helpedAgentName} ({help.helpedAgentProfile})
+                      <i className="fa-solid fa-user-tie"></i> {help.helpedAgentName}
                     </div>
                     <div className={styles.recentHelpDescription}>
                       <div className={styles.descriptionLabel}>Ajuda prestada:</div>

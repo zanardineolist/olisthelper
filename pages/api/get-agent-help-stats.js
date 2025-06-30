@@ -107,17 +107,6 @@ export default async function handler(req, res) {
       stats.currentMonth = currentMonthData?.length || 0;
       stats.lastMonth = lastMonthData?.length || 0;
       stats.today = todayData?.length || 0;
-      
-      // Debug: adicionar logs para verificar as datas
-      console.log('Debug stats for user:', helperAgentId, {
-        currentMonthStart,
-        nextMonthStart,
-        lastMonthStart,
-        currentMonthStartForLastMonth,
-        todayStart: todayStart.toISOString(),
-        todayEnd: todayEnd.toISOString(),
-        counts: stats
-      });
     }
 
     return res.status(200).json(stats);
