@@ -9,6 +9,9 @@ export default async function handler(req, res) {
   const { categoryId, search, type } = req.query;
 
   try {
+    // Validar credenciais antes de fazer qualquer requisição
+    ml.validateCredentials();
+    
     let result;
 
     switch (type) {

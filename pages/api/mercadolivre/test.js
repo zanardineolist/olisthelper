@@ -8,6 +8,9 @@ export default async function handler(req, res) {
   const ml = new MercadoLivreAPI();
 
   try {
+    // Validar credenciais primeiro
+    ml.validateCredentials();
+    
     // Teste básico - buscar uma categoria conhecida (Eletrônicos)
     const testCategory = await ml.getCategoryById('MLB1000');
     

@@ -20,6 +20,7 @@ const ValidadorML = () => {
   const [categoryDetails, setCategoryDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [credentialsError, setCredentialsError] = useState(false);
   const [searchType, setSearchType] = useState('text'); // 'text' ou 'id'
 
   // Função para buscar categorias
@@ -56,7 +57,15 @@ const ValidadorML = () => {
         }
       }
     } catch (err) {
-      setError(err.message);
+      console.error('Erro na busca:', err);
+      
+      // Verificar se é erro de credenciais
+      if (err.message.includes('APP_ID') || err.message.includes('SECRET_KEY') || err.message.includes('obrigatórios')) {
+        setCredentialsError(true);
+        setError('Credenciais do Mercado Livre não configuradas. Configure as variáveis de ambiente APP_ID e SECRET_KEY.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -78,7 +87,15 @@ const ValidadorML = () => {
         throw new Error(data.error || 'Erro ao carregar detalhes');
       }
     } catch (err) {
-      setError(err.message);
+      console.error('Erro ao obter detalhes:', err);
+      
+      // Verificar se é erro de credenciais
+      if (err.message.includes('APP_ID') || err.message.includes('SECRET_KEY') || err.message.includes('obrigatórios')) {
+        setCredentialsError(true);
+        setError('Credenciais do Mercado Livre não configuradas. Configure as variáveis de ambiente APP_ID e SECRET_KEY.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -212,8 +229,42 @@ const ValidadorML = () => {
         </div>
       </div>
 
+      {/* Alerta de Credenciais */}
+      {credentialsError && (
+        <div className={styles.credentialsAlert}>
+          <div className={styles.alertHeader}>
+            <FaExclamationTriangle className={styles.alertIcon} />
+            <h3>Credenciais do Mercado Livre Não Configuradas</h3>
+          </div>
+          <div className={styles.alertContent}>
+            <p>Para usar o ValidadorML, você precisa configurar suas credenciais do Mercado Livre:</p>
+            <ol className={styles.steps}>
+              <li>Acesse <a href="https://developers.mercadolivre.com.br/" target="_blank" rel="noopener noreferrer">developers.mercadolivre.com.br</a></li>
+              <li>Crie uma nova aplicação</li>
+              <li>Copie o <strong>APP_ID</strong> e <strong>SECRET_KEY</strong></li>
+              <li>Configure as variáveis de ambiente no Vercel:
+                <ul>
+                  <li><code>MERCADO_LIVRE_APP_ID</code></li>
+                  <li><code>MERCADO_LIVRE_SECRET_KEY</code></li>
+                </ul>
+              </li>
+              <li>Faça um novo deploy da aplicação</li>
+            </ol>
+            <button 
+              className={styles.retryButton}
+              onClick={() => {
+                setCredentialsError(false);
+                setError('');
+              }}
+            >
+              Tentar Novamente
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Mensagem de Erro */}
-      {error && (
+      {error && !credentialsError && (
         <div className={styles.errorMessage}>
           <FaExclamationTriangle />
           {error}
