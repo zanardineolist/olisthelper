@@ -32,6 +32,13 @@ export default function RegistrarAjudaPage({ user }) {
   const [newCategory, setNewCategory] = useState('');
   const [savingCategory, setSavingCategory] = useState(false);
 
+  // Estados para o modal de todos os registros do dia
+  const [allRecordsModalOpen, setAllRecordsModalOpen] = useState(false);
+  const [todayRecords, setTodayRecords] = useState([]);
+  const [loadingTodayRecords, setLoadingTodayRecords] = useState(false);
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [editForm, setEditForm] = useState({ category: null, description: '' });
+
   // Carregar usuários e categorias
   useEffect(() => {
     const loadUsersAndCategories = async () => {
@@ -253,6 +260,159 @@ export default function RegistrarAjudaPage({ user }) {
       });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // Função para buscar todos os registros do dia
+  const fetchTodayRecords = async () => {
+    try {
+      setLoadingTodayRecords(true);
+      const response = await fetch(`/api/get-agent-help-today?helperAgentId=${user.id}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setTodayRecords(data.todayHelps || []);
+      } else {
+        console.error('Erro ao buscar registros do dia');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar registros do dia:', error);
+    } finally {
+      setLoadingTodayRecords(false);
+    }
+  };
+
+  // Abrir modal com todos os registros do dia
+  const openAllRecordsModal = async () => {
+    setAllRecordsModalOpen(true);
+    await fetchTodayRecords();
+  };
+
+  // Fechar modal de todos os registros
+  const closeAllRecordsModal = () => {
+    setAllRecordsModalOpen(false);
+    setEditingRecord(null);
+    setEditForm({ category: null, description: '' });
+  };
+
+  // Iniciar edição de um registro
+  const startEditRecord = (record) => {
+    setEditingRecord(record.id);
+    setEditForm({
+      category: { value: record.category, label: record.category },
+      description: record.description
+    });
+  };
+
+  // Cancelar edição
+  const cancelEdit = () => {
+    setEditingRecord(null);
+    setEditForm({ category: null, description: '' });
+  };
+
+  // Salvar edição
+  const saveEditRecord = async (recordId) => {
+    try {
+      const response = await fetch('/api/update-agent-help', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recordId,
+          category: editForm.category ? editForm.category.value : '',
+          description: editForm.description,
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Registro atualizado!',
+          text: 'O registro foi atualizado com sucesso.',
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        
+        // Atualizar a lista
+        await fetchTodayRecords();
+        await Promise.all([fetchHelpStats(), fetchRecentHelps()]);
+        cancelEdit();
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao atualizar',
+          text: responseData.error || 'Por favor, tente novamente.',
+          showConfirmButton: true,
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar registro:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao atualizar',
+        text: 'Por favor, tente novamente.',
+        showConfirmButton: true,
+      });
+    }
+  };
+
+  // Excluir registro
+  const deleteRecord = async (recordId, helpedAgentName) => {
+    const result = await Swal.fire({
+      title: 'Confirmar exclusão',
+      text: `Tem certeza que deseja excluir a ajuda prestada para ${helpedAgentName}?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sim, excluir',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch('/api/delete-agent-help', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ recordId }),
+        });
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Registro excluído!',
+            text: 'O registro foi excluído com sucesso.',
+            timer: 1500,
+            showConfirmButton: false,
+          });
+          
+          // Atualizar as listas
+          await fetchTodayRecords();
+          await Promise.all([fetchHelpStats(), fetchRecentHelps()]);
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erro ao excluir',
+            text: responseData.error || 'Por favor, tente novamente.',
+            showConfirmButton: true,
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao excluir registro:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao excluir',
+          text: 'Por favor, tente novamente.',
+          showConfirmButton: true,
+        });
+      }
     }
   };
 
@@ -501,7 +661,7 @@ const customSelectStyles = {
               <h3>Últimos registros de ajuda</h3>
               <button 
                 className={styles.viewAllButton}
-                onClick={navigateToAllRecords}
+                onClick={openAllRecordsModal}
               >
                 Ver todos <i className="fa-solid fa-arrow-right"></i>
               </button>
@@ -571,6 +731,162 @@ const customSelectStyles = {
           <button onClick={closeCategoryModal} className={managerStyles.cancelButton}>
             Cancelar
           </button>
+        </div>
+      </Modal>
+
+      {/* Modal para todos os registros do dia */}
+      <Modal
+        isOpen={allRecordsModalOpen}
+        onRequestClose={closeAllRecordsModal}
+        contentLabel="Todos os Registros de Hoje"
+        className={`${managerStyles.modal} ${styles.allRecordsModal}`}
+        overlayClassName={managerStyles.overlay}
+        ariaHideApp={false}
+      >
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>
+            <i className="fa-solid fa-calendar-day"></i>
+            Registros de Hoje ({new Date().toLocaleDateString('pt-BR')})
+          </h2>
+          <button 
+            className={styles.closeModalButton}
+            onClick={closeAllRecordsModal}
+          >
+            <i className="fa-solid fa-times"></i>
+          </button>
+        </div>
+
+        <div className={styles.modalContent}>
+          {loadingTodayRecords ? (
+            <ThreeDotsLoader message="Carregando registros..." />
+          ) : todayRecords.length > 0 ? (
+            <div className={styles.recordsList}>
+              {todayRecords.map((record) => (
+                <div key={record.id} className={styles.recordItem}>
+                  {editingRecord === record.id ? (
+                    // Modo edição
+                    <div className={styles.editMode}>
+                      <div className={styles.editHeader}>
+                        <i className="fa-solid fa-edit"></i>
+                        <span>Editando registro</span>
+                      </div>
+                      
+                      <div className={styles.editField}>
+                        <label>Colaborador:</label>
+                        <span className={styles.readOnlyField}>{record.helpedAgentName}</span>
+                      </div>
+                      
+                      <div className={styles.editField}>
+                        <label>Categoria:</label>
+                        <Select
+                          options={categories.map((category) => ({
+                            value: category,
+                            label: category,
+                          }))}
+                          value={editForm.category}
+                          onChange={(selectedOption) => 
+                            setEditForm(prev => ({ ...prev, category: selectedOption }))
+                          }
+                          isClearable
+                          placeholder="Selecione uma categoria"
+                          styles={customSelectStyles}
+                          classNamePrefix="react-select"
+                          noOptionsMessage={() => "Sem resultados"}
+                        />
+                      </div>
+                      
+                      <div className={styles.editField}>
+                        <label>Descrição:</label>
+                        <textarea
+                          value={editForm.description}
+                          onChange={(e) => 
+                            setEditForm(prev => ({ ...prev, description: e.target.value }))
+                          }
+                          rows="3"
+                          className={styles.editTextarea}
+                        />
+                      </div>
+                      
+                      <div className={styles.editActions}>
+                        <button 
+                          className={styles.saveButton}
+                          onClick={() => saveEditRecord(record.id)}
+                        >
+                          <i className="fa-solid fa-check"></i> Salvar
+                        </button>
+                        <button 
+                          className={styles.cancelButton}
+                          onClick={cancelEdit}
+                        >
+                          <i className="fa-solid fa-times"></i> Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // Modo visualização
+                    <div className={styles.viewMode}>
+                      <div className={styles.recordHeader}>
+                        <div className={styles.recordTime}>
+                          <i className="fa-regular fa-clock"></i>
+                          {record.formattedTime}
+                        </div>
+                        <div className={styles.recordActions}>
+                          <button 
+                            className={styles.editButton}
+                            onClick={() => startEditRecord(record)}
+                            title="Editar registro"
+                          >
+                            <i className="fa-solid fa-edit"></i>
+                          </button>
+                          <button 
+                            className={styles.deleteButton}
+                            onClick={() => deleteRecord(record.id, record.helpedAgentName)}
+                            title="Excluir registro"
+                          >
+                            <i className="fa-solid fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.recordDetails}>
+                        <div className={styles.recordField}>
+                          <span className={styles.fieldLabel}>Colaborador:</span>
+                          <span className={styles.fieldValue}>{record.helpedAgentName}</span>
+                        </div>
+                        
+                        <div className={styles.recordField}>
+                          <span className={styles.fieldLabel}>Categoria:</span>
+                          <span className={styles.fieldValue}>
+                            <i className="fa-solid fa-tag"></i> {record.category}
+                          </span>
+                        </div>
+                        
+                        <div className={styles.recordField}>
+                          <span className={styles.fieldLabel}>Descrição:</span>
+                          <span className={styles.fieldValue}>{record.description}</span>
+                        </div>
+                        
+                        {record.lastModified !== record.formattedDate + ' ' + record.formattedTime && (
+                          <div className={styles.recordField}>
+                            <span className={styles.fieldLabel}>Última modificação:</span>
+                            <span className={styles.fieldValue}>
+                              <i className="fa-solid fa-edit"></i> {record.lastModified}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.noRecordsToday}>
+              <i className="fa-solid fa-calendar-xmark"></i>
+              <p>Nenhuma ajuda registrada hoje</p>
+              <small>Os registros aparecerão aqui conforme você for adicionando</small>
+            </div>
+          )}
         </div>
       </Modal>
     </Layout>
