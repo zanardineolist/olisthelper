@@ -106,74 +106,183 @@ const ValidadorML = () => {
     navigator.clipboard.writeText(text);
   };
 
-  // Renderizar atributos
+  // Renderizar atributos detalhados
   const renderAttributes = (attributes) => {
     if (!Array.isArray(attributes) || attributes.length === 0) {
       return <p className={styles.noData}>Nenhum atributo encontrado</p>;
     }
 
+    // Categorizar atributos
     const requiredAttributes = attributes.filter(attr => 
       Array.isArray(attr.tags) && attr.tags.includes('required')
     );
+    const recommendedAttributes = attributes.filter(attr => 
+      Array.isArray(attr.tags) && attr.tags.includes('recommended')
+    );
     const optionalAttributes = attributes.filter(attr => 
-      !Array.isArray(attr.tags) || !attr.tags.includes('required')
+      !Array.isArray(attr.tags) || 
+      (!attr.tags.includes('required') && !attr.tags.includes('recommended'))
+    );
+
+    const renderAttributeDetail = (attr, type) => (
+      <div key={attr.id} className={`${styles.attributeItem} ${styles[type]}`}>
+        <div className={styles.attributeHeader}>
+          <div className={styles.attributeTitle}>
+            <span className={styles.attributeName}>{attr.name}</span>
+            <span className={styles.attributeId}>ID: {attr.id}</span>
+          </div>
+          <div className={styles.attributeBadges}>
+            {Array.isArray(attr.tags) && attr.tags.map(tag => (
+              <span key={tag} className={`${styles.attributeBadge} ${styles[tag]}`}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+        
+        <div className={styles.attributeDetails}>
+          <div className={styles.attributeRow}>
+            <span className={styles.attributeLabel}>Tipo:</span>
+            <span className={styles.attributeValue}>{attr.value_type || 'Não especificado'}</span>
+          </div>
+          
+          {attr.value_max_length && (
+            <div className={styles.attributeRow}>
+              <span className={styles.attributeLabel}>Máx. caracteres:</span>
+              <span className={styles.attributeValue}>{attr.value_max_length}</span>
+            </div>
+          )}
+          
+          {attr.default && (
+            <div className={styles.attributeRow}>
+              <span className={styles.attributeLabel}>Valor padrão:</span>
+              <span className={styles.attributeValue}>{attr.default}</span>
+            </div>
+          )}
+
+          {attr.values && attr.values.length > 0 && (
+            <div className={styles.attributeRow}>
+              <span className={styles.attributeLabel}>Valores aceitos:</span>
+              <div className={styles.attributeValues}>
+                <div className={styles.valuesContainer}>
+                  {attr.values.slice(0, 5).map((value, index) => (
+                    <span key={index} className={styles.valueItem}>
+                      {value.name} ({value.id})
+                    </span>
+                  ))}
+                  {attr.values.length > 5 && (
+                    <span className={styles.moreValues}>
+                      +{attr.values.length - 5} outros valores
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {attr.tooltip && (
+            <div className={styles.attributeRow}>
+              <span className={styles.attributeLabel}>Dica:</span>
+              <span className={styles.attributeTooltip}>{attr.tooltip}</span>
+            </div>
+          )}
+        </div>
+      </div>
     );
 
     return (
       <div className={styles.attributesContainer}>
+        {/* Atributos Obrigatórios */}
         {requiredAttributes.length > 0 && (
-          <div className={styles.attributeGroup}>
-            <h4 className={styles.attributeGroupTitle}>
+          <div className={styles.attributeSection}>
+            <h4 className={styles.attributeSectionTitle}>
               <FaExclamationTriangle className={styles.requiredIcon} />
               Atributos Obrigatórios ({requiredAttributes.length})
             </h4>
             <div className={styles.attributesList}>
-              {requiredAttributes.map((attr, index) => (
-                <div key={index} className={`${styles.attributeItem} ${styles.required}`}>
-                  <div className={styles.attributeHeader}>
-                    <span className={styles.attributeName}>{attr.name}</span>
-                    <span className={styles.attributeId}>({attr.id})</span>
-                  </div>
-                  <div className={styles.attributeInfo}>
-                    <span className={styles.attributeType}>Tipo: {attr.value_type}</span>
-                    {attr.values && attr.values.length > 0 && (
-                      <span className={styles.attributeValues}>
-                        {attr.values.length} valores disponíveis
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
+              {requiredAttributes.map(attr => renderAttributeDetail(attr, 'required'))}
             </div>
           </div>
         )}
 
+        {/* Atributos Recomendados */}
+        {recommendedAttributes.length > 0 && (
+          <div className={styles.attributeSection}>
+            <h4 className={styles.attributeSectionTitle}>
+              <FaCheckCircle className={styles.recommendedIcon} />
+              Atributos Recomendados ({recommendedAttributes.length})
+            </h4>
+            <div className={styles.attributesList}>
+              {recommendedAttributes.map(attr => renderAttributeDetail(attr, 'recommended'))}
+            </div>
+          </div>
+        )}
+
+        {/* Atributos Opcionais */}
         {optionalAttributes.length > 0 && (
-          <div className={styles.attributeGroup}>
-            <h4 className={styles.attributeGroupTitle}>
+          <div className={styles.attributeSection}>
+            <h4 className={styles.attributeSectionTitle}>
               <FaInfoCircle className={styles.optionalIcon} />
               Atributos Opcionais ({optionalAttributes.length})
             </h4>
             <div className={styles.attributesList}>
-              {optionalAttributes.slice(0, 5).map((attr, index) => (
-                <div key={index} className={styles.attributeItem}>
-                  <div className={styles.attributeHeader}>
-                    <span className={styles.attributeName}>{attr.name}</span>
-                    <span className={styles.attributeId}>({attr.id})</span>
-                  </div>
-                  <div className={styles.attributeInfo}>
-                    <span className={styles.attributeType}>Tipo: {attr.value_type}</span>
-                  </div>
-                </div>
-              ))}
-              {optionalAttributes.length > 5 && (
-                <p className={styles.moreAttributes}>
-                  + {optionalAttributes.length - 5} atributos adicionais
-                </p>
-              )}
+              {optionalAttributes.map(attr => renderAttributeDetail(attr, 'optional'))}
             </div>
           </div>
         )}
+      </div>
+    );
+  };
+
+  // Renderizar informações sobre variações
+  const renderVariationsInfo = (category) => {
+    if (!category) return null;
+
+    const supportsVariations = category.attributes_types || category.allows_variations;
+    
+    return (
+      <div className={styles.variationsSection}>
+        <h4 className={styles.sectionTitle}>
+          <FaTag /> Informações sobre Variações
+        </h4>
+        
+        <div className={styles.variationInfo}>
+          <div className={styles.variationStatus}>
+            <span className={styles.variationLabel}>Permite variações:</span>
+            <span className={`${styles.variationValue} ${supportsVariations ? styles.success : styles.error}`}>
+              {supportsVariations ? 'Sim' : 'Não'}
+            </span>
+          </div>
+
+          {supportsVariations && (
+            <>
+              {category.attribute_types && (
+                <div className={styles.variationTypes}>
+                  <span className={styles.variationLabel}>Tipos de variação aceitos:</span>
+                  <div className={styles.variationList}>
+                    {category.attribute_types.map((type, index) => (
+                      <div key={index} className={styles.variationType}>
+                        <span className={styles.typeTitle}>{type.name}</span>
+                        <span className={styles.typeId}>({type.id})</span>
+                        {type.allows_custom_values && (
+                          <span className={styles.customBadge}>Aceita valores personalizados</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.variationNotes}>
+                <FaInfoCircle className={styles.noteIcon} />
+                <div className={styles.noteText}>
+                  <p><strong>Dica:</strong> Variações permitem criar diferentes versões do mesmo produto (ex: tamanhos, cores)</p>
+                  <p>Use variações para evitar criar anúncios separados para cada versão do produto</p>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     );
   };
@@ -387,6 +496,9 @@ const ValidadorML = () => {
               </div>
             </div>
           </div>
+
+          {/* Informações sobre Variações */}
+          {renderVariationsInfo(categoryDetails)}
 
           {/* Atributos */}
           <div className={styles.attributesSection}>

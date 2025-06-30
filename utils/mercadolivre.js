@@ -131,17 +131,30 @@ class MercadoLivreAPI {
     }
   }
 
+  // Obter informações sobre tipos de atributos (variações)
+  async getCategoryAttributeTypes(categoryId) {
+    try {
+      return await this.makeAuthenticatedRequest(`/categories/${categoryId}/attribute_types`);
+    } catch (error) {
+      // Se não conseguir buscar attribute_types, retorna array vazio
+      return [];
+    }
+  }
+
   // Obter informações detalhadas de uma categoria (combina várias chamadas)
   async getCategoryDetails(categoryId) {
     try {
-      const [category, attributes] = await Promise.all([
+      const [category, attributes, attributeTypes] = await Promise.all([
         this.getCategoryById(categoryId),
-        this.getCategoryAttributes(categoryId).catch(() => [])
+        this.getCategoryAttributes(categoryId).catch(() => []),
+        this.getCategoryAttributeTypes(categoryId).catch(() => [])
       ]);
 
       return {
         ...category,
-        attributes: Array.isArray(attributes) ? attributes : []
+        attributes: Array.isArray(attributes) ? attributes : [],
+        attribute_types: Array.isArray(attributeTypes) ? attributeTypes : [],
+        allows_variations: Array.isArray(attributeTypes) && attributeTypes.length > 0
       };
     } catch (error) {
       throw new Error(`Erro ao obter detalhes: ${error.message}`);
