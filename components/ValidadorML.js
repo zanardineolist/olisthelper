@@ -1,0 +1,370 @@
+import { useState, useCallback, useEffect } from 'react';
+import { 
+  FaSearch, 
+  FaInfoCircle, 
+  FaExclamationTriangle, 
+  FaCheckCircle, 
+  FaCopy,
+  FaSpinner,
+  FaTag,
+  FaList,
+  FaMoneyBillWave,
+  FaChartBar
+} from 'react-icons/fa';
+import styles from '../styles/ValidadorML.module.css';
+
+const ValidadorML = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categoryDetails, setCategoryDetails] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [searchType, setSearchType] = useState('text'); // 'text' ou 'id'
+
+  // Função para buscar categorias
+  const searchCategories = useCallback(async () => {
+    if (!searchTerm.trim()) return;
+
+    setLoading(true);
+    setError('');
+    setSearchResults([]);
+
+    try {
+      let response;
+      
+      if (searchType === 'id') {
+        // Busca direta por ID
+        response = await fetch(`/api/mercadolivre/categories?type=details&categoryId=${encodeURIComponent(searchTerm.trim())}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          setSelectedCategory(data.data);
+          setCategoryDetails(data.data);
+        } else {
+          throw new Error(data.error || 'Categoria não encontrada');
+        }
+      } else {
+        // Busca por texto
+        response = await fetch(`/api/mercadolivre/categories?type=search&search=${encodeURIComponent(searchTerm)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          setSearchResults(data.data);
+        } else {
+          throw new Error(data.error || 'Erro na busca');
+        }
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchTerm, searchType]);
+
+  // Função para obter detalhes de uma categoria
+  const getCategoryDetails = useCallback(async (categoryId) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(`/api/mercadolivre/categories?type=details&categoryId=${categoryId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setSelectedCategory(data.data);
+        setCategoryDetails(data.data);
+      } else {
+        throw new Error(data.error || 'Erro ao carregar detalhes');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Função para copiar informações
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  // Renderizar atributos
+  const renderAttributes = (attributes) => {
+    if (!attributes || attributes.length === 0) {
+      return <p className={styles.noData}>Nenhum atributo encontrado</p>;
+    }
+
+    const requiredAttributes = attributes.filter(attr => attr.tags?.includes('required'));
+    const optionalAttributes = attributes.filter(attr => !attr.tags?.includes('required'));
+
+    return (
+      <div className={styles.attributesContainer}>
+        {requiredAttributes.length > 0 && (
+          <div className={styles.attributeGroup}>
+            <h4 className={styles.attributeGroupTitle}>
+              <FaExclamationTriangle className={styles.requiredIcon} />
+              Atributos Obrigatórios ({requiredAttributes.length})
+            </h4>
+            <div className={styles.attributesList}>
+              {requiredAttributes.map((attr, index) => (
+                <div key={index} className={`${styles.attributeItem} ${styles.required}`}>
+                  <div className={styles.attributeHeader}>
+                    <span className={styles.attributeName}>{attr.name}</span>
+                    <span className={styles.attributeId}>({attr.id})</span>
+                  </div>
+                  <div className={styles.attributeInfo}>
+                    <span className={styles.attributeType}>Tipo: {attr.value_type}</span>
+                    {attr.values && attr.values.length > 0 && (
+                      <span className={styles.attributeValues}>
+                        {attr.values.length} valores disponíveis
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {optionalAttributes.length > 0 && (
+          <div className={styles.attributeGroup}>
+            <h4 className={styles.attributeGroupTitle}>
+              <FaInfoCircle className={styles.optionalIcon} />
+              Atributos Opcionais ({optionalAttributes.length})
+            </h4>
+            <div className={styles.attributesList}>
+              {optionalAttributes.slice(0, 5).map((attr, index) => (
+                <div key={index} className={styles.attributeItem}>
+                  <div className={styles.attributeHeader}>
+                    <span className={styles.attributeName}>{attr.name}</span>
+                    <span className={styles.attributeId}>({attr.id})</span>
+                  </div>
+                  <div className={styles.attributeInfo}>
+                    <span className={styles.attributeType}>Tipo: {attr.value_type}</span>
+                  </div>
+                </div>
+              ))}
+              {optionalAttributes.length > 5 && (
+                <p className={styles.moreAttributes}>
+                  + {optionalAttributes.length - 5} atributos adicionais
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>
+          <FaTag className={styles.titleIcon} />
+          Validador Mercado Livre
+        </h1>
+        <p className={styles.description}>
+          Valide categorias e obtenha informações essenciais para anunciar no Mercado Livre
+        </p>
+      </div>
+
+      {/* Formulário de Busca */}
+      <div className={styles.searchSection}>
+        <div className={styles.searchTypeToggle}>
+          <button
+            className={`${styles.toggleButton} ${searchType === 'text' ? styles.active : ''}`}
+            onClick={() => setSearchType('text')}
+          >
+            Busca por Texto
+          </button>
+          <button
+            className={`${styles.toggleButton} ${searchType === 'id' ? styles.active : ''}`}
+            onClick={() => setSearchType('id')}
+          >
+            Busca por ID
+          </button>
+        </div>
+
+        <div className={styles.searchForm}>
+          <div className={styles.searchInputGroup}>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={
+                searchType === 'id' 
+                  ? 'Digite o ID da categoria (ex: MLB1055)' 
+                  : 'Digite o nome da categoria (ex: smartphones)'
+              }
+              className={styles.searchInput}
+              onKeyPress={(e) => e.key === 'Enter' && searchCategories()}
+            />
+            <button
+              onClick={searchCategories}
+              disabled={loading || !searchTerm.trim()}
+              className={styles.searchButton}
+            >
+              {loading ? <FaSpinner className={styles.spinner} /> : <FaSearch />}
+              Buscar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mensagem de Erro */}
+      {error && (
+        <div className={styles.errorMessage}>
+          <FaExclamationTriangle />
+          {error}
+        </div>
+      )}
+
+      {/* Resultados da Busca */}
+      {searchResults.length > 0 && (
+        <div className={styles.searchResults}>
+          <h3 className={styles.resultsTitle}>
+            <FaList /> Resultados ({searchResults.length})
+          </h3>
+          <div className={styles.resultsList}>
+            {searchResults.map((category) => (
+              <div
+                key={category.id}
+                className={styles.resultItem}
+                onClick={() => getCategoryDetails(category.id)}
+              >
+                <div className={styles.resultInfo}>
+                  <span className={styles.resultName}>{category.name}</span>
+                  <span className={styles.resultId}>{category.id}</span>
+                </div>
+                <FaInfoCircle className={styles.detailsIcon} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Detalhes da Categoria */}
+      {categoryDetails && (
+        <div className={styles.categoryDetails}>
+          <div className={styles.detailsHeader}>
+            <h3 className={styles.detailsTitle}>
+              <FaCheckCircle className={styles.successIcon} />
+              Detalhes da Categoria
+            </h3>
+          </div>
+
+          <div className={styles.detailsGrid}>
+            {/* Informações Básicas */}
+            <div className={styles.detailsCard}>
+              <h4 className={styles.cardTitle}>
+                <FaInfoCircle /> Informações Básicas
+              </h4>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Nome:</span>
+                <span className={styles.infoValue}>
+                  {categoryDetails.name}
+                  <button
+                    onClick={() => copyToClipboard(categoryDetails.name)}
+                    className={styles.copyButton}
+                    title="Copiar nome"
+                  >
+                    <FaCopy />
+                  </button>
+                </span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>ID:</span>
+                <span className={styles.infoValue}>
+                  {categoryDetails.id}
+                  <button
+                    onClick={() => copyToClipboard(categoryDetails.id)}
+                    className={styles.copyButton}
+                    title="Copiar ID"
+                  >
+                    <FaCopy />
+                  </button>
+                </span>
+              </div>
+              {categoryDetails.picture && (
+                <div className={styles.infoItem}>
+                  <span className={styles.infoLabel}>Imagem:</span>
+                  <img 
+                    src={categoryDetails.picture} 
+                    alt={categoryDetails.name}
+                    className={styles.categoryImage}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Caminho da Categoria */}
+            {categoryDetails.path_from_root && (
+              <div className={styles.detailsCard}>
+                <h4 className={styles.cardTitle}>
+                  <FaList /> Caminho da Categoria
+                </h4>
+                <div className={styles.breadcrumb}>
+                  {categoryDetails.path_from_root.map((path, index) => (
+                    <span key={path.id} className={styles.breadcrumbItem}>
+                      {index > 0 && <span className={styles.breadcrumbSeparator}>&gt;</span>}
+                      {path.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Configurações de Listagem */}
+            <div className={styles.detailsCard}>
+              <h4 className={styles.cardTitle}>
+                <FaMoneyBillWave /> Configurações de Listagem
+              </h4>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Permite variações:</span>
+                <span className={`${styles.infoValue} ${categoryDetails.attributes_types ? styles.success : styles.error}`}>
+                  {categoryDetails.attributes_types ? 'Sim' : 'Não'}
+                </span>
+              </div>
+              <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Status:</span>
+                <span className={styles.infoValue}>{categoryDetails.status || 'Ativa'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Atributos */}
+          <div className={styles.attributesSection}>
+            <h4 className={styles.sectionTitle}>
+              <FaChartBar /> Atributos da Categoria
+            </h4>
+            {renderAttributes(categoryDetails.attributes)}
+          </div>
+        </div>
+      )}
+
+      {/* Informações de Ajuda */}
+      <div className={styles.helpSection}>
+        <h3 className={styles.helpTitle}>
+          <FaInfoCircle /> Como usar
+        </h3>
+        <div className={styles.helpContent}>
+          <div className={styles.helpItem}>
+            <strong>Busca por Texto:</strong> Digite palavras-chave para encontrar categorias relacionadas
+          </div>
+          <div className={styles.helpItem}>
+            <strong>Busca por ID:</strong> Digite o código exato da categoria (ex: MLB1055)
+          </div>
+          <div className={styles.helpItem}>
+            <strong>Atributos Obrigatórios:</strong> Campos que DEVEM ser preenchidos ao criar um anúncio
+          </div>
+          <div className={styles.helpItem}>
+            <strong>Dica:</strong> Use as informações de atributos obrigatórios para preparar seus produtos antes de anunciar
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ValidadorML; 

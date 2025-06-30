@@ -11,7 +11,8 @@ import {
   FaFileExcel, 
   FaVideo,
   FaChevronLeft,
-  FaChevronRight
+  FaChevronRight,
+  FaTag
 } from 'react-icons/fa';
 import Layout from '../components/Layout';
 import TicketCounter from '../components/TicketCounter';
@@ -23,6 +24,7 @@ import SheetSplitter from '../components/SheetSplitter';
 import MinhaBase from '../components/MinhaBase';
 import BibliotecaVideos from '../components/BibliotecaVideos';
 import TicketLogger from '../components/TicketLogger';
+import ValidadorML from '../components/ValidadorML';
 import { useLoading } from '../components/LoadingIndicator';
 import styles from '../styles/Tools.module.css';
 
@@ -103,6 +105,15 @@ const TAB_CONFIG = [
     component: SheetSplitter,
     requiresTicketAccess: false,
     description: 'Divida planilhas grandes em arquivos menores'
+  },
+  {
+    id: 'ValidadorML',
+    label: 'Validador ML',
+    icon: FaTag,
+    hash: '#ValidadorML',
+    component: ValidadorML,
+    requiresTicketAccess: false,
+    description: 'Valide categorias e obtenha informações do Mercado Livre'
   }
 ];
 
