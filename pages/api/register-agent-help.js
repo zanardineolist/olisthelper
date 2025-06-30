@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   // Verificar permissão can_register_help
   const helperUser = await getUserWithPermissions(session.id);
   if (!helperUser?.can_register_help) {
-    return res.status(403).json({ error: 'Você não tem permissão para registrar ajuda entre agentes' });
+    return res.status(403).json({ error: 'Você não tem permissão para registrar ajuda' });
   }
 
   const { helpedAgentId, category, description } = req.body;
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Verificar se o agente ajudado existe e é um agente válido
+    // Verificar se o colaborador ajudado existe e é um colaborador válido
     const { data: helpedAgent, error: helpedAgentError } = await supabaseAdmin
       .from('users')
       .select('id, name, email, profile')
@@ -36,13 +36,13 @@ export default async function handler(req, res) {
       .single();
 
     if (helpedAgentError || !helpedAgent) {
-      return res.status(400).json({ error: 'Agente não encontrado ou inativo' });
+      return res.status(400).json({ error: 'Colaborador não encontrado ou inativo' });
     }
 
-    // Verificar se é um perfil de agente válido
-    const validAgentProfiles = ['analyst', 'tax', 'super', 'quality', 'dev'];
-    if (!validAgentProfiles.includes(helpedAgent.profile)) {
-      return res.status(400).json({ error: 'O usuário selecionado não é um agente válido' });
+    // Verificar se é um perfil de colaborador válido
+    const validCollaboratorProfiles = ['analyst', 'tax', 'super', 'quality', 'dev', 'support'];
+    if (!validCollaboratorProfiles.includes(helpedAgent.profile)) {
+      return res.status(400).json({ error: 'O usuário selecionado não é um colaborador válido' });
     }
 
     // Buscar o ID da categoria pelo nome
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Você não pode registrar ajuda para si mesmo' });
     }
 
-    // Registrar a ajuda entre agentes
+    // Registrar a ajuda prestada
     const { error: insertError } = await supabaseAdmin
       .from('agent_help_records')
       .insert([{
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Erro ao registrar ajuda entre agentes:', error);
+    console.error('Erro ao registrar ajuda:', error);
     res.status(500).json({ error: 'Erro ao registrar a ajuda. Por favor, tente novamente.' });
   }
 } 
