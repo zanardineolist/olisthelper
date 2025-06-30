@@ -271,9 +271,16 @@ export default function RegistrarAjudaPage({ user }) {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('=== DEBUG FRONTEND - Registros do Dia ===');
+        console.log('Dados recebidos:', data);
+        console.log('Total de registros:', data.total);
+        console.log('Debug info:', data.debug);
+        console.log('=====================================');
         setTodayRecords(data.todayHelps || []);
       } else {
-        console.error('Erro ao buscar registros do dia');
+        console.error('Erro ao buscar registros do dia - Status:', response.status);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro detalhado:', errorData);
       }
     } catch (error) {
       console.error('Erro ao buscar registros do dia:', error);

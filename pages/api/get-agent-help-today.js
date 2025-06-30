@@ -12,12 +12,25 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Buscar todos os registros do dia atual
-    const today = new Date();
-    today.setUTCHours(3, 0, 0, 0); // 00:00 São Paulo = 03:00 UTC
+    // Abordagem mais simples e robusta para São Paulo (UTC-3)
+    const now = new Date();
     
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    // Converter para São Paulo timezone (UTC-3)
+    const saoPauloOffset = -3 * 60; // São Paulo é UTC-3 (em minutos)
+    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const saoPauloTime = new Date(utcTime + (saoPauloOffset * 60000));
+    
+    // Início do dia em São Paulo (00:00)
+    const todayStart = new Date(saoPauloTime);
+    todayStart.setHours(0, 0, 0, 0);
+    
+    // Fim do dia em São Paulo (23:59:59.999)
+    const todayEnd = new Date(saoPauloTime);
+    todayEnd.setHours(23, 59, 59, 999);
+    
+    // Converter de volta para UTC para usar na consulta
+    const todayStartUTC = new Date(todayStart.getTime() + (3 * 60 * 60 * 1000));
+    const todayEndUTC = new Date(todayEnd.getTime() + (3 * 60 * 60 * 1000));
 
     const { data: todayHelps, error } = await supabaseAdmin
       .from('agent_help_records')
@@ -30,14 +43,25 @@ export default async function handler(req, res) {
         category:categories(name)
       `)
       .eq('helper_agent_id', helperAgentId)
-      .gte('created_at', today.toISOString())
-      .lt('created_at', tomorrow.toISOString())
+      .gte('created_at', todayStartUTC.toISOString())
+      .lte('created_at', todayEndUTC.toISOString())
       .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Erro ao buscar registros do dia:', error);
       throw error;
     }
+
+    console.log('=== DEBUG GET-AGENT-HELP-TODAY ===');
+    console.log('Helper Agent ID:', helperAgentId);
+    console.log('São Paulo Time:', saoPauloTime.toLocaleString('pt-BR'));
+    console.log('Today Start SP:', todayStart.toLocaleString('pt-BR'));
+    console.log('Today End SP:', todayEnd.toLocaleString('pt-BR'));
+    console.log('Today Start UTC:', todayStartUTC.toISOString());
+    console.log('Today End UTC:', todayEndUTC.toISOString());
+    console.log('Raw data from Supabase:', todayHelps);
+    console.log('Records found:', todayHelps?.length || 0);
+    console.log('===================================');
 
     // Formatar dados para o frontend
     const formattedHelps = (todayHelps || []).map(help => {
@@ -67,7 +91,16 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ 
       todayHelps: formattedHelps,
-      total: formattedHelps.length 
+      total: formattedHelps.length,
+      debug: {
+        saoPauloTime: saoPauloTime.toLocaleString('pt-BR'),
+        todayStartSP: todayStart.toLocaleString('pt-BR'),
+        todayEndSP: todayEnd.toLocaleString('pt-BR'),
+        todayStartUTC: todayStartUTC.toISOString(),
+        todayEndUTC: todayEndUTC.toISOString(),
+        helperAgentId,
+        rawRecordsCount: todayHelps?.length || 0
+      }
     });
   } catch (error) {
     console.error('Erro ao buscar registros do dia:', error);
