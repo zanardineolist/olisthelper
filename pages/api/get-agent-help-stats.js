@@ -15,41 +15,114 @@ export default async function handler(req, res) {
     let stats = {};
 
     if (filter === '1' || filter === 'today') {
-      // Buscar estatísticas do dia atual
+      // Buscar apenas estatísticas do dia atual
+      const today = new Date();
+      today.setUTCHours(3, 0, 0, 0); // 00:00 São Paulo = 03:00 UTC
+      
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
       const { data, error } = await supabaseAdmin
-        .rpc('get_agent_help_today_count', { helper_id_param: helperAgentId });
+        .from('agent_help_records')
+        .select('id', { count: 'exact' })
+        .eq('helper_agent_id', helperAgentId)
+        .gte('created_at', today.toISOString())
+        .lt('created_at', tomorrow.toISOString());
 
       if (error) {
         console.error('Erro ao buscar contagem de hoje:', error);
         throw error;
       }
 
-      stats.today = data || 0;
+      stats.today = data?.length || 0;
     } else {
-      // Buscar estatísticas mensais completas
-      const { data, error } = await supabaseAdmin
-        .rpc('get_agent_help_monthly_stats', { helper_id_param: helperAgentId });
-
-      if (error) {
-        console.error('Erro ao buscar estatísticas mensais:', error);
-        throw error;
-      }
-
-      if (data && data.length > 0) {
-        const result = data[0];
-        stats.currentMonth = result.current_month || 0;
-        stats.lastMonth = result.last_month || 0;
-        stats.today = result.today || 0;
+      // Buscar estatísticas mensais completas com consultas diretas
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth(); // 0-11
+      
+      // Mês atual: primeiro dia do mês às 03:00 UTC (00:00 São Paulo)
+      const currentMonthStart = new Date(year, month, 1, 3, 0, 0).toISOString();
+      const nextMonthStart = new Date(year, month + 1, 1, 3, 0, 0).toISOString();
+      
+      // Mês anterior: primeiro dia do mês anterior às 03:00 UTC
+      const lastMonthStart = new Date(year, month - 1, 1, 3, 0, 0).toISOString();
+      const currentMonthStartForLastMonth = new Date(year, month, 1, 3, 0, 0).toISOString();
+      
+      // Hoje: usar a data atual em São Paulo
+      const saoPauloNow = new Date();
+      const todayStart = new Date();
+      todayStart.setUTCHours(3, 0, 0, 0); // 00:00 São Paulo = 03:00 UTC (aproximadamente)
+      
+      // Se já passou da meia-noite em São Paulo, usar o dia atual
+      if (saoPauloNow.getUTCHours() >= 3) {
+        todayStart.setUTCDate(saoPauloNow.getUTCDate());
       } else {
-        stats.currentMonth = 0;
-        stats.lastMonth = 0;
-        stats.today = 0;
+        // Se ainda é antes da meia-noite em São Paulo, usar o dia anterior
+        todayStart.setUTCDate(saoPauloNow.getUTCDate() - 1);
       }
+      
+      const todayEnd = new Date(todayStart);
+      todayEnd.setDate(todayEnd.getDate() + 1);
+      
+      // Buscar contagem do mês atual
+      const { data: currentMonthData, error: currentError } = await supabaseAdmin
+        .from('agent_help_records')
+        .select('id', { count: 'exact' })
+        .eq('helper_agent_id', helperAgentId)
+        .gte('created_at', currentMonthStart)
+        .lt('created_at', nextMonthStart);
+
+      if (currentError) {
+        console.error('Erro ao buscar mês atual:', currentError);
+        throw currentError;
+      }
+
+      // Buscar contagem do mês anterior
+      const { data: lastMonthData, error: lastError } = await supabaseAdmin
+        .from('agent_help_records')
+        .select('id', { count: 'exact' })
+        .eq('helper_agent_id', helperAgentId)
+        .gte('created_at', lastMonthStart)
+        .lt('created_at', currentMonthStartForLastMonth);
+
+      if (lastError) {
+        console.error('Erro ao buscar mês anterior:', lastError);
+        throw lastError;
+      }
+
+      // Buscar contagem de hoje
+      const { data: todayData, error: todayError } = await supabaseAdmin
+        .from('agent_help_records')
+        .select('id', { count: 'exact' })
+        .eq('helper_agent_id', helperAgentId)
+        .gte('created_at', todayStart.toISOString())
+        .lt('created_at', todayEnd.toISOString());
+
+      if (todayError) {
+        console.error('Erro ao buscar hoje:', todayError);
+        throw todayError;
+      }
+
+      stats.currentMonth = currentMonthData?.length || 0;
+      stats.lastMonth = lastMonthData?.length || 0;
+      stats.today = todayData?.length || 0;
+      
+      // Debug: adicionar logs para verificar as datas
+      console.log('Debug stats for user:', helperAgentId, {
+        currentMonthStart,
+        nextMonthStart,
+        lastMonthStart,
+        currentMonthStartForLastMonth,
+        todayStart: todayStart.toISOString(),
+        todayEnd: todayEnd.toISOString(),
+        counts: stats
+      });
     }
 
     return res.status(200).json(stats);
   } catch (error) {
-    console.error('Erro ao buscar estatísticas de ajuda entre agentes:', error);
+    console.error('Erro ao buscar estatísticas de ajuda:', error);
     return res.status(500).json({ error: 'Erro ao buscar estatísticas.' });
   }
 } 
