@@ -108,12 +108,16 @@ const ValidadorML = () => {
 
   // Renderizar atributos
   const renderAttributes = (attributes) => {
-    if (!attributes || attributes.length === 0) {
+    if (!Array.isArray(attributes) || attributes.length === 0) {
       return <p className={styles.noData}>Nenhum atributo encontrado</p>;
     }
 
-    const requiredAttributes = attributes.filter(attr => attr.tags?.includes('required'));
-    const optionalAttributes = attributes.filter(attr => !attr.tags?.includes('required'));
+    const requiredAttributes = attributes.filter(attr => 
+      Array.isArray(attr.tags) && attr.tags.includes('required')
+    );
+    const optionalAttributes = attributes.filter(attr => 
+      !Array.isArray(attr.tags) || !attr.tags.includes('required')
+    );
 
     return (
       <div className={styles.attributesContainer}>
@@ -389,7 +393,7 @@ const ValidadorML = () => {
             <h4 className={styles.sectionTitle}>
               <FaChartBar /> Atributos da Categoria
             </h4>
-            {renderAttributes(categoryDetails.attributes)}
+            {renderAttributes(Array.isArray(categoryDetails.attributes) ? categoryDetails.attributes : [])}
           </div>
         </div>
       )}

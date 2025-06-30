@@ -80,10 +80,11 @@ class MercadoLivreAPI {
       const categories = await this.getAllCategories();
       const searchLower = searchText.toLowerCase();
       
-      return categories.filter(category => 
-        category.name.toLowerCase().includes(searchLower) ||
-        category.id.toLowerCase().includes(searchLower)
-      ).slice(0, 10); // Limita a 10 resultados
+      return categories.filter(category => {
+        const name = category.name ? String(category.name).toLowerCase() : '';
+        const id = category.id ? String(category.id).toLowerCase() : '';
+        return name.includes(searchLower) || id.includes(searchLower);
+      }).slice(0, 10); // Limita a 10 resultados
     } catch (error) {
       throw new Error(`Erro na busca: ${error.message}`);
     }
@@ -140,7 +141,7 @@ class MercadoLivreAPI {
 
       return {
         ...category,
-        attributes: attributes || []
+        attributes: Array.isArray(attributes) ? attributes : []
       };
     } catch (error) {
       throw new Error(`Erro ao obter detalhes: ${error.message}`);
