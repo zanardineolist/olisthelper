@@ -14,6 +14,7 @@ import {
   FaEye
 } from 'react-icons/fa';
 import styles from '../styles/ValidadorML.module.css';
+import { saveAs } from 'file-saver';
 
 const ValidadorML = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -317,6 +318,13 @@ const ValidadorML = () => {
     );
   };
 
+  const exportCategoryToJson = () => {
+    if (!categoryDetails) return;
+    const dataStr = JSON.stringify(categoryDetails, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    saveAs(blob, `categoria-${categoryDetails.id}.json`);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -536,6 +544,16 @@ const ValidadorML = () => {
               <FaChartBar /> Atributos da Categoria
             </h4>
             {renderAttributes(Array.isArray(categoryDetails.attributes) ? categoryDetails.attributes : [])}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+            <button
+              className={styles.exportButton}
+              onClick={exportCategoryToJson}
+              title="Exportar informações da categoria para JSON"
+            >
+              Exportar JSON
+            </button>
           </div>
         </div>
       )}

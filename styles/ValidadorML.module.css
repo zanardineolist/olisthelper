@@ -986,7 +986,7 @@
   width: 100%;
   max-height: 80vh;
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
+  box-shadow: none;
   border: 1px solid var(--border-color);
 }
 
@@ -1134,4 +1134,30 @@
     gap: 0.25rem;
     padding: 0.75rem 0.75rem;
   }
+}
+
+.categoryDetails,
+.searchResults,
+.helpSection,
+.variationsSection,
+.attributeSection,
+.detailsCard {
+  box-shadow: none !important;
+}
+
+.exportButton {
+  background: var(--primary-color);
+  color: var(--color-white);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  margin-top: 1rem;
+}
+.exportButton:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
 } 
