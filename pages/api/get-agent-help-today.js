@@ -52,17 +52,6 @@ export default async function handler(req, res) {
       throw error;
     }
 
-    console.log('=== DEBUG GET-AGENT-HELP-TODAY ===');
-    console.log('Helper Agent ID:', helperAgentId);
-    console.log('São Paulo Time:', saoPauloTime.toLocaleString('pt-BR'));
-    console.log('Today Start SP:', todayStart.toLocaleString('pt-BR'));
-    console.log('Today End SP:', todayEnd.toLocaleString('pt-BR'));
-    console.log('Today Start UTC:', todayStartUTC.toISOString());
-    console.log('Today End UTC:', todayEndUTC.toISOString());
-    console.log('Raw data from Supabase:', todayHelps);
-    console.log('Records found:', todayHelps?.length || 0);
-    console.log('===================================');
-
     // Formatar dados para o frontend
     const formattedHelps = (todayHelps || []).map(help => {
       const createdAt = new Date(help.created_at);
@@ -91,16 +80,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ 
       todayHelps: formattedHelps,
-      total: formattedHelps.length,
-      debug: {
-        saoPauloTime: saoPauloTime.toLocaleString('pt-BR'),
-        todayStartSP: todayStart.toLocaleString('pt-BR'),
-        todayEndSP: todayEnd.toLocaleString('pt-BR'),
-        todayStartUTC: todayStartUTC.toISOString(),
-        todayEndUTC: todayEndUTC.toISOString(),
-        helperAgentId,
-        rawRecordsCount: todayHelps?.length || 0
-      }
+      total: formattedHelps.length 
     });
   } catch (error) {
     console.error('Erro ao buscar registros do dia:', error);
