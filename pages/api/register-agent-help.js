@@ -1,5 +1,6 @@
 import { supabaseAdmin, getUserWithPermissions } from '../../utils/supabase/supabaseClient';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -7,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   // Verificar autenticação
-  const session = await getSession({ req });
+  const session = await getServerSession(req, res, authOptions);
   if (!session?.id) {
     return res.status(401).json({ error: 'Não autorizado' });
   }
