@@ -1,6 +1,6 @@
 // utils/supabase/helpQueries.js
 import { supabaseAdmin } from './supabaseClient';
-import { setStartOfDay, setEndOfDay, getDaysAgo, getStartOfCurrentMonth, getStartOfLastMonth, getStartOfNextMonth, formatDateBR, formatTimeBR, applyDateFilters, getTodayBrazilRange } from './dateUtils';
+import { setStartOfDay, setEndOfDay, getDaysAgo, getStartOfCurrentMonth, getStartOfLastMonth, getStartOfNextMonth, formatDateBR, formatTimeBR, applyDateFilters } from './dateUtils';
 
 /**
  * Busca os registros de ajuda de um analista com filtro de data
@@ -69,40 +69,41 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
         return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
       }).length;
       
-      // Calcular contagem de ajudas do dia atual usando métodos otimizados
+      // Calcular contagem de ajudas do dia atual usando lógica correta de timezone
       let todayCount = 0;
-      const todayRange = getTodayBrazilRange();
       
       try {
-        // Primeiro tentar usar a função SQL específica do banco
-        const { data: todayCountData, error: todayCountError } = await supabaseAdmin
-          .rpc('get_today_help_count', { analyst_id_param: analystId });
+        // Usar a mesma lógica robusta que funciona na get-agent-help-today.js
+        const now = new Date();
         
-        if (todayCountError) {
-          console.warn('Função RPC não disponível, usando query manual:', todayCountError.message);
-          
-          // Fallback para query manual com timezone correto
-          const { data: todayData, error: todayError } = await supabaseAdmin
-            .from('help_records')
-            .select('id')
-            .eq('analyst_id', analystId)
-            .gte('created_at', todayRange.start.toISOString())
-            .lte('created_at', todayRange.end.toISOString());
-          
-          if (todayError) throw todayError;
-          todayCount = todayData?.length || 0;
-          
-          console.log('Debug contagem manual:', {
-            analystId,
-            start: todayRange.start.toISOString(),
-            end: todayRange.end.toISOString(),
-            dataAtual: todayRange.dateStr,
-            registrosEncontrados: todayCount
-          });
-        } else {
-          todayCount = todayCountData || 0;
-          console.log('Contagem via RPC:', { todayCount, analystId });
-        }
+        // Converter para São Paulo timezone (UTC-3)
+        const saoPauloOffset = -3 * 60; // São Paulo é UTC-3 (em minutos)
+        const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+        const saoPauloTime = new Date(utcTime + (saoPauloOffset * 60000));
+        
+        // Início do dia em São Paulo (00:00)
+        const todayStart = new Date(saoPauloTime);
+        todayStart.setHours(0, 0, 0, 0);
+        
+        // Fim do dia em São Paulo (23:59:59.999)
+        const todayEnd = new Date(saoPauloTime);
+        todayEnd.setHours(23, 59, 59, 999);
+        
+        // Converter de volta para UTC para usar na consulta
+        const todayStartUTC = new Date(todayStart.getTime() + (3 * 60 * 60 * 1000));
+        const todayEndUTC = new Date(todayEnd.getTime() + (3 * 60 * 60 * 1000));
+        
+        // Query direta com timezone correto
+        const { data: todayData, error: todayError } = await supabaseAdmin
+          .from('help_records')
+          .select('id')
+          .eq('analyst_id', analystId)
+          .gte('created_at', todayStartUTC.toISOString())
+          .lte('created_at', todayEndUTC.toISOString());
+        
+        if (todayError) throw todayError;
+        todayCount = todayData?.length || 0;
+        
       } catch (error) {
         console.error('Erro ao buscar dados do dia atual:', error);
         // Último fallback com valor 0
