@@ -462,17 +462,36 @@
   padding: 1.5rem;
   border: 2px solid var(--border-color);
   position: relative;
+  margin-bottom: 2rem;
+}
+
+.attributeSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .attributeSectionTitle {
   font-size: 1.125rem;
-  margin: 0 0 1.5rem 0;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   color: var(--text-secondary);
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--border-color);
+}
+
+.attributeCount {
+  background: var(--primary-color);
+  color: var(--color-white);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  min-width: 30px;
+  text-align: center;
 }
 
 .requiredIcon {
@@ -535,6 +554,22 @@
 
 .attributeItem.optional {
   border-left: 4px solid var(--text-muted);
+}
+
+/* Seções de atributos com cores diferentes */
+.requiredSection {
+  border-left: 6px solid var(--poor-color);
+  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(230, 78, 54, 0.05) 100%);
+}
+
+.recommendedSection {
+  border-left: 6px solid var(--excellent-color);
+  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(119, 158, 61, 0.05) 100%);
+}
+
+.optionalSection {
+  border-left: 6px solid var(--text-muted);
+  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(180, 180, 180, 0.05) 100%);
 }
 
 .attributeItem:hover {
@@ -646,13 +681,28 @@
   font-family: 'Courier New', monospace;
 }
 
-.moreValues {
+.moreValuesButton {
   background: var(--primary-color);
   color: var(--color-white);
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 500;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.moreValuesButton:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.eyeIcon {
+  font-size: 0.7rem;
 }
 
 .attributeTooltip {
@@ -888,4 +938,175 @@
     flex-direction: column;
     gap: 0.25rem;
   }
+
+  /* Modal responsivo */
+  .modalContent {
+    max-width: 95vw;
+    max-height: 90vh;
+  }
+
+  .modalHeader {
+    padding: 1rem;
+  }
+
+  .modalTitle {
+    font-size: 1.1rem;
+  }
+
+  .modalBody {
+    padding: 1rem;
+  }
+
+  .modalValueItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}
+
+/* Modal de Valores */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-color);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--title-color);
+}
+
+.modalCloseButton {
+  background: var(--poor-color);
+  color: var(--color-white);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalCloseButton:hover {
+  background: var(--poor-light);
+  transform: scale(1.1);
+}
+
+.modalBody {
+  padding: 1.5rem;
+  max-height: calc(80vh - 100px);
+  overflow-y: auto;
+}
+
+.modalInfo {
+  background: var(--bg-color);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.modalInfo p {
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+.modalInfo p:first-child {
+  margin-top: 0;
+}
+
+.modalInfo p:last-child {
+  margin-bottom: 0;
+}
+
+.valuesList {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.modalValueItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--bg-color);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.modalValueItem:hover {
+  background: var(--border-color);
+  transform: translateX(4px);
+}
+
+.modalValueName {
+  font-weight: 500;
+  color: var(--title-color);
+}
+
+.modalValueId {
+  font-family: 'Courier New', monospace;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* Scrollbar personalizada para o modal */
+.modalBody::-webkit-scrollbar,
+.valuesList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modalBody::-webkit-scrollbar-track,
+.valuesList::-webkit-scrollbar-track {
+  background: var(--bg-color);
+  border-radius: 10px;
+}
+
+.modalBody::-webkit-scrollbar-thumb,
+.valuesList::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 10px;
+}
+
+.modalBody::-webkit-scrollbar-thumb:hover,
+.valuesList::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 } 

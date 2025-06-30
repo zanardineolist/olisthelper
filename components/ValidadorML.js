@@ -9,7 +9,9 @@ import {
   FaTag,
   FaList,
   FaMoneyBillWave,
-  FaChartBar
+  FaChartBar,
+  FaTimes,
+  FaEye
 } from 'react-icons/fa';
 import styles from '../styles/ValidadorML.module.css';
 
@@ -22,6 +24,8 @@ const ValidadorML = () => {
   const [error, setError] = useState('');
   const [credentialsError, setCredentialsError] = useState(false);
   const [searchType, setSearchType] = useState('text'); // 'text' ou 'id'
+  const [showValuesModal, setShowValuesModal] = useState(false);
+  const [selectedAttribute, setSelectedAttribute] = useState(null);
 
   // Função para buscar categorias
   const searchCategories = useCallback(async () => {
@@ -106,6 +110,18 @@ const ValidadorML = () => {
     navigator.clipboard.writeText(text);
   };
 
+  // Função para abrir modal de valores
+  const openValuesModal = (attribute) => {
+    setSelectedAttribute(attribute);
+    setShowValuesModal(true);
+  };
+
+  // Função para fechar modal de valores
+  const closeValuesModal = () => {
+    setShowValuesModal(false);
+    setSelectedAttribute(null);
+  };
+
   // Renderizar atributos detalhados
   const renderAttributes = (attributes) => {
     if (!Array.isArray(attributes) || attributes.length === 0) {
@@ -171,9 +187,14 @@ const ValidadorML = () => {
                     </span>
                   ))}
                   {attr.values.length > 5 && (
-                    <span className={styles.moreValues}>
+                    <button 
+                      className={styles.moreValuesButton}
+                      onClick={() => openValuesModal(attr)}
+                      title="Ver todos os valores"
+                    >
+                      <FaEye className={styles.eyeIcon} />
                       +{attr.values.length - 5} outros valores
-                    </span>
+                    </button>
                   )}
                 </div>
               </div>
@@ -194,11 +215,14 @@ const ValidadorML = () => {
       <div className={styles.attributesContainer}>
         {/* Atributos Obrigatórios */}
         {requiredAttributes.length > 0 && (
-          <div className={styles.attributeSection}>
-            <h4 className={styles.attributeSectionTitle}>
-              <FaExclamationTriangle className={styles.requiredIcon} />
-              Atributos Obrigatórios ({requiredAttributes.length})
-            </h4>
+          <div className={`${styles.attributeSection} ${styles.requiredSection}`}>
+            <div className={styles.attributeSectionHeader}>
+              <h4 className={styles.attributeSectionTitle}>
+                <FaExclamationTriangle className={styles.requiredIcon} />
+                Atributos Obrigatórios
+              </h4>
+              <span className={styles.attributeCount}>{requiredAttributes.length}</span>
+            </div>
             <div className={styles.attributesList}>
               {requiredAttributes.map(attr => renderAttributeDetail(attr, 'required'))}
             </div>
@@ -207,11 +231,14 @@ const ValidadorML = () => {
 
         {/* Atributos Recomendados */}
         {recommendedAttributes.length > 0 && (
-          <div className={styles.attributeSection}>
-            <h4 className={styles.attributeSectionTitle}>
-              <FaCheckCircle className={styles.recommendedIcon} />
-              Atributos Recomendados ({recommendedAttributes.length})
-            </h4>
+          <div className={`${styles.attributeSection} ${styles.recommendedSection}`}>
+            <div className={styles.attributeSectionHeader}>
+              <h4 className={styles.attributeSectionTitle}>
+                <FaCheckCircle className={styles.recommendedIcon} />
+                Atributos Recomendados
+              </h4>
+              <span className={styles.attributeCount}>{recommendedAttributes.length}</span>
+            </div>
             <div className={styles.attributesList}>
               {recommendedAttributes.map(attr => renderAttributeDetail(attr, 'recommended'))}
             </div>
@@ -220,11 +247,14 @@ const ValidadorML = () => {
 
         {/* Atributos Opcionais */}
         {optionalAttributes.length > 0 && (
-          <div className={styles.attributeSection}>
-            <h4 className={styles.attributeSectionTitle}>
-              <FaInfoCircle className={styles.optionalIcon} />
-              Atributos Opcionais ({optionalAttributes.length})
-            </h4>
+          <div className={`${styles.attributeSection} ${styles.optionalSection}`}>
+            <div className={styles.attributeSectionHeader}>
+              <h4 className={styles.attributeSectionTitle}>
+                <FaInfoCircle className={styles.optionalIcon} />
+                Atributos Opcionais
+              </h4>
+              <span className={styles.attributeCount}>{optionalAttributes.length}</span>
+            </div>
             <div className={styles.attributesList}>
               {optionalAttributes.map(attr => renderAttributeDetail(attr, 'optional'))}
             </div>
@@ -530,6 +560,40 @@ const ValidadorML = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de Valores */}
+      {showValuesModal && selectedAttribute && (
+        <div className={styles.modalOverlay} onClick={closeValuesModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>
+                <FaList /> Valores Aceitos: {selectedAttribute.name}
+              </h3>
+              <button 
+                className={styles.modalCloseButton}
+                onClick={closeValuesModal}
+                title="Fechar"
+              >
+                <FaTimes />
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <div className={styles.modalInfo}>
+                <p><strong>Total de valores:</strong> {selectedAttribute.values.length}</p>
+                <p><strong>Tipo:</strong> {selectedAttribute.value_type || 'Não especificado'}</p>
+              </div>
+              <div className={styles.valuesList}>
+                {selectedAttribute.values.map((value, index) => (
+                  <div key={index} className={styles.modalValueItem}>
+                    <span className={styles.modalValueName}>{value.name}</span>
+                    <span className={styles.modalValueId}>({value.id})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
