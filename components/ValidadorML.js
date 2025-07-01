@@ -363,7 +363,7 @@ const ValidadorML = () => {
               onSelect={cat => {
                 setSearchTerm(cat.id);
                 setActiveTab('id');
-                setTimeout(() => searchCategories(), 0);
+                setTimeout(() => searchCategories(), 100);
               }}
               selectedId={categoryDetails?.id}
             />
@@ -647,17 +647,23 @@ const ValidadorML = () => {
       {/* Modal da árvore */}
       {showTreeModal && categoryDetails && (
         <div className={styles.modalOverlay} onClick={() => setShowTreeModal(false)}>
-          <div className={styles.modalContent} style={{ maxWidth: 600 }} onClick={e => e.stopPropagation()}>
+          <div className={styles.modalContent} style={{ maxWidth: 800, maxHeight: '80vh' }} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}><FaList /> Árvore da Categoria</h3>
-              <button className={styles.modalCloseButton} onClick={() => setShowTreeModal(false)}><FaTimes /></button>
+              <h3 className={styles.modalTitle}>
+                <FaList /> Árvore de Categorias - {categoryDetails.name}
+              </h3>
+              <button className={styles.modalCloseButton} onClick={() => setShowTreeModal(false)}>
+                <FaTimes />
+              </button>
             </div>
             <div className={styles.modalBody}>
               <CategoryTreeView
+                rootCategoryId={categoryDetails.id}
                 onSelect={cat => {
                   setSearchTerm(cat.id);
                   setActiveTab('id');
-                  setTimeout(() => searchCategories(), 0);
+                  setShowTreeModal(false);
+                  setTimeout(() => searchCategories(), 100);
                 }}
                 selectedId={categoryDetails.id}
               />
