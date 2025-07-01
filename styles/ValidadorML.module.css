@@ -891,6 +891,20 @@
   margin-bottom: 0;
 }
 
+.noteText ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.noteText li {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.noteText li:last-child {
+  margin-bottom: 0;
+}
+
 .noData {
   text-align: center;
   color: var(--text-muted);

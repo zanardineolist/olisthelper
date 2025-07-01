@@ -307,9 +307,9 @@ const ValidadorML = () => {
             <>
               {/* Informação sobre o nível da categoria */}
               <div className={styles.variationCategoryInfo}>
-                <span className={styles.variationLabel}>Nível da categoria:</span>
+                <span className={styles.variationLabel}>Configuração da categoria:</span>
                 <span className={`${styles.variationValue} ${categoryAllowsVariations ? styles.success : styles.error}`}>
-                  {categoryAllowsVariations ? 'Permite variações' : 'Não permite variações'}
+                  {categoryAllowsVariations ? 'Categoria configurada para permitir variações' : 'Categoria não configurada para variações'}
                 </span>
               </div>
 
@@ -358,12 +358,17 @@ const ValidadorML = () => {
 
               <div className={styles.variationNotes}>
                 <FaInfoCircle className={styles.noteIcon} />
-                <div className={styles.noteText}>
-                  <p><strong>Dica:</strong> Variações permitem criar diferentes versões do mesmo produto (ex: tamanhos, cores)</p>
-                  {!categoryAllowsVariations && variationAttributes.length > 0 && (
-                    <p><strong>Nota:</strong> Esta categoria não permite variações no nível da categoria, mas possui atributos que podem ser usados como variações.</p>
-                  )}
-                </div>
+                                  <div className={styles.noteText}>
+                    <p><strong>Como funciona:</strong></p>
+                    <ul>
+                      <li><strong>Configuração da categoria:</strong> Indica se a categoria foi configurada pelo Mercado Livre para suportar variações</li>
+                      <li><strong>Atributos de variação:</strong> São os campos que podem ser usados para criar diferentes versões do produto (ex: tamanhos, cores)</li>
+                      <li><strong>Resultado:</strong> Se há atributos de variação disponíveis, você pode criar variações mesmo que a categoria não esteja configurada para isso</li>
+                    </ul>
+                    {!categoryAllowsVariations && variationAttributes.length > 0 && (
+                      <p><strong>💡 Dica:</strong> Esta categoria possui atributos que permitem variações, então você pode criar produtos com diferentes versões (ex: shorts em vários tamanhos e cores).</p>
+                    )}
+                  </div>
               </div>
             </>
           )}
@@ -627,15 +632,25 @@ const ValidadorML = () => {
                 <FaMoneyBillWave /> Configurações de Listagem
               </h4>
               <div className={styles.infoItem}>
-                <span className={styles.infoLabel}>Permite variações:</span>
-                <span className={`${styles.infoValue} ${categoryDetails.attributes_types ? styles.success : styles.error}`}>
-                  {categoryDetails.attributes_types ? 'Sim' : 'Não'}
-                </span>
-              </div>
-              <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>Status:</span>
                 <span className={styles.infoValue}>{categoryDetails.status || 'Ativa'}</span>
               </div>
+              {categoryDetails.settings && (
+                <>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Preço mínimo:</span>
+                    <span className={styles.infoValue}>
+                      R$ {categoryDetails.settings.minimum_price || '0,00'}
+                    </span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Preço máximo:</span>
+                    <span className={styles.infoValue}>
+                      {categoryDetails.settings.maximum_price ? `R$ ${categoryDetails.settings.maximum_price}` : 'Sem limite'}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
