@@ -157,9 +157,9 @@ const ValidadorML = () => {
             <span className={styles.attributeId}>ID: {attr.id}</span>
           </div>
           <div className={styles.attributeBadges}>
-            {Array.isArray(attr.tags) && attr.tags.map(tag => (
-              <span key={tag} className={`${styles.attributeBadge} ${styles[tag]}`}>
-                {tag}
+            {attr.tags && typeof attr.tags === 'object' && Object.entries(attr.tags).map(([key, value]) => (
+              <span key={key} className={`${styles.attributeBadge} ${value === true ? styles[key] : ''}`}>
+                {key}: {value === true ? 'Sim' : value === false ? 'Não' : value}
               </span>
             ))}
           </div>
@@ -277,7 +277,20 @@ const ValidadorML = () => {
   const renderVariationsInfo = (category) => {
     if (!category) return null;
 
-    const supportsVariations = category.attributes_types || category.allows_variations;
+    // Verificar se a categoria permite variações no nível da categoria
+    const categoryAllowsVariations = category.allows_variations === true;
+    
+    // Verificar se existem atributos que permitem variações
+    const variationAttributes = Array.isArray(category.attributes) 
+      ? category.attributes.filter(attr => 
+          attr.tags && (
+            attr.tags.allow_variations === true || 
+            attr.tags.variation_attribute === true
+          )
+        )
+      : [];
+    
+    const supportsVariations = categoryAllowsVariations || variationAttributes.length > 0;
     
     return (
       <div className={styles.variationsSection}>
@@ -295,7 +308,39 @@ const ValidadorML = () => {
 
           {supportsVariations && (
             <>
-              {category.attribute_types && (
+              {/* Informação sobre o nível da categoria */}
+              <div className={styles.variationCategoryInfo}>
+                <span className={styles.variationLabel}>Nível da categoria:</span>
+                <span className={`${styles.variationValue} ${categoryAllowsVariations ? styles.success : styles.error}`}>
+                  {categoryAllowsVariations ? 'Permite variações' : 'Não permite variações'}
+                </span>
+              </div>
+
+              {/* Lista de atributos que permitem variações */}
+              {variationAttributes.length > 0 && (
+                <div className={styles.variationTypes}>
+                  <span className={styles.variationLabel}>Atributos que permitem variações:</span>
+                  <div className={styles.variationList}>
+                    {variationAttributes.map((attr, index) => (
+                      <div key={index} className={styles.variationType}>
+                        <span className={styles.typeTitle}>{attr.name}</span>
+                        <span className={styles.typeId}>({attr.id})</span>
+                        <div className={styles.variationFlags}>
+                          {attr.tags.allow_variations && (
+                            <span className={styles.variationFlag}>allow_variations</span>
+                          )}
+                          {attr.tags.variation_attribute && (
+                            <span className={styles.variationFlag}>variation_attribute</span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Tipos de variação aceitos (se existir) */}
+              {category.attribute_types && category.attribute_types.length > 0 && (
                 <div className={styles.variationTypes}>
                   <span className={styles.variationLabel}>Tipos de variação aceitos:</span>
                   <div className={styles.variationList}>
@@ -317,6 +362,9 @@ const ValidadorML = () => {
                 <div className={styles.noteText}>
                   <p><strong>Dica:</strong> Variações permitem criar diferentes versões do mesmo produto (ex: tamanhos, cores)</p>
                   <p>Use variações para evitar criar anúncios separados para cada versão do produto</p>
+                  {!categoryAllowsVariations && variationAttributes.length > 0 && (
+                    <p><strong>Nota:</strong> Esta categoria não permite variações no nível da categoria, mas possui atributos que podem ser usados como variações.</p>
+                  )}
                 </div>
               </div>
             </>
