@@ -330,7 +330,7 @@ const ValidadorML = () => {
           Validador de Categoria Mercado Livre
         </h1>
         <p className={styles.description}>
-          Ferramenta de apoio ao time de suporte do ERP Olist para validação de categorias e atributos do Mercado Livre (Meli). Use para consultas técnicas e suporte a clientes ERP.
+          Consulte categorias e atributos do Mercado Livre.
         </p>
       </div>
 
@@ -541,7 +541,7 @@ const ValidadorML = () => {
                   <div className={styles.categoryNote}>
                     <FaInfoCircle className={styles.optionalIcon} />
                     <span>
-                      Atenção: Esta categoria possui subcategorias. Para validação técnica, selecione sempre o último nível da árvore.
+                      <strong>Atenção:</strong> Esta categoria possui subcategorias. Para validação, selecione sempre o último nível da árvore.
                     </span>
                   </div>
                 )}
