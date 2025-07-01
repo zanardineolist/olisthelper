@@ -641,9 +641,7 @@ const ValidadorML = () => {
             </div>
             <div className={styles.modalBody}>
               <CategoryTreeView
-                rootCategoryId={categoryDetails.id}
                 onSelect={cat => {
-                  setShowTreeModal(false);
                   setSearchTerm(cat.id);
                   setActiveTab('id');
                   setTimeout(() => searchCategories(), 0);
