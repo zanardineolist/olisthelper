@@ -357,30 +357,43 @@ const ValidadorML = () => {
           </button>
         </div>
 
-        <div className={styles.searchForm}>
-          <div className={styles.searchInputGroup}>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={
-                activeTab === 'id' 
-                  ? 'Digite o ID da categoria (ex: MLB270227)' 
-                  : 'Digite o nome da categoria (ex: shorts e bermudas)'
-              }
-              className={styles.searchInput}
-              onKeyPress={(e) => e.key === 'Enter' && searchCategories()}
+        {activeTab === 'tree' ? (
+          <div className={styles.treeTabContainer}>
+            <CategoryTreeView
+              onSelect={cat => {
+                setSearchTerm(cat.id);
+                setActiveTab('id');
+                setTimeout(() => searchCategories(), 0);
+              }}
+              selectedId={categoryDetails?.id}
             />
-            <button
-              onClick={searchCategories}
-              disabled={loading || !searchTerm.trim()}
-              className={styles.searchButton}
-            >
-              {loading ? <FaSpinner className={styles.spinner} /> : <FaSearch />}
-              Buscar
-            </button>
           </div>
-        </div>
+        ) : (
+          <div className={styles.searchForm}>
+            <div className={styles.searchInputGroup}>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder={
+                  activeTab === 'id' 
+                    ? 'Digite o ID da categoria (ex: MLB270227)' 
+                    : 'Digite o nome da categoria (ex: shorts e bermudas)'
+                }
+                className={styles.searchInput}
+                onKeyPress={(e) => e.key === 'Enter' && searchCategories()}
+              />
+              <button
+                onClick={searchCategories}
+                disabled={loading || !searchTerm.trim()}
+                className={styles.searchButton}
+              >
+                {loading ? <FaSpinner className={styles.spinner} /> : <FaSearch />}
+                Buscar
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Alerta de Credenciais */}
