@@ -18,7 +18,7 @@ import styles from '../styles/ValidadorML.module.css';
 import { saveAs } from 'file-saver';
 import CategoryTreeView from './CategoryTreeView';
 
-const ValidadorML = ({ user }) => {
+const ValidadorML = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -30,8 +30,6 @@ const ValidadorML = ({ user }) => {
   const [showValuesModal, setShowValuesModal] = useState(false);
   const [selectedAttribute, setSelectedAttribute] = useState(null);
   const [showTreeModal, setShowTreeModal] = useState(false);
-  const [syncLoading, setSyncLoading] = useState(false);
-  const [syncMessage, setSyncMessage] = useState('');
 
   // Função para buscar categorias
   const searchCategories = useCallback(async () => {
@@ -358,31 +356,6 @@ const ValidadorML = ({ user }) => {
             Árvore de Categorias
           </button>
         </div>
-
-        {activeTab === 'tree' && user?.admin && (
-          <div style={{ marginBottom: 16, textAlign: 'right' }}>
-            <button
-              className={styles.treeActionBtn}
-              onClick={async () => {
-                setSyncLoading(true);
-                setSyncMessage('');
-                try {
-                  const res = await fetch('/api/admin/sync-ml-tree', { method: 'POST' });
-                  const data = await res.json();
-                  setSyncMessage(data.success ? 'Árvore atualizada com sucesso!' : data.error || 'Erro ao atualizar');
-                } catch (e) {
-                  setSyncMessage('Erro ao atualizar');
-                } finally {
-                  setSyncLoading(false);
-                }
-              }}
-              disabled={syncLoading}
-            >
-              {syncLoading ? 'Atualizando...' : 'Atualizar Árvore Mercado Livre'}
-            </button>
-            {syncMessage && <div style={{ marginTop: 8 }}>{syncMessage}</div>}
-          </div>
-        )}
 
         {activeTab === 'tree' ? (
           <div className={styles.treeTabContainer}>
