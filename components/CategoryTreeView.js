@@ -4,13 +4,13 @@ import styles from '../styles/ValidadorML.module.css';
 
 // Utilitário para buscar categorias do ML
 async function fetchCategory(id) {
-  const res = await fetch(`https://api.mercadolibre.com/categories/${id}`);
+  const res = await fetch(`/api/mercadolivre/tree?id=${id}`);
   if (!res.ok) throw new Error('Erro ao buscar categoria');
   return res.json();
 }
 
 async function fetchRootCategories() {
-  const res = await fetch('https://api.mercadolibre.com/sites/MLB/categories');
+  const res = await fetch('/api/mercadolivre/tree');
   if (!res.ok) throw new Error('Erro ao buscar categorias raiz');
   return res.json();
 }
