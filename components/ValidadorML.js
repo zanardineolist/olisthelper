@@ -324,10 +324,10 @@ const ValidadorML = () => {
       <div className={styles.header}>
         <h1 className={styles.title}>
           <FaTag className={styles.titleIcon} />
-          Validador Mercado Livre
+          Validador de Categoria Mercado Livre
         </h1>
         <p className={styles.description}>
-          Valide categorias e obtenha informações essenciais para anunciar no Mercado Livre
+          Ferramenta de apoio ao time de suporte do ERP Olist para validação de categorias e atributos do Mercado Livre (Meli). Use para consultas técnicas e suporte a clientes ERP.
         </p>
       </div>
 
@@ -508,6 +508,14 @@ const ValidadorML = () => {
                     </span>
                   ))}
                 </div>
+                {Array.isArray(categoryDetails.children_categories) && categoryDetails.children_categories.length > 0 && (
+                  <div className={styles.categoryNote}>
+                    <FaInfoCircle className={styles.optionalIcon} />
+                    <span>
+                      Observação: Esta categoria possui subcategorias. Para validação completa, selecione o último nível da árvore.
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -559,16 +567,16 @@ const ValidadorML = () => {
         </h3>
         <div className={styles.helpContent}>
           <div className={styles.helpItem}>
-            <strong>Busca por Texto:</strong> Digite palavras-chave para encontrar categorias relacionadas
+            <strong>Busca por Texto:</strong> Digite palavras-chave para encontrar categorias do Mercado Livre relacionadas
           </div>
           <div className={styles.helpItem}>
-            <strong>Busca por ID:</strong> Digite o código exato da categoria (ex: MLB1055)
+            <strong>Busca por ID:</strong> Digite o código exato da categoria (ex: MLB270227)
           </div>
           <div className={styles.helpItem}>
-            <strong>Atributos Obrigatórios:</strong> Campos que DEVEM ser preenchidos ao criar um anúncio
+            <strong>Atributos Obrigatórios:</strong> Campos que DEVEM ser preenchidos em integrações e operações técnicas
           </div>
           <div className={styles.helpItem}>
-            <strong>Dica:</strong> Use as informações de atributos obrigatórios para preparar seus produtos antes de anunciar
+            <strong>Dica:</strong> Use esta ferramenta para validar requisitos técnicos de integração e orientar clientes do ERP Olist
           </div>
         </div>
       </div>
