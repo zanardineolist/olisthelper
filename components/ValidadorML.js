@@ -11,10 +11,12 @@ import {
   FaMoneyBillWave,
   FaChartBar,
   FaTimes,
-  FaEye
+  FaEye,
+  FaChevronRight
 } from 'react-icons/fa';
 import styles from '../styles/ValidadorML.module.css';
 import { saveAs } from 'file-saver';
+import CategoryTreeView from './CategoryTreeView';
 
 const ValidadorML = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,9 +26,10 @@ const ValidadorML = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [credentialsError, setCredentialsError] = useState(false);
-  const [searchType, setSearchType] = useState('text'); // 'text' ou 'id'
+  const [activeTab, setActiveTab] = useState('text'); // 'text', 'id', 'tree'
   const [showValuesModal, setShowValuesModal] = useState(false);
   const [selectedAttribute, setSelectedAttribute] = useState(null);
+  const [showTreeModal, setShowTreeModal] = useState(false);
 
   // Função para buscar categorias
   const searchCategories = useCallback(async () => {
@@ -39,7 +42,7 @@ const ValidadorML = () => {
     try {
       let response;
       
-      if (searchType === 'id') {
+      if (activeTab === 'id') {
         // Busca direta por ID
         response = await fetch(`/api/mercadolivre/categories?type=details&categoryId=${encodeURIComponent(searchTerm.trim())}`);
         const data = await response.json();
@@ -74,7 +77,7 @@ const ValidadorML = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, searchType]);
+  }, [searchTerm, activeTab]);
 
   // Função para obter detalhes de uma categoria
   const getCategoryDetails = useCallback(async (categoryId) => {
@@ -335,16 +338,22 @@ const ValidadorML = () => {
       <div className={styles.searchSection}>
         <div className={styles.searchTypeToggle}>
           <button
-            className={`${styles.toggleButton} ${searchType === 'text' ? styles.active : ''}`}
-            onClick={() => setSearchType('text')}
+            className={`${styles.toggleButton} ${activeTab === 'text' ? styles.active : ''}`}
+            onClick={() => setActiveTab('text')}
           >
             Busca por Texto
           </button>
           <button
-            className={`${styles.toggleButton} ${searchType === 'id' ? styles.active : ''}`}
-            onClick={() => setSearchType('id')}
+            className={`${styles.toggleButton} ${activeTab === 'id' ? styles.active : ''}`}
+            onClick={() => setActiveTab('id')}
           >
             Busca por ID
+          </button>
+          <button
+            className={`${styles.toggleButton} ${activeTab === 'tree' ? styles.active : ''}`}
+            onClick={() => setActiveTab('tree')}
+          >
+            Árvore de Categorias
           </button>
         </div>
 
@@ -355,7 +364,7 @@ const ValidadorML = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={
-                searchType === 'id' 
+                activeTab === 'id' 
                   ? 'Digite o ID da categoria (ex: MLB270227)' 
                   : 'Digite o nome da categoria (ex: shorts e bermudas)'
               }
@@ -499,6 +508,13 @@ const ValidadorML = () => {
               <div className={styles.detailsCard}>
                 <h4 className={styles.cardTitle}>
                   <FaList /> Caminho da Categoria
+                  <button
+                    className={styles.treeExpandBtn}
+                    title="Visualizar árvore"
+                    onClick={() => setShowTreeModal(true)}
+                  >
+                    <FaChevronRight /> Visualizar árvore
+                  </button>
                 </h4>
                 <div className={styles.breadcrumb}>
                   {categoryDetails.path_from_root.map((path, index) => (
@@ -512,7 +528,7 @@ const ValidadorML = () => {
                   <div className={styles.categoryNote}>
                     <FaInfoCircle className={styles.optionalIcon} />
                     <span>
-                      Observação: Esta categoria possui subcategorias. Para validação completa, selecione o último nível da árvore.
+                      Atenção: Esta categoria possui subcategorias. Para validação técnica, selecione sempre o último nível da árvore.
                     </span>
                   </div>
                 )}
@@ -610,6 +626,30 @@ const ValidadorML = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal da árvore */}
+      {showTreeModal && categoryDetails && (
+        <div className={styles.modalOverlay} onClick={() => setShowTreeModal(false)}>
+          <div className={styles.modalContent} style={{ maxWidth: 600 }} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}><FaList /> Árvore da Categoria</h3>
+              <button className={styles.modalCloseButton} onClick={() => setShowTreeModal(false)}><FaTimes /></button>
+            </div>
+            <div className={styles.modalBody}>
+              <CategoryTreeView
+                rootCategoryId={categoryDetails.id}
+                onSelect={cat => {
+                  setShowTreeModal(false);
+                  setSearchTerm(cat.id);
+                  setActiveTab('id');
+                  setTimeout(() => searchCategories(), 0);
+                }}
+                selectedId={categoryDetails.id}
+              />
             </div>
           </div>
         </div>
