@@ -1,4 +1,4 @@
-/* ValidadorML.module.css */
+/* ValidadorML.module.css - Versão Refatorada */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -14,6 +14,7 @@
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   border-radius: 12px;
   color: var(--color-white);
+  border: 1px solid var(--border-color);
 }
 
 .title {
@@ -41,7 +42,6 @@
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
 }
 
@@ -52,6 +52,7 @@
   background: var(--bg-color);
   border-radius: 8px;
   padding: 0.25rem;
+  border: 1px solid var(--border-color);
 }
 
 .toggleButton {
@@ -62,13 +63,18 @@
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  color: var(--text-secondary);
+}
+
+.toggleButton:hover {
+  background: rgba(10, 78, 228, 0.1);
+  color: var(--primary-color);
 }
 
 .toggleButton.active {
   background: var(--primary-color);
   color: var(--color-white);
-  box-shadow: 0 2px 4px rgba(10, 78, 228, 0.3);
 }
 
 .searchForm {
@@ -86,10 +92,10 @@
 .searchInput {
   flex: 1;
   padding: 1rem;
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 1rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   background: var(--bg-color);
   color: var(--text-primary);
 }
@@ -97,7 +103,7 @@
 .searchInput:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(10, 78, 228, 0.1);
+  background: var(--bg-color);
 }
 
 .searchButton {
@@ -111,14 +117,13 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   min-width: 120px;
   justify-content: center;
 }
 
 .searchButton:hover:not(:disabled) {
   background: var(--primary-dark);
-  transform: translateY(-1px);
 }
 
 .searchButton:disabled {
@@ -150,11 +155,10 @@
 /* Alerta de Credenciais */
 .credentialsAlert {
   background: var(--warning-bg);
-  border: 2px solid var(--warning-color);
+  border: 1px solid var(--warning-color);
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 4px 8px rgba(240, 160, 40, 0.2);
 }
 
 .alertHeader {
@@ -233,8 +237,6 @@
 
 .retryButton:hover {
   background: var(--excellent-light);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(119, 158, 61, 0.3);
 }
 
 /* Resultados da Busca */
@@ -243,7 +245,6 @@
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
 }
 
@@ -266,18 +267,16 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   background: var(--bg-color);
 }
 
 .resultItem:hover {
   border-color: var(--primary-color);
   background: var(--bg-color);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
 }
 
 .resultInfo {
@@ -308,7 +307,6 @@
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
 }
 
@@ -350,6 +348,26 @@
   align-items: center;
   gap: 0.5rem;
   color: var(--text-secondary);
+}
+
+.treeExpandBtn {
+  background: var(--primary-color);
+  color: var(--color-white);
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.3s ease;
+  margin-left: auto;
+}
+
+.treeExpandBtn:hover {
+  background: var(--primary-dark);
 }
 
 .infoItem {
@@ -402,7 +420,7 @@
   padding: 0.25rem 0.5rem;
   cursor: pointer;
   font-size: 0.75rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .copyButton:hover {
@@ -459,7 +477,7 @@
   background: var(--bg-color);
   border-radius: 12px;
   padding: 1.5rem;
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
   position: relative;
   margin-bottom: 2rem;
 }
@@ -470,7 +488,7 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .attributeSectionTitle {
@@ -543,12 +561,10 @@
 
 .attributeItem.required {
   border-left: 4px solid var(--poor-color);
-  box-shadow: 0 2px 4px rgba(230, 78, 54, 0.1);
 }
 
 .attributeItem.recommended {
   border-left: 4px solid var(--excellent-color);
-  box-shadow: 0 2px 4px rgba(119, 158, 61, 0.1);
 }
 
 .attributeItem.optional {
@@ -558,22 +574,21 @@
 /* Seções de atributos com cores diferentes */
 .requiredSection {
   border-left: 6px solid var(--poor-color);
-  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(230, 78, 54, 0.05) 100%);
+  background: var(--bg-color);
 }
 
 .recommendedSection {
   border-left: 6px solid var(--excellent-color);
-  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(119, 158, 61, 0.05) 100%);
+  background: var(--bg-color);
 }
 
 .optionalSection {
   border-left: 6px solid var(--text-muted);
-  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(180, 180, 180, 0.05) 100%);
+  background: var(--bg-color);
 }
 
 .attributeItem:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  background: var(--bg-color);
 }
 
 .attributeHeader {
@@ -692,12 +707,11 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .moreValuesButton:hover {
   background: var(--primary-dark);
-  transform: translateY(-1px);
 }
 
 .eyeIcon {
@@ -716,8 +730,7 @@
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: var(--shadow-md);
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--border-color);
 }
 
 .variationInfo {
@@ -732,6 +745,7 @@
   padding: 1rem;
   background: var(--bg-color);
   border-radius: 8px;
+  border: 1px solid var(--border-color);
 }
 
 .variationLabel {
@@ -777,6 +791,7 @@
   background: var(--bg-color);
   border-radius: 6px;
   border-left: 4px solid var(--primary-color);
+  border: 1px solid var(--border-color);
 }
 
 .typeTitle {
@@ -842,7 +857,6 @@
   background: var(--bg-secondary);
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
 }
 
@@ -865,6 +879,411 @@
   background: var(--bg-color);
   border-radius: 6px;
   border-left: 4px solid var(--primary-color);
+  border: 1px solid var(--border-color);
+}
+
+/* Modal de Valores */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  max-width: 750px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-color);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--title-color);
+}
+
+.modalCloseButton {
+  background: var(--poor-color);
+  color: var(--color-white);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modalCloseButton:hover {
+  background: var(--poor-light);
+}
+
+.modalBody {
+  padding: 1.5rem;
+  max-height: calc(80vh - 100px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.modalInfo {
+  background: var(--bg-color);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.modalInfo p {
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+.modalInfo p:first-child {
+  margin-top: 0;
+}
+
+.modalInfo p:last-child {
+  margin-bottom: 0;
+}
+
+.valuesList {
+  display: grid;
+  gap: 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+}
+
+.modalValueItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: var(--bg-color);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.modalValueItem:hover {
+  background: var(--border-color);
+}
+
+.modalValueName {
+  font-weight: 500;
+  color: var(--title-color);
+}
+
+.modalValueId {
+  font-family: 'Courier New', monospace;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* Scrollbar personalizada para o modal */
+.modalBody::-webkit-scrollbar,
+.valuesList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modalBody::-webkit-scrollbar-track,
+.valuesList::-webkit-scrollbar-track {
+  background: var(--bg-color);
+  border-radius: 10px;
+}
+
+.modalBody::-webkit-scrollbar-thumb,
+.valuesList::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 10px;
+}
+
+.modalBody::-webkit-scrollbar-thumb:hover,
+.valuesList::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+.exportButton {
+  background: var(--primary-color);
+  color: var(--color-white);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.exportButton:hover {
+  background: var(--primary-dark);
+}
+
+.categoryNote {
+  background: var(--warning-bg, #fffbe6);
+  border: 1px solid var(--warning-color, #f0a028);
+  color: var(--warning-color, #f0a028);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 1rem;
+}
+
+/* TreeView Styles - Melhorados */
+.treeTabContainer {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+  min-height: 400px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.treeWrapper {
+  width: 100%;
+}
+
+.treeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.treeTitle {
+  font-size: 1.25rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--title-color);
+}
+
+.treeStats {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.treeCount {
+  background: var(--primary-color);
+  color: var(--color-white);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.treeActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.treeActionBtn {
+  background: var(--bg-color);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.treeActionBtn:hover {
+  background: var(--primary-color);
+  color: var(--color-white);
+  border-color: var(--primary-color);
+}
+
+.treeContainer {
+  width: 100%;
+}
+
+.treeNodeContainer {
+  width: 100%;
+}
+
+.treeNode {
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+.treeNodeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.treeNodeRow:hover {
+  background: var(--bg-color);
+  border-color: var(--primary-color);
+}
+
+.treeNodeSelected {
+  background: var(--primary-color);
+  color: var(--color-white);
+  border-color: var(--primary-color);
+}
+
+.treeToggleBtn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  min-width: 20px;
+  justify-content: center;
+}
+
+.treeToggleBtn:hover {
+  background: var(--primary-color);
+  color: var(--color-white);
+}
+
+.treeNodeLabel {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  flex: 1;
+  text-align: left;
+}
+
+.treeNodeLabel:hover {
+  background: rgba(10, 78, 228, 0.1);
+}
+
+.nodeName {
+  font-weight: 500;
+}
+
+.nodeId {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+.treeChildren {
+  margin-left: 1.5rem;
+  border-left: 2px solid var(--border-color);
+  padding-left: 1rem;
+  margin-top: 0.5rem;
+}
+
+.treeLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 2rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.treeError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: var(--poor-color);
+  text-align: center;
+  background: var(--poor-bg);
+  border-radius: 8px;
+  border: 1px solid var(--poor-color);
+}
+
+.treeEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 2rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+}
+
+/* Melhorias no modal da árvore */
+.modalContent[style*="maxWidth: 800"] {
+  max-width: 800px !important;
+  max-height: 80vh !important;
+}
+
+.modalContent[style*="maxWidth: 800"] .modalBody {
+  max-height: calc(80vh - 120px);
+  overflow-y: auto;
+  padding: 1.5rem;
 }
 
 /* Responsividade */
@@ -961,458 +1380,8 @@
     align-items: flex-start;
     gap: 0.25rem;
   }
-}
 
-/* Modal de Valores */
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.modalContent {
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  max-width: 750px;
-  width: 100%;
-  max-height: 80vh;
-  overflow: hidden;
-  box-shadow: none;
-  border: 1px solid var(--border-color);
-}
-
-.modalHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-color);
-}
-
-.modalTitle {
-  font-size: 1.25rem;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--title-color);
-}
-
-.modalCloseButton {
-  background: var(--poor-color);
-  color: var(--color-white);
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.modalCloseButton:hover {
-  background: var(--poor-light);
-  transform: scale(1.1);
-}
-
-.modalBody {
-  padding: 1.5rem;
-  max-height: calc(80vh - 100px);
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.modalInfo {
-  background: var(--bg-color);
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--border-color);
-}
-
-.modalInfo p {
-  margin: 0.5rem 0;
-  color: var(--text-secondary);
-}
-
-.modalInfo p:first-child {
-  margin-top: 0;
-}
-
-.modalInfo p:last-child {
-  margin-bottom: 0;
-}
-
-.valuesList {
-  display: grid;
-  gap: 0.75rem;
-  max-height: 400px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0.5rem 0.5rem 0.5rem 0.5rem;
-}
-
-.modalValueItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.25rem;
-  background: var(--bg-color);
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  transition: all 0.2s ease;
-}
-
-.modalValueItem:hover {
-  background: var(--border-color);
-  transform: translateX(4px);
-}
-
-.modalValueName {
-  font-weight: 500;
-  color: var(--title-color);
-}
-
-.modalValueId {
-  font-family: 'Courier New', monospace;
-  color: var(--text-muted);
-  font-size: 0.875rem;
-}
-
-/* Scrollbar personalizada para o modal */
-.modalBody::-webkit-scrollbar,
-.valuesList::-webkit-scrollbar {
-  width: 8px;
-}
-
-.modalBody::-webkit-scrollbar-track,
-.valuesList::-webkit-scrollbar-track {
-  background: var(--bg-color);
-  border-radius: 10px;
-}
-
-.modalBody::-webkit-scrollbar-thumb,
-.valuesList::-webkit-scrollbar-thumb {
-  background: var(--text-muted);
-  border-radius: 10px;
-}
-
-.modalBody::-webkit-scrollbar-thumb:hover,
-.valuesList::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
-}
-
-@media (max-width: 768px) {
-  .modalContent {
-    max-width: 98vw;
-    max-height: 95vh;
-  }
-  .modalHeader {
-    padding: 1rem;
-  }
-  .modalTitle {
-    font-size: 1.1rem;
-  }
-  .modalBody {
-    padding: 1rem;
-  }
-  .modalValueItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-    padding: 0.75rem 0.75rem;
-  }
-}
-
-.categoryDetails,
-.searchResults,
-.helpSection,
-.variationsSection,
-.attributeSection,
-.detailsCard {
-  box-shadow: none !important;
-}
-
-.exportButton {
-  background: var(--primary-color);
-  color: var(--color-white);
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
-  margin-top: 1rem;
-}
-.exportButton:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-}
-
-.categoryNote {
-  background: var(--warning-bg, #fffbe6);
-  border: 1.5px solid var(--warning-color, #f0a028);
-  color: var(--warning-color, #f0a028);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 1rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  font-size: 1rem;
-}
-
-/* TreeView Styles - Melhorados */
-.treeTabContainer {
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  padding: 2rem;
-  border: 1px solid var(--border-color);
-  margin-bottom: 2rem;
-  min-height: 400px;
-  max-height: 600px;
-  overflow-y: auto;
-}
-
-.treeWrapper {
-  width: 100%;
-}
-
-.treeHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--border-color);
-}
-
-.treeTitle {
-  font-size: 1.25rem;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--title-color);
-}
-
-.treeStats {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.treeCount {
-  background: var(--primary-color);
-  color: var(--color-white);
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.treeActions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.treeActionBtn {
-  background: var(--bg-color);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.treeActionBtn:hover {
-  background: var(--primary-color);
-  color: var(--color-white);
-  border-color: var(--primary-color);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(10, 78, 228, 0.2);
-}
-
-.treeActionBtn:active {
-  transform: translateY(0);
-}
-
-.treeContainer {
-  width: 100%;
-}
-
-.treeNodeContainer {
-  width: 100%;
-}
-
-.treeNode {
-  width: 100%;
-  margin-bottom: 0.25rem;
-}
-
-.treeNodeRow {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  border: 1px solid transparent;
-}
-
-.treeNodeRow:hover {
-  background: var(--bg-color);
-  border-color: var(--primary-color);
-  transform: translateX(4px);
-}
-
-.treeNodeSelected {
-  background: var(--primary-color);
-  color: var(--color-white);
-  border-color: var(--primary-color);
-  box-shadow: 0 2px 8px rgba(10, 78, 228, 0.3);
-}
-
-.treeToggleBtn {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  cursor: pointer;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  min-width: 20px;
-  justify-content: center;
-}
-
-.treeToggleBtn:hover {
-  background: var(--primary-color);
-  color: var(--color-white);
-  transform: scale(1.1);
-}
-
-.treeNodeLabel {
-  background: none;
-  border: none;
-  color: inherit;
-  font-size: 0.95rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 500;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  flex: 1;
-  text-align: left;
-}
-
-.treeNodeLabel:hover {
-  background: rgba(10, 78, 228, 0.1);
-  transform: translateX(2px);
-}
-
-.nodeName {
-  font-weight: 500;
-}
-
-.nodeId {
-  font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
-  opacity: 0.7;
-  font-weight: 400;
-}
-
-.treeChildren {
-  margin-left: 1.5rem;
-  border-left: 2px solid var(--border-color);
-  padding-left: 1rem;
-  margin-top: 0.5rem;
-}
-
-.treeLoading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 3rem 2rem;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-.loadingSpinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid var(--border-color);
-  border-top: 3px solid var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-.treeError {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem;
-  color: var(--poor-color);
-  text-align: center;
-  background: var(--poor-bg);
-  border-radius: 8px;
-  border: 1px solid var(--poor-color);
-}
-
-.treeEmpty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 3rem 2rem;
-  color: var(--text-muted);
-  font-style: italic;
-  text-align: center;
-}
-
-/* Melhorias no modal da árvore */
-.modalContent[style*="maxWidth: 800"] {
-  max-width: 800px !important;
-  max-height: 80vh !important;
-}
-
-.modalContent[style*="maxWidth: 800"] .modalBody {
-  max-height: calc(80vh - 120px);
-  overflow-y: auto;
-  padding: 1.5rem;
-}
-
-/* Responsividade para TreeView */
-@media (max-width: 768px) {
+  /* TreeView responsivo */
   .treeTabContainer {
     padding: 1rem;
     min-height: 300px;
