@@ -820,6 +820,27 @@
   font-weight: 500;
 }
 
+.variationValuesButton {
+  background: var(--primary-color);
+  color: var(--color-white);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  margin-left: auto;
+}
+
+.variationValuesButton:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
 .typeTitle {
   font-weight: 500;
   color: var(--title-color);
@@ -1371,6 +1392,12 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
+  }
+
+  .variationValuesButton {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
   }
 
   .variationNotes {

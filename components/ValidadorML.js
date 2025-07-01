@@ -283,10 +283,7 @@ const ValidadorML = () => {
     // Verificar se existem atributos que permitem variações
     const variationAttributes = Array.isArray(category.attributes) 
       ? category.attributes.filter(attr => 
-          attr.tags && (
-            attr.tags.allow_variations === true || 
-            attr.tags.variation_attribute === true
-          )
+          attr.tags && attr.tags.allow_variations === true
         )
       : [];
     
@@ -325,14 +322,16 @@ const ValidadorML = () => {
                       <div key={index} className={styles.variationType}>
                         <span className={styles.typeTitle}>{attr.name}</span>
                         <span className={styles.typeId}>({attr.id})</span>
-                        <div className={styles.variationFlags}>
-                          {attr.tags.allow_variations && (
-                            <span className={styles.variationFlag}>allow_variations</span>
-                          )}
-                          {attr.tags.variation_attribute && (
-                            <span className={styles.variationFlag}>variation_attribute</span>
-                          )}
-                        </div>
+                        {attr.values && attr.values.length > 0 && (
+                          <button 
+                            className={styles.variationValuesButton}
+                            onClick={() => openValuesModal(attr)}
+                            title="Ver todos os valores aceitos"
+                          >
+                            <FaEye className={styles.eyeIcon} />
+                            Ver {attr.values.length} valores
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -361,7 +360,6 @@ const ValidadorML = () => {
                 <FaInfoCircle className={styles.noteIcon} />
                 <div className={styles.noteText}>
                   <p><strong>Dica:</strong> Variações permitem criar diferentes versões do mesmo produto (ex: tamanhos, cores)</p>
-                  <p>Use variações para evitar criar anúncios separados para cada versão do produto</p>
                   {!categoryAllowsVariations && variationAttributes.length > 0 && (
                     <p><strong>Nota:</strong> Esta categoria não permite variações no nível da categoria, mas possui atributos que podem ser usados como variações.</p>
                   )}
