@@ -596,16 +596,13 @@ const ValidadorML = () => {
         </h3>
         <div className={styles.helpContent}>
           <div className={styles.helpItem}>
-            <strong>Busca por Texto:</strong> Digite palavras-chave para encontrar categorias do Mercado Livre relacionadas
+            <strong>Busca por Texto:</strong> Digite palavras-chave para encontrar categorias.
           </div>
           <div className={styles.helpItem}>
-            <strong>Busca por ID:</strong> Digite o código exato da categoria (ex: MLB270227)
+            <strong>Busca por ID:</strong> Digite o código exato da categoria (ex: MLB270227).
           </div>
           <div className={styles.helpItem}>
-            <strong>Atributos Obrigatórios:</strong> Campos que DEVEM ser preenchidos em integrações e operações técnicas
-          </div>
-          <div className={styles.helpItem}>
-            <strong>Dica:</strong> Use esta ferramenta para validar requisitos técnicos de integração e orientar clientes do ERP Olist
+            <strong>Atributos Obrigatórios:</strong> Campos que DEVEM ser preenchidos no envio de um anúncio.
           </div>
         </div>
       </div>
