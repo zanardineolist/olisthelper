@@ -1436,4 +1436,23 @@
     max-width: 95vw !important;
     max-height: 90vh !important;
   }
+}
+
+/* Feedback de carregamento da árvore */
+.loadingFromTree {
+  background: var(--primary-color);
+  color: var(--color-white);
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 } 

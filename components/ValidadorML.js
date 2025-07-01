@@ -30,6 +30,7 @@ const ValidadorML = () => {
   const [showValuesModal, setShowValuesModal] = useState(false);
   const [selectedAttribute, setSelectedAttribute] = useState(null);
   const [showTreeModal, setShowTreeModal] = useState(false);
+  const [loadingFromTree, setLoadingFromTree] = useState(false);
 
   // Função para buscar categorias
   const searchCategories = useCallback(async () => {
@@ -91,6 +92,16 @@ const ValidadorML = () => {
       if (data.success) {
         setSelectedCategory(data.data);
         setCategoryDetails(data.data);
+        
+        // Scroll automático para os detalhes se estiver carregando da árvore
+        if (loadingFromTree) {
+          setTimeout(() => {
+            const detailsElement = document.querySelector(`.${styles.categoryDetails}`);
+            if (detailsElement) {
+              detailsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 500);
+        }
       } else {
         throw new Error(data.error || 'Erro ao carregar detalhes');
       }
@@ -107,7 +118,7 @@ const ValidadorML = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [loadingFromTree]);
 
   // Função para copiar informações
   const copyToClipboard = (text) => {
@@ -363,7 +374,15 @@ const ValidadorML = () => {
               onSelect={cat => {
                 setSearchTerm(cat.id);
                 setActiveTab('id');
-                setTimeout(() => searchCategories(), 100);
+                setError(''); // Limpar erros anteriores
+                setLoadingFromTree(true); // Indicar que está carregando da árvore
+                // Busca automática imediata
+                setTimeout(() => {
+                  setLoading(true);
+                  getCategoryDetails(cat.id).finally(() => {
+                    setLoadingFromTree(false);
+                  });
+                }, 100);
               }}
               selectedId={categoryDetails?.id}
             />
@@ -395,6 +414,14 @@ const ValidadorML = () => {
           </div>
         )}
       </div>
+
+      {/* Feedback de carregamento da árvore */}
+      {loadingFromTree && (
+        <div className={styles.loadingFromTree}>
+          <FaSpinner className={styles.spinner} />
+          <span>Carregando categoria selecionada...</span>
+        </div>
+      )}
 
       {/* Alerta de Credenciais */}
       {credentialsError && (
@@ -660,7 +687,15 @@ const ValidadorML = () => {
                   setSearchTerm(cat.id);
                   setActiveTab('id');
                   setShowTreeModal(false);
-                  setTimeout(() => searchCategories(), 100);
+                  setError(''); // Limpar erros anteriores
+                  setLoadingFromTree(true); // Indicar que está carregando da árvore
+                  // Busca automática imediata
+                  setTimeout(() => {
+                    setLoading(true);
+                    getCategoryDetails(cat.id).finally(() => {
+                      setLoadingFromTree(false);
+                    });
+                  }, 100);
                 }}
                 selectedId={categoryDetails.id}
               />
