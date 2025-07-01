@@ -15,14 +15,27 @@ async function fetchRootCategories() {
   return res.json();
 }
 
-function CategoryNode({ node, expanded, onToggle, onSelect, selectedId, level = 0, loading }) {
-  const hasChildren = node.children_categories && node.children_categories.length > 0;
+// Um nó pode ser expandido se não for folha (ou seja, se não for do último nível)
+function canExpand(node, childrenMap) {
+  // Se já carregou filhos, verifica se há filhos
+  if (childrenMap[node.id]) {
+    return childrenMap[node.id].length > 0;
+  }
+  // Se veio com children_categories, assume que pode expandir
+  if (Array.isArray(node.children_categories)) {
+    return node.children_categories.length > 0;
+  }
+  // Se não sabemos, assume que pode expandir (só não mostra seta se for folha de verdade)
+  return true;
+}
+
+function CategoryNode({ node, expanded, onToggle, onSelect, selectedId, level = 0, loading, childrenMap }) {
   const isSelected = selectedId === node.id;
-  
+  const showArrow = canExpand(node, childrenMap);
   return (
     <div className={styles.treeNode} style={{ marginLeft: `${level * 20}px` }}>
       <div className={`${styles.treeNodeRow} ${isSelected ? styles.treeNodeSelected : ''}`}>
-        {hasChildren ? (
+        {showArrow ? (
           <button 
             className={styles.treeToggleBtn} 
             onClick={() => onToggle(node.id)}
@@ -63,7 +76,6 @@ export default function CategoryTreeView({ rootCategoryId, onSelect, selectedId 
     const loadInitialData = async () => {
       setLoading(true);
       setError('');
-      
       try {
         if (rootCategoryId) {
           const cat = await fetchCategory(rootCategoryId);
@@ -71,24 +83,22 @@ export default function CategoryTreeView({ rootCategoryId, onSelect, selectedId 
           setExpanded(prev => ({ ...prev, [rootCategoryId]: true }));
           // Carregar filhos do rootCategoryId no childrenMap
           if (cat.children_categories && cat.children_categories.length > 0) {
-            setChildrenMap(prev => ({ ...prev, [cat.id]: cat.children_categories }));
+            setChildrenMap(prev => ({ ...prev, [cat.id]: cat.children_categories.map(child => ({ id: child.id, name: child.name || '', children_categories: undefined })) }));
           }
         } else {
           const categories = await fetchRootCategories();
           setTree(categories);
         }
       } catch (err) {
-        console.error('Erro ao carregar categorias:', err);
         setError('Erro ao carregar categorias. Tente novamente.');
       } finally {
         setLoading(false);
       }
     };
-
     loadInitialData();
   }, [rootCategoryId]);
 
-  // Carrega subcategorias sob demanda SEMPRE que expandir um nó
+  // Sempre buscar detalhes completos ao expandir um nó
   const handleToggle = async (id) => {
     const isExpanding = !expanded[id];
     setExpanded(exp => ({ ...exp, [id]: isExpanding }));
@@ -96,9 +106,9 @@ export default function CategoryTreeView({ rootCategoryId, onSelect, selectedId 
       setLoadingNode(id);
       try {
         const cat = await fetchCategory(id);
-        setChildrenMap(map => ({ ...map, [id]: cat.children_categories || [] }));
+        // Preenche os filhos com id e name (e mantém children_categories indefinido para forçar busca sob demanda)
+        setChildrenMap(map => ({ ...map, [id]: (cat.children_categories || []).map(child => ({ id: child.id, name: child.name || '', children_categories: undefined })) }));
       } catch (err) {
-        console.error('Erro ao carregar subcategorias:', err);
         setError('Erro ao carregar subcategorias.');
         setExpanded(exp => ({ ...exp, [id]: false }));
       } finally {
@@ -107,47 +117,34 @@ export default function CategoryTreeView({ rootCategoryId, onSelect, selectedId 
     }
   };
 
-  // Expandir todas as categorias
+  // Expandir todas as categorias (mantém igual, mas busca detalhes completos)
   const expandAll = async () => {
     setLoading(true);
     const newExpanded = { ...expanded };
     const newChildrenMap = { ...childrenMap };
-    
     try {
-      // Função recursiva para expandir todas as categorias
       const expandCategory = async (node) => {
-        if (node.children_categories && node.children_categories.length > 0) {
-          newExpanded[node.id] = true;
-          
-          // Carregar filhos se ainda não foram carregados
-          if (!newChildrenMap[node.id]) {
-            try {
-              const cat = await fetchCategory(node.id);
-              newChildrenMap[node.id] = cat.children_categories || [];
-            } catch (err) {
-              console.error('Erro ao carregar subcategorias:', err);
-              newChildrenMap[node.id] = [];
-            }
-          }
-          
-          // Expandir filhos (limitado para evitar muitas requisições)
-          const childrenToExpand = newChildrenMap[node.id].slice(0, 10); // Limita a 10 filhos por categoria
-          for (const child of childrenToExpand) {
-            await expandCategory(child);
+        newExpanded[node.id] = true;
+        if (!newChildrenMap[node.id]) {
+          try {
+            const cat = await fetchCategory(node.id);
+            newChildrenMap[node.id] = (cat.children_categories || []).map(child => ({ id: child.id, name: child.name || '', children_categories: undefined }));
+          } catch (err) {
+            newChildrenMap[node.id] = [];
           }
         }
+        const childrenToExpand = newChildrenMap[node.id].slice(0, 10);
+        for (const child of childrenToExpand) {
+          await expandCategory(child);
+        }
       };
-      
-      // Expandir todas as categorias raiz (limitado a 5 categorias raiz)
       const categoriesToExpand = tree.slice(0, 5);
       for (const node of categoriesToExpand) {
         await expandCategory(node);
       }
-      
       setExpanded(newExpanded);
       setChildrenMap(newChildrenMap);
     } catch (err) {
-      console.error('Erro ao expandir categorias:', err);
       setError('Erro ao expandir categorias. Tente novamente.');
     } finally {
       setLoading(false);
@@ -161,10 +158,8 @@ export default function CategoryTreeView({ rootCategoryId, onSelect, selectedId 
 
   // Renderização recursiva da árvore
   const renderNode = (node, level = 0) => {
-    const hasChildren = node.children_categories && node.children_categories.length > 0;
     const isExpanded = expanded[node.id];
     const children = childrenMap[node.id] || [];
-
     return (
       <div key={node.id} className={styles.treeNodeContainer}>
         <CategoryNode
@@ -175,10 +170,9 @@ export default function CategoryTreeView({ rootCategoryId, onSelect, selectedId 
           selectedId={selectedId}
           level={level}
           loading={loadingNode === node.id}
+          childrenMap={childrenMap}
         />
-        
-        {/* Renderizar filhos se expandido */}
-        {isExpanded && hasChildren && (
+        {isExpanded && (
           <div className={styles.treeChildren}>
             {loadingNode === node.id ? (
               <div className={styles.treeLoading} style={{ padding: '0.5rem', fontSize: 12 }}>Carregando...</div>
@@ -194,7 +188,6 @@ export default function CategoryTreeView({ rootCategoryId, onSelect, selectedId 
   // Renderizar árvore completa
   const renderTree = () => {
     if (!tree.length) return null;
-    
     return (
       <div className={styles.treeContainer}>
         {tree.map(node => renderNode(node))}
