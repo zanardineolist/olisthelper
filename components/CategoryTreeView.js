@@ -40,6 +40,7 @@ export default function CategoryTreeView({ rootCategoryId, onSelect, selectedId 
   const [expanded, setExpanded] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [childrenMap, setChildrenMap] = useState({});
 
   // Carrega categorias raiz ou a partir de rootCategoryId
   useEffect(() => {
@@ -59,7 +60,6 @@ export default function CategoryTreeView({ rootCategoryId, onSelect, selectedId 
   }, [rootCategoryId]);
 
   // Carrega subcategorias sob demanda
-  const [childrenMap, setChildrenMap] = useState({});
   const handleToggle = async (id) => {
     setExpanded(exp => ({ ...exp, [id]: !exp[id] }));
     if (!childrenMap[id]) {
@@ -68,6 +68,7 @@ export default function CategoryTreeView({ rootCategoryId, onSelect, selectedId 
     }
   };
 
+  // Renderização recursiva
   const renderTree = (nodes) => (
     <div className={styles.treeList}>
       {nodes.map(node => (
@@ -80,11 +81,16 @@ export default function CategoryTreeView({ rootCategoryId, onSelect, selectedId 
           selectedId={selectedId}
         >
           {expanded[node.id] && childrenMap[node.id] && childrenMap[node.id].length > 0 && (
-            <CategoryTreeView
-              rootCategoryId={childrenMap[node.id][0].id}
-              onSelect={onSelect}
-              selectedId={selectedId}
-            />
+            <div>
+              {childrenMap[node.id].map(child => (
+                <CategoryTreeView
+                  key={child.id}
+                  rootCategoryId={child.id}
+                  onSelect={onSelect}
+                  selectedId={selectedId}
+                />
+              ))}
+            </div>
           )}
         </CategoryNode>
       ))}
