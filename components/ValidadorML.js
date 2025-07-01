@@ -129,17 +129,11 @@ const ValidadorML = () => {
       return <p className={styles.noData}>Nenhum atributo encontrado</p>;
     }
 
-    // Categorizar atributos
-    const requiredAttributes = attributes.filter(attr => 
-      Array.isArray(attr.tags) && attr.tags.includes('required')
-    );
-    const recommendedAttributes = attributes.filter(attr => 
-      Array.isArray(attr.tags) && attr.tags.includes('recommended')
-    );
-    const optionalAttributes = attributes.filter(attr => 
-      !Array.isArray(attr.tags) || 
-      (!attr.tags.includes('required') && !attr.tags.includes('recommended'))
-    );
+    // Separação correta dos atributos conforme o formato real do Mercado Livre
+    // tags é um objeto, não array. Exemplo: { required: true, ... }
+    const requiredAttributes = attributes.filter(attr => attr.tags && attr.tags.required === true);
+    const recommendedAttributes = attributes.filter(attr => attr.tags && attr.tags.recommended === true);
+    const optionalAttributes = attributes.filter(attr => !attr.tags || (!attr.tags.required && !attr.tags.recommended));
 
     const renderAttributeDetail = (attr, type) => (
       <div key={attr.id} className={`${styles.attributeItem} ${styles[type]}`}>
@@ -362,8 +356,8 @@ const ValidadorML = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder={
                 searchType === 'id' 
-                  ? 'Digite o ID da categoria (ex: MLB1055)' 
-                  : 'Digite o nome da categoria (ex: smartphones)'
+                  ? 'Digite o ID da categoria (ex: MLB270227)' 
+                  : 'Digite o nome da categoria (ex: shorts e bermudas)'
               }
               className={styles.searchInput}
               onKeyPress={(e) => e.key === 'Enter' && searchCategories()}
