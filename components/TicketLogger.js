@@ -339,18 +339,18 @@ function TicketLogger() {
     }
   };
 
-  // Função para validar URL do Tiny
-  const validateTinyUrl = (url) => {
+  // Função para validar URL do Olist
+  const validateOlistUrl = (url) => {
     const cleanUrl = url.trim();
     
     // Bloquear URL de exemplo
-    if (cleanUrl === 'https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO') {
+    if (cleanUrl === 'https://erp.olist.com.br/suporte#edit/ID_DO_CHAMADO') {
       return false;
     }
     
-    // Padrão: https://erp.tiny.com.br/suporte#edit/ID_NUMERICO
-    const tinyUrlPattern = /^https:\/\/erp\.tiny\.com\.br\/suporte#edit\/\d+$/;
-    return tinyUrlPattern.test(cleanUrl);
+    // Padrão: https://erp.olist.com.br/suporte#edit/ID_NUMERICO
+    const olistUrlPattern = /^https:\/\/erp\.olist\.com\.br\/suporte#edit\/\d+$/;
+    return olistUrlPattern.test(cleanUrl);
   };
 
   // Validação em tempo real da URL
@@ -370,9 +370,9 @@ function TicketLogger() {
       return;
     }
 
-    // Verificar se segue o padrão do Tiny
-    if (!validateTinyUrl(value)) {
-      setUrlValidationError('URL deve seguir o padrão: https://erp.tiny.com.br/suporte#edit/ID_NUMERICO');
+    // Verificar se segue o padrão do Olist
+    if (!validateOlistUrl(value)) {
+      setUrlValidationError('URL deve seguir o padrão: https://erp.olist.com.br/suporte#edit/ID_NUMERICO');
     } else {
       setUrlValidationError('');
     }
@@ -392,14 +392,14 @@ function TicketLogger() {
       return;
     }
 
-    // Validar se segue o padrão do Tiny
-    if (!validateTinyUrl(ticketUrl)) {
+    // Validar se segue o padrão do Olist
+    if (!validateOlistUrl(ticketUrl)) {
       await Swal.fire({
         title: 'URL Inválida',
         html: `
           <div style="text-align: left; padding: 10px;">
             <p style="margin-bottom: 15px; color: #dc2626; font-weight: 500;">
-              ❌ A URL não segue o padrão exigido do sistema Tiny.
+              ❌ A URL não segue o padrão exigido do sistema Olist.
             </p>
             
             <p style="margin-bottom: 10px; font-weight: 500; color: #333;">
@@ -407,7 +407,7 @@ function TicketLogger() {
             </p>
             <div style="background: #f3f4f6; padding: 12px; border-radius: 6px; border: 1px solid #d1d5db; margin-bottom: 15px;">
               <code style="color: #059669; font-family: monospace; font-size: 13px;">
-                https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO
+                https://erp.olist.com.br/suporte#edit/ID_DO_CHAMADO
               </code>
             </div>
             
@@ -416,7 +416,7 @@ function TicketLogger() {
             </p>
             <div style="background: #ecfdf5; padding: 12px; border-radius: 6px; border: 1px solid #bbf7d0; margin-bottom: 15px;">
               <code style="color: #059669; font-family: monospace; font-size: 13px;">
-                https://erp.tiny.com.br/suporte#edit/1062209674
+                https://erp.olist.com.br/suporte#edit/1062209674
               </code>
             </div>
             
@@ -424,7 +424,7 @@ function TicketLogger() {
               <strong>Verifique se:</strong>
             </p>
             <ul style="margin: 5px 0 0 20px; color: #6b7280; font-size: 14px;">
-              <li>A URL começa com <code>https://erp.tiny.com.br/suporte#edit/</code></li>
+              <li>A URL começa com <code>https://erp.olist.com.br/suporte#edit/</code></li>
               <li>Termina com o ID numérico do chamado</li>
               <li>Não possui caracteres extras no final</li>
             </ul>
@@ -772,7 +772,7 @@ function TicketLogger() {
                     type="url"
                     value={ticketUrl}
                     onChange={(e) => handleUrlChange(e.target.value)}
-                    placeholder="https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO"
+                    placeholder="https://erp.olist.com.br/suporte#edit/ID_DO_CHAMADO"
                     className={`${styles.modalInput} ${urlValidationError ? styles.inputError : ''}`}
                     disabled={modalLoading}
                   />
@@ -783,7 +783,7 @@ function TicketLogger() {
                   )}
                   <div className={styles.urlExample}>
                     <small>
-                      <strong>Exemplo:</strong> https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO
+                      <strong>Exemplo:</strong> https://erp.olist.com.br/suporte#edit/ID_DO_CHAMADO
                     </small>
                   </div>
                 </div>
