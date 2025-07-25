@@ -314,3 +314,73 @@ export async function getAllSheetNames() {
     throw new Error('Erro ao obter nomes das abas da planilha.');
   }
 }
+
+// ============== NOVAS FUNÇÕES PARA PLANILHAS ESPECÍFICAS ==============
+
+/**
+ * Busca valores de uma planilha específica usando seu ID
+ * @param {string} spreadsheetId - ID da planilha específica
+ * @param {Array} ranges - Array de ranges a serem buscados
+ * @returns {Array} - Array de valueRanges
+ */
+export async function batchGetValuesFromSpecificSheet(spreadsheetId, ranges) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    const response = await sheets.spreadsheets.values.batchGet({
+      spreadsheetId: spreadsheetId,
+      ranges: ranges.map(range => range),
+    });
+
+    return response.data.valueRanges;
+  } catch (error) {
+    console.error('Erro ao buscar dados da planilha específica:', error);
+    throw new Error(`Erro ao buscar dados da planilha ${spreadsheetId}: ${error.message}`);
+  }
+}
+
+/**
+ * Busca valores de uma aba específica em uma planilha específica
+ * @param {string} spreadsheetId - ID da planilha específica
+ * @param {string} sheetName - Nome da aba
+ * @param {string} range - Range a ser buscado (ex: 'A:H')
+ * @returns {Array} - Array de valores
+ */
+export async function getSheetValuesFromSpecificSheet(spreadsheetId, sheetName, range) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: spreadsheetId,
+      range: `${sheetName}!${range}`,
+    });
+
+    const values = response.data.values || [];
+    return values;
+  } catch (error) {
+    console.error(`Erro ao obter valores da aba ${sheetName} da planilha ${spreadsheetId}:`, error);
+    throw new Error(`Erro ao obter valores da aba ${sheetName} da planilha ${spreadsheetId}: ${error.message}`);
+  }
+}
+
+/**
+ * Obter nomes de todas as abas de uma planilha específica
+ * @param {string} spreadsheetId - ID da planilha específica
+ * @returns {Array} - Array de nomes das abas
+ */
+export async function getAllSheetNamesFromSpecificSheet(spreadsheetId) {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+    
+    const response = await sheets.spreadsheets.get({
+      spreadsheetId: spreadsheetId
+    });
+    
+    // Extrair os nomes das abas
+    const sheetNames = response.data.sheets.map(sheet => sheet.properties.title);
+    
+    return sheetNames;
+  } catch (error) {
+    console.error(`Erro ao obter nomes das abas da planilha ${spreadsheetId}:`, error);
+    throw new Error(`Erro ao obter nomes das abas da planilha ${spreadsheetId}: ${error.message}`);
+  }
+}

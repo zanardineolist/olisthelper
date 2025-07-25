@@ -1,15 +1,23 @@
-import { getAuthenticatedGoogleSheets, batchGetValues } from '../../utils/googleSheets';
+import { batchGetValuesFromSpecificSheet } from '../../utils/googleSheets';
 
 export default async function handler(req, res) {
   try {
+    // Verificar se a variável de ambiente da planilha de ocorrências está configurada
+    if (!process.env.OCORRENCIAS_SHEET_ID) {
+      return res.status(500).json({
+        error: 'Variável de ambiente OCORRENCIAS_SHEET_ID não configurada',
+        details: 'Configure a variável OCORRENCIAS_SHEET_ID no Vercel com o ID da planilha de ocorrências'
+      });
+    }
+    
     // Definir a página específica para ocorrências
     const targetSheet = 'OCR';
     
     // Preparar range para a página OCR (colunas A até H)
     const ranges = [`${targetSheet}!A:H`];
     
-    // Buscar dados da planilha
-    const results = await batchGetValues(ranges);
+    // Buscar dados da planilha específica de ocorrências
+    const results = await batchGetValuesFromSpecificSheet(process.env.OCORRENCIAS_SHEET_ID, ranges);
     
     // Verificar se há dados
     if (!results || results.length === 0 || !results[0].values) {
@@ -59,6 +67,15 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('Erro ao obter dados de ocorrências:', error);
+    
+    // Verificar se é erro de configuração
+    if (error.message.includes('OCORRENCIAS_SHEET_ID')) {
+      return res.status(500).json({ 
+        error: 'Configuração da planilha de ocorrências ausente',
+        details: 'Configure a variável OCORRENCIAS_SHEET_ID no Vercel'
+      });
+    }
+    
     res.status(500).json({ 
       error: 'Erro ao obter dados de ocorrências',
       details: error.message 
