@@ -313,7 +313,6 @@
   border-radius: 20px !important;
   max-width: 700px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  border: 2px solid var(--color-border);
 }
 
 .dialogPaper {
@@ -363,8 +362,7 @@
 .creationChip {
   background: transparent !important;
   color: var(--color-white) !important;
-  border: 2px solid var(--color-primary) !important;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.85rem;
 }
 
