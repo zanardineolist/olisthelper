@@ -832,48 +832,54 @@ export default function Ocorrencias({ user }) {
           </Typography>
           
           <div className={styles.modalChips}>
-            <Chip 
-              icon={<ScheduleIcon fontSize="small" />}
-              label={formatBrazilianDate(modalData.DataHora)} 
-              color="default" 
-              size="small"
-              className={styles.modalChip}
-            />
-            <div className={styles.marcadoresContainer}>
-              {renderMarcadores(modalData.Marcadores)}
+            <div className={styles.creationDateContainer}>
+              <ScheduleIcon className={styles.creationDateIcon} />
+              <div className={styles.creationDateInfo}>
+                <Typography variant="caption" className={styles.creationDateLabel}>
+                  Criado em
+                </Typography>
+                <Typography variant="body2" className={styles.creationDateValue}>
+                  {formatBrazilianDate(modalData.DataHora)}
+                </Typography>
+              </div>
             </div>
-            {modalData.Modulo && (
+            <div className={styles.modalChipsRow}>
+              <div className={styles.marcadoresContainer}>
+                {renderMarcadores(modalData.Marcadores)}
+              </div>
+              {modalData.Modulo && (
+                <Chip 
+                  label={modalData.Modulo} 
+                  color="primary" 
+                  size="small"
+                  className={styles.modalChip}
+                />
+              )}
               <Chip 
-                label={modalData.Modulo} 
-                color="primary" 
+                label={modalData.Status || 'Novo'} 
+                variant="outlined" 
                 size="small"
-                className={styles.modalChip}
-              />
-            )}
-            <Chip 
-              label={modalData.Status || 'Novo'} 
-              variant="outlined" 
-              size="small"
-              style={{
-                color: statusColor.main,
-                borderColor: statusColor.border,
-                backgroundColor: statusColor.bg
-              }}
-            />
-            {modalData.Status === 'Corrigido' && modalData.DataCorrecao && (
-              <Chip 
-                icon={<CheckCircleIcon fontSize="small" />}
-                label={`Corrigido em: ${formatBrazilianDate(modalData.DataCorrecao)}`} 
-                color="success"
-                size="small"
-                className={styles.modalChip}
                 style={{
-                  backgroundColor: 'var(--excellent-bg)',
-                  color: 'var(--excellent-color)',
-                  borderColor: 'var(--excellent-color)'
+                  color: statusColor.main,
+                  borderColor: statusColor.border,
+                  backgroundColor: statusColor.bg
                 }}
               />
-            )}
+              {modalData.Status === 'Corrigido' && modalData.DataCorrecao && (
+                <Chip 
+                  icon={<CheckCircleIcon fontSize="small" />}
+                  label={`Corrigido em: ${formatBrazilianDate(modalData.DataCorrecao)}`} 
+                  color="success"
+                  size="small"
+                  className={styles.modalChip}
+                  style={{
+                    backgroundColor: 'var(--excellent-bg)',
+                    color: 'var(--excellent-color)',
+                    borderColor: 'var(--excellent-color)'
+                  }}
+                />
+              )}
+            </div>
           </div>
         </div>
 
@@ -942,7 +948,7 @@ export default function Ocorrencias({ user }) {
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Ocorrências</h1>
         <p className={styles.pageDescription}>
-          Mantenha-se atualizado sobre as ocorrências existentes no suporte e seus status de correção.
+          Mantenha-se atualizado sobre as ocorrências existentes na operação.
         </p>
       </div>
 
