@@ -837,6 +837,17 @@ export default function Ocorrencias({ user }) {
               label={`Criado em: ${formatBrazilianDate(modalData.DataHora)}`} 
               size="small"
               className={styles.creationChip}
+              sx={{
+                backgroundColor: 'transparent',
+                color: 'var(--color-white)',
+                border: '2px solid var(--color-primary)',
+                '& .MuiChip-icon': {
+                  color: 'var(--color-white)'
+                },
+                '& .MuiChip-label': {
+                  color: 'var(--color-white)'
+                }
+              }}
             />
           </div>
           

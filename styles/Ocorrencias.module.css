@@ -361,15 +361,19 @@
 
 /* Chip de criação com visual especial */
 .creationChip {
-  background: transparent;
-  color: var(--color-white);
-  border: 2px solid var(--color-primary);
+  background: transparent !important;
+  color: var(--color-white) !important;
+  border: 2px solid var(--color-primary) !important;
   font-weight: 600;
   font-size: 0.85rem;
 }
 
 .creationChip .MuiChip-icon {
-  color: var(--color-white);
+  color: var(--color-white) !important;
+}
+
+.creationChip .MuiChip-label {
+  color: var(--color-white) !important;
 }
 
 .resumoBox {
