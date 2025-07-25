@@ -56,13 +56,12 @@ const formatBrazilianDate = (dateString) => {
       'set': '09', 'out': '10', 'nov': '11', 'dez': '12'
     };
     
-    // Regex para capturar: dia, mês, ano, hora, minuto
+    // Regex melhorado para capturar diferentes formatos
     // Formato: "24 de jul., 2025 21h39min57s" ou "1° de jan., 2025 10h15min30s"
-    const regex = /(\d{1,2})[°]?\s+de\s+(\w{3})[.,]\s+(\d{4})\s+(\d{1,2})h(\d{1,2})min/i;
+    const regex = /(\d{1,2})[°]?\s+de\s+(\w{3})\.?,?\s+(\d{4})\s+(\d{1,2})h(\d{1,2})min(\d{1,2})?s?/i;
     const match = dateString.match(regex);
     
     if (!match) {
-      // Se não conseguir fazer parse, retorna a string original
       return dateString;
     }
     
@@ -70,7 +69,9 @@ const formatBrazilianDate = (dateString) => {
     
     // Converter mês para número
     const month = monthMap[monthStr.toLowerCase()];
-    if (!month) return dateString;
+    if (!month) {
+      return dateString;
+    }
     
     // Formatar componentes
     const formattedDay = day.padStart(2, '0');
@@ -283,23 +284,48 @@ export default function Ocorrencias({ user }) {
     applyFilters(data, marcadorFilter, valor, searchQuery);
   };
 
-  // Função para gerar cor baseada no status
+  // Função para gerar cor baseada no status - Cores melhoradas
   const getColorForStatus = (status) => {
-    if (!status) return { main: '#9e9e9e', bg: 'rgba(158, 158, 158, 0.08)', border: 'rgba(158, 158, 158, 0.3)' };
+    if (!status) return { 
+      main: '#6B7280', 
+      bg: 'rgba(107, 114, 128, 0.15)', 
+      border: 'rgba(107, 114, 128, 0.4)',
+      shadow: 'rgba(107, 114, 128, 0.2)'
+    };
     
     switch (status.toLowerCase()) {
       case 'corrigido':
-        return { main: '#388e3c', bg: 'rgba(56, 142, 60, 0.08)', border: 'rgba(56, 142, 60, 0.3)' };
+        return { 
+          main: '#059669', 
+          bg: 'rgba(5, 150, 105, 0.15)', 
+          border: 'rgba(5, 150, 105, 0.5)',
+          shadow: 'rgba(5, 150, 105, 0.3)'
+        };
       case 'novo':
-        return { main: '#f57c00', bg: 'rgba(245, 124, 0, 0.08)', border: 'rgba(245, 124, 0, 0.3)' };
+        return { 
+          main: '#DC2626', 
+          bg: 'rgba(220, 38, 38, 0.15)', 
+          border: 'rgba(220, 38, 38, 0.5)',
+          shadow: 'rgba(220, 38, 38, 0.3)'
+        };
       default:
-        return { main: '#1976d2', bg: 'rgba(25, 118, 210, 0.08)', border: 'rgba(25, 118, 210, 0.3)' };
+        return { 
+          main: '#2563EB', 
+          bg: 'rgba(37, 99, 235, 0.15)', 
+          border: 'rgba(37, 99, 235, 0.5)',
+          shadow: 'rgba(37, 99, 235, 0.3)'
+        };
     }
   };
 
-  // Função para gerar cor baseada em hash da string (para marcadores)
+  // Função para gerar cor baseada em hash da string (para marcadores) - Cores melhoradas
   const getColorForMarcador = (marcador) => {
-    if (!marcador) return { main: '#9e9e9e', bg: 'rgba(158, 158, 158, 0.08)', border: 'rgba(158, 158, 158, 0.3)' };
+    if (!marcador) return { 
+      main: '#6B7280', 
+      bg: 'rgba(107, 114, 128, 0.15)', 
+      border: 'rgba(107, 114, 128, 0.4)',
+      shadow: 'rgba(107, 114, 128, 0.2)'
+    };
     
     // Hash simples
     let hash = 0;
@@ -307,18 +333,20 @@ export default function Ocorrencias({ user }) {
       hash = marcador.charCodeAt(i) + ((hash << 5) - hash);
     }
     
-    // Lista de cores predefinidas
+    // Lista de cores predefinidas com melhor contraste
     const colors = [
-      { main: '#1976d2', bg: 'rgba(25, 118, 210, 0.08)', border: 'rgba(25, 118, 210, 0.3)' },
-      { main: '#e53935', bg: 'rgba(229, 57, 53, 0.08)', border: 'rgba(229, 57, 53, 0.3)' },
-      { main: '#7b1fa2', bg: 'rgba(123, 31, 162, 0.08)', border: 'rgba(123, 31, 162, 0.3)' },
-      { main: '#388e3c', bg: 'rgba(56, 142, 60, 0.08)', border: 'rgba(56, 142, 60, 0.3)' },
-      { main: '#f57c00', bg: 'rgba(245, 124, 0, 0.08)', border: 'rgba(245, 124, 0, 0.3)' },
-      { main: '#0288d1', bg: 'rgba(2, 136, 209, 0.08)', border: 'rgba(2, 136, 209, 0.3)' },
-      { main: '#455a64', bg: 'rgba(69, 90, 100, 0.08)', border: 'rgba(69, 90, 100, 0.3)' },
-      { main: '#5d4037', bg: 'rgba(93, 64, 55, 0.08)', border: 'rgba(93, 64, 55, 0.3)' },
-      { main: '#00796b', bg: 'rgba(0, 121, 107, 0.08)', border: 'rgba(0, 121, 107, 0.3)' },
-      { main: '#c2185b', bg: 'rgba(194, 24, 91, 0.08)', border: 'rgba(194, 24, 91, 0.3)' }
+      { main: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.5)', shadow: 'rgba(59, 130, 246, 0.3)' }, // Azul
+      { main: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.5)', shadow: 'rgba(239, 68, 68, 0.3)' }, // Vermelho
+      { main: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.5)', shadow: 'rgba(139, 92, 246, 0.3)' }, // Roxo
+      { main: '#10B981', bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.5)', shadow: 'rgba(16, 185, 129, 0.3)' }, // Verde
+      { main: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.5)', shadow: 'rgba(245, 158, 11, 0.3)' }, // Amarelo
+      { main: '#06B6D4', bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.5)', shadow: 'rgba(6, 182, 212, 0.3)' }, // Ciano
+      { main: '#64748B', bg: 'rgba(100, 116, 139, 0.15)', border: 'rgba(100, 116, 139, 0.5)', shadow: 'rgba(100, 116, 139, 0.3)' }, // Cinza
+      { main: '#92400E', bg: 'rgba(146, 64, 14, 0.15)', border: 'rgba(146, 64, 14, 0.5)', shadow: 'rgba(146, 64, 14, 0.3)' }, // Marrom
+      { main: '#047857', bg: 'rgba(4, 120, 87, 0.15)', border: 'rgba(4, 120, 87, 0.5)', shadow: 'rgba(4, 120, 87, 0.3)' }, // Verde escuro
+      { main: '#BE185D', bg: 'rgba(190, 24, 93, 0.15)', border: 'rgba(190, 24, 93, 0.5)', shadow: 'rgba(190, 24, 93, 0.3)' }, // Rosa
+      { main: '#7C2D12', bg: 'rgba(124, 45, 18, 0.15)', border: 'rgba(124, 45, 18, 0.5)', shadow: 'rgba(124, 45, 18, 0.3)' }, // Marrom escuro
+      { main: '#1E40AF', bg: 'rgba(30, 64, 175, 0.15)', border: 'rgba(30, 64, 175, 0.5)', shadow: 'rgba(30, 64, 175, 0.3)' } // Azul escuro
     ];
     
     const index = Math.abs(hash) % colors.length;
@@ -612,7 +640,8 @@ export default function Ocorrencias({ user }) {
                       style={{
                         color: statusColor.main,
                         borderColor: statusColor.border,
-                        backgroundColor: statusColor.bg
+                        backgroundColor: statusColor.bg,
+                        boxShadow: `0 2px 4px ${statusColor.shadow}`
                       }}
                     />
                   </td>
@@ -631,7 +660,8 @@ export default function Ocorrencias({ user }) {
                         style={{
                           color: marcadorColor.main,
                           borderColor: marcadorColor.border,
-                          backgroundColor: marcadorColor.bg
+                          backgroundColor: marcadorColor.bg,
+                          boxShadow: `0 2px 4px ${marcadorColor.shadow}`
                         }}
                       />
                     )}
@@ -722,7 +752,8 @@ export default function Ocorrencias({ user }) {
               style={{
                 color: statusColor.main,
                 borderColor: statusColor.border,
-                backgroundColor: statusColor.bg
+                backgroundColor: statusColor.bg,
+                boxShadow: `0 2px 4px ${statusColor.shadow}`
               }}
             />
           </div>
