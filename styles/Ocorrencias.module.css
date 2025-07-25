@@ -310,13 +310,13 @@
 
 /* Modal Styles - Padrão globals.css */
 .dialog .MuiDialog-paper {
-  border-radius: 16px;
+  border-radius: 24px;
   max-width: 700px;
 }
 
 .dialogPaper {
   background-color: var(--box-color);
-  border: 1px solid var(--color-border);
+  border: none;
 }
 
 .dialogContent {
@@ -327,7 +327,7 @@
 .dialogActions {
   padding: 16px 24px !important;
   background-color: var(--box-color);
-  border-top: 1px solid var(--color-border);
+  border-top: none;
 }
 
 .modalHeader {
@@ -354,8 +354,8 @@
 
 .resumoBox {
   background-color: var(--box-color2);
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  border: none;
   margin-bottom: 20px;
   overflow: hidden;
 }
@@ -366,7 +366,7 @@
   align-items: center;
   padding: 16px 20px;
   background-color: var(--labels-bg);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: none;
 }
 
 .sectionTitleWrapper {
@@ -412,8 +412,8 @@
 
 .observationBox {
   background-color: var(--box-color2);
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  border: none;
   padding: 20px;
 }
 

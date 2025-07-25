@@ -860,6 +860,20 @@ export default function Ocorrencias({ user }) {
                 backgroundColor: statusColor.bg
               }}
             />
+            {modalData.Status === 'Corrigido' && modalData.DataCorrecao && (
+              <Chip 
+                icon={<CheckCircleIcon fontSize="small" />}
+                label={`Corrigido em: ${formatBrazilianDate(modalData.DataCorrecao)}`} 
+                color="success"
+                size="small"
+                className={styles.modalChip}
+                style={{
+                  backgroundColor: 'var(--excellent-bg)',
+                  color: 'var(--excellent-color)',
+                  borderColor: 'var(--excellent-color)'
+                }}
+              />
+            )}
           </div>
         </div>
 
