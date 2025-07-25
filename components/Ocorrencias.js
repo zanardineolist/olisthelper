@@ -823,7 +823,6 @@ export default function Ocorrencias({ user }) {
 
   const renderModalContent = () => {
     const statusColor = getColorForStatus(modalData.Status);
-    const marcadorColor = getColorForMarcador(modalData.Marcadores);
     
     return (
       <>
@@ -840,19 +839,9 @@ export default function Ocorrencias({ user }) {
               size="small"
               className={styles.modalChip}
             />
-            {modalData.Marcadores && (
-              <Chip 
-                label={modalData.Marcadores} 
-                variant="outlined" 
-                size="small"
-                className={styles.modalChip}
-                style={{
-                  color: marcadorColor.main,
-                  borderColor: marcadorColor.border,
-                  backgroundColor: marcadorColor.bg
-                }}
-              />
-            )}
+            <div className={styles.marcadoresContainer}>
+              {renderMarcadores(modalData.Marcadores)}
+            </div>
             {modalData.Modulo && (
               <Chip 
                 label={modalData.Modulo} 
@@ -906,7 +895,7 @@ export default function Ocorrencias({ user }) {
             <div className={styles.sectionTitleWrapper}>
               <InfoIcon className={styles.sectionIcon} />
               <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
-                Classificação para Ticket
+                Classificação dos casos
               </Typography>
             </div>
             {modalData.Modulo && modalData.Modulo.trim() !== '' && (
