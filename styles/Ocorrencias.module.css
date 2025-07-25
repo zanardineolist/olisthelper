@@ -361,7 +361,7 @@
 
 /* Chip de criação com visual especial */
 .creationChip {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--primary-dark) 100%);
+  background: transparent;
   color: var(--color-white);
   border: 2px solid var(--color-primary);
   font-weight: 600;
@@ -369,12 +369,12 @@
 }
 
 .creationChip .MuiChip-icon {
-  color: var(--color-white);
+  color: var(--color-primary);
 }
 
 .creationChip:hover {
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--color-primary) 100%);
-  box-shadow: 0 2px 8px rgba(10, 78, 228, 0.3);
+  background: rgba(10, 78, 228, 0.05);
+  box-shadow: 0 2px 8px rgba(10, 78, 228, 0.2);
 }
 
 .resumoBox {
