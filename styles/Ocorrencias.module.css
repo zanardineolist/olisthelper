@@ -264,6 +264,14 @@
   height: 24px;
 }
 
+/* Container de Marcadores */
+.marcadoresContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
 /* Botão Ver */
 .viewButton {
   border-radius: 6px;

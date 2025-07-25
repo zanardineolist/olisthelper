@@ -87,6 +87,33 @@ const formatBrazilianDate = (dateString) => {
   }
 };
 
+// Função para converter data brasileira para Date object para comparação
+const parseDataBrasileira = (dateString) => {
+  if (!dateString || dateString.trim() === '') return null;
+  
+  try {
+    const monthMap = {
+      'jan': 0, 'fev': 1, 'mar': 2, 'abr': 3,
+      'mai': 4, 'jun': 5, 'jul': 6, 'ago': 7,
+      'set': 8, 'out': 9, 'nov': 10, 'dez': 11
+    };
+    
+    const regex = /(\d{1,2})[°]?\s+de\s+(\w{3})\.?,?\s+(\d{4})\s+(\d{1,2})h(\d{1,2})min(\d{1,2})?s?/i;
+    const match = dateString.match(regex);
+    
+    if (!match) return null;
+    
+    const [, day, monthStr, year, hour, minute] = match;
+    const month = monthMap[monthStr.toLowerCase()];
+    
+    if (month === undefined) return null;
+    
+    return new Date(parseInt(year), month, parseInt(day), parseInt(hour), parseInt(minute));
+  } catch (error) {
+    return null;
+  }
+};
+
 export default function Ocorrencias({ user }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
@@ -97,6 +124,8 @@ export default function Ocorrencias({ user }) {
   const [showFilters, setShowFilters] = useState(false);
   const [marcadorFilter, setMarcadorFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [dateFromFilter, setDateFromFilter] = useState('');
+  const [dateToFilter, setDateToFilter] = useState('');
   const [searchActive, setSearchActive] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState('');
@@ -111,9 +140,11 @@ export default function Ocorrencias({ user }) {
     if (marcadorFilter) count++;
     if (statusFilter) count++;
     if (searchQuery) count++;
+    if (dateFromFilter) count++;
+    if (dateToFilter) count++;
     
     setFiltrosAtivos(count);
-  }, [marcadorFilter, statusFilter, searchQuery]);
+  }, [marcadorFilter, statusFilter, searchQuery, dateFromFilter, dateToFilter]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -128,7 +159,7 @@ export default function Ocorrencias({ user }) {
         extrairOpcoesDeFiltros(ocorrencias);
         
         // Aplicar filtros iniciais
-        applyFilters(ocorrencias, '', '', '');
+        applyFilters(ocorrencias, '', '', '', '', '');
       } else {
         console.error('Erro ao buscar dados: formato inesperado');
         toast.error('Erro ao carregar os dados');
@@ -152,10 +183,17 @@ export default function Ocorrencias({ user }) {
   const extrairOpcoesDeFiltros = (items) => {
     if (!items || items.length === 0) return;
 
-    // Extrair marcadores únicos
-    const uniqueMarcadores = [...new Set(items.map(item => item.Marcadores))]
-      .filter(marcador => marcador && marcador.trim() !== '')
-      .sort();
+    // Extrair marcadores únicos (dividindo por espaço, quebra de linha, etc.)
+    const uniqueMarcadores = [...new Set(
+      items.flatMap(item => {
+        if (!item.Marcadores || item.Marcadores.trim() === '') return [];
+        // Dividir por espaço, quebra de linha, vírgula ou ponto e vírgula
+        return item.Marcadores
+          .split(/[\s\n,;]+/)
+          .map(m => m.trim())
+          .filter(m => m !== '');
+      })
+    )].sort();
 
     // Extrair status únicos
     const uniqueStatus = [...new Set(items.map(item => item.Status))]
@@ -166,14 +204,22 @@ export default function Ocorrencias({ user }) {
     setStatusOptions(uniqueStatus);
   };
 
-  const applyFilters = (allData, marcadorValue, statusValue, searchValue) => {
+  const applyFilters = (allData, marcadorValue, statusValue, searchValue, dateFrom, dateTo) => {
     if (!allData || allData.length === 0) return;
 
     let filteredItems = [...allData];
 
-    // Filtrar por Marcador
+    // Filtrar por Marcador (verificando se o marcador está contido na string)
     if (marcadorValue) {
-      filteredItems = filteredItems.filter(item => item.Marcadores === marcadorValue);
+      filteredItems = filteredItems.filter(item => {
+        if (!item.Marcadores) return false;
+        // Dividir marcadores e verificar se algum corresponde ao filtro
+        const itemMarcadores = item.Marcadores
+          .split(/[\s\n,;]+/)
+          .map(m => m.trim())
+          .filter(m => m !== '');
+        return itemMarcadores.includes(marcadorValue);
+      });
     }
     
     // Filtrar por Status
@@ -193,20 +239,44 @@ export default function Ocorrencias({ user }) {
         );
       });
     }
+
+    // Filtrar por período
+    if (dateFrom || dateTo) {
+      filteredItems = filteredItems.filter(item => {
+        const itemDate = parseDataBrasileira(item.DataHora);
+        if (!itemDate) return true; // Se não conseguir fazer parse, mantém o item
+        
+        let isInRange = true;
+        
+        if (dateFrom) {
+          const fromDate = new Date(dateFrom);
+          fromDate.setHours(0, 0, 0, 0);
+          isInRange = isInRange && itemDate >= fromDate;
+        }
+        
+        if (dateTo) {
+          const toDate = new Date(dateTo);
+          toDate.setHours(23, 59, 59, 999);
+          isInRange = isInRange && itemDate <= toDate;
+        }
+        
+        return isInRange;
+      });
+    }
     
     setFilteredData(filteredItems);
   };
 
   useEffect(() => {
     if (data && data.length > 0) {
-      applyFilters(data, marcadorFilter, statusFilter, searchQuery);
+      applyFilters(data, marcadorFilter, statusFilter, searchQuery, dateFromFilter, dateToFilter);
     }
   }, [data]);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
       setSearchActive(true);
-      applyFilters(data, marcadorFilter, statusFilter, searchQuery);
+      applyFilters(data, marcadorFilter, statusFilter, searchQuery, dateFromFilter, dateToFilter);
     }
   };
 
@@ -223,14 +293,14 @@ export default function Ocorrencias({ user }) {
     // Quando o campo de busca for limpo, resetar a busca automaticamente
     if (!value.trim()) {
       setSearchActive(false);
-      applyFilters(data, marcadorFilter, statusFilter, '');
+      applyFilters(data, marcadorFilter, statusFilter, '', dateFromFilter, dateToFilter);
     }
   };
 
   const handleClearSearch = () => {
     setSearchQuery('');
     setSearchActive(false);
-    applyFilters(data, marcadorFilter, statusFilter, '');
+    applyFilters(data, marcadorFilter, statusFilter, '', dateFromFilter, dateToFilter);
   };
 
   const handleCopyToClipboard = (text) => {
@@ -258,8 +328,10 @@ export default function Ocorrencias({ user }) {
     setMarcadorFilter('');
     setStatusFilter('');
     setSearchQuery('');
+    setDateFromFilter('');
+    setDateToFilter('');
     setSearchActive(false);
-    applyFilters(data, '', '', '');
+    applyFilters(data, '', '', '', '', '');
   };
 
   const handleOpenModal = (item) => {
@@ -275,13 +347,25 @@ export default function Ocorrencias({ user }) {
   const handleMarcadorChange = (selectedOption) => {
     const valor = selectedOption ? selectedOption.value : '';
     setMarcadorFilter(valor);
-    applyFilters(data, valor, statusFilter, searchQuery);
+    applyFilters(data, valor, statusFilter, searchQuery, dateFromFilter, dateToFilter);
   };
 
   const handleStatusChange = (selectedOption) => {
     const valor = selectedOption ? selectedOption.value : '';
     setStatusFilter(valor);
-    applyFilters(data, marcadorFilter, valor, searchQuery);
+    applyFilters(data, marcadorFilter, valor, searchQuery, dateFromFilter, dateToFilter);
+  };
+
+  const handleDateFromChange = (event) => {
+    const valor = event.target.value;
+    setDateFromFilter(valor);
+    applyFilters(data, marcadorFilter, statusFilter, searchQuery, valor, dateToFilter);
+  };
+
+  const handleDateToChange = (event) => {
+    const valor = event.target.value;
+    setDateToFilter(valor);
+    applyFilters(data, marcadorFilter, statusFilter, searchQuery, dateFromFilter, valor);
   };
 
   // Função para gerar cor baseada no status - Padrão globals.css
@@ -343,6 +427,35 @@ export default function Ocorrencias({ user }) {
     
     const index = Math.abs(hash) % colors.length;
     return colors[index];
+  };
+
+  // Função para renderizar múltiplos marcadores
+  const renderMarcadores = (marcadoresString) => {
+    if (!marcadoresString || marcadoresString.trim() === '') return null;
+    
+    const marcadoresList = marcadoresString
+      .split(/[\s\n,;]+/)
+      .map(m => m.trim())
+      .filter(m => m !== '');
+    
+    return marcadoresList.map((marcador, index) => {
+      const marcadorColor = getColorForMarcador(marcador);
+      return (
+        <Chip 
+          key={index}
+          label={marcador} 
+          variant="outlined" 
+          className={styles.marcadorChip}
+          size="small"
+          style={{
+            color: marcadorColor.main,
+            borderColor: marcadorColor.border,
+            backgroundColor: marcadorColor.bg,
+            margin: '2px'
+          }}
+        />
+      );
+    });
   };
 
   // Configuração do tema do React Select
@@ -491,6 +604,34 @@ export default function Ocorrencias({ user }) {
         </div>
         
         <div className={styles.formControl}>
+          <span className={styles.inputLabel}>Data Inicial</span>
+          <TextField
+            type="date"
+            value={dateFromFilter}
+            onChange={handleDateFromChange}
+            size="small"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            className={styles.inputRoot}
+          />
+        </div>
+        
+        <div className={styles.formControl}>
+          <span className={styles.inputLabel}>Data Final</span>
+          <TextField
+            type="date"
+            value={dateToFilter}
+            onChange={handleDateToChange}
+            size="small"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            className={styles.inputRoot}
+          />
+        </div>
+        
+        <div className={styles.formControl}>
           <span className={styles.inputLabel}>&nbsp;</span>
           <Button
             variant="outlined"
@@ -505,7 +646,7 @@ export default function Ocorrencias({ user }) {
                 borderColor: 'var(--color-accent1)'
               }
             }}
-            disabled={!marcadorFilter && !statusFilter && !searchQuery}
+            disabled={!marcadorFilter && !statusFilter && !searchQuery && !dateFromFilter && !dateToFilter}
             size="small"
           >
             LIMPAR FILTROS
@@ -605,8 +746,8 @@ export default function Ocorrencias({ user }) {
               <th className={styles.tableHeader}>Status</th>
               <th className={styles.tableHeader}>Problema</th>
               <th className={styles.tableHeader}>Marcadores</th>
-              <th className={styles.tableHeader}>Módulo</th>
               <th className={styles.tableHeader}>Resumo</th>
+              <th className={styles.tableHeader}>Data Correção</th>
               <th className={styles.tableHeader}>Ações</th>
             </tr>
           </thead>
@@ -641,29 +782,9 @@ export default function Ocorrencias({ user }) {
                     </Typography>
                   </td>
                   <td className={styles.tableCell}>
-                    {item.Marcadores && (
-                      <Chip 
-                        label={item.Marcadores} 
-                        variant="outlined" 
-                        className={styles.marcadorChip}
-                        size="small"
-                        style={{
-                          color: marcadorColor.main,
-                          borderColor: marcadorColor.border,
-                          backgroundColor: marcadorColor.bg
-                        }}
-                      />
-                    )}
-                  </td>
-                  <td className={styles.tableCell}>
-                    {item.Modulo && (
-                      <Chip 
-                        label={item.Modulo} 
-                        color="primary" 
-                        className={styles.moduloChip} 
-                        size="small"
-                      />
-                    )}
+                    <div className={styles.marcadoresContainer}>
+                      {renderMarcadores(item.Marcadores)}
+                    </div>
                   </td>
                   <td className={styles.tableCell}>
                     <Typography variant="body2" className={styles.resumoText}>
@@ -671,6 +792,13 @@ export default function Ocorrencias({ user }) {
                         ? `${item.Resumo.substring(0, 80)}...` 
                         : item.Resumo}
                     </Typography>
+                  </td>
+                  <td className={styles.tableCell}>
+                    {item.Status === 'Corrigido' && item.DataCorrecao && (
+                      <Typography variant="body2" className={styles.dateTime}>
+                        {formatBrazilianDate(item.DataCorrecao)}
+                      </Typography>
+                    )}
                   </td>
                   <td className={styles.tableCell}>
                     <Button
@@ -773,19 +901,26 @@ export default function Ocorrencias({ user }) {
           </div>
         )}
 
-        {modalData.Motivo && modalData.Motivo.trim() !== '' && (
+        {(modalData.Modulo && modalData.Modulo.trim() !== '') || (modalData.Motivo && modalData.Motivo.trim() !== '') ? (
           <Box className={styles.observationBox}>
             <div className={styles.sectionTitleWrapper}>
               <InfoIcon className={styles.sectionIcon} />
               <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
-                Motivo
+                Classificação para Ticket
               </Typography>
             </div>
-            <Typography variant="body2" className={styles.observationText}>
-              {modalData.Motivo}
-            </Typography>
+            {modalData.Modulo && modalData.Modulo.trim() !== '' && (
+              <Typography variant="body2" className={styles.observationText}>
+                <strong>Módulo:</strong> {modalData.Modulo}
+              </Typography>
+            )}
+            {modalData.Motivo && modalData.Motivo.trim() !== '' && (
+              <Typography variant="body2" className={styles.observationText}>
+                <strong>Motivo:</strong> {modalData.Motivo}
+              </Typography>
+            )}
           </Box>
-        )}
+        ) : null}
       </>
     );
   };

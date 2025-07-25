@@ -13,8 +13,8 @@ export default async function handler(req, res) {
     // Definir a página específica para ocorrências
     const targetSheet = 'OCR';
     
-    // Preparar range para a página OCR (colunas A até H)
-    const ranges = [`${targetSheet}!A:H`];
+    // Preparar range para a página OCR (colunas A até I)
+    const ranges = [`${targetSheet}!A:I`];
     
     // Buscar dados da planilha específica de ocorrências
     const results = await batchGetValuesFromSpecificSheet(process.env.OCORRENCIAS_SHEET_ID, ranges);
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       .map(row => {
         // Estender o array para ter o tamanho adequado se necessário
         const paddedRow = [...row];
-        while (paddedRow.length < 8) {
+        while (paddedRow.length < 9) {
           paddedRow.push('');
         }
         
@@ -55,7 +55,8 @@ export default async function handler(req, res) {
           Marcadores: paddedRow[4] || '',        // Coluna E
           Modulo: paddedRow[5] || '',            // Coluna F
           Motivo: paddedRow[6] || '',            // Coluna G
-          Status: paddedRow[7] || 'Novo'         // Coluna H (default: Novo)
+          Status: paddedRow[7] || 'Novo',        // Coluna H (default: Novo)
+          DataCorrecao: paddedRow[8] || ''       // Coluna I (data correção)
         };
       })
       .filter(item => item.Problema.trim() !== ''); // Filtrar linhas sem problema definido
