@@ -13,8 +13,8 @@ export default async function handler(req, res) {
     // Definir a página específica para ocorrências
     const targetSheet = 'OCR';
     
-    // Preparar range para a página OCR (colunas A até I)
-    const ranges = [`${targetSheet}!A:I`];
+    // Preparar range para a página OCR (colunas A até J)
+    const ranges = [`${targetSheet}!A:J`];
     
     // Buscar dados da planilha específica de ocorrências
     const results = await batchGetValuesFromSpecificSheet(process.env.OCORRENCIAS_SHEET_ID, ranges);
@@ -43,20 +43,21 @@ export default async function handler(req, res) {
       .map(row => {
         // Estender o array para ter o tamanho adequado se necessário
         const paddedRow = [...row];
-        while (paddedRow.length < 9) {
+        while (paddedRow.length < 10) {
           paddedRow.push('');
         }
         
         return {
-          DataHora: paddedRow[0] || '',          // Coluna A
-          Problema: paddedRow[1] || '',          // Coluna B
-          // Coluna C ignorada conforme solicitado
-          Resumo: paddedRow[3] || '',            // Coluna D
-          Marcadores: paddedRow[4] || '',        // Coluna E
-          Modulo: paddedRow[5] || '',            // Coluna F
-          Motivo: paddedRow[6] || '',            // Coluna G
-          Status: paddedRow[7] || 'Novo',        // Coluna H (default: Novo)
-          DataCorrecao: paddedRow[8] || ''       // Coluna I (data correção)
+          // Coluna A ignorada (ID do Slack)
+          DataHora: paddedRow[1] || '',          // Coluna B
+          Problema: paddedRow[2] || '',          // Coluna C
+          // Coluna D ignorada (responsável)
+          Resumo: paddedRow[4] || '',            // Coluna E
+          Marcadores: paddedRow[5] || '',        // Coluna F
+          Modulo: paddedRow[6] || '',            // Coluna G
+          Motivo: paddedRow[7] || '',            // Coluna H
+          Status: paddedRow[8] || 'Novo',        // Coluna I (default: Novo)
+          DataCorrecao: paddedRow[9] || ''       // Coluna J (data correção)
         };
       })
       .filter(item => item.Problema.trim() !== ''); // Filtrar linhas sem problema definido
