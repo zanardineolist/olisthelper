@@ -1,0 +1,788 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import styles from '../styles/Ocorrencias.module.css';
+import { 
+  TextField, 
+  Button, 
+  Dialog,
+  DialogContent, 
+  DialogActions, 
+  Snackbar, 
+  Alert,
+  IconButton,
+  FormControlLabel,
+  Checkbox,
+  Typography,
+  Chip,
+  Container,
+  FormGroup,
+  Box,
+  CircularProgress,
+  Tooltip,
+  Badge,
+  Collapse,
+  Paper
+} from '@mui/material';
+
+// Importando o React Select
+import Select from 'react-select';
+
+import { 
+  Search as SearchIcon, 
+  Close as CloseIcon, 
+  FilterList as FilterListIcon, 
+  ContentCopy as ContentCopyIcon, 
+  Info as InfoIcon, 
+  Description as DescriptionIcon, 
+  FilterAlt as FilterAltIcon,
+  Assignment as AssignmentIcon,
+  Schedule as ScheduleIcon,
+  BugReport as BugReportIcon,
+  CheckCircle as CheckCircleIcon,
+  Warning as WarningIcon
+} from '@mui/icons-material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+
+export default function Ocorrencias({ user }) {
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalData, setModalData] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [marcadorFilter, setMarcadorFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [searchActive, setSearchActive] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [copySuccess, setCopySuccess] = useState('');
+  const [filtrosAtivos, setFiltrosAtivos] = useState(0);
+  const [marcadores, setMarcadores] = useState([]);
+  const [statusOptions, setStatusOptions] = useState([]);
+
+  // Verificar número de filtros ativos
+  useEffect(() => {
+    let count = 0;
+    
+    if (marcadorFilter) count++;
+    if (statusFilter) count++;
+    if (searchQuery) count++;
+    
+    setFiltrosAtivos(count);
+  }, [marcadorFilter, statusFilter, searchQuery]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/api/ocorrencias');
+      
+      if (response.data && response.data.dados) {
+        const ocorrencias = response.data.dados;
+        setData(ocorrencias);
+        
+        // Extrair opções únicas para filtros
+        extrairOpcoesDeFiltros(ocorrencias);
+        
+        // Aplicar filtros iniciais
+        applyFilters(ocorrencias, '', '', '');
+      } else {
+        console.error('Erro ao buscar dados: formato inesperado');
+        toast.error('Erro ao carregar os dados');
+        setData([]);
+        setFilteredData([]);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+      toast.error('Erro ao carregar os dados');
+      setData([]);
+      setFilteredData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const extrairOpcoesDeFiltros = (items) => {
+    if (!items || items.length === 0) return;
+
+    // Extrair marcadores únicos
+    const uniqueMarcadores = [...new Set(items.map(item => item.Marcadores))]
+      .filter(marcador => marcador && marcador.trim() !== '')
+      .sort();
+
+    // Extrair status únicos
+    const uniqueStatus = [...new Set(items.map(item => item.Status))]
+      .filter(status => status && status.trim() !== '')
+      .sort();
+
+    setMarcadores(uniqueMarcadores);
+    setStatusOptions(uniqueStatus);
+  };
+
+  const applyFilters = (allData, marcadorValue, statusValue, searchValue) => {
+    if (!allData || allData.length === 0) return;
+
+    let filteredItems = [...allData];
+
+    // Filtrar por Marcador
+    if (marcadorValue) {
+      filteredItems = filteredItems.filter(item => item.Marcadores === marcadorValue);
+    }
+    
+    // Filtrar por Status
+    if (statusValue) {
+      filteredItems = filteredItems.filter(item => item.Status === statusValue);
+    }
+    
+    // Filtrar por texto de busca
+    if (searchValue) {
+      const searchLower = searchValue.toLowerCase();
+      filteredItems = filteredItems.filter(item => {
+        return (
+          (item.Problema && item.Problema.toLowerCase().includes(searchLower)) ||
+          (item.Resumo && item.Resumo.toLowerCase().includes(searchLower)) ||
+          (item.Motivo && item.Motivo.toLowerCase().includes(searchLower)) ||
+          (item.Modulo && item.Modulo.toLowerCase().includes(searchLower))
+        );
+      });
+    }
+    
+    setFilteredData(filteredItems);
+  };
+
+  useEffect(() => {
+    if (data && data.length > 0) {
+      applyFilters(data, marcadorFilter, statusFilter, searchQuery);
+    }
+  }, [data]);
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      setSearchActive(true);
+      applyFilters(data, marcadorFilter, statusFilter, searchQuery);
+    }
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // Quando o campo de busca for limpo, resetar a busca automaticamente
+    if (!value.trim()) {
+      setSearchActive(false);
+      applyFilters(data, marcadorFilter, statusFilter, '');
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setSearchActive(false);
+    applyFilters(data, marcadorFilter, statusFilter, '');
+  };
+
+  const handleCopyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        setCopySuccess('Informação copiada para a área de transferência!');
+        setSnackbarOpen(true);
+      },
+      (err) => {
+        console.error('Não foi possível copiar: ', err);
+        setCopySuccess('Falha ao copiar texto!');
+        setSnackbarOpen(true);
+      }
+    );
+  };
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
+  const resetFilters = () => {
+    setMarcadorFilter('');
+    setStatusFilter('');
+    setSearchQuery('');
+    setSearchActive(false);
+    applyFilters(data, '', '', '');
+  };
+
+  const handleOpenModal = (item) => {
+    setModalData(item);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setModalData(null);
+  };
+
+  const handleMarcadorChange = (selectedOption) => {
+    const valor = selectedOption ? selectedOption.value : '';
+    setMarcadorFilter(valor);
+    applyFilters(data, valor, statusFilter, searchQuery);
+  };
+
+  const handleStatusChange = (selectedOption) => {
+    const valor = selectedOption ? selectedOption.value : '';
+    setStatusFilter(valor);
+    applyFilters(data, marcadorFilter, valor, searchQuery);
+  };
+
+  // Função para gerar cor baseada no status
+  const getColorForStatus = (status) => {
+    if (!status) return { main: '#9e9e9e', bg: 'rgba(158, 158, 158, 0.08)', border: 'rgba(158, 158, 158, 0.3)' };
+    
+    switch (status.toLowerCase()) {
+      case 'corrigido':
+        return { main: '#388e3c', bg: 'rgba(56, 142, 60, 0.08)', border: 'rgba(56, 142, 60, 0.3)' };
+      case 'novo':
+        return { main: '#f57c00', bg: 'rgba(245, 124, 0, 0.08)', border: 'rgba(245, 124, 0, 0.3)' };
+      default:
+        return { main: '#1976d2', bg: 'rgba(25, 118, 210, 0.08)', border: 'rgba(25, 118, 210, 0.3)' };
+    }
+  };
+
+  // Função para gerar cor baseada em hash da string (para marcadores)
+  const getColorForMarcador = (marcador) => {
+    if (!marcador) return { main: '#9e9e9e', bg: 'rgba(158, 158, 158, 0.08)', border: 'rgba(158, 158, 158, 0.3)' };
+    
+    // Hash simples
+    let hash = 0;
+    for (let i = 0; i < marcador.length; i++) {
+      hash = marcador.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Lista de cores predefinidas
+    const colors = [
+      { main: '#1976d2', bg: 'rgba(25, 118, 210, 0.08)', border: 'rgba(25, 118, 210, 0.3)' },
+      { main: '#e53935', bg: 'rgba(229, 57, 53, 0.08)', border: 'rgba(229, 57, 53, 0.3)' },
+      { main: '#7b1fa2', bg: 'rgba(123, 31, 162, 0.08)', border: 'rgba(123, 31, 162, 0.3)' },
+      { main: '#388e3c', bg: 'rgba(56, 142, 60, 0.08)', border: 'rgba(56, 142, 60, 0.3)' },
+      { main: '#f57c00', bg: 'rgba(245, 124, 0, 0.08)', border: 'rgba(245, 124, 0, 0.3)' },
+      { main: '#0288d1', bg: 'rgba(2, 136, 209, 0.08)', border: 'rgba(2, 136, 209, 0.3)' },
+      { main: '#455a64', bg: 'rgba(69, 90, 100, 0.08)', border: 'rgba(69, 90, 100, 0.3)' },
+      { main: '#5d4037', bg: 'rgba(93, 64, 55, 0.08)', border: 'rgba(93, 64, 55, 0.3)' },
+      { main: '#00796b', bg: 'rgba(0, 121, 107, 0.08)', border: 'rgba(0, 121, 107, 0.3)' },
+      { main: '#c2185b', bg: 'rgba(194, 24, 91, 0.08)', border: 'rgba(194, 24, 91, 0.3)' }
+    ];
+    
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
+  };
+
+  // Configuração do tema do React Select
+  const selectTheme = theme => ({
+    ...theme,
+    colors: {
+      ...theme.colors,
+      primary: 'var(--color-primary)',
+      primary25: 'rgba(10, 78, 228, 0.08)',
+      primary50: 'rgba(10, 78, 228, 0.16)',
+      neutral0: 'var(--background-color)',
+      neutral10: 'var(--color-border)',
+      neutral20: 'var(--color-border)',
+      neutral30: 'var(--color-border)',
+      neutral80: 'var(--title-color)',
+    },
+  });
+
+  // Configuração de estilos customizados
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      backgroundColor: 'var(--background-color)',
+      borderColor: state.isFocused ? 'var(--color-primary)' : 'var(--color-border)',
+      borderRadius: '8px',
+      minHeight: '40px',
+      height: '40px',
+      boxShadow: state.isFocused ? '0 0 0 1px var(--color-primary)' : 'none',
+      '&:hover': {
+        borderColor: 'var(--color-primary)',
+      },
+    }),
+    valueContainer: (provided) => ({
+      ...provided,
+      padding: '0 8px',
+      height: '40px',
+      display: 'flex',
+      alignItems: 'center',
+    }),
+    input: (provided) => ({
+      ...provided,
+      margin: '0px',
+      color: 'var(--title-color)'
+    }),
+    indicatorSeparator: () => ({
+      display: 'none',
+    }),
+    indicatorsContainer: (provided) => ({
+      ...provided,
+      height: '40px',
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      padding: '0 8px',
+      color: 'var(--title-color)',
+    }),
+    clearIndicator: (provided) => ({
+      ...provided,
+      padding: '0 8px',
+      color: 'var(--title-color)',
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      color: 'var(--title-color)',
+      backgroundColor: state.isSelected 
+        ? 'rgba(10, 78, 228, 0.08)' 
+        : state.isFocused 
+          ? 'var(--box-color2)' 
+          : 'var(--background-color)',
+      padding: '8px 16px',
+      fontSize: '0.9rem',
+      cursor: 'pointer',
+      '&:active': {
+        backgroundColor: 'rgba(10, 78, 228, 0.16)',
+      }
+    }),
+    menu: (provided) => ({
+      ...provided,
+      backgroundColor: 'var(--background-color)',
+      border: '1px solid var(--color-border)',
+      borderRadius: '8px',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      zIndex: 9999,
+    }),
+    menuList: (provided) => ({
+      ...provided,
+      padding: '8px 0',
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: 'var(--text-color)',
+      opacity: 0.7,
+      fontSize: '0.9rem',
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: 'var(--title-color)',
+      fontSize: '0.9rem',
+    }),
+  };
+
+  const renderFiltros = () => {
+    // Preparar opções para o React Select
+    const marcadorOptions = marcadores.length > 0
+      ? [{ label: "Todos", value: "" }, ...marcadores.map(marcador => ({ label: marcador, value: marcador }))]
+      : [{ label: "Todos", value: "" }];
+    
+    const statusSelectOptions = statusOptions.length > 0
+      ? [{ label: "Todos", value: "" }, ...statusOptions.map(status => ({ label: status, value: status }))]
+      : [{ label: "Todos", value: "" }];
+    
+    // Valores selecionados atuais
+    const selectedMarcador = marcadorOptions.find(option => option.value === marcadorFilter) || null;
+    const selectedStatus = statusSelectOptions.find(option => option.value === statusFilter) || null;
+    
+    return (
+      <div className={styles.filterControls}>
+        <div className={styles.formControl}>
+          <span className={styles.inputLabel}>Marcadores</span>
+          <Select
+            value={selectedMarcador}
+            options={marcadorOptions}
+            onChange={handleMarcadorChange}
+            placeholder="Selecione Marcador"
+            isClearable
+            className={styles.reactSelect}
+            theme={selectTheme}
+            styles={customSelectStyles}
+            aria-label="Marcadores"
+          />
+        </div>
+        
+        <div className={styles.formControl}>
+          <span className={styles.inputLabel}>Status</span>
+          <Select
+            value={selectedStatus}
+            options={statusSelectOptions}
+            onChange={handleStatusChange}
+            placeholder="Selecione Status"
+            isClearable
+            className={styles.reactSelect}
+            theme={selectTheme}
+            styles={customSelectStyles}
+            aria-label="Status"
+          />
+        </div>
+        
+        <div className={styles.formControl}>
+          <span className={styles.inputLabel}>&nbsp;</span>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={resetFilters}
+            className={styles.resetButton}
+            sx={{ 
+              color: 'var(--color-accent1)', 
+              borderColor: 'var(--color-accent1)',
+              '&:hover': {
+                backgroundColor: 'rgba(230, 78, 54, 0.08)',
+                borderColor: 'var(--color-accent1)'
+              }
+            }}
+            disabled={!marcadorFilter && !statusFilter && !searchQuery}
+            size="small"
+          >
+            LIMPAR FILTROS
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderFiltersSection = () => {
+    return (
+      <div className={styles.filtersContainer}>
+        {renderFiltros()}
+      </div>
+    );
+  };
+  
+  const renderFiltersBlock = () => {
+    return (
+      <div className={styles.searchContainer}>
+        <div className={styles.searchInputWrapper}>
+          <TextField
+            fullWidth
+            label="Buscar"
+            variant="outlined"
+            value={searchQuery}
+            onChange={handleSearchInputChange}
+            onKeyPress={handleKeyPress}
+            size="small"
+            InputProps={{
+              className: styles.inputRoot,
+              endAdornment: searchQuery ? (
+                <IconButton size="small" onClick={handleClearSearch} className={styles.iconButton}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              ) : null,
+              classes: { 
+                notchedOutline: styles.inputOutline 
+              }
+            }}
+            InputLabelProps={{
+              className: styles.inputLabel
+            }}
+          />
+          <div className={styles.searchButtonsContainer}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSearch}
+              startIcon={<SearchIcon />}
+              className={`${styles.searchButton} ${styles.btnContained}`}
+              disabled={!searchQuery.trim()}
+              size="medium"
+            >
+              BUSCAR
+            </Button>
+            <Badge badgeContent={filtrosAtivos} color="primary" invisible={filtrosAtivos === 0}>
+              <Button
+                variant="outlined"
+                onClick={() => setShowFilters(!showFilters)}
+                startIcon={<FilterListIcon />}
+                className={`${styles.filterButton} ${styles.btnOutlined}`}
+                size="medium"
+              >
+                FILTROS
+              </Button>
+            </Badge>
+          </div>
+        </div>
+        
+        <Collapse in={showFilters} timeout={300}>
+          {renderFiltersSection()}
+        </Collapse>
+      </div>
+    );
+  };
+
+  const renderResultsInfo = () => {
+    return (
+      <div className={styles.resultsInfo}>
+        <Typography variant="body2">
+          {filteredData.length === 0 
+            ? "Nenhuma ocorrência encontrada" 
+            : `${filteredData.length} ${filteredData.length === 1 ? 'ocorrência encontrada' : 'ocorrências encontradas'}`}
+        </Typography>
+      </div>
+    );
+  };
+
+  const renderCard = (item, index) => {
+    const statusColor = getColorForStatus(item.Status);
+    const marcadorColor = getColorForMarcador(item.Marcadores);
+    
+    return (
+      <div key={index} className={styles.card}>
+        <div className={styles.cardStatusHeader}>
+          <Chip 
+            icon={item.Status === 'Corrigido' ? <CheckCircleIcon fontSize="small" /> : <WarningIcon fontSize="small" />}
+            label={item.Status || 'Novo'} 
+            variant="outlined" 
+            size="small"
+            className={styles.statusChip}
+            style={{
+              color: statusColor.main,
+              borderColor: statusColor.border,
+              backgroundColor: statusColor.bg
+            }}
+          />
+          <Typography variant="caption" className={styles.dataHora}>
+            {item.DataHora}
+          </Typography>
+        </div>
+        
+        <div className={styles.cardHeader}>
+          {item.Marcadores && (
+            <Chip 
+              label={item.Marcadores} 
+              variant="outlined" 
+              className={styles.marcadorChip}
+              size="small"
+              style={{
+                color: marcadorColor.main,
+                borderColor: marcadorColor.border,
+                backgroundColor: marcadorColor.bg
+              }}
+            />
+          )}
+          {item.Modulo && (
+            <Chip 
+              label={item.Modulo} 
+              color="primary" 
+              className={styles.moduloChip} 
+              size="small"
+            />
+          )}
+        </div>
+        
+        <div className={styles.cardContentArea}>
+          <h3 className={styles.problemTitle}>{item.Problema}</h3>
+          {item.Resumo && (
+            <p className={styles.resumoText}>{item.Resumo}</p>
+          )}
+        </div>
+        
+        <div className={styles.cardFooter}>
+          <Button
+            variant="outlined"
+            color="primary"
+            size="small"
+            onClick={() => handleOpenModal(item)}
+            startIcon={<VisibilityIcon />}
+            className={styles.viewButton}
+          >
+            Ver detalhes
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderModalContent = () => {
+    const statusColor = getColorForStatus(modalData.Status);
+    const marcadorColor = getColorForMarcador(modalData.Marcadores);
+    
+    return (
+      <>
+        <div className={styles.modalHeader}>
+          <Typography variant="h6" component="h2" className={styles.modalTitle}>
+            {modalData.Problema}
+          </Typography>
+          
+          <div className={styles.modalChips}>
+            <Chip 
+              icon={<ScheduleIcon fontSize="small" />}
+              label={modalData.DataHora} 
+              color="default" 
+              size="small"
+              className={styles.modalChip}
+            />
+            {modalData.Marcadores && (
+              <Chip 
+                label={modalData.Marcadores} 
+                variant="outlined" 
+                size="small"
+                className={styles.modalChip}
+                style={{
+                  color: marcadorColor.main,
+                  borderColor: marcadorColor.border,
+                  backgroundColor: marcadorColor.bg
+                }}
+              />
+            )}
+            {modalData.Modulo && (
+              <Chip 
+                label={modalData.Modulo} 
+                color="primary" 
+                size="small"
+                className={styles.modalChip}
+              />
+            )}
+            <Chip 
+              icon={modalData.Status === 'Corrigido' ? <CheckCircleIcon fontSize="small" /> : <WarningIcon fontSize="small" />}
+              label={modalData.Status || 'Novo'} 
+              variant="outlined" 
+              size="small"
+              style={{
+                color: statusColor.main,
+                borderColor: statusColor.border,
+                backgroundColor: statusColor.bg
+              }}
+            />
+          </div>
+        </div>
+
+        {modalData.Resumo && modalData.Resumo.trim() !== '' && (
+          <div className={styles.resumoBox}>
+            <div className={styles.solutionHeader}>
+              <div className={styles.sectionTitleWrapper}>
+                <DescriptionIcon className={styles.sectionIcon} />
+                <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+                  Resumo do Problema
+                </Typography>
+              </div>
+              <Tooltip title="Copiar resumo">
+                <IconButton 
+                  onClick={() => handleCopyToClipboard(modalData.Resumo)}
+                  size="small"
+                  className={styles.copyButton}
+                >
+                  <ContentCopyIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </div>
+            <Box className={styles.solutionScrollbox}>
+              <Typography variant="body2" className={styles.solutionText}>
+                {modalData.Resumo}
+              </Typography>
+            </Box>
+          </div>
+        )}
+
+        {modalData.Motivo && modalData.Motivo.trim() !== '' && (
+          <Box className={styles.observationBox}>
+            <div className={styles.sectionTitleWrapper}>
+              <InfoIcon className={styles.sectionIcon} />
+              <Typography variant="subtitle1" component="h3" className={styles.sectionTitle}>
+                Motivo
+              </Typography>
+            </div>
+            <Typography variant="body2" className={styles.observationText}>
+              {modalData.Motivo}
+            </Typography>
+          </Box>
+        )}
+      </>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <CircularProgress />
+        <p>Carregando ocorrências...</p>
+      </div>
+    );
+  }
+
+  return (
+    <Container maxWidth="xl" className={styles.container}>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>Ocorrências</h1>
+        <p className={styles.pageDescription}>
+          Mantenha-se atualizado sobre as ocorrências existentes no suporte e seus status de correção.
+        </p>
+      </div>
+
+      {renderFiltersBlock()}
+
+      {filteredData.length > 0 && renderResultsInfo()}
+
+      <div className={styles.cards}>
+        {filteredData.length > 0 ? (
+          filteredData.map((item, index) => renderCard(item, index))
+        ) : (
+          <div className={styles.noResults}>
+            <Typography variant="body1">
+              Nenhuma ocorrência encontrada para os filtros selecionados.
+            </Typography>
+            {filtrosAtivos > 0 && (
+              <Button 
+                variant="outlined" 
+                color="primary"
+                onClick={resetFilters}
+                startIcon={<FilterAltIcon />}
+                style={{ marginTop: '10px' }}
+              >
+                Limpar Filtros
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+
+      <Dialog
+        open={modalOpen}
+        onClose={handleCloseModal}
+        maxWidth="md"
+        fullWidth
+        className={styles.dialog}
+        PaperProps={{ className: styles.dialogPaper }}
+      >
+        {modalData && (
+          <>
+            <DialogContent className={styles.dialogContent}>
+              {renderModalContent()}
+            </DialogContent>
+            <DialogActions className={styles.dialogActions}>
+              <Button 
+                onClick={handleCloseModal} 
+                className={styles.dialogButton}
+                variant="outlined"
+              >
+                Fechar
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="success">
+          {copySuccess}
+        </Alert>
+      </Snackbar>
+    </Container>
+  );
+} 

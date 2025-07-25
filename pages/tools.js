@@ -12,7 +12,8 @@ import {
   FaVideo,
   FaChevronLeft,
   FaChevronRight,
-  FaTag
+  FaTag,
+  FaExclamationTriangle
 } from 'react-icons/fa';
 import Layout from '../components/Layout';
 import TicketCounter from '../components/TicketCounter';
@@ -25,6 +26,7 @@ import MinhaBase from '../components/MinhaBase';
 import BibliotecaVideos from '../components/BibliotecaVideos';
 import TicketLogger from '../components/TicketLogger';
 import ValidadorML from '../components/ValidadorML';
+import Ocorrencias from '../components/Ocorrencias';
 import { useLoading } from '../components/LoadingIndicator';
 import styles from '../styles/Tools.module.css';
 
@@ -50,6 +52,15 @@ const TAB_CONFIG = [
     component: ErrosComuns,
     requiresTicketAccess: false,
     description: 'Consulte erros comuns e suas soluções'
+  },
+  {
+    id: 'Ocorrencias',
+    label: 'Ocorrências',
+    icon: FaExclamationTriangle,
+    hash: '#Ocorrencias',
+    component: Ocorrencias,
+    requiresTicketAccess: false,
+    description: 'Mantenha-se atualizado sobre ocorrências do suporte'
   },
   {
     id: 'TicketCounter',
