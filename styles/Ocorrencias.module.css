@@ -354,7 +354,28 @@
   font-size: 0.8rem;
 }
 
+/* Container do chip de criação */
+.creationChipContainer {
+  margin: 12px 0;
+}
 
+/* Chip de criação com visual especial */
+.creationChip {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--primary-dark) 100%);
+  color: var(--color-white);
+  border: 2px solid var(--color-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.creationChip .MuiChip-icon {
+  color: var(--color-white);
+}
+
+.creationChip:hover {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--color-primary) 100%);
+  box-shadow: 0 2px 8px rgba(10, 78, 228, 0.3);
+}
 
 .resumoBox {
   background-color: var(--box-color2);

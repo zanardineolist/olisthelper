@@ -831,19 +831,16 @@ export default function Ocorrencias({ user }) {
             {modalData.Problema}
           </Typography>
           
-          <div className={styles.modalChips}>
+          <div className={styles.creationChipContainer}>
             <Chip 
               icon={<ScheduleIcon fontSize="small" />}
               label={`Criado em: ${formatBrazilianDate(modalData.DataHora)}`} 
-              color="default" 
               size="small"
-              className={styles.modalChip}
-              style={{
-                backgroundColor: 'var(--primary-bg)',
-                color: 'var(--primary-color)',
-                borderColor: 'var(--primary-color)'
-              }}
+              className={styles.creationChip}
             />
+          </div>
+          
+          <div className={styles.modalChips}>
             <div className={styles.marcadoresContainer}>
               {renderMarcadores(modalData.Marcadores)}
             </div>
