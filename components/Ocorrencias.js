@@ -44,6 +44,48 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
+// Função para formatar data do formato brasileiro para DD/MM/AA HH:MM
+const formatBrazilianDate = (dateString) => {
+  if (!dateString || dateString.trim() === '') return '';
+  
+  try {
+    // Mapeamento de meses em português para números
+    const monthMap = {
+      'jan': '01', 'fev': '02', 'mar': '03', 'abr': '04',
+      'mai': '05', 'jun': '06', 'jul': '07', 'ago': '08',
+      'set': '09', 'out': '10', 'nov': '11', 'dez': '12'
+    };
+    
+    // Regex para capturar: dia, mês, ano, hora, minuto
+    // Formato: "24 de jul., 2025 21h39min57s" ou "1° de jan., 2025 10h15min30s"
+    const regex = /(\d{1,2})[°]?\s+de\s+(\w{3})[.,]\s+(\d{4})\s+(\d{1,2})h(\d{1,2})min/i;
+    const match = dateString.match(regex);
+    
+    if (!match) {
+      // Se não conseguir fazer parse, retorna a string original
+      return dateString;
+    }
+    
+    const [, day, monthStr, year, hour, minute] = match;
+    
+    // Converter mês para número
+    const month = monthMap[monthStr.toLowerCase()];
+    if (!month) return dateString;
+    
+    // Formatar componentes
+    const formattedDay = day.padStart(2, '0');
+    const formattedMonth = month;
+    const formattedYear = year.slice(-2); // Pegar últimos 2 dígitos do ano
+    const formattedHour = hour.padStart(2, '0');
+    const formattedMinute = minute.padStart(2, '0');
+    
+    return `${formattedDay}/${formattedMonth}/${formattedYear} ${formattedHour}:${formattedMinute}`;
+  } catch (error) {
+    console.warn('Erro ao formatar data:', dateString, error);
+    return dateString; // Retorna original em caso de erro
+  }
+};
+
 export default function Ocorrencias({ user }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
@@ -533,73 +575,101 @@ export default function Ocorrencias({ user }) {
     );
   };
 
-  const renderCard = (item, index) => {
-    const statusColor = getColorForStatus(item.Status);
-    const marcadorColor = getColorForMarcador(item.Marcadores);
-    
+  const renderTable = () => {
     return (
-      <div key={index} className={styles.card}>
-        <div className={styles.cardStatusHeader}>
-          <Chip 
-            icon={item.Status === 'Corrigido' ? <CheckCircleIcon fontSize="small" /> : <WarningIcon fontSize="small" />}
-            label={item.Status || 'Novo'} 
-            variant="outlined" 
-            size="small"
-            className={styles.statusChip}
-            style={{
-              color: statusColor.main,
-              borderColor: statusColor.border,
-              backgroundColor: statusColor.bg
-            }}
-          />
-          <Typography variant="caption" className={styles.dataHora}>
-            {item.DataHora}
-          </Typography>
-        </div>
-        
-        <div className={styles.cardHeader}>
-          {item.Marcadores && (
-            <Chip 
-              label={item.Marcadores} 
-              variant="outlined" 
-              className={styles.marcadorChip}
-              size="small"
-              style={{
-                color: marcadorColor.main,
-                borderColor: marcadorColor.border,
-                backgroundColor: marcadorColor.bg
-              }}
-            />
-          )}
-          {item.Modulo && (
-            <Chip 
-              label={item.Modulo} 
-              color="primary" 
-              className={styles.moduloChip} 
-              size="small"
-            />
-          )}
-        </div>
-        
-        <div className={styles.cardContentArea}>
-          <h3 className={styles.problemTitle}>{item.Problema}</h3>
-          {item.Resumo && (
-            <p className={styles.resumoText}>{item.Resumo}</p>
-          )}
-        </div>
-        
-        <div className={styles.cardFooter}>
-          <Button
-            variant="outlined"
-            color="primary"
-            size="small"
-            onClick={() => handleOpenModal(item)}
-            startIcon={<VisibilityIcon />}
-            className={styles.viewButton}
-          >
-            Ver detalhes
-          </Button>
-        </div>
+      <div className={styles.tableContainer}>
+        <table className={styles.table}>
+          <thead className={styles.tableHead}>
+            <tr>
+              <th className={styles.tableHeader}>Data/Hora</th>
+              <th className={styles.tableHeader}>Status</th>
+              <th className={styles.tableHeader}>Problema</th>
+              <th className={styles.tableHeader}>Marcadores</th>
+              <th className={styles.tableHeader}>Módulo</th>
+              <th className={styles.tableHeader}>Resumo</th>
+              <th className={styles.tableHeader}>Ações</th>
+            </tr>
+          </thead>
+          <tbody className={styles.tableBody}>
+            {filteredData.map((item, index) => {
+              const statusColor = getColorForStatus(item.Status);
+              const marcadorColor = getColorForMarcador(item.Marcadores);
+              
+              return (
+                <tr key={index} className={styles.tableRow}>
+                  <td className={styles.tableCell}>
+                    <Typography variant="body2" className={styles.dateTime}>
+                      {formatBrazilianDate(item.DataHora)}
+                    </Typography>
+                  </td>
+                  <td className={styles.tableCell}>
+                    <Chip 
+                      icon={item.Status === 'Corrigido' ? <CheckCircleIcon fontSize="small" /> : <WarningIcon fontSize="small" />}
+                      label={item.Status || 'Novo'} 
+                      variant="outlined" 
+                      size="small"
+                      className={styles.statusChip}
+                      style={{
+                        color: statusColor.main,
+                        borderColor: statusColor.border,
+                        backgroundColor: statusColor.bg
+                      }}
+                    />
+                  </td>
+                  <td className={styles.tableCell}>
+                    <Typography variant="body2" className={styles.problemText}>
+                      {item.Problema}
+                    </Typography>
+                  </td>
+                  <td className={styles.tableCell}>
+                    {item.Marcadores && (
+                      <Chip 
+                        label={item.Marcadores} 
+                        variant="outlined" 
+                        className={styles.marcadorChip}
+                        size="small"
+                        style={{
+                          color: marcadorColor.main,
+                          borderColor: marcadorColor.border,
+                          backgroundColor: marcadorColor.bg
+                        }}
+                      />
+                    )}
+                  </td>
+                  <td className={styles.tableCell}>
+                    {item.Modulo && (
+                      <Chip 
+                        label={item.Modulo} 
+                        color="primary" 
+                        className={styles.moduloChip} 
+                        size="small"
+                      />
+                    )}
+                  </td>
+                  <td className={styles.tableCell}>
+                    <Typography variant="body2" className={styles.resumoText}>
+                      {item.Resumo && item.Resumo.length > 80 
+                        ? `${item.Resumo.substring(0, 80)}...` 
+                        : item.Resumo}
+                    </Typography>
+                  </td>
+                  <td className={styles.tableCell}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      onClick={() => handleOpenModal(item)}
+                      startIcon={<VisibilityIcon />}
+                      className={styles.viewButton}
+                    >
+                      Ver
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     );
   };
@@ -618,7 +688,7 @@ export default function Ocorrencias({ user }) {
           <div className={styles.modalChips}>
             <Chip 
               icon={<ScheduleIcon fontSize="small" />}
-              label={modalData.DataHora} 
+              label={formatBrazilianDate(modalData.DataHora)} 
               color="default" 
               size="small"
               className={styles.modalChip}
@@ -724,9 +794,9 @@ export default function Ocorrencias({ user }) {
 
       {filteredData.length > 0 && renderResultsInfo()}
 
-      <div className={styles.cards}>
+      <div className={styles.tableWrapper}>
         {filteredData.length > 0 ? (
-          filteredData.map((item, index) => renderCard(item, index))
+          renderTable()
         ) : (
           <div className={styles.noResults}>
             <Typography variant="body1">
