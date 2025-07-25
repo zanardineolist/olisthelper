@@ -284,47 +284,42 @@ export default function Ocorrencias({ user }) {
     applyFilters(data, marcadorFilter, valor, searchQuery);
   };
 
-  // Função para gerar cor baseada no status - Cores melhoradas
+  // Função para gerar cor baseada no status - Padrão globals.css
   const getColorForStatus = (status) => {
     if (!status) return { 
-      main: '#6B7280', 
-      bg: 'rgba(107, 114, 128, 0.15)', 
-      border: 'rgba(107, 114, 128, 0.4)',
-      shadow: 'rgba(107, 114, 128, 0.2)'
+      main: 'var(--neutral-color)', 
+      bg: 'var(--neutral-bg)', 
+      border: 'var(--neutral-color)'
     };
     
     switch (status.toLowerCase()) {
       case 'corrigido':
         return { 
-          main: '#059669', 
-          bg: 'rgba(5, 150, 105, 0.15)', 
-          border: 'rgba(5, 150, 105, 0.5)',
-          shadow: 'rgba(5, 150, 105, 0.3)'
+          main: 'var(--excellent-color)', 
+          bg: 'var(--excellent-bg)', 
+          border: 'var(--excellent-color)'
         };
       case 'novo':
         return { 
-          main: '#DC2626', 
-          bg: 'rgba(220, 38, 38, 0.15)', 
-          border: 'rgba(220, 38, 38, 0.5)',
-          shadow: 'rgba(220, 38, 38, 0.3)'
+          main: 'var(--warning-color)', 
+          bg: 'var(--warning-bg)', 
+          border: 'var(--warning-color)'
         };
       default:
         return { 
-          main: '#2563EB', 
-          bg: 'rgba(37, 99, 235, 0.15)', 
-          border: 'rgba(37, 99, 235, 0.5)',
-          shadow: 'rgba(37, 99, 235, 0.3)'
+          main: 'var(--primary-color)', 
+          bg: 'var(--primary-bg)', 
+          border: 'var(--primary-color)'
         };
     }
   };
 
-  // Função para gerar cor baseada em hash da string (para marcadores) - Cores melhoradas
+  // Função para gerar cor baseada em hash da string (para marcadores) - Padrão globals.css
   const getColorForMarcador = (marcador) => {
     if (!marcador) return { 
-      main: '#6B7280', 
-      bg: 'rgba(107, 114, 128, 0.15)', 
-      border: 'rgba(107, 114, 128, 0.4)',
-      shadow: 'rgba(107, 114, 128, 0.2)'
+      main: 'var(--neutral-color)', 
+      bg: 'var(--neutral-bg)', 
+      border: 'var(--neutral-color)'
     };
     
     // Hash simples
@@ -333,20 +328,17 @@ export default function Ocorrencias({ user }) {
       hash = marcador.charCodeAt(i) + ((hash << 5) - hash);
     }
     
-    // Lista de cores predefinidas com melhor contraste
+    // Lista de cores usando variáveis do globals.css
     const colors = [
-      { main: '#3B82F6', bg: 'rgba(59, 130, 246, 0.15)', border: 'rgba(59, 130, 246, 0.5)', shadow: 'rgba(59, 130, 246, 0.3)' }, // Azul
-      { main: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.5)', shadow: 'rgba(239, 68, 68, 0.3)' }, // Vermelho
-      { main: '#8B5CF6', bg: 'rgba(139, 92, 246, 0.15)', border: 'rgba(139, 92, 246, 0.5)', shadow: 'rgba(139, 92, 246, 0.3)' }, // Roxo
-      { main: '#10B981', bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.5)', shadow: 'rgba(16, 185, 129, 0.3)' }, // Verde
-      { main: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.5)', shadow: 'rgba(245, 158, 11, 0.3)' }, // Amarelo
-      { main: '#06B6D4', bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.5)', shadow: 'rgba(6, 182, 212, 0.3)' }, // Ciano
-      { main: '#64748B', bg: 'rgba(100, 116, 139, 0.15)', border: 'rgba(100, 116, 139, 0.5)', shadow: 'rgba(100, 116, 139, 0.3)' }, // Cinza
-      { main: '#92400E', bg: 'rgba(146, 64, 14, 0.15)', border: 'rgba(146, 64, 14, 0.5)', shadow: 'rgba(146, 64, 14, 0.3)' }, // Marrom
-      { main: '#047857', bg: 'rgba(4, 120, 87, 0.15)', border: 'rgba(4, 120, 87, 0.5)', shadow: 'rgba(4, 120, 87, 0.3)' }, // Verde escuro
-      { main: '#BE185D', bg: 'rgba(190, 24, 93, 0.15)', border: 'rgba(190, 24, 93, 0.5)', shadow: 'rgba(190, 24, 93, 0.3)' }, // Rosa
-      { main: '#7C2D12', bg: 'rgba(124, 45, 18, 0.15)', border: 'rgba(124, 45, 18, 0.5)', shadow: 'rgba(124, 45, 18, 0.3)' }, // Marrom escuro
-      { main: '#1E40AF', bg: 'rgba(30, 64, 175, 0.15)', border: 'rgba(30, 64, 175, 0.5)', shadow: 'rgba(30, 64, 175, 0.3)' } // Azul escuro
+      { main: 'var(--primary-color)', bg: 'var(--primary-bg)', border: 'var(--primary-color)' },
+      { main: 'var(--poor-color)', bg: 'var(--poor-bg)', border: 'var(--poor-color)' },
+      { main: 'var(--excellent-color)', bg: 'var(--excellent-bg)', border: 'var(--excellent-color)' },
+      { main: 'var(--good-color)', bg: 'var(--good-bg)', border: 'var(--good-color)' },
+      { main: 'var(--warning-color)', bg: 'var(--warning-bg)', border: 'var(--warning-color)' },
+      { main: 'var(--neutral-color)', bg: 'var(--neutral-bg)', border: 'var(--neutral-color)' },
+      { main: 'var(--first-color)', bg: 'var(--first-bg)', border: 'var(--first-color)' },
+      { main: 'var(--second-color)', bg: 'var(--second-bg)', border: 'var(--second-color)' },
+      { main: 'var(--third-color)', bg: 'var(--third-bg)', border: 'var(--third-color)' }
     ];
     
     const index = Math.abs(hash) % colors.length;
@@ -632,7 +624,6 @@ export default function Ocorrencias({ user }) {
                   </td>
                   <td className={styles.tableCell}>
                     <Chip 
-                      icon={item.Status === 'Corrigido' ? <CheckCircleIcon fontSize="small" /> : <WarningIcon fontSize="small" />}
                       label={item.Status || 'Novo'} 
                       variant="outlined" 
                       size="small"
@@ -640,8 +631,7 @@ export default function Ocorrencias({ user }) {
                       style={{
                         color: statusColor.main,
                         borderColor: statusColor.border,
-                        backgroundColor: statusColor.bg,
-                        boxShadow: `0 2px 4px ${statusColor.shadow}`
+                        backgroundColor: statusColor.bg
                       }}
                     />
                   </td>
@@ -660,8 +650,7 @@ export default function Ocorrencias({ user }) {
                         style={{
                           color: marcadorColor.main,
                           borderColor: marcadorColor.border,
-                          backgroundColor: marcadorColor.bg,
-                          boxShadow: `0 2px 4px ${marcadorColor.shadow}`
+                          backgroundColor: marcadorColor.bg
                         }}
                       />
                     )}
@@ -745,15 +734,13 @@ export default function Ocorrencias({ user }) {
               />
             )}
             <Chip 
-              icon={modalData.Status === 'Corrigido' ? <CheckCircleIcon fontSize="small" /> : <WarningIcon fontSize="small" />}
               label={modalData.Status || 'Novo'} 
               variant="outlined" 
               size="small"
               style={{
                 color: statusColor.main,
                 borderColor: statusColor.border,
-                backgroundColor: statusColor.bg,
-                boxShadow: `0 2px 4px ${statusColor.shadow}`
+                backgroundColor: statusColor.bg
               }}
             />
           </div>
