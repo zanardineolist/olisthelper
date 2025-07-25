@@ -840,7 +840,6 @@ export default function Ocorrencias({ user }) {
               sx={{
                 backgroundColor: 'transparent',
                 color: 'var(--color-white)',
-                border: '1px solid var(--color-primary)',
                 fontWeight: 'normal',
                 '& .MuiChip-icon': {
                   color: 'var(--color-primary)'
@@ -994,7 +993,15 @@ export default function Ocorrencias({ user }) {
         maxWidth="md"
         fullWidth
         className={styles.dialog}
-        PaperProps={{ className: styles.dialogPaper }}
+        PaperProps={{ 
+          className: styles.dialogPaper,
+          sx: {
+            borderRadius: '20px',
+            maxWidth: '700px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+            border: '2px solid var(--color-border)'
+          }
+        }}
       >
         {modalData && (
           <>
