@@ -369,12 +369,7 @@
 }
 
 .creationChip .MuiChip-icon {
-  color: var(--color-primary);
-}
-
-.creationChip:hover {
-  background: rgba(10, 78, 228, 0.05);
-  box-shadow: 0 2px 8px rgba(10, 78, 228, 0.2);
+  color: var(--color-white);
 }
 
 .resumoBox {
