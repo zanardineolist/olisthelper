@@ -310,7 +310,7 @@
 
 /* Modal Styles - Padrão globals.css */
 .dialog .MuiDialog-paper {
-  border-radius: 20px;
+  border-radius: 10px;
   max-width: 700px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   border: 2px solid var(--color-border);
@@ -345,60 +345,16 @@
 
 .modalChips {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
 .modalChip {
   font-size: 0.8rem;
 }
 
-/* Container de Data de Criação */
-.creationDateContainer {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--box-color2) 100%);
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--color-primary);
-  margin-bottom: 8px;
-}
 
-.creationDateIcon {
-  color: var(--color-primary);
-  font-size: 1.5rem;
-}
-
-.creationDateInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.creationDateLabel {
-  color: var(--text-secondary);
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.creationDateValue {
-  color: var(--title-color);
-  font-size: 0.95rem;
-  font-weight: 600;
-  font-family: 'Consolas', 'Monaco', monospace;
-}
-
-/* Row de chips do modal */
-.modalChipsRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
 
 .resumoBox {
   background-color: var(--box-color2);
