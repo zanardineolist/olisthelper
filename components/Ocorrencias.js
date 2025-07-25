@@ -840,12 +840,14 @@ export default function Ocorrencias({ user }) {
               sx={{
                 backgroundColor: 'transparent',
                 color: 'var(--color-white)',
-                border: '2px solid var(--color-primary)',
+                border: '1px solid var(--color-primary)',
+                fontWeight: 'normal',
                 '& .MuiChip-icon': {
-                  color: 'var(--color-white)'
+                  color: 'var(--color-primary)'
                 },
                 '& .MuiChip-label': {
-                  color: 'var(--color-white)'
+                  color: 'var(--color-white)',
+                  fontWeight: 'normal'
                 }
               }}
             />
