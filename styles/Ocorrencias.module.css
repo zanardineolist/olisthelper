@@ -587,52 +587,98 @@
 
 /* Highlight para ocorrência visitada */
 .highlightedRow {
-  animation: highlightPulse 3s ease-in-out;
   position: relative;
+  overflow: hidden;
 }
 
-@keyframes highlightPulse {
-  0% {
-    background-color: var(--primary-bg);
-    box-shadow: 0 0 20px rgba(10, 78, 228, 0.6);
-    transform: scale(1.01);
-  }
-  25% {
-    background-color: var(--primary-bg);
-    box-shadow: 0 0 15px rgba(10, 78, 228, 0.4);
-  }
-  50% {
-    background-color: var(--box-color2);
-    box-shadow: 0 0 10px rgba(10, 78, 228, 0.2);
-  }
-  75% {
-    background-color: var(--box-color);
-    box-shadow: 0 0 5px rgba(10, 78, 228, 0.1);
-  }
-  100% {
-    background-color: transparent;
-    box-shadow: none;
-    transform: scale(1);
-  }
+.highlightedRow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--primary-bg) 30%,
+    var(--color-primary) 50%,
+    var(--primary-bg) 70%,
+    transparent 100%
+  );
+  animation: highlightSweep 3s ease-out forwards;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .highlightedRow td {
-  border-left: 4px solid var(--color-primary) !important;
-  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes highlightSweep {
+  0% {
+    right: 100%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    right: -20%;
+    opacity: 1;
+  }
+  100% {
+    right: -100%;
+    opacity: 0;
+  }
+}
+
+/* Efeito adicional: borda sutil durante a animação */
+.highlightedRow {
+  animation: borderHighlight 3s ease-out;
+}
+
+@keyframes borderHighlight {
+  0% {
+    border-left: 3px solid var(--color-primary);
+  }
+  50% {
+    border-left: 3px solid var(--color-primary);
+  }
+  100% {
+    border-left: 3px solid transparent;
+  }
 }
 
 /* Responsividade para highlight */
 @media (max-width: 768px) {
-  @keyframes highlightPulse {
+  .highlightedRow::before {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--primary-bg) 40%,
+      var(--primary-bg) 60%,
+      transparent 100%
+    );
+  }
+  
+  @keyframes highlightSweep {
     0% {
-      background-color: var(--primary-bg);
-      box-shadow: 0 0 10px rgba(10, 78, 228, 0.4);
-      transform: scale(1.005);
+      right: 100%;
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    60% {
+      right: -30%;
+      opacity: 1;
     }
     100% {
-      background-color: transparent;
-      box-shadow: none;
-      transform: scale(1);
+      right: -100%;
+      opacity: 0;
     }
   }
+} 
 } 
