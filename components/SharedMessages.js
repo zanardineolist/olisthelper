@@ -482,7 +482,7 @@ const SharedMessages = ({ user }) => {
     }
   };
 
-  // Compartilhar mensagem
+  // Compartilhar mensagem (navegar para a página + copiar link)
   const handleShareMessage = (message) => {
     if (!message.is_public) {
       Swal.fire({
@@ -497,23 +497,32 @@ const SharedMessages = ({ user }) => {
     const baseUrl = window.location.origin;
     const shareUrl = `${baseUrl}/shared-messages/${message.id}`;
     
+    // Copiar link para a área de transferência
     navigator.clipboard.writeText(shareUrl).then(
       () => {
+        // Navegar para a página da mensagem
+        window.open(shareUrl, '_blank');
+        
+        // Mostrar feedback
         Swal.fire({
           icon: 'success',
-          title: 'Link copiado!',
-          text: 'O link da mensagem foi copiado para a área de transferência.',
+          title: 'Página aberta!',
+          text: 'A página da mensagem foi aberta e o link foi copiado.',
           timer: 2000,
           showConfirmButton: false
         });
       },
       (err) => {
         console.error('Não foi possível copiar link: ', err);
+        // Mesmo com erro na cópia, ainda navegar para a página
+        window.open(shareUrl, '_blank');
+        
         Swal.fire({
-          icon: 'error',
-          title: 'Erro',
-          text: 'Falha ao copiar o link. Tente novamente.',
-          confirmButtonColor: 'var(--color-primary)'
+          icon: 'info',
+          title: 'Página aberta',
+          text: 'A página foi aberta, mas falha ao copiar o link.',
+          timer: 2000,
+          showConfirmButton: false
         });
       }
     );

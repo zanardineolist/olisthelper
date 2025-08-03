@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { getSession } from 'next-auth/react';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { Container, Typography, Paper, Chip, IconButton, Snackbar, Alert, Box } from '@mui/material';
-import { FaUser, FaClock, FaGlobe, FaTag, FaHeart, FaCopy, FaShare, FaArrowLeft } from 'react-icons/fa';
-import Link from 'next/link';
+import { Container, Typography, Button } from '@mui/material';
+import { FaUser, FaClock, FaGlobe, FaTag, FaHeart, FaCopy, FaShare } from 'react-icons/fa';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import { toast } from 'react-hot-toast';
+import Layout from '../../components/Layout';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
+import styles from '../../styles/SharedMessage.module.css';
 
 // Formatação de data completa no fuso horário brasileiro
 function formatDateTimeBR(dateString) {
@@ -25,14 +30,12 @@ function formatRelativeTime(dateString) {
   return date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
 }
 
-export default function MessagePage() {
+export default function MessagePage({ user }) {
   const router = useRouter();
   const { id } = router.query;
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -73,12 +76,10 @@ export default function MessagePage() {
         method: 'POST'
       });
       
-      setSnackbarMessage('Conteúdo copiado para a área de transferência!');
-      setSnackbarOpen(true);
+      toast.success('Conteúdo copiado para a área de transferência!');
     } catch (error) {
       console.error('Erro ao copiar:', error);
-      setSnackbarMessage('Erro ao copiar conteúdo');
-      setSnackbarOpen(true);
+      toast.error('Erro ao copiar conteúdo');
     }
   };
 
@@ -86,42 +87,48 @@ export default function MessagePage() {
     try {
       const shareUrl = window.location.href;
       await navigator.clipboard.writeText(shareUrl);
-      setSnackbarMessage('Link da mensagem copiado!');
-      setSnackbarOpen(true);
+      toast.success('Link da mensagem copiado!');
     } catch (error) {
       console.error('Erro ao copiar link:', error);
-      setSnackbarMessage('Erro ao copiar link');
-      setSnackbarOpen(true);
+      toast.error('Erro ao copiar link');
     }
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') return;
-    setSnackbarOpen(false);
   };
 
   if (loading) {
     return (
-      <Container maxWidth="md" style={{ marginTop: '2rem' }}>
-        <LoadingIndicator />
-      </Container>
+      <Layout user={user}>
+        <Head>
+          <title>Carregando Mensagem | Olist Helper</title>
+        </Head>
+        <Container maxWidth="md" style={{ marginTop: '2rem' }}>
+          <LoadingIndicator />
+        </Container>
+      </Layout>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="md" style={{ marginTop: '2rem' }}>
-        <Paper elevation={3} style={{ padding: '2rem', textAlign: 'center' }}>
-          <Typography variant="h5" color="error" gutterBottom>
-            {error}
-          </Typography>
-          <Link href="/tools" passHref>
-            <a style={{ color: 'var(--color-primary)', textDecoration: 'none' }}>
-              ← Voltar para ferramentas
-            </a>
-          </Link>
-        </Paper>
-      </Container>
+      <Layout user={user}>
+        <Head>
+          <title>Erro | Olist Helper</title>
+        </Head>
+        <Container maxWidth="md" style={{ marginTop: '2rem' }}>
+          <Paper elevation={3} style={{ padding: '2rem', textAlign: 'center' }}>
+            <Typography variant="h5" color="error" gutterBottom>
+              {error}
+            </Typography>
+            <Button
+              variant="outlined"
+              startIcon={<ArrowBackIcon />}
+              onClick={() => router.push('/tools')}
+              style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}
+            >
+              Voltar para ferramentas
+            </Button>
+          </Paper>
+        </Container>
+      </Layout>
     );
   }
 
@@ -130,55 +137,55 @@ export default function MessagePage() {
   }
 
   return (
-    <Container maxWidth="md" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-        {/* Cabeçalho com navegação */}
-        <Box mb={3}>
-          <Link href="/tools" passHref>
-            <a style={{ 
+    <Layout user={user}>
+      <Head>
+        <title>{message.title} | Olist Helper</title>
+      </Head>
+      
+      <div className={styles.container}>
+        {/* Cabeçalho da página */}
+        <div className={styles.pageHeader}>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => router.push('/tools')}
+            style={{ 
               color: 'var(--color-primary)', 
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
+              borderColor: 'var(--color-primary)',
               marginBottom: '1rem'
-            }}>
-              <FaArrowLeft size={14} />
-              Voltar para ferramentas
-            </a>
-          </Link>
-        </Box>
+            }}
+          >
+            Voltar para ferramentas
+          </Button>
+          
+          <Typography variant="h4" component="h1" style={{ color: 'var(--title-color)', marginBottom: '0.5rem' }}>
+            {message.title}
+          </Typography>
+          
+          <Typography variant="body2" style={{ color: 'var(--text-color)', opacity: 0.8 }}>
+            <strong>ID da Mensagem:</strong> {id}
+          </Typography>
+        </div>
 
-        <Paper elevation={3} style={{ padding: '2rem' }}>
-          {/* Cabeçalho da mensagem */}
-          <Box mb={3}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-              <Typography variant="h4" component="h1" style={{ color: 'var(--title-color)', flexGrow: 1 }}>
-                {message.title}
-              </Typography>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Chip
-                  icon={<FaGlobe />}
-                  label="Pública"
-                  variant="outlined"
-                  size="small"
-                  style={{
-                    color: 'var(--color-primary)',
-                    borderColor: 'var(--color-primary)'
-                  }}
-                />
+        <div className={styles.contentContainer}>
+          <div className={styles.messageCard}>
+            {/* Badge de mensagem pública */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+              <div className={styles.publicBadge}>
+                <FaGlobe />
+                <span>Mensagem Pública</span>
               </div>
             </div>
 
             {/* Meta informações */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem', color: 'var(--text-color)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <FaUser />
+            <div className={styles.metaInfo}>
+              <div className={styles.metaItem}>
+                <FaUser className={styles.metaIcon} />
                 <span>{message.author_name}</span>
               </div>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <FaClock />
+              <div className={styles.metaItem}>
+                <FaClock className={styles.metaIcon} />
                 <span title={formatDateTimeBR(message.created_at)}>
                   {formatRelativeTime(message.created_at)}
                 </span>
@@ -189,90 +196,99 @@ export default function MessagePage() {
                 )}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <FaHeart style={{ color: 'var(--color-accent1)' }} />
+              <div className={styles.metaItem}>
+                <FaHeart className={styles.metaIcon} style={{ color: 'var(--color-accent1)' }} />
                 <span>{message.favorites_count || 0} favoritos</span>
               </div>
             </div>
 
             {/* Tags */}
             {message.tags && message.tags.length > 0 && (
-              <div style={{ marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div className={styles.tagsSection}>
+                <div className={styles.tagsList}>
                   {message.tags.map((tag) => (
-                    <Chip
-                      key={tag}
-                      icon={<FaTag />}
-                      label={tag}
-                      variant="outlined"
-                      size="small"
-                      style={{
-                        color: 'var(--text-color)',
-                        borderColor: 'var(--color-border)'
-                      }}
-                    />
+                    <div key={tag} className={styles.tag}>
+                      <FaTag />
+                      <span>{tag}</span>
+                    </div>
                   ))}
                 </div>
               </div>
             )}
-          </Box>
 
-          {/* Conteúdo da mensagem */}
-          <Box mb={3}>
-            <Typography 
-              variant="body1" 
-              style={{ 
-                whiteSpace: 'pre-wrap', 
-                lineHeight: 1.6,
-                color: 'var(--text-color)',
-                backgroundColor: 'var(--box-color2)',
-                padding: '1.5rem',
-                borderRadius: '8px',
-                border: '1px solid var(--color-border)'
-              }}
-            >
-              {message.content}
-            </Typography>
-          </Box>
-
-          {/* Ações */}
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <IconButton
-                onClick={handleCopyContent}
-                style={{ color: 'var(--color-primary)' }}
-                title="Copiar conteúdo"
-              >
-                <FaCopy />
-              </IconButton>
-              
-              <IconButton
-                onClick={handleShareMessage}
-                style={{ color: 'var(--color-primary)' }}
-                title="Compartilhar mensagem"
-              >
-                <FaShare />
-              </IconButton>
+            {/* Conteúdo da mensagem */}
+            <div className={styles.contentSection}>
+              <div className={styles.messageContent}>
+                {message.content}
+              </div>
             </div>
 
-            {message.copy_count > 0 && (
-              <Typography variant="caption" style={{ color: 'var(--text-color)', opacity: 0.7 }}>
-                Copiado {message.copy_count} {message.copy_count === 1 ? 'vez' : 'vezes'}
-              </Typography>
-            )}
-          </Box>
-        </Paper>
+            {/* Ações */}
+            <div className={styles.actions}>
+              <div className={styles.actionButtons}>
+                <button
+                  onClick={handleCopyContent}
+                  className={styles.actionButton}
+                  title="Copiar conteúdo"
+                >
+                  <FaCopy />
+                  <span>Copiar</span>
+                </button>
+                
+                <button
+                  onClick={handleShareMessage}
+                  className={styles.actionButton}
+                  title="Compartilhar mensagem"
+                >
+                  <FaShare />
+                  <span>Compartilhar</span>
+                </button>
+              </div>
 
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={3000}
-          onClose={handleCloseSnackbar}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        >
-          <Alert onClose={handleCloseSnackbar} severity="success">
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-      </Container>
+              {message.copy_count > 0 && (
+                <div className={styles.copyCount}>
+                  Copiado {message.copy_count} {message.copy_count === 1 ? 'vez' : 'vezes'}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Layout>
   );
+}
+
+// Autenticação e dados do usuário
+export async function getServerSideProps(context) {
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
+
+  // Buscar dados completos do usuário incluindo permissões
+  const { getUserWithPermissions } = await import('../../utils/supabase/supabaseClient');
+  const userData = await getUserWithPermissions(session.id);
+  
+  return {
+    props: {
+      user: {
+        ...session.user,
+        role: session.role,
+        id: session.id,
+        admin: userData?.admin || false,
+        profile: userData?.profile,
+        can_ticket: userData?.can_ticket,
+        can_phone: userData?.can_phone,
+        can_chat: userData?.can_chat,
+        can_register_help: userData?.can_register_help || false,
+        can_remote_access: userData?.can_remote_access || false,
+      },
+    },
+  };
 }
