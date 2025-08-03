@@ -37,10 +37,15 @@ export default function AdminNotificationsPage({ user }) {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedProfiles, setSelectedProfiles] = useState({
-    supportPlus: false,
+    support: false,
+    'support+': false,
     analyst: false,
     tax: false,
     super: false,
+    quality: false,
+    partner: false,
+    dev: false,
+    other: false,
   });
   const [notificationType, setNotificationType] = useState('bell');
   const [notificationStyle, setNotificationStyle] = useState('aviso'); 
@@ -59,14 +64,19 @@ export default function AdminNotificationsPage({ user }) {
         (profile) => selectedProfiles[profile]
       );
 
-      // Usar os valores exatos da planilha
+      // Usar os valores exatos do Supabase
       const profilesMap = {
-        // Removido support+ do sistema modular
+        support: 'support',
+        'support+': 'support+',
         analyst: 'analyst',
         tax: 'tax',
         super: 'super',
+        quality: 'quality',
+        partner: 'partner',
+        dev: 'dev',
+        other: 'other',
       };
-      const profilesMapped = profilesToSend.map(profile => profilesMap[profile]);
+      const profilesMapped = profilesToSend.map(profile => profilesMap[profile]).filter(Boolean);
 
       if (profilesMapped.length === 0) {
         alert('Selecione ao menos um perfil para enviar a notificação.');
@@ -91,10 +101,15 @@ export default function AdminNotificationsPage({ user }) {
       setTitle('');
       setMessage('');
       setSelectedProfiles({
-        supportPlus: false,
+        support: false,
+        'support+': false,
         analyst: false,
         tax: false,
         super: false,
+        quality: false,
+        partner: false,
+        dev: false,
+        other: false,
       });
       setNotificationType('bell'); // Resetar tipo de notificação
       setNotificationStyle('aviso'); // Resetar estilo de notificação
@@ -142,9 +157,19 @@ export default function AdminNotificationsPage({ user }) {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={selectedProfiles.supportPlus}
+                    checked={selectedProfiles.support}
                     onChange={handleProfileChange}
-                    name="supportPlus"
+                    name="support"
+                  />
+                }
+                label="Support"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedProfiles['support+']}
+                    onChange={handleProfileChange}
+                    name="support+"
                   />
                 }
                 label="Support Plus"
@@ -178,6 +203,46 @@ export default function AdminNotificationsPage({ user }) {
                   />
                 }
                 label="Supervisão"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedProfiles.quality}
+                    onChange={handleProfileChange}
+                    name="quality"
+                  />
+                }
+                label="Qualidade"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedProfiles.partner}
+                    onChange={handleProfileChange}
+                    name="partner"
+                  />
+                }
+                label="Parceiro"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedProfiles.dev}
+                    onChange={handleProfileChange}
+                    name="dev"
+                  />
+                }
+                label="Desenvolvedor"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={selectedProfiles.other}
+                    onChange={handleProfileChange}
+                    name="other"
+                  />
+                }
+                label="Outros"
               />
              </FormGroup>
               <RadioGroup
@@ -221,7 +286,7 @@ export default function AdminNotificationsPage({ user }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
-  if (!session || session.role !== 'dev') {
+  if (!session) {
     return {
       redirect: {
         destination: '/',
@@ -233,6 +298,16 @@ export async function getServerSideProps(context) {
   // Buscar dados completos do usuário incluindo permissões modulares
   const { getUserWithPermissions } = await import('../utils/supabase/supabaseClient');
   const userData = await getUserWithPermissions(session.id);
+
+  // Verificar se o usuário tem permissão de admin
+  if (!userData?.admin) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
 
   return {
     props: {

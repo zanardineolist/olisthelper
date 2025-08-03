@@ -4,18 +4,14 @@ import { useState, useEffect, useRef } from 'react';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
-import { markNotificationAsRead, markMultipleNotificationsAsRead } from '../utils/firebase/firebaseNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { db } from '../utils/firebase/firebaseConfig';
-import { collection, query, where, onSnapshot, limit, startAfter } from 'firebase/firestore';
 import _ from 'lodash';
 
 export default function Navbar({ user, isSidebarCollapsed }) {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [lastVisible, setLastVisible] = useState(null);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [topNotification, setTopNotification] = useState(null);
   const router = useRouter();
   const notificationRef = useRef(null);
@@ -36,70 +32,67 @@ export default function Navbar({ user, isSidebarCollapsed }) {
     };
   }, []);
 
-  // Notifications
-  useEffect(() => {
+  // Buscar notificações do Supabase
+  const fetchNotifications = async (type = 'bell') => {
     if (!user?.id) return;
 
-    const notificationsCollection = collection(db, "notifications");
-    const q = query(notificationsCollection, where("userId", "==", user.id));
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/notifications?notificationType=${type}&limit=20`);
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (type === 'bell') {
+          setNotifications(data.notifications || []);
+        } else if (type === 'top') {
+          const unreadTopNotification = data.notifications?.find(n => !n.read);
+          setTopNotification(unreadTopNotification || null);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar notificações:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const updatedNotifications = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-
-      setNotifications(updatedNotifications.filter(notification => notification.notificationType === 'bell'));
-      const topNotif = updatedNotifications.find(notification => 
-        notification.notificationType === 'top' && !notification.read
-      );
-      setTopNotification(topNotif);
-      setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
-    });
-
-    return () => unsubscribe();
+  // Carregar notificações quando componente montar
+  useEffect(() => {
+    if (user?.id) {
+      fetchNotifications('bell');  // Notificações do sino
+      fetchNotifications('top');   // Notificações do topo
+    }
   }, [user?.id]);
 
-  const loadMoreNotifications = async () => {
-    if (!lastVisible || isLoadingMore) return;
+  // Marcar notificação individual como lida
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      const response = await fetch('/api/notifications/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationId })
+      });
 
-    setIsLoadingMore(true);
-    const notificationsCollection = collection(db, "notifications");
-    const q = query(
-      notificationsCollection,
-      where("userId", "==", user.id),
-      startAfter(lastVisible),
-      limit(10)
-    );
-
-    onSnapshot(q, (querySnapshot) => {
-      const moreNotifications = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setNotifications(prev => [...prev, ...moreNotifications]);
-      setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
-      setIsLoadingMore(false);
-    });
+      if (response.ok) {
+        // Atualizar estado local
+        setNotifications(prevNotifications =>
+          prevNotifications.map(notification =>
+            notification.id === notificationId 
+              ? { ...notification, read: true, read_at: new Date().toISOString() }
+              : notification
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao marcar notificação como lida:', error);
+    }
   };
 
   const toggleNotifications = () => {
     setShowNotifications(prev => !prev);
   };
 
-  const handleMarkAsRead = async (notificationId) => {
-    try {
-      await markNotificationAsRead(notificationId);
-      setNotifications(prevNotifications =>
-        prevNotifications.map(notification =>
-          notification.id === notificationId ? { ...notification, read: true } : notification
-        )
-      );
-    } catch (error) {
-      console.error('Erro ao marcar notificação como lida:', error);
-    }
-  };
-
+  // Marcar todas as notificações como lidas
   const markAllAsRead = async () => {
     const unreadNotificationsIds = notifications
       .filter(notification => !notification.read)
@@ -107,18 +100,32 @@ export default function Navbar({ user, isSidebarCollapsed }) {
 
     if (unreadNotificationsIds.length > 0) {
       try {
-        await markMultipleNotificationsAsRead(unreadNotificationsIds);
-        setNotifications(prevNotifications =>
-          prevNotifications.map(notification => ({ ...notification, read: true }))
-        );
+        const response = await fetch('/api/notifications/mark-read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notificationIds: unreadNotificationsIds })
+        });
+
+        if (response.ok) {
+          // Atualizar estado local
+          setNotifications(prevNotifications =>
+            prevNotifications.map(notification => ({ 
+              ...notification, 
+              read: true, 
+              read_at: new Date().toISOString() 
+            }))
+          );
+        }
       } catch (error) {
-        console.error('Erro ao marcar todas as notificações como lidas:', error);
+        console.error('Erro ao marcar notificações como lidas:', error);
       }
     }
   };
 
   const unreadNotificationsCount = notifications.filter(notification => !notification.read).length;
-  const sortedNotifications = [...notifications].sort((a, b) => b.timestamp - a.timestamp);
+  const sortedNotifications = [...notifications].sort((a, b) => 
+    new Date(b.created_at) - new Date(a.created_at)
+  );
 
   const getTimeAgo = (timestamp) => {
     if (!timestamp) return 'Desconhecido';
@@ -128,8 +135,15 @@ export default function Navbar({ user, isSidebarCollapsed }) {
   const handleCloseTopNotification = async () => {
     if (topNotification) {
       try {
-        await markNotificationAsRead(topNotification.id);
-        setTopNotification(null);
+        const response = await fetch('/api/notifications/mark-read', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notificationId: topNotification.id })
+        });
+
+        if (response.ok) {
+          setTopNotification(null);
+        }
       } catch (error) {
         console.error('Erro ao marcar notificação do topo como lida:', error);
       }
@@ -171,7 +185,7 @@ export default function Navbar({ user, isSidebarCollapsed }) {
     <div className={`${styles.navbarWrapper} ${topNotification ? styles.withBanner : ''}`}>
       {topNotification && (
         <div className={`${styles.notificationBanner} ${
-          topNotification.notificationStyle === 'informacao' 
+          topNotification.notification_style === 'informacao' 
             ? styles.informacaoBanner 
             : styles.avisoBanner
         }`}>
@@ -218,7 +232,7 @@ export default function Navbar({ user, isSidebarCollapsed }) {
                               <strong>{notification.title}</strong>
                               <p>{notification.message}</p>
                               <span className={styles.timestamp}>
-                                {getTimeAgo(notification.timestamp)}
+                                {getTimeAgo(notification.created_at)}
                               </span>
                             </div>
                             <div className={styles.markAsReadIndicator}>
@@ -240,15 +254,6 @@ export default function Navbar({ user, isSidebarCollapsed }) {
                       <button onClick={markAllAsRead} className={styles.markAllReadButton}>
                         Marcar todas como lidas
                       </button>
-                      {lastVisible && (
-                        <button
-                          onClick={loadMoreNotifications}
-                          disabled={isLoadingMore}
-                          className={styles.loadMoreButton}
-                        >
-                          {isLoadingMore ? 'Carregando...' : 'Carregar mais'}
-                        </button>
-                      )}
                     </>
                   )}
                 </div>

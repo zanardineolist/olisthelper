@@ -1,111 +1,105 @@
 // pages/api/notifications.js
-import { db } from '../../utils/firebase/firebaseConfig';
-import { collection, setDoc, doc, getDocs, query, where } from "firebase/firestore";
-import { getSheetValues } from '../../utils/googleSheets';
-import { v4 as uuidv4 } from 'uuid';
+import { createNotification, getUserNotifications, getUsersByProfiles } from '../../utils/supabase/notificationQueries';
+import { getSession } from 'next-auth/react';
+import { getUserPermissions } from '../../utils/supabase/supabaseClient';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { title, message, profiles, notificationType, notificationStyle } = req.body; // Adicione notificationStyle aqui
+      // Verificar autenticação
+      const session = await getSession({ req });
+      if (!session) {
+        return res.status(401).json({ error: 'Não autenticado.' });
+      }
 
+      // Verificar permissões de admin
+      const userPermissions = await getUserPermissions(session.id);
+      if (!userPermissions?.admin) {
+        return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem enviar notificações.' });
+      }
+
+      const { title, message, profiles, notificationType, notificationStyle } = req.body;
+
+      // Validações
       if (!title || !message || !profiles || profiles.length === 0 || !notificationType || !notificationStyle) {
         return res.status(400).json({ error: 'Todos os campos são obrigatórios e ao menos um perfil deve ser selecionado.' });
       }
 
-      // Buscar usuários da aba "Usuários" do Google Sheets, colunas A2:D (ID, Nome, Email, Perfil)
-      let users;
-      try {
-        users = await getSheetValues('Usuários', 'A2:D');
-      } catch (sheetError) {
-        console.error('Erro ao buscar usuários do Google Sheets:', sheetError);
-        return res.status(500).json({ error: 'Erro ao buscar usuários do Google Sheets.' });
+      // Validar tipos permitidos
+      const validNotificationTypes = ['bell', 'top', 'both'];
+      const validNotificationStyles = ['aviso', 'informacao'];
+      
+      if (!validNotificationTypes.includes(notificationType)) {
+        return res.status(400).json({ error: 'Tipo de notificação inválido.' });
+      }
+      
+      if (!validNotificationStyles.includes(notificationStyle)) {
+        return res.status(400).json({ error: 'Estilo de notificação inválido.' });
       }
 
-      if (!users || users.length === 0) {
-        return res.status(400).json({ error: 'Nenhum usuário encontrado.' });
-      }
-
-      // Filtrar usuários com base nos perfis selecionados
-      const targetUsers = users.filter(user => profiles.includes(user[3]));
+      // Buscar usuários pelos perfis selecionados (via Supabase)
+      const targetUsers = await getUsersByProfiles(profiles);
 
       if (targetUsers.length === 0) {
         return res.status(400).json({ error: 'Nenhum usuário elegível encontrado. Verifique os perfis selecionados.' });
       }
 
-      // Adiciona notificação ao Firestore para cada usuário alvo
-      const notificationsCollection = collection(db, 'notifications');
-      const promises = targetUsers.map(async (user) => {
-        const [userId, userName, userEmail, userRole] = user;
-
-        // Função auxiliar para adicionar uma notificação
-        const addNotification = async (type) => {
-          const normalizedTitle = title.replace(/\s+/g, '_').toLowerCase();
-          const uniqueId = uuidv4();
-          const notificationId = `${type}_${normalizedTitle}_${userId}_${uniqueId}`;
-
-          try {
-            const notificationDoc = doc(notificationsCollection, notificationId);
-            await setDoc(notificationDoc, {
-              userId,
-              userEmail,
-              userRole,
-              title,
-              message,
-              notificationStyle, // Usando o valor recebido do req.body
-              read: false,
-              timestamp: new Date().getTime(),
-              notificationType: type,
-            });
-          } catch (notificationError) {
-            console.error(`Erro ao adicionar notificação para o usuário ${userEmail}:`, notificationError);
-            throw notificationError;
-          }
-        };
-
-        if (notificationType === 'both') {
-          // Enviar notificações separadas para 'bell' e 'top'
-          await addNotification('bell');
-          await addNotification('top');
-        } else {
-          // Enviar notificação única para 'bell' ou 'top'
-          await addNotification(notificationType);
-        }
+      // Criar notificação no Supabase
+      const notificationResult = await createNotification({
+        title,
+        message,
+        notification_type: notificationType,
+        notification_style: notificationStyle,
+        target_profiles: profiles,
+        created_by: session.id
       });
 
-      await Promise.all(promises);
+      if (!notificationResult.success) {
+        return res.status(500).json({ error: `Erro ao criar notificação: ${notificationResult.error}` });
+      }
 
-      res.status(201).json({ message: 'Notificação enviada para todos os usuários elegíveis!' });
+      res.status(201).json({ 
+        message: `Notificação enviada com sucesso para ${targetUsers.length} usuário(s) nos perfis: ${profiles.join(', ')}!`,
+        notification_id: notificationResult.data.id,
+        target_users_count: targetUsers.length
+      });
     } catch (error) {
-      console.error('Erro ao adicionar notificações:', error);
-      res.status(500).json({ error: 'Erro ao adicionar notificações.' });
+      console.error('Erro ao criar notificação:', error);
+      res.status(500).json({ error: 'Erro interno do servidor.' });
     }
   } else if (req.method === 'GET') {
     try {
-      const { userId, userRole, limit: limitParam } = req.query;
-
-      if (!userId || !userRole) {
-        return res.status(400).json({ error: 'ID do usuário e perfil são obrigatórios.' });
+      // Verificar autenticação
+      const session = await getSession({ req });
+      if (!session) {
+        return res.status(401).json({ error: 'Não autenticado.' });
       }
 
-      const limitValue = limitParam ? parseInt(limitParam, 10) : 10;
+      const { notificationType = 'bell', limit: limitParam } = req.query;
+      const limitValue = limitParam ? parseInt(limitParam, 10) : 20;
 
-      // Buscar notificações do usuário no Firestore com limitação e baseadas no perfil do usuário
-      const notificationsCollection = collection(db, 'notifications');
-      const q = query(
-        notificationsCollection,
-        where("userId", "==", userId),
-        where("userRole", "==", userRole),
-        limit(limitValue)
+      // Buscar permissões do usuário para obter o perfil
+      const userPermissions = await getUserPermissions(session.id);
+      if (!userPermissions) {
+        return res.status(400).json({ error: 'Não foi possível obter o perfil do usuário.' });
+      }
+
+      // Buscar notificações via Supabase
+      const notifications = await getUserNotifications(
+        session.id, 
+        userPermissions.profile, 
+        notificationType, 
+        limitValue
       );
-      const querySnapshot = await getDocs(q);
 
-      const notifications = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-      res.status(200).json({ notifications });
+      res.status(200).json({ 
+        notifications,
+        total: notifications.length,
+        unread_count: notifications.filter(n => !n.read).length
+      });
     } catch (error) {
       console.error('Erro ao buscar notificações:', error);
-      res.status(500).json({ error: 'Erro ao buscar notificações.' });
+      res.status(500).json({ error: 'Erro interno do servidor.' });
     }
   } else {
     res.status(405).json({ error: 'Método não permitido' });

@@ -18,7 +18,8 @@ import {
   FaMoon,
   FaSun,
   FaChartLine,
-  FaHandsHelping
+  FaHandsHelping,
+  FaFileAlt
 } from 'react-icons/fa';
 
 export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, toggleTheme }) {
@@ -171,7 +172,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
 
       case 'dev':
         menuItems.primary = [
-          { href: '/admin-notifications', icon: FaBell, label: 'Admin Notificações', tooltip: 'Admin Notificações' }
+          { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' }
         ];
         break;
 
@@ -232,6 +233,14 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
         // Adicionar no final se não há Gerenciador
         addMenuItemIfNotExists(analyticsMenu);
       }
+
+      // Menu de Admin Notificações (para admins)
+      addMenuItemIfNotExists({
+        href: '/admin-notifications',
+        icon: FaBell,
+        label: 'Admin Notificações',
+        tooltip: 'Gerenciar Notificações'
+      });
     }
 
 
@@ -324,6 +333,33 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
             />
           ))}
           
+          {/* Patch Notes */}
+          <li className={styles.navItem}>
+            <Link 
+              href="/patch-notes" 
+              className={`${styles.navLink} ${router.pathname === '/patch-notes' ? styles.active : ''}`}
+              onMouseEnter={(e) => {
+                if (isCollapsed) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  // Atualiza tooltip para patch notes especificamente
+                  const tooltipEl = e.currentTarget.nextElementSibling;
+                  if (tooltipEl) {
+                    tooltipEl.style.position = 'fixed';
+                    tooltipEl.style.top = `${rect.top + rect.height / 2}px`;
+                    tooltipEl.style.left = `${rect.right + 12}px`;
+                    tooltipEl.style.transform = 'translateY(-50%)';
+                  }
+                }
+              }}
+            >
+              <span className={styles.navIcon}>
+                <FaFileAlt />
+              </span>
+              <span className={styles.navLabel}>Patch Notes</span>
+            </Link>
+            <span className={styles.navTooltip}>Atualizações do Sistema</span>
+          </li>
+
           {/* Theme Toggle */}
           <li className={styles.navItem}>
             <button 

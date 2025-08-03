@@ -1,0 +1,326 @@
+/* styles/PatchNotes.module.css */
+
+.mainContent {
+  min-height: 100vh;
+  background: var(--bg-color);
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Header */
+.pageHeader {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: var(--box-color);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.headerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent1));
+  border-radius: 12px;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.headerText {
+  flex: 1;
+}
+
+.pageTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--title-color);
+  margin: 0 0 0.5rem 0;
+}
+
+.pageDescription {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  margin: 0;
+  opacity: 0.8;
+}
+
+/* Content States */
+.content {
+  margin-top: 2rem;
+}
+
+.loadingContainer,
+.errorContainer,
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--box-color);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.spinnerIcon {
+  font-size: 2rem;
+  color: var(--color-primary);
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  color: var(--text-color);
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+.errorMessage {
+  color: var(--color-error, #dc2626);
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.retryButton:hover {
+  background: var(--color-primary-hover, #3b82f6);
+  transform: translateY(-1px);
+}
+
+/* Patch Notes List */
+.patchNotesList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.patchNoteCard {
+  background: var(--box-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.patchNoteCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Note Header */
+.noteHeader {
+  margin-bottom: 1.5rem;
+}
+
+.noteTitleContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.noteTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--title-color);
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+}
+
+.noteType {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.noteMeta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.metaIcon {
+  color: var(--color-primary);
+  font-size: 0.85rem;
+}
+
+.timeAgo {
+  color: var(--text-color);
+  opacity: 0.7;
+  font-style: italic;
+}
+
+/* Note Content */
+.noteContent {
+  margin-bottom: 1.5rem;
+}
+
+.noteContent p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-color);
+  margin: 0;
+}
+
+/* Note Footer */
+.noteFooter {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+.targetProfiles {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tagsIcon {
+  color: var(--color-primary);
+  font-size: 0.9rem;
+}
+
+.profilesLabel {
+  color: var(--text-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.profilesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.profileTag {
+  display: inline-block;
+  background: var(--color-accent2, #f3f4f6);
+  color: var(--color-accent2-text, #374151);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+
+  .pageTitle {
+    font-size: 2rem;
+  }
+
+  .pageDescription {
+    font-size: 1rem;
+  }
+
+  .patchNoteCard {
+    padding: 1.5rem;
+  }
+
+  .noteTitleContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .noteTitle {
+    font-size: 1.25rem;
+    min-width: auto;
+  }
+
+  .noteMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .targetProfiles {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .profilesList {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageTitle {
+    font-size: 1.75rem;
+  }
+
+  .noteContent p {
+    font-size: 1rem;
+  }
+
+  .patchNoteCard {
+    padding: 1rem;
+  }
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .profileTag {
+    background: var(--color-accent2, #374151);
+    color: var(--color-accent2-text, #f3f4f6);
+  }
+}

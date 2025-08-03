@@ -30,7 +30,7 @@ export async function middleware(req) {
     '/dashboard-super': { profiles: ['super'] },
     '/dashboard-quality': { profiles: ['quality'] },
     '/manager': { profiles: allowedRoles },
-    '/admin-notifications': { profiles: ['dev'] },
+    '/admin-notifications': { permission: 'admin' },
     '/tools': { profiles: ['support', 'analyst', 'super', 'tax', 'quality'] },
     
     // Rotas baseadas em permissões específicas (NOVO SISTEMA MODULAR)
