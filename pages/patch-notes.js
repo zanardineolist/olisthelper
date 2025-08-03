@@ -106,12 +106,21 @@ export default function PatchNotesPage({ user }) {
                     <header className={styles.noteHeader}>
                       <div className={styles.noteTitleContainer}>
                         <h2 className={styles.noteTitle}>{note.title}</h2>
-                        <span 
-                          className={styles.noteType}
-                          style={{ backgroundColor: getStyleColor(note.notification_style) }}
-                        >
-                          {note.notification_style === 'informacao' ? 'Atualização' : 'Aviso'}
-                        </span>
+                        {note.version && (
+                          <span 
+                            className={styles.noteType}
+                            style={{ backgroundColor: 'var(--color-primary)' }}
+                          >
+                            {note.version}
+                          </span>
+                        )}
+                        {note.featured && (
+                          <span 
+                            className={styles.featuredBadge}
+                          >
+                            ⭐ Destaque
+                          </span>
+                        )}
                       </div>
                       <div className={styles.noteMeta}>
                         <div className={styles.metaItem}>
@@ -126,25 +135,27 @@ export default function PatchNotesPage({ user }) {
                       </div>
                     </header>
 
+                    {/* Resumo */}
+                    {note.summary && (
+                      <div className={styles.noteSummary}>
+                        <p>{note.summary}</p>
+                      </div>
+                    )}
+
+                    {/* Conteúdo principal */}
                     <div className={styles.noteContent}>
-                      <p>{note.message}</p>
+                      <div 
+                        dangerouslySetInnerHTML={{ __html: note.content }}
+                      />
                     </div>
 
-                    {note.target_profiles && note.target_profiles.length > 0 && (
-                      <footer className={styles.noteFooter}>
-                        <div className={styles.targetProfiles}>
-                          <FaTags className={styles.tagsIcon} />
-                          <span className={styles.profilesLabel}>Direcionado para:</span>
-                          <div className={styles.profilesList}>
-                            {note.target_profiles.map((profile, idx) => (
-                              <span key={idx} className={styles.profileTag}>
-                                {profile}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </footer>
-                    )}
+                    {/* Informações adicionais */}
+                    <footer className={styles.noteFooter}>
+                      <div className={styles.authorInfo}>
+                        <FaUser className={styles.authorIcon} />
+                        <span>Por: {note.creator_name || 'Sistema'}</span>
+                      </div>
+                    </footer>
                   </article>
                 ))}
               </div>

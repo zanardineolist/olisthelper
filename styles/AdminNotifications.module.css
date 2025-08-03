@@ -1,153 +1,394 @@
-/* Estilos principais para o container da página */
-  .container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background-color: var(--background-color);
-    color: var(--text-color);
-  }
-  
-  /* Conteúdo principal da página */
+/* styles/AdminNotifications.module.css */
+
+/* Main container */
+.mainContent {
+  min-height: 100vh;
+  background: var(--bg-color);
+  padding: 2rem;
+}
+
+.panelContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Panel Header */
+.panelHeader {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.panelTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--title-color);
+  margin-bottom: 0.5rem;
+}
+
+.panelDescription {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  opacity: 0.8;
+  margin: 0;
+}
+
+/* Tabs */
+.tabs {
+  background: var(--box-color);
+  border-radius: 12px 12px 0 0;
+  padding: 0 1rem;
+}
+
+/* Form Container */
+.formContainer {
+  background: var(--box-color);
+  border-radius: 12px;
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.formIcon {
+  font-size: 2rem;
+  color: var(--color-primary);
+}
+
+.formTitle {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--title-color);
+  margin: 0;
+}
+
+.formSubtitle {
+  font-size: 1rem;
+  color: var(--text-color);
+  opacity: 0.8;
+  margin: 0.25rem 0 0 0;
+}
+
+/* Text Fields */
+.textField {
+  margin-bottom: 1.5rem !important;
+}
+
+.textarea {
+  margin-bottom: 1.5rem !important;
+}
+
+/* Profile Section */
+.profileSection {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--bg-color-secondary, #f8f9fa);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--title-color);
+  margin-bottom: 1rem;
+}
+
+.sectionIcon {
+  color: var(--color-primary);
+}
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+/* Config Section */
+.configSection {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--bg-color-secondary, #f8f9fa);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.radioSection {
+  margin-bottom: 1.5rem;
+}
+
+.radioSection h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--title-color);
+  margin-bottom: 0.75rem;
+}
+
+.radioGroup {
+  margin-left: 0.5rem !important;
+}
+
+/* Patch Note Form */
+.patchNoteForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inputRow {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+/* Editor Section */
+.editorSection {
+  margin: 2rem 0;
+}
+
+.editorHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.editorHeader h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--title-color);
+  margin: 0;
+  flex: 1;
+}
+
+.editorContainer {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+.markdownEditor {
+  margin-bottom: 1rem !important;
+}
+
+.markdownHelp {
+  padding: 1rem;
+  background: var(--bg-color-secondary, #f8f9fa);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.markdownHelp h5 {
+  margin: 0 0 0.5rem 0;
+  color: var(--title-color);
+  font-size: 0.9rem;
+}
+
+.markdownHelp p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.markdownHelp code {
+  background: var(--bg-color);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+}
+
+.previewContainer {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 2rem;
+  background: var(--box-color);
+  min-height: 300px;
+}
+
+.previewContent {
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+.previewContent h1,
+.previewContent h2,
+.previewContent h3 {
+  color: var(--title-color);
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.previewContent h1 {
+  font-size: 1.5rem;
+}
+
+.previewContent h2 {
+  font-size: 1.3rem;
+}
+
+.previewContent h3 {
+  font-size: 1.1rem;
+}
+
+.previewContent ul,
+.previewContent ol {
+  margin: 1rem 0;
+  padding-left: 2rem;
+}
+
+.previewContent blockquote {
+  border-left: 4px solid var(--color-primary);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  background: var(--bg-color-secondary, #f8f9fa);
+  padding: 1rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.previewContent code {
+  background: var(--bg-color-secondary, #f8f9fa);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+/* Button Container */
+.formButtonContainer {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.submitButton {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent1)) !important;
+  color: white !important;
+  padding: 1rem 2rem !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s ease !important;
+  min-height: 50px !important;
+}
+
+.submitButton:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+.submitButton:disabled {
+  opacity: 0.6 !important;
+  transform: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .mainContent {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    padding: 1rem;
   }
-  
-  /* Container para o formulário de notificações */
+
+  .panelTitle {
+    font-size: 2rem;
+  }
+
   .formContainer {
-    display: flex;
+    padding: 1.5rem;
+  }
+
+  .formHeader {
     flex-direction: column;
-    align-items: flex-start; /* Alinhar à esquerda */
-    padding: 20px;
-    background-color: var(--box-color);
-    border-radius: 10px;
-    color: var(--text-color);
-    width: 100%;
-    max-width: 600px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    gap: 0.5rem;
   }
-  
-  /* Estilo do título do formulário */
-  .formTitle {
-    color: var(--title-color);
-    text-align: left; /* Alinhar à esquerda */
-    margin-bottom: 20px;
-    font-size: 1.75rem;
-    width: 100%; /* Ocupa toda a largura */
+
+  .profileGrid {
+    grid-template-columns: 1fr;
   }
-  
-  /* Estilo para o grupo de campos do formulário */
-  .formGroup {
-    margin-bottom: 20px;
-    display: flex;
+
+  .inputRow {
     flex-direction: column;
-    width: 100%;
   }
-  
-  /* Estilo para os rótulos dos campos do formulário */
-  .formGroup label {
-    margin-bottom: 8px;
-    font-weight: bold;
-    text-align: left; /* Alinhar à esquerda */
+
+  .editorHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
   }
-  
-  /* Caixa de texto para título e mensagem */
-  .textField {
-    width: 100%;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid var(--labels-border);
-    background-color: var(--labels-bg);
-    color: var(--text-color);
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-  }
-  
-  .textField:focus,
-  .textField:hover {
-    border-color: var(--color-primary);
-    outline: none;
-  }
-  
-  /* Estilo para a área de texto (mensagem) */
-  .textarea {
-    width: 100%; /* Igual ao textField para consistência */
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid var(--labels-border);
-    background-color: var(--labels-bg);
-    color: var(--text-color);
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-    resize: vertical; /* Permitir redimensionamento apenas vertical */
-  }
-  
-  .textarea:focus,
-  .textarea:hover {
-    border-color: var(--color-primary);
-    outline: none;
-  }
-  
-  /* Estilo para os grupos de opções (tipo de notificação e estilo) */
+
   .radioGroup {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start; /* Alinhar à esquerda */
-    margin-bottom: 20px;
+    flex-direction: column !important;
   }
-  
-  .radioLabel {
-    margin-right: 20px;
-    font-weight: normal;
+}
+
+@media (max-width: 480px) {
+  .panelTitle {
+    font-size: 1.75rem;
+  }
+
+  .formTitle {
+    font-size: 1.5rem;
+  }
+
+  .formContainer {
+    padding: 1rem;
+  }
+
+  .profileSection,
+  .configSection {
+    padding: 1rem;
+  }
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .editorContainer {
+    background: var(--box-color);
+  }
+
+  .previewContent code {
+    background: var(--bg-color-secondary, #374151);
     color: var(--text-color);
   }
-  
-  /* Container para o botão do formulário */
-  .formButtonContainer {
-    width: 100%;
-    display: flex;
-    justify-content: center;
+
+  .previewContent blockquote {
+    background: var(--bg-color-secondary, #374151);
   }
-  
-  /* Estilo para o botão de envio */
-  .submitButton {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    padding: 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 200px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    font-size: 1rem;
-  }
-  
-  .submitButton:hover {
-    background-color: var(--color-primary-hover);
-    transform: translateY(-2px);
-  }
-  
-  /* Estilos responsivos para telas menores */
-  @media (max-width: 600px) {
-    .formContainer {
-      padding: 15px;
-    }
-  
-    .formTitle {
-      font-size: 1.5rem;
-    }
-  
-    .submitButton {
-      padding: 12px;
-      font-size: 0.9rem;
-    }
-  
-    .textarea {
-      max-width: 100%;
-      min-width: 100%;
-    }
-  }  
+}
+
+/* Quill Editor Custom Styles */
+:global(.ql-editor) {
+  min-height: 250px !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+}
+
+:global(.ql-toolbar) {
+  border-top: 1px solid var(--border-color) !important;
+  border-left: 1px solid var(--border-color) !important;
+  border-right: 1px solid var(--border-color) !important;
+  background: var(--bg-color-secondary, #f8f9fa) !important;
+}
+
+:global(.ql-container) {
+  border-bottom: 1px solid var(--border-color) !important;
+  border-left: 1px solid var(--border-color) !important;
+  border-right: 1px solid var(--border-color) !important;
+  background: white !important;
+}

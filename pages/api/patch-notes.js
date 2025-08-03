@@ -1,77 +1,81 @@
 // pages/api/patch-notes.js
-import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
+import { getPublishedPatchNotes, createPatchNote } from '../../utils/supabase/patchNotesQueries';
 import { getSession } from 'next-auth/react';
+import { getUserPermissions } from '../../utils/supabase/supabaseClient';
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Método não permitido' });
-  }
-
-  try {
-    // Verificar autenticação
-    const session = await getSession({ req });
-    if (!session) {
-      return res.status(401).json({ error: 'Não autenticado.' });
-    }
-
-    const { limit: limitParam } = req.query;
-    const limitValue = limitParam ? parseInt(limitParam, 10) : 50; // Limite padrão de 50
-
-    // Buscar notificações do tipo "informacao" que funcionam como patch notes
-    // Ordenadas por data de criação (mais recentes primeiro)
-    const { data, error } = await supabaseAdmin
-      .from('notifications')
-      .select(`
-        id,
-        title,
-        message,
-        notification_style,
-        notification_type,
-        target_profiles,
-        created_at,
-        created_by
-      `)
-      .eq('notification_style', 'informacao') // Apenas notificações informativas
-      .order('created_at', { ascending: false })
-      .limit(limitValue);
-
-    if (error) {
-      console.error('Erro ao buscar patch notes:', error);
-      return res.status(500).json({ error: 'Erro interno do servidor.' });
-    }
-
-    // Buscar informações dos criadores para adicionar contexto (opcional)
-    const uniqueCreatorIds = [...new Set(data?.map(note => note.created_by).filter(Boolean))];
-    let creators = {};
-    
-    if (uniqueCreatorIds.length > 0) {
-      const { data: creatorsData } = await supabaseAdmin
-        .from('users')
-        .select('id, name')
-        .in('id', uniqueCreatorIds);
-      
-      if (creatorsData) {
-        creators = creatorsData.reduce((acc, creator) => {
-          acc[creator.id] = creator.name;
-          return acc;
-        }, {});
+  if (req.method === 'GET') {
+    try {
+      // Verificar autenticação
+      const session = await getSession({ req });
+      if (!session) {
+        return res.status(401).json({ error: 'Não autenticado.' });
       }
+
+      const { limit: limitParam, offset: offsetParam, featured } = req.query;
+      const limitValue = limitParam ? parseInt(limitParam, 10) : 20;
+      const offsetValue = offsetParam ? parseInt(offsetParam, 10) : 0;
+      const featuredOnly = featured === 'true';
+
+      // Buscar patch notes publicados
+      const patchNotes = await getPublishedPatchNotes(limitValue, offsetValue, featuredOnly);
+
+      res.status(200).json({ 
+        patchNotes,
+        total: patchNotes.length,
+        message: `${patchNotes.length} patch notes encontrados`
+      });
+
+    } catch (error) {
+      console.error('Erro ao buscar patch notes:', error);
+      res.status(500).json({ error: 'Erro interno do servidor.' });
     }
+  } else if (req.method === 'POST') {
+    try {
+      // Verificar autenticação
+      const session = await getSession({ req });
+      if (!session) {
+        return res.status(401).json({ error: 'Não autenticado.' });
+      }
 
-    // Adicionar nome do criador aos patch notes
-    const patchNotesWithCreators = data?.map(note => ({
-      ...note,
-      creator_name: creators[note.created_by] || 'Sistema'
-    })) || [];
+      // Verificar se é admin
+      const userPermissions = await getUserPermissions(session.id);
+      if (!userPermissions?.admin) {
+        return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem criar patch notes.' });
+      }
 
-    res.status(200).json({ 
-      patchNotes: patchNotesWithCreators,
-      total: patchNotesWithCreators.length,
-      message: `${patchNotesWithCreators.length} atualizações encontradas`
-    });
+      const { title, content, summary, version } = req.body;
 
-  } catch (error) {
-    console.error('Erro ao buscar patch notes:', error);
-    res.status(500).json({ error: 'Erro interno do servidor.' });
+      // Validações
+      if (!title || !content || !summary) {
+        return res.status(400).json({ error: 'Título, conteúdo e resumo são obrigatórios.' });
+      }
+
+      // Criar patch note
+      const result = await createPatchNote({
+        title,
+        content,
+        summary,
+        version: version || null,
+        created_by: session.id,
+        published: true,
+        featured: false
+      });
+
+      if (!result.success) {
+        return res.status(500).json({ error: `Erro ao criar patch note: ${result.error}` });
+      }
+
+      res.status(201).json({ 
+        message: 'Patch note criado com sucesso!',
+        patchNote: result.data
+      });
+
+    } catch (error) {
+      console.error('Erro ao criar patch note:', error);
+      res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+  } else {
+    res.status(405).json({ error: 'Método não permitido' });
   }
 }

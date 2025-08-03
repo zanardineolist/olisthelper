@@ -171,6 +171,48 @@
   letter-spacing: 0.5px;
 }
 
+.featuredBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: white;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.noteSummary {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--bg-color-secondary, #f8f9fa);
+  border-radius: 8px;
+  border-left: 4px solid var(--color-primary);
+}
+
+.noteSummary p {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--title-color);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.authorInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.authorIcon {
+  color: var(--color-primary);
+  font-size: 0.85rem;
+}
+
 .noteMeta {
   display: flex;
   align-items: center;
