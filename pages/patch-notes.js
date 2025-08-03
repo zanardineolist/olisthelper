@@ -5,8 +5,7 @@ import { getSession } from 'next-auth/react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FaFileAlt, FaCalendarAlt, FaUser, FaTags, FaSpinner } from 'react-icons/fa';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Layout from '../components/Layout';
 import styles from '../styles/PatchNotes.module.css';
 
 export default function PatchNotesPage({ user }) {
@@ -58,13 +57,11 @@ export default function PatchNotesPage({ user }) {
   };
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Patch Notes - Atualizações do Sistema</title>
         <meta name="description" content="Acompanhe as últimas atualizações e melhorias do OlistHelper" />
       </Head>
-
-      <Navbar user={user} />
 
       <main className={styles.mainContent}>
         <div className={styles.container}>
@@ -155,9 +152,7 @@ export default function PatchNotesPage({ user }) {
           </div>
         </div>
       </main>
-
-      <Footer />
-    </>
+    </Layout>
   );
 }
 

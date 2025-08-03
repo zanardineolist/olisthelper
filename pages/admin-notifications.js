@@ -3,8 +3,7 @@ import Head from 'next/head';
 import { useState } from 'react';
 import { getSession } from 'next-auth/react';
 import { TextField, Button, ThemeProvider, createTheme, FormControlLabel, Checkbox, FormGroup, RadioGroup, Radio } from '@mui/material';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Layout from '../components/Layout';
 import managerStyles from '../styles/Manager.module.css';
 import adminStyles from '../styles/AdminNotifications.module.css';
 
@@ -122,12 +121,10 @@ export default function AdminNotificationsPage({ user }) {
   };
 
   return (
-    <>
+    <Layout user={user}>
       <Head>
         <title>Administração de Notificações</title>
       </Head>
-
-      <Navbar user={user} />
 
       <main className={adminStyles.mainContent}>
         <ThemeProvider theme={theme}>
@@ -278,9 +275,7 @@ export default function AdminNotificationsPage({ user }) {
             </div>
           </ThemeProvider>
         </main>
-
-      <Footer />
-    </>
+    </Layout>
   );
 }
 

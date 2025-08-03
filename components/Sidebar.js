@@ -333,33 +333,6 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
             />
           ))}
           
-          {/* Patch Notes */}
-          <li className={styles.navItem}>
-            <Link 
-              href="/patch-notes" 
-              className={`${styles.navLink} ${router.pathname === '/patch-notes' ? styles.active : ''}`}
-              onMouseEnter={(e) => {
-                if (isCollapsed) {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  // Atualiza tooltip para patch notes especificamente
-                  const tooltipEl = e.currentTarget.nextElementSibling;
-                  if (tooltipEl) {
-                    tooltipEl.style.position = 'fixed';
-                    tooltipEl.style.top = `${rect.top + rect.height / 2}px`;
-                    tooltipEl.style.left = `${rect.right + 12}px`;
-                    tooltipEl.style.transform = 'translateY(-50%)';
-                  }
-                }
-              }}
-            >
-              <span className={styles.navIcon}>
-                <FaFileAlt />
-              </span>
-              <span className={styles.navLabel}>Patch Notes</span>
-            </Link>
-            <span className={styles.navTooltip}>Atualizações do Sistema</span>
-          </li>
-
           {/* Theme Toggle */}
           <li className={styles.navItem}>
             <button 
@@ -418,6 +391,33 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
               <span className={styles.navLabel}>Logout</span>
             </button>
             <span className={styles.navTooltip}>Logout</span>
+          </li>
+
+          {/* Patch Notes */}
+          <li className={styles.navItem}>
+            <Link 
+              href="/patch-notes" 
+              className={`${styles.navLink} ${router.pathname === '/patch-notes' ? styles.active : ''}`}
+              onMouseEnter={(e) => {
+                if (isCollapsed) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  // Atualiza tooltip para patch notes especificamente
+                  const tooltipEl = e.currentTarget.nextElementSibling;
+                  if (tooltipEl) {
+                    tooltipEl.style.position = 'fixed';
+                    tooltipEl.style.top = `${rect.top + rect.height / 2}px`;
+                    tooltipEl.style.left = `${rect.right + 12}px`;
+                    tooltipEl.style.transform = 'translateY(-50%)';
+                  }
+                }
+              }}
+            >
+              <span className={styles.navIcon}>
+                <FaFileAlt />
+              </span>
+              <span className={styles.navLabel}>Patch Notes</span>
+            </Link>
+            <span className={styles.navTooltip}>Atualizações do Sistema</span>
           </li>
         </ul>
       </nav>
