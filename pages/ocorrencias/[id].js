@@ -226,31 +226,15 @@ export default function OcorrenciaPage({ user }) {
 
   const handleGoBack = () => {
     try {
-      console.log('HandleGoBack chamado'); // Debug
+      console.log('HandleGoBack chamado - navegando para /tools#Ocorrencias'); // Debug
       
-      // Verificar se o referrer é da mesma origem e contém '/tools'
-      const referrer = document.referrer;
-      const currentOrigin = window.location.origin;
+      // Usar window.location.href para garantir que a âncora seja processada
+      // e que o usuário retorne exatamente para a seção de Ocorrências
+      window.location.href = '/tools#Ocorrencias';
       
-      console.log('Referrer:', referrer); // Debug
-      console.log('Current Origin:', currentOrigin); // Debug
-      
-      if (referrer && referrer.startsWith(currentOrigin) && referrer.includes('/tools')) {
-        // Se veio de /tools, volta para lá com a âncora das ocorrências
-        console.log('Navegando para /tools#Ocorrencias'); // Debug
-        router.push('/tools#Ocorrencias');
-      } else if (window.history.length > 1) {
-        // Se há histórico de navegação, volta para a página anterior
-        console.log('Usando router.back()'); // Debug
-        router.back();
-      } else {
-        // Fallback: vai para /tools com âncora das ocorrências
-        console.log('Fallback para /tools#Ocorrencias'); // Debug
-        router.push('/tools#Ocorrencias');
-      }
     } catch (error) {
       console.error('Erro no handleGoBack:', error);
-      // Fallback em caso de erro
+      // Fallback usando router em caso de erro
       router.push('/tools#Ocorrencias');
     }
   };
