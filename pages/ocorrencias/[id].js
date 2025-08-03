@@ -215,7 +215,7 @@ export default function OcorrenciaPage({ user }) {
     const currentUrl = window.location.href;
     navigator.clipboard.writeText(currentUrl).then(
       () => {
-        toast.success('🔗 Link da ocorrência copiado! Agora você pode compartilhar com sua equipe.');
+        toast.success('Link da ocorrência copiado!');
       },
       (err) => {
         console.error('Não foi possível copiar link: ', err);
@@ -225,18 +225,32 @@ export default function OcorrenciaPage({ user }) {
   };
 
   const handleGoBack = () => {
-    // Verificar se o referrer é da mesma origem e contém '/tools'
-    const referrer = document.referrer;
-    const currentOrigin = window.location.origin;
-    
-    if (referrer && referrer.startsWith(currentOrigin) && referrer.includes('/tools')) {
-      // Se veio de /tools, volta para lá com a âncora das ocorrências
-      router.push('/tools#Ocorrencias');
-    } else if (window.history.length > 1) {
-      // Se há histórico de navegação, volta para a página anterior
-      router.back();
-    } else {
-      // Fallback: vai para /tools com âncora das ocorrências
+    try {
+      console.log('HandleGoBack chamado'); // Debug
+      
+      // Verificar se o referrer é da mesma origem e contém '/tools'
+      const referrer = document.referrer;
+      const currentOrigin = window.location.origin;
+      
+      console.log('Referrer:', referrer); // Debug
+      console.log('Current Origin:', currentOrigin); // Debug
+      
+      if (referrer && referrer.startsWith(currentOrigin) && referrer.includes('/tools')) {
+        // Se veio de /tools, volta para lá com a âncora das ocorrências
+        console.log('Navegando para /tools#Ocorrencias'); // Debug
+        router.push('/tools#Ocorrencias');
+      } else if (window.history.length > 1) {
+        // Se há histórico de navegação, volta para a página anterior
+        console.log('Usando router.back()'); // Debug
+        router.back();
+      } else {
+        // Fallback: vai para /tools com âncora das ocorrências
+        console.log('Fallback para /tools#Ocorrencias'); // Debug
+        router.push('/tools#Ocorrencias');
+      }
+    } catch (error) {
+      console.error('Erro no handleGoBack:', error);
+      // Fallback em caso de erro
       router.push('/tools#Ocorrencias');
     }
   };

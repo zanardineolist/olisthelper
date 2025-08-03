@@ -7,6 +7,8 @@
   min-height: 100vh;
   padding-top: 2rem;
   padding-bottom: 2rem;
+  position: relative;
+  overflow: visible;
 }
 
 /* Header da página */
@@ -19,12 +21,18 @@
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
+  position: relative;
+  z-index: 10;
 }
 
 .backButton {
   border-color: var(--color-border) !important;
   color: var(--text-color) !important;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 5 !important;
 }
 
 .backButton:hover {
@@ -40,8 +48,6 @@
 
 .shareButton:hover {
   background-color: var(--color-primary-hover) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(10, 78, 228, 0.3);
 }
 
 /* Títulos */
