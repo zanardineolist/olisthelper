@@ -554,7 +554,7 @@ export default function AdminNotificationsPage({ user }) {
 1. Lista numerada
 2. Segundo item
 
-> Citação ou nota importante
+&gt; Citação ou nota importante
 
 Exemplo de uso:
 
@@ -569,13 +569,13 @@ Exemplo de uso:
 - Corrigido problema X
 - Melhorada performance Y
 
-> **Importante:** Esta atualização requer reinicialização do sistema.`}
+&gt; **Importante:** Esta atualização requer reinicialização do sistema.`}
                           className={adminStyles.markdownEditor}
                         />
                         
                         <div className={adminStyles.markdownHelp}>
                           <h5>💡 Dicas de Formatação:</h5>
-                          <p><code># Título</code> • <code>**negrito**</code> • <code>*itálico*</code> • <code>- lista</code> • <code>> citação</code></p>
+                          <p><code># Título</code> • <code>**negrito**</code> • <code>*itálico*</code> • <code>- lista</code> • <code>&gt; citação</code></p>
                         </div>
                       </div>
                     ) : (
