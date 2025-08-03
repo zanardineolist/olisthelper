@@ -363,7 +363,7 @@ export default function OcorrenciaPage({ user }) {
             variant="body2" 
             className={styles.pageDescription}
           >
-            ID da Ocorrência: {id}
+            <strong>ID da Ocorrência:</strong> {id}
           </Typography>
         </div>
 
