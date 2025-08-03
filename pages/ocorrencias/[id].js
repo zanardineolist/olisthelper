@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import Layout from '../../components/Layout';
-import styles from '../../styles/Ocorrencias.module.css';
+import styles from '../../styles/OcorrenciaIndividual.module.css';
 import { 
   Container,
   Typography,
@@ -247,17 +247,7 @@ export default function OcorrenciaPage({ user }) {
         <Head>
           <title>Carregando Ocorrência - Olist Helper</title>
         </Head>
-        <Container 
-          maxWidth="lg" 
-          className={styles.container}
-          sx={{
-            backgroundColor: 'var(--background-color)',
-            color: 'var(--text-color)',
-            minHeight: '100vh',
-            paddingTop: '2rem',
-            paddingBottom: '2rem'
-          }}
-        >
+        <Container maxWidth="lg" className={styles.container}>
           <div className={styles.loadingContainer}>
             <CircularProgress />
             <Typography variant="h6" style={{ marginTop: '1rem' }}>
@@ -275,17 +265,7 @@ export default function OcorrenciaPage({ user }) {
         <Head>
           <title>Erro - Olist Helper</title>
         </Head>
-        <Container 
-          maxWidth="lg" 
-          className={styles.container}
-          sx={{
-            backgroundColor: 'var(--background-color)',
-            color: 'var(--text-color)',
-            minHeight: '100vh',
-            paddingTop: '2rem',
-            paddingBottom: '2rem'
-          }}
-        >
+        <Container maxWidth="lg" className={styles.container}>
           <Alert severity="error" style={{ marginTop: '2rem' }}>
             {error}
           </Alert>
@@ -308,17 +288,7 @@ export default function OcorrenciaPage({ user }) {
         <Head>
           <title>Ocorrência não encontrada - Olist Helper</title>
         </Head>
-        <Container 
-          maxWidth="lg" 
-          className={styles.container}
-          sx={{
-            backgroundColor: 'var(--background-color)',
-            color: 'var(--text-color)',
-            minHeight: '100vh',
-            paddingTop: '2rem',
-            paddingBottom: '2rem'
-          }}
-        >
+        <Container maxWidth="lg" className={styles.container}>
           <Alert severity="warning" style={{ marginTop: '2rem' }}>
             Ocorrência não encontrada
           </Alert>
@@ -357,12 +327,13 @@ export default function OcorrenciaPage({ user }) {
       >
         {/* Header com navegação */}
         <div className={styles.pageHeader}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+          <div className={styles.navigationContainer}>
             <Button 
               variant="outlined" 
               onClick={handleGoBack}
               startIcon={<ArrowBackIcon />}
               size="small"
+              className={styles.backButton}
             >
               Voltar
             </Button>
@@ -373,10 +344,7 @@ export default function OcorrenciaPage({ user }) {
                 onClick={handleShareLink}
                 startIcon={<ShareIcon />}
                 size="small"
-                sx={{ 
-                  backgroundColor: 'var(--color-primary)',
-                  '&:hover': { backgroundColor: 'var(--color-primary-dark)' }
-                }}
+                className={styles.shareButton}
               >
                 Compartilhar
               </Button>
@@ -387,11 +355,6 @@ export default function OcorrenciaPage({ user }) {
             variant="h4" 
             component="h1" 
             className={styles.pageTitle}
-            sx={{ 
-              textAlign: 'left',
-              color: 'var(--title-color)',
-              marginBottom: '0.5rem'
-            }}
           >
             {ocorrencia.Problema}
           </Typography>
@@ -399,11 +362,6 @@ export default function OcorrenciaPage({ user }) {
           <Typography 
             variant="body2" 
             className={styles.pageDescription}
-            sx={{ 
-              textAlign: 'left',
-              color: 'var(--text-color)',
-              marginBottom: '1rem'
-            }}
           >
             ID da Ocorrência: {id}
           </Typography>
@@ -411,15 +369,8 @@ export default function OcorrenciaPage({ user }) {
 
         {/* Conteúdo da ocorrência */}
         <Paper 
-          className={styles.dialogContent} 
+          className={styles.contentPaper} 
           elevation={2} 
-          sx={{ 
-            padding: '2rem', 
-            borderRadius: '16px',
-            backgroundColor: 'var(--box-color)',
-            color: 'var(--text-color)',
-            border: '1px solid var(--color-border)'
-          }}
         >
           {/* Header da ocorrência */}
           <div className={styles.modalHeader}>
@@ -429,19 +380,10 @@ export default function OcorrenciaPage({ user }) {
                 label={`Criado em: ${formatBrazilianDate(ocorrencia.DataHora)}`} 
                 size="medium"
                 className={styles.creationChip}
-                sx={{
-                  backgroundColor: 'var(--box-color2)',
-                  color: 'var(--title-color)',
-                  fontWeight: 'normal',
-                  border: '1px solid var(--color-border)',
-                  '& .MuiChip-icon': {
-                    color: 'var(--color-primary)'
-                  }
-                }}
               />
             </div>
             
-            <div className={styles.modalChips} style={{ marginTop: '1rem' }}>
+            <div className={styles.modalChips}>
               <div className={styles.marcadoresContainer}>
                 {renderMarcadores(ocorrencia.Marcadores)}
               </div>
@@ -450,11 +392,6 @@ export default function OcorrenciaPage({ user }) {
                   label={ocorrencia.Modulo} 
                   size="small"
                   className={styles.modalChip}
-                  sx={{
-                    backgroundColor: 'var(--primary-bg)',
-                    color: 'var(--primary-color)',
-                    border: '1px solid var(--primary-color)'
-                  }}
                 />
               )}
               <Chip 
@@ -472,15 +409,7 @@ export default function OcorrenciaPage({ user }) {
                   icon={<CheckCircleIcon fontSize="small" />}
                   label={`Corrigido em: ${formatBrazilianDate(ocorrencia.DataCorrecao)}`} 
                   size="small"
-                  className={styles.modalChip}
-                  sx={{
-                    backgroundColor: 'var(--excellent-bg)',
-                    color: 'var(--excellent-color)',
-                    border: '1px solid var(--excellent-color)',
-                    '& .MuiChip-icon': {
-                      color: 'var(--excellent-color)'
-                    }
-                  }}
+                  className={styles.correctionChip}
                 />
               )}
             </div>
@@ -488,7 +417,7 @@ export default function OcorrenciaPage({ user }) {
 
           {/* Resumo */}
           {ocorrencia.Resumo && ocorrencia.Resumo.trim() !== '' && (
-            <div className={styles.resumoBox} style={{ marginTop: '2rem' }}>
+            <div className={styles.resumoBox}>
               <div className={styles.solutionHeader}>
                 <div className={styles.sectionTitleWrapper}>
                   <DescriptionIcon className={styles.sectionIcon} />
@@ -516,7 +445,7 @@ export default function OcorrenciaPage({ user }) {
 
           {/* Classificação */}
           {(ocorrencia.Modulo && ocorrencia.Modulo.trim() !== '') || (ocorrencia.Motivo && ocorrencia.Motivo.trim() !== '') ? (
-            <Box className={styles.observationBox} style={{ marginTop: '2rem' }}>
+            <Box className={styles.observationBox}>
               <div className={styles.sectionTitleWrapper}>
                 <InfoIcon className={styles.sectionIcon} />
                 <Typography variant="h6" component="h3" className={styles.sectionTitle}>

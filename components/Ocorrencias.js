@@ -327,7 +327,7 @@ export default function Ocorrencias({ user }) {
       
       navigator.clipboard.writeText(shareUrl).then(
         () => {
-          toast.success('🔗 Link da ocorrência copiado! Compartilhe com sua equipe através do link direto.');
+          toast.success('Link da ocorrência copiado!');
         },
         (err) => {
           console.error('Não foi possível copiar link: ', err);

@@ -1,0 +1,292 @@
+/* styles/OcorrenciaIndividual.module.css */
+
+/* Container principal */
+.container {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  min-height: 100vh;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Header da página */
+.pageHeader {
+  margin-bottom: 2rem;
+}
+
+.navigationContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.backButton {
+  border-color: var(--color-border) !important;
+  color: var(--text-color) !important;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  border-color: var(--color-primary) !important;
+  background-color: rgba(10, 78, 228, 0.08) !important;
+}
+
+.shareButton {
+  background-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
+  transition: all 0.2s ease;
+}
+
+.shareButton:hover {
+  background-color: var(--color-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(10, 78, 228, 0.3);
+}
+
+/* Títulos */
+.pageTitle {
+  text-align: left !important;
+  color: var(--title-color) !important;
+  margin-bottom: 0.5rem !important;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.pageDescription {
+  text-align: left !important;
+  color: var(--text-color) !important;
+  margin-bottom: 1rem !important;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+/* Container do conteúdo */
+.contentPaper {
+  padding: 2rem !important;
+  border-radius: 16px !important;
+  background-color: var(--box-color) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease;
+}
+
+.contentPaper:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Header da ocorrência */
+.modalHeader {
+  margin-bottom: 1.5rem;
+}
+
+.creationChipContainer {
+  margin-bottom: 1rem;
+}
+
+.creationChip {
+  background-color: var(--box-color2) !important;
+  color: var(--title-color) !important;
+  font-weight: normal !important;
+  border: 1px solid var(--color-border) !important;
+  transition: all 0.2s ease;
+}
+
+.creationChip:hover {
+  background-color: var(--box-color3) !important;
+}
+
+.creationChip .MuiChip-icon {
+  color: var(--color-primary) !important;
+}
+
+/* Container de chips */
+.modalChips {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.marcadoresContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.modalChip {
+  background-color: var(--primary-bg) !important;
+  color: var(--primary-color) !important;
+  border: 1px solid var(--primary-color) !important;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.modalChip:hover {
+  background-color: var(--primary-color) !important;
+  color: var(--color-white) !important;
+  transform: translateY(-1px);
+}
+
+.correctionChip {
+  background-color: var(--excellent-bg) !important;
+  color: var(--excellent-color) !important;
+  border: 1px solid var(--excellent-color) !important;
+}
+
+.correctionChip .MuiChip-icon {
+  color: var(--excellent-color) !important;
+}
+
+/* Seção do resumo */
+.resumoBox {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: var(--box-color2);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+}
+
+.resumoBox:hover {
+  background-color: var(--box-color3);
+}
+
+.solutionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.sectionTitleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionIcon {
+  color: var(--color-primary) !important;
+  font-size: 1.25rem;
+}
+
+.sectionTitle {
+  color: var(--title-color) !important;
+  font-weight: 600;
+  margin: 0;
+}
+
+.copyButton {
+  color: var(--text-color) !important;
+  transition: all 0.2s ease;
+}
+
+.copyButton:hover {
+  color: var(--color-primary) !important;
+  background-color: rgba(10, 78, 228, 0.08) !important;
+  transform: scale(1.1);
+}
+
+.solutionScrollbox {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.solutionText {
+  color: var(--text-color) !important;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Seção de observações */
+.observationBox {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: var(--box-color2);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+}
+
+.observationBox:hover {
+  background-color: var(--box-color3);
+}
+
+.observationText {
+  color: var(--text-color) !important;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.observationText:last-child {
+  margin-bottom: 0;
+}
+
+.observationText strong {
+  color: var(--title-color);
+  font-weight: 600;
+}
+
+/* Loading state */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  text-align: center;
+}
+
+.loadingContainer h6 {
+  margin-top: 1rem !important;
+  color: var(--title-color) !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .container {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  .contentPaper {
+    padding: 1.5rem !important;
+    margin: 0 1rem;
+  }
+  
+  .navigationContainer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .modalChips {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .pageTitle {
+    font-size: 1.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .contentPaper {
+    padding: 1rem !important;
+    margin: 0 0.5rem;
+  }
+  
+  .resumoBox,
+  .observationBox {
+    padding: 1rem;
+  }
+  
+  .pageTitle {
+    font-size: 1.25rem !important;
+  }
+}
