@@ -862,8 +862,8 @@ export default function Ocorrencias({ user }) {
         <div className={styles.searchInputWrapper}>
           <TextField
             fullWidth
-            label="Buscar em tempo real..."
-            placeholder="Digite para buscar automaticamente"
+            label="Buscar"
+            placeholder="Digite para buscar ocorrências..."
             variant="outlined"
             value={searchQuery}
             onChange={handleSearchInputChange}
@@ -900,9 +900,9 @@ export default function Ocorrencias({ user }) {
               className={`${styles.searchButton} ${styles.btnOutlined}`}
               disabled={!searchQuery.trim()}
               size="medium"
-              title="Busca manual - a busca automática já está ativa"
+              title="Executar busca"
             >
-              BUSCAR AGORA
+              BUSCAR
             </Button>
             <Badge badgeContent={filtrosAtivos} color="primary" invisible={filtrosAtivos === 0}>
               <Button
