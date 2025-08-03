@@ -119,6 +119,16 @@
   transform: translateY(-1px);
 }
 
+.favoriteActive {
+  color: var(--color-accent1) !important;
+  border-color: var(--color-accent1) !important;
+}
+
+.favoriteActive:hover {
+  background: var(--color-accent1) !important;
+  color: white !important;
+}
+
 .copyCount {
   color: var(--text-color);
   opacity: 0.7;

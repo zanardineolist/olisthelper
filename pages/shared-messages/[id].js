@@ -3,9 +3,9 @@ import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Container, Typography, Button, Paper } from '@mui/material';
-import { FaUser, FaClock, FaGlobe, FaTag, FaHeart, FaCopy, FaShare } from 'react-icons/fa';
+import { FaUser, FaClock, FaGlobe, FaTag, FaHeart, FaRegHeart, FaCopy, FaShare } from 'react-icons/fa';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 import Layout from '../../components/Layout';
 import LoadingIndicator from '../../components/ui/LoadingIndicator';
 import styles from '../../styles/SharedMessage.module.css';
@@ -83,6 +83,37 @@ export default function MessagePage({ user }) {
     }
   };
 
+  const handleToggleFavorite = async () => {
+    try {
+      const response = await fetch('/api/shared-messages/favorite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId: message.id })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Erro ao atualizar favorito');
+      }
+
+      const { isFavorite } = await response.json();
+
+      // Atualizar estado local
+      setMessage(prevMessage => ({
+        ...prevMessage,
+        isFavorite,
+        favorites_count: isFavorite 
+          ? (prevMessage.favorites_count || 0) + 1
+          : Math.max((prevMessage.favorites_count || 1) - 1, 0)
+      }));
+
+      toast.success(isFavorite ? 'Mensagem adicionada aos favoritos!' : 'Mensagem removida dos favoritos!');
+    } catch (error) {
+      console.error('Erro ao atualizar favorito:', error);
+      toast.error('❌ Erro ao atualizar favorito. Tente novamente.');
+    }
+  };
+
   const handleShareMessage = async () => {
     try {
       const shareUrl = window.location.href;
@@ -124,7 +155,7 @@ export default function MessagePage({ user }) {
               onClick={() => router.push('/tools#SharedMessages')}
               style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}
             >
-              Voltar para ferramentas
+              Voltar
             </Button>
           </Paper>
         </Container>
@@ -155,7 +186,7 @@ export default function MessagePage({ user }) {
               marginBottom: '1rem'
             }}
           >
-            Voltar para ferramentas
+            Voltar
           </Button>
           
           <Typography variant="h4" component="h1" style={{ color: 'var(--title-color)', marginBottom: '0.5rem' }}>
@@ -227,6 +258,15 @@ export default function MessagePage({ user }) {
             <div className={styles.actions}>
               <div className={styles.actionButtons}>
                 <button
+                  onClick={handleToggleFavorite}
+                  className={`${styles.actionButton} ${message.isFavorite ? styles.favoriteActive : ''}`}
+                  title={message.isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                >
+                  {message.isFavorite ? <FaHeart /> : <FaRegHeart />}
+                  <span>Favoritar</span>
+                </button>
+
+                <button
                   onClick={handleCopyContent}
                   className={styles.actionButton}
                   title="Copiar conteúdo"
@@ -254,6 +294,30 @@ export default function MessagePage({ user }) {
           </div>
         </div>
       </div>
+      
+      <Toaster 
+        position="bottom-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: 'var(--box-color)',
+            color: 'var(--text-color)',
+            border: '1px solid var(--color-border)',
+          },
+          success: {
+            iconTheme: {
+              primary: 'var(--excellent-color)',
+              secondary: 'white',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: 'var(--poor-color)',
+              secondary: 'white',
+            },
+          },
+        }}
+      />
     </Layout>
   );
 }
