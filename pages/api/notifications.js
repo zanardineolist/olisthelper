@@ -86,12 +86,21 @@ export default async function handler(req, res) {
       }
 
       // Buscar notificações via Supabase
+      console.log(`Buscando notificações para usuário ${session.id} com perfil ${userPermissions.profile}`);
       const notifications = await getUserNotifications(
         session.id, 
         userPermissions.profile, 
         notificationType, 
         limitValue
       );
+      
+      console.log(`Retornando ${notifications.length} notificações, ${notifications.filter(n => !n.read).length} não lidas`);
+      console.log('Primeiras 3 notificações:', notifications.slice(0, 3).map(n => ({
+        id: n.id,
+        title: n.title,
+        read: n.read,
+        read_at: n.read_at
+      })));
 
       res.status(200).json({ 
         notifications,

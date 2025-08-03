@@ -167,7 +167,7 @@ export default function Navbar({ user, isSidebarCollapsed }) {
                         {sortedNotifications.map((notification) => (
                           <li
                             key={notification.id}
-                            className={`${styles.notificationItem} ${notification.is_read ? styles.read : ''}`}
+                            className={`${styles.notificationItem} ${notification.read ? styles.read : ''}`}
                           >
                             <div className={styles.notificationContent}>
                               <strong>{notification.title}</strong>
@@ -177,7 +177,7 @@ export default function Navbar({ user, isSidebarCollapsed }) {
                               </span>
                             </div>
                             <div className={styles.markAsReadIndicator}>
-                              {notification.is_read ? (
+                              {notification.read ? (
                                 <FaCheckDouble className={styles.checkIconDouble} title="Lido" />
                               ) : (
                                 <div 

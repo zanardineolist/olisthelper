@@ -52,10 +52,13 @@ export const NotificationProvider = ({ children }) => {
         setNotifications(prev => 
           prev.map(notif => 
             notif.id === notificationId 
-              ? { ...notif, is_read: true }
+              ? { ...notif, read: true, read_at: new Date().toISOString() }
               : notif
           )
         );
+        
+        // Opcional: Buscar novamente para garantir sincronização
+        setTimeout(() => fetchNotifications(true), 1000);
       }
     } catch (error) {
       console.error('Erro ao marcar notificação como lida:', error);
@@ -76,10 +79,13 @@ export const NotificationProvider = ({ children }) => {
         setNotifications(prev => 
           prev.map(notif => 
             notificationIds.includes(notif.id)
-              ? { ...notif, is_read: true }
+              ? { ...notif, read: true, read_at: new Date().toISOString() }
               : notif
           )
         );
+        
+        // Opcional: Buscar novamente para garantir sincronização
+        setTimeout(() => fetchNotifications(true), 1000);
       }
     } catch (error) {
       console.error('Erro ao marcar notificações como lidas:', error);
@@ -151,12 +157,12 @@ export const NotificationProvider = ({ children }) => {
     markMultipleAsRead,
     refreshNotifications,
     // Getters úteis
-    unreadCount: notifications.filter(n => !n.is_read).length,
+    unreadCount: notifications.filter(n => !n.read).length,
     bellNotifications: notifications.filter(n => 
-      (n.notification_type === 'bell' || n.notification_type === 'both') && !n.is_read
+      (n.notification_type === 'bell' || n.notification_type === 'both') && !n.read
     ),
     topNotifications: notifications.filter(n => 
-      (n.notification_type === 'top' || n.notification_type === 'both') && !n.is_read
+      (n.notification_type === 'top' || n.notification_type === 'both') && !n.read
     ),
   };
 

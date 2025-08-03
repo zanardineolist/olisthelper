@@ -28,10 +28,14 @@ export default async function handler(req, res) {
 
     if (notificationId) {
       // Marcar uma notificação como lida
+      console.log(`Marcando notificação ${notificationId} como lida para usuário ${session.id}`);
       success = await markNotificationAsRead(notificationId, session.id);
+      console.log(`Resultado da marcação: ${success}`);
     } else if (notificationIds && notificationIds.length > 0) {
       // Marcar múltiplas notificações como lidas
+      console.log(`Marcando ${notificationIds.length} notificações como lidas para usuário ${session.id}`);
       success = await markMultipleNotificationsAsRead(notificationIds, session.id);
+      console.log(`Resultado da marcação múltipla: ${success}`);
     }
 
     if (success) {

@@ -45,35 +45,60 @@ export async function createNotification(notificationData) {
  */
 export async function getUserNotifications(userId, userProfile, notificationType = 'bell', limit = 20) {
   try {
-    let query = supabaseAdmin
+    // Buscar notificações com filtro mais específico
+    let notificationsQuery = supabaseAdmin
       .from('notifications')
-      .select(`
-        *,
-        notification_reads!left (
-          user_id,
-          read_at
-        )
-      `)
+      .select('*')
       .contains('target_profiles', [userProfile])
       .order('created_at', { ascending: false })
       .limit(limit);
+      
+    console.log(`Query getUserNotifications: userId=${userId}, userProfile=${userProfile}, notificationType=${notificationType}, limit=${limit}`);
 
     // Filtrar por tipo de notificação se especificado
     if (notificationType !== 'both') {
-      query = query.in('notification_type', [notificationType, 'both']);
+      notificationsQuery = notificationsQuery.in('notification_type', [notificationType, 'both']);
     }
 
-    const { data, error } = await query;
+    const { data: notifications, error: notificationsError } = await notificationsQuery;
+    
+    if (notificationsError) throw notificationsError;
+    
+    console.log(`Encontradas ${notifications?.length || 0} notificações antes de verificar leituras`);
+    
+    // Buscar leituras separadamente para ter mais controle
+    const { data: reads, error: readsError } = await supabaseAdmin
+      .from('notification_reads')
+      .select('notification_id, read_at')
+      .eq('user_id', userId)
+      .in('notification_id', notifications?.map(n => n.id) || []);
+      
+    if (readsError) {
+      console.error('Erro ao buscar leituras:', readsError);
+    }
+    
+    console.log(`Encontradas ${reads?.length || 0} leituras para o usuário`);
+    
+    const readsMap = new Map();
+    reads?.forEach(read => {
+      readsMap.set(read.notification_id, read);
+    });
 
-    if (error) throw error;
+    // Marcar se cada notificação foi lida pelo usuário usando o mapa de leituras
+    const notificationsWithReadStatus = notifications.map(notification => {
+      const userRead = readsMap.get(notification.id);
+      const isRead = !!userRead;
+      
+      console.log(`Notificação ${notification.id}: userRead=`, userRead, `isRead=`, isRead);
+      
+      return {
+        ...notification,
+        read: isRead,
+        read_at: userRead?.read_at || null
+      };
+    });
 
-    // Marcar se cada notificação foi lida pelo usuário
-    const notificationsWithReadStatus = data.map(notification => ({
-      ...notification,
-      read: notification.notification_reads?.some(read => read.user_id === userId) || false,
-      read_at: notification.notification_reads?.find(read => read.user_id === userId)?.read_at || null
-    }));
-
+    console.log(`getUserNotifications retornando ${notificationsWithReadStatus.length} notificações para userId ${userId}`);
     return notificationsWithReadStatus;
   } catch (error) {
     console.error('Erro ao buscar notificações:', error);
