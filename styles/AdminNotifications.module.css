@@ -3,7 +3,7 @@
 /* Main container */
 .mainContent {
   min-height: 100vh;
-  background: var(--bg-color);
+  background: var(--background-color);
   padding: 2rem;
 }
 
@@ -44,8 +44,8 @@
   background: var(--box-color);
   border-radius: 12px;
   padding: 2rem;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
 }
 
 .formHeader {
@@ -54,7 +54,7 @@
   gap: 1rem;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .formIcon {
@@ -89,9 +89,9 @@
 .profileSection {
   margin: 2rem 0;
   padding: 1.5rem;
-  background: var(--bg-color-secondary, #f8f9fa);
+  background: var(--box-color2);
   border-radius: 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
 }
 
 .sectionTitle {
@@ -118,9 +118,9 @@
 .configSection {
   margin: 2rem 0;
   padding: 1.5rem;
-  background: var(--bg-color-secondary, #f8f9fa);
+  background: var(--box-color2);
   border-radius: 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
 }
 
 .radioSection {
@@ -172,10 +172,10 @@
 }
 
 .editorContainer {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   overflow: hidden;
-  background: white;
+  background: var(--box-color);
 }
 
 .markdownEditor {
@@ -184,9 +184,9 @@
 
 .markdownHelp {
   padding: 1rem;
-  background: var(--bg-color-secondary, #f8f9fa);
+  background: var(--box-color2);
   border-radius: 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
 }
 
 .markdownHelp h5 {
@@ -203,15 +203,16 @@
 }
 
 .markdownHelp code {
-  background: var(--bg-color);
+  background: var(--box-color4);
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
   font-family: 'Courier New', monospace;
   font-size: 0.75rem;
+  color: var(--text-color);
 }
 
 .previewContainer {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 2rem;
   background: var(--box-color);
@@ -254,17 +255,18 @@
   padding-left: 1rem;
   margin: 1rem 0;
   font-style: italic;
-  background: var(--bg-color-secondary, #f8f9fa);
+  background: var(--box-color2);
   padding: 1rem;
   border-radius: 0 8px 8px 0;
 }
 
 .previewContent code {
-  background: var(--bg-color-secondary, #f8f9fa);
+  background: var(--box-color4);
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
   font-family: 'Courier New', monospace;
   font-size: 0.9rem;
+  color: var(--text-color);
 }
 
 /* Button Container */
@@ -356,20 +358,6 @@
   }
 }
 
-/* Dark theme adjustments */
-@media (prefers-color-scheme: dark) {
-  .editorContainer {
-    background: var(--box-color);
-  }
-
-  .previewContent code {
-    background: var(--bg-color-secondary, #374151);
-    color: var(--text-color);
-  }
-
-  .previewContent blockquote {
-    background: var(--bg-color-secondary, #374151);
-  }
-}
+/* Theme adjustments are automatic with CSS variables */
 
 /* Estilos customizados removidos - não são mais necessários */

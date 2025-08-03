@@ -2,7 +2,7 @@
 
 .mainContent {
   min-height: 100vh;
-  background: var(--bg-color);
+  background: var(--background-color);
   padding: 0;
   transition: all 0.3s ease;
 }
@@ -22,8 +22,8 @@
   padding: 2rem;
   background: var(--box-color);
   border-radius: 12px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
 }
 
 .headerIcon {
@@ -72,7 +72,7 @@
   text-align: center;
   background: var(--box-color);
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
 }
 
 .spinnerIcon {
@@ -125,16 +125,16 @@
 
 .patchNoteCard {
   background: var(--box-color);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
 }
 
 .patchNoteCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
 }
 
 /* Note Header */
@@ -187,7 +187,7 @@
 .noteSummary {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: var(--bg-color-secondary, #f8f9fa);
+  background: var(--box-color2);
   border-radius: 8px;
   border-left: 4px solid var(--color-primary);
 }
@@ -253,7 +253,7 @@
 
 /* Note Footer */
 .noteFooter {
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-border);
   padding-top: 1rem;
 }
 
