@@ -358,6 +358,235 @@
   }
 }
 
-/* Theme adjustments are automatic with CSS variables */
+/* Management Lists */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
 
-/* Estilos customizados removidos - não são mais necessários */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--text-color);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.emptyState h3 {
+  color: var(--title-color);
+  margin-bottom: 0.5rem;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.itemCard {
+  background: var(--box-color2);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.itemCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.itemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.itemInfo {
+  flex: 1;
+}
+
+.itemTitle {
+  color: var(--title-color);
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.itemMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-color);
+}
+
+.metaIcon {
+  color: var(--color-primary);
+  font-size: 0.75rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.aviso {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.informacao {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+}
+
+.typeBadge {
+  background: var(--box-color4);
+  color: var(--text-color);
+}
+
+.versionBadge {
+  background: var(--color-primary);
+  color: white;
+}
+
+.featuredBadge {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: white;
+}
+
+.itemActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editButton {
+  color: var(--color-primary) !important;
+  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.editButton:hover {
+  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.2) !important;
+  transform: scale(1.1) !important;
+}
+
+.deleteButton {
+  color: #dc2626 !important;
+  background: rgba(220, 38, 38, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.deleteButton:hover {
+  background: rgba(220, 38, 38, 0.2) !important;
+  transform: scale(1.1) !important;
+}
+
+.itemContent {
+  margin: 1rem 0;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.itemFooter {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.profilesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.profileTag {
+  background: var(--color-primary);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.patchNotePreview {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: var(--box-color);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Dialog Styles */
+.dialogHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.dialogContent {
+  padding: 1rem 0;
+}
+
+.warningText {
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+/* Responsive Design for Management */
+@media (max-width: 768px) {
+  .itemHeader {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .itemActions {
+    align-self: flex-end;
+  }
+
+  .itemMeta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .profilesList {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Theme adjustments are automatic with CSS variables */

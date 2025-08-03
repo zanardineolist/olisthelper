@@ -1,9 +1,9 @@
 // pages/admin-notifications.js
 import Head from 'next/head';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { getSession } from 'next-auth/react';
-import { TextField, Button, ThemeProvider, createTheme, FormControlLabel, Checkbox, FormGroup, RadioGroup, Radio, Tab, Tabs, Box } from '@mui/material';
-import { FaBell, FaFileAlt, FaSave, FaEye, FaUsers } from 'react-icons/fa';
+import { TextField, Button, ThemeProvider, createTheme, FormControlLabel, Checkbox, FormGroup, RadioGroup, Radio, Tab, Tabs, Box, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { FaBell, FaFileAlt, FaSave, FaEye, FaUsers, FaList, FaEdit, FaTrash, FaCog, FaTimes, FaCalendarAlt, FaUser } from 'react-icons/fa';
 import Layout from '../components/Layout';
 import managerStyles from '../styles/Manager.module.css';
 import adminStyles from '../styles/AdminNotifications.module.css';
@@ -70,6 +70,32 @@ const convertToHTML = (text) => {
     .replace(/<\/blockquote><\/p>/g, '</blockquote>');
 };
 
+// Função para converter HTML básico de volta para markdown (para edição)
+const convertToMarkdown = (html) => {
+  if (!html) return '';
+  
+  return html
+    // Headers
+    .replace(/<h1>(.*?)<\/h1>/g, '# $1')
+    .replace(/<h2>(.*?)<\/h2>/g, '## $1')
+    .replace(/<h3>(.*?)<\/h3>/g, '### $1')
+    // Bold
+    .replace(/<strong>(.*?)<\/strong>/g, '**$1**')
+    // Italic
+    .replace(/<em>(.*?)<\/em>/g, '*$1*')
+    // Lists
+    .replace(/<li>(.*?)<\/li>/g, '- $1')
+    // Blockquote
+    .replace(/<blockquote>(.*?)<\/blockquote>/g, '&gt; $1')
+    // Paragraphs and breaks
+    .replace(/<\/p><p>/g, '\n\n')
+    .replace(/<p>/g, '')
+    .replace(/<\/p>/g, '')
+    .replace(/<br>/g, '\n')
+    // Clean up
+    .trim();
+};
+
 function TabPanel({ children, value, index, ...other }) {
   return (
     <div
@@ -116,7 +142,20 @@ export default function AdminNotificationsPage({ user }) {
   const [patchNoteSummary, setPatchNoteSummary] = useState('');
   const [patchNoteVersion, setPatchNoteVersion] = useState('');
   const [patchNoteLoading, setPatchNoteLoading] = useState(false);
-  const [previewMode, setPreviewMode] = useState(false); 
+  const [previewMode, setPreviewMode] = useState(false);
+  
+  // Estados para Gerenciamento
+  const [sentNotifications, setSentNotifications] = useState([]);
+  const [sentPatchNotes, setSentPatchNotes] = useState([]);
+  const [managementLoading, setManagementLoading] = useState(false);
+  const [editDialog, setEditDialog] = useState({ open: false, type: null, item: null });
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, type: null, item: null });
+  
+  // Estados para edição
+  const [editTitle, setEditTitle] = useState('');
+  const [editContent, setEditContent] = useState('');
+  const [editSummary, setEditSummary] = useState('');
+  const [editVersion, setEditVersion] = useState(''); 
 
   const handleProfileChange = (event) => {
     setSelectedProfiles({
@@ -244,6 +283,129 @@ export default function AdminNotificationsPage({ user }) {
     }
   };
 
+  // Função para buscar notificações enviadas
+  const fetchSentNotifications = async () => {
+    setManagementLoading(true);
+    try {
+      const response = await fetch('/api/admin/notifications');
+      if (response.ok) {
+        const data = await response.json();
+        setSentNotifications(data.notifications || []);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar notificações:', error);
+    } finally {
+      setManagementLoading(false);
+    }
+  };
+
+  // Função para buscar patch notes enviados
+  const fetchSentPatchNotes = async () => {
+    setManagementLoading(true);
+    try {
+      const response = await fetch('/api/admin/patch-notes');
+      if (response.ok) {
+        const data = await response.json();
+        setSentPatchNotes(data.patchNotes || []);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar patch notes:', error);
+    } finally {
+      setManagementLoading(false);
+    }
+  };
+
+  // Carregar dados quando as tabs de gerenciamento são acessadas
+  useEffect(() => {
+    if (currentTab === 1) { // Tab de gerenciar notificações
+      fetchSentNotifications();
+    } else if (currentTab === 3) { // Tab de gerenciar patch notes
+      fetchSentPatchNotes();
+    }
+  }, [currentTab]);
+
+  // Função para abrir dialog de edição
+  const handleEdit = (type, item) => {
+    setEditDialog({ open: true, type, item });
+    if (type === 'notification') {
+      setEditTitle(item.title);
+      setEditContent(item.message);
+    } else {
+      setEditTitle(item.title);
+      // Para patch notes, converter HTML de volta para markdown para edição
+      setEditContent(convertToMarkdown(item.content));
+      setEditSummary(item.summary);
+      setEditVersion(item.version || '');
+    }
+  };
+
+  // Função para abrir dialog de exclusão
+  const handleDelete = (type, item) => {
+    setDeleteDialog({ open: true, type, item });
+  };
+
+  // Função para salvar edição
+  const handleSaveEdit = async () => {
+    try {
+      const { type, item } = editDialog;
+      const endpoint = type === 'notification' ? '/api/admin/notifications' : '/api/admin/patch-notes';
+      
+      const payload = type === 'notification' 
+        ? { title: editTitle, message: editContent }
+        : { title: editTitle, content: convertToHTML(editContent), summary: editSummary, version: editVersion };
+
+      const response = await fetch(`${endpoint}/${item.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        alert('Item atualizado com sucesso!');
+        setEditDialog({ open: false, type: null, item: null });
+        // Recarregar lista
+        if (type === 'notification') {
+          fetchSentNotifications();
+        } else {
+          fetchSentPatchNotes();
+        }
+      } else {
+        throw new Error('Erro ao atualizar item');
+      }
+    } catch (error) {
+      console.error('Erro ao salvar edição:', error);
+      alert('Erro ao salvar edição');
+    }
+  };
+
+  // Função para confirmar exclusão
+  const handleConfirmDelete = async () => {
+    try {
+      const { type, item } = deleteDialog;
+      const endpoint = type === 'notification' ? '/api/admin/notifications' : '/api/admin/patch-notes';
+
+      const response = await fetch(`${endpoint}/${item.id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        alert('Item excluído com sucesso!');
+        setDeleteDialog({ open: false, type: null, item: null });
+        // Recarregar lista
+        if (type === 'notification') {
+          fetchSentNotifications();
+        } else {
+          fetchSentPatchNotes();
+        }
+      } else {
+        throw new Error('Erro ao excluir item');
+      }
+    } catch (error) {
+      console.error('Erro ao excluir:', error);
+      alert('Erro ao excluir item');
+    }
+  };
+
   return (
     <Layout user={user}>
       <Head>
@@ -268,18 +430,32 @@ export default function AdminNotificationsPage({ user }) {
                 onChange={handleTabChange} 
                 aria-label="Admin panel tabs"
                 className={adminStyles.tabs}
+                variant="scrollable"
+                scrollButtons="auto"
               >
                 <Tab 
                   icon={<FaBell />} 
-                  label="Notificações" 
+                  label="Enviar Notificação" 
                   id="admin-tab-0"
                   aria-controls="admin-tabpanel-0"
                 />
                 <Tab 
-                  icon={<FaFileAlt />} 
-                  label="Patch Notes" 
+                  icon={<FaList />} 
+                  label="Gerenciar Notificações" 
                   id="admin-tab-1"
                   aria-controls="admin-tabpanel-1"
+                />
+                <Tab 
+                  icon={<FaFileAlt />} 
+                  label="Criar Patch Note" 
+                  id="admin-tab-2"
+                  aria-controls="admin-tabpanel-2"
+                />
+                <Tab 
+                  icon={<FaCog />} 
+                  label="Gerenciar Patch Notes" 
+                  id="admin-tab-3"
+                  aria-controls="admin-tabpanel-3"
                 />
               </Tabs>
             </Box>
@@ -468,8 +644,94 @@ export default function AdminNotificationsPage({ user }) {
               </div>
             </TabPanel>
 
-            {/* Tab Panel 2: Patch Notes */}
+            {/* Tab Panel 2: Gerenciar Notificações */}
             <TabPanel value={currentTab} index={1}>
+              <div className={adminStyles.formContainer}>
+                <div className={adminStyles.formHeader}>
+                  <FaList className={adminStyles.formIcon} />
+                  <div>
+                    <h2 className={adminStyles.formTitle}>Gerenciar Notificações</h2>
+                    <p className={adminStyles.formSubtitle}>
+                      Visualize, edite e exclua notificações enviadas
+                    </p>
+                  </div>
+                </div>
+
+                {managementLoading ? (
+                  <div className={adminStyles.loadingContainer}>
+                    <div className="standardBoxLoader"></div>
+                    <p>Carregando notificações...</p>
+                  </div>
+                ) : sentNotifications.length === 0 ? (
+                  <div className={adminStyles.emptyState}>
+                    <FaBell className={adminStyles.emptyIcon} />
+                    <h3>Nenhuma notificação encontrada</h3>
+                    <p>Você ainda não enviou nenhuma notificação.</p>
+                  </div>
+                ) : (
+                  <div className={adminStyles.itemsList}>
+                    {sentNotifications.map((notification) => (
+                      <div key={notification.id} className={adminStyles.itemCard}>
+                        <div className={adminStyles.itemHeader}>
+                          <div className={adminStyles.itemInfo}>
+                            <h3 className={adminStyles.itemTitle}>{notification.title}</h3>
+                            <div className={adminStyles.itemMeta}>
+                              <span className={adminStyles.metaItem}>
+                                <FaCalendarAlt className={adminStyles.metaIcon} />
+                                {new Date(notification.created_at).toLocaleDateString('pt-BR')}
+                              </span>
+                              <span className={adminStyles.metaItem}>
+                                <FaUser className={adminStyles.metaIcon} />
+                                {notification.creator_name || 'Sistema'}
+                              </span>
+                              <span className={`${adminStyles.badge} ${adminStyles[notification.notification_style]}`}>
+                                {notification.notification_style === 'aviso' ? '⚠️ Aviso' : 'ℹ️ Informação'}
+                              </span>
+                              <span className={`${adminStyles.badge} ${adminStyles.typeBadge}`}>
+                                {notification.notification_type === 'bell' ? '🔔 Sino' : 
+                                 notification.notification_type === 'top' ? '📢 Banner' : '🔔📢 Ambos'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className={adminStyles.itemActions}>
+                            <IconButton 
+                              onClick={() => handleEdit('notification', notification)}
+                              className={adminStyles.editButton}
+                              title="Editar"
+                            >
+                              <FaEdit />
+                            </IconButton>
+                            <IconButton 
+                              onClick={() => handleDelete('notification', notification)}
+                              className={adminStyles.deleteButton}
+                              title="Excluir"
+                            >
+                              <FaTrash />
+                            </IconButton>
+                          </div>
+                        </div>
+                        <div className={adminStyles.itemContent}>
+                          <p>{notification.message}</p>
+                        </div>
+                        <div className={adminStyles.itemFooter}>
+                          <div className={adminStyles.profilesList}>
+                            <strong>Direcionado para:</strong>
+                            {notification.target_profiles?.map((profile, idx) => (
+                              <span key={idx} className={adminStyles.profileTag}>
+                                {profile}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TabPanel>
+
+            {/* Tab Panel 3: Criar Patch Notes */}
+            <TabPanel value={currentTab} index={2}>
               <div className={adminStyles.formContainer}>
                 <div className={adminStyles.formHeader}>
                   <FaFileAlt className={adminStyles.formIcon} />
@@ -603,7 +865,186 @@ Exemplo de uso:
                 </div>
               </div>
             </TabPanel>
+
+            {/* Tab Panel 4: Gerenciar Patch Notes */}
+            <TabPanel value={currentTab} index={3}>
+              <div className={adminStyles.formContainer}>
+                <div className={adminStyles.formHeader}>
+                  <FaCog className={adminStyles.formIcon} />
+                  <div>
+                    <h2 className={adminStyles.formTitle}>Gerenciar Patch Notes</h2>
+                    <p className={adminStyles.formSubtitle}>
+                      Visualize, edite e exclua patch notes publicados
+                    </p>
+                  </div>
+                </div>
+
+                {managementLoading ? (
+                  <div className={adminStyles.loadingContainer}>
+                    <div className="standardBoxLoader"></div>
+                    <p>Carregando patch notes...</p>
+                  </div>
+                ) : sentPatchNotes.length === 0 ? (
+                  <div className={adminStyles.emptyState}>
+                    <FaFileAlt className={adminStyles.emptyIcon} />
+                    <h3>Nenhum patch note encontrado</h3>
+                    <p>Você ainda não criou nenhum patch note.</p>
+                  </div>
+                ) : (
+                  <div className={adminStyles.itemsList}>
+                    {sentPatchNotes.map((patchNote) => (
+                      <div key={patchNote.id} className={adminStyles.itemCard}>
+                        <div className={adminStyles.itemHeader}>
+                          <div className={adminStyles.itemInfo}>
+                            <h3 className={adminStyles.itemTitle}>{patchNote.title}</h3>
+                            <div className={adminStyles.itemMeta}>
+                              <span className={adminStyles.metaItem}>
+                                <FaCalendarAlt className={adminStyles.metaIcon} />
+                                {new Date(patchNote.created_at).toLocaleDateString('pt-BR')}
+                              </span>
+                              <span className={adminStyles.metaItem}>
+                                <FaUser className={adminStyles.metaIcon} />
+                                {patchNote.creator_name || 'Sistema'}
+                              </span>
+                              {patchNote.version && (
+                                <span className={`${adminStyles.badge} ${adminStyles.versionBadge}`}>
+                                  v{patchNote.version}
+                                </span>
+                              )}
+                              {patchNote.featured && (
+                                <span className={`${adminStyles.badge} ${adminStyles.featuredBadge}`}>
+                                  ⭐ Destaque
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className={adminStyles.itemActions}>
+                            <IconButton 
+                              onClick={() => handleEdit('patchnote', patchNote)}
+                              className={adminStyles.editButton}
+                              title="Editar"
+                            >
+                              <FaEdit />
+                            </IconButton>
+                            <IconButton 
+                              onClick={() => handleDelete('patchnote', patchNote)}
+                              className={adminStyles.deleteButton}
+                              title="Excluir"
+                            >
+                              <FaTrash />
+                            </IconButton>
+                          </div>
+                        </div>
+                        <div className={adminStyles.itemContent}>
+                          <p><strong>Resumo:</strong> {patchNote.summary}</p>
+                          <div 
+                            className={adminStyles.patchNotePreview}
+                            dangerouslySetInnerHTML={{ __html: patchNote.content.substring(0, 200) + '...' }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TabPanel>
           </div>
+
+          {/* Dialog de Edição */}
+          <Dialog 
+            open={editDialog.open} 
+            onClose={() => setEditDialog({ open: false, type: null, item: null })}
+            maxWidth="md"
+            fullWidth
+          >
+            <DialogTitle>
+              <div className={adminStyles.dialogHeader}>
+                <span>Editar {editDialog.type === 'notification' ? 'Notificação' : 'Patch Note'}</span>
+                <IconButton onClick={() => setEditDialog({ open: false, type: null, item: null })}>
+                  <FaTimes />
+                </IconButton>
+              </div>
+            </DialogTitle>
+            <DialogContent>
+              <div className={adminStyles.dialogContent}>
+                <TextField
+                  label="Título"
+                  fullWidth
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  margin="normal"
+                />
+                
+                {editDialog.type === 'patchnote' && (
+                  <>
+                    <TextField
+                      label="Versão (Opcional)"
+                      fullWidth
+                      value={editVersion}
+                      onChange={(e) => setEditVersion(e.target.value)}
+                      margin="normal"
+                    />
+                    <TextField
+                      label="Resumo"
+                      fullWidth
+                      multiline
+                      rows={2}
+                      value={editSummary}
+                      onChange={(e) => setEditSummary(e.target.value)}
+                      margin="normal"
+                    />
+                  </>
+                )}
+
+                <TextField
+                  label={editDialog.type === 'notification' ? 'Mensagem' : 'Conteúdo'}
+                  fullWidth
+                  multiline
+                  rows={editDialog.type === 'notification' ? 4 : 8}
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  margin="normal"
+                />
+              </div>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setEditDialog({ open: false, type: null, item: null })}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveEdit} variant="contained" startIcon={<FaSave />}>
+                Salvar
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Dialog de Confirmação de Exclusão */}
+          <Dialog 
+            open={deleteDialog.open} 
+            onClose={() => setDeleteDialog({ open: false, type: null, item: null })}
+            maxWidth="sm"
+          >
+            <DialogTitle>Confirmar Exclusão</DialogTitle>
+            <DialogContent>
+              <p>
+                Tem certeza que deseja excluir {deleteDialog.type === 'notification' ? 'esta notificação' : 'este patch note'}?
+              </p>
+              <p><strong>"{deleteDialog.item?.title}"</strong></p>
+              <p className={adminStyles.warningText}>Esta ação não pode ser desfeita.</p>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setDeleteDialog({ open: false, type: null, item: null })}>
+                Cancelar
+              </Button>
+              <Button 
+                onClick={handleConfirmDelete} 
+                variant="contained" 
+                color="error"
+                startIcon={<FaTrash />}
+              >
+                Excluir
+              </Button>
+            </DialogActions>
+          </Dialog>
         </ThemeProvider>
       </main>
     </Layout>
