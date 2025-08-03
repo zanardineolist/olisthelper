@@ -1,19 +1,22 @@
 // pages/api/notifications.js
 import { createNotification, getUserNotifications, getUsersByProfiles } from '../../utils/supabase/notificationQueries';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 import { getUserPermissions } from '../../utils/supabase/supabaseClient';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       // Verificar autenticação
-      const session = await getSession({ req });
+      const session = await getServerSession(req, res, authOptions);
+      console.log('Session:', session); // Debug log
       if (!session) {
         return res.status(401).json({ error: 'Não autenticado.' });
       }
 
       // Verificar permissões de admin
       const userPermissions = await getUserPermissions(session.id);
+      console.log('User permissions:', userPermissions); // Debug log
       if (!userPermissions?.admin) {
         return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem enviar notificações.' });
       }
@@ -70,7 +73,7 @@ export default async function handler(req, res) {
   } else if (req.method === 'GET') {
     try {
       // Verificar autenticação
-      const session = await getSession({ req });
+      const session = await getServerSession(req, res, authOptions);
       if (!session) {
         return res.status(401).json({ error: 'Não autenticado.' });
       }
