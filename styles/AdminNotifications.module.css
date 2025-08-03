@@ -810,3 +810,240 @@
 .dialogContent :global(.MuiButton-text:hover) {
   background-color: rgba(var(--color-primary-rgb), 0.1);
 }
+
+/* Novos Estilos dos Modais Melhorados */
+
+/* Processing State for Cards */
+.processing {
+  opacity: 0.7;
+  pointer-events: none;
+  position: relative;
+}
+
+.processing::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.1);
+  border-radius: 12px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.3; }
+}
+
+/* Enhanced Dialog Styles */
+.editDialog {
+  backdrop-filter: blur(8px);
+}
+
+.dialogTitleSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.dialogIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.1);
+  color: var(--color-primary);
+  font-size: 1.2rem;
+}
+
+.dialogTitle {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--title-color);
+}
+
+.dialogSubtitle {
+  margin: 4px 0 0 0;
+  font-size: 0.85rem;
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.closeButton {
+  transition: all 0.2s ease !important;
+}
+
+.closeButton:hover {
+  background-color: rgba(var(--color-primary-rgb, 10, 78, 228), 0.1) !important;
+  transform: scale(1.1) !important;
+}
+
+/* Edit Form Styles */
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  margin-bottom: 8px;
+}
+
+.patchNoteFields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: var(--box-color2);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.contentSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contentHeader h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.editorContainer {
+  position: relative;
+}
+
+.markdownHelp {
+  margin-top: 8px;
+  padding: 12px;
+  background: var(--box-color2);
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+}
+
+.markdownHelp code {
+  background: var(--box-color4);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.8rem;
+  margin: 0 4px;
+}
+
+/* Delete Dialog Styles */
+.deleteContent {
+  text-align: center;
+}
+
+.deleteWarning {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.deleteIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+  font-size: 1.5rem;
+}
+
+.deleteMessage {
+  flex: 1;
+  text-align: center;
+}
+
+.itemToDelete {
+  padding: 12px 16px;
+  background: var(--box-color2);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  margin: 16px 0;
+}
+
+.warningBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(220, 38, 38, 0.05);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 8px;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.warningIcon {
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+/* Enhanced Field Styles */
+.editTextField {
+  margin-bottom: 16px !important;
+}
+
+/* Responsive Design for Enhanced Modals */
+@media (max-width: 768px) {
+  .dialogTitleSection {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+
+  .contentHeader {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .inputRow {
+    flex-direction: column;
+  }
+
+  .deleteWarning {
+    gap: 16px;
+  }
+
+  .warningBox {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .editForm {
+    gap: 16px;
+  }
+
+  .patchNoteFields {
+    padding: 12px;
+  }
+
+  .deleteIcon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+  }
+}
