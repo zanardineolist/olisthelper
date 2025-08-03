@@ -25,7 +25,7 @@ import {
   Info as InfoIcon
 } from '@mui/icons-material';
 import { useRouter } from 'next/router';
-import { toast } from 'react-hot-toast';
+import { toast, Toaster } from 'react-hot-toast';
 import axios from 'axios';
 
 // Função para formatar data do formato brasileiro para DD/MM/AA HH:MM
@@ -383,11 +383,28 @@ export default function OcorrenciaPage({ user }) {
             </Tooltip>
           </div>
 
-          <Typography variant="h4" component="h1" className={styles.pageTitle}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            className={styles.pageTitle}
+            sx={{ 
+              textAlign: 'left',
+              color: 'var(--title-color)',
+              marginBottom: '0.5rem'
+            }}
+          >
             {ocorrencia.Problema}
           </Typography>
           
-          <Typography variant="body2" className={styles.pageDescription}>
+          <Typography 
+            variant="body2" 
+            className={styles.pageDescription}
+            sx={{ 
+              textAlign: 'left',
+              color: 'var(--text-color)',
+              marginBottom: '1rem'
+            }}
+          >
             ID da Ocorrência: {id}
           </Typography>
         </div>
@@ -520,6 +537,33 @@ export default function OcorrenciaPage({ user }) {
           ) : null}
         </Paper>
       </Container>
+      
+      {/* Toast notifications */}
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: 'var(--box-color)',
+            color: 'var(--text-color)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '8px',
+            fontSize: '14px',
+          },
+          success: {
+            iconTheme: {
+              primary: 'var(--excellent-color)',
+              secondary: 'var(--box-color)',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: 'var(--poor-color)',
+              secondary: 'var(--box-color)',
+            },
+          },
+        }}
+      />
     </Layout>
   );
 }
