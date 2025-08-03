@@ -119,6 +119,7 @@ const parseDataBrasileira = (dateString) => {
 export default function Ocorrencias({ user }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [highlightedId, setHighlightedId] = useState(null);
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -181,6 +182,27 @@ export default function Ocorrencias({ user }) {
 
   useEffect(() => {
     fetchData();
+    
+    // Verificar se há parâmetro de highlight na URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const highlightParam = urlParams.get('highlight');
+    
+    if (highlightParam) {
+      setHighlightedId(highlightParam);
+      
+      // Remover o parâmetro da URL após 3 segundos (duração da animação)
+      setTimeout(() => {
+        setHighlightedId(null);
+        // Limpar o parâmetro da URL sem recarregar a página
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, '', newUrl);
+      }, 3000);
+      
+      // Scroll para a ocorrência destacada após os dados carregarem
+      setTimeout(() => {
+        scrollToHighlightedItem(highlightParam);
+      }, 500);
+    }
   }, []);
 
   const extrairOpcoesDeFiltros = (items) => {
@@ -336,6 +358,24 @@ export default function Ocorrencias({ user }) {
       );
     } else {
       toast.warning('⚠️ Esta ocorrência não possui um ID válido para compartilhamento.');
+    }
+  };
+
+  const scrollToHighlightedItem = (highlightId) => {
+    try {
+      // Procurar pelo elemento com o ID destacado
+      const targetElement = document.querySelector(`[data-ocorrencia-id="${highlightId}"]`);
+      
+      if (targetElement) {
+        // Scroll suave até o elemento
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+    } catch (error) {
+      // Silencioso em caso de erro - não impacta funcionalidade principal
     }
   };
 
@@ -788,8 +828,16 @@ export default function Ocorrencias({ user }) {
               const statusColor = getColorForStatus(item.Status);
               const marcadorColor = getColorForMarcador(item.Marcadores);
               
+              // Verificar se esta linha deve ser destacada
+              const isHighlighted = highlightedId && item.Id === highlightedId;
+              const rowClassName = `${styles.tableRow} ${isHighlighted ? styles.highlightedRow : ''}`;
+              
               return (
-                <tr key={index} className={styles.tableRow}>
+                <tr 
+                  key={index} 
+                  className={rowClassName}
+                  data-ocorrencia-id={item.Id}
+                >
                   <td className={styles.tableCell}>
                     <Typography variant="body2" className={styles.dateTime}>
                       {formatBrazilianDate(item.DataHora)}

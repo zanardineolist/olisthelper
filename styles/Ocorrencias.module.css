@@ -583,4 +583,56 @@
 .tableContainer.loading {
   opacity: 0.6;
   pointer-events: none;
+}
+
+/* Highlight para ocorrência visitada */
+.highlightedRow {
+  animation: highlightPulse 3s ease-in-out;
+  position: relative;
+}
+
+@keyframes highlightPulse {
+  0% {
+    background-color: var(--primary-bg);
+    box-shadow: 0 0 20px rgba(10, 78, 228, 0.6);
+    transform: scale(1.01);
+  }
+  25% {
+    background-color: var(--primary-bg);
+    box-shadow: 0 0 15px rgba(10, 78, 228, 0.4);
+  }
+  50% {
+    background-color: var(--box-color2);
+    box-shadow: 0 0 10px rgba(10, 78, 228, 0.2);
+  }
+  75% {
+    background-color: var(--box-color);
+    box-shadow: 0 0 5px rgba(10, 78, 228, 0.1);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+    transform: scale(1);
+  }
+}
+
+.highlightedRow td {
+  border-left: 4px solid var(--color-primary) !important;
+  transition: all 0.3s ease;
+}
+
+/* Responsividade para highlight */
+@media (max-width: 768px) {
+  @keyframes highlightPulse {
+    0% {
+      background-color: var(--primary-bg);
+      box-shadow: 0 0 10px rgba(10, 78, 228, 0.4);
+      transform: scale(1.005);
+    }
+    100% {
+      background-color: transparent;
+      box-shadow: none;
+      transform: scale(1);
+    }
+  }
 } 

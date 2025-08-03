@@ -226,15 +226,13 @@ export default function OcorrenciaPage({ user }) {
 
   const handleGoBack = () => {
     try {
-      console.log('HandleGoBack chamado - navegando para /tools#Ocorrencias'); // Debug
-      
-      // Usar window.location.href para garantir que a âncora seja processada
-      // e que o usuário retorne exatamente para a seção de Ocorrências
-      window.location.href = '/tools#Ocorrencias';
+      // Navegar de volta incluindo o ID da ocorrência para destaque
+      // Usando searchParams para não interferir com a âncora #Ocorrencias
+      const highlightUrl = `/tools?highlight=${encodeURIComponent(id)}#Ocorrencias`;
+      window.location.href = highlightUrl;
       
     } catch (error) {
-      console.error('Erro no handleGoBack:', error);
-      // Fallback usando router em caso de erro
+      // Fallback sem highlight
       router.push('/tools#Ocorrencias');
     }
   };
