@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { Container, Typography, Button } from '@mui/material';
+import { Container, Typography, Button, Paper } from '@mui/material';
 import { FaUser, FaClock, FaGlobe, FaTag, FaHeart, FaCopy, FaShare } from 'react-icons/fa';
 import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { toast } from 'react-hot-toast';
@@ -79,7 +79,7 @@ export default function MessagePage({ user }) {
       toast.success('Conteúdo copiado para a área de transferência!');
     } catch (error) {
       console.error('Erro ao copiar:', error);
-      toast.error('Erro ao copiar conteúdo');
+      toast.error('❌ Falha ao copiar o conteúdo. Tente novamente.');
     }
   };
 
@@ -90,7 +90,7 @@ export default function MessagePage({ user }) {
       toast.success('Link da mensagem copiado!');
     } catch (error) {
       console.error('Erro ao copiar link:', error);
-      toast.error('Erro ao copiar link');
+      toast.error('❌ Falha ao copiar o link. Tente novamente.');
     }
   };
 
@@ -121,7 +121,7 @@ export default function MessagePage({ user }) {
             <Button
               variant="outlined"
               startIcon={<ArrowBackIcon />}
-              onClick={() => router.push('/tools')}
+              onClick={() => router.push('/tools#SharedMessages')}
               style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}
             >
               Voltar para ferramentas
@@ -148,7 +148,7 @@ export default function MessagePage({ user }) {
           <Button
             variant="outlined"
             startIcon={<ArrowBackIcon />}
-            onClick={() => router.push('/tools')}
+            onClick={() => router.push('/tools#SharedMessages')}
             style={{ 
               color: 'var(--color-primary)', 
               borderColor: 'var(--color-primary)',
