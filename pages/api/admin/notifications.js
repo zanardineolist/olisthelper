@@ -2,7 +2,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]';
 import { getUserPermissions } from '../../../utils/supabase/supabaseClient';
-import { supabaseAdmin } from '../../../utils/supabase/supabaseClient';
+import { getAllNotificationsForAdmin } from '../../../utils/supabase/notificationQueries';
 
 export default async function handler(req, res) {
   try {
@@ -19,40 +19,13 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
-      // Buscar todas as notificações com informações do criador
-      const { data, error } = await supabaseAdmin
-        .from('notifications')
-        .select(`
-          *,
-          users!notifications_created_by_fkey (
-            name
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Erro ao buscar notificações:', error);
-        return res.status(500).json({ error: 'Erro interno do servidor.' });
-      }
-
-      // Adicionar nome do criador
-      const notificationsWithCreator = data?.map(notification => ({
-        ...notification,
-        creator_name: notification.users?.name || 'Sistema'
-      })) || [];
-
+      // Buscar todas as notificações para administração
+      const notifications = await getAllNotificationsForAdmin();
+      
       res.status(200).json({ 
-        notifications: notificationsWithCreator,
-        total: notificationsWithCreator.length
+        notifications,
+        total: notifications.length
       });
-
-    } else if (req.method === 'PUT') {
-      // Atualizar notificação (não implementado neste caso - notificações são imutáveis)
-      res.status(405).json({ error: 'Edição de notificações não é permitida.' });
-
-    } else if (req.method === 'DELETE') {
-      // Deletar notificação (não implementado neste caso - notificações são imutáveis)
-      res.status(405).json({ error: 'Exclusão de notificações não é permitida.' });
 
     } else {
       res.status(405).json({ error: 'Método não permitido' });

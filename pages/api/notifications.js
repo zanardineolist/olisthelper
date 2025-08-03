@@ -9,14 +9,12 @@ export default async function handler(req, res) {
     try {
       // Verificar autenticação
       const session = await getServerSession(req, res, authOptions);
-      console.log('Session:', session); // Debug log
       if (!session) {
         return res.status(401).json({ error: 'Não autenticado.' });
       }
 
       // Verificar permissões de admin
       const userPermissions = await getUserPermissions(session.id);
-      console.log('User permissions:', userPermissions); // Debug log
       if (!userPermissions?.admin) {
         return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem enviar notificações.' });
       }

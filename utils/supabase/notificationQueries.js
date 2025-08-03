@@ -219,3 +219,92 @@ export async function getNotificationStats() {
     };
   }
 }
+
+/**
+ * Atualiza uma notificação existente
+ * @param {string} notificationId - UUID da notificação
+ * @param {Object} updateData - Dados para atualizar
+ * @returns {Promise<Object>} - Resultado da operação
+ */
+export async function updateNotification(notificationId, updateData) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('notifications')
+      .update({
+        ...updateData,
+        updated_at: new Date()
+      })
+      .eq('id', notificationId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error('Erro ao atualizar notificação:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Deleta uma notificação
+ * @param {string} notificationId - UUID da notificação
+ * @returns {Promise<Object>} - Resultado da operação
+ */
+export async function deleteNotification(notificationId) {
+  try {
+    // Primeiro, deletar as entradas de leitura relacionadas
+    const { error: readsError } = await supabaseAdmin
+      .from('notification_reads')
+      .delete()
+      .eq('notification_id', notificationId);
+
+    if (readsError) throw readsError;
+
+    // Depois, deletar a notificação
+    const { error } = await supabaseAdmin
+      .from('notifications')
+      .delete()
+      .eq('id', notificationId);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (error) {
+    console.error('Erro ao deletar notificação:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Busca todas as notificações para administração (incluindo metadados)
+ * @param {number} limit - Limite de resultados (padrão: 50)
+ * @param {number} offset - Offset para paginação (padrão: 0)
+ * @returns {Promise<Array>} - Lista de notificações para admin
+ */
+export async function getAllNotificationsForAdmin(limit = 50, offset = 0) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('notifications')
+      .select(`
+        *,
+        users!notifications_created_by_fkey (
+          name
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw error;
+
+    // Adicionar nome do criador
+    const notificationsWithCreator = data?.map(notification => ({
+      ...notification,
+      creator_name: notification.users?.name || 'Sistema'
+    })) || [];
+
+    return notificationsWithCreator;
+  } catch (error) {
+    console.error('Erro ao buscar notificações para admin:', error);
+    return [];
+  }
+}
