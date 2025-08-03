@@ -24,6 +24,12 @@ import {
   Paper
 } from '@mui/material';
 
+// Importando o Skeleton Loader
+import SkeletonLoader from './ui/SkeletonLoader';
+
+// Importando hooks personalizados
+import { useSearchDebounce } from '../utils/hooks/useDebounce';
+
 // Importando o React Select
 import Select from 'react-select';
 
@@ -137,6 +143,9 @@ export default function Ocorrencias({ user }) {
   const [marcadores, setMarcadores] = useState([]);
   const [statusOptions, setStatusOptions] = useState([]);
 
+  // Hook para busca em tempo real com debounce
+  const { debouncedQuery, isSearching } = useSearchDebounce(searchQuery, 300);
+
   // Verificar número de filtros ativos
   useEffect(() => {
     let count = 0;
@@ -162,8 +171,11 @@ export default function Ocorrencias({ user }) {
         // Extrair opções únicas para filtros
         extrairOpcoesDeFiltros(ocorrencias);
         
-        // Aplicar filtros iniciais
-        applyFilters(ocorrencias, '', '', '', '', '');
+        // Restaurar filtros da URL
+        const filters = restoreFiltersFromURL();
+        
+        // Aplicar filtros da URL ou filtros vazios
+        applyFilters(ocorrencias, filters.marcador, filters.status, filters.search, filters.dateFrom, filters.dateTo);
       } else {
         console.error('Erro ao buscar dados: formato inesperado');
         toast.error('Erro ao carregar os dados');
@@ -220,6 +232,48 @@ export default function Ocorrencias({ user }) {
       });
     }
   }, [loading, highlightedId, filteredData]);
+
+  // Função para atualizar URL com filtros
+  const updateURLWithFilters = (marcador, status, search, dateFrom, dateTo) => {
+    const params = new URLSearchParams();
+    
+    if (marcador) params.set('marcador', marcador);
+    if (status) params.set('status', status);
+    if (search) params.set('search', search);
+    if (dateFrom) params.set('dateFrom', dateFrom);
+    if (dateTo) params.set('dateTo', dateTo);
+    
+    // Manter parâmetro de highlight se existir
+    const currentParams = new URLSearchParams(window.location.search);
+    if (currentParams.get('highlight')) {
+      params.set('highlight', currentParams.get('highlight'));
+    }
+    
+    const newUrl = params.toString() 
+      ? `${window.location.pathname}?${params.toString()}${window.location.hash}`
+      : `${window.location.pathname}${window.location.hash}`;
+    
+    window.history.replaceState({}, '', newUrl);
+  };
+
+  // Função para restaurar filtros da URL
+  const restoreFiltersFromURL = () => {
+    const params = new URLSearchParams(window.location.search);
+    
+    const marcador = params.get('marcador') || '';
+    const status = params.get('status') || '';
+    const search = params.get('search') || '';
+    const dateFrom = params.get('dateFrom') || '';
+    const dateTo = params.get('dateTo') || '';
+    
+    setMarcadorFilter(marcador);
+    setStatusFilter(status);
+    setSearchQuery(search);
+    setDateFromFilter(dateFrom);
+    setDateToFilter(dateTo);
+    
+    return { marcador, status, search, dateFrom, dateTo };
+  };
 
   const extrairOpcoesDeFiltros = (items) => {
     if (!items || items.length === 0) return;
@@ -306,6 +360,9 @@ export default function Ocorrencias({ user }) {
     }
     
     setFilteredData(filteredItems);
+    
+    // Atualizar URL com os filtros atuais
+    updateURLWithFilters(marcadorValue, statusValue, searchValue, dateFrom, dateTo);
   };
 
   useEffect(() => {
@@ -313,6 +370,17 @@ export default function Ocorrencias({ user }) {
       applyFilters(data, marcadorFilter, statusFilter, searchQuery, dateFromFilter, dateToFilter);
     }
   }, [data]);
+
+  // Effect para busca em tempo real com debounce
+  useEffect(() => {
+    if (data && data.length > 0) {
+      // Aplicar filtros automaticamente quando debouncedQuery mudar
+      applyFilters(data, marcadorFilter, statusFilter, debouncedQuery, dateFromFilter, dateToFilter);
+      
+      // Marcar como busca ativa se houver query
+      setSearchActive(!!debouncedQuery.trim());
+    }
+  }, [debouncedQuery, data, marcadorFilter, statusFilter, dateFromFilter, dateToFilter]);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -440,6 +508,11 @@ export default function Ocorrencias({ user }) {
     setDateFromFilter('');
     setDateToFilter('');
     setSearchActive(false);
+    
+    // Limpar URL
+    const newUrl = `${window.location.pathname}${window.location.hash}`;
+    window.history.replaceState({}, '', newUrl);
+    
     applyFilters(data, '', '', '', '', '');
   };
 
@@ -789,7 +862,8 @@ export default function Ocorrencias({ user }) {
         <div className={styles.searchInputWrapper}>
           <TextField
             fullWidth
-            label="Buscar"
+            label="Buscar em tempo real..."
+            placeholder="Digite para buscar automaticamente"
             variant="outlined"
             value={searchQuery}
             onChange={handleSearchInputChange}
@@ -797,11 +871,18 @@ export default function Ocorrencias({ user }) {
             size="small"
             InputProps={{
               className: styles.inputRoot,
-              endAdornment: searchQuery ? (
-                <IconButton size="small" onClick={handleClearSearch} className={styles.iconButton}>
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              ) : null,
+              endAdornment: (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  {isSearching && (
+                    <CircularProgress size={16} thickness={4} />
+                  )}
+                  {searchQuery && (
+                    <IconButton size="small" onClick={handleClearSearch} className={styles.iconButton}>
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </div>
+              ),
               classes: { 
                 notchedOutline: styles.inputOutline 
               }
@@ -812,15 +893,16 @@ export default function Ocorrencias({ user }) {
           />
           <div className={styles.searchButtonsContainer}>
             <Button
-              variant="contained"
+              variant="outlined"
               color="primary"
               onClick={handleSearch}
               startIcon={<SearchIcon />}
-              className={`${styles.searchButton} ${styles.btnContained}`}
+              className={`${styles.searchButton} ${styles.btnOutlined}`}
               disabled={!searchQuery.trim()}
               size="medium"
+              title="Busca manual - a busca automática já está ativa"
             >
-              BUSCAR
+              BUSCAR AGORA
             </Button>
             <Badge badgeContent={filtrosAtivos} color="primary" invisible={filtrosAtivos === 0}>
               <Button
@@ -1071,10 +1153,30 @@ export default function Ocorrencias({ user }) {
 
   if (loading) {
     return (
-      <div className={styles.loadingContainer}>
-        <CircularProgress />
-        <p>Carregando ocorrências...</p>
-      </div>
+      <Container maxWidth="xl" className={styles.container}>
+        <div className={styles.pageHeader}>
+          <h1 className={styles.pageTitle}>Ocorrências</h1>
+          <p className={styles.pageDescription}>
+            Mantenha-se atualizado sobre as ocorrências existentes na operação.
+          </p>
+        </div>
+
+        {/* Skeleton para filtros */}
+        <div className={styles.searchContainer}>
+          <div className={styles.searchInputWrapper}>
+            <SkeletonLoader height="40px" width="100%" />
+            <div className={styles.searchButtonsContainer}>
+              <SkeletonLoader height="40px" width="100px" />
+              <SkeletonLoader height="40px" width="100px" />
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton para tabela */}
+        <div className={styles.tableWrapper}>
+          <SkeletonLoader variant="table" />
+        </div>
+      </Container>
     );
   }
 

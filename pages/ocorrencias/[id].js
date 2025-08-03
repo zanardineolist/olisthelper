@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getSession } from 'next-auth/react';
 import Head from 'next/head';
 import Layout from '../../components/Layout';
+import SkeletonLoader from '../../components/ui/SkeletonLoader';
 import styles from '../../styles/OcorrenciaIndividual.module.css';
 import { 
   Container,
@@ -244,12 +245,62 @@ export default function OcorrenciaPage({ user }) {
           <title>Carregando Ocorrência - Olist Helper</title>
         </Head>
         <Container maxWidth="lg" className={styles.container}>
-          <div className={styles.loadingContainer}>
-            <CircularProgress />
-            <Typography variant="h6" style={{ marginTop: '1rem' }}>
-              Carregando ocorrência...
-            </Typography>
+          {/* Header com navegação - skeleton */}
+          <div className={styles.pageHeader}>
+            <div className={styles.navigationContainer}>
+              <SkeletonLoader height="36px" width="80px" />
+              <SkeletonLoader height="36px" width="120px" />
+            </div>
+            <SkeletonLoader height="32px" width="300px" />
+            <SkeletonLoader height="16px" width="200px" />
           </div>
+
+          {/* Conteúdo principal - skeleton */}
+          <Paper className={styles.contentPaper} elevation={2}>
+            {/* Header da ocorrência */}
+            <div className={styles.modalHeader}>
+              <div className={styles.creationChipContainer}>
+                <SkeletonLoader variant="chip" width="180px" height="32px" />
+              </div>
+              
+              <div className={styles.modalChips}>
+                <div className={styles.marcadoresContainer}>
+                  <SkeletonLoader variant="chip" />
+                  <SkeletonLoader variant="chip" />
+                  <SkeletonLoader variant="chip" />
+                </div>
+              </div>
+            </div>
+
+            {/* Resumo skeleton */}
+            <div className={styles.resumoBox}>
+              <div className={styles.solutionHeader}>
+                <div className={styles.sectionTitleWrapper}>
+                  <SkeletonLoader height="20px" width="24px" />
+                  <SkeletonLoader height="20px" width="150px" />
+                </div>
+                <SkeletonLoader height="32px" width="32px" />
+              </div>
+              <Box className={styles.solutionScrollbox}>
+                <SkeletonLoader 
+                  variant="text" 
+                  lines={4} 
+                  height="16px" 
+                  spacing="8px"
+                />
+              </Box>
+            </div>
+
+            {/* Classificação skeleton */}
+            <Box className={styles.observationBox}>
+              <div className={styles.sectionTitleWrapper}>
+                <SkeletonLoader height="20px" width="24px" />
+                <SkeletonLoader height="20px" width="180px" />
+              </div>
+              <SkeletonLoader height="16px" width="200px" />
+              <SkeletonLoader height="16px" width="250px" />
+            </Box>
+          </Paper>
         </Container>
       </Layout>
     );
