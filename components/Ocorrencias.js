@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import styles from '../styles/Ocorrencias.module.css';
 import { 
   TextField, 
@@ -38,7 +39,8 @@ import {
   Schedule as ScheduleIcon,
   BugReport as BugReportIcon,
   CheckCircle as CheckCircleIcon,
-  Warning as WarningIcon
+  Warning as WarningIcon,
+  Share as ShareIcon
 } from '@mui/icons-material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import axios from 'axios';
@@ -115,6 +117,7 @@ const parseDataBrasileira = (dateString) => {
 };
 
 export default function Ocorrencias({ user }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -317,6 +320,28 @@ export default function Ocorrencias({ user }) {
     );
   };
 
+  const handleShareOcorrencia = (item) => {
+    if (item.Id && item.Id.trim() !== '') {
+      const baseUrl = window.location.origin;
+      const shareUrl = `${baseUrl}/ocorrencias/${encodeURIComponent(item.Id)}`;
+      
+      navigator.clipboard.writeText(shareUrl).then(
+        () => {
+          setCopySuccess('Link compartilhável copiado para a área de transferência!');
+          setSnackbarOpen(true);
+        },
+        (err) => {
+          console.error('Não foi possível copiar link: ', err);
+          setCopySuccess('Falha ao copiar link!');
+          setSnackbarOpen(true);
+        }
+      );
+    } else {
+      setCopySuccess('Esta ocorrência não possui um ID válido para compartilhamento!');
+      setSnackbarOpen(true);
+    }
+  };
+
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -337,6 +362,16 @@ export default function Ocorrencias({ user }) {
   const handleOpenModal = (item) => {
     setModalData(item);
     setModalOpen(true);
+  };
+
+  const handleViewOcorrencia = (item) => {
+    if (item.Id && item.Id.trim() !== '') {
+      // Navegar para a página individual da ocorrência
+      router.push(`/ocorrencias/${encodeURIComponent(item.Id)}`);
+    } else {
+      // Fallback para o modal se não houver ID
+      handleOpenModal(item);
+    }
   };
 
   const handleCloseModal = () => {
@@ -805,7 +840,7 @@ export default function Ocorrencias({ user }) {
                       variant="outlined"
                       color="primary"
                       size="small"
-                      onClick={() => handleOpenModal(item)}
+                      onClick={() => handleViewOcorrencia(item)}
                       startIcon={<VisibilityIcon />}
                       className={styles.viewButton}
                     >
@@ -1009,6 +1044,19 @@ export default function Ocorrencias({ user }) {
               {renderModalContent()}
             </DialogContent>
             <DialogActions className={styles.dialogActions}>
+              <Button 
+                onClick={() => handleShareOcorrencia(modalData)}
+                className={styles.dialogButton}
+                variant="contained"
+                startIcon={<ShareIcon />}
+                sx={{ 
+                  backgroundColor: 'var(--color-primary)',
+                  '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
+                  marginRight: 'auto'
+                }}
+              >
+                Compartilhar
+              </Button>
               <Button 
                 onClick={handleCloseModal} 
                 className={styles.dialogButton}

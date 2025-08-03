@@ -48,7 +48,7 @@ export default async function handler(req, res) {
         }
         
         return {
-          // Coluna A ignorada (ID do Slack)
+          Id: paddedRow[0] || '',                // Coluna A (ID do Slack)
           DataHora: paddedRow[1] || '',          // Coluna B
           Problema: paddedRow[2] || '',          // Coluna C
           // Coluna D ignorada (responsável)
