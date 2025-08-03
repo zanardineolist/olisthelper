@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaHeart, FaRegHeart, FaCopy, FaEdit, FaTrash, FaMagic } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaCopy, FaEdit, FaTrash, FaMagic, FaShare } from 'react-icons/fa';
 import { useMessageContext } from './MessageContext';
 import styles from '../../styles/shared-messages/Actions.module.css';
 
@@ -10,7 +10,8 @@ const MessageActions = ({ message }) => {
     handleCopyMessage, 
     handleEditMessage, 
     handleDeleteMessage, 
-    handleGeminiSuggestion 
+    handleGeminiSuggestion,
+    handleShareMessage
   } = useMessageContext();
 
   // Verificar se o usuário atual é o autor da mensagem
@@ -44,6 +45,18 @@ const MessageActions = ({ message }) => {
           <span className={styles.actionCount}>{message.copy_count}</span>
         )}
       </button>
+
+      {/* Botão de Compartilhar - apenas para mensagens públicas */}
+      {message.is_public && (
+        <button
+          onClick={() => handleShareMessage(message)}
+          className={styles.actionButton}
+          aria-label="Compartilhar mensagem"
+          title="Compartilhar mensagem"
+        >
+          <FaShare />
+        </button>
+      )}
 
       {/* Ações exclusivas do autor */}
       {isAuthor && (

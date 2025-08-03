@@ -482,6 +482,43 @@ const SharedMessages = ({ user }) => {
     }
   };
 
+  // Compartilhar mensagem
+  const handleShareMessage = (message) => {
+    if (!message.is_public) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção',
+        text: 'Apenas mensagens públicas podem ser compartilhadas.',
+        confirmButtonColor: 'var(--color-primary)'
+      });
+      return;
+    }
+
+    const baseUrl = window.location.origin;
+    const shareUrl = `${baseUrl}/shared-messages/${message.id}`;
+    
+    navigator.clipboard.writeText(shareUrl).then(
+      () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Link copiado!',
+          text: 'O link da mensagem foi copiado para a área de transferência.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      },
+      (err) => {
+        console.error('Não foi possível copiar link: ', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Falha ao copiar o link. Tente novamente.',
+          confirmButtonColor: 'var(--color-primary)'
+        });
+      }
+    );
+  };
+
   // Atualizar conteúdo
   const handleUpdateContent = async (messageId, newContent) => {
     try {
@@ -552,6 +589,7 @@ const SharedMessages = ({ user }) => {
     handleEditMessage,
     handleDeleteMessage,
     handleGeminiSuggestion,
+    handleShareMessage,
     setCurrentPage,
     toggleViewMode,
     setSortOrder: handleSortOrderChange // Usar a função aprimorada

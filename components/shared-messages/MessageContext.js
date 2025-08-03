@@ -33,6 +33,7 @@ const MessageContext = createContext({
   handleEditMessage: () => {},
   handleDeleteMessage: () => {},
   handleGeminiSuggestion: () => {},
+  handleShareMessage: () => {},
 });
 
 // Hook personalizado para usar o contexto

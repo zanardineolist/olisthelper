@@ -227,6 +227,44 @@ export async function deleteResponse(responseId) {
 }
 
 /**
+ * Busca uma mensagem específica por ID (para compartilhamento)
+ * @param {string} messageId - ID da mensagem
+ * @param {string} userId - ID do usuário (opcional, para verificar favoritos)
+ * @returns {Promise<Object|null>} Dados da mensagem pública
+ */
+export async function getMessageById(messageId, userId = null) {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('shared_responses')
+      .select(`
+        *,
+        users (
+          name
+        ),
+        favorites:user_favorites!left (
+          user_id
+        ),
+        favorites_count:user_favorites(count)
+      `)
+      .eq('id', messageId)
+      .eq('is_public', true) // Só mensagens públicas podem ser compartilhadas
+      .single();
+
+    if (error) throw error;
+
+    return {
+      ...data,
+      author_name: data.users?.name || 'Usuário desconhecido',
+      isFavorite: userId ? data.favorites?.some(fav => fav.user_id === userId) || false : false,
+      favorites_count: data.favorites_count?.[0]?.count || 0
+    };
+  } catch (error) {
+    console.error('Erro ao buscar mensagem:', error);
+    return null;
+  }
+}
+
+/**
  * Adiciona/Remove um favorito
  */
 export async function toggleFavorite(userId, responseId) {
