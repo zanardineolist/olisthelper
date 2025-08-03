@@ -585,28 +585,48 @@
   pointer-events: none;
 }
 
-/* Highlight para ocorrência visitada */
+/* Highlight moderno para ocorrência visitada */
 .highlightedRow {
   position: relative;
-  overflow: hidden;
+  animation: modernHighlight 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transition: all 0.3s ease;
 }
 
+/* Efeito principal: glow pulsante moderno */
 .highlightedRow::before {
   content: '';
   position: absolute;
-  top: 0;
-  right: 100%;
-  width: 100%;
-  height: 100%;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
   background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--primary-bg) 30%,
-    var(--color-primary) 50%,
-    var(--primary-bg) 70%,
-    transparent 100%
+    135deg,
+    rgba(10, 78, 228, 0.15) 0%,
+    rgba(10, 78, 228, 0.08) 50%,
+    rgba(10, 78, 228, 0.15) 100%
   );
-  animation: highlightSweep 3s ease-out forwards;
+  border-radius: 8px;
+  animation: glowPulse 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Overlay sutil com gradiente */
+.highlightedRow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 78, 228, 0.06) 0%,
+    rgba(10, 78, 228, 0.02) 50%,
+    rgba(10, 78, 228, 0.06) 100%
+  );
+  animation: fadeOverlay 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   z-index: 1;
   pointer-events: none;
 }
@@ -616,68 +636,108 @@
   z-index: 2;
 }
 
-@keyframes highlightSweep {
+/* Animação principal do highlight */
+@keyframes modernHighlight {
   0% {
-    right: 100%;
-    opacity: 0;
+    transform: scale(1);
+    box-shadow: 
+      0 0 0 0 rgba(10, 78, 228, 0.4),
+      0 4px 12px rgba(0, 0, 0, 0.1);
   }
-  10% {
-    opacity: 1;
+  15% {
+    transform: scale(1.01);
+    box-shadow: 
+      0 0 0 4px rgba(10, 78, 228, 0.15),
+      0 8px 24px rgba(10, 78, 228, 0.2);
   }
   50% {
-    right: -20%;
-    opacity: 1;
+    transform: scale(1);
+    box-shadow: 
+      0 0 0 2px rgba(10, 78, 228, 0.1),
+      0 6px 18px rgba(10, 78, 228, 0.15);
   }
   100% {
-    right: -100%;
+    transform: scale(1);
+    box-shadow: 
+      0 0 0 0 rgba(10, 78, 228, 0),
+      0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Animação do glow */
+@keyframes glowPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  80% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+}
+
+/* Animação do overlay */
+@keyframes fadeOverlay {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.4;
+  }
+  100% {
     opacity: 0;
   }
 }
 
-/* Efeito adicional: borda sutil durante a animação */
-.highlightedRow {
-  animation: borderHighlight 3s ease-out;
-}
-
-@keyframes borderHighlight {
-  0% {
+/* Acessibilidade: Reduzir animações para usuários que preferem */
+@media (prefers-reduced-motion: reduce) {
+  .highlightedRow {
+    animation: none;
+    background-color: rgba(10, 78, 228, 0.08);
     border-left: 3px solid var(--color-primary);
-  }
-  50% {
-    border-left: 3px solid var(--color-primary);
-  }
-  100% {
-    border-left: 3px solid transparent;
-  }
-}
-
-/* Responsividade para highlight */
-@media (max-width: 768px) {
-  .highlightedRow::before {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      var(--primary-bg) 40%,
-      var(--primary-bg) 60%,
-      transparent 100%
-    );
   }
   
-  @keyframes highlightSweep {
+  .highlightedRow::before,
+  .highlightedRow::after {
+    display: none;
+  }
+}
+
+/* Responsividade para highlight em mobile */
+@media (max-width: 768px) {
+  .highlightedRow {
+    animation-duration: 2s; /* Animação mais rápida em mobile */
+  }
+  
+  @keyframes modernHighlight {
     0% {
-      right: 100%;
-      opacity: 0;
+      transform: scale(1);
+      box-shadow: 
+        0 0 0 0 rgba(10, 78, 228, 0.3),
+        0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    15% {
-      opacity: 1;
-    }
-    60% {
-      right: -30%;
-      opacity: 1;
+    20% {
+      transform: scale(1.005); /* Escala menor em mobile */
+      box-shadow: 
+        0 0 0 2px rgba(10, 78, 228, 0.12),
+        0 4px 16px rgba(10, 78, 228, 0.15);
     }
     100% {
-      right: -100%;
-      opacity: 0;
+      transform: scale(1);
+      box-shadow: 
+        0 0 0 0 rgba(10, 78, 228, 0),
+        0 2px 8px rgba(0, 0, 0, 0.1);
     }
   }
-} 
+}

@@ -190,20 +190,36 @@ export default function Ocorrencias({ user }) {
     if (highlightParam) {
       setHighlightedId(highlightParam);
       
-      // Remover o parâmetro da URL após 3 segundos (duração da animação)
-      setTimeout(() => {
+      // Remover o highlight após a duração da animação (2.5s)
+      const highlightTimeout = setTimeout(() => {
         setHighlightedId(null);
-        // Limpar o parâmetro da URL sem recarregar a página
+      }, 2500);
+      
+      // Limpar o parâmetro da URL após um delay menor
+      const urlCleanTimeout = setTimeout(() => {
         const newUrl = window.location.pathname + window.location.hash;
         window.history.replaceState({}, '', newUrl);
-      }, 3000);
+      }, 1000);
       
-      // Scroll para a ocorrência destacada após os dados carregarem
-      setTimeout(() => {
-        scrollToHighlightedItem(highlightParam);
-      }, 500);
+      // Cleanup function para cancelar timeouts se componente desmontar
+      return () => {
+        clearTimeout(highlightTimeout);
+        clearTimeout(urlCleanTimeout);
+      };
     }
   }, []);
+
+  // Effect para scroll quando dados carregarem e houver highlight
+  useEffect(() => {
+    if (!loading && highlightedId && filteredData.length > 0) {
+      // Aguardar um frame para garantir que a DOM foi atualizada
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          scrollToHighlightedItem(highlightedId);
+        }, 100);
+      });
+    }
+  }, [loading, highlightedId, filteredData]);
 
   const extrairOpcoesDeFiltros = (items) => {
     if (!items || items.length === 0) return;
@@ -367,15 +383,46 @@ export default function Ocorrencias({ user }) {
       const targetElement = document.querySelector(`[data-ocorrencia-id="${highlightId}"]`);
       
       if (targetElement) {
-        // Scroll suave até o elemento
-        targetElement.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-          inline: 'nearest'
+        // Calcular posição para centralizar melhor
+        const elementRect = targetElement.getBoundingClientRect();
+        const absoluteElementTop = elementRect.top + window.pageYOffset;
+        const middle = absoluteElementTop - (window.innerHeight / 2) + (elementRect.height / 2);
+        
+        // Scroll suave com posicionamento personalizado
+        window.scrollTo({
+          top: Math.max(0, middle),
+          behavior: 'smooth'
         });
+        
+        // Adicionar um foco temporário para acessibilidade
+        const originalTabIndex = targetElement.tabIndex;
+        targetElement.tabIndex = -1;
+        targetElement.focus({ preventScroll: true });
+        
+        // Restaurar tabIndex após 3 segundos
+        setTimeout(() => {
+          if (originalTabIndex === -1) {
+            targetElement.removeAttribute('tabindex');
+          } else {
+            targetElement.tabIndex = originalTabIndex;
+          }
+          targetElement.blur();
+        }, 3000);
       }
     } catch (error) {
-      // Silencioso em caso de erro - não impacta funcionalidade principal
+      // Fallback para scroll simples
+      try {
+        const targetElement = document.querySelector(`[data-ocorrencia-id="${highlightId}"]`);
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'nearest'
+          });
+        }
+      } catch (fallbackError) {
+        // Silencioso em caso de erro - não impacta funcionalidade principal
+      }
     }
   };
 
