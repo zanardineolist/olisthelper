@@ -402,63 +402,71 @@
 .itemCard {
   background: var(--box-color2);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .itemCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-color: var(--color-primary);
 }
 
 .itemHeader {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .itemInfo {
   flex: 1;
+  min-width: 0;
 }
 
 .itemTitle {
   color: var(--title-color);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.3;
 }
 
 .itemMeta {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.75rem;
   align-items: center;
+  margin-top: 0.5rem;
 }
 
 .metaItem {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.85rem;
+  gap: 0.3rem;
+  font-size: 0.8rem;
   color: var(--text-color);
+  opacity: 0.9;
 }
 
 .metaIcon {
   color: var(--color-primary);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
+  opacity: 0.8;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
 }
 
 .aviso {
@@ -488,40 +496,62 @@
 
 .itemActions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  align-items: center;
 }
 
 .editButton {
   color: var(--color-primary) !important;
-  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.1) !important;
-  transition: all 0.3s ease !important;
+  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.08) !important;
+  transition: all 0.2s ease !important;
+  padding: 6px !important;
+  border-radius: 6px !important;
+  min-width: auto !important;
+  width: 32px !important;
+  height: 32px !important;
 }
 
 .editButton:hover {
-  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.2) !important;
-  transform: scale(1.1) !important;
+  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.15) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.editButton svg {
+  font-size: 14px !important;
 }
 
 .deleteButton {
   color: #dc2626 !important;
-  background: rgba(220, 38, 38, 0.1) !important;
-  transition: all 0.3s ease !important;
+  background: rgba(220, 38, 38, 0.08) !important;
+  transition: all 0.2s ease !important;
+  padding: 6px !important;
+  border-radius: 6px !important;
+  min-width: auto !important;
+  width: 32px !important;
+  height: 32px !important;
 }
 
 .deleteButton:hover {
-  background: rgba(220, 38, 38, 0.2) !important;
-  transform: scale(1.1) !important;
+  background: rgba(220, 38, 38, 0.15) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.deleteButton svg {
+  font-size: 14px !important;
 }
 
 .itemContent {
-  margin: 1rem 0;
+  margin: 0.75rem 0;
   color: var(--text-color);
-  line-height: 1.6;
+  line-height: 1.5;
+  font-size: 0.9rem;
 }
 
 .itemFooter {
-  margin-top: 1rem;
-  padding-top: 1rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
   border-top: 1px solid var(--color-border);
 }
 
@@ -815,7 +845,7 @@
 
 /* Processing State for Cards */
 .processing {
-  opacity: 0.7;
+  opacity: 0.8;
   pointer-events: none;
   position: relative;
 }
@@ -827,14 +857,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.1);
-  border-radius: 12px;
+  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.05);
+  border-radius: 8px;
   animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.1; }
-  50% { opacity: 0.3; }
+  0%, 100% { opacity: 0.05; }
+  50% { opacity: 0.15; }
 }
 
 /* Enhanced Dialog Styles */
@@ -853,35 +883,41 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.1);
+  background: rgba(var(--color-primary-rgb, 10, 78, 228), 0.08);
   color: var(--color-primary);
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 .dialogTitle {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 600;
   color: var(--title-color);
 }
 
 .dialogSubtitle {
   margin: 4px 0 0 0;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--color-primary);
   font-weight: 500;
 }
 
 .closeButton {
   transition: all 0.2s ease !important;
+  padding: 6px !important;
+  border-radius: 6px !important;
 }
 
 .closeButton:hover {
-  background-color: rgba(var(--color-primary-rgb, 10, 78, 228), 0.1) !important;
-  transform: scale(1.1) !important;
+  background-color: rgba(var(--color-primary-rgb, 10, 78, 228), 0.08) !important;
+  transform: none !important;
+}
+
+.closeButton svg {
+  font-size: 16px !important;
 }
 
 /* Edit Form Styles */
@@ -960,12 +996,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: rgba(220, 38, 38, 0.1);
+  background: rgba(220, 38, 38, 0.08);
   color: #dc2626;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
 }
 
 .deleteMessage {
@@ -1042,8 +1078,37 @@
   }
 
   .deleteIcon {
-    width: 50px;
-    height: 50px;
-    font-size: 1.3rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .dialogIcon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .editButton, .deleteButton {
+    width: 28px !important;
+    height: 28px !important;
+    padding: 4px !important;
+  }
+
+  .editButton svg, .deleteButton svg {
+    font-size: 12px !important;
+  }
+
+  .itemCard {
+    padding: 1rem;
+  }
+
+  .itemMeta {
+    gap: 0.5rem;
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
   }
 }
