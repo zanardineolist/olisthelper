@@ -213,16 +213,31 @@ export default function OcorrenciaPage({ user }) {
 
   const handleShareLink = () => {
     const currentUrl = window.location.href;
-    handleCopyToClipboard(currentUrl);
-    toast.success('Link compartilhável copiado!');
+    navigator.clipboard.writeText(currentUrl).then(
+      () => {
+        toast.success('🔗 Link da ocorrência copiado! Agora você pode compartilhar com sua equipe.');
+      },
+      (err) => {
+        console.error('Não foi possível copiar link: ', err);
+        toast.error('❌ Falha ao copiar o link. Tente novamente.');
+      }
+    );
   };
 
   const handleGoBack = () => {
-    // Verificar se há histórico para voltar, senão vai para a página de ocorrências
-    if (window.history.length > 1) {
+    // Verificar se o referrer é da mesma origem e contém '/tools'
+    const referrer = document.referrer;
+    const currentOrigin = window.location.origin;
+    
+    if (referrer && referrer.startsWith(currentOrigin) && referrer.includes('/tools')) {
+      // Se veio de /tools, volta para lá com a âncora das ocorrências
+      router.push('/tools#Ocorrencias');
+    } else if (window.history.length > 1) {
+      // Se há histórico de navegação, volta para a página anterior
       router.back();
     } else {
-      router.push('/tools'); // ou onde estiver localizada a página de ocorrências
+      // Fallback: vai para /tools com âncora das ocorrências
+      router.push('/tools#Ocorrencias');
     }
   };
 
@@ -232,7 +247,17 @@ export default function OcorrenciaPage({ user }) {
         <Head>
           <title>Carregando Ocorrência - Olist Helper</title>
         </Head>
-        <Container maxWidth="lg" className={styles.container}>
+        <Container 
+          maxWidth="lg" 
+          className={styles.container}
+          sx={{
+            backgroundColor: 'var(--background-color)',
+            color: 'var(--text-color)',
+            minHeight: '100vh',
+            paddingTop: '2rem',
+            paddingBottom: '2rem'
+          }}
+        >
           <div className={styles.loadingContainer}>
             <CircularProgress />
             <Typography variant="h6" style={{ marginTop: '1rem' }}>
@@ -250,7 +275,17 @@ export default function OcorrenciaPage({ user }) {
         <Head>
           <title>Erro - Olist Helper</title>
         </Head>
-        <Container maxWidth="lg" className={styles.container}>
+        <Container 
+          maxWidth="lg" 
+          className={styles.container}
+          sx={{
+            backgroundColor: 'var(--background-color)',
+            color: 'var(--text-color)',
+            minHeight: '100vh',
+            paddingTop: '2rem',
+            paddingBottom: '2rem'
+          }}
+        >
           <Alert severity="error" style={{ marginTop: '2rem' }}>
             {error}
           </Alert>
@@ -273,7 +308,17 @@ export default function OcorrenciaPage({ user }) {
         <Head>
           <title>Ocorrência não encontrada - Olist Helper</title>
         </Head>
-        <Container maxWidth="lg" className={styles.container}>
+        <Container 
+          maxWidth="lg" 
+          className={styles.container}
+          sx={{
+            backgroundColor: 'var(--background-color)',
+            color: 'var(--text-color)',
+            minHeight: '100vh',
+            paddingTop: '2rem',
+            paddingBottom: '2rem'
+          }}
+        >
           <Alert severity="warning" style={{ marginTop: '2rem' }}>
             Ocorrência não encontrada
           </Alert>
@@ -299,7 +344,17 @@ export default function OcorrenciaPage({ user }) {
         <meta name="description" content={`Detalhes da ocorrência: ${ocorrencia.Problema}`} />
       </Head>
       
-      <Container maxWidth="lg" className={styles.container}>
+      <Container 
+        maxWidth="lg" 
+        className={styles.container}
+        sx={{
+          backgroundColor: 'var(--background-color)',
+          color: 'var(--text-color)',
+          minHeight: '100vh',
+          paddingTop: '2rem',
+          paddingBottom: '2rem'
+        }}
+      >
         {/* Header com navegação */}
         <div className={styles.pageHeader}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
@@ -338,7 +393,17 @@ export default function OcorrenciaPage({ user }) {
         </div>
 
         {/* Conteúdo da ocorrência */}
-        <Paper className={styles.dialogContent} elevation={2} style={{ padding: '2rem', borderRadius: '16px' }}>
+        <Paper 
+          className={styles.dialogContent} 
+          elevation={2} 
+          sx={{ 
+            padding: '2rem', 
+            borderRadius: '16px',
+            backgroundColor: 'var(--box-color)',
+            color: 'var(--text-color)',
+            border: '1px solid var(--color-border)'
+          }}
+        >
           {/* Header da ocorrência */}
           <div className={styles.modalHeader}>
             <div className={styles.creationChipContainer}>
@@ -351,6 +416,7 @@ export default function OcorrenciaPage({ user }) {
                   backgroundColor: 'var(--box-color2)',
                   color: 'var(--title-color)',
                   fontWeight: 'normal',
+                  border: '1px solid var(--color-border)',
                   '& .MuiChip-icon': {
                     color: 'var(--color-primary)'
                   }
@@ -365,9 +431,13 @@ export default function OcorrenciaPage({ user }) {
               {ocorrencia.Modulo && (
                 <Chip 
                   label={ocorrencia.Modulo} 
-                  color="primary" 
                   size="small"
                   className={styles.modalChip}
+                  sx={{
+                    backgroundColor: 'var(--primary-bg)',
+                    color: 'var(--primary-color)',
+                    border: '1px solid var(--primary-color)'
+                  }}
                 />
               )}
               <Chip 
@@ -384,13 +454,15 @@ export default function OcorrenciaPage({ user }) {
                 <Chip 
                   icon={<CheckCircleIcon fontSize="small" />}
                   label={`Corrigido em: ${formatBrazilianDate(ocorrencia.DataCorrecao)}`} 
-                  color="success"
                   size="small"
                   className={styles.modalChip}
-                  style={{
+                  sx={{
                     backgroundColor: 'var(--excellent-bg)',
                     color: 'var(--excellent-color)',
-                    borderColor: 'var(--excellent-color)'
+                    border: '1px solid var(--excellent-color)',
+                    '& .MuiChip-icon': {
+                      color: 'var(--excellent-color)'
+                    }
                   }}
                 />
               )}

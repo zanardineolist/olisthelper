@@ -327,18 +327,15 @@ export default function Ocorrencias({ user }) {
       
       navigator.clipboard.writeText(shareUrl).then(
         () => {
-          setCopySuccess('Link compartilhável copiado para a área de transferência!');
-          setSnackbarOpen(true);
+          toast.success('🔗 Link da ocorrência copiado! Compartilhe com sua equipe através do link direto.');
         },
         (err) => {
           console.error('Não foi possível copiar link: ', err);
-          setCopySuccess('Falha ao copiar link!');
-          setSnackbarOpen(true);
+          toast.error('❌ Falha ao copiar o link. Tente novamente.');
         }
       );
     } else {
-      setCopySuccess('Esta ocorrência não possui um ID válido para compartilhamento!');
-      setSnackbarOpen(true);
+      toast.warning('⚠️ Esta ocorrência não possui um ID válido para compartilhamento.');
     }
   };
 
