@@ -3,6 +3,7 @@ import '../styles/globals.css';
 import '../styles/shared-messages/variables.css';
 import { SessionProvider, useSession } from 'next-auth/react';
 import { LoadingProvider } from '../components/LoadingIndicator';
+import { NotificationProvider } from '../contexts/NotificationContext';
 import { useRouter } from 'next/router';
 import { useEffect, useRef } from 'react';
 
@@ -138,9 +139,11 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
   return (
     <SessionProvider session={session}>
       <LoadingProvider>
-        <TrackingWrapper>
-          <Component {...pageProps} />
-        </TrackingWrapper>
+        <NotificationProvider>
+          <TrackingWrapper>
+            <Component {...pageProps} />
+          </TrackingWrapper>
+        </NotificationProvider>
       </LoadingProvider>
     </SessionProvider>
   );

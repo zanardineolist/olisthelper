@@ -7,15 +7,25 @@ import { FaBell, FaCheckDouble, FaCheck } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import _ from 'lodash';
+import { useNotifications } from '../contexts/NotificationContext';
 
 export default function Navbar({ user, isSidebarCollapsed }) {
-  const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [topNotification, setTopNotification] = useState(null);
   const router = useRouter();
   const notificationRef = useRef(null);
   const navbarRef = useRef(null);
+  
+  // Usar contexto de notificações
+  const { 
+    notifications, 
+    loading: isLoading, 
+    unreadCount, 
+    bellNotifications, 
+    topNotifications, 
+    markAsRead, 
+    markMultipleAsRead 
+  } = useNotifications();
 
   // Handle click outside
   useEffect(() => {
@@ -32,59 +42,22 @@ export default function Navbar({ user, isSidebarCollapsed }) {
     };
   }, []);
 
-  // Buscar notificações do Supabase
-  const fetchNotifications = async (type = 'bell') => {
-    if (!user?.id) return;
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/notifications?notificationType=${type}&limit=20`);
-      if (response.ok) {
-        const data = await response.json();
-        
-        if (type === 'bell') {
-          setNotifications(data.notifications || []);
-        } else if (type === 'top') {
-          const unreadTopNotification = data.notifications?.find(n => !n.read);
-          setTopNotification(unreadTopNotification || null);
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao buscar notificações:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Carregar notificações quando componente montar
+  // Atualizar notificação do topo baseada no contexto
   useEffect(() => {
-    if (user?.id) {
-      fetchNotifications('bell');  // Notificações do sino
-      fetchNotifications('top');   // Notificações do topo
+    if (topNotifications.length > 0) {
+      setTopNotification(topNotifications[0]);
+    } else {
+      setTopNotification(null);
     }
-  }, [user?.id]);
+  }, [topNotifications]);
 
-  // Marcar notificação individual como lida
+  // Marcar notificação individual como lida (usa contexto)
   const handleMarkAsRead = async (notificationId) => {
-    try {
-      const response = await fetch('/api/notifications/mark-read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notificationId })
-      });
-
-      if (response.ok) {
-        // Atualizar estado local
-        setNotifications(prevNotifications =>
-          prevNotifications.map(notification =>
-            notification.id === notificationId 
-              ? { ...notification, read: true, read_at: new Date().toISOString() }
-              : notification
-          )
-        );
-      }
-    } catch (error) {
-      console.error('Erro ao marcar notificação como lida:', error);
+    await markAsRead(notificationId);
+    
+    // Atualizar topNotification se necessário
+    if (topNotification && topNotification.id === notificationId) {
+      setTopNotification(null);
     }
   };
 
@@ -92,38 +65,17 @@ export default function Navbar({ user, isSidebarCollapsed }) {
     setShowNotifications(prev => !prev);
   };
 
-  // Marcar todas as notificações como lidas
+  // Marcar todas as notificações como lidas (usa contexto)
   const markAllAsRead = async () => {
-    const unreadNotificationsIds = notifications
-      .filter(notification => !notification.read)
-      .map(notification => notification.id);
-
+    const unreadNotificationsIds = bellNotifications.map(notification => notification.id);
+    
     if (unreadNotificationsIds.length > 0) {
-      try {
-        const response = await fetch('/api/notifications/mark-read', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notificationIds: unreadNotificationsIds })
-        });
-
-        if (response.ok) {
-          // Atualizar estado local
-          setNotifications(prevNotifications =>
-            prevNotifications.map(notification => ({ 
-              ...notification, 
-              read: true, 
-              read_at: new Date().toISOString() 
-            }))
-          );
-        }
-      } catch (error) {
-        console.error('Erro ao marcar notificações como lidas:', error);
-      }
+      await markMultipleAsRead(unreadNotificationsIds);
     }
   };
 
-  const unreadNotificationsCount = notifications.filter(notification => !notification.read).length;
-  const sortedNotifications = [...notifications].sort((a, b) => 
+  // Usar notificações do sino do contexto
+  const sortedNotifications = [...bellNotifications].sort((a, b) => 
     new Date(b.created_at) - new Date(a.created_at)
   );
 
@@ -134,19 +86,8 @@ export default function Navbar({ user, isSidebarCollapsed }) {
 
   const handleCloseTopNotification = async () => {
     if (topNotification) {
-      try {
-        const response = await fetch('/api/notifications/mark-read', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notificationId: topNotification.id })
-        });
-
-        if (response.ok) {
-          setTopNotification(null);
-        }
-      } catch (error) {
-        console.error('Erro ao marcar notificação do topo como lida:', error);
-      }
+      await markAsRead(topNotification.id);
+      setTopNotification(null);
     }
   };
 
@@ -209,9 +150,9 @@ export default function Navbar({ user, isSidebarCollapsed }) {
             <div className={styles.notificationsWrapper}>
               <button className={styles.notificationToggle} onClick={toggleNotifications}>
                 <FaBell />
-                {unreadNotificationsCount > 0 && (
+                {unreadCount > 0 && (
                   <span className={styles.notificationCount}>
-                    {unreadNotificationsCount}
+                    {unreadCount}
                   </span>
                 )}
               </button>
@@ -226,7 +167,7 @@ export default function Navbar({ user, isSidebarCollapsed }) {
                         {sortedNotifications.map((notification) => (
                           <li
                             key={notification.id}
-                            className={`${styles.notificationItem} ${notification.read ? styles.read : ''}`}
+                            className={`${styles.notificationItem} ${notification.is_read ? styles.read : ''}`}
                           >
                             <div className={styles.notificationContent}>
                               <strong>{notification.title}</strong>
@@ -236,7 +177,7 @@ export default function Navbar({ user, isSidebarCollapsed }) {
                               </span>
                             </div>
                             <div className={styles.markAsReadIndicator}>
-                              {notification.read ? (
+                              {notification.is_read ? (
                                 <FaCheckDouble className={styles.checkIconDouble} title="Lido" />
                               ) : (
                                 <div 

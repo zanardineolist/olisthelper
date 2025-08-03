@@ -155,7 +155,18 @@ export default function AdminNotificationsPage({ user }) {
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
   const [editSummary, setEditSummary] = useState('');
-  const [editVersion, setEditVersion] = useState(''); 
+  const [editVersion, setEditVersion] = useState('');
+  
+    // Toast notifications
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  // Função para mostrar toast
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast({ show: false, message: '', type: 'success' });
+    }, 5000);
+  };
 
   const handleProfileChange = (event) => {
     setSelectedProfiles({
@@ -361,7 +372,8 @@ export default function AdminNotificationsPage({ user }) {
       });
 
       if (response.ok) {
-        alert('Item atualizado com sucesso!');
+        const itemType = type === 'notification' ? 'Notificação' : 'Patch Note';
+        showToast(`${itemType} atualizado com sucesso!`, 'success');
         setEditDialog({ open: false, type: null, item: null });
         // Recarregar lista
         if (type === 'notification') {
@@ -374,7 +386,8 @@ export default function AdminNotificationsPage({ user }) {
       }
     } catch (error) {
       console.error('Erro ao salvar edição:', error);
-      alert('Erro ao salvar edição');
+      const itemType = editDialog.type === 'notification' ? 'notificação' : 'patch note';
+      showToast(`Erro ao atualizar ${itemType}. Tente novamente.`, 'error');
     }
   };
 
@@ -389,7 +402,8 @@ export default function AdminNotificationsPage({ user }) {
       });
 
       if (response.ok) {
-        alert('Item excluído com sucesso!');
+        const itemType = type === 'notification' ? 'Notificação' : 'Patch Note';
+        showToast(`${itemType} excluído com sucesso!`, 'success');
         setDeleteDialog({ open: false, type: null, item: null });
         // Recarregar lista
         if (type === 'notification') {
@@ -402,7 +416,8 @@ export default function AdminNotificationsPage({ user }) {
       }
     } catch (error) {
       console.error('Erro ao excluir:', error);
-      alert('Erro ao excluir item');
+      const itemType = deleteDialog.type === 'notification' ? 'notificação' : 'patch note';
+      showToast(`Erro ao excluir ${itemType}. Tente novamente.`, 'error');
     }
   };
 
@@ -1045,6 +1060,19 @@ Exemplo de uso:
               </Button>
             </DialogActions>
           </Dialog>
+
+          {/* Toast Notification */}
+          {toast.show && (
+            <div className={`${adminStyles.toast} ${adminStyles[toast.type]}`}>
+              <span className={adminStyles.toastIcon}>
+                {toast.type === 'success' && '✅'}
+                {toast.type === 'error' && '❌'}
+                {toast.type === 'warning' && '⚠️'}
+                {toast.type === 'info' && 'ℹ️'}
+              </span>
+              {toast.message}
+            </div>
+          )}
         </ThemeProvider>
       </main>
     </Layout>

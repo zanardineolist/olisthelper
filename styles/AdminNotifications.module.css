@@ -590,3 +590,146 @@
 }
 
 /* Theme adjustments are automatic with CSS variables */
+
+/* Dialogs */
+.dialogHeader {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+.dialogContent {
+  min-width: 400px;
+  background: var(--background-color);
+  color: var(--text-color);
+}
+
+.dialogContent :global(.MuiDialog-paper) {
+  background-color: var(--background-color) !important;
+  color: var(--text-color) !important;
+}
+
+.warningText {
+  color: #f44336;
+  font-weight: 500;
+  margin: 8px 0;
+  padding: 12px;
+  background-color: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 8px;
+}
+
+/* Toast Notifications */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  z-index: 9999;
+  animation: slideIn 0.3s ease-out;
+  box-shadow: var(--shadow-lg);
+  min-width: 300px;
+}
+
+.toast.success {
+  background-color: #4caf50;
+  border-left: 4px solid #2e7d32;
+}
+
+.toast.error {
+  background-color: #f44336;
+  border-left: 4px solid #c62828;
+}
+
+.toast.warning {
+  background-color: #ff9800;
+  border-left: 4px solid #ef6c00;
+  color: #000;
+}
+
+.toast.info {
+  background-color: #2196f3;
+  border-left: 4px solid #1565c0;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toastIcon {
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Dialog Form Fields */
+.dialogContent :global(.MuiTextField-root) {
+  margin-bottom: 16px;
+}
+
+.dialogContent :global(.MuiTextField-root .MuiOutlinedInput-root) {
+  background-color: var(--box-color);
+  color: var(--text-color);
+}
+
+.dialogContent :global(.MuiTextField-root .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+  border-color: var(--color-border);
+}
+
+.dialogContent :global(.MuiTextField-root .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
+  border-color: var(--color-primary);
+}
+
+.dialogContent :global(.MuiTextField-root .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline) {
+  border-color: var(--color-primary);
+}
+
+.dialogContent :global(.MuiTextField-root .MuiInputLabel-root) {
+  color: var(--text-secondary);
+}
+
+.dialogContent :global(.MuiTextField-root .MuiInputLabel-root.Mui-focused) {
+  color: var(--color-primary);
+}
+
+/* Dialog Actions */
+.dialogContent :global(.MuiDialogActions-root) {
+  padding: 16px 24px;
+  background-color: var(--background-color);
+  border-top: 1px solid var(--color-border);
+}
+
+.dialogContent :global(.MuiButton-root) {
+  text-transform: none;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.dialogContent :global(.MuiButton-containedPrimary) {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.dialogContent :global(.MuiButton-containedPrimary:hover) {
+  background-color: var(--color-primary-dark);
+}
+
+.dialogContent :global(.MuiButton-text) {
+  color: var(--text-secondary);
+}
+
+.dialogContent :global(.MuiButton-text:hover) {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+}
