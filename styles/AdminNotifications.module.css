@@ -7,6 +7,10 @@
   padding: 2rem;
 }
 
+.container {
+  /* Container para aplicar estilos globais do Material-UI */
+}
+
 .panelContainer {
   max-width: 1200px;
   margin: 0 auto;
@@ -673,14 +677,87 @@
   vertical-align: middle;
 }
 
+/* Global Material-UI TextField Styles */
+.container :global(.MuiTextField-root) {
+  margin-bottom: 16px;
+}
+
+.container :global(.MuiTextField-root .MuiOutlinedInput-root) {
+  background-color: var(--modals-inputs);
+  color: var(--title-color);
+}
+
+.container :global(.MuiTextField-root .MuiOutlinedInput-root input) {
+  color: var(--title-color);
+}
+
+.container :global(.MuiTextField-root .MuiOutlinedInput-root textarea) {
+  color: var(--title-color);
+}
+
+.container :global(.MuiTextField-root .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+  border-color: var(--color-border);
+}
+
+.container :global(.MuiTextField-root .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
+  border-color: var(--color-primary);
+}
+
+.container :global(.MuiTextField-root .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline) {
+  border-color: var(--color-primary);
+}
+
+.container :global(.MuiTextField-root .MuiInputLabel-root) {
+  color: var(--text-color);
+}
+
+.container :global(.MuiTextField-root .MuiInputLabel-root.Mui-focused) {
+  color: var(--color-primary);
+}
+
+.container :global(.MuiTextField-root .MuiOutlinedInput-input::placeholder) {
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+/* Checkbox Styles */
+.container :global(.MuiCheckbox-root) {
+  color: var(--text-color);
+}
+
+.container :global(.MuiCheckbox-root.Mui-checked) {
+  color: var(--color-primary);
+}
+
+.container :global(.MuiFormControlLabel-label) {
+  color: var(--text-color);
+}
+
+/* Radio Button Styles */
+.container :global(.MuiRadio-root) {
+  color: var(--text-color);
+}
+
+.container :global(.MuiRadio-root.Mui-checked) {
+  color: var(--color-primary);
+}
+
 /* Dialog Form Fields */
 .dialogContent :global(.MuiTextField-root) {
   margin-bottom: 16px;
 }
 
 .dialogContent :global(.MuiTextField-root .MuiOutlinedInput-root) {
-  background-color: var(--box-color);
-  color: var(--text-color);
+  background-color: var(--modals-inputs);
+  color: var(--title-color);
+}
+
+.dialogContent :global(.MuiTextField-root .MuiOutlinedInput-root input) {
+  color: var(--title-color);
+}
+
+.dialogContent :global(.MuiTextField-root .MuiOutlinedInput-root textarea) {
+  color: var(--title-color);
 }
 
 .dialogContent :global(.MuiTextField-root .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
@@ -696,7 +773,7 @@
 }
 
 .dialogContent :global(.MuiTextField-root .MuiInputLabel-root) {
-  color: var(--text-secondary);
+  color: var(--text-color);
 }
 
 .dialogContent :global(.MuiTextField-root .MuiInputLabel-root.Mui-focused) {

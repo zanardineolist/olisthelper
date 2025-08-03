@@ -201,7 +201,7 @@ export default function AdminNotificationsPage({ user }) {
       const profilesMapped = profilesToSend.map(profile => profilesMap[profile]).filter(Boolean);
 
       if (profilesMapped.length === 0) {
-        alert('Selecione ao menos um perfil para enviar a notificação.');
+        showToast('Selecione ao menos um perfil para enviar a notificação.', 'warning');
         setNotificationLoading(false);
         return;
       }
@@ -225,7 +225,7 @@ export default function AdminNotificationsPage({ user }) {
       }
 
       const data = await res.json();
-      alert(data.message);
+      showToast(data.message || 'Notificação enviada com sucesso!', 'success');
       
       // Reset form
       setNotificationTitle('');
@@ -245,7 +245,7 @@ export default function AdminNotificationsPage({ user }) {
       setNotificationStyle('aviso');
     } catch (error) {
       console.error('Erro ao enviar notificação:', error);
-      alert('Erro ao enviar notificação');
+      showToast('Erro ao enviar notificação. Tente novamente.', 'error');
     } finally {
       setNotificationLoading(false);
     }
@@ -255,7 +255,7 @@ export default function AdminNotificationsPage({ user }) {
     setPatchNoteLoading(true);
     try {
       if (!patchNoteTitle || !patchNoteContent || !patchNoteSummary) {
-        alert('Preencha todos os campos obrigatórios.');
+        showToast('Preencha todos os campos obrigatórios.', 'warning');
         setPatchNoteLoading(false);
         return;
       }
@@ -278,7 +278,7 @@ export default function AdminNotificationsPage({ user }) {
       }
 
       const data = await res.json();
-      alert(data.message);
+      showToast(data.message || 'Patch Note criado com sucesso!', 'success');
       
       // Reset form
       setPatchNoteTitle('');
@@ -288,7 +288,7 @@ export default function AdminNotificationsPage({ user }) {
       setPreviewMode(false);
     } catch (error) {
       console.error('Erro ao criar patch note:', error);
-      alert('Erro ao criar patch note');
+      showToast('Erro ao criar patch note. Tente novamente.', 'error');
     } finally {
       setPatchNoteLoading(false);
     }
@@ -427,7 +427,7 @@ export default function AdminNotificationsPage({ user }) {
         <title>Painel Administrativo - Notificações & Patch Notes</title>
       </Head>
 
-      <main className={adminStyles.mainContent}>
+      <main className={`${adminStyles.mainContent} ${adminStyles.container}`}>
         <ThemeProvider theme={theme}>
           <div className={adminStyles.panelContainer}>
             {/* Header do Painel */}
