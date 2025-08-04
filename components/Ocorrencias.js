@@ -24,8 +24,8 @@ import {
   Paper
 } from '@mui/material';
 
-// Importando o Skeleton Loader
-import SkeletonLoader from './ui/SkeletonLoader';
+// Importando o ThreeDotsLoader seguindo o padrão da aplicação
+import { ThreeDotsLoader } from './LoadingIndicator';
 
 // Importando hooks personalizados
 import { useSearchDebounce } from '../utils/hooks/useDebounce';
@@ -1151,34 +1151,7 @@ export default function Ocorrencias({ user }) {
     );
   };
 
-  if (loading) {
-    return (
-      <Container maxWidth="xl" className={styles.container}>
-        <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>Ocorrências</h1>
-          <p className={styles.pageDescription}>
-            Mantenha-se atualizado sobre as ocorrências existentes na operação.
-          </p>
-        </div>
 
-        {/* Skeleton para filtros */}
-        <div className={styles.searchContainer}>
-          <div className={styles.searchInputWrapper}>
-            <SkeletonLoader height="40px" width="100%" />
-            <div className={styles.searchButtonsContainer}>
-              <SkeletonLoader height="40px" width="100px" />
-              <SkeletonLoader height="40px" width="100px" />
-            </div>
-          </div>
-        </div>
-
-        {/* Skeleton para tabela */}
-        <div className={styles.tableWrapper}>
-          <SkeletonLoader variant="table" />
-        </div>
-      </Container>
-    );
-  }
 
   return (
     <Container maxWidth="xl" className={styles.container}>
@@ -1191,10 +1164,14 @@ export default function Ocorrencias({ user }) {
 
       {renderFiltersBlock()}
 
-      {filteredData.length > 0 && renderResultsInfo()}
+      {!loading && filteredData.length > 0 && renderResultsInfo()}
 
       <div className={styles.tableWrapper}>
-        {filteredData.length > 0 ? (
+        {loading ? (
+          <div className={styles.loadingContainer}>
+            <ThreeDotsLoader size="medium" message="Carregando ocorrências..." />
+          </div>
+        ) : filteredData.length > 0 ? (
           renderTable()
         ) : (
           <div className={styles.noResults}>
