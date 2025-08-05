@@ -26,13 +26,17 @@ export default async function handler(req, res) {
   try {
     switch (method) {
       case 'GET':
-
         const { data: users, error: fetchError } = await supabase
           .from('users')
           .select('*')
           .order('name');
 
-        if (fetchError) throw fetchError;
+        if (fetchError) {
+          console.error('Erro ao buscar usuários:', fetchError);
+          return res.status(500).json({ 
+            error: 'Erro interno do servidor ao carregar lista de usuários. Tente novamente em alguns instantes.' 
+          });
+        }
 
         // Mapear dados para manter compatibilidade com o frontend
         const mappedUsers = users.map(user => ({
@@ -44,47 +48,87 @@ export default async function handler(req, res) {
           chamado: user.can_ticket,
           telefone: user.can_phone,
           chat: user.can_chat,
-          registerHelp: user.can_register_help, // NOVA PERMISSÃO
-          remoteAccess: user.can_remote_access, // NOVA PERMISSÃO
+          registerHelp: user.can_register_help,
+          remoteAccess: user.can_remote_access,
           active: user.active
         }));
         
         return res.status(200).json({ users: mappedUsers });
 
       case 'POST':
-
         const newUser = req.body;
 
+        // Validações obrigatórias
+        if (!newUser.name || !newUser.name.trim()) {
+          return res.status(400).json({ 
+            error: 'Nome do usuário é obrigatório. Por favor, preencha o campo "Nome".' 
+          });
+        }
+
+        if (!newUser.email || !newUser.email.trim()) {
+          return res.status(400).json({ 
+            error: 'E-mail do usuário é obrigatório. Por favor, preencha o campo "E-mail".' 
+          });
+        }
+
+        // Validar formato do e-mail
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(newUser.email)) {
+          return res.status(400).json({ 
+            error: 'Formato de e-mail inválido. Por favor, insira um e-mail válido (exemplo: usuario@empresa.com).' 
+          });
+        }
+
+        if (!newUser.profile) {
+          return res.status(400).json({ 
+            error: 'Perfil do usuário é obrigatório. Por favor, selecione um perfil.' 
+          });
+        }
+
         // Verificar email duplicado
-        const { data: existingUser } = await supabase
+        const { data: existingUser, error: checkError } = await supabase
           .from('users')
-          .select('email')
-          .eq('email', newUser.email)
+          .select('email, name')
+          .eq('email', newUser.email.trim().toLowerCase())
           .single();
 
+        if (checkError && checkError.code !== 'PGRST116') {
+          console.error('Erro ao verificar e-mail duplicado:', checkError);
+          return res.status(500).json({ 
+            error: 'Erro interno do servidor ao verificar e-mail. Tente novamente.' 
+          });
+        }
+
         if (existingUser) {
-          return res.status(400).json({ error: 'Email já cadastrado.' });
+          return res.status(400).json({ 
+            error: `E-mail já cadastrado para o usuário "${existingUser.name}". Por favor, utilize um e-mail diferente ou edite o usuário existente.` 
+          });
         }
 
         // Inserir novo usuário
         const { data: insertedUser, error: insertError } = await supabase
           .from('users')
           .insert([{
-            name: newUser.name,
-            email: newUser.email,
+            name: newUser.name.trim(),
+            email: newUser.email.trim().toLowerCase(),
             profile: newUser.profile,
-            squad: newUser.squad || null,
-            can_ticket: newUser.chamado,
-            can_phone: newUser.telefone,
-            can_chat: newUser.chat,
-            can_register_help: newUser.registerHelp || false, // NOVA PERMISSÃO
-            can_remote_access: newUser.remoteAccess || false, // NOVA PERMISSÃO
+            squad: newUser.squad?.trim() || null,
+            can_ticket: newUser.chamado || false,
+            can_phone: newUser.telefone || false,
+            can_chat: newUser.chat || false,
+            can_register_help: newUser.registerHelp || false,
+            can_remote_access: newUser.remoteAccess || false,
             active: true
           }])
           .select()
           .single();
 
-        if (insertError) throw insertError;
+        if (insertError) {
+          console.error('Erro ao inserir usuário:', insertError);
+          return res.status(500).json({ 
+            error: 'Erro interno do servidor ao criar usuário. Tente novamente em alguns instantes.' 
+          });
+        }
 
         if (isUserValid) {
           await logAction(reqUser.id, reqUser.name, reqUser.role, 'create_user', 'Usuário', null, {
@@ -94,79 +138,143 @@ export default async function handler(req, res) {
           }, 'manage-user');
         }
 
-        return res.status(201).json({ message: 'Usuário adicionado com sucesso.', id: insertedUser.id });
+        return res.status(201).json({ 
+          message: `Usuário "${insertedUser.name}" adicionado com sucesso.`,
+          id: insertedUser.id 
+        });
 
       case 'PUT':
-
         const updatedUser = req.body;
-        const originalEmail = updatedUser.originalEmail; // E-mail original
+        const originalEmail = updatedUser.originalEmail;
 
+        // Validações obrigatórias
         if (!updatedUser.id) {
-          return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+          return res.status(400).json({ 
+            error: 'ID do usuário não fornecido. Erro interno do sistema.' 
+          });
+        }
+
+        if (!updatedUser.name || !updatedUser.name.trim()) {
+          return res.status(400).json({ 
+            error: 'Nome do usuário é obrigatório. Por favor, preencha o campo "Nome".' 
+          });
+        }
+
+        if (!updatedUser.email || !updatedUser.email.trim()) {
+          return res.status(400).json({ 
+            error: 'E-mail do usuário é obrigatório. Por favor, preencha o campo "E-mail".' 
+          });
+        }
+
+        // Validar formato do e-mail
+        if (!emailRegex.test(updatedUser.email)) {
+          return res.status(400).json({ 
+            error: 'Formato de e-mail inválido. Por favor, insira um e-mail válido (exemplo: usuario@empresa.com).' 
+          });
+        }
+
+        if (!updatedUser.profile) {
+          return res.status(400).json({ 
+            error: 'Perfil do usuário é obrigatório. Por favor, selecione um perfil.' 
+          });
         }
 
         // Verificar se usuário existe
-        const { data: existingUserToUpdate } = await supabase
+        const { data: existingUserToUpdate, error: fetchError } = await supabase
           .from('users')
           .select('*')
           .eq('id', updatedUser.id)
           .single();
 
-        if (!existingUserToUpdate) {
-          return res.status(404).json({ error: 'Usuário não encontrado.' });
+        if (fetchError) {
+          console.error('Erro ao buscar usuário para atualização:', fetchError);
+          return res.status(404).json({ 
+            error: 'Usuário não encontrado. O usuário pode ter sido removido ou você não tem permissão para editá-lo.' 
+          });
+        }
+
+        // Verificar se o novo e-mail já existe em outro usuário
+        if (updatedUser.email.trim().toLowerCase() !== existingUserToUpdate.email.toLowerCase()) {
+          const { data: emailExists, error: emailCheckError } = await supabase
+            .from('users')
+            .select('email, name')
+            .eq('email', updatedUser.email.trim().toLowerCase())
+            .neq('id', updatedUser.id)
+            .single();
+
+          if (emailCheckError && emailCheckError.code !== 'PGRST116') {
+            console.error('Erro ao verificar e-mail duplicado:', emailCheckError);
+            return res.status(500).json({ 
+              error: 'Erro interno do servidor ao verificar e-mail. Tente novamente.' 
+            });
+          }
+
+          if (emailExists) {
+            return res.status(400).json({ 
+              error: `E-mail já cadastrado para o usuário "${emailExists.name}". Por favor, utilize um e-mail diferente.` 
+            });
+          }
         }
 
         // Iniciar transação para atualizar usuário e registros relacionados
-        let emailChanged = existingUserToUpdate.email !== updatedUser.email;
+        let emailChanged = existingUserToUpdate.email.toLowerCase() !== updatedUser.email.trim().toLowerCase();
         
         // Atualizar usuário
         const { data: updatedRecord, error: updateError } = await supabase
           .from('users')
           .update({
-            name: updatedUser.name,
-            email: updatedUser.email,
+            name: updatedUser.name.trim(),
+            email: updatedUser.email.trim().toLowerCase(),
             profile: updatedUser.profile,
-            squad: updatedUser.squad || null,
-            can_ticket: updatedUser.chamado,
-            can_phone: updatedUser.telefone,
-            can_chat: updatedUser.chat,
-            can_register_help: updatedUser.registerHelp || false, // NOVA PERMISSÃO
-            can_remote_access: updatedUser.remoteAccess || false, // NOVA PERMISSÃO
+            squad: updatedUser.squad?.trim() || null,
+            can_ticket: updatedUser.chamado || false,
+            can_phone: updatedUser.telefone || false,
+            can_chat: updatedUser.chat || false,
+            can_register_help: updatedUser.registerHelp || false,
+            can_remote_access: updatedUser.remoteAccess || false,
             updated_at: new Date()
           })
           .eq('id', updatedUser.id)
           .select()
           .single();
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error('Erro ao atualizar usuário:', updateError);
+          return res.status(500).json({ 
+            error: 'Erro interno do servidor ao atualizar usuário. Tente novamente em alguns instantes.' 
+          });
+        }
 
         // Se o e-mail foi alterado, atualizar registros relacionados
         if (emailChanged && originalEmail) {
-          // Atualizar email em help_records
-          const { error: helpRecordsError } = await supabase
-            .from('help_records')
-            .update({ requester_email: updatedUser.email })
-            .eq('requester_email', originalEmail);
+          try {
+            // Atualizar email em help_records
+            const { error: helpRecordsError } = await supabase
+              .from('help_records')
+              .update({ requester_email: updatedUser.email.trim().toLowerCase() })
+              .eq('requester_email', originalEmail);
 
-          if (helpRecordsError) {
-  
-          }
+            if (helpRecordsError) {
+              console.error('Erro ao atualizar e-mail em registros:', helpRecordsError);
+              // Não falhar a operação, apenas logar o erro
+            }
 
-          // Atualizar outros registros que possam ter referência ao e-mail do usuário
-          // Exemplo: Se houver outras tabelas que usam o e-mail como referência
-
-          // Registrar operação de atualização de email
-          if (isUserValid) {
-            await logAction(
-              reqUser.id, 
-              reqUser.name, 
-              reqUser.role, 
-              'update_email', 
-              'Usuário', 
-              { email: originalEmail }, 
-              { email: updatedUser.email },
-              'update-email'
-            );
+            // Registrar operação de atualização de email
+            if (isUserValid) {
+              await logAction(
+                reqUser.id, 
+                reqUser.name, 
+                reqUser.role, 
+                'update_email', 
+                'Usuário', 
+                { email: originalEmail }, 
+                { email: updatedUser.email.trim().toLowerCase() },
+                'update-email'
+              );
+            }
+          } catch (error) {
+            console.error('Erro ao atualizar e-mails relacionados:', error);
+            // Não falhar a operação principal
           }
         }
 
@@ -182,25 +290,38 @@ export default async function handler(req, res) {
           }, 'manage-user');
         }
 
-        return res.status(200).json({ message: 'Usuário atualizado com sucesso.' });
+        return res.status(200).json({ 
+          message: `Usuário "${updatedRecord.name}" atualizado com sucesso.` 
+        });
 
       case 'DELETE':
-
         const deleteUserId = req.query.id;
 
         if (!deleteUserId) {
-          return res.status(400).json({ error: 'ID do usuário não fornecido.' });
+          return res.status(400).json({ 
+            error: 'ID do usuário não fornecido. Erro interno do sistema.' 
+          });
         }
       
         // Verificar se usuário existe
-        const { data: userToDelete } = await supabase
+        const { data: userToDelete, error: deleteFetchError } = await supabase
           .from('users')
           .select('*')
           .eq('id', deleteUserId)
           .single();
 
-        if (!userToDelete) {
-          return res.status(404).json({ error: 'Usuário não encontrado.' });
+        if (deleteFetchError) {
+          console.error('Erro ao buscar usuário para inativação:', deleteFetchError);
+          return res.status(404).json({ 
+            error: 'Usuário não encontrado. O usuário pode ter sido removido anteriormente.' 
+          });
+        }
+
+        // Verificar se o usuário já está inativo
+        if (!userToDelete.active) {
+          return res.status(400).json({ 
+            error: `O usuário "${userToDelete.name}" já está inativo.` 
+          });
         }
 
         // Marcar como inativo (soft delete)
@@ -212,7 +333,12 @@ export default async function handler(req, res) {
           })
           .eq('id', deleteUserId);
 
-        if (deleteError) throw deleteError;
+        if (deleteError) {
+          console.error('Erro ao inativar usuário:', deleteError);
+          return res.status(500).json({ 
+            error: 'Erro interno do servidor ao inativar usuário. Tente novamente em alguns instantes.' 
+          });
+        }
 
         if (isUserValid) {
           await logAction(reqUser.id, reqUser.name, reqUser.role, 'inactivate_user', 'Usuário', {
@@ -228,14 +354,20 @@ export default async function handler(req, res) {
           }, 'manage-user');
         }
 
-        return res.status(200).json({ message: 'Usuário inativado com sucesso.' });
+        return res.status(200).json({ 
+          message: `Usuário "${userToDelete.name}" inativado com sucesso.` 
+        });
 
-    default:
-      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
-      return res.status(405).end(`Método ${method} não permitido.`);
+      default:
+        res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+        return res.status(405).json({ 
+          error: `Método ${method} não permitido. Use GET, POST, PUT ou DELETE.` 
+        });
+    }
+  } catch (error) {
+    console.error('Erro não tratado na API manage-user:', error);
+    return res.status(500).json({ 
+      error: 'Erro interno do servidor. Tente novamente em alguns instantes ou entre em contato com o suporte.' 
+    });
   }
-} catch (error) {
-  
-  return res.status(500).json({ error: 'Erro ao processar requisição.' });
-}
 }

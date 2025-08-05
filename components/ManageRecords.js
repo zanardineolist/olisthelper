@@ -42,13 +42,21 @@ export default function ManageRecords({ user }) {
       setRecords(data.records);
     } catch (err) {
       console.error('Erro ao carregar registros:', err);
+      
+      // Tratar erros específicos
+      let errorMessage = 'Erro ao carregar registros. Tente novamente.';
+      
+      if (err.message) {
+        if (err.message.includes('Erro interno do servidor')) {
+          errorMessage = 'Erro interno do servidor ao carregar registros. Tente novamente em alguns instantes ou entre em contato com o suporte.';
+        }
+      }
+      
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: err.message,
-        timer: 2000,
-        showConfirmButton: false,
-        allowOutsideClick: true,
+        text: errorMessage,
+        confirmButtonText: 'Tentar novamente'
       });
     } finally {
       setLoading(false);
@@ -108,7 +116,7 @@ export default function ManageRecords({ user }) {
 
   const handleDeleteRecord = async (record) => {
     const isConfirmed = await Swal.fire({
-      title: 'Tem certeza?',
+      title: 'Confirmar exclusão',
       text: 'Deseja realmente excluir este registro? Esta ação não pode ser desfeita.',
       icon: 'warning',
       showCancelButton: true,
@@ -132,25 +140,37 @@ export default function ManageRecords({ user }) {
         throw new Error(errorData.error || 'Erro ao deletar registro');
       }
 
+      const result = await res.json();
+
       await loadRecords();
       
       Swal.fire({
         icon: 'success',
-        title: 'Excluído!',
-        text: 'O registro foi excluído com sucesso.',
-        timer: 2000,
+        title: 'Registro excluído!',
+        text: result.message || 'O registro foi excluído com sucesso.',
+        timer: 3000,
         showConfirmButton: false,
         allowOutsideClick: true,
       });
     } catch (err) {
       console.error('Erro ao deletar registro:', err);
+      
+      // Tratar erros específicos
+      let errorMessage = 'Erro ao excluir registro. Tente novamente.';
+      
+      if (err.message) {
+        if (err.message.includes('Registro não encontrado')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Erro interno do servidor')) {
+          errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes ou entre em contato com o suporte.';
+        }
+      }
+      
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: err.message,
-        timer: 2000,
-        showConfirmButton: false,
-        allowOutsideClick: true,
+        text: errorMessage,
+        confirmButtonText: 'Entendi'
       });
     } finally {
       setLoading(false);
@@ -160,6 +180,60 @@ export default function ManageRecords({ user }) {
   const handleSaveRecord = async () => {
     try {
       setLoading(true);
+      
+      // Validações do frontend
+      if (!editedRecord.name || !editedRecord.name.trim()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Campo obrigatório',
+          text: 'Nome do solicitante é obrigatório. Por favor, preencha o campo "Nome".',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
+
+      if (!editedRecord.email || !editedRecord.email.trim()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Campo obrigatório',
+          text: 'E-mail do solicitante é obrigatório. Por favor, preencha o campo "E-mail".',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
+
+      // Validar formato do e-mail
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(editedRecord.email.trim())) {
+        Swal.fire({
+          icon: 'error',
+          title: 'E-mail inválido',
+          text: 'Por favor, insira um e-mail válido (exemplo: usuario@empresa.com).',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
+
+      if (!editedRecord.category || !editedRecord.category.trim()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Campo obrigatório',
+          text: 'Categoria é obrigatória. Por favor, selecione uma categoria.',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
+
+      if (!editedRecord.description || !editedRecord.description.trim()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Campo obrigatório',
+          text: 'Descrição é obrigatória. Por favor, preencha o campo "Descrição".',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
+
       const res = await fetch(`/api/manage-records?userId=${user.id}`, {
         method: 'PUT',
         headers: {
@@ -178,6 +252,8 @@ export default function ManageRecords({ user }) {
         throw new Error(errorData.error || 'Erro ao salvar registro');
       }
 
+      const result = await res.json();
+
       await loadRecords();
       setEditedRecord({
         date: '',
@@ -193,21 +269,37 @@ export default function ManageRecords({ user }) {
 
       Swal.fire({
         icon: 'success',
-        title: 'Sucesso!',
-        text: 'Registro atualizado com sucesso.',
-        timer: 2000,
+        title: 'Registro atualizado!',
+        text: result.message || 'Registro atualizado com sucesso.',
+        timer: 3000,
         showConfirmButton: false,
         allowOutsideClick: true,
       });
     } catch (err) {
       console.error('Erro ao salvar registro:', err);
+      
+      // Tratar erros específicos
+      let errorMessage = 'Erro ao salvar registro. Tente novamente.';
+      
+      if (err.message) {
+        if (err.message.includes('obrigatório')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('E-mail inválido')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Categoria')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Registro não encontrado')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Erro interno do servidor')) {
+          errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes ou entre em contato com o suporte.';
+        }
+      }
+      
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: err.message,
-        timer: 2000,
-        showConfirmButton: false,
-        allowOutsideClick: true,
+        text: errorMessage,
+        confirmButtonText: 'Entendi'
       });
     } finally {
       setLoading(false);

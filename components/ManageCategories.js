@@ -23,7 +23,10 @@ export default function ManageCategories() {
     try {
       setLoading(true);
       const res = await fetch('/api/manage-category');
-      if (!res.ok) throw new Error('Erro ao carregar categorias');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao carregar categorias');
+      }
       const data = await res.json();
 
       // Ordenar as categorias de A-Z
@@ -31,13 +34,21 @@ export default function ManageCategories() {
       setCategories(sortedCategories);
     } catch (err) {
       console.error('Erro ao carregar categorias:', err);
+      
+      // Tratar erros específicos
+      let errorMessage = 'Erro ao carregar categorias. Tente novamente.';
+      
+      if (err.message) {
+        if (err.message.includes('Erro interno do servidor')) {
+          errorMessage = 'Erro interno do servidor ao carregar categorias. Tente novamente em alguns instantes ou entre em contato com o suporte.';
+        }
+      }
+      
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao carregar categorias.',
-        timer: 2000,
-        showConfirmButton: false,
-        allowOutsideClick: true,
+        text: errorMessage,
+        confirmButtonText: 'Tentar novamente'
       });
     } finally {
       setLoading(false);
@@ -53,7 +64,7 @@ export default function ManageCategories() {
 
   const handleDeleteCategory = async (categoryId) => {
     const isConfirmed = await Swal.fire({
-      title: 'Tem certeza?',
+      title: 'Confirmar exclusão',
       text: 'Deseja realmente excluir esta categoria? Esta ação não pode ser desfeita.',
       icon: 'warning',
       showCancelButton: true,
@@ -71,27 +82,45 @@ export default function ManageCategories() {
       const res = await fetch(`/api/manage-category?index=${categoryId}`, {
         method: 'DELETE',
       });
-      if (!res.ok) throw new Error('Erro ao deletar categoria');
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao deletar categoria');
+      }
+
+      const result = await res.json();
 
       await loadCategories(); // Recarrega a lista completa após deletar
 
       Swal.fire({
         icon: 'success',
-        title: 'Excluído!',
-        text: 'A categoria foi excluída com sucesso.',
-        timer: 2000,
+        title: 'Categoria excluída!',
+        text: result.message || 'A categoria foi excluída com sucesso.',
+        timer: 3000,
         showConfirmButton: false,
         allowOutsideClick: true,
       });
     } catch (err) {
       console.error('Erro ao deletar categoria:', err);
+      
+      // Tratar erros específicos
+      let errorMessage = 'Erro ao excluir categoria. Tente novamente.';
+      
+      if (err.message) {
+        if (err.message.includes('já está inativa')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Categoria não encontrada')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Erro interno do servidor')) {
+          errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes ou entre em contato com o suporte.';
+        }
+      }
+      
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao deletar categoria.',
-        timer: 2000,
-        showConfirmButton: false,
-        allowOutsideClick: true,
+        text: errorMessage,
+        confirmButtonText: 'Entendi'
       });
     } finally {
       setLoading(false);
@@ -101,6 +130,37 @@ export default function ManageCategories() {
   const handleSaveCategory = async () => {
     try {
       setLoading(true);
+
+      // Validações do frontend
+      if (!newCategory || !newCategory.trim()) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Campo obrigatório',
+          text: 'Nome da categoria é obrigatório. Por favor, preencha o campo "Nome da Categoria".',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
+
+      if (newCategory.trim().length < 2) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Nome muito curto',
+          text: 'Nome da categoria deve ter pelo menos 2 caracteres.',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
+
+      if (newCategory.trim().length > 100) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Nome muito longo',
+          text: 'Nome da categoria deve ter no máximo 100 caracteres.',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
 
       // Validação para garantir que a categoria não exista (somente ao adicionar)
       if (!isEditing) {
@@ -113,11 +173,9 @@ export default function ManageCategories() {
           Swal.fire({
             icon: 'error',
             title: 'Categoria já existe',
-            html: `A categoria <strong>"${existingCategory.name}"</strong> já está cadastrada. Por favor, utilize esta categoria.`,
-            showConfirmButton: true,
-            allowOutsideClick: true,
+            html: `A categoria <strong>"${existingCategory.name}"</strong> já está cadastrada.<br><br>Por favor, utilize um nome diferente.`,
+            confirmButtonText: 'Entendi'
           });
-          setLoading(false);
           return;
         }
 
@@ -134,7 +192,7 @@ export default function ManageCategories() {
           const result = await Swal.fire({
             icon: 'warning',
             title: 'Categoria similar encontrada',
-            html: `Existe uma categoria similar já cadastrada: <strong>${similarCategoryName}</strong>. Deseja realmente prosseguir com o cadastro desta nova categoria?`,
+            html: `Existe uma categoria similar já cadastrada: <strong>${similarCategoryName}</strong>.<br><br>Deseja realmente prosseguir com o cadastro desta nova categoria?`,
             showCancelButton: true,
             confirmButtonText: 'Sim, adicionar',
             cancelButtonText: 'Cancelar',
@@ -142,7 +200,6 @@ export default function ManageCategories() {
           });
 
           if (!result.isConfirmed) {
-            setLoading(false);
             return;
           }
         }
@@ -151,8 +208,8 @@ export default function ManageCategories() {
       // Adicionar ou Editar a Categoria
       const method = isEditing ? 'PUT' : 'POST';
       const body = { 
-        name: newCategory,
-        ...(isEditing && { uuid: currentCategory.uuid }) // Inclui o UUID apenas na edição
+        name: newCategory.trim(),
+        ...(isEditing && { uuid: currentCategory.uuid })
       };
 
       const res = await fetch('/api/manage-category', {
@@ -163,7 +220,12 @@ export default function ManageCategories() {
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) throw new Error('Erro ao salvar categoria');
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Erro ao salvar categoria');
+      }
+
+      const result = await res.json();
 
       await loadCategories(); // Recarrega a lista para ter os IDs corretos
 
@@ -173,21 +235,39 @@ export default function ManageCategories() {
 
       Swal.fire({
         icon: 'success',
-        title: 'Sucesso!',
-        text: isEditing ? 'Categoria atualizada com sucesso.' : 'Categoria adicionada com sucesso.',
-        timer: 2000,
+        title: isEditing ? 'Categoria atualizada!' : 'Categoria adicionada!',
+        text: result.message || (isEditing ? 'Categoria atualizada com sucesso.' : 'Categoria adicionada com sucesso.'),
+        timer: 3000,
         showConfirmButton: false,
         allowOutsideClick: true,
       });
     } catch (err) {
       console.error('Erro ao salvar categoria:', err);
+      
+      // Tratar erros específicos
+      let errorMessage = 'Erro ao salvar categoria. Tente novamente.';
+      
+      if (err.message) {
+        if (err.message.includes('já existe')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('obrigatório')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('caracteres')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Categoria não encontrada')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('já está inativa')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Erro interno do servidor')) {
+          errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes ou entre em contato com o suporte.';
+        }
+      }
+      
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: 'Erro ao salvar categoria.',
-        timer: 2000,
-        showConfirmButton: false,
-        allowOutsideClick: true,
+        text: errorMessage,
+        confirmButtonText: 'Entendi'
       });
     } finally {
       setLoading(false);

@@ -53,7 +53,7 @@ export default function ManageUsers({ user }) {
     try {
       startLoading({ 
         message: "Carregando usuários...",
-        type: "local" // Usando loading local 
+        type: "local"
       });
       setLoading(true);
       setLoadingUsers(true);
@@ -67,13 +67,21 @@ export default function ManageUsers({ user }) {
       setUsers(activeUsers);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
+      
+      // Tratar erros específicos
+      let errorMessage = 'Erro ao carregar lista de usuários. Tente novamente.';
+      
+      if (err.message) {
+        if (err.message.includes('Erro interno do servidor')) {
+          errorMessage = 'Erro interno do servidor ao carregar usuários. Tente novamente em alguns instantes ou entre em contato com o suporte.';
+        }
+      }
+      
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: err.message,
-        timer: 2000,
-        showConfirmButton: false,
-        allowOutsideClick: true,
+        text: errorMessage,
+        confirmButtonText: 'Tentar novamente'
       });
     } finally {
       stopLoading();
@@ -103,7 +111,7 @@ export default function ManageUsers({ user }) {
 
   const handleDeleteUser = async (userId) => {
     const isConfirmed = await Swal.fire({
-      title: 'Tem certeza?',
+      title: 'Confirmar inativação',
       text: 'Deseja realmente inativar este usuário? Ele não aparecerá mais na lista de usuários ativos, mas seus registros serão mantidos.',
       icon: 'warning',
       showCancelButton: true,
@@ -119,11 +127,11 @@ export default function ManageUsers({ user }) {
     try {
       startLoading({ 
         message: "Inativando usuário...",
-        type: "local" // Usando loading local 
+        type: "local"
       });
       setLoading(true);
       
-      await callApi(`/api/manage-user?id=${userId}`, {
+      const result = await callApi(`/api/manage-user?id=${userId}`, {
         method: 'DELETE',
       }, {
         message: "Inativando usuário...",
@@ -134,21 +142,33 @@ export default function ManageUsers({ user }) {
 
       Swal.fire({
         icon: 'success',
-        title: 'Inativado!',
-        text: 'O usuário foi inativado com sucesso.',
-        timer: 2000,
+        title: 'Usuário inativado!',
+        text: result.message || 'O usuário foi inativado com sucesso.',
+        timer: 3000,
         showConfirmButton: false,
         allowOutsideClick: true,
       });
     } catch (err) {
       console.error('Erro ao inativar usuário:', err);
+      
+      // Tratar erros específicos
+      let errorMessage = 'Erro ao inativar usuário. Tente novamente.';
+      
+      if (err.message) {
+        if (err.message.includes('já está inativo')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Usuário não encontrado')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Erro interno do servidor')) {
+          errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes ou entre em contato com o suporte.';
+        }
+      }
+      
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: err.message,
-        timer: 2000,
-        showConfirmButton: false,
-        allowOutsideClick: true,
+        text: errorMessage,
+        confirmButtonText: 'Entendi'
       });
     } finally {
       stopLoading();
@@ -160,9 +180,52 @@ export default function ManageUsers({ user }) {
     try {
       startLoading({ 
         message: isEditing ? "Atualizando usuário..." : "Adicionando usuário...",
-        type: "local" // Usando loading local 
+        type: "local"
       });
       setLoading(true);
+
+      // Validações do frontend
+      if (!newUser.name || !newUser.name.trim()) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Campo obrigatório',
+          text: 'Nome do usuário é obrigatório. Por favor, preencha o campo "Nome".',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
+
+      if (!newUser.email || !newUser.email.trim()) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Campo obrigatório',
+          text: 'E-mail do usuário é obrigatório. Por favor, preencha o campo "E-mail".',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
+
+      // Validar formato do e-mail
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(newUser.email.trim())) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'E-mail inválido',
+          text: 'Por favor, insira um e-mail válido (exemplo: usuario@empresa.com).',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
+
+      if (!newUser.profile) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Campo obrigatório',
+          text: 'Perfil do usuário é obrigatório. Por favor, selecione um perfil.',
+          confirmButtonText: 'Entendi'
+        });
+        return;
+      }
 
       if (!isEditing) {
         // Validações apenas para novos usuários
@@ -178,12 +241,9 @@ export default function ManageUsers({ user }) {
           await Swal.fire({
             icon: 'warning',
             title: 'E-mail já cadastrado',
-            html: `O e-mail "<strong>${existingEmailUser.email}</strong>" já está cadastrado no nome "<strong>${existingEmailUser.name}</strong>". Por favor, verifique antes de prosseguir.`,
-            showConfirmButton: true,
-            allowOutsideClick: true,
+            html: `O e-mail "<strong>${existingEmailUser.email}</strong>" já está cadastrado no nome "<strong>${existingEmailUser.name}</strong>".<br><br>Por favor, utilize um e-mail diferente ou edite o usuário existente.`,
+            confirmButtonText: 'Entendi'
           });
-          stopLoading();
-          setLoading(false);
           return;
         }
 
@@ -200,7 +260,7 @@ export default function ManageUsers({ user }) {
           const result = await Swal.fire({
             icon: 'warning',
             title: 'Nome similar encontrado',
-            html: `Existe um nome similar já cadastrado: "<strong>${similarUser.name}</strong>" com o e-mail "<strong>${similarUser.email}</strong>". Deseja realmente prosseguir com o cadastro deste novo usuário?`,
+            html: `Existe um nome similar já cadastrado: "<strong>${similarUser.name}</strong>" com o e-mail "<strong>${similarUser.email}</strong>".<br><br>Deseja realmente prosseguir com o cadastro deste novo usuário?`,
             showCancelButton: true,
             confirmButtonText: 'Sim, adicionar',
             cancelButtonText: 'Cancelar',
@@ -208,8 +268,6 @@ export default function ManageUsers({ user }) {
           });
 
           if (!result.isConfirmed) {
-            stopLoading();
-            setLoading(false);
             return;
           }
         }
@@ -230,8 +288,6 @@ export default function ManageUsers({ user }) {
         });
 
         if (!isEmailChangeConfirmed.isConfirmed) {
-          stopLoading();
-          setLoading(false);
           return;
         }
       }
@@ -263,23 +319,45 @@ export default function ManageUsers({ user }) {
 
       Swal.fire({
         icon: 'success',
-        title: isEditing ? 'Atualizado!' : 'Adicionado!',
-        text: isEditing
+        title: isEditing ? 'Usuário atualizado!' : 'Usuário adicionado!',
+        text: result.message || (isEditing
           ? 'O usuário foi atualizado com sucesso.'
-          : 'O usuário foi adicionado com sucesso.',
-        timer: 2000,
+          : 'O usuário foi adicionado com sucesso.'),
+        timer: 3000,
         showConfirmButton: false,
         allowOutsideClick: true,
       });
     } catch (err) {
       console.error('Erro ao salvar usuário:', err);
+      
+      // Tratar erros específicos
+      let errorMessage = 'Erro ao salvar usuário. Tente novamente.';
+      
+      if (err.message) {
+        if (err.message.includes('E-mail já cadastrado')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Nome do usuário é obrigatório')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('E-mail do usuário é obrigatório')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Formato de e-mail inválido')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Perfil do usuário é obrigatório')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Usuário não encontrado')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('já está inativo')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('Erro interno do servidor')) {
+          errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes ou entre em contato com o suporte.';
+        }
+      }
+      
       Swal.fire({
         icon: 'error',
         title: 'Erro',
-        text: err.message,
-        timer: 2000,
-        showConfirmButton: false,
-        allowOutsideClick: true,
+        text: errorMessage,
+        confirmButtonText: 'Entendi'
       });
     } finally {
       stopLoading();
