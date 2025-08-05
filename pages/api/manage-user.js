@@ -26,13 +26,13 @@ export default async function handler(req, res) {
   try {
     switch (method) {
       case 'GET':
-        const { data: users, error: fetchError } = await supabase
+        const { data: users, error: fetchUsersError } = await supabase
           .from('users')
           .select('*')
           .order('name');
 
-        if (fetchError) {
-          console.error('Erro ao buscar usuários:', fetchError);
+        if (fetchUsersError) {
+          console.error('Erro ao buscar usuários:', fetchUsersError);
           return res.status(500).json({ 
             error: 'Erro interno do servidor ao carregar lista de usuários. Tente novamente em alguns instantes.' 
           });
@@ -180,14 +180,14 @@ export default async function handler(req, res) {
         }
 
         // Verificar se usuário existe
-        const { data: existingUserToUpdate, error: fetchError } = await supabase
+        const { data: existingUserToUpdate, error: fetchUpdateError } = await supabase
           .from('users')
           .select('*')
           .eq('id', updatedUser.id)
           .single();
 
-        if (fetchError) {
-          console.error('Erro ao buscar usuário para atualização:', fetchError);
+        if (fetchUpdateError) {
+          console.error('Erro ao buscar usuário para atualização:', fetchUpdateError);
           return res.status(404).json({ 
             error: 'Usuário não encontrado. O usuário pode ter sido removido ou você não tem permissão para editá-lo.' 
           });

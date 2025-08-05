@@ -21,7 +21,9 @@ import {
   Grid,
   IconButton,
   Tooltip,
-  CircularProgress
+  CircularProgress,
+  Chip,
+  Badge
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -68,6 +70,14 @@ const subDaysBR = (date, amount) => {
 
 const formatDateBR = (date, formatStr) => {
   return formatTZ(toBRTimezone(date), formatStr, { timeZone: TIMEZONE });
+};
+
+// Função para determinar o nível de atenção baseado na contagem
+const getAttentionLevel = (count) => {
+  if (count > 50) return { level: 'critical', color: '#E64E36', icon: 'fa-exclamation-triangle' };
+  if (count > 30) return { level: 'high', color: '#F0A028', icon: 'fa-exclamation-circle' };
+  if (count > 15) return { level: 'medium', color: '#779E3D', icon: 'fa-info-circle' };
+  return { level: 'low', color: '#0A4EE4', icon: 'fa-circle-dot' };
 };
 
 export default function HelpTopicsData() {
@@ -348,7 +358,8 @@ export default function HelpTopicsData() {
           mb: 3, 
           backgroundColor: 'var(--box-color)',
           borderRadius: '12px',
-          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)'
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
+          border: '1px solid var(--color-border)'
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -359,10 +370,14 @@ export default function HelpTopicsData() {
               color: 'var(--title-color)',
               fontSize: '1.3rem',
               fontWeight: 600,
-              m: 0
+              m: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
             }}
           >
-            Temas de Dúvidas
+            <i className="fa-solid fa-filter" style={{ color: 'var(--color-primary)' }}></i>
+            Filtros de Período
           </Typography>
           
           <FormControl 
@@ -408,19 +423,24 @@ export default function HelpTopicsData() {
               gap: 2, 
               mb: 3, 
               alignItems: 'center',
-              padding: '10px 15px',
+              padding: '12px 16px',
               backgroundColor: 'var(--box-color2)',
-              borderRadius: '8px'
+              borderRadius: '8px',
+              border: '1px solid var(--color-border)'
             }}
           >
             <Typography 
               variant="body2" 
               sx={{ 
                 fontSize: '0.9rem',
-                color: 'var(--text-color)'
+                color: 'var(--text-color)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
               }}
             >
-              <span style={{ color: 'var(--text-color2)', fontWeight: 500, marginRight: '5px' }}>Período:</span>
+              <i className="fa-solid fa-calendar-range" style={{ color: 'var(--color-primary)' }}></i>
+              <span style={{ color: 'var(--text-color2)', fontWeight: 500 }}>Período:</span>
               <span style={{ color: 'var(--title-color)', fontWeight: 600 }}>
                 {formatDateBR(startDate, 'dd/MM/yyyy')} a {formatDateBR(endDate, 'dd/MM/yyyy')}
               </span>
@@ -438,6 +458,7 @@ export default function HelpTopicsData() {
                 }
               }}
             >
+              <i className="fa-solid fa-edit" style={{ marginRight: '6px' }}></i>
               Alterar período
             </Button>
           </Box>
@@ -456,8 +477,9 @@ export default function HelpTopicsData() {
               sx={{ 
                 backgroundColor: 'var(--box-color4)',
                 borderColor: 'var(--color-border)',
-                borderRadius: '8px',
-                overflow: 'hidden'
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
               }}
             >
               <Table>
@@ -467,108 +489,220 @@ export default function HelpTopicsData() {
                       sx={{ 
                         fontWeight: 600, 
                         color: 'var(--text-th)', 
-                        borderBottom: '1px solid var(--color-border)' 
+                        borderBottom: '2px solid var(--color-border)',
+                        fontSize: '0.9rem',
+                        textAlign: 'center',
+                        width: '80px'
                       }}
                     >
-                      Ranking
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                        <i className="fa-solid fa-trophy" style={{ fontSize: '0.8rem' }}></i>
+                        Ranking
+                      </Box>
                     </TableCell>
                     <TableCell 
                       sx={{ 
                         fontWeight: 600, 
                         color: 'var(--text-th)', 
-                        borderBottom: '1px solid var(--color-border)' 
+                        borderBottom: '2px solid var(--color-border)',
+                        fontSize: '0.9rem'
                       }}
                     >
-                      Tema
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <i className="fa-solid fa-tag" style={{ fontSize: '0.8rem' }}></i>
+                        Tema
+                      </Box>
                     </TableCell>
                     <TableCell 
-                      align="right" 
+                      align="center" 
                       sx={{ 
                         fontWeight: 600, 
                         color: 'var(--text-th)', 
-                        borderBottom: '1px solid var(--color-border)' 
+                        borderBottom: '2px solid var(--color-border)',
+                        fontSize: '0.9rem',
+                        width: '120px'
                       }}
                     >
-                      Quantidade
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                        <i className="fa-solid fa-chart-bar" style={{ fontSize: '0.8rem' }}></i>
+                        Quantidade
+                      </Box>
                     </TableCell>
                     <TableCell 
-                      align="right"
+                      align="center"
                       sx={{ 
                         fontWeight: 600, 
                         color: 'var(--text-th)', 
-                        borderBottom: '1px solid var(--color-border)' 
+                        borderBottom: '2px solid var(--color-border)',
+                        fontSize: '0.9rem',
+                        width: '120px'
                       }}
                     >
-                      Porcentagem
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                        <i className="fa-solid fa-percentage" style={{ fontSize: '0.8rem' }}></i>
+                        Porcentagem
+                      </Box>
+                    </TableCell>
+                    <TableCell 
+                      align="center"
+                      sx={{ 
+                        fontWeight: 600, 
+                        color: 'var(--text-th)', 
+                        borderBottom: '2px solid var(--color-border)',
+                        fontSize: '0.9rem',
+                        width: '100px'
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                        <i className="fa-solid fa-eye" style={{ fontSize: '0.8rem' }}></i>
+                        Ações
+                      </Box>
                     </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {topics.length > 0 ? (
-                    topics.map((topic, index) => (
-                      <TableRow 
-                        key={topic.id || index}
-                        onClick={() => handleOpenDetails(topic)}
-                        sx={{ 
-                          backgroundColor: index % 2 === 0 ? 'var(--color-treven)' : 'var(--color-trodd)',
-                          '&:hover': {
-                            backgroundColor: 'var(--box-color2)',
-                            cursor: 'pointer'
-                          }
-                        }}
-                      >
-                        <TableCell 
+                    topics.map((topic, index) => {
+                      const attention = getAttentionLevel(topic.count);
+                      return (
+                        <TableRow 
+                          key={topic.id || index}
                           sx={{ 
-                            color: 'var(--text-color)',
-                            borderBottom: '1px solid var(--color-border)'
+                            backgroundColor: index % 2 === 0 ? 'var(--color-treven)' : 'var(--color-trodd)',
+                            '&:hover': {
+                              backgroundColor: 'var(--box-color2)',
+                              cursor: 'pointer',
+                              transform: 'scale(1.01)',
+                              transition: 'all 0.2s ease'
+                            }
                           }}
                         >
-                          {index + 1}
-                        </TableCell>
-                        <TableCell 
-                          sx={{ 
-                            color: 'var(--title-color)',
-                            fontWeight: 500,
-                            borderBottom: '1px solid var(--color-border)'
-                          }}
-                        >
-                          <Tooltip title="Clique para ver detalhes" arrow>
-                            <Box component="span" sx={{ 
-                              display: 'flex', 
-                              alignItems: 'center'
-                            }}>
-                              {topic.name}
+                          <TableCell 
+                            align="center"
+                            sx={{ 
+                              color: 'var(--text-color)',
+                              borderBottom: '1px solid var(--color-border)',
+                              fontWeight: 600,
+                              fontSize: '0.9rem'
+                            }}
+                          >
+                            <Badge 
+                              badgeContent={index + 1} 
+                              color="primary"
+                              sx={{
+                                '& .MuiBadge-badge': {
+                                  backgroundColor: 'var(--color-primary)',
+                                  color: 'white',
+                                  fontWeight: 'bold'
+                                }
+                              }}
+                            >
+                              <Box sx={{ width: 20, height: 20 }}></Box>
+                            </Badge>
+                          </TableCell>
+                          <TableCell 
+                            sx={{ 
+                              color: 'var(--title-color)',
+                              fontWeight: 500,
+                              borderBottom: '1px solid var(--color-border)',
+                              fontSize: '0.95rem'
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                              <Tooltip title="Clique para ver detalhes" arrow>
+                                <Box component="span" sx={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center',
+                                  cursor: 'pointer',
+                                  '&:hover': {
+                                    color: 'var(--color-primary)'
+                                  }
+                                }}>
+                                  {topic.name}
+                                </Box>
+                              </Tooltip>
+                              <Chip
+                                label={attention.level === 'critical' ? 'Crítico' : 
+                                       attention.level === 'high' ? 'Alto' : 
+                                       attention.level === 'medium' ? 'Médio' : 'Baixo'}
+                                size="small"
+                                sx={{
+                                  backgroundColor: attention.color,
+                                  color: 'white',
+                                  fontSize: '0.7rem',
+                                  fontWeight: 'bold',
+                                  height: '20px'
+                                }}
+                              />
                             </Box>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell 
-                          align="right"
-                          sx={{ 
-                            color: 'var(--color-primary)',
-                            fontWeight: 600,
-                            borderBottom: '1px solid var(--color-border)'
-                          }}
-                        >
-                          {topic.count}
-                        </TableCell>
-                        <TableCell 
-                          align="right"
-                          sx={{ 
-                            color: 'var(--text-color)',
-                            borderBottom: '1px solid var(--color-border)'
-                          }}
-                        >
-                          {topic.percentage}%
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          </TableCell>
+                          <TableCell 
+                            align="center"
+                            sx={{ 
+                              color: 'var(--color-primary)',
+                              fontWeight: 600,
+                              borderBottom: '1px solid var(--color-border)',
+                              fontSize: '1rem'
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                              <i className={`fa-solid ${attention.icon}`} style={{ color: attention.color }}></i>
+                              {topic.count}
+                            </Box>
+                          </TableCell>
+                          <TableCell 
+                            align="center"
+                            sx={{ 
+                              color: 'var(--text-color)',
+                              borderBottom: '1px solid var(--color-border)',
+                              fontWeight: 500,
+                              fontSize: '0.9rem'
+                            }}
+                          >
+                            <Box sx={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              backgroundColor: 'rgba(10, 78, 228, 0.1)',
+                              borderRadius: '12px',
+                              padding: '4px 8px',
+                              width: 'fit-content',
+                              margin: '0 auto'
+                            }}>
+                              {topic.percentage}%
+                            </Box>
+                          </TableCell>
+                          <TableCell 
+                            align="center"
+                            sx={{ 
+                              borderBottom: '1px solid var(--color-border)'
+                            }}
+                          >
+                            <Tooltip title="Ver detalhes" arrow>
+                              <IconButton
+                                size="small"
+                                onClick={() => handleOpenDetails(topic)}
+                                sx={{
+                                  color: 'var(--color-primary)',
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(10, 78, 228, 0.1)'
+                                  }
+                                }}
+                              >
+                                <i className="fa-solid fa-eye"></i>
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
                   ) : (
                     <TableRow>
                       <TableCell 
-                        colSpan={4} 
+                        colSpan={5} 
                         align="center"
                         sx={{ 
-                          padding: '30px 20px',
+                          padding: '40px 20px',
                           color: 'var(--text-color2)',
                           borderBottom: '1px solid var(--color-border)'
                         }}
@@ -581,8 +715,13 @@ export default function HelpTopicsData() {
                             gap: 2
                           }}
                         >
-                          <i className="fa-solid fa-ban" style={{ fontSize: '24px', color: 'var(--color-accent1)' }}></i>
-                          <Typography>Nenhum tema de dúvida encontrado no período selecionado.</Typography>
+                          <i className="fa-solid fa-ban" style={{ fontSize: '32px', color: 'var(--color-accent1)' }}></i>
+                          <Typography sx={{ fontSize: '1rem', fontWeight: 500 }}>
+                            Nenhum tema de dúvida encontrado no período selecionado.
+                          </Typography>
+                          <Typography sx={{ fontSize: '0.9rem', color: 'var(--text-color2)' }}>
+                            Tente alterar o período de análise ou verificar se há dados disponíveis.
+                          </Typography>
                         </Box>
                       </TableCell>
                     </TableRow>
@@ -596,8 +735,8 @@ export default function HelpTopicsData() {
         <Box 
           sx={{ 
             display: 'flex', 
-            justifyContent: 'flex-end', 
-            gap: 2,
+            justifyContent: 'space-between', 
+            alignItems: 'center',
             borderTop: '1px solid var(--color-border)',
             paddingTop: 3,
             marginTop: 3
@@ -606,74 +745,89 @@ export default function HelpTopicsData() {
           <Typography 
             variant="subtitle2" 
             sx={{ 
-              mr: 2, 
-              alignSelf: 'center',
               color: 'var(--text-color2)',
-              fontSize: '0.9rem'
+              fontSize: '0.9rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
             }}
           >
-            Exportar para:
+            <i className="fa-solid fa-info-circle"></i>
+            Total de {topics.length} temas encontrados
           </Typography>
-          <Button 
-            variant="outlined" 
-            onClick={exportToExcel}
-            disabled={topics.length === 0 || loading}
-            startIcon={<i className="fa-solid fa-file-excel"></i>}
-            sx={{
-              borderColor: 'var(--color-accent3)',
-              color: 'var(--color-accent3)',
-              '&:hover': {
-                backgroundColor: 'rgba(119, 158, 61, 0.05)',
-                borderColor: 'var(--color-accent3)'
-              },
-              '&.Mui-disabled': {
-                borderColor: 'var(--text-color2)',
-                color: 'var(--text-color2)'
-              }
-            }}
-          >
-            Excel
-          </Button>
-          <Button 
-            variant="outlined" 
-            onClick={exportToCSV}
-            disabled={topics.length === 0 || loading}
-            startIcon={<i className="fa-solid fa-file-csv"></i>}
-            sx={{
-              borderColor: 'var(--color-accent2)',
-              color: 'var(--color-accent2)',
-              '&:hover': {
-                backgroundColor: 'rgba(240, 160, 40, 0.05)',
-                borderColor: 'var(--color-accent2)'
-              },
-              '&.Mui-disabled': {
-                borderColor: 'var(--text-color2)',
-                color: 'var(--text-color2)'
-              }
-            }}
-          >
-            CSV
-          </Button>
-          <Button 
-            variant="outlined" 
-            onClick={exportToPDF}
-            disabled={topics.length === 0 || loading}
-            startIcon={<i className="fa-solid fa-file-pdf"></i>}
-            sx={{
-              borderColor: 'var(--color-accent1)',
-              color: 'var(--color-accent1)',
-              '&:hover': {
-                backgroundColor: 'rgba(230, 78, 54, 0.05)',
-                borderColor: 'var(--color-accent1)'
-              },
-              '&.Mui-disabled': {
-                borderColor: 'var(--text-color2)',
-                color: 'var(--text-color2)'
-              }
-            }}
-          >
-            PDF
-          </Button>
+          
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Typography 
+              variant="subtitle2" 
+              sx={{ 
+                alignSelf: 'center',
+                color: 'var(--text-color2)',
+                fontSize: '0.9rem'
+              }}
+            >
+              Exportar para:
+            </Typography>
+            <Button 
+              variant="outlined" 
+              onClick={exportToExcel}
+              disabled={topics.length === 0 || loading}
+              startIcon={<i className="fa-solid fa-file-excel"></i>}
+              sx={{
+                borderColor: 'var(--color-accent3)',
+                color: 'var(--color-accent3)',
+                '&:hover': {
+                  backgroundColor: 'rgba(119, 158, 61, 0.05)',
+                  borderColor: 'var(--color-accent3)'
+                },
+                '&.Mui-disabled': {
+                  borderColor: 'var(--text-color2)',
+                  color: 'var(--text-color2)'
+                }
+              }}
+            >
+              Excel
+            </Button>
+            <Button 
+              variant="outlined" 
+              onClick={exportToCSV}
+              disabled={topics.length === 0 || loading}
+              startIcon={<i className="fa-solid fa-file-csv"></i>}
+              sx={{
+                borderColor: 'var(--color-accent2)',
+                color: 'var(--color-accent2)',
+                '&:hover': {
+                  backgroundColor: 'rgba(240, 160, 40, 0.05)',
+                  borderColor: 'var(--color-accent2)'
+                },
+                '&.Mui-disabled': {
+                  borderColor: 'var(--text-color2)',
+                  color: 'var(--text-color2)'
+                }
+              }}
+            >
+              CSV
+            </Button>
+            <Button 
+              variant="outlined" 
+              onClick={exportToPDF}
+              disabled={topics.length === 0 || loading}
+              startIcon={<i className="fa-solid fa-file-pdf"></i>}
+              sx={{
+                borderColor: 'var(--color-accent1)',
+                color: 'var(--color-accent1)',
+                '&:hover': {
+                  backgroundColor: 'rgba(230, 78, 54, 0.05)',
+                  borderColor: 'var(--color-accent1)'
+                },
+                '&.Mui-disabled': {
+                  borderColor: 'var(--text-color2)',
+                  color: 'var(--text-color2)'
+                }
+              }}
+            >
+              PDF
+            </Button>
+          </Box>
         </Box>
       </Paper>
       
@@ -700,7 +854,10 @@ export default function HelpTopicsData() {
           color: 'var(--title-color)'
         }}>
           <span>
-            Detalhes do Tema: <strong>{selectedTopic?.name}</strong>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+              <i className="fa-solid fa-chart-line" style={{ color: 'var(--color-primary)' }}></i>
+              Detalhes do Tema: <strong>{selectedTopic?.name}</strong>
+            </Box>
             <Typography variant="subtitle2" sx={{ color: 'var(--text-color2)', mt: 0.5 }}>
               Período: {formatDateBR(startDate, 'dd/MM/yyyy')} a {formatDateBR(endDate, 'dd/MM/yyyy')}
             </Typography>

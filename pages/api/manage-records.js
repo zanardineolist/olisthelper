@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     switch (method) {
       case 'GET':
         try {
-          const { data: records, error: fetchError } = await supabaseAdmin
+          const { data: records, error: fetchRecordsError } = await supabaseAdmin
             .from('help_records')
             .select(`
               *,
@@ -38,8 +38,8 @@ export default async function handler(req, res) {
             .eq('analyst_id', userId)
             .order('created_at', { ascending: false });
 
-          if (fetchError) {
-            console.error('Erro ao buscar registros:', fetchError);
+          if (fetchRecordsError) {
+            console.error('Erro ao buscar registros:', fetchRecordsError);
             return res.status(500).json({ 
               error: 'Erro interno do servidor ao carregar registros. Tente novamente em alguns instantes.' 
             });
@@ -148,7 +148,7 @@ export default async function handler(req, res) {
           }
 
           // Atualizar registro
-          const { data: updatedRecord, error: updateError } = await supabaseAdmin
+          const { data: updatedRecord, error: updateRecordError } = await supabaseAdmin
             .from('help_records')
             .update({
               requester_name: record.name.trim(),
@@ -160,8 +160,8 @@ export default async function handler(req, res) {
             .select()
             .single();
 
-          if (updateError) {
-            console.error('Erro ao atualizar registro:', updateError);
+          if (updateRecordError) {
+            console.error('Erro ao atualizar registro:', updateRecordError);
             return res.status(500).json({ 
               error: 'Erro interno do servidor ao atualizar registro. Tente novamente em alguns instantes.' 
             });
@@ -225,13 +225,13 @@ export default async function handler(req, res) {
           }
 
           // Deletar o registro
-          const { error: deleteError } = await supabaseAdmin
+          const { error: deleteRecordError } = await supabaseAdmin
             .from('help_records')
             .delete()
             .eq('id', deleteId);
 
-          if (deleteError) {
-            console.error('Erro ao deletar registro:', deleteError);
+          if (deleteRecordError) {
+            console.error('Erro ao deletar registro:', deleteRecordError);
             return res.status(500).json({ 
               error: 'Erro interno do servidor ao excluir registro. Tente novamente em alguns instantes.' 
             });
