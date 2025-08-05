@@ -18,107 +18,58 @@ const commonRoutes = [
   '/dashboard-quality'
 ];
 
-// Componente de tracking interno
+// Componente de tracking interno moderno com coleta em batch
 function TrackingWrapper({ children }) {
   const { data: session } = useSession();
   const router = useRouter();
-  const sessionIdRef = useRef(null);
-  const pageStartTime = useRef(null);
+  const analyticsCollectorRef = useRef(null);
 
-  // Gerar session ID único para este usuário
+  // Inicializar o collector de analytics
   useEffect(() => {
-    if (session?.id && !sessionIdRef.current) {
-      sessionIdRef.current = `${session.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    if (session?.id && !analyticsCollectorRef.current) {
+      // Importação dinâmica para evitar SSR issues
+      import('../utils/analytics/AnalyticsCollector').then(({ getAnalyticsCollector }) => {
+        analyticsCollectorRef.current = getAnalyticsCollector();
+        
+        // Registrar primeira visita
+        analyticsCollectorRef.current.trackPageVisit(
+          router.asPath, 
+          document.title, 
+          document.referrer
+        );
+      });
     }
-  }, [session]);
+  }, [session, router.asPath]);
 
   // Tracking de mudança de página
   useEffect(() => {
-    if (!session?.id || !sessionIdRef.current) return;
-
-    const handleRouteChangeStart = () => {
-      // Registrar duração da página anterior se existir
-      if (pageStartTime.current) {
-        const duration = Math.floor((Date.now() - pageStartTime.current) / 1000);
-        // Não enviar se duração for muito pequena (< 1 segundo)
-        if (duration >= 1) {
-          trackPageVisit(router.asPath, duration);
-        }
-      }
-      pageStartTime.current = Date.now();
-    };
+    if (!session?.id || !analyticsCollectorRef.current) return;
 
     const handleRouteChangeComplete = (url) => {
-      pageStartTime.current = Date.now();
-      trackPageVisit(url, 0); // Duração será atualizada na próxima mudança de página
+      analyticsCollectorRef.current.trackPageVisit(
+        url, 
+        document.title, 
+        document.referrer
+      );
     };
 
-    // Registrar primeira visita
-    if (!pageStartTime.current) {
-      pageStartTime.current = Date.now();
-      trackPageVisit(router.asPath, 0);
-    }
-
-    router.events.on('routeChangeStart', handleRouteChangeStart);
     router.events.on('routeChangeComplete', handleRouteChangeComplete);
 
     // Cleanup
     return () => {
-      router.events.off('routeChangeStart', handleRouteChangeStart);
       router.events.off('routeChangeComplete', handleRouteChangeComplete);
     };
   }, [session, router]);
 
-  // Heartbeat para manter sessão ativa
+  // Cleanup ao desmontar
   useEffect(() => {
-    if (!session?.id || !sessionIdRef.current) return;
-
-    const heartbeat = setInterval(() => {
-      updateSessionActivity();
-    }, 60000); // A cada minuto
-
-    // Cleanup
-    return () => clearInterval(heartbeat);
-  }, [session]);
-
-  // Função para registrar visita de página
-  const trackPageVisit = async (pagePath, duration = 0) => {
-    if (!session?.id || !sessionIdRef.current) return;
-
-    try {
-      await fetch('/api/analytics/track-page-visit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          page_path: pagePath,
-          page_title: document.title,
-          referrer: document.referrer,
-          session_id: sessionIdRef.current,
-          visit_duration: duration,
-          user_agent: navigator.userAgent
-        })
-      });
-    } catch (error) {
-      console.error('Erro ao registrar visita:', error);
-    }
-  };
-
-  // Função para atualizar atividade da sessão
-  const updateSessionActivity = async () => {
-    if (!session?.id || !sessionIdRef.current) return;
-
-    try {
-      await fetch('/api/analytics/update-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          session_id: sessionIdRef.current
-        })
-      });
-    } catch (error) {
-      console.error('Erro ao atualizar sessão:', error);
-    }
-  };
+    return () => {
+      if (analyticsCollectorRef.current) {
+        analyticsCollectorRef.current.reset();
+        analyticsCollectorRef.current = null;
+      }
+    };
+  }, []);
 
   return children;
 }

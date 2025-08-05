@@ -52,7 +52,7 @@
   box-shadow: 0 0 0 3px rgba(10, 78, 228, 0.1);
 }
 
-.autoRefreshBtn, .refreshBtn {
+.autoRefreshBtn, .refreshBtn, .forceRefreshBtn {
   padding: 8px 16px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
@@ -66,9 +66,20 @@
   gap: 8px;
 }
 
-.autoRefreshBtn:hover, .refreshBtn:hover {
+.autoRefreshBtn:hover, .refreshBtn:hover, .forceRefreshBtn:hover {
   background-color: var(--box-color2);
   border-color: var(--box-color3);
+}
+
+.forceRefreshBtn {
+  background-color: var(--color-accent2);
+  color: var(--color-white);
+  border-color: var(--color-accent2);
+}
+
+.forceRefreshBtn:hover {
+  background-color: #d18a1f;
+  border-color: #d18a1f;
 }
 
 .autoRefreshBtn.active {

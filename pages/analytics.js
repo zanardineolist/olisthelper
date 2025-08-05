@@ -36,14 +36,20 @@ export default function Analytics({ user }) {
   const [period, setPeriod] = useState('7d');
   const [autoRefresh, setAutoRefresh] = useState(true);
 
-  // Carregar dados de analytics
-  const fetchAnalyticsData = async () => {
+  // Carregar dados de analytics com nova API otimizada
+  const fetchAnalyticsData = async (forceRefresh = false) => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/analytics/dashboard-data?period=${period}`);
+      const refreshParam = forceRefresh ? '&refresh=true' : '';
+      const response = await fetch(`/api/analytics/dashboard-data-v2?period=${period}${refreshParam}`);
       if (response.ok) {
         const data = await response.json();
         setAnalyticsData(data);
+        console.log('✅ Analytics data loaded:', {
+          period: data.metadata?.period,
+          generated: data.metadata?.generated_at,
+          cacheKey: data.metadata?.cache_key
+        });
       } else {
         console.error('Erro ao carregar analytics:', response.statusText);
       }
@@ -180,12 +186,22 @@ export default function Analytics({ user }) {
               </button>
 
               <button
-                onClick={fetchAnalyticsData}
+                onClick={() => fetchAnalyticsData(false)}
                 className={styles.refreshBtn}
                 disabled={loading}
               >
                 <i className={`fas fa-sync-alt ${loading ? styles.spinning : ''}`}></i>
                 Atualizar
+              </button>
+
+              <button
+                onClick={() => fetchAnalyticsData(true)}
+                className={styles.forceRefreshBtn}
+                disabled={loading}
+                title="Atualizar com refresh completo dos dados"
+              >
+                <i className={`fas fa-database ${loading ? styles.spinning : ''}`}></i>
+                Force Refresh
               </button>
             </div>
           </div>
