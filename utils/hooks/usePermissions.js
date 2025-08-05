@@ -45,7 +45,7 @@ export function usePermissions(user = {}) {
         // Permissões derivadas (para compatibilidade)
         canAccessManager: canAccessManager(user),
         canAccessDashboard: canAccessDashboard(user),
-        canAccessAnalytics: Boolean(user.admin),
+    
         canAccessTools: canAccessTools(user),
         canAccessRemote: Boolean(user.can_remote_access), // SISTEMA MODULAR
         
@@ -91,7 +91,7 @@ function getDefaultPermissions() {
     can_remote_access: false,
     canAccessManager: false,
     canAccessDashboard: false,
-    canAccessAnalytics: false,
+
     canAccessTools: true,
     canAccessRemote: false,
     hasRole: () => false,
@@ -202,7 +202,7 @@ export function useCanAccessRoute(route) {
     '/tools': permissions.isElevatedUser || permissions.isSupport,
     
     // Rotas baseadas em permissões específicas
-    '/analytics': permissions.isAdmin,
+
     '/register-help': permissions.canRegisterHelp,
     '/remote': permissions.canRemoteAccess
   };

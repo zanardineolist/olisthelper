@@ -64,12 +64,5 @@ VALIDADOR_ML_README.md
 categoria-MLB270227.json
 OCORRENCIAS_SETUP.md
 create_patch_notes_table.sql
-ANALYTICS_INSTALL_INSTRUCTIONS.md
-QUICKSTART.md
-docs/ANALYTICS_MIGRATION_GUIDE.md
-docs/ANALYTICS_V2.md
-supabase/sql/analytics_install.sql
-supabase/sql/analytics_schema.sql
-supabase/sql/analytics_test.sql
-ANALYTICS_ERROR_SOLUTION.md
-PROBLEMA_RESOLVIDO.md
+
+ANALYTICS_REMOVAL_COMPLETE.md

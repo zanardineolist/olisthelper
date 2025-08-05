@@ -34,7 +34,7 @@ export async function middleware(req) {
     '/tools': { profiles: ['support', 'analyst', 'super', 'tax', 'quality'] },
     
     // Rotas baseadas em permissões específicas (NOVO SISTEMA MODULAR)
-    '/analytics': { permission: 'admin' },
+  
     '/registrar-ajuda': { permission: 'can_register_help' },
     '/remote': { permission: 'can_remote_access' },
     
@@ -98,7 +98,7 @@ export const config = {
     '/admin-notifications',
     '/remote',
     '/tools',
-    '/analytics',
+
 
   ],
 };

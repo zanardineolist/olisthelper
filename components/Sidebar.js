@@ -213,26 +213,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       });
     }
 
-    // Menu de Analytics (para admins)
-    if (user.admin === true) {
-      // Inserir Analytics após Gerenciador se existir, ou no final
-      const managerIndex = menuItems.primary.findIndex(item => item.href === '/manager');
-      const analyticsMenu = {
-        href: '/analytics',
-        icon: FaChartLine,
-        label: 'Analytics',
-        tooltip: 'Analytics & Métricas'
-      };
 
-      if (managerIndex !== -1) {
-        // Inserir após o Gerenciador
-        if (!menuItems.primary.some(item => item.href === '/analytics')) {
-          menuItems.primary.splice(managerIndex + 1, 0, analyticsMenu);
-        }
-      } else {
-        // Adicionar no final se não há Gerenciador
-        addMenuItemIfNotExists(analyticsMenu);
-      }
 
       // Menu de Admin Notificações (para admins)
       addMenuItemIfNotExists({
