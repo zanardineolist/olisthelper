@@ -213,9 +213,8 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       });
     }
 
-
-
-      // Menu de Admin Notificações (para admins)
+    // Menu de Admin Notificações (para admins)
+    if (user.admin === true) {
       addMenuItemIfNotExists({
         href: '/admin-notifications',
         icon: FaBell,
