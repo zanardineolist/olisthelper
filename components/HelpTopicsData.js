@@ -35,6 +35,7 @@ import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import GeminiChat from './GeminiChat';
 
 const TIMEZONE = 'America/Sao_Paulo';
 
@@ -93,6 +94,15 @@ export default function HelpTopicsData() {
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [topicDetails, setTopicDetails] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(false);
+
+  // Estados para análise do Gemini
+  const [openGeminiModal, setOpenGeminiModal] = useState(false);
+  const [geminiAnalysis, setGeminiAnalysis] = useState('');
+  const [loadingGemini, setLoadingGemini] = useState(false);
+  const [analysisType, setAnalysisType] = useState('insights');
+
+  // Estados para o chat
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     loadTopics();
@@ -347,6 +357,111 @@ export default function HelpTopicsData() {
     setOpenDetailsModal(false);
     setSelectedTopic(null);
     setTopicDetails([]);
+  };
+
+  // Função para análise do Gemini
+  const handleGeminiAnalysis = async () => {
+    try {
+      setLoadingGemini(true);
+      setOpenGeminiModal(true);
+      setGeminiAnalysis('');
+
+      const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
+      const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
+
+      const res = await fetch('/api/gemini-analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topics,
+          period,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+          analysisType
+        }),
+      });
+
+      if (!res.ok) throw new Error('Erro ao gerar análise');
+
+      const data = await res.json();
+      setGeminiAnalysis(data.analysis);
+    } catch (error) {
+      console.error('Erro na análise do Gemini:', error);
+      Swal.fire('Erro', 'Não foi possível gerar a análise com IA.', 'error');
+      setGeminiAnalysis('Erro ao gerar análise. Tente novamente.');
+    } finally {
+      setLoadingGemini(false);
+    }
+  };
+
+  // Função para exportar para Google Sheets
+  const handleExportToSheets = async () => {
+    try {
+      setLoading(true);
+
+      // Primeiro gerar análise do Gemini
+      const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
+      const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
+
+      const analysisRes = await fetch('/api/gemini-analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topics,
+          period,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+          analysisType: 'recommendations'
+        }),
+      });
+
+      let analysis = '';
+      if (analysisRes.ok) {
+        const analysisData = await analysisRes.json();
+        analysis = analysisData.analysis;
+      }
+
+      // Exportar para Google Sheets
+      const sheetsRes = await fetch('/api/export-to-sheets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topics,
+          analysis,
+          period,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate
+        }),
+      });
+
+      if (!sheetsRes.ok) throw new Error('Erro ao exportar para Google Sheets');
+
+      const sheetsData = await sheetsRes.json();
+      
+      Swal.fire({
+        title: 'Sucesso!',
+        text: 'Dados exportados para Google Sheets com sucesso!',
+        icon: 'success',
+        confirmButtonText: 'Abrir Planilha',
+        showCancelButton: true,
+        cancelButtonText: 'Fechar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.open(sheetsData.spreadsheetUrl, '_blank');
+        }
+      });
+    } catch (error) {
+      console.error('Erro ao exportar para Google Sheets:', error);
+      Swal.fire('Erro', 'Não foi possível exportar para Google Sheets.', 'error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -827,6 +942,60 @@ export default function HelpTopicsData() {
             >
               PDF
             </Button>
+            <Button 
+              variant="contained" 
+              onClick={handleGeminiAnalysis}
+              disabled={topics.length === 0 || loading}
+              startIcon={<i className="fa-solid fa-robot"></i>}
+              sx={{
+                backgroundColor: 'var(--color-primary)',
+                '&:hover': {
+                  backgroundColor: 'var(--color-primary-hover)'
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: 'var(--text-color2)',
+                  color: 'var(--text-color2)'
+                }
+              }}
+            >
+              IA Gemini
+            </Button>
+            <Button 
+              variant="contained" 
+              onClick={handleExportToSheets}
+              disabled={topics.length === 0 || loading}
+              startIcon={<i className="fa-solid fa-table"></i>}
+              sx={{
+                backgroundColor: 'var(--color-accent3)',
+                '&:hover': {
+                  backgroundColor: 'var(--color-accent3-hover)'
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: 'var(--text-color2)',
+                  color: 'var(--text-color2)'
+                }
+              }}
+            >
+              Google Sheets
+            </Button>
+            <Button 
+              variant="contained" 
+              onClick={() => setShowChat(true)}
+              disabled={topics.length === 0 || loading}
+              startIcon={<i className="fa-solid fa-comments"></i>}
+              sx={{
+                backgroundColor: 'var(--color-accent2)',
+                '&:hover': {
+                  backgroundColor: 'var(--color-accent2-hover)'
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: 'var(--text-color2)',
+                  color: 'var(--text-color2)'
+                }
+              }}
+            >
+              Chat IA
+            </Button>
           </Box>
         </Box>
       </Paper>
@@ -1078,6 +1247,141 @@ export default function HelpTopicsData() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Modal de Análise do Gemini */}
+      <Dialog
+        open={openGeminiModal}
+        onClose={() => setOpenGeminiModal(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          style: {
+            backgroundColor: 'var(--box-color)',
+            color: 'var(--text-color)',
+            borderRadius: '12px'
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          borderBottom: '1px solid var(--color-border)',
+          padding: '16px 24px',
+          color: 'var(--title-color)'
+        }}>
+          <span>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+              <i className="fa-solid fa-robot" style={{ color: 'var(--color-primary)' }}></i>
+              Análise com IA Gemini
+            </Box>
+            <Typography variant="subtitle2" sx={{ color: 'var(--text-color2)', mt: 0.5 }}>
+              Período: {formatDateBR(startDate, 'dd/MM/yyyy')} a {formatDateBR(endDate, 'dd/MM/yyyy')}
+            </Typography>
+          </span>
+          <IconButton
+            aria-label="Fechar"
+            onClick={() => setOpenGeminiModal(false)}
+            sx={{ color: 'var(--text-color)' }}
+          >
+            <i className="fa-solid fa-times"></i>
+          </IconButton>
+        </DialogTitle>
+        
+        <DialogContent dividers sx={{ 
+          backgroundColor: 'var(--box-color4)',
+          padding: '20px 24px'
+        }}>
+          {loadingGemini ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                <CircularProgress size={40} sx={{ color: 'var(--color-primary)' }} />
+                <Typography sx={{ color: 'var(--text-color2)' }}>
+                  Gerando análise com IA...
+                </Typography>
+              </Box>
+            </Box>
+          ) : geminiAnalysis ? (
+            <Box sx={{ 
+              backgroundColor: 'var(--bg-color)',
+              borderRadius: '8px',
+              padding: '16px',
+              border: '1px solid var(--color-border)'
+            }}>
+              <Typography 
+                component="div"
+                sx={{ 
+                  color: 'var(--text-color)',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: 1.6,
+                  fontSize: '0.95rem'
+                }}
+              >
+                {geminiAnalysis}
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              padding: '40px 20px',
+              gap: 2
+            }}>
+              <i className="fa-solid fa-robot" style={{ fontSize: '32px', color: 'var(--color-primary)' }}></i>
+              <Typography sx={{ color: 'var(--text-color2)', textAlign: 'center' }}>
+                Clique em "Gerar Análise" para obter insights inteligentes sobre os dados.
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        
+        <DialogActions sx={{ padding: '16px 24px', borderTop: '1px solid var(--color-border)' }}>
+          <Button 
+            onClick={() => setOpenGeminiModal(false)} 
+            variant="outlined"
+            startIcon={<i className="fa-solid fa-times"></i>}
+            sx={{
+              borderColor: 'var(--text-color2)',
+              color: 'var(--text-color2)',
+              '&:hover': {
+                backgroundColor: 'rgba(93, 93, 93, 0.1)',
+                borderColor: 'var(--text-color)'
+              }
+            }}
+          >
+            Fechar
+          </Button>
+          
+          {geminiAnalysis && (
+            <Button 
+              variant="contained"
+              startIcon={<i className="fa-solid fa-table"></i>}
+              onClick={handleExportToSheets}
+              sx={{
+                backgroundColor: 'var(--color-accent3)',
+                '&:hover': {
+                  backgroundColor: 'var(--color-accent3-hover)'
+                }
+              }}
+            >
+              Exportar para Sheets
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
+
+      {/* Chat com Gemini */}
+      {showChat && (
+        <GeminiChat
+          topics={topics}
+          period={period}
+          startDate={formatDateBR(startDate, 'dd/MM/yyyy')}
+          endDate={formatDateBR(endDate, 'dd/MM/yyyy')}
+          onClose={() => setShowChat(false)}
+        />
+      )}
     </Box>
   );
 } 
