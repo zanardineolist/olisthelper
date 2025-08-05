@@ -35,6 +35,8 @@ export default function Analytics({ user }) {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('7d');
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [systemStatus, setSystemStatus] = useState(null);
+  const [debugInfo, setDebugInfo] = useState(null);
 
   // Carregar dados de analytics com nova API otimizada
   const fetchAnalyticsData = async (forceRefresh = false) => {
@@ -45,6 +47,7 @@ export default function Analytics({ user }) {
       if (response.ok) {
         const data = await response.json();
         setAnalyticsData(data);
+        setSystemStatus('v2_working');
         console.log('✅ Analytics data loaded:', {
           period: data.metadata?.period,
           generated: data.metadata?.generated_at,
@@ -52,11 +55,31 @@ export default function Analytics({ user }) {
         });
       } else {
         console.error('Erro ao carregar analytics:', response.statusText);
+        setSystemStatus('error');
+        // Tentar obter informações de debug
+        fetchDebugInfo();
       }
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
+      setSystemStatus('error');
+      fetchDebugInfo();
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Buscar informações de debug do sistema
+  const fetchDebugInfo = async () => {
+    try {
+      const response = await fetch('/api/analytics/debug');
+      if (response.ok) {
+        const debug = await response.json();
+        setDebugInfo(debug);
+        setSystemStatus(debug.system_status);
+        console.log('🔍 Debug info:', debug);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar debug info:', error);
     }
   };
 
@@ -203,8 +226,61 @@ export default function Analytics({ user }) {
                 <i className={`fas fa-database ${loading ? styles.spinning : ''}`}></i>
                 Force Refresh
               </button>
+
+              <button
+                onClick={fetchDebugInfo}
+                className={styles.debugBtn}
+                title="Verificar status do sistema"
+              >
+                <i className="fas fa-bug"></i>
+                Debug
+              </button>
             </div>
           </div>
+
+          {/* Status do Sistema */}
+          {systemStatus && systemStatus !== 'v2_working' && (
+            <div className={styles.systemStatusCard}>
+              <div className={styles.statusHeader}>
+                <i className={`fas ${systemStatus === 'v2_not_installed' ? 'fa-exclamation-triangle' : 'fa-info-circle'}`}></i>
+                <span>Status do Sistema Analytics</span>
+              </div>
+              
+              {systemStatus === 'v2_not_installed' && (
+                <div className={styles.statusContent}>
+                  <p><strong>⚠️ Sistema V2 não instalado</strong></p>
+                  <p>O sistema está funcionando em modo de compatibilidade (V1).</p>
+                  <p>Para melhor performance, execute o script de instalação V2:</p>
+                  <code>analytics_install.sql</code>
+                </div>
+              )}
+
+              {systemStatus === 'v2_unavailable' && (
+                <div className={styles.statusContent}>
+                  <p><strong>🔄 Sistema V2 indisponível</strong></p>
+                  <p>Usando fallback V1. Algumas funções podem estar limitadas.</p>
+                  {debugInfo?.recommendations && (
+                    <ul>
+                      {debugInfo.recommendations.map((rec, index) => (
+                        <li key={index}>{rec}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+
+              {debugInfo?.errors?.length > 0 && (
+                <div className={styles.errorsList}>
+                  <h4>Erros detectados:</h4>
+                  <ul>
+                    {debugInfo.errors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
 
           {loading && !analyticsData ? (
             <div className={styles.loading}>

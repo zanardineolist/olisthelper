@@ -70,27 +70,67 @@ export default async function handler(req, res) {
       });
     }
 
-    // Upsert da sessão do usuário
-    const sessionResult = await supabaseAdmin.rpc('upsert_user_session', {
-      p_session_id: session_data.sessionId,
-      p_user_id: session.id,
-      p_ip_address: Array.isArray(ip_address) ? ip_address[0] : ip_address,
-      p_user_agent: validEvents[0]?.user_agent || null
-    });
+    // Tentar usar sistema V2 primeiro
+    let insertResult = null;
+    let useV1Fallback = false;
 
-    if (sessionResult.error) {
-      console.error('❌ Error upserting session:', sessionResult.error);
-    }
-
-    // Inserir eventos em batch usando função SQL otimizada
-    const { data: insertResult, error: insertError } = await supabaseAdmin
-      .rpc('insert_page_visits_batch', {
-        visits: JSON.stringify(validEvents)
+    try {
+      // Upsert da sessão do usuário
+      const sessionResult = await supabaseAdmin.rpc('upsert_user_session', {
+        p_session_id: session_data.sessionId,
+        p_user_id: session.id,
+        p_ip_address: Array.isArray(ip_address) ? ip_address[0] : ip_address,
+        p_user_agent: validEvents[0]?.user_agent || null
       });
 
-    if (insertError) {
-      console.error('❌ Error inserting events batch:', insertError);
-      return res.status(500).json({ error: 'Database error' });
+      if (sessionResult.error) {
+        console.error('❌ Error upserting session:', sessionResult.error);
+        throw new Error('Session upsert failed');
+      }
+
+      // Inserir eventos em batch usando função SQL otimizada
+      const { data: batchResult, error: insertError } = await supabaseAdmin
+        .rpc('insert_page_visits_batch', {
+          visits: JSON.stringify(validEvents)
+        });
+
+      if (insertError) {
+        console.error('❌ Error inserting events batch:', insertError);
+        throw new Error('Batch insert failed');
+      }
+
+      insertResult = batchResult;
+
+    } catch (v2Error) {
+      console.log('🔄 V2 batch failed, falling back to V1 individual inserts:', v2Error.message);
+      useV1Fallback = true;
+
+      // Fallback: inserir eventos individualmente (sistema V1)
+      try {
+        let successCount = 0;
+        for (const event of validEvents) {
+          const { error: individualError } = await supabaseAdmin
+            .from('page_visits')
+            .insert([event]);
+
+          if (!individualError) {
+            successCount++;
+          } else {
+            console.warn('⚠️ Individual insert failed:', individualError);
+          }
+        }
+        insertResult = successCount;
+      } catch (v1Error) {
+        console.error('❌ V1 fallback also failed:', v1Error);
+        return res.status(500).json({ 
+          error: 'Analytics system unavailable',
+          details: {
+            v2_error: v2Error.message,
+            v1_fallback_error: v1Error.message,
+            suggestion: 'Please install Analytics V2 system by running analytics_install.sql'
+          }
+        });
+      }
     }
 
     // Estatísticas de resposta
@@ -102,7 +142,8 @@ export default async function handler(req, res) {
         lastActivity: now,
         pageViews: session_data.pageViews + validEvents.length
       },
-      server_time: now
+      server_time: now,
+      system_used: useV1Fallback ? 'v1_fallback' : 'v2_optimized'
     };
 
     // Log para debugging (remover em produção)

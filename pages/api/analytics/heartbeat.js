@@ -21,25 +21,36 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing session_id' });
     }
 
-    // Atualizar apenas a atividade da sessão (operação leve)
-    const { error } = await supabaseAdmin
-      .from('user_sessions')
-      .update({
-        last_activity: last_activity || new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .eq('session_id', session_id)
-      .eq('user_id', session.id); // Segurança adicional
+    // Tentar atualizar usando tabela V2 primeiro
+    let systemUsed = 'v2_optimized';
+    
+    try {
+      const { error } = await supabaseAdmin
+        .from('user_sessions')
+        .update({
+          last_activity: last_activity || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('session_id', session_id)
+        .eq('user_id', session.id); // Segurança adicional
 
-    if (error) {
-      console.error('❌ Error updating session heartbeat:', error);
-      return res.status(500).json({ error: 'Database error' });
+      if (error) {
+        console.error('❌ Error updating session heartbeat V2:', error);
+        throw new Error('V2 heartbeat failed');
+      }
+    } catch (v2Error) {
+      console.log('🔄 V2 heartbeat failed, using V1 fallback');
+      systemUsed = 'v1_fallback';
+      
+      // Fallback: apenas logar que a sessão está ativa (sistema V1 não tem heartbeat)
+      // Não fazemos nada especial, apenas retornamos sucesso
     }
 
     // Resposta mínima para heartbeat
     res.status(200).json({ 
       success: true,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      system_used: systemUsed
     });
 
   } catch (error) {

@@ -71,3 +71,5 @@ docs/ANALYTICS_V2.md
 supabase/sql/analytics_install.sql
 supabase/sql/analytics_schema.sql
 supabase/sql/analytics_test.sql
+ANALYTICS_ERROR_SOLUTION.md
+PROBLEMA_RESOLVIDO.md

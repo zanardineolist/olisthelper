@@ -82,6 +82,17 @@
   border-color: #d18a1f;
 }
 
+.debugBtn {
+  background-color: var(--color-accent3);
+  color: var(--color-white);
+  border-color: var(--color-accent3);
+}
+
+.debugBtn:hover {
+  background-color: #6b8c35;
+  border-color: #6b8c35;
+}
+
 .autoRefreshBtn.active {
   background-color: var(--color-primary);
   color: var(--color-white);
@@ -295,6 +306,81 @@
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 12px;
   color: var(--text-color);
+}
+
+/* System Status Card */
+.systemStatusCard {
+  background: var(--box-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 4px solid var(--color-accent2);
+  box-shadow: var(--shadow-md);
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--title-color);
+}
+
+.statusHeader i {
+  color: var(--color-accent2);
+  font-size: 18px;
+}
+
+.statusContent {
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.statusContent p {
+  margin: 8px 0;
+}
+
+.statusContent code {
+  background-color: var(--box-color2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  color: var(--color-primary);
+}
+
+.statusContent ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.statusContent li {
+  margin: 5px 0;
+}
+
+.errorsList {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--color-border);
+}
+
+.errorsList h4 {
+  color: var(--color-accent1);
+  margin: 0 0 10px 0;
+  font-size: 14px;
+}
+
+.errorsList ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.errorsList li {
+  margin: 5px 0;
+  color: var(--text-color);
+  font-size: 13px;
 }
 
 /* Responsive Design */

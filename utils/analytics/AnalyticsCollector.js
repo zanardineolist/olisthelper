@@ -198,6 +198,13 @@ class AnalyticsCollector {
         this.sessionData = { ...this.sessionData, ...result.session_data };
       }
 
+      // Log do sistema usado para debug
+      if (result.system_used === 'v1_fallback') {
+        console.warn('⚠️ Analytics using V1 fallback. Consider installing V2 system.');
+      } else if (result.system_used === 'v2_optimized') {
+        console.log('✅ Analytics using V2 optimized system');
+      }
+
       return result;
     } catch (error) {
       if (retryCount < this.config.retryAttempts) {

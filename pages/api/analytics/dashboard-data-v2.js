@@ -58,8 +58,26 @@ export default async function handler(req, res) {
       });
 
     if (error) {
-      console.error('❌ Error fetching dashboard data:', error);
-      return res.status(500).json({ error: 'Database error' });
+      console.error('❌ Error fetching dashboard data V2:', error);
+      
+      // Fallback para sistema V1 se V2 não estiver disponível
+      console.log('🔄 Falling back to V1 system...');
+      
+      try {
+        // Importar e usar a API V1 como fallback
+        const v1Handler = await import('./dashboard-data');
+        return v1Handler.default(req, res);
+      } catch (fallbackError) {
+        console.error('❌ V1 fallback also failed:', fallbackError);
+        return res.status(500).json({ 
+          error: 'Analytics system unavailable',
+          details: {
+            v2_error: error.message,
+            v1_fallback_error: fallbackError.message,
+            suggestion: 'Please install Analytics V2 system by running analytics_install.sql'
+          }
+        });
+      }
     }
 
     // Adicionar metadados da resposta
