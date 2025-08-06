@@ -88,13 +88,24 @@ CONTEXTO ESPECÍFICO:
 
 Responda de forma útil e acionável, sempre considerando o contexto do sistema ERP da Olist.`;
 
-    // Preparar histórico de conversa (filtrar mensagens válidas)
-    const conversationHistory = chatHistory ? chatHistory
-      .filter(msg => msg.role && msg.content && msg.content.trim())
-      .map(msg => ({
-        role: msg.role,
-        parts: [{ text: msg.content.trim() }]
-      })) : [];
+    // Preparar histórico de conversa (filtrar mensagens válidas e garantir que comece com user)
+    let conversationHistory = [];
+    
+    if (chatHistory && chatHistory.length > 0) {
+      // Filtrar mensagens válidas
+      const validMessages = chatHistory.filter(msg => msg.role && msg.content && msg.content.trim());
+      
+      // Garantir que o histórico comece com uma mensagem do usuário
+      if (validMessages.length > 0) {
+        // Se a primeira mensagem não for do usuário, ignorar o histórico
+        if (validMessages[0].role === 'user') {
+          conversationHistory = validMessages.map(msg => ({
+            role: msg.role,
+            parts: [{ text: msg.content.trim() }]
+          }));
+        }
+      }
+    }
 
     // Adicionar mensagem atual
     conversationHistory.push({
@@ -141,9 +152,25 @@ Responda de forma útil e acionável, sempre considerando o contexto do sistema 
     } catch (geminiError) {
       clearTimeout(timeout);
       console.error('Erro do Gemini:', geminiError);
+      
+      let errorMessage = 'Erro ao gerar resposta com Gemini';
+      let errorDetails = geminiError.message;
+      
+      // Tratar erros específicos do Gemini
+      if (geminiError.message.includes('First content should be with role')) {
+        errorMessage = 'Erro no histórico de conversa';
+        errorDetails = 'Problema com a estrutura do histórico de mensagens';
+      } else if (geminiError.message.includes('API key')) {
+        errorMessage = 'Erro de configuração da API';
+        errorDetails = 'Verifique a configuração da API key do Gemini';
+      } else if (geminiError.message.includes('quota')) {
+        errorMessage = 'Limite de requisições excedido';
+        errorDetails = 'Tente novamente em alguns instantes';
+      }
+      
       return res.status(500).json({ 
-        message: 'Erro ao gerar resposta com Gemini',
-        error: geminiError.message,
+        message: errorMessage,
+        error: errorDetails,
         details: process.env.NODE_ENV === 'development' ? geminiError.stack : undefined
       });
     }

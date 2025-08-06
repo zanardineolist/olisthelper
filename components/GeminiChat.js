@@ -77,10 +77,12 @@ Como posso ajudar você hoje?`,
           period,
           startDate,
           endDate,
-          chatHistory: messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-          }))
+          chatHistory: messages
+            .filter(msg => msg.role !== 'assistant' || !msg.content.includes('Olá! Sou o assistente'))
+            .map(msg => ({
+              role: msg.role,
+              content: msg.content
+            }))
         }),
       });
 
