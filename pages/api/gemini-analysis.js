@@ -64,36 +64,84 @@ export default async function handler(req, res) {
     switch (analysisType) {
       case 'insights':
         analysisPrompt = `
-          Analise os seguintes dados de temas de dúvidas mais frequentes em um período de ${period} (${startDate} a ${endDate}):
+          Analise os seguintes dados de temas de dúvidas mais frequentes do time de suporte do sistema ERP da Olist em um período de ${period} (${startDate} a ${endDate}):
           
           ${JSON.stringify(topicsData, null, 2)}
           
-          Forneça insights valiosos sobre:
-          1. Padrões identificados nos temas mais frequentes
-          2. Possíveis causas raiz das dúvidas
-          3. Oportunidades de melhoria na documentação
-          4. Sugestões de treinamentos específicos
-          5. Priorização de ações baseada na frequência
+          Forneça uma análise estruturada e detalhada sobre:
           
-          Responda em português de forma clara e estruturada.
+          ## 1. PADRÕES IDENTIFICADOS NOS TEMAS MAIS FREQUENTES
+          - Identifique os principais padrões nos temas de dúvidas
+          - Analise a distribuição percentual dos temas
+          - Destaque temas relacionados que podem indicar problemas sistêmicos
+          
+          ## 2. POSSÍVEIS CAUSAS RAIZ DAS DÚVIDAS
+          - Analise por que esses temas específicos geram mais dúvidas
+          - Identifique se são problemas de usabilidade, documentação ou complexidade
+          - Considere fatores como mudanças no sistema, treinamento da equipe, etc.
+          
+          ## 3. OPORTUNIDADES DE MELHORIA NA DOCUMENTAÇÃO
+          - Sugira melhorias específicas na documentação do sistema ERP
+          - Identifique se há falta de clareza em determinados processos
+          - Recomende seções que precisam ser expandidas ou criadas
+          
+          ## 4. SUGESTÕES DE TREINAMENTOS ESPECÍFICOS
+          - Recomende treinamentos focados nos temas mais problemáticos
+          - Sugira materiais de apoio para a equipe de suporte
+          - Identifique se há necessidade de treinamento sobre funcionalidades específicas
+          
+          ## 5. PRIORIZAÇÃO DE AÇÕES BASEADA NA FREQUÊNCIA
+          - Liste ações prioritárias para reduzir o volume de dúvidas
+          - Sugira melhorias no sistema que podem resolver problemas recorrentes
+          - Recomende processos de acompanhamento para medir o impacto das melhorias
+          
+          IMPORTANTE:
+          - Use formatação markdown para melhor legibilidade
+          - Mantenha o foco no contexto de suporte técnico do ERP da Olist
+          - Forneça insights acionáveis e práticos
+          - Responda em português de forma clara e profissional
         `;
         responseFormat = 'text';
         break;
 
       case 'recommendations':
         analysisPrompt = `
-          Com base nos dados de temas de dúvidas:
+          Com base nos dados de temas de dúvidas do time de suporte do sistema ERP da Olist:
           
           ${JSON.stringify(topicsData, null, 2)}
           
-          Gere recomendações específicas e acionáveis:
-          1. Materiais de treinamento prioritários
-          2. Melhorias na documentação
-          3. Processos que podem ser otimizados
-          4. Ferramentas ou recursos que podem ajudar
-          5. Métricas de acompanhamento
+          Gere recomendações específicas e acionáveis estruturadas da seguinte forma:
           
-          Formate como uma lista estruturada em português.
+          ## 1. MATERIAIS DE TREINAMENTO PRIORITÁRIOS
+          - Identifique os temas que precisam de treinamento urgente
+          - Sugira formatos de treinamento (vídeos, manuais, workshops)
+          - Recomende conteúdo específico para cada tema problemático
+          
+          ## 2. MELHORIAS NA DOCUMENTAÇÃO
+          - Sugira seções da documentação que precisam ser melhoradas
+          - Identifique processos que precisam de documentação mais clara
+          - Recomende exemplos práticos e casos de uso
+          
+          ## 3. PROCESSOS QUE PODEM SER OTIMIZADOS
+          - Identifique fluxos de trabalho que podem ser simplificados
+          - Sugira melhorias na interface do sistema ERP
+          - Recomende automações que podem reduzir dúvidas
+          
+          ## 4. FERRAMENTAS OU RECURSOS QUE PODEM AJUDAR
+          - Sugira ferramentas internas que podem facilitar o suporte
+          - Recomende recursos de conhecimento compartilhado
+          - Identifique integrações que podem melhorar a experiência
+          
+          ## 5. MÉTRICAS DE ACOMPANHAMENTO
+          - Defina KPIs para medir a redução de dúvidas
+          - Sugira processos de monitoramento contínuo
+          - Recomende indicadores de satisfação do cliente
+          
+          IMPORTANTE:
+          - Use formatação markdown para melhor legibilidade
+          - Mantenha o foco no contexto de suporte técnico do ERP da Olist
+          - Forneça recomendações práticas e implementáveis
+          - Responda em português de forma clara e estruturada
         `;
         responseFormat = 'text';
         break;

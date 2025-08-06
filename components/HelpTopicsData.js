@@ -44,6 +44,61 @@ const TIMEZONE = 'America/Sao_Paulo';
 const toBRTimezone = (date) => utcToZonedTime(date, TIMEZONE);
 const fromBRTimezone = (date) => zonedTimeToUtc(date, TIMEZONE);
 
+// Função para formatar o texto da análise com markdown
+const formatAnalysisText = (text) => {
+  if (!text) return '';
+  
+  return text
+    // Headers
+    .replace(/^## (.*$)/gim, '<h2 style="color: var(--title-color); margin: 24px 0 12px 0; font-size: 1.2rem; font-weight: 600; border-bottom: 2px solid var(--color-primary); padding-bottom: 4px;">$1</h2>')
+    .replace(/^### (.*$)/gim, '<h3 style="color: var(--title-color); margin: 20px 0 10px 0; font-size: 1.1rem; font-weight: 600;">$1</h3>')
+    .replace(/^#### (.*$)/gim, '<h4 style="color: var(--title-color); margin: 16px 0 8px 0; font-size: 1rem; font-weight: 600;">$1</h4>')
+    
+    // Bold text
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 600; color: var(--title-color);">$1</strong>')
+    
+    // Italic text
+    .replace(/\*(.*?)\*/g, '<em style="font-style: italic;">$1</em>')
+    
+    // Lists
+    .replace(/^\- (.*$)/gim, '<li style="margin: 8px 0; padding-left: 8px;">$1</li>')
+    .replace(/^(\d+)\. (.*$)/gim, '<li style="margin: 8px 0; padding-left: 8px;">$2</li>')
+    
+    // Wrap lists in ul/ol
+    .replace(/(<li.*<\/li>)/gs, '<ul style="margin: 16px 0; padding-left: 20px;">$1</ul>')
+    
+    // Paragraphs
+    .replace(/\n\n/g, '</p><p style="margin: 16px 0; line-height: 1.6;">')
+    
+    // Line breaks
+    .replace(/\n/g, '<br>')
+    
+    // Wrap in paragraph tags
+    .replace(/^(.*)$/gm, '<p style="margin: 8px 0; line-height: 1.6;">$1</p>')
+    
+    // Clean up empty paragraphs
+    .replace(/<p style="margin: 8px 0; line-height: 1.6;"><\/p>/g, '')
+    .replace(/<p style="margin: 16px 0; line-height: 1.6;"><\/p>/g, '')
+    
+    // Clean up list formatting
+    .replace(/<p style="margin: 8px 0; line-height: 1.6;"><li/g, '<li')
+    .replace(/<\/li><\/p>/g, '</li>')
+    .replace(/<p style="margin: 16px 0; line-height: 1.6;"><li/g, '<li')
+    
+    // Clean up header formatting
+    .replace(/<p style="margin: 8px 0; line-height: 1.6;"><h2/g, '<h2')
+    .replace(/<\/h2><\/p>/g, '</h2>')
+    .replace(/<p style="margin: 8px 0; line-height: 1.6;"><h3/g, '<h3')
+    .replace(/<\/h3><\/p>/g, '</h3>')
+    .replace(/<p style="margin: 8px 0; line-height: 1.6;"><h4/g, '<h4')
+    .replace(/<\/h4><\/p>/g, '</h4>')
+    
+    // Add spacing around headers
+    .replace(/<\/h2>/g, '</h2><div style="margin-bottom: 16px;"></div>')
+    .replace(/<\/h3>/g, '</h3><div style="margin-bottom: 12px;"></div>')
+    .replace(/<\/h4>/g, '</h4><div style="margin-bottom: 8px;"></div>');
+};
+
 // Versões das funções do date-fns ajustadas para o fuso horário do Brasil
 const startOfDayBR = (date) => {
   const brDate = toBRTimezone(date);
@@ -1367,20 +1422,22 @@ export default function HelpTopicsData() {
             <Box sx={{ 
               backgroundColor: 'var(--bg-color)',
               borderRadius: '8px',
-              padding: '16px',
-              border: '1px solid var(--color-border)'
+              padding: '20px',
+              border: '1px solid var(--color-border)',
+              maxHeight: '60vh',
+              overflow: 'auto'
             }}>
-              <Typography 
-                component="div"
-                sx={{ 
+              <div 
+                style={{ 
                   color: 'var(--text-color)',
-                  whiteSpace: 'pre-wrap',
-                  lineHeight: 1.6,
-                  fontSize: '0.95rem'
+                  lineHeight: 1.7,
+                  fontSize: '0.95rem',
+                  fontFamily: 'inherit'
                 }}
-              >
-                {geminiAnalysis}
-              </Typography>
+                dangerouslySetInnerHTML={{
+                  __html: formatAnalysisText(geminiAnalysis)
+                }}
+              />
             </Box>
           ) : (
             <Box sx={{ 

@@ -58,7 +58,7 @@ export default async function handler(req, res) {
     }));
 
     // Construir prompt com contexto
-    const systemPrompt = `Você é um assistente especializado em análise de dados de temas de dúvidas para uma equipe de qualidade.
+    const systemPrompt = `Você é um assistente especializado em análise de dados de temas de dúvidas para o time de suporte do sistema ERP da Olist.
 
 CONTEXTO DOS DADOS:
 - Período: ${period} (${startDate} a ${endDate})
@@ -66,21 +66,27 @@ CONTEXTO DOS DADOS:
 - Dados dos temas: ${JSON.stringify(contextData, null, 2)}
 
 INSTRUÇÕES:
-1. Analise os dados fornecidos sobre temas de dúvidas
+1. Analise os dados fornecidos sobre temas de dúvidas do sistema ERP
 2. Responda em português de forma clara e profissional
 3. Forneça insights baseados nos dados quando relevante
 4. Sugira ações práticas quando apropriado
-5. Mantenha o foco na qualidade e melhoria de processos
+5. Mantenha o foco na qualidade do suporte e melhoria de processos
 
 CAPACIDADES:
-- Análise de padrões nos dados
-- Identificação de temas críticos
-- Sugestões de melhorias na documentação
-- Recomendações de treinamentos
-- Análise de tendências
-- Priorização de ações
+- Análise de padrões nos dados de suporte
+- Identificação de temas críticos que precisam de atenção
+- Sugestões de melhorias na documentação do sistema ERP
+- Recomendações de treinamentos para a equipe de suporte
+- Análise de tendências nos tipos de dúvidas
+- Priorização de ações para reduzir volume de tickets
 
-Responda de forma útil e acionável.`;
+CONTEXTO ESPECÍFICO:
+- Sistema ERP da Olist usado por clientes
+- Equipe de suporte técnico
+- Foco em melhorar experiência do usuário
+- Redução de volume de dúvidas recorrentes
+
+Responda de forma útil e acionável, sempre considerando o contexto do sistema ERP da Olist.`;
 
     // Preparar histórico de conversa
     const conversationHistory = chatHistory ? chatHistory.map(msg => ({
