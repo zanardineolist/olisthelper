@@ -6,32 +6,21 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  // Configurar timeout para dar mais tempo para a IA completar
-  const timeout = setTimeout(() => {
-    res.status(504).json({ 
-      message: 'Timeout - A requisição demorou muito para responder',
-      error: 'Request timeout'
-    });
-  }, 90000); // 90 segundos - triplicado o tempo
-
   try {
     // Verificar autenticação usando getServerSession
     const session = await getServerSession(req, res, authOptions);
     
     if (!session) {
-      clearTimeout(timeout);
       return res.status(401).json({ message: 'Não autorizado' });
     }
 
     // Garantir que apenas usuários com role "super" ou "quality" possam acessar
     if (session.role !== 'super' && session.role !== 'quality') {
-      clearTimeout(timeout);
       return res.status(403).json({ message: 'Permissão negada' });
     }
 
     // Verificar se a API key está configurada
     if (!process.env.GEMINI_API_KEY) {
-      clearTimeout(timeout);
       return res.status(500).json({ 
         message: 'API key do Gemini não configurada',
         error: 'GEMINI_API_KEY não encontrada'
@@ -41,7 +30,6 @@ export default async function handler(req, res) {
     const { message, topics, period, startDate, endDate, chatHistory } = req.body;
 
     if (!message) {
-      clearTimeout(timeout);
       return res.status(400).json({ message: 'Mensagem é obrigatória' });
     }
 
@@ -136,8 +124,7 @@ Responda de forma útil e acionável, sempre considerando o contexto do sistema 
       const response = await result.response;
       const text = response.text();
       
-      clearTimeout(timeout);
-      return res.status(200).json({
+             return res.status(200).json({
         success: true,
         response: text,
         metadata: {
@@ -149,9 +136,8 @@ Responda de forma útil e acionável, sempre considerando o contexto do sistema 
           note: limitedTopics.length < (topics?.length || 0) ? `Analisados apenas os top ${limitedTopics.length} temas para melhor performance` : null
         }
       });
-    } catch (geminiError) {
-      clearTimeout(timeout);
-      console.error('Erro do Gemini:', geminiError);
+         } catch (geminiError) {
+       console.error('Erro do Gemini:', geminiError);
       
       let errorMessage = 'Erro ao gerar resposta com Gemini';
       let errorDetails = geminiError.message;
@@ -175,13 +161,12 @@ Responda de forma útil e acionável, sempre considerando o contexto do sistema 
       });
     }
 
-  } catch (error) {
-    clearTimeout(timeout);
-    console.error('Erro geral do chat:', error);
-    return res.status(500).json({ 
-      message: 'Erro interno do servidor',
-      error: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
-  }
+     } catch (error) {
+     console.error('Erro geral do chat:', error);
+     return res.status(500).json({ 
+       message: 'Erro interno do servidor',
+       error: error.message,
+       details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+     });
+   }
 } 

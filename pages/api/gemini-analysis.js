@@ -6,32 +6,21 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  // Configurar timeout para dar mais tempo para a IA completar
-  const timeout = setTimeout(() => {
-    res.status(504).json({ 
-      message: 'Timeout - A requisição demorou muito para responder',
-      error: 'Request timeout'
-    });
-  }, 90000); // 90 segundos - triplicado o tempo
-
   try {
     // Verificar autenticação
     const session = await getServerSession(req, res, authOptions);
     
     if (!session) {
-      clearTimeout(timeout);
       return res.status(401).json({ message: 'Não autorizado' });
     }
 
     // Garantir que apenas usuários com role "super" ou "quality" possam acessar
     if (session.role !== 'super' && session.role !== 'quality') {
-      clearTimeout(timeout);
       return res.status(403).json({ message: 'Permissão negada' });
     }
 
     // Verificar se a API key está configurada
     if (!process.env.GEMINI_API_KEY) {
-      clearTimeout(timeout);
       return res.status(500).json({ 
         message: 'API key do Gemini não configurada',
         error: 'GEMINI_API_KEY não encontrada'
@@ -41,7 +30,6 @@ export default async function handler(req, res) {
     const { topics, period, startDate, endDate, analysisType } = req.body;
 
     if (!topics || !Array.isArray(topics)) {
-      clearTimeout(timeout);
       return res.status(400).json({ message: 'Dados de temas são obrigatórios' });
     }
 
@@ -203,8 +191,7 @@ export default async function handler(req, res) {
       parsedResponse = text;
     }
 
-    clearTimeout(timeout);
-    return res.status(200).json({
+         return res.status(200).json({
       success: true,
       analysis: parsedResponse,
       metadata: {
@@ -217,11 +204,10 @@ export default async function handler(req, res) {
       }
     });
 
-  } catch (error) {
-    clearTimeout(timeout);
-    return res.status(500).json({ 
-      message: 'Erro interno do servidor',
-      error: error.message
-    });
-  }
+     } catch (error) {
+     return res.status(500).json({ 
+       message: 'Erro interno do servidor',
+       error: error.message
+     });
+   }
 } 

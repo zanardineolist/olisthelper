@@ -351,9 +351,9 @@ Como posso ajudar você hoje?`,
                    <Typography variant="body2" sx={{ color: 'var(--text-color2)', fontSize: '0.85rem' }}>
                      Processando...
                    </Typography>
-                   <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.7, fontSize: '0.75rem' }}>
-                     Pode demorar até 90 segundos
-                   </Typography>
+                                       <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.7, fontSize: '0.75rem' }}>
+                      Processando resposta completa...
+                    </Typography>
                  </Box>
                </Box>
              </motion.div>
