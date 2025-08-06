@@ -419,6 +419,92 @@ export default function HelpTopicsData() {
     setTopicDetails([]);
   };
 
+  // Função para análise simples do Gemini
+  const handleSimpleAnalysis = async () => {
+    try {
+      setLoadingGemini(true);
+      setOpenGeminiModal(true);
+      setGeminiAnalysis('');
+
+      const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
+      const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
+
+      // Verificar cache
+      const cacheKey = `${formattedStartDate}-${formattedEndDate}-simple`;
+      const cachedAnalysis = analysisCache[cacheKey];
+
+      if (cachedAnalysis) {
+        setGeminiAnalysis(cachedAnalysis);
+        setLoadingGemini(false);
+        return;
+      }
+
+      // Configurar timeout para a requisição (versão simplificada)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 35000); // 35 segundos
+
+      const res = await fetch('/api/gemini-analysis-simple', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topics,
+          period,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Erro ${res.status}: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      
+      // Adicionar nota se houver limitação de dados
+      let analysisText = data.analysis;
+      if (data.metadata?.note) {
+        analysisText = `⚡ ${data.metadata.note}\n\n${analysisText}`;
+      }
+      
+      // Adicionar indicador de cache se aplicável
+      const isFromCache = analysisCache[cacheKey];
+      if (!isFromCache) {
+        analysisText = `🚀 Análise rápida gerada\n\n${analysisText}`;
+      }
+      
+      setGeminiAnalysis(analysisText);
+      setAnalysisCache(prev => ({ ...prev, [cacheKey]: analysisText })); // Adicionar ao cache
+    } catch (error) {
+      console.error('Erro na análise simples do Gemini:', error);
+      
+      let errorMessage = 'Não foi possível gerar a análise rápida.';
+      if (error.name === 'AbortError') {
+        errorMessage = 'A análise rápida demorou muito. Tente novamente.';
+      } else if (error.message.includes('504')) {
+        errorMessage = 'Servidor sobrecarregado. Tente novamente em alguns instantes.';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Tempo limite excedido. Tente novamente.';
+      } else if (error.message.includes('quota')) {
+        errorMessage = 'Limite de requisições da IA excedido. Tente novamente em alguns minutos.';
+      } else if (error.message.includes('API key')) {
+        errorMessage = 'Erro de configuração da IA. Entre em contato com o administrador.';
+      } else if (error.message.includes('500')) {
+        errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes.';
+      }
+      
+      Swal.fire('Erro', errorMessage, 'error');
+      setGeminiAnalysis('Erro ao gerar análise rápida. Tente novamente.');
+    } finally {
+      setLoadingGemini(false);
+    }
+  };
+
   // Função para análise do Gemini
   const handleGeminiAnalysis = async () => {
     try {
@@ -439,9 +525,9 @@ export default function HelpTopicsData() {
         return;
       }
 
-      // Configurar timeout para a requisição (aumentado para análises complexas)
+      // Configurar timeout para a requisição (otimizado para melhor performance)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 segundos para análises completas
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos para análises
 
       const res = await fetch('/api/gemini-analysis', {
         method: 'POST',
@@ -486,15 +572,17 @@ export default function HelpTopicsData() {
       
       let errorMessage = 'Não foi possível gerar a análise com IA.';
       if (error.name === 'AbortError') {
-        errorMessage = 'A análise é muito complexa e demorou muito. Tente com um período menor ou aguarde um pouco e tente novamente.';
+        errorMessage = 'A análise demorou muito. Tente com um período menor ou aguarde um pouco e tente novamente.';
       } else if (error.message.includes('504')) {
-        errorMessage = 'Servidor sobrecarregado. Tente novamente em alguns instantes.';
+        errorMessage = 'Servidor sobrecarregado. Tente novamente em alguns instantes ou use um período menor.';
       } else if (error.message.includes('timeout')) {
-        errorMessage = 'Tempo limite excedido. A análise é muito complexa. Tente com menos dados.';
+        errorMessage = 'Tempo limite excedido. Tente com menos dados ou período menor.';
       } else if (error.message.includes('quota')) {
         errorMessage = 'Limite de requisições da IA excedido. Tente novamente em alguns minutos.';
       } else if (error.message.includes('API key')) {
         errorMessage = 'Erro de configuração da IA. Entre em contato com o administrador.';
+      } else if (error.message.includes('500')) {
+        errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes.';
       }
       
       Swal.fire('Erro', errorMessage, 'error');
@@ -618,6 +706,27 @@ export default function HelpTopicsData() {
                 }}
               >
                 Análise IA
+              </Button>
+              
+              <Button 
+                variant="outlined" 
+                onClick={handleSimpleAnalysis}
+                disabled={loading}
+                startIcon={<i className="fa-solid fa-bolt"></i>}
+                sx={{
+                  borderColor: 'var(--color-accent2)',
+                  color: 'var(--color-accent2)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(240, 160, 40, 0.05)',
+                    borderColor: 'var(--color-accent2)'
+                  },
+                  '&.Mui-disabled': {
+                    borderColor: 'var(--text-color2)',
+                    color: 'var(--text-color2)'
+                  }
+                }}
+              >
+                Análise Rápida
               </Button>
               
               <Button 
@@ -1384,13 +1493,22 @@ export default function HelpTopicsData() {
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                 <CircularProgress size={40} sx={{ color: 'var(--color-primary)' }} />
                 <Typography sx={{ color: 'var(--text-color2)', textAlign: 'center', fontWeight: 500 }}>
-                  Gerando análise completa com IA...
+                  {loadingGemini && analysisCache[`${formatDateBR(startDate, 'yyyy-MM-dd')}-${formatDateBR(endDate, 'yyyy-MM-dd')}-simple`] ? 
+                    'Gerando análise rápida com IA...' : 
+                    'Gerando análise com IA...'
+                  }
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.7, textAlign: 'center' }}>
-                  Analisando padrões, causas e recomendações...
+                  {loadingGemini && analysisCache[`${formatDateBR(startDate, 'yyyy-MM-dd')}-${formatDateBR(endDate, 'yyyy-MM-dd')}-simple`] ? 
+                    'Analisando padrões principais...' : 
+                    'Analisando padrões e recomendações...'
+                  }
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.5, textAlign: 'center', fontSize: '0.75rem' }}>
-                  Isso pode levar até 90 segundos para análises complexas
+                  {loadingGemini && analysisCache[`${formatDateBR(startDate, 'yyyy-MM-dd')}-${formatDateBR(endDate, 'yyyy-MM-dd')}-simple`] ? 
+                    'Isso pode levar até 35 segundos para análises rápidas' : 
+                    'Isso pode levar até 60 segundos para análises complexas'
+                  }
                 </Typography>
               </Box>
             </Box>

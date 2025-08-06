@@ -36,8 +36,8 @@ export default async function handler(req, res) {
     // Importação dinâmica para evitar problemas de SSR
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
 
-    // Preparar dados para análise (aumentar limite para 30 temas)
-    const limitedTopics = topics.slice(0, 30);
+    // Preparar dados para análise (reduzir para 15 temas para melhor performance)
+    const limitedTopics = topics.slice(0, 15);
     const topicsData = limitedTopics.map((topic, index) => ({
       ranking: index + 1,
       name: topic.name,
@@ -52,134 +52,109 @@ export default async function handler(req, res) {
     switch (analysisType) {
       case 'insights':
         analysisPrompt = `
-          Analise os seguintes dados de temas de dúvidas mais frequentes do time de suporte do sistema ERP da Olist em um período de ${period} (${startDate} a ${endDate}):
+          Analise os dados de temas de dúvidas do sistema ERP da Olist (${period}: ${startDate} a ${endDate}):
           
           ${JSON.stringify(topicsData, null, 2)}
           
-          Forneça uma análise COMPLETA e DETALHADA sobre:
+          Forneça uma análise estruturada sobre:
           
-          ## 1. PADRÕES IDENTIFICADOS NOS TEMAS MAIS FREQUENTES
-          - Identifique os principais padrões nos temas de dúvidas
-          - Analise a distribuição percentual dos temas
-          - Destaque temas relacionados que podem indicar problemas sistêmicos
-          - Identifique se há concentração em áreas específicas do sistema
+          ## 1. PADRÕES IDENTIFICADOS
+          - Principais padrões nos temas de dúvidas
+          - Distribuição percentual dos temas
+          - Temas relacionados que indicam problemas sistêmicos
           
-          ## 2. POSSÍVEIS CAUSAS RAIZ DAS DÚVIDAS
-          - Analise por que esses temas específicos geram mais dúvidas
-          - Identifique se são problemas de usabilidade, documentação ou complexidade
-          - Considere fatores como mudanças no sistema, treinamento da equipe, etc.
-          - Avalie se há problemas de interface ou fluxo de trabalho
+          ## 2. CAUSAS RAIZ DAS DÚVIDAS
+          - Por que esses temas geram mais dúvidas
+          - Problemas de usabilidade, documentação ou complexidade
+          - Fatores como mudanças no sistema, treinamento da equipe
           
-          ## 3. OPORTUNIDADES DE MELHORIA NA DOCUMENTAÇÃO
-          - Sugira melhorias específicas na documentação do sistema ERP
-          - Identifique se há falta de clareza em determinados processos
-          - Recomende seções que precisam ser expandidas ou criadas
-          - Sugira exemplos práticos e casos de uso que podem ser adicionados
+          ## 3. MELHORIAS NA DOCUMENTAÇÃO
+          - Sugestões específicas para documentação do sistema ERP
+          - Seções que precisam ser expandidas ou criadas
+          - Exemplos práticos que podem ser adicionados
           
-          ## 4. SUGESTÕES DE TREINAMENTOS ESPECÍFICOS
-          - Recomende treinamentos focados nos temas mais problemáticos
-          - Sugira materiais de apoio para a equipe de suporte
-          - Identifique se há necessidade de treinamento sobre funcionalidades específicas
-          - Proponha workshops práticos para os temas críticos
+          ## 4. TREINAMENTOS ESPECÍFICOS
+          - Treinamentos focados nos temas problemáticos
+          - Materiais de apoio para a equipe de suporte
+          - Workshops práticos para temas críticos
           
-          ## 5. PRIORIZAÇÃO DE AÇÕES BASEADA NA FREQUÊNCIA
-          - Liste ações prioritárias para reduzir o volume de dúvidas
-          - Sugira melhorias no sistema que podem resolver problemas recorrentes
-          - Recomende processos de acompanhamento para medir o impacto das melhorias
-          - Defina métricas de sucesso para cada ação sugerida
-          
-          ## 6. ANÁLISE DE TENDÊNCIAS E RECOMENDAÇÕES FUTURAS
-          - Identifique tendências nos dados que podem indicar problemas futuros
-          - Sugira ações preventivas baseadas nos padrões identificados
-          - Recomende melhorias proativas no sistema e processos
+          ## 5. AÇÕES PRIORITÁRIAS
+          - Ações para reduzir volume de dúvidas
+          - Melhorias no sistema para resolver problemas recorrentes
+          - Processos de acompanhamento para medir impacto
           
           IMPORTANTE:
-          - Use formatação markdown para melhor legibilidade
-          - Mantenha o foco no contexto de suporte técnico do ERP da Olist
-          - Forneça insights acionáveis e práticos
-          - Responda em português de forma clara e profissional
-          - Seja detalhado e completo em cada seção
-          - Inclua exemplos específicos quando relevante
+          - Use formatação markdown
+          - Foco no contexto de suporte técnico do ERP da Olist
+          - Insights acionáveis e práticos
+          - Responda em português de forma clara
+          - Seja detalhado mas conciso
         `;
         responseFormat = 'text';
         break;
 
       case 'recommendations':
         analysisPrompt = `
-          Com base nos dados de temas de dúvidas do time de suporte do sistema ERP da Olist:
+          Com base nos dados de temas de dúvidas do sistema ERP da Olist:
           
           ${JSON.stringify(topicsData, null, 2)}
           
-          Gere recomendações ESPECÍFICAS e DETALHADAS estruturadas da seguinte forma:
+          Gere recomendações específicas estruturadas:
           
-          ## 1. MATERIAIS DE TREINAMENTO PRIORITÁRIOS
-          - Identifique os temas que precisam de treinamento urgente
-          - Sugira formatos de treinamento (vídeos, manuais, workshops)
-          - Recomende conteúdo específico para cada tema problemático
-          - Defina cronograma sugerido para implementação
+          ## 1. MATERIAIS DE TREINAMENTO
+          - Temas que precisam de treinamento urgente
+          - Formatos de treinamento (vídeos, manuais, workshops)
+          - Conteúdo específico para cada tema problemático
           
           ## 2. MELHORIAS NA DOCUMENTAÇÃO
-          - Sugira seções da documentação que precisam ser melhoradas
-          - Identifique processos que precisam de documentação mais clara
-          - Recomende exemplos práticos e casos de uso
-          - Proponha estrutura de documentação mais eficiente
+          - Seções da documentação que precisam ser melhoradas
+          - Processos que precisam de documentação mais clara
+          - Exemplos práticos e casos de uso
           
-          ## 3. PROCESSOS QUE PODEM SER OTIMIZADOS
-          - Identifique fluxos de trabalho que podem ser simplificados
-          - Sugira melhorias na interface do sistema ERP
-          - Recomende automações que podem reduzir dúvidas
-          - Proponha mudanças nos processos de suporte
+          ## 3. OTIMIZAÇÃO DE PROCESSOS
+          - Fluxos de trabalho que podem ser simplificados
+          - Melhorias na interface do sistema ERP
+          - Automações que podem reduzir dúvidas
           
-          ## 4. FERRAMENTAS OU RECURSOS QUE PODEM AJUDAR
-          - Sugira ferramentas internas que podem facilitar o suporte
-          - Recomende recursos de conhecimento compartilhado
-          - Identifique integrações que podem melhorar a experiência
-          - Proponha dashboards e relatórios úteis
+          ## 4. FERRAMENTAS E RECURSOS
+          - Ferramentas internas que podem facilitar o suporte
+          - Recursos de conhecimento compartilhado
+          - Integrações que podem melhorar a experiência
           
           ## 5. MÉTRICAS DE ACOMPANHAMENTO
-          - Defina KPIs para medir a redução de dúvidas
-          - Sugira processos de monitoramento contínuo
-          - Recomende indicadores de satisfação do cliente
-          - Proponha sistema de alertas para temas críticos
-          
-          ## 6. PLANO DE AÇÃO DETALHADO
-          - Priorize as ações sugeridas
-          - Defina responsabilidades para cada ação
-          - Estabeleça prazos e marcos importantes
-          - Proponha indicadores de sucesso
+          - KPIs para medir a redução de dúvidas
+          - Processos de monitoramento contínuo
+          - Indicadores de satisfação do cliente
           
           IMPORTANTE:
-          - Use formatação markdown para melhor legibilidade
-          - Mantenha o foco no contexto de suporte técnico do ERP da Olist
-          - Forneça recomendações práticas e implementáveis
-          - Responda em português de forma clara e estruturada
-          - Seja específico e detalhado em cada recomendação
+          - Use formatação markdown
+          - Foco no contexto de suporte técnico do ERP da Olist
+          - Recomendações práticas e implementáveis
+          - Responda em português de forma clara
         `;
         responseFormat = 'text';
         break;
 
       case 'google_sheets':
         analysisPrompt = `
-          Analise os dados de temas de dúvidas e crie um relatório estruturado para Google Sheets:
+          Analise os dados de temas de dúvidas e crie um relatório para Google Sheets:
           
           ${JSON.stringify(topicsData, null, 2)}
           
-          Crie um relatório COMPLETO com as seguintes abas:
+          Crie um relatório com as seguintes abas:
           1. "Resumo Executivo" - Principais insights e métricas
           2. "Análise Detalhada" - Dados completos com análises
           3. "Recomendações" - Ações sugeridas com prioridade
           4. "Tendências" - Análise temporal e padrões
           5. "Métricas" - KPIs e indicadores de performance
-          6. "Ações Prioritárias" - Plano de ação detalhado
           
           Para cada aba, forneça:
-          - Estrutura de colunas detalhada
-          - Dados formatados e organizados
-          - Fórmulas relevantes e úteis
-          - Gráficos sugeridos com configurações
-          - Filtros e validações recomendadas
+          - Estrutura de colunas
+          - Dados formatados
+          - Fórmulas relevantes
+          - Gráficos sugeridos
           
-          Responda em formato JSON com a estrutura completa das abas e dados.
+          Responda em formato JSON com a estrutura das abas e dados.
         `;
         responseFormat = 'json';
         break;
@@ -188,21 +163,21 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: 'Tipo de análise inválido' });
     }
 
-    // Gerar análise com Gemini (otimizado para respostas mais longas)
+    // Gerar análise com Gemini (otimizado para melhor performance)
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 8192, // Aumentado significativamente para análises completas
+        maxOutputTokens: 4096, // Reduzido para melhor performance
         temperature: 0.7,
         topP: 0.8,
         topK: 40,
       }
     });
     
-    // Configurar timeout mais longo para análises complexas
+    // Configurar timeout mais conservador
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 segundos
 
     try {
       const result = await model.generateContent(analysisPrompt);
@@ -252,12 +227,15 @@ export default async function handler(req, res) {
       if (geminiError.message.includes('quota')) {
         errorMessage = 'Limite de requisições excedido';
         errorDetails = 'Tente novamente em alguns instantes';
-      } else if (geminiError.message.includes('timeout')) {
+      } else if (geminiError.message.includes('timeout') || geminiError.name === 'AbortError') {
         errorMessage = 'Tempo limite excedido';
         errorDetails = 'A análise é muito complexa. Tente com menos dados ou período menor.';
       } else if (geminiError.message.includes('API key')) {
         errorMessage = 'Erro de configuração da API';
         errorDetails = 'Verifique a configuração da API key do Gemini';
+      } else if (geminiError.message.includes('content policy')) {
+        errorMessage = 'Conteúdo não permitido';
+        errorDetails = 'Sua solicitação contém conteúdo que não é permitido.';
       }
       
       return res.status(500).json({ 
@@ -268,6 +246,7 @@ export default async function handler(req, res) {
     }
 
   } catch (error) {
+    console.error('Erro geral da API:', error);
     return res.status(500).json({ 
       message: 'Erro interno do servidor',
       error: error.message
