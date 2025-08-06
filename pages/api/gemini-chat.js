@@ -36,8 +36,8 @@ export default async function handler(req, res) {
     // Importação dinâmica para evitar problemas de SSR
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
 
-    // Preparar contexto com dados do dashboard (limitar a top 15 para evitar timeout)
-    const limitedTopics = topics ? topics.slice(0, 15) : [];
+    // Preparar contexto com dados do dashboard (aumentar limite para 25 temas)
+    const limitedTopics = topics ? topics.slice(0, 25) : [];
     const contextData = limitedTopics.map((topic, index) => ({
       ranking: index + 1,
       name: topic.name,
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
       percentage: topic.percentage
     }));
 
-    // Construir prompt com contexto
+    // Construir prompt com contexto mais detalhado
     const systemPrompt = `Você é um assistente especializado em análise de dados de temas de dúvidas para o time de suporte do sistema ERP da Olist.
 
 CONTEXTO DOS DADOS:
@@ -55,10 +55,12 @@ CONTEXTO DOS DADOS:
 
 INSTRUÇÕES:
 1. Analise os dados fornecidos sobre temas de dúvidas do sistema ERP
-2. Responda em português de forma clara e profissional
+2. Responda em português de forma clara, profissional e DETALHADA
 3. Forneça insights baseados nos dados quando relevante
 4. Sugira ações práticas quando apropriado
 5. Mantenha o foco na qualidade do suporte e melhoria de processos
+6. Seja COMPLETO em suas respostas - não corte informações importantes
+7. Use formatação markdown quando apropriado para melhor legibilidade
 
 CAPACIDADES:
 - Análise de padrões nos dados de suporte
@@ -67,14 +69,25 @@ CAPACIDADES:
 - Recomendações de treinamentos para a equipe de suporte
 - Análise de tendências nos tipos de dúvidas
 - Priorização de ações para reduzir volume de tickets
+- Análise de causas raiz dos problemas
+- Sugestões de melhorias no sistema e processos
 
 CONTEXTO ESPECÍFICO:
 - Sistema ERP da Olist usado por clientes
 - Equipe de suporte técnico
 - Foco em melhorar experiência do usuário
 - Redução de volume de dúvidas recorrentes
+- Análise de qualidade e eficiência do suporte
 
-Responda de forma útil e acionável, sempre considerando o contexto do sistema ERP da Olist.`;
+DIRETRIZES DE RESPOSTA:
+- Seja detalhado e completo em suas análises
+- Forneça exemplos específicos quando relevante
+- Estruture suas respostas de forma clara e organizada
+- Inclua recomendações práticas e acionáveis
+- Use dados quantitativos quando disponível
+- Mantenha o foco no contexto do sistema ERP da Olist
+
+Responda de forma útil, acionável e COMPLETA, sempre considerando o contexto do sistema ERP da Olist.`;
 
     // Preparar histórico de conversa (filtrar mensagens válidas e garantir que comece com user)
     let conversationHistory = [];
@@ -101,30 +114,40 @@ Responda de forma útil e acionável, sempre considerando o contexto do sistema 
       parts: [{ text: message.trim() }]
     });
 
-    // Gerar resposta com Gemini (usando modelo gratuito)
+    // Gerar resposta com Gemini (otimizado para respostas mais longas)
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 1024, // Reduzir tokens para resposta mais rápida
+        maxOutputTokens: 4096, // Aumentado para respostas mais completas
         temperature: 0.7,
+        topP: 0.8,
+        topK: 40,
       }
     });
+    
+    // Configurar timeout mais longo para respostas complexas
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 segundos
     
     try {
       const chat = model.startChat({
         history: conversationHistory.slice(0, -1), // Excluir a mensagem atual do histórico
         generationConfig: {
-          maxOutputTokens: 1024,
+          maxOutputTokens: 4096,
           temperature: 0.7,
+          topP: 0.8,
+          topK: 40,
         },
       });
 
       const result = await chat.sendMessage(systemPrompt + '\n\n' + message);
+      clearTimeout(timeoutId);
+      
       const response = await result.response;
       const text = response.text();
       
-             return res.status(200).json({
+      return res.status(200).json({
         success: true,
         response: text,
         metadata: {
@@ -133,11 +156,15 @@ Responda de forma útil e acionável, sempre considerando o contexto do sistema 
           endDate,
           totalTopics: contextData.length,
           timestamp: new Date().toISOString(),
-          note: limitedTopics.length < (topics?.length || 0) ? `Analisados apenas os top ${limitedTopics.length} temas para melhor performance` : null
+          note: limitedTopics.length < (topics?.length || 0) ? `Analisados apenas os top ${limitedTopics.length} temas para melhor performance` : null,
+          tokensUsed: response.usageMetadata?.totalTokenCount || 'N/A'
         }
       });
-         } catch (geminiError) {
-       console.error('Erro do Gemini:', geminiError);
+      
+    } catch (geminiError) {
+      clearTimeout(timeoutId);
+      
+      console.error('Erro do Gemini:', geminiError);
       
       let errorMessage = 'Erro ao gerar resposta com Gemini';
       let errorDetails = geminiError.message;
@@ -152,6 +179,12 @@ Responda de forma útil e acionável, sempre considerando o contexto do sistema 
       } else if (geminiError.message.includes('quota')) {
         errorMessage = 'Limite de requisições excedido';
         errorDetails = 'Tente novamente em alguns instantes';
+      } else if (geminiError.message.includes('timeout')) {
+        errorMessage = 'Tempo limite excedido';
+        errorDetails = 'A resposta é muito complexa. Tente reformular sua pergunta.';
+      } else if (geminiError.message.includes('content policy')) {
+        errorMessage = 'Conteúdo não permitido';
+        errorDetails = 'Sua mensagem contém conteúdo que não é permitido.';
       }
       
       return res.status(500).json({ 
@@ -161,12 +194,12 @@ Responda de forma útil e acionável, sempre considerando o contexto do sistema 
       });
     }
 
-     } catch (error) {
-     console.error('Erro geral do chat:', error);
-     return res.status(500).json({ 
-       message: 'Erro interno do servidor',
-       error: error.message,
-       details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-     });
-   }
+  } catch (error) {
+    console.error('Erro geral do chat:', error);
+    return res.status(500).json({ 
+      message: 'Erro interno do servidor',
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
 } 

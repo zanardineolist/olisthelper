@@ -319,7 +319,7 @@ Como posso ajudar você hoje?`,
              <motion.div
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
-               sx={{
+               style={{
                  display: 'flex',
                  gap: 2,
                  justifyContent: 'flex-start'
@@ -349,11 +349,11 @@ Como posso ajudar você hoje?`,
                  <CircularProgress size={16} sx={{ color: 'var(--color-primary)' }} />
                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                    <Typography variant="body2" sx={{ color: 'var(--text-color2)', fontSize: '0.85rem' }}>
-                     Processando...
+                     Analisando dados...
                    </Typography>
-                                       <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.7, fontSize: '0.75rem' }}>
-                      Processando resposta completa...
-                    </Typography>
+                   <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.7, fontSize: '0.75rem' }}>
+                     Gerando resposta completa...
+                   </Typography>
                  </Box>
                </Box>
              </motion.div>

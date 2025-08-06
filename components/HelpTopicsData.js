@@ -159,6 +159,7 @@ export default function HelpTopicsData() {
   const [geminiAnalysis, setGeminiAnalysis] = useState('');
   const [loadingGemini, setLoadingGemini] = useState(false);
   const [analysisType, setAnalysisType] = useState('insights');
+  const [analysisCache, setAnalysisCache] = useState({}); // Cache para análises já realizadas
 
   // Estados para o chat
   const [showChat, setShowChat] = useState(false);
@@ -428,9 +429,19 @@ export default function HelpTopicsData() {
       const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
       const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
 
-      // Configurar timeout para a requisição
+      // Verificar cache
+      const cacheKey = `${formattedStartDate}-${formattedEndDate}-${analysisType}`;
+      const cachedAnalysis = analysisCache[cacheKey];
+
+      if (cachedAnalysis) {
+        setGeminiAnalysis(cachedAnalysis);
+        setLoadingGemini(false);
+        return;
+      }
+
+      // Configurar timeout para a requisição (aumentado para análises complexas)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
+      const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 segundos para análises completas
 
       const res = await fetch('/api/gemini-analysis', {
         method: 'POST',
@@ -462,15 +473,28 @@ export default function HelpTopicsData() {
         analysisText = `📝 ${data.metadata.note}\n\n${analysisText}`;
       }
       
+      // Adicionar indicador de cache se aplicável
+      const isFromCache = analysisCache[cacheKey];
+      if (!isFromCache) {
+        analysisText = `⚡ Análise gerada em tempo real\n\n${analysisText}`;
+      }
+      
       setGeminiAnalysis(analysisText);
+      setAnalysisCache(prev => ({ ...prev, [cacheKey]: analysisText })); // Adicionar ao cache
     } catch (error) {
       console.error('Erro na análise do Gemini:', error);
       
       let errorMessage = 'Não foi possível gerar a análise com IA.';
       if (error.name === 'AbortError') {
-        errorMessage = 'A requisição demorou muito. Tente novamente ou use um período menor.';
+        errorMessage = 'A análise é muito complexa e demorou muito. Tente com um período menor ou aguarde um pouco e tente novamente.';
       } else if (error.message.includes('504')) {
         errorMessage = 'Servidor sobrecarregado. Tente novamente em alguns instantes.';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Tempo limite excedido. A análise é muito complexa. Tente com menos dados.';
+      } else if (error.message.includes('quota')) {
+        errorMessage = 'Limite de requisições da IA excedido. Tente novamente em alguns minutos.';
+      } else if (error.message.includes('API key')) {
+        errorMessage = 'Erro de configuração da IA. Entre em contato com o administrador.';
       }
       
       Swal.fire('Erro', errorMessage, 'error');
@@ -594,6 +618,30 @@ export default function HelpTopicsData() {
                 }}
               >
                 Análise IA
+              </Button>
+              
+              <Button 
+                variant="outlined" 
+                onClick={() => {
+                  setAnalysisCache({});
+                  Swal.fire('Sucesso', 'Cache de análises limpo com sucesso!', 'success');
+                }}
+                disabled={loading}
+                startIcon={<i className="fa-solid fa-trash"></i>}
+                sx={{
+                  borderColor: 'var(--color-accent1)',
+                  color: 'var(--color-accent1)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(230, 78, 54, 0.05)',
+                    borderColor: 'var(--color-accent1)'
+                  },
+                  '&.Mui-disabled': {
+                    borderColor: 'var(--text-color2)',
+                    color: 'var(--text-color2)'
+                  }
+                }}
+              >
+                Limpar Cache
               </Button>
               
               <Button 
@@ -1335,11 +1383,14 @@ export default function HelpTopicsData() {
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                 <CircularProgress size={40} sx={{ color: 'var(--color-primary)' }} />
-                <Typography sx={{ color: 'var(--text-color2)', textAlign: 'center' }}>
-                  Gerando análise com IA...
+                <Typography sx={{ color: 'var(--text-color2)', textAlign: 'center', fontWeight: 500 }}>
+                  Gerando análise completa com IA...
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.7, textAlign: 'center' }}>
-                  Gerando análise completa...
+                  Analisando padrões, causas e recomendações...
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.5, textAlign: 'center', fontSize: '0.75rem' }}>
+                  Isso pode levar até 90 segundos para análises complexas
                 </Typography>
               </Box>
             </Box>
