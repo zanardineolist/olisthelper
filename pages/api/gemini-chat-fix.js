@@ -81,10 +81,10 @@ CAPACIDADES:
 
 Responda de forma útil e acionável.`;
 
-    // Gerar resposta com Gemini
+    // Gerar resposta com Gemini (usando modelo gratuito)
     console.log('Fix API - Inicializando Gemini...');
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
     try {
       console.log('Fix API - Gerando conteúdo...');

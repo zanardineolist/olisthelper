@@ -29,9 +29,9 @@ export default async function handler(req, res) {
     
     console.log('Simple API - Inicializando Gemini...');
     
-    // Teste simples do Gemini
+    // Teste simples do Gemini (usando modelo gratuito)
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
     console.log('Simple API - Gerando conteúdo...');
     const result = await model.generateContent(`Responda em português: ${message}`);

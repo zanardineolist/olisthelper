@@ -105,8 +105,8 @@ CAPACIDADES:
 
 Responda de forma útil e acionável.`;
 
-    // Gerar resposta com Gemini
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    // Gerar resposta com Gemini (usando modelo gratuito)
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
     try {
       console.log('OAuth API - Gerando conteúdo...');

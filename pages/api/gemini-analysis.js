@@ -122,10 +122,10 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: 'Tipo de análise inválido' });
     }
 
-    // Gerar análise com Gemini
+    // Gerar análise com Gemini (usando modelo gratuito)
     console.log('Analysis API - Inicializando Gemini...');
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
     console.log('Analysis API - Gerando análise...');
     const result = await model.generateContent(analysisPrompt);

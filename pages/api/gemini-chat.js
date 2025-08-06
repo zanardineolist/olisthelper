@@ -90,10 +90,10 @@ Responda de forma útil e acionável.`;
       parts: [{ text: message }]
     });
 
-    // Gerar resposta com Gemini
+    // Gerar resposta com Gemini (usando modelo gratuito)
     console.log('Chat API - Inicializando Gemini...');
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
     try {
       console.log('Chat API - Iniciando chat...');

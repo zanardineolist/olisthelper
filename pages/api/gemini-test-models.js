@@ -37,19 +37,19 @@ export default async function handler(req, res) {
     } catch (listError) {
       console.error('Test Models API - Erro ao listar modelos:', listError);
       
-      // Tentar com modelo específico
+      // Tentar com modelo específico (gratuito)
       try {
-        console.log('Test Models API - Testando modelo gemini-1.5-pro...');
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+        console.log('Test Models API - Testando modelo gemini-2.0-flash...');
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
         const result = await model.generateContent('Teste simples');
         const response = await result.response;
         const text = response.text();
         
-        console.log('Test Models API - Teste com gemini-1.5-pro bem-sucedido');
+        console.log('Test Models API - Teste com gemini-2.0-flash bem-sucedido');
         
         return res.status(200).json({
           success: true,
-          message: 'Modelo gemini-1.5-pro funcionando',
+          message: 'Modelo gemini-2.0-flash funcionando',
           testResponse: text
         });
       } catch (modelError) {
