@@ -6,21 +6,32 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
+  // Configurar timeout para evitar 504
+  const timeout = setTimeout(() => {
+    res.status(504).json({ 
+      message: 'Timeout - A requisição demorou muito para responder',
+      error: 'Request timeout'
+    });
+  }, 25000); // 25 segundos
+
   try {
     // Verificar autenticação
     const session = await getServerSession(req, res, authOptions);
     
     if (!session) {
+      clearTimeout(timeout);
       return res.status(401).json({ message: 'Não autorizado' });
     }
 
     // Garantir que apenas usuários com role "super" ou "quality" possam acessar
     if (session.role !== 'super' && session.role !== 'quality') {
+      clearTimeout(timeout);
       return res.status(403).json({ message: 'Permissão negada' });
     }
 
     // Verificar se a API key está configurada
     if (!process.env.GEMINI_API_KEY) {
+      clearTimeout(timeout);
       return res.status(500).json({ 
         message: 'API key do Gemini não configurada',
         error: 'GEMINI_API_KEY não encontrada'
@@ -30,14 +41,16 @@ export default async function handler(req, res) {
     const { topics, period, startDate, endDate, analysisType } = req.body;
 
     if (!topics || !Array.isArray(topics)) {
+      clearTimeout(timeout);
       return res.status(400).json({ message: 'Dados de temas são obrigatórios' });
     }
 
     // Importação dinâmica para evitar problemas de SSR
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
 
-    // Preparar dados para análise
-    const topicsData = topics.map((topic, index) => ({
+    // Preparar dados para análise (limitar a top 20 para evitar timeout)
+    const limitedTopics = topics.slice(0, 20);
+    const topicsData = limitedTopics.map((topic, index) => ({
       ranking: index + 1,
       name: topic.name,
       count: topic.count,
@@ -115,7 +128,13 @@ export default async function handler(req, res) {
 
     // Gerar análise com Gemini (usando modelo gratuito)
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-2.0-flash',
+      generationConfig: {
+        maxOutputTokens: 1024, // Reduzir tokens para resposta mais rápida
+        temperature: 0.7,
+      }
+    });
     
     const result = await model.generateContent(analysisPrompt);
     const response = await result.response;
@@ -136,6 +155,7 @@ export default async function handler(req, res) {
       parsedResponse = text;
     }
 
+    clearTimeout(timeout);
     return res.status(200).json({
       success: true,
       analysis: parsedResponse,
@@ -143,12 +163,14 @@ export default async function handler(req, res) {
         period,
         startDate,
         endDate,
-        totalTopics: topics.length,
-        analysisType
+        totalTopics: limitedTopics.length,
+        analysisType,
+        note: limitedTopics.length < topics.length ? `Analisados apenas os top ${limitedTopics.length} temas para melhor performance` : null
       }
     });
 
   } catch (error) {
+    clearTimeout(timeout);
     return res.status(500).json({ 
       message: 'Erro interno do servidor',
       error: error.message

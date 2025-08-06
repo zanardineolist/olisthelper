@@ -370,6 +370,10 @@ export default function HelpTopicsData() {
       const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
       const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
 
+      // Configurar timeout para a requisição
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
+
       const res = await fetch('/api/gemini-analysis', {
         method: 'POST',
         headers: {
@@ -382,15 +386,36 @@ export default function HelpTopicsData() {
           endDate: formattedEndDate,
           analysisType
         }),
+        signal: controller.signal
       });
 
-      if (!res.ok) throw new Error('Erro ao gerar análise');
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || `Erro ${res.status}: ${res.statusText}`);
+      }
 
       const data = await res.json();
-      setGeminiAnalysis(data.analysis);
+      
+      // Adicionar nota se houver limitação de dados
+      let analysisText = data.analysis;
+      if (data.metadata?.note) {
+        analysisText = `📝 ${data.metadata.note}\n\n${analysisText}`;
+      }
+      
+      setGeminiAnalysis(analysisText);
     } catch (error) {
       console.error('Erro na análise do Gemini:', error);
-      Swal.fire('Erro', 'Não foi possível gerar a análise com IA.', 'error');
+      
+      let errorMessage = 'Não foi possível gerar a análise com IA.';
+      if (error.name === 'AbortError') {
+        errorMessage = 'A requisição demorou muito. Tente novamente ou use um período menor.';
+      } else if (error.message.includes('504')) {
+        errorMessage = 'Servidor sobrecarregado. Tente novamente em alguns instantes.';
+      }
+      
+      Swal.fire('Erro', errorMessage, 'error');
       setGeminiAnalysis('Erro ao gerar análise. Tente novamente.');
     } finally {
       setLoadingGemini(false);
