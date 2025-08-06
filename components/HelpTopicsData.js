@@ -50,9 +50,9 @@ const formatAnalysisText = (text) => {
   
   return text
     // Headers
-    .replace(/^## (.*$)/gim, '<h2 style="color: var(--title-color); margin: 24px 0 12px 0; font-size: 1.2rem; font-weight: 600; border-bottom: 2px solid var(--color-primary); padding-bottom: 4px;">$1</h2>')
-    .replace(/^### (.*$)/gim, '<h3 style="color: var(--title-color); margin: 20px 0 10px 0; font-size: 1.1rem; font-weight: 600;">$1</h3>')
-    .replace(/^#### (.*$)/gim, '<h4 style="color: var(--title-color); margin: 16px 0 8px 0; font-size: 1rem; font-weight: 600;">$1</h4>')
+    .replace(/^## (.*$)/gim, '<h2 style="color: var(--title-color); margin: 28px 0 16px 0; font-size: 1.3rem; font-weight: 600; border-bottom: 2px solid var(--color-primary); padding-bottom: 6px;">$1</h2>')
+    .replace(/^### (.*$)/gim, '<h3 style="color: var(--title-color); margin: 24px 0 12px 0; font-size: 1.15rem; font-weight: 600;">$1</h3>')
+    .replace(/^#### (.*$)/gim, '<h4 style="color: var(--title-color); margin: 20px 0 10px 0; font-size: 1.05rem; font-weight: 600;">$1</h4>')
     
     // Bold text
     .replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 600; color: var(--title-color);">$1</strong>')
@@ -61,42 +61,45 @@ const formatAnalysisText = (text) => {
     .replace(/\*(.*?)\*/g, '<em style="font-style: italic;">$1</em>')
     
     // Lists
-    .replace(/^\- (.*$)/gim, '<li style="margin: 8px 0; padding-left: 8px;">$1</li>')
-    .replace(/^(\d+)\. (.*$)/gim, '<li style="margin: 8px 0; padding-left: 8px;">$2</li>')
+    .replace(/^\- (.*$)/gim, '<li style="margin: 10px 0; padding-left: 12px; line-height: 1.6;">$1</li>')
+    .replace(/^(\d+)\. (.*$)/gim, '<li style="margin: 10px 0; padding-left: 12px; line-height: 1.6;">$2</li>')
     
     // Wrap lists in ul/ol
-    .replace(/(<li.*<\/li>)/gs, '<ul style="margin: 16px 0; padding-left: 20px;">$1</ul>')
+    .replace(/(<li.*<\/li>)/gs, '<ul style="margin: 20px 0; padding-left: 24px;">$1</ul>')
     
     // Paragraphs
-    .replace(/\n\n/g, '</p><p style="margin: 16px 0; line-height: 1.6;">')
+    .replace(/\n\n/g, '</p><p style="margin: 18px 0; line-height: 1.7;">')
     
     // Line breaks
     .replace(/\n/g, '<br>')
     
     // Wrap in paragraph tags
-    .replace(/^(.*)$/gm, '<p style="margin: 8px 0; line-height: 1.6;">$1</p>')
+    .replace(/^(.*)$/gm, '<p style="margin: 10px 0; line-height: 1.7;">$1</p>')
     
     // Clean up empty paragraphs
-    .replace(/<p style="margin: 8px 0; line-height: 1.6;"><\/p>/g, '')
-    .replace(/<p style="margin: 16px 0; line-height: 1.6;"><\/p>/g, '')
+    .replace(/<p style="margin: 10px 0; line-height: 1.7;"><\/p>/g, '')
+    .replace(/<p style="margin: 18px 0; line-height: 1.7;"><\/p>/g, '')
     
     // Clean up list formatting
-    .replace(/<p style="margin: 8px 0; line-height: 1.6;"><li/g, '<li')
+    .replace(/<p style="margin: 10px 0; line-height: 1.7;"><li/g, '<li')
     .replace(/<\/li><\/p>/g, '</li>')
-    .replace(/<p style="margin: 16px 0; line-height: 1.6;"><li/g, '<li')
+    .replace(/<p style="margin: 18px 0; line-height: 1.7;"><li/g, '<li')
     
     // Clean up header formatting
-    .replace(/<p style="margin: 8px 0; line-height: 1.6;"><h2/g, '<h2')
+    .replace(/<p style="margin: 10px 0; line-height: 1.7;"><h2/g, '<h2')
     .replace(/<\/h2><\/p>/g, '</h2>')
-    .replace(/<p style="margin: 8px 0; line-height: 1.6;"><h3/g, '<h3')
+    .replace(/<p style="margin: 10px 0; line-height: 1.7;"><h3/g, '<h3')
     .replace(/<\/h3><\/p>/g, '</h3>')
-    .replace(/<p style="margin: 8px 0; line-height: 1.6;"><h4/g, '<h4')
+    .replace(/<p style="margin: 10px 0; line-height: 1.7;"><h4/g, '<h4')
     .replace(/<\/h4><\/p>/g, '</h4>')
     
     // Add spacing around headers
-    .replace(/<\/h2>/g, '</h2><div style="margin-bottom: 16px;"></div>')
-    .replace(/<\/h3>/g, '</h3><div style="margin-bottom: 12px;"></div>')
-    .replace(/<\/h4>/g, '</h4><div style="margin-bottom: 8px;"></div>');
+    .replace(/<\/h2>/g, '</h2><div style="margin-bottom: 20px;"></div>')
+    .replace(/<\/h3>/g, '</h3><div style="margin-bottom: 16px;"></div>')
+    .replace(/<\/h4>/g, '</h4><div style="margin-bottom: 12px;"></div>')
+    
+    // Add extra spacing for better readability
+    .replace(/<\/ul>/g, '</ul><div style="margin-bottom: 16px;"></div>');
 };
 
 // Versões das funções do date-fns ajustadas para o fuso horário do Brasil
@@ -1324,7 +1327,9 @@ export default function HelpTopicsData() {
         
         <DialogContent dividers sx={{ 
           backgroundColor: 'var(--box-color4)',
-          padding: '20px 24px'
+          padding: '20px 24px',
+          maxHeight: '80vh',
+          overflow: 'hidden'
         }}>
           {loadingGemini ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
@@ -1341,15 +1346,30 @@ export default function HelpTopicsData() {
               borderRadius: '8px',
               padding: '20px',
               border: '1px solid var(--color-border)',
-              maxHeight: '60vh',
-              overflow: 'auto'
+              maxHeight: '70vh',
+              overflow: 'auto',
+              '&::-webkit-scrollbar': {
+                width: '8px'
+              },
+              '&::-webkit-scrollbar-track': {
+                backgroundColor: 'var(--color-border)',
+                borderRadius: '4px'
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: 'var(--color-primary)',
+                borderRadius: '4px',
+                '&:hover': {
+                  backgroundColor: 'var(--color-primary-hover)'
+                }
+              }
             }}>
               <div 
                 style={{ 
                   color: 'var(--text-color)',
-                  lineHeight: 1.7,
+                  lineHeight: 1.8,
                   fontSize: '0.95rem',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  paddingBottom: '20px'
                 }}
                 dangerouslySetInnerHTML={{
                   __html: formatAnalysisText(geminiAnalysis)
