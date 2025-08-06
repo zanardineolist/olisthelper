@@ -1,7 +1,5 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from './auth/[...nextauth]';
-import { GoogleAuth } from 'google-auth-library';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -9,8 +7,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('OAuth API - Iniciando...');
+    
     // Verificar autenticação do usuário (usando NextAuth existente)
     const session = await getServerSession(req, res, authOptions);
+    
+    console.log('OAuth API - Session:', session ? 'OK' : 'NÃO AUTORIZADO');
     
     if (!session) {
       return res.status(401).json({ message: 'Não autorizado' });
@@ -28,14 +30,29 @@ export default async function handler(req, res) {
     }
 
     // Verificar se as credenciais OAuth estão configuradas
+    console.log('OAuth API - Credenciais configuradas:', {
+      clientEmail: !!process.env.GEMINI_CLIENT_EMAIL,
+      privateKey: !!process.env.GEMINI_PRIVATE_KEY,
+      clientId: !!process.env.GEMINI_CLIENT_ID,
+      clientSecret: !!process.env.GEMINI_CLIENT_SECRET
+    });
+    
     if (!process.env.GEMINI_CLIENT_EMAIL || !process.env.GEMINI_PRIVATE_KEY) {
+      console.error('OAuth API - Credenciais OAuth não configuradas');
       return res.status(500).json({ 
         message: 'Credenciais OAuth do Gemini não configuradas',
         error: 'GEMINI_CLIENT_EMAIL ou GEMINI_PRIVATE_KEY não encontradas'
       });
     }
 
+    console.log('OAuth API - Importando bibliotecas...');
+    
+    // Importação dinâmica para evitar problemas de SSR
+    const { GoogleAuth } = await import('google-auth-library');
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+
     // Configurar autenticação específica para o Gemini
+    console.log('OAuth API - Configurando autenticação...');
     const auth = new GoogleAuth({
       credentials: {
         client_email: process.env.GEMINI_CLIENT_EMAIL,
@@ -47,10 +64,12 @@ export default async function handler(req, res) {
     });
 
     // Obter token de acesso
+    console.log('OAuth API - Obtendo token de acesso...');
     const client = await auth.getClient();
     const accessToken = await client.getAccessToken();
 
     // Inicializar Gemini com token de acesso
+    console.log('OAuth API - Inicializando Gemini...');
     const genAI = new GoogleGenerativeAI(accessToken.token);
 
     // Preparar contexto com dados do dashboard
@@ -90,9 +109,12 @@ Responda de forma útil e acionável.`;
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
     
     try {
+      console.log('OAuth API - Gerando conteúdo...');
       const result = await model.generateContent(systemPrompt + '\n\n' + message);
       const response = await result.response;
       const text = response.text();
+      
+      console.log('OAuth API - Resposta gerada com sucesso');
       
       return res.status(200).json({
         success: true,
@@ -106,7 +128,7 @@ Responda de forma útil e acionável.`;
         }
       });
     } catch (geminiError) {
-      console.error('Erro específico do Gemini:', geminiError);
+      console.error('OAuth API - Erro específico do Gemini:', geminiError);
       return res.status(500).json({ 
         message: 'Erro ao gerar resposta com Gemini',
         error: geminiError.message 
@@ -114,10 +136,12 @@ Responda de forma útil e acionável.`;
     }
 
   } catch (error) {
-    console.error('Erro no chat OAuth:', error);
+    console.error('OAuth API - Erro detalhado:', error);
+    console.error('OAuth API - Stack trace:', error.stack);
     return res.status(500).json({ 
       message: 'Erro interno do servidor',
-      error: error.message 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 } 

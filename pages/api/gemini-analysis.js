@@ -1,9 +1,5 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from './auth/[...nextauth]';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-// Inicializar o Gemini - mesma conexão usada no SharedMessages
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -11,8 +7,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('Analysis API - Iniciando...');
+    
     // Verificar autenticação
     const session = await getServerSession(req, res, authOptions);
+    
+    console.log('Analysis API - Session:', session ? 'OK' : 'NÃO AUTORIZADO');
     
     if (!session) {
       return res.status(401).json({ message: 'Não autorizado' });
@@ -24,7 +24,10 @@ export default async function handler(req, res) {
     }
 
     // Verificar se a API key está configurada
+    console.log('Analysis API - GEMINI_API_KEY configurada:', !!process.env.GEMINI_API_KEY);
+    
     if (!process.env.GEMINI_API_KEY) {
+      console.error('Analysis API - GEMINI_API_KEY não encontrada');
       return res.status(500).json({ 
         message: 'API key do Gemini não configurada',
         error: 'GEMINI_API_KEY não encontrada'
@@ -36,6 +39,11 @@ export default async function handler(req, res) {
     if (!topics || !Array.isArray(topics)) {
       return res.status(400).json({ message: 'Dados de temas são obrigatórios' });
     }
+
+    console.log('Analysis API - Importando GoogleGenerativeAI...');
+    
+    // Importação dinâmica para evitar problemas de SSR
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
 
     // Preparar dados para análise
     const topicsData = topics.map((topic, index) => ({
@@ -115,11 +123,16 @@ export default async function handler(req, res) {
     }
 
     // Gerar análise com Gemini
+    console.log('Analysis API - Inicializando Gemini...');
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
     
+    console.log('Analysis API - Gerando análise...');
     const result = await model.generateContent(analysisPrompt);
     const response = await result.response;
     const text = response.text();
+
+    console.log('Analysis API - Análise gerada com sucesso');
 
     let parsedResponse;
     if (responseFormat === 'json') {
@@ -149,10 +162,12 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
-    console.error('Erro na análise do Gemini:', error);
+    console.error('Analysis API - Erro detalhado:', error);
+    console.error('Analysis API - Stack trace:', error.stack);
     return res.status(500).json({ 
       message: 'Erro interno do servidor',
-      error: error.message 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 } 
