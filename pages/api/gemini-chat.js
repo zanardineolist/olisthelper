@@ -88,16 +88,18 @@ CONTEXTO ESPECÍFICO:
 
 Responda de forma útil e acionável, sempre considerando o contexto do sistema ERP da Olist.`;
 
-    // Preparar histórico de conversa
-    const conversationHistory = chatHistory ? chatHistory.map(msg => ({
-      role: msg.role,
-      parts: [{ text: msg.content }]
-    })) : [];
+    // Preparar histórico de conversa (filtrar mensagens válidas)
+    const conversationHistory = chatHistory ? chatHistory
+      .filter(msg => msg.role && msg.content && msg.content.trim())
+      .map(msg => ({
+        role: msg.role,
+        parts: [{ text: msg.content.trim() }]
+      })) : [];
 
     // Adicionar mensagem atual
     conversationHistory.push({
       role: 'user',
-      parts: [{ text: message }]
+      parts: [{ text: message.trim() }]
     });
 
     // Gerar resposta com Gemini (usando modelo gratuito)
@@ -138,17 +140,21 @@ Responda de forma útil e acionável, sempre considerando o contexto do sistema 
       });
     } catch (geminiError) {
       clearTimeout(timeout);
+      console.error('Erro do Gemini:', geminiError);
       return res.status(500).json({ 
         message: 'Erro ao gerar resposta com Gemini',
-        error: geminiError.message 
+        error: geminiError.message,
+        details: process.env.NODE_ENV === 'development' ? geminiError.stack : undefined
       });
     }
 
   } catch (error) {
     clearTimeout(timeout);
+    console.error('Erro geral do chat:', error);
     return res.status(500).json({ 
       message: 'Erro interno do servidor',
-      error: error.message
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 } 

@@ -85,7 +85,9 @@ Como posso ajudar você hoje?`,
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao enviar mensagem');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro da API:', errorData);
+        throw new Error(errorData.message || errorData.error || `Erro ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -100,10 +102,23 @@ Como posso ajudar você hoje?`,
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Erro no chat:', error);
+      
+      let errorContent = 'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.';
+      
+      if (error.message.includes('401')) {
+        errorContent = 'Erro de autenticação. Faça login novamente.';
+      } else if (error.message.includes('403')) {
+        errorContent = 'Você não tem permissão para usar esta funcionalidade.';
+      } else if (error.message.includes('504')) {
+        errorContent = 'A requisição demorou muito. Tente novamente ou use uma mensagem mais curta.';
+      } else if (error.message.includes('500')) {
+        errorContent = 'Erro interno do servidor. Tente novamente em alguns instantes.';
+      }
+      
       const errorMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Desculpe, ocorreu um erro ao processar sua mensagem. Tente novamente.',
+        content: errorContent,
         timestamp: new Date().toISOString(),
         isError: true
       };
