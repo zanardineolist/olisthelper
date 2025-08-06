@@ -66,6 +66,16 @@ Como posso ajudar você hoje?`,
     setIsLoading(true);
 
     try {
+      // Log para debug
+      console.log('Chat - Enviando dados:', {
+        message: inputMessage,
+        topicsCount: topics?.length,
+        period,
+        startDate,
+        endDate,
+        chatHistoryCount: messages.length
+      });
+
       const response = await fetch('/api/gemini-chat', {
         method: 'POST',
         headers: {

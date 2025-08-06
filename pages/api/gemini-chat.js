@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Verificar autenticação
+    // Verificar autenticação - mesma abordagem das outras APIs
     const session = await getSession({ req });
     
     if (!session) {
@@ -23,6 +23,11 @@ export default async function handler(req, res) {
     }
 
     const { message, topics, period, startDate, endDate, chatHistory } = req.body;
+
+    // Log para debug
+    console.log('Chat API - Session:', session?.user?.email, session?.role);
+    console.log('Chat API - Message:', message);
+    console.log('Chat API - Topics count:', topics?.length);
 
     if (!message) {
       return res.status(400).json({ message: 'Mensagem é obrigatória' });
@@ -76,29 +81,39 @@ Responda de forma útil e acionável.`;
     // Gerar resposta com Gemini
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
     
-    const chat = model.startChat({
-      history: conversationHistory.slice(0, -1), // Excluir a mensagem atual do histórico
-      generationConfig: {
-        maxOutputTokens: 2048,
-        temperature: 0.7,
-      },
-    });
+    try {
+      const chat = model.startChat({
+        history: conversationHistory.slice(0, -1), // Excluir a mensagem atual do histórico
+        generationConfig: {
+          maxOutputTokens: 2048,
+          temperature: 0.7,
+        },
+      });
 
-    const result = await chat.sendMessage(systemPrompt + '\n\n' + message);
-    const response = await result.response;
-    const text = response.text();
+      const result = await chat.sendMessage(systemPrompt + '\n\n' + message);
+      const response = await result.response;
+      const text = response.text();
 
-    return res.status(200).json({
-      success: true,
-      response: text,
-      metadata: {
-        period,
-        startDate,
-        endDate,
-        totalTopics: contextData.length,
-        timestamp: new Date().toISOString()
-      }
-    });
+      console.log('Chat API - Resposta gerada com sucesso');
+      
+      return res.status(200).json({
+        success: true,
+        response: text,
+        metadata: {
+          period,
+          startDate,
+          endDate,
+          totalTopics: contextData.length,
+          timestamp: new Date().toISOString()
+        }
+      });
+    } catch (geminiError) {
+      console.error('Erro específico do Gemini:', geminiError);
+      return res.status(500).json({ 
+        message: 'Erro ao gerar resposta com Gemini',
+        error: geminiError.message 
+      });
+    }
 
   } catch (error) {
     console.error('Erro no chat do Gemini:', error);

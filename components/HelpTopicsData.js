@@ -36,6 +36,7 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import GeminiChat from './GeminiChat';
+import GeminiChatTest from './GeminiChatTest';
 
 const TIMEZONE = 'America/Sao_Paulo';
 
@@ -980,7 +981,15 @@ export default function HelpTopicsData() {
             </Button>
             <Button 
               variant="contained" 
-              onClick={() => setShowChat(true)}
+              onClick={() => {
+                console.log('Chat - Dados disponíveis:', {
+                  topicsCount: topics.length,
+                  period,
+                  startDate: formatDateBR(startDate, 'dd/MM/yyyy'),
+                  endDate: formatDateBR(endDate, 'dd/MM/yyyy')
+                });
+                setShowChat(true);
+              }}
               disabled={topics.length === 0 || loading}
               startIcon={<i className="fa-solid fa-comments"></i>}
               sx={{
@@ -996,6 +1005,7 @@ export default function HelpTopicsData() {
             >
               Chat IA
             </Button>
+            <GeminiChatTest />
           </Box>
         </Box>
       </Paper>
