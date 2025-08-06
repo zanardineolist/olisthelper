@@ -6,13 +6,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  // Configurar timeout para evitar 504
+  // Configurar timeout para dar mais tempo para a IA completar
   const timeout = setTimeout(() => {
     res.status(504).json({ 
       message: 'Timeout - A requisição demorou muito para responder',
       error: 'Request timeout'
     });
-  }, 30000); // 30 segundos
+  }, 90000); // 90 segundos - triplicado o tempo
 
   try {
     // Verificar autenticação usando getServerSession

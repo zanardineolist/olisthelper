@@ -48,7 +48,15 @@ const fromBRTimezone = (date) => zonedTimeToUtc(date, TIMEZONE);
 const formatAnalysisText = (text) => {
   if (!text) return '';
   
-  return text
+  // Garantir que o texto termine com pontuação adequada
+  let processedText = text.trim();
+  
+  // Se o texto terminar abruptamente, adicionar indicador
+  if (!processedText.endsWith('.') && !processedText.endsWith('!') && !processedText.endsWith('?') && !processedText.endsWith(':')) {
+    processedText += '...';
+  }
+  
+  return processedText
     // Headers
     .replace(/^## (.*$)/gim, '<h2 style="color: var(--title-color); margin: 28px 0 16px 0; font-size: 1.3rem; font-weight: 600; border-bottom: 2px solid var(--color-primary); padding-bottom: 6px;">$1</h2>')
     .replace(/^### (.*$)/gim, '<h3 style="color: var(--title-color); margin: 24px 0 12px 0; font-size: 1.15rem; font-weight: 600;">$1</h3>')
@@ -99,7 +107,10 @@ const formatAnalysisText = (text) => {
     .replace(/<\/h4>/g, '</h4><div style="margin-bottom: 12px;"></div>')
     
     // Add extra spacing for better readability
-    .replace(/<\/ul>/g, '</ul><div style="margin-bottom: 16px;"></div>');
+    .replace(/<\/ul>/g, '</ul><div style="margin-bottom: 16px;"></div>')
+    
+    // Adicionar indicador se o texto foi cortado
+    + (processedText.endsWith('...') ? '<div style="margin-top: 20px; padding: 12px; background-color: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107; border-radius: 4px;"><p style="margin: 0; font-size: 0.9rem; color: #ffc107;"><strong>⚠️ Nota:</strong> A análise pode ter sido cortada devido ao tempo limite. Considere fazer uma nova análise se precisar de informações mais completas.</p></div>' : '');
 };
 
 // Versões das funções do date-fns ajustadas para o fuso horário do Brasil
@@ -1335,8 +1346,11 @@ export default function HelpTopicsData() {
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                 <CircularProgress size={40} sx={{ color: 'var(--color-primary)' }} />
-                <Typography sx={{ color: 'var(--text-color2)' }}>
+                <Typography sx={{ color: 'var(--text-color2)', textAlign: 'center' }}>
                   Gerando análise com IA...
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.7, textAlign: 'center' }}>
+                  Pode demorar até 90 segundos para completar
                 </Typography>
               </Box>
             </Box>

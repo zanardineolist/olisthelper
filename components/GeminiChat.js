@@ -315,43 +315,49 @@ Como posso ajudar você hoje?`,
             ))}
           </AnimatePresence>
 
-          {isLoading && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              sx={{
-                display: 'flex',
-                gap: 2,
-                justifyContent: 'flex-start'
-              }}
-            >
-              <Avatar
-                sx={{
-                  backgroundColor: 'var(--color-primary)',
-                  width: 32,
-                  height: 32,
-                  fontSize: '0.8rem'
-                }}
-              >
-                <i className="fa-solid fa-robot"></i>
-              </Avatar>
-              <Box
-                sx={{
-                  backgroundColor: 'var(--box-color2)',
-                  borderRadius: '12px',
-                  p: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1
-                }}
-              >
-                <CircularProgress size={16} sx={{ color: 'var(--color-primary)' }} />
-                <Typography variant="body2" sx={{ color: 'var(--text-color2)' }}>
-                  Digitando...
-                </Typography>
-              </Box>
-            </motion.div>
-          )}
+                     {isLoading && (
+             <motion.div
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               sx={{
+                 display: 'flex',
+                 gap: 2,
+                 justifyContent: 'flex-start'
+               }}
+             >
+               <Avatar
+                 sx={{
+                   backgroundColor: 'var(--color-primary)',
+                   width: 32,
+                   height: 32,
+                   fontSize: '0.8rem'
+                 }}
+               >
+                 <i className="fa-solid fa-robot"></i>
+               </Avatar>
+               <Box
+                 sx={{
+                   backgroundColor: 'var(--box-color2)',
+                   borderRadius: '12px',
+                   p: 2,
+                   display: 'flex',
+                   alignItems: 'center',
+                   gap: 1,
+                   minWidth: '200px'
+                 }}
+               >
+                 <CircularProgress size={16} sx={{ color: 'var(--color-primary)' }} />
+                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                   <Typography variant="body2" sx={{ color: 'var(--text-color2)', fontSize: '0.85rem' }}>
+                     Processando...
+                   </Typography>
+                   <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.7, fontSize: '0.75rem' }}>
+                     Pode demorar até 90 segundos
+                   </Typography>
+                 </Box>
+               </Box>
+             </motion.div>
+           )}
 
           <div ref={messagesEndRef} />
         </Box>
