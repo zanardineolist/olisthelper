@@ -93,7 +93,7 @@ Responda de forma útil e acionável.`;
     // Gerar resposta com Gemini
     console.log('Chat API - Inicializando Gemini...');
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
     
     try {
       console.log('Chat API - Iniciando chat...');

@@ -82,7 +82,7 @@ Responda de forma útil e acionável.`;
     // Gerar resposta com Gemini
     console.log('Separate API - Inicializando Gemini...');
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
     
     try {
       console.log('Separate API - Gerando conteúdo...');
