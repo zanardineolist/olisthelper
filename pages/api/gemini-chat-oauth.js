@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('OAuth API - Iniciando...');
+    console.log('OAuth API - Iniciando (usando API key padrão)...');
     
     // Verificar autenticação do usuário (usando NextAuth existente)
     const session = await getServerSession(req, res, authOptions);
@@ -29,48 +29,25 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Mensagem é obrigatória' });
     }
 
-    // Verificar se as credenciais OAuth estão configuradas
-    console.log('OAuth API - Credenciais configuradas:', {
-      clientEmail: !!process.env.GEMINI_CLIENT_EMAIL,
-      privateKey: !!process.env.GEMINI_PRIVATE_KEY,
-      clientId: !!process.env.GEMINI_CLIENT_ID,
-      clientSecret: !!process.env.GEMINI_CLIENT_SECRET
-    });
+    // Verificar se a API key está configurada (OAuth endpoint usa API key padrão)
+    console.log('OAuth API - Verificando API key...');
     
-    if (!process.env.GEMINI_CLIENT_EMAIL || !process.env.GEMINI_PRIVATE_KEY) {
-      console.error('OAuth API - Credenciais OAuth não configuradas');
+    if (!process.env.GEMINI_API_KEY) {
+      console.error('OAuth API - GEMINI_API_KEY não encontrada');
       return res.status(500).json({ 
-        message: 'Credenciais OAuth do Gemini não configuradas',
-        error: 'GEMINI_CLIENT_EMAIL ou GEMINI_PRIVATE_KEY não encontradas'
+        message: 'API key do Gemini não configurada',
+        error: 'GEMINI_API_KEY não encontrada'
       });
     }
 
-    console.log('OAuth API - Importando bibliotecas...');
+    console.log('OAuth API - Importando GoogleGenerativeAI...');
     
     // Importação dinâmica para evitar problemas de SSR
-    const { GoogleAuth } = await import('google-auth-library');
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
 
-    // Configurar autenticação específica para o Gemini
-    console.log('OAuth API - Configurando autenticação...');
-    const auth = new GoogleAuth({
-      credentials: {
-        client_email: process.env.GEMINI_CLIENT_EMAIL,
-        private_key: process.env.GEMINI_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        client_id: process.env.GEMINI_CLIENT_ID,
-        client_secret: process.env.GEMINI_CLIENT_SECRET,
-      },
-      scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-    });
-
-    // Obter token de acesso
-    console.log('OAuth API - Obtendo token de acesso...');
-    const client = await auth.getClient();
-    const accessToken = await client.getAccessToken();
-
-    // Inicializar Gemini com token de acesso
+    // Inicializar Gemini com API key padrão
     console.log('OAuth API - Inicializando Gemini...');
-    const genAI = new GoogleGenerativeAI(accessToken.token);
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
     // Preparar contexto com dados do dashboard
     const contextData = topics ? topics.map((topic, index) => ({
