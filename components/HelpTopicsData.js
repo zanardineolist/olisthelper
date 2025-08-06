@@ -477,73 +477,7 @@ export default function HelpTopicsData() {
     }
   };
 
-  // Função para exportar para Google Sheets
-  const handleExportToSheets = async () => {
-    try {
-      setLoading(true);
 
-      // Primeiro gerar análise do Gemini
-      const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
-      const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
-
-      const analysisRes = await fetch('/api/gemini-analysis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          topics,
-          period,
-          startDate: formattedStartDate,
-          endDate: formattedEndDate,
-          analysisType: 'recommendations'
-        }),
-      });
-
-      let analysis = '';
-      if (analysisRes.ok) {
-        const analysisData = await analysisRes.json();
-        analysis = analysisData.analysis;
-      }
-
-      // Exportar para Google Sheets
-      const sheetsRes = await fetch('/api/export-to-sheets', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          topics,
-          analysis,
-          period,
-          startDate: formattedStartDate,
-          endDate: formattedEndDate
-        }),
-      });
-
-      if (!sheetsRes.ok) throw new Error('Erro ao exportar para Google Sheets');
-
-      const sheetsData = await sheetsRes.json();
-      
-      Swal.fire({
-        title: 'Sucesso!',
-        text: 'Dados exportados para Google Sheets com sucesso!',
-        icon: 'success',
-        confirmButtonText: 'Abrir Planilha',
-        showCancelButton: true,
-        cancelButtonText: 'Fechar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.open(sheetsData.spreadsheetUrl, '_blank');
-        }
-      });
-    } catch (error) {
-      console.error('Erro ao exportar para Google Sheets:', error);
-      Swal.fire('Erro', 'Não foi possível exportar para Google Sheets.', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <Box sx={{ p: 2 }}>
@@ -678,24 +612,7 @@ export default function HelpTopicsData() {
                 Chat IA
               </Button>
               
-              <Button 
-                variant="contained" 
-                onClick={handleExportToSheets}
-                disabled={loading}
-                startIcon={<i className="fa-solid fa-table"></i>}
-                sx={{
-                  backgroundColor: 'var(--color-accent3)',
-                  '&:hover': {
-                    backgroundColor: 'var(--color-accent3-hover)'
-                  },
-                  '&.Mui-disabled': {
-                    backgroundColor: 'var(--text-color2)',
-                    color: 'var(--text-color2)'
-                  }
-                }}
-              >
-                Exportar para Sheets
-              </Button>
+
             </Box>
           </Box>
         )}
@@ -1473,21 +1390,7 @@ export default function HelpTopicsData() {
             Fechar
           </Button>
           
-          {geminiAnalysis && (
-            <Button 
-              variant="contained"
-              startIcon={<i className="fa-solid fa-table"></i>}
-              onClick={handleExportToSheets}
-              sx={{
-                backgroundColor: 'var(--color-accent3)',
-                '&:hover': {
-                  backgroundColor: 'var(--color-accent3-hover)'
-                }
-              }}
-            >
-              Exportar para Sheets
-            </Button>
-          )}
+
         </DialogActions>
       </Dialog>
 
