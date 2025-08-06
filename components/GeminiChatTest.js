@@ -8,31 +8,120 @@ const GeminiChatTest = () => {
   const handleTest = async () => {
     setLoading(true);
     try {
-      // Teste de autenticação primeiro
-      const authResponse = await fetch('/api/gemini-chat-auth-test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ test: true }),
-      });
+      const results = {};
 
-      const authData = await authResponse.json();
+      // Teste simples (sem autenticação)
+      try {
+        const simpleResponse = await fetch('/api/gemini-chat-simple', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: 'Teste' }),
+        });
+        const simpleData = await simpleResponse.json();
+        results.simple = simpleData;
+      } catch (error) {
+        results.simple = { error: error.message };
+      }
+
+      // Teste de autenticação
+      try {
+        const authResponse = await fetch('/api/gemini-chat-auth-test', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ test: true }),
+        });
+        const authData = await authResponse.json();
+        results.auth = authData;
+      } catch (error) {
+        results.auth = { error: error.message };
+      }
       
       // Teste da API completa
-      const response = await fetch('/api/gemini-chat-test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ test: true }),
-      });
+      try {
+        const response = await fetch('/api/gemini-chat-test', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ test: true }),
+        });
+        const data = await response.json();
+        results.api = data;
+      } catch (error) {
+        results.api = { error: error.message };
+      }
 
-      const data = await response.json();
-      setTestResult({
-        auth: authData,
-        api: data
-      });
+      // Teste da API fix
+      try {
+        const fixResponse = await fetch('/api/gemini-chat-fix', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            message: 'Teste',
+            topics: [],
+            period: 'teste',
+            startDate: '01/01/2024',
+            endDate: '31/01/2024',
+            chatHistory: []
+          }),
+        });
+        const fixData = await fixResponse.json();
+        results.fix = fixData;
+      } catch (error) {
+        results.fix = { error: error.message };
+      }
+
+      // Teste da API separate (API key separada)
+      try {
+        const separateResponse = await fetch('/api/gemini-chat-separate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            message: 'Teste',
+            topics: [],
+            period: 'teste',
+            startDate: '01/01/2024',
+            endDate: '31/01/2024',
+            chatHistory: []
+          }),
+        });
+        const separateData = await separateResponse.json();
+        results.separate = separateData;
+      } catch (error) {
+        results.separate = { error: error.message };
+      }
+
+      // Teste da API OAuth (credenciais separadas)
+      try {
+        const oauthResponse = await fetch('/api/gemini-chat-oauth', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            message: 'Teste',
+            topics: [],
+            period: 'teste',
+            startDate: '01/01/2024',
+            endDate: '31/01/2024',
+            chatHistory: []
+          }),
+        });
+        const oauthData = await oauthResponse.json();
+        results.oauth = oauthData;
+      } catch (error) {
+        results.oauth = { error: error.message };
+      }
+
+      setTestResult(results);
     } catch (error) {
       setTestResult({ error: error.message });
     } finally {
