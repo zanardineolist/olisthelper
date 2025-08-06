@@ -36,7 +36,7 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import GeminiChat from './GeminiChat';
-import GeminiChatTest from './GeminiChatTest';
+
 
 const TIMEZONE = 'America/Sao_Paulo';
 
@@ -532,6 +532,94 @@ export default function HelpTopicsData() {
           </FormControl>
         </Box>
 
+        {/* Seção de Ações de IA */}
+        {topics.length > 0 && (
+          <Box 
+            sx={{ 
+              mb: 3,
+              p: 2,
+              backgroundColor: 'var(--box-color2)',
+              borderRadius: '8px',
+              border: '1px solid var(--color-border)'
+            }}
+          >
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                color: 'var(--title-color)',
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                mb: 2,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1
+              }}
+            >
+              <i className="fa-solid fa-robot" style={{ color: 'var(--color-primary)' }}></i>
+              Análise com Inteligência Artificial
+            </Typography>
+            
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <Button 
+                variant="contained" 
+                onClick={handleGeminiAnalysis}
+                disabled={loading}
+                startIcon={<i className="fa-solid fa-chart-line"></i>}
+                sx={{
+                  backgroundColor: 'var(--color-primary)',
+                  '&:hover': {
+                    backgroundColor: 'var(--color-primary-hover)'
+                  },
+                  '&.Mui-disabled': {
+                    backgroundColor: 'var(--text-color2)',
+                    color: 'var(--text-color2)'
+                  }
+                }}
+              >
+                Análise IA
+              </Button>
+              
+              <Button 
+                variant="contained" 
+                onClick={() => setShowChat(true)}
+                disabled={loading}
+                startIcon={<i className="fa-solid fa-comments"></i>}
+                sx={{
+                  backgroundColor: 'var(--color-accent2)',
+                  '&:hover': {
+                    backgroundColor: 'var(--color-accent2-hover)'
+                  },
+                  '&.Mui-disabled': {
+                    backgroundColor: 'var(--text-color2)',
+                    color: 'var(--text-color2)'
+                  }
+                }}
+              >
+                Chat IA
+              </Button>
+              
+              <Button 
+                variant="contained" 
+                onClick={handleExportToSheets}
+                disabled={loading}
+                startIcon={<i className="fa-solid fa-table"></i>}
+                sx={{
+                  backgroundColor: 'var(--color-accent3)',
+                  '&:hover': {
+                    backgroundColor: 'var(--color-accent3-hover)'
+                  },
+                  '&.Mui-disabled': {
+                    backgroundColor: 'var(--text-color2)',
+                    color: 'var(--text-color2)'
+                  }
+                }}
+              >
+                Exportar para Sheets
+              </Button>
+            </Box>
+          </Box>
+        )}
+
         {period === 'custom' && (
           <Box 
             sx={{ 
@@ -872,133 +960,80 @@ export default function HelpTopicsData() {
             Total de {topics.length} temas encontrados
           </Typography>
           
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Typography 
-              variant="subtitle2" 
-              sx={{ 
-                alignSelf: 'center',
-                color: 'var(--text-color2)',
-                fontSize: '0.9rem'
-              }}
-            >
-              Exportar para:
-            </Typography>
-            <Button 
-              variant="outlined" 
-              onClick={exportToExcel}
-              disabled={topics.length === 0 || loading}
-              startIcon={<i className="fa-solid fa-file-excel"></i>}
-              sx={{
-                borderColor: 'var(--color-accent3)',
-                color: 'var(--color-accent3)',
-                '&:hover': {
-                  backgroundColor: 'rgba(119, 158, 61, 0.05)',
-                  borderColor: 'var(--color-accent3)'
-                },
-                '&.Mui-disabled': {
-                  borderColor: 'var(--text-color2)',
-                  color: 'var(--text-color2)'
-                }
-              }}
-            >
-              Excel
-            </Button>
-            <Button 
-              variant="outlined" 
-              onClick={exportToCSV}
-              disabled={topics.length === 0 || loading}
-              startIcon={<i className="fa-solid fa-file-csv"></i>}
-              sx={{
-                borderColor: 'var(--color-accent2)',
-                color: 'var(--color-accent2)',
-                '&:hover': {
-                  backgroundColor: 'rgba(240, 160, 40, 0.05)',
-                  borderColor: 'var(--color-accent2)'
-                },
-                '&.Mui-disabled': {
-                  borderColor: 'var(--text-color2)',
-                  color: 'var(--text-color2)'
-                }
-              }}
-            >
-              CSV
-            </Button>
-            <Button 
-              variant="outlined" 
-              onClick={exportToPDF}
-              disabled={topics.length === 0 || loading}
-              startIcon={<i className="fa-solid fa-file-pdf"></i>}
-              sx={{
-                borderColor: 'var(--color-accent1)',
-                color: 'var(--color-accent1)',
-                '&:hover': {
-                  backgroundColor: 'rgba(230, 78, 54, 0.05)',
-                  borderColor: 'var(--color-accent1)'
-                },
-                '&.Mui-disabled': {
-                  borderColor: 'var(--text-color2)',
-                  color: 'var(--text-color2)'
-                }
-              }}
-            >
-              PDF
-            </Button>
-            <Button 
-              variant="contained" 
-              onClick={handleGeminiAnalysis}
-              disabled={topics.length === 0 || loading}
-              startIcon={<i className="fa-solid fa-robot"></i>}
-              sx={{
-                backgroundColor: 'var(--color-primary)',
-                '&:hover': {
-                  backgroundColor: 'var(--color-primary-hover)'
-                },
-                '&.Mui-disabled': {
-                  backgroundColor: 'var(--text-color2)',
-                  color: 'var(--text-color2)'
-                }
-              }}
-            >
-              IA Gemini
-            </Button>
-            <Button 
-              variant="contained" 
-              onClick={handleExportToSheets}
-              disabled={topics.length === 0 || loading}
-              startIcon={<i className="fa-solid fa-table"></i>}
-              sx={{
-                backgroundColor: 'var(--color-accent3)',
-                '&:hover': {
-                  backgroundColor: 'var(--color-accent3-hover)'
-                },
-                '&.Mui-disabled': {
-                  backgroundColor: 'var(--text-color2)',
-                  color: 'var(--text-color2)'
-                }
-              }}
-            >
-              Google Sheets
-            </Button>
-            <Button 
-              variant="contained" 
-              onClick={() => setShowChat(true)}
-              disabled={topics.length === 0 || loading}
-              startIcon={<i className="fa-solid fa-comments"></i>}
-              sx={{
-                backgroundColor: 'var(--color-accent2)',
-                '&:hover': {
-                  backgroundColor: 'var(--color-accent2-hover)'
-                },
-                '&.Mui-disabled': {
-                  backgroundColor: 'var(--text-color2)',
-                  color: 'var(--text-color2)'
-                }
-              }}
-            >
-              Chat IA
-            </Button>
-            <GeminiChatTest />
-          </Box>
+          {topics.length > 0 && (
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Typography 
+                variant="subtitle2" 
+                sx={{ 
+                  alignSelf: 'center',
+                  color: 'var(--text-color2)',
+                  fontSize: '0.9rem'
+                }}
+              >
+                Exportar dados:
+              </Typography>
+              <Button 
+                variant="outlined" 
+                onClick={exportToExcel}
+                disabled={loading}
+                startIcon={<i className="fa-solid fa-file-excel"></i>}
+                sx={{
+                  borderColor: 'var(--color-accent3)',
+                  color: 'var(--color-accent3)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(119, 158, 61, 0.05)',
+                    borderColor: 'var(--color-accent3)'
+                  },
+                  '&.Mui-disabled': {
+                    borderColor: 'var(--text-color2)',
+                    color: 'var(--text-color2)'
+                  }
+                }}
+              >
+                Excel
+              </Button>
+              <Button 
+                variant="outlined" 
+                onClick={exportToCSV}
+                disabled={loading}
+                startIcon={<i className="fa-solid fa-file-csv"></i>}
+                sx={{
+                  borderColor: 'var(--color-accent2)',
+                  color: 'var(--color-accent2)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(240, 160, 40, 0.05)',
+                    borderColor: 'var(--color-accent2)'
+                  },
+                  '&.Mui-disabled': {
+                    borderColor: 'var(--text-color2)',
+                    color: 'var(--text-color2)'
+                  }
+                }}
+              >
+                CSV
+              </Button>
+              <Button 
+                variant="outlined" 
+                onClick={exportToPDF}
+                disabled={loading}
+                startIcon={<i className="fa-solid fa-file-pdf"></i>}
+                sx={{
+                  borderColor: 'var(--color-accent1)',
+                  color: 'var(--color-accent1)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(230, 78, 54, 0.05)',
+                    borderColor: 'var(--color-accent1)'
+                  },
+                  '&.Mui-disabled': {
+                    borderColor: 'var(--text-color2)',
+                    color: 'var(--text-color2)'
+                  }
+                }}
+              >
+                PDF
+              </Button>
+            </Box>
+          )}
         </Box>
       </Paper>
       

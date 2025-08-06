@@ -27,7 +27,6 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ suggestion: response });
   } catch (error) {
-    console.error('Erro ao gerar sugestão:', error);
     return res.status(500).json({ error: 'Erro ao gerar sugestão' });
   }
 }
