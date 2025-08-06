@@ -8,13 +8,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Teste simples sem autenticação
-    console.log('Simple API - Testando Gemini...');
-    
     const { message } = req.body;
 
     if (!message) {
       return res.status(400).json({ message: 'Mensagem é obrigatória' });
+    }
+
+    // Verificar se a API key está configurada
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ 
+        message: 'API key do Gemini não configurada',
+        error: 'GEMINI_API_KEY não encontrada'
+      });
     }
 
     // Teste simples do Gemini
@@ -22,8 +27,6 @@ export default async function handler(req, res) {
     const result = await model.generateContent(`Responda em português: ${message}`);
     const response = await result.response;
     const text = response.text();
-
-    console.log('Simple API - Resposta gerada com sucesso');
 
     return res.status(200).json({
       success: true,

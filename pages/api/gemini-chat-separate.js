@@ -1,8 +1,9 @@
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Usar API key específica para o Gemini (separada do NextAuth)
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY_SEPARATE);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY_SEPARATE || process.env.GEMINI_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -11,10 +12,7 @@ export default async function handler(req, res) {
 
   try {
     // Verificar autenticação do usuário (usando NextAuth existente)
-    const session = await getSession({ req });
-    
-    console.log('Separate API - Session:', session);
-    console.log('Separate API - Gemini Key:', process.env.GEMINI_API_KEY_SEPARATE ? 'Configured' : 'Missing');
+    const session = await getServerSession(req, res, authOptions);
     
     if (!session) {
       return res.status(401).json({ message: 'Não autorizado' });
@@ -23,6 +21,15 @@ export default async function handler(req, res) {
     // Garantir que apenas usuários com role "super" ou "quality" possam acessar
     if (session.role !== 'super' && session.role !== 'quality') {
       return res.status(403).json({ message: 'Permissão negada' });
+    }
+
+    // Verificar se a API key está configurada
+    const apiKey = process.env.GEMINI_API_KEY_SEPARATE || process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ 
+        message: 'API key do Gemini não configurada',
+        error: 'GEMINI_API_KEY_SEPARATE ou GEMINI_API_KEY não encontrada'
+      });
     }
 
     const { message, topics, period, startDate, endDate, chatHistory } = req.body;
@@ -71,8 +78,6 @@ Responda de forma útil e acionável.`;
       const result = await model.generateContent(systemPrompt + '\n\n' + message);
       const response = await result.response;
       const text = response.text();
-
-      console.log('Separate API - Resposta gerada com sucesso');
       
       return res.status(200).json({
         success: true,

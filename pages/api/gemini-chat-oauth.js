@@ -1,4 +1,5 @@
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 import { GoogleAuth } from 'google-auth-library';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
@@ -9,9 +10,7 @@ export default async function handler(req, res) {
 
   try {
     // Verificar autenticação do usuário (usando NextAuth existente)
-    const session = await getSession({ req });
-    
-    console.log('OAuth API - Session:', session);
+    const session = await getServerSession(req, res, authOptions);
     
     if (!session) {
       return res.status(401).json({ message: 'Não autorizado' });
@@ -26,6 +25,14 @@ export default async function handler(req, res) {
 
     if (!message) {
       return res.status(400).json({ message: 'Mensagem é obrigatória' });
+    }
+
+    // Verificar se as credenciais OAuth estão configuradas
+    if (!process.env.GEMINI_CLIENT_EMAIL || !process.env.GEMINI_PRIVATE_KEY) {
+      return res.status(500).json({ 
+        message: 'Credenciais OAuth do Gemini não configuradas',
+        error: 'GEMINI_CLIENT_EMAIL ou GEMINI_PRIVATE_KEY não encontradas'
+      });
     }
 
     // Configurar autenticação específica para o Gemini
@@ -86,8 +93,6 @@ Responda de forma útil e acionável.`;
       const result = await model.generateContent(systemPrompt + '\n\n' + message);
       const response = await result.response;
       const text = response.text();
-
-      console.log('OAuth API - Resposta gerada com sucesso');
       
       return res.status(200).json({
         success: true,

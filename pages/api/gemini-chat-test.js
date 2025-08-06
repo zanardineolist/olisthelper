@@ -1,4 +1,5 @@
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -9,13 +10,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Verificar autenticação
-    const session = await getSession({ req });
-    
-    console.log('Test API - Session:', session);
+    // Verificar autenticação usando getServerSession
+    const session = await getServerSession(req, res, authOptions);
     
     if (!session) {
       return res.status(401).json({ message: 'Não autorizado' });
+    }
+
+    // Verificar se a API key está configurada
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ 
+        message: 'API key do Gemini não configurada',
+        error: 'GEMINI_API_KEY não encontrada'
+      });
     }
 
     // Teste simples do Gemini

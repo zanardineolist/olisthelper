@@ -1,4 +1,5 @@
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -6,17 +7,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Verificar autenticação
-    const session = await getSession({ req });
-    
-    console.log('Auth Test - Session:', session);
-    console.log('Auth Test - Headers:', req.headers);
+    // Verificar autenticação usando getServerSession
+    const session = await getServerSession(req, res, authOptions);
     
     if (!session) {
       return res.status(401).json({ 
         message: 'Não autorizado',
-        session: null,
-        headers: Object.keys(req.headers)
+        session: null
       });
     }
 

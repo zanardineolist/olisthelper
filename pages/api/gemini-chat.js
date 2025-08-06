@@ -1,4 +1,5 @@
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Usar a mesma conexão do Gemini que já existe no projeto
@@ -10,8 +11,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Verificar autenticação - mesma abordagem das outras APIs
-    const session = await getSession({ req });
+    // Verificar autenticação usando getServerSession
+    const session = await getServerSession(req, res, authOptions);
     
     if (!session) {
       return res.status(401).json({ message: 'Não autorizado' });
@@ -22,12 +23,15 @@ export default async function handler(req, res) {
       return res.status(403).json({ message: 'Permissão negada' });
     }
 
-    const { message, topics, period, startDate, endDate, chatHistory } = req.body;
+    // Verificar se a API key está configurada
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ 
+        message: 'API key do Gemini não configurada',
+        error: 'GEMINI_API_KEY não encontrada'
+      });
+    }
 
-    // Log para debug
-    console.log('Chat API - Session:', session?.user?.email, session?.role);
-    console.log('Chat API - Message:', message);
-    console.log('Chat API - Topics count:', topics?.length);
+    const { message, topics, period, startDate, endDate, chatHistory } = req.body;
 
     if (!message) {
       return res.status(400).json({ message: 'Mensagem é obrigatória' });
@@ -93,8 +97,6 @@ Responda de forma útil e acionável.`;
       const result = await chat.sendMessage(systemPrompt + '\n\n' + message);
       const response = await result.response;
       const text = response.text();
-
-      console.log('Chat API - Resposta gerada com sucesso');
       
       return res.status(200).json({
         success: true,

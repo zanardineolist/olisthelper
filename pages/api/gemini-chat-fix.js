@@ -13,21 +13,24 @@ export default async function handler(req, res) {
     // Verificar autenticação usando getServerSession
     const session = await getServerSession(req, res, authOptions);
     
-    console.log('Fix API - Session:', session);
-    console.log('Fix API - Headers:', Object.keys(req.headers));
-    
     if (!session) {
       return res.status(401).json({ 
         message: 'Não autorizado',
-        session: null,
-        headers: Object.keys(req.headers),
-        cookies: req.headers.cookie ? 'present' : 'missing'
+        session: null
       });
     }
 
     // Garantir que apenas usuários com role "super" ou "quality" possam acessar
     if (session.role !== 'super' && session.role !== 'quality') {
       return res.status(403).json({ message: 'Permissão negada' });
+    }
+
+    // Verificar se a API key está configurada
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ 
+        message: 'API key do Gemini não configurada',
+        error: 'GEMINI_API_KEY não encontrada'
+      });
     }
 
     const { message, topics, period, startDate, endDate, chatHistory } = req.body;
@@ -76,8 +79,6 @@ Responda de forma útil e acionável.`;
       const result = await model.generateContent(systemPrompt + '\n\n' + message);
       const response = await result.response;
       const text = response.text();
-
-      console.log('Fix API - Resposta gerada com sucesso');
       
       return res.status(200).json({
         success: true,

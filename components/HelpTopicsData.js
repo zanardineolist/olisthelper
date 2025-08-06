@@ -981,15 +981,7 @@ export default function HelpTopicsData() {
             </Button>
             <Button 
               variant="contained" 
-              onClick={() => {
-                console.log('Chat - Dados disponíveis:', {
-                  topicsCount: topics.length,
-                  period,
-                  startDate: formatDateBR(startDate, 'dd/MM/yyyy'),
-                  endDate: formatDateBR(endDate, 'dd/MM/yyyy')
-                });
-                setShowChat(true);
-              }}
+              onClick={() => setShowChat(true)}
               disabled={topics.length === 0 || loading}
               startIcon={<i className="fa-solid fa-comments"></i>}
               sx={{
