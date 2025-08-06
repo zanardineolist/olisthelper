@@ -525,9 +525,9 @@ export default function HelpTopicsData() {
         return;
       }
 
-      // Configurar timeout para a requisição (otimizado para melhor performance)
+      // Configurar timeout para a requisição (otimizado para máxima performance)
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos para análises
+      const timeoutId = setTimeout(() => controller.abort(), 40000); // 40 segundos para análises
 
       const res = await fetch('/api/gemini-analysis', {
         method: 'POST',
@@ -729,29 +729,7 @@ export default function HelpTopicsData() {
                 Análise Rápida
               </Button>
               
-              <Button 
-                variant="outlined" 
-                onClick={() => {
-                  setAnalysisCache({});
-                  Swal.fire('Sucesso', 'Cache de análises limpo com sucesso!', 'success');
-                }}
-                disabled={loading}
-                startIcon={<i className="fa-solid fa-trash"></i>}
-                sx={{
-                  borderColor: 'var(--color-accent1)',
-                  color: 'var(--color-accent1)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(230, 78, 54, 0.05)',
-                    borderColor: 'var(--color-accent1)'
-                  },
-                  '&.Mui-disabled': {
-                    borderColor: 'var(--text-color2)',
-                    color: 'var(--text-color2)'
-                  }
-                }}
-              >
-                Limpar Cache
-              </Button>
+
               
               <Button 
                 variant="contained" 
@@ -1493,22 +1471,13 @@ export default function HelpTopicsData() {
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                 <CircularProgress size={40} sx={{ color: 'var(--color-primary)' }} />
                 <Typography sx={{ color: 'var(--text-color2)', textAlign: 'center', fontWeight: 500 }}>
-                  {loadingGemini && analysisCache[`${formatDateBR(startDate, 'yyyy-MM-dd')}-${formatDateBR(endDate, 'yyyy-MM-dd')}-simple`] ? 
-                    'Gerando análise rápida com IA...' : 
-                    'Gerando análise com IA...'
-                  }
+                  Gerando análise com IA...
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.7, textAlign: 'center' }}>
-                  {loadingGemini && analysisCache[`${formatDateBR(startDate, 'yyyy-MM-dd')}-${formatDateBR(endDate, 'yyyy-MM-dd')}-simple`] ? 
-                    'Analisando padrões principais...' : 
-                    'Analisando padrões e recomendações...'
-                  }
+                  Analisando padrões e recomendações...
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.5, textAlign: 'center', fontSize: '0.75rem' }}>
-                  {loadingGemini && analysisCache[`${formatDateBR(startDate, 'yyyy-MM-dd')}-${formatDateBR(endDate, 'yyyy-MM-dd')}-simple`] ? 
-                    'Isso pode levar até 35 segundos para análises rápidas' : 
-                    'Isso pode levar até 60 segundos para análises complexas'
-                  }
+                  Isso pode levar até 40 segundos para análises otimizadas
                 </Typography>
               </Box>
             </Box>

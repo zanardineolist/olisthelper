@@ -36,8 +36,8 @@ export default async function handler(req, res) {
     // Importação dinâmica para evitar problemas de SSR
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
 
-    // Preparar contexto com dados do dashboard (aumentar limite para 25 temas)
-    const limitedTopics = topics ? topics.slice(0, 25) : [];
+    // Preparar contexto com dados do dashboard (reduzir para 10 temas para máxima performance)
+    const limitedTopics = topics ? topics.slice(0, 10) : [];
     const contextData = limitedTopics.map((topic, index) => ({
       ranking: index + 1,
       name: topic.name,
@@ -114,27 +114,27 @@ Responda de forma útil, acionável e COMPLETA, sempre considerando o contexto d
       parts: [{ text: message.trim() }]
     });
 
-    // Gerar resposta com Gemini (otimizado para respostas mais longas)
+    // Gerar resposta com Gemini (otimizado para máxima performance)
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 4096, // Aumentado para respostas mais completas
+        maxOutputTokens: 3072, // Reduzido para máxima performance
         temperature: 0.7,
         topP: 0.8,
         topK: 40,
       }
     });
     
-    // Configurar timeout mais longo para respostas complexas
+    // Configurar timeout mais agressivo
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 segundos
+    const timeoutId = setTimeout(() => controller.abort(), 35000); // 35 segundos
     
     try {
       const chat = model.startChat({
         history: conversationHistory.slice(0, -1), // Excluir a mensagem atual do histórico
         generationConfig: {
-          maxOutputTokens: 4096,
+          maxOutputTokens: 3072,
           temperature: 0.7,
           topP: 0.8,
           topK: 40,

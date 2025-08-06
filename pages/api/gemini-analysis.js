@@ -36,8 +36,8 @@ export default async function handler(req, res) {
     // Importação dinâmica para evitar problemas de SSR
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
 
-    // Preparar dados para análise (reduzir para 15 temas para melhor performance)
-    const limitedTopics = topics.slice(0, 15);
+    // Preparar dados para análise (reduzir para 10 temas para máxima performance)
+    const limitedTopics = topics.slice(0, 10);
     const topicsData = limitedTopics.map((topic, index) => ({
       ranking: index + 1,
       name: topic.name,
@@ -56,39 +56,29 @@ export default async function handler(req, res) {
           
           ${JSON.stringify(topicsData, null, 2)}
           
-          Forneça uma análise estruturada sobre:
+          Forneça uma análise concisa sobre:
           
-          ## 1. PADRÕES IDENTIFICADOS
-          - Principais padrões nos temas de dúvidas
-          - Distribuição percentual dos temas
-          - Temas relacionados que indicam problemas sistêmicos
+          ## 1. PADRÕES PRINCIPAIS
+          - 3 principais padrões nos temas de dúvidas
+          - Distribuição percentual dos temas mais críticos
           
-          ## 2. CAUSAS RAIZ DAS DÚVIDAS
-          - Por que esses temas geram mais dúvidas
-          - Problemas de usabilidade, documentação ou complexidade
-          - Fatores como mudanças no sistema, treinamento da equipe
+          ## 2. CAUSAS DAS DÚVIDAS
+          - Por que os temas principais geram mais dúvidas
+          - Problemas de usabilidade ou documentação
           
-          ## 3. MELHORIAS NA DOCUMENTAÇÃO
-          - Sugestões específicas para documentação do sistema ERP
-          - Seções que precisam ser expandidas ou criadas
-          - Exemplos práticos que podem ser adicionados
+          ## 3. MELHORIAS SUGERIDAS
+          - 3 melhorias principais para documentação
+          - 3 treinamentos prioritários
           
-          ## 4. TREINAMENTOS ESPECÍFICOS
-          - Treinamentos focados nos temas problemáticos
-          - Materiais de apoio para a equipe de suporte
-          - Workshops práticos para temas críticos
-          
-          ## 5. AÇÕES PRIORITÁRIAS
-          - Ações para reduzir volume de dúvidas
-          - Melhorias no sistema para resolver problemas recorrentes
-          - Processos de acompanhamento para medir impacto
+          ## 4. AÇÕES IMEDIATAS
+          - 3 ações para reduzir volume de dúvidas
+          - Melhorias no sistema para problemas recorrentes
           
           IMPORTANTE:
           - Use formatação markdown
           - Foco no contexto de suporte técnico do ERP da Olist
-          - Insights acionáveis e práticos
-          - Responda em português de forma clara
-          - Seja detalhado mas conciso
+          - Seja conciso e direto
+          - Responda em português
         `;
         responseFormat = 'text';
         break;
@@ -99,38 +89,33 @@ export default async function handler(req, res) {
           
           ${JSON.stringify(topicsData, null, 2)}
           
-          Gere recomendações específicas estruturadas:
+          Gere recomendações concisas:
           
-          ## 1. MATERIAIS DE TREINAMENTO
-          - Temas que precisam de treinamento urgente
-          - Formatos de treinamento (vídeos, manuais, workshops)
-          - Conteúdo específico para cada tema problemático
+          ## 1. TREINAMENTOS PRIORITÁRIOS
+          - 3 temas que precisam de treinamento urgente
+          - Formatos de treinamento recomendados
           
           ## 2. MELHORIAS NA DOCUMENTAÇÃO
-          - Seções da documentação que precisam ser melhoradas
-          - Processos que precisam de documentação mais clara
-          - Exemplos práticos e casos de uso
+          - 3 seções que precisam ser melhoradas
+          - Exemplos práticos que podem ser adicionados
           
-          ## 3. OTIMIZAÇÃO DE PROCESSOS
-          - Fluxos de trabalho que podem ser simplificados
-          - Melhorias na interface do sistema ERP
-          - Automações que podem reduzir dúvidas
+          ## 3. OTIMIZAÇÕES DE PROCESSO
+          - 3 fluxos que podem ser simplificados
+          - Melhorias na interface do sistema
           
-          ## 4. FERRAMENTAS E RECURSOS
-          - Ferramentas internas que podem facilitar o suporte
+          ## 4. FERRAMENTAS ÚTEIS
+          - 3 ferramentas que podem facilitar o suporte
           - Recursos de conhecimento compartilhado
-          - Integrações que podem melhorar a experiência
           
-          ## 5. MÉTRICAS DE ACOMPANHAMENTO
-          - KPIs para medir a redução de dúvidas
-          - Processos de monitoramento contínuo
-          - Indicadores de satisfação do cliente
+          ## 5. MÉTRICAS IMPORTANTES
+          - 3 KPIs para medir redução de dúvidas
+          - Indicadores de satisfação
           
           IMPORTANTE:
           - Use formatação markdown
           - Foco no contexto de suporte técnico do ERP da Olist
-          - Recomendações práticas e implementáveis
-          - Responda em português de forma clara
+          - Seja conciso e direto
+          - Responda em português
         `;
         responseFormat = 'text';
         break;
@@ -163,21 +148,21 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: 'Tipo de análise inválido' });
     }
 
-    // Gerar análise com Gemini (otimizado para melhor performance)
+    // Gerar análise com Gemini (otimizado para máxima performance)
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 4096, // Reduzido para melhor performance
+        maxOutputTokens: 3072, // Reduzido para máxima performance
         temperature: 0.7,
         topP: 0.8,
         topK: 40,
       }
     });
     
-    // Configurar timeout mais conservador
+    // Configurar timeout mais agressivo
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 segundos
+    const timeoutId = setTimeout(() => controller.abort(), 35000); // 35 segundos
 
     try {
       const result = await model.generateContent(analysisPrompt);
