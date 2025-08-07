@@ -35,7 +35,7 @@ import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import GeminiChat from './GeminiChat';
+
 
 
 const TIMEZONE = 'America/Sao_Paulo';
@@ -180,8 +180,8 @@ export default function HelpTopicsData() {
     includeDetails: false
   });
   
-  // Estados para o chat
-  const [showChat, setShowChat] = useState(false);
+  // Estados para análise de usuários
+  const [showUserAnalysis, setShowUserAnalysis] = useState(false);
   
   // Cache inteligente para análises
   const [analysisCache, setAnalysisCache] = useState({});
@@ -441,6 +441,141 @@ export default function HelpTopicsData() {
     setOpenDetailsModal(false);
     setSelectedTopic(null);
     setTopicDetails([]);
+  };
+
+  // Função para análise de usuários
+  const handleUserAnalysis = async () => {
+    const includeDetails = false; // Explicitly define to prevent ReferenceError
+    try {
+      setLoadingGemini(true);
+      setOpenGeminiModal(true);
+      setGeminiAnalysis('');
+      setStagedAnalysis({
+        stage: 'collecting',
+        progress: 0,
+        message: 'Coletando dados dos usuários...',
+        includeDetails: false
+      });
+
+      const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
+      const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
+
+      // Verificar cache inteligente
+      const cacheKey = `${formattedStartDate}-${formattedEndDate}-${period}-users-v2`;
+      const cachedAnalysis = analysisCache[cacheKey];
+
+      if (cachedAnalysis && (Date.now() - cachedAnalysis.timestamp) < 30 * 60 * 1000) { // 30 minutos
+        setCacheHits(prev => prev + 1);
+        setGeminiAnalysis(cachedAnalysis.analysis);
+        setLoadingGemini(false);
+        setStagedAnalysis({
+          stage: 'complete',
+          progress: 100,
+          message: 'Análise de usuários carregada do cache (30min)',
+          includeDetails: false
+        });
+        return;
+      }
+
+      // Simular progresso da coleta de dados
+      setStagedAnalysis(prev => ({
+        ...prev,
+        progress: 25,
+        message: 'Analisando padrões dos usuários...'
+      }));
+
+      // Configurar timeout para a requisição
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 segundos para análise otimizada
+
+      const res = await fetch('/api/gemini-analysis-users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topics,
+          period,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+          analysisType: 'users'
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || errorData.error || `Erro ${res.status}: ${res.statusText}`);
+      }
+
+      setStagedAnalysis(prev => ({
+        ...prev,
+        stage: 'analyzing',
+        progress: 75,
+        message: 'Analisando padrões dos usuários...'
+      }));
+
+      const data = await res.json();
+      
+      // Adicionar nota se houver limitação de dados
+      let analysisText = data.analysis;
+      if (data.metadata?.note) {
+        analysisText = `📝 ${data.metadata.note}\n\n${analysisText}`;
+      }
+      
+      // Adicionar informações sobre detalhes incluídos
+      if (data.metadata?.detailsCount) {
+        analysisText = `👥 Análise com ${data.metadata.detailsCount} registros de usuários\n\n${analysisText}`;
+      }
+      
+      setGeminiAnalysis(analysisText);
+      setCacheMisses(prev => prev + 1);
+      setAnalysisCache(prev => ({ 
+        ...prev, 
+        [cacheKey]: {
+          analysis: analysisText,
+          timestamp: Date.now(),
+          metadata: data.metadata
+        }
+      })); // Adicionar ao cache com timestamp
+      
+      setStagedAnalysis({
+        stage: 'complete',
+        progress: 100,
+        message: 'Análise de usuários concluída com sucesso!',
+        includeDetails: false
+      });
+    } catch (error) {
+      console.error('Erro na análise de usuários do Gemini:', error);
+      
+      let errorMessage = 'Não foi possível gerar a análise de usuários.';
+      if (error.name === 'AbortError') {
+        errorMessage = 'A análise demorou muito. Tente com um período menor.';
+      } else if (error.message.includes('504')) {
+        errorMessage = 'Servidor sobrecarregado. Tente novamente em alguns instantes.';
+      } else if (error.message.includes('timeout')) {
+        errorMessage = 'Tempo limite excedido. Tente com período menor.';
+      } else if (error.message.includes('quota')) {
+        errorMessage = 'Limite de requisições da IA excedido. Tente novamente em alguns minutos.';
+      } else if (error.message.includes('API key')) {
+        errorMessage = 'Erro de configuração da IA. Entre em contato com o administrador.';
+      } else if (error.message.includes('500')) {
+        errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes.';
+      }
+      
+      Swal.fire('Erro', errorMessage, 'error');
+      setGeminiAnalysis('Erro ao gerar análise de usuários. Tente novamente.');
+      setStagedAnalysis({
+        stage: null,
+        progress: 0,
+        message: 'Erro na análise',
+        includeDetails: false
+      });
+    } finally {
+      setLoadingGemini(false);
+    }
   };
 
   // Função para análise com IA
@@ -772,7 +907,7 @@ export default function HelpTopicsData() {
               }}
             >
               <strong>Análise IA:</strong> Análise otimizada com registros dos top 10 temas (25s)<br/>
-              <strong>Chat IA:</strong> Conversa interativa sobre os dados
+              <strong>Análise de Usuários:</strong> Foco nos padrões dos usuários e suas dúvidas (25s)
             </Typography>
             
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
@@ -798,22 +933,24 @@ export default function HelpTopicsData() {
 
               
               <Button 
-                variant="contained" 
-                onClick={() => setShowChat(true)}
+                variant="outlined" 
+                onClick={handleUserAnalysis}
                 disabled={loading}
-                startIcon={<i className="fa-solid fa-comments"></i>}
+                startIcon={<i className="fa-solid fa-users"></i>}
                 sx={{
-                  backgroundColor: 'var(--color-accent2)',
+                  borderColor: 'var(--color-accent3)',
+                  color: 'var(--color-accent3)',
                   '&:hover': {
-                    backgroundColor: 'var(--color-accent2-hover)'
+                    backgroundColor: 'rgba(119, 158, 61, 0.05)',
+                    borderColor: 'var(--color-accent3)'
                   },
                   '&.Mui-disabled': {
-                    backgroundColor: 'var(--text-color2)',
+                    borderColor: 'var(--text-color2)',
                     color: 'var(--text-color2)'
                   }
                 }}
               >
-                Chat IA
+                Análise de Usuários
               </Button>
               
 
@@ -1633,16 +1770,7 @@ export default function HelpTopicsData() {
         </DialogActions>
       </Dialog>
 
-      {/* Chat com Gemini */}
-      {showChat && (
-        <GeminiChat
-          topics={topics}
-          period={period}
-          startDate={formatDateBR(startDate, 'dd/MM/yyyy')}
-          endDate={formatDateBR(endDate, 'dd/MM/yyyy')}
-          onClose={() => setShowChat(false)}
-        />
-      )}
+
     </Box>
   );
 } 
