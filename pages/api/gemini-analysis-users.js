@@ -163,6 +163,8 @@ export default async function handler(req, res) {
       - Use formatação markdown limpa
       - Seja conciso (máximo 1200 palavras)
       - Responda em português
+      - Use listas numeradas (1. 2. 3.) e com marcadores (-) de forma consistente
+      - Certifique-se de que cada item da lista numerada tenha o número correto (1, 2, 3, etc.)
     `;
 
     // Configuração otimizada para análise de usuários

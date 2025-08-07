@@ -60,17 +60,26 @@ const formatAnalysisText = (text) => {
     // Italic text
     .replace(/\*(.*?)\*/g, '<em style="font-style: italic;">$1</em>')
     
-    // Lists numeradas
+    // Lists numeradas - melhorado para capturar sequência correta
     .replace(/^(\d+)\. (.*$)/gim, '<li style="margin: 8px 0; padding-left: 16px; line-height: 1.6; list-style-type: decimal;">$2</li>')
     
     // Lists com marcadores
     .replace(/^\- (.*$)/gim, '<li style="margin: 8px 0; padding-left: 16px; line-height: 1.6; list-style-type: disc;">$1</li>')
     
-    // Wrap lists numeradas em ol
-    .replace(/(<li.*?list-style-type: decimal.*?<\/li>)/gs, '<ol style="margin: 16px 0; padding-left: 20px;">$1</ol>')
+    // Processar listas numeradas em sequência com numeração automática
+    .replace(/(<li.*?list-style-type: decimal.*?<\/li>(\s*<li.*?list-style-type: decimal.*?<\/li>)*)/gs, (match) => {
+      const items = match.match(/<li.*?<\/li>/g) || [];
+      const numberedItems = items.map((item, index) => {
+        return item.replace(/list-style-type: decimal/, `list-style-type: decimal" data-index="${index + 1}`);
+      });
+      return `<ol style="margin: 16px 0; padding-left: 20px; counter-reset: item;">${numberedItems.join('')}</ol>`;
+    })
     
-    // Wrap lists com marcadores em ul
-    .replace(/(<li.*?list-style-type: disc.*?<\/li>)/gs, '<ul style="margin: 16px 0; padding-left: 20px;">$1</ul>')
+    // Processar listas com marcadores
+    .replace(/(<li.*?list-style-type: disc.*?<\/li>(\s*<li.*?list-style-type: disc.*?<\/li>)*)/gs, (match) => {
+      const items = match.match(/<li.*?<\/li>/g) || [];
+      return `<ul style="margin: 16px 0; padding-left: 20px;">${items.join('')}</ul>`;
+    })
     
     // Paragraphs
     .replace(/\n\n/g, '</p><p style="margin: 16px 0; line-height: 1.7;">')
@@ -1728,7 +1737,19 @@ export default function HelpTopicsData() {
                   paddingBottom: '20px'
                 }}
                 dangerouslySetInnerHTML={{
-                  __html: formatAnalysisText(geminiAnalysis)
+                  __html: `
+                    <style>
+                      ol { counter-reset: item; }
+                      ol li { display: block; }
+                      ol li:before { 
+                        content: counter(item) ". "; 
+                        counter-increment: item;
+                        font-weight: 600;
+                        color: var(--title-color);
+                      }
+                    </style>
+                    ${formatAnalysisText(geminiAnalysis)}
+                  `
                 }}
               />
             </Box>

@@ -151,7 +151,8 @@ export default async function handler(req, res) {
       - Seja conciso (máximo 1200 palavras)
       - Responda em português
       - Analise todos os 10 temas principais
-      - Use listas numeradas e com marcadores de forma consistente
+      - Use listas numeradas (1. 2. 3.) e com marcadores (-) de forma consistente
+      - Certifique-se de que cada item da lista numerada tenha o número correto (1, 2, 3, etc.)
     `;
 
     // Configuração otimizada para limites do Gemini 2.0 Flash
