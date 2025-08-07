@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from './auth/[...nextauth]';
-import { getHelpTopicDetails } from '../../../utils/supabase/helpQueries';
+import { getHelpTopicDetails } from '../../utils/supabase/helpQueries';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -35,7 +35,17 @@ export default async function handler(req, res) {
     }
 
     // Importação dinâmica para evitar problemas de SSR
-    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    let GoogleGenerativeAI;
+    try {
+      const module = await import('@google/generative-ai');
+      GoogleGenerativeAI = module.GoogleGenerativeAI;
+    } catch (importError) {
+      console.error('Erro ao importar GoogleGenerativeAI:', importError);
+      return res.status(500).json({ 
+        message: 'Erro ao carregar biblioteca de IA',
+        error: 'Falha na importação do módulo'
+      });
+    }
 
     // ETAPA 1: Coletar dados básicos dos temas
     const limitedTopics = topics.slice(0, 10);
@@ -51,12 +61,23 @@ export default async function handler(req, res) {
     if (includeDetails) {
       try {
         const detailsPromises = limitedTopics.map(async (topic) => {
-          const details = await getHelpTopicDetails(topic.id, startDate, endDate);
-          return {
-            topicId: topic.id,
-            topicName: topic.name,
-            details: details.slice(0, 20) // Limitar a 20 registros por tema para não sobrecarregar
-          };
+          try {
+            // Verificar se o topic tem id, caso contrário usar o nome para buscar
+            const topicId = topic.id || topic.name;
+            const details = await getHelpTopicDetails(topicId, startDate, endDate);
+            return {
+              topicId: topicId,
+              topicName: topic.name,
+              details: details.slice(0, 20) // Limitar a 20 registros por tema para não sobrecarregar
+            };
+          } catch (detailError) {
+            console.error(`Erro ao buscar detalhes para tema ${topic.name}:`, detailError);
+            return {
+              topicId: topic.id || topic.name,
+              topicName: topic.name,
+              details: []
+            };
+          }
         });
 
         detailedData = await Promise.all(detailsPromises);
