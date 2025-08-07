@@ -427,8 +427,8 @@ export default function HelpTopicsData() {
     setTopicDetails([]);
   };
 
-  // Função para análise em etapas com detalhes
-  const handleStagedAnalysis = async (includeDetails = false) => {
+  // Função para análise ultra-otimizada
+  const handleUltraAnalysis = async () => {
     try {
       setLoadingGemini(true);
       setOpenGeminiModal(true);
@@ -443,8 +443,8 @@ export default function HelpTopicsData() {
       const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
       const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
 
-      // Verificar cache
-      const cacheKey = `${formattedStartDate}-${formattedEndDate}-staged-${includeDetails}`;
+            // Verificar cache
+      const cacheKey = `${formattedStartDate}-${formattedEndDate}-ultra`;
       const cachedAnalysis = analysisCache[cacheKey];
 
       if (cachedAnalysis) {
@@ -454,7 +454,7 @@ export default function HelpTopicsData() {
           stage: 'complete',
           progress: 100,
           message: 'Análise carregada do cache',
-          includeDetails
+          includeDetails: false
         });
         return;
       }
@@ -463,14 +463,14 @@ export default function HelpTopicsData() {
       setStagedAnalysis(prev => ({
         ...prev,
         progress: 25,
-        message: includeDetails ? 'Coletando detalhes dos registros de ajuda...' : 'Preparando dados para análise...'
+        message: 'Coletando dados ultra-otimizados...'
       }));
 
-              // Configurar timeout para a requisição
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos para análises otimizadas
+      // Configurar timeout para a requisição
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 35000); // 35 segundos para análise ultra
 
-      const res = await fetch('/api/gemini-analysis-staged', {
+      const res = await fetch('/api/gemini-analysis-ultra', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -480,8 +480,7 @@ export default function HelpTopicsData() {
           period,
           startDate: formattedStartDate,
           endDate: formattedEndDate,
-          analysisType,
-          includeDetails
+          analysisType
         }),
         signal: controller.signal
       });
@@ -509,7 +508,7 @@ export default function HelpTopicsData() {
       }
       
       // Adicionar informações sobre detalhes incluídos
-      if (includeDetails && data.metadata?.detailsCount) {
+      if (data.metadata?.detailsCount) {
         analysisText = `🔍 Análise com ${data.metadata.detailsCount} registros detalhados\n\n${analysisText}`;
       }
       
@@ -520,18 +519,18 @@ export default function HelpTopicsData() {
         stage: 'complete',
         progress: 100,
         message: 'Análise concluída com sucesso!',
-        includeDetails
+        includeDetails: false
       });
     } catch (error) {
-      console.error('Erro na análise em etapas do Gemini:', error);
+      console.error('Erro na análise ultra-otimizada do Gemini:', error);
       
-      let errorMessage = 'Não foi possível gerar a análise em etapas.';
+      let errorMessage = 'Não foi possível gerar a análise ultra-otimizada.';
       if (error.name === 'AbortError') {
-        errorMessage = 'A análise demorou muito. Tente com um período menor ou sem detalhes.';
+        errorMessage = 'A análise demorou muito. Tente com um período menor.';
       } else if (error.message.includes('504')) {
         errorMessage = 'Servidor sobrecarregado. Tente novamente em alguns instantes.';
       } else if (error.message.includes('timeout')) {
-        errorMessage = 'Tempo limite excedido. Tente com menos dados ou período menor.';
+        errorMessage = 'Tempo limite excedido. Tente com período menor.';
       } else if (error.message.includes('quota')) {
         errorMessage = 'Limite de requisições da IA excedido. Tente novamente em alguns minutos.';
       } else if (error.message.includes('API key')) {
@@ -541,103 +540,19 @@ export default function HelpTopicsData() {
       }
       
       Swal.fire('Erro', errorMessage, 'error');
-      setGeminiAnalysis('Erro ao gerar análise em etapas. Tente novamente.');
+      setGeminiAnalysis('Erro ao gerar análise ultra-otimizada. Tente novamente.');
       setStagedAnalysis({
         stage: null,
         progress: 0,
         message: 'Erro na análise',
-        includeDetails
+        includeDetails: false
       });
     } finally {
       setLoadingGemini(false);
     }
   };
 
-  // Função para análise simples do Gemini
-  const handleSimpleAnalysis = async () => {
-    try {
-      setLoadingGemini(true);
-      setOpenGeminiModal(true);
-      setGeminiAnalysis('');
 
-      const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
-      const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
-
-      // Verificar cache
-      const cacheKey = `${formattedStartDate}-${formattedEndDate}-simple`;
-      const cachedAnalysis = analysisCache[cacheKey];
-
-      if (cachedAnalysis) {
-        setGeminiAnalysis(cachedAnalysis);
-        setLoadingGemini(false);
-        return;
-      }
-
-      // Configurar timeout para a requisição (versão simplificada)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 35000); // 35 segundos
-
-      const res = await fetch('/api/gemini-analysis-simple', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          topics,
-          period,
-          startDate: formattedStartDate,
-          endDate: formattedEndDate
-        }),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || errorData.error || `Erro ${res.status}: ${res.statusText}`);
-      }
-
-      const data = await res.json();
-      
-      // Adicionar nota se houver limitação de dados
-      let analysisText = data.analysis;
-      if (data.metadata?.note) {
-        analysisText = `⚡ ${data.metadata.note}\n\n${analysisText}`;
-      }
-      
-      // Adicionar indicador de cache se aplicável
-      const isFromCache = analysisCache[cacheKey];
-      if (!isFromCache) {
-        analysisText = `🚀 Análise rápida gerada\n\n${analysisText}`;
-      }
-      
-      setGeminiAnalysis(analysisText);
-      setAnalysisCache(prev => ({ ...prev, [cacheKey]: analysisText })); // Adicionar ao cache
-    } catch (error) {
-      console.error('Erro na análise simples do Gemini:', error);
-      
-      let errorMessage = 'Não foi possível gerar a análise rápida.';
-      if (error.name === 'AbortError') {
-        errorMessage = 'A análise rápida demorou muito. Tente novamente.';
-      } else if (error.message.includes('504')) {
-        errorMessage = 'Servidor sobrecarregado. Tente novamente em alguns instantes.';
-      } else if (error.message.includes('timeout')) {
-        errorMessage = 'Tempo limite excedido. Tente novamente.';
-      } else if (error.message.includes('quota')) {
-        errorMessage = 'Limite de requisições da IA excedido. Tente novamente em alguns minutos.';
-      } else if (error.message.includes('API key')) {
-        errorMessage = 'Erro de configuração da IA. Entre em contato com o administrador.';
-      } else if (error.message.includes('500')) {
-        errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes.';
-      }
-      
-      Swal.fire('Erro', errorMessage, 'error');
-      setGeminiAnalysis('Erro ao gerar análise rápida. Tente novamente.');
-    } finally {
-      setLoadingGemini(false);
-    }
-  };
 
   // Função para análise do Gemini
   const handleGeminiAnalysis = async () => {
@@ -831,15 +746,14 @@ export default function HelpTopicsData() {
                 lineHeight: 1.5
               }}
             >
-              <strong>Análise IA:</strong> Análise básica dos temas principais (45s)<br/>
-              <strong>Análise Detalhada:</strong> Inclui registros dos top 5 temas (45s)<br/>
-              <strong>Análise Rápida:</strong> Versão simplificada para casos de emergência
+              <strong>Análise IA:</strong> Análise ultra-otimizada com registros dos top 3 temas (30s)<br/>
+              <strong>Chat IA:</strong> Conversa interativa sobre os dados
             </Typography>
             
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
               <Button 
                 variant="contained" 
-                onClick={() => handleStagedAnalysis(false)}
+                onClick={handleUltraAnalysis}
                 disabled={loading}
                 startIcon={<i className="fa-solid fa-chart-line"></i>}
                 sx={{
@@ -854,48 +768,6 @@ export default function HelpTopicsData() {
                 }}
               >
                 Análise IA
-              </Button>
-              
-              <Button 
-                variant="outlined" 
-                onClick={() => handleStagedAnalysis(true)}
-                disabled={loading}
-                startIcon={<i className="fa-solid fa-search-plus"></i>}
-                sx={{
-                  borderColor: 'var(--color-accent3)',
-                  color: 'var(--color-accent3)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(119, 158, 61, 0.05)',
-                    borderColor: 'var(--color-accent3)'
-                  },
-                  '&.Mui-disabled': {
-                    borderColor: 'var(--text-color2)',
-                    color: 'var(--text-color2)'
-                  }
-                }}
-              >
-                Análise Detalhada
-              </Button>
-              
-              <Button 
-                variant="outlined" 
-                onClick={handleSimpleAnalysis}
-                disabled={loading}
-                startIcon={<i className="fa-solid fa-bolt"></i>}
-                sx={{
-                  borderColor: 'var(--color-accent2)',
-                  color: 'var(--color-accent2)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(240, 160, 40, 0.05)',
-                    borderColor: 'var(--color-accent2)'
-                  },
-                  '&.Mui-disabled': {
-                    borderColor: 'var(--text-color2)',
-                    color: 'var(--text-color2)'
-                  }
-                }}
-              >
-                Análise Rápida
               </Button>
               
 
@@ -1653,10 +1525,7 @@ export default function HelpTopicsData() {
                   {stagedAnalysis.message || 'Processando dados...'}
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.5, textAlign: 'center', fontSize: '0.75rem' }}>
-                  {stagedAnalysis.includeDetails ? 
-                    'Análise detalhada com registros de ajuda - pode levar até 45 segundos' :
-                    'Análise otimizada - pode levar até 45 segundos'
-                  }
+                  Análise ultra-otimizada - pode levar até 30 segundos
                 </Typography>
                 {stagedAnalysis.stage === 'collecting' && stagedAnalysis.progress > 0 && (
                   <Typography variant="caption" sx={{ color: 'var(--color-primary)', fontWeight: 600 }}>
