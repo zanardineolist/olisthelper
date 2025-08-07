@@ -159,7 +159,6 @@ export default function HelpTopicsData() {
   const [geminiAnalysis, setGeminiAnalysis] = useState('');
   const [loadingGemini, setLoadingGemini] = useState(false);
   const [analysisType, setAnalysisType] = useState('insights');
-  const [analysisCache, setAnalysisCache] = useState({}); // Cache para análises já realizadas
   
   // Estados para análise em etapas
   const [stagedAnalysis, setStagedAnalysis] = useState({
@@ -168,9 +167,14 @@ export default function HelpTopicsData() {
     message: '',
     includeDetails: false
   });
-
+  
   // Estados para o chat
   const [showChat, setShowChat] = useState(false);
+  
+  // Cache inteligente para análises
+  const [analysisCache, setAnalysisCache] = useState({});
+  const [cacheHits, setCacheHits] = useState(0);
+  const [cacheMisses, setCacheMisses] = useState(0);
 
   useEffect(() => {
     loadTopics();
@@ -443,17 +447,18 @@ export default function HelpTopicsData() {
       const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
       const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
 
-            // Verificar cache
-      const cacheKey = `${formattedStartDate}-${formattedEndDate}-ultra`;
+            // Verificar cache inteligente
+      const cacheKey = `${formattedStartDate}-${formattedEndDate}-${period}-v2`;
       const cachedAnalysis = analysisCache[cacheKey];
 
-      if (cachedAnalysis) {
-        setGeminiAnalysis(cachedAnalysis);
+      if (cachedAnalysis && (Date.now() - cachedAnalysis.timestamp) < 30 * 60 * 1000) { // 30 minutos
+        setCacheHits(prev => prev + 1);
+        setGeminiAnalysis(cachedAnalysis.analysis);
         setLoadingGemini(false);
         setStagedAnalysis({
           stage: 'complete',
           progress: 100,
-          message: 'Análise carregada do cache',
+          message: 'Análise carregada do cache (30min)',
           includeDetails: false
         });
         return;
@@ -468,7 +473,7 @@ export default function HelpTopicsData() {
 
       // Configurar timeout para a requisição
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 35000); // 35 segundos para análise
+      const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 segundos para análise otimizada
 
       const res = await fetch('/api/gemini-analysis-ultra', {
         method: 'POST',
@@ -513,7 +518,15 @@ export default function HelpTopicsData() {
       }
       
       setGeminiAnalysis(analysisText);
-      setAnalysisCache(prev => ({ ...prev, [cacheKey]: analysisText })); // Adicionar ao cache
+      setCacheMisses(prev => prev + 1);
+      setAnalysisCache(prev => ({ 
+        ...prev, 
+        [cacheKey]: {
+          analysis: analysisText,
+          timestamp: Date.now(),
+          metadata: data.metadata
+        }
+      })); // Adicionar ao cache com timestamp
       
       setStagedAnalysis({
         stage: 'complete',
@@ -746,7 +759,7 @@ export default function HelpTopicsData() {
                 lineHeight: 1.5
               }}
             >
-              <strong>Análise IA:</strong> Análise com registros dos top 3 temas (30s)<br/>
+              <strong>Análise IA:</strong> Análise otimizada com registros dos top 10 temas (25s)<br/>
               <strong>Chat IA:</strong> Conversa interativa sobre os dados
             </Typography>
             
@@ -1525,7 +1538,7 @@ export default function HelpTopicsData() {
                   {stagedAnalysis.message || 'Processando dados...'}
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.5, textAlign: 'center', fontSize: '0.75rem' }}>
-                  Análise com IA - pode levar até 30 segundos
+                  Análise otimizada - pode levar até 25 segundos
                 </Typography>
                 {stagedAnalysis.stage === 'collecting' && stagedAnalysis.progress > 0 && (
                   <Typography variant="caption" sx={{ color: 'var(--color-primary)', fontWeight: 600 }}>

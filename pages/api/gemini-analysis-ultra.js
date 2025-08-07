@@ -47,26 +47,26 @@ export default async function handler(req, res) {
       });
     }
 
-    // OTIMIZAÇÃO: Apenas top 3 temas com detalhes
-    const top3Topics = topics.slice(0, 3);
-    const topicsData = top3Topics.map((topic, index) => ({
+    // ESTRATÉGIA OTIMIZADA: Top 10 temas com detalhes reduzidos
+    const top10Topics = topics.slice(0, 10); // Top 10 temas
+    const topicsData = top10Topics.map((topic, index) => ({
       ranking: index + 1,
       name: topic.name,
       count: topic.count,
       percentage: topic.percentage
     }));
 
-    // Coletar detalhes apenas dos top 3 temas (máximo 5 registros cada)
+    // Coletar detalhes apenas dos top 5 temas (2 registros por tema para otimizar)
     let detailedData = null;
     try {
-      const detailsPromises = top3Topics.map(async (topic) => {
+      const detailsPromises = top10Topics.slice(0, 5).map(async (topic) => {
         try {
           const topicId = topic.id || topic.name;
           const details = await getHelpTopicDetails(topicId, startDate, endDate);
           return {
             topicName: topic.name,
-            details: details.slice(0, 5).map(record => ({
-              description: record.description?.substring(0, 200) || '', // Limitar descrição
+            details: details.slice(0, 2).map(record => ({
+              description: record.description?.substring(0, 120) || '', // Reduzir para 120 chars
               date: record.formattedDate,
               analyst: record.analyst_name,
               requester: record.requester_name || 'Usuário não identificado',
@@ -88,64 +88,58 @@ export default async function handler(req, res) {
       detailedData = null;
     }
 
-    // Prompt para análise completa
+    // Prompt otimizado para top 10 temas
     const analysisPrompt = `
       Analise os dados de temas de dúvidas do sistema ERP da Olist (${period}: ${startDate} a ${endDate}):
       
-      TOP 3 TEMAS PRINCIPAIS:
+      TOP 10 TEMAS PRINCIPAIS:
       ${JSON.stringify(topicsData, null, 2)}
       
       ${detailedData ? `
-      REGISTROS DETALHADOS DE AJUDA (TOP 3 TEMAS):
-      Inclui: descrições das solicitações, usuários solicitantes, analistas responsáveis, datas e horários
+      REGISTROS DE AJUDA (TOP 5 TEMAS COM MAIS DETALHES):
       ${JSON.stringify(detailedData, null, 2)}
       ` : ''}
       
-      Forneça uma análise completa considerando:
+      Forneça uma análise concisa e estruturada:
       
       ## 1. PADRÕES PRINCIPAIS
-      - 2 principais padrões nos temas de dúvidas
+      - 3 padrões mais relevantes nos temas (top 10)
       - Distribuição percentual dos temas críticos
-      ${detailedData ? '- Padrões nas descrições das solicitações' : ''}
       
-      ## 2. ANÁLISE DOS USUÁRIOS E SOLICITAÇÕES
-      - Por que os temas principais geram mais dúvidas
-      - Problemas de usabilidade ou documentação identificados
-      ${detailedData ? '- Análise das descrições e usuários solicitantes' : ''}
+      ## 2. ANÁLISE DOS USUÁRIOS
+      - Padrões nas solicitações dos usuários
+      - Problemas de usabilidade identificados
       
       ## 3. MELHORIAS SUGERIDAS
-      - 2 melhorias principais para documentação
-      - 2 treinamentos prioritários
-      ${detailedData ? '- Sugestões baseadas nas solicitações reais' : ''}
+      - 3 melhorias para documentação
+      - 3 treinamentos prioritários
       
       ## 4. AÇÕES IMEDIATAS
-      - 2 ações para reduzir volume de dúvidas
-      - Melhorias no sistema para problemas recorrentes
-      ${detailedData ? '- Ações específicas baseadas nos dados dos usuários' : ''}
+      - 3 ações para reduzir volume de dúvidas
       
       IMPORTANTE:
       - Use formatação markdown
-      - Foco no contexto de suporte técnico do ERP da Olist
-      - Seja conciso e direto
+      - Foco no contexto ERP da Olist
+      - Seja conciso (máximo 1200 palavras)
       - Responda em português
-      ${detailedData ? '- Analise os padrões dos usuários e suas solicitações' : ''}
+      - Analise todos os 10 temas principais
     `;
 
-    // Gerar análise com Gemini (configuração otimizada)
+    // Configuração otimizada para limites do Gemini 2.0 Flash
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 2048, // Otimizado
-        temperature: 0.7,
+        maxOutputTokens: 1500, // Reduzido para garantir resposta rápida
+        temperature: 0.6, // Reduzido para mais consistência
         topP: 0.8,
         topK: 40,
       }
     });
     
-    // Timeout otimizado
+    // Timeout otimizado para 25 segundos (dentro dos limites)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 segundos
 
     try {
       const result = await model.generateContent(analysisPrompt);
@@ -161,11 +155,17 @@ export default async function handler(req, res) {
           period,
           startDate,
           endDate,
-          totalTopics: top3Topics.length,
+          totalTopics: top10Topics.length,
           analysisType,
           detailsCount: detailedData ? detailedData.reduce((sum, item) => sum + item.details.length, 0) : 0,
-          note: `Análise otimizada - apenas top 3 temas com detalhes limitados`,
-          tokensUsed: response.usageMetadata?.totalTokenCount || 'N/A'
+          note: `Análise otimizada - top 10 temas com detalhes dos top 5`,
+          tokensUsed: response.usageMetadata?.totalTokenCount || 'N/A',
+          model: 'gemini-2.0-flash',
+          limits: {
+            rpm: 15,
+            tpm: 1000000,
+            rpd: 200
+          }
         }
       });
 
