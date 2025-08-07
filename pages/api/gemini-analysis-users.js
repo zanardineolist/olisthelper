@@ -47,26 +47,42 @@ export default async function handler(req, res) {
       });
     }
 
-    // ESTRATÉGIA OTIMIZADA: Foco nos usuários e suas dúvidas
-    const top8Topics = topics.slice(0, 8); // Top 8 temas para análise de usuários
-    const topicsData = top8Topics.map((topic, index) => ({
+    // ESTRATÉGIA OTIMIZADA: Foco nos 5 primeiros temas e top 10 usuários
+    const top5Topics = topics.slice(0, 5); // Top 5 temas para análise focada
+    const topicsData = top5Topics.map((topic, index) => ({
       ranking: index + 1,
       name: topic.name,
       count: topic.count,
       percentage: topic.percentage
     }));
 
-    // Coletar detalhes dos top 6 temas (3 registros por tema para análise profunda de usuários)
+    // Coletar detalhes dos top 5 temas com foco nos usuários mais ativos
     let detailedData = null;
+    let topUsers = null;
     try {
-      const detailsPromises = top8Topics.slice(0, 6).map(async (topic) => {
+      const detailsPromises = top5Topics.map(async (topic) => {
         try {
           const topicId = topic.id || topic.name;
           const details = await getHelpTopicDetails(topicId, startDate, endDate);
+          
+          // Agrupar por usuário para identificar os mais ativos
+          const userCounts = {};
+          details.forEach(record => {
+            const userName = record.requester_name || 'Usuário não identificado';
+            userCounts[userName] = (userCounts[userName] || 0) + 1;
+          });
+          
+          // Ordenar usuários por frequência e pegar os top 10
+          const sortedUsers = Object.entries(userCounts)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 10)
+            .map(([userName, count]) => ({ userName, count }));
+          
           return {
             topicName: topic.name,
-            details: details.slice(0, 3).map(record => ({
-              description: record.description?.substring(0, 150) || '', // Mais detalhes para análise de usuários
+            topUsers: sortedUsers,
+            details: details.slice(0, 5).map(record => ({
+              description: record.description?.substring(0, 150) || '',
               date: record.formattedDate,
               analyst: record.analyst_name,
               requester: record.requester_name || 'Usuário não identificado',
@@ -77,89 +93,110 @@ export default async function handler(req, res) {
           console.error(`Erro ao buscar detalhes para tema ${topic.name}:`, detailError);
           return {
             topicName: topic.name,
+            topUsers: [],
             details: []
           };
         }
       });
 
       detailedData = await Promise.all(detailsPromises);
+      
+      // Consolidar top 10 usuários gerais dos 5 temas
+      const allUserCounts = {};
+      detailedData.forEach(topicData => {
+        topicData.topUsers.forEach(user => {
+          allUserCounts[user.userName] = (allUserCounts[user.userName] || 0) + user.count;
+        });
+      });
+      
+      topUsers = Object.entries(allUserCounts)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 10)
+        .map(([userName, count]) => ({ userName, count }));
+        
     } catch (error) {
       console.error('Erro ao coletar detalhes:', error);
       detailedData = null;
+      topUsers = null;
     }
 
     // Prompt específico para análise de usuários
     const analysisPrompt = `
       Analise os dados de usuários e suas dúvidas no sistema ERP da Olist (${period}: ${startDate} a ${endDate}):
       
-      TOP 8 TEMAS PRINCIPAIS:
+      TOP 5 TEMAS PRINCIPAIS:
       ${JSON.stringify(topicsData, null, 2)}
       
+      ${topUsers ? `
+      TOP 10 USUÁRIOS MAIS ATIVOS (CONSOLIDADO DOS 5 TEMAS):
+      ${JSON.stringify(topUsers, null, 2)}
+      ` : ''}
+      
       ${detailedData ? `
-      REGISTROS DETALHADOS DOS USUÁRIOS (TOP 6 TEMAS):
+      DETALHES POR TEMA (TOP 5 TEMAS):
       ${JSON.stringify(detailedData, null, 2)}
       ` : ''}
       
       Forneça uma análise focada nos USUÁRIOS e suas DÚVIDAS com formatação markdown limpa:
       
-      ## 1. PERFIL DOS USUÁRIOS
+      ## 1. PERFIL DOS USUÁRIOS MAIS ATIVOS
       
-      **Usuários Mais Ativos:**
-      - [Identificar usuários que mais pedem ajuda]
-      - [Padrões de comportamento dos usuários]
-      - [Departamentos ou áreas com mais dúvidas]
+      **Top 10 Usuários com Mais Solicitações:**
+      - [Analisar os 10 usuários que mais pedem ajuda]
+      - [Identificar padrões de comportamento específicos]
+      - [Verificar se há concentração em departamentos específicos]
       
-      **Tipos de Usuários Identificados:**
-      - [Usuários iniciantes vs experientes]
-      - [Usuários com dúvidas específicas]
-      - [Padrões de solicitação por tipo de usuário]
+      **Análise por Tema:**
+      - [Quais usuários são mais ativos em cada tema]
+      - [Padrões de dúvidas específicas por usuário]
+      - [Usuários que pedem ajuda em múltiplos temas]
       
-      ## 2. ANÁLISE DAS DÚVIDAS DOS USUÁRIOS
+      ## 2. ANÁLISE DAS DÚVIDAS POR USUÁRIO
       
-      **Dúvidas Mais Frequentes:**
-      - [Principais tipos de dúvidas dos usuários]
-      - [Dúvidas por complexidade]
-      - [Dúvidas por área do sistema]
+      **Dúvidas dos Usuários Mais Ativos:**
+      - [Tipos de dúvidas dos top 10 usuários]
+      - [Complexidade das dúvidas por usuário]
+      - [Temas específicos que cada usuário mais pede ajuda]
       
-      **Padrões Temporais:**
-      - [Horários com mais dúvidas]
-      - [Dias da semana com mais solicitações]
-      - [Padrões sazonais identificados]
+      **Padrões de Solicitação:**
+      - [Horários preferidos dos usuários mais ativos]
+      - [Frequência de solicitações por usuário]
+      - [Padrões de dúvidas recorrentes]
       
       ## 3. PROBLEMAS DE USABILIDADE IDENTIFICADOS
       
-      **Interface e Navegação:**
-      - [Problemas específicos de usabilidade]
-      - [Áreas confusas para os usuários]
-      - [Funcionalidades que geram mais dúvidas]
+      **Problemas Específicos dos Usuários Mais Ativos:**
+      - [Problemas de usabilidade identificados nos top 10 usuários]
+      - [Áreas do sistema que mais confundem esses usuários]
+      - [Funcionalidades que geram mais dúvidas para eles]
       
-      **Processos e Fluxos:**
-      - [Processos que confundem os usuários]
-      - [Etapas que geram mais dúvidas]
-      - [Integrações problemáticas]
+      **Processos Problemáticos:**
+      - [Processos que mais confundem os usuários ativos]
+      - [Etapas específicas que geram dúvidas recorrentes]
+      - [Integrações que causam mais problemas]
       
-      ## 4. RECOMENDAÇÕES PARA MELHORAR A EXPERIÊNCIA
+      ## 4. RECOMENDAÇÕES ESPECÍFICAS PARA OS USUÁRIOS MAIS ATIVOS
       
       **Melhorias na Interface:**
-      1. [Primeira melhoria específica para usuários]
-      2. [Segunda melhoria específica para usuários]
-      3. [Terceira melhoria específica para usuários]
+      1. [Primeira melhoria específica para os top 10 usuários]
+      2. [Segunda melhoria específica para os top 10 usuários]
+      3. [Terceira melhoria específica para os top 10 usuários]
       
-      **Treinamentos e Suporte:**
-      1. [Primeiro treinamento focado nos usuários]
-      2. [Segundo treinamento focado nos usuários]
-      3. [Terceiro treinamento focado nos usuários]
+      **Treinamentos Personalizados:**
+      1. [Primeiro treinamento focado nos usuários mais ativos]
+      2. [Segundo treinamento focado nos usuários mais ativos]
+      3. [Terceiro treinamento focado nos usuários mais ativos]
       
       **Ações Imediatas:**
-      1. [Primeira ação para melhorar experiência do usuário]
-      2. [Segunda ação para melhorar experiência do usuário]
-      3. [Terceira ação para melhorar experiência do usuário]
+      1. [Primeira ação para reduzir dúvidas dos usuários mais ativos]
+      2. [Segunda ação para reduzir dúvidas dos usuários mais ativos]
+      3. [Terceira ação para reduzir dúvidas dos usuários mais ativos]
       
       **IMPORTANTE:**
-      - Foque na experiência do USUÁRIO
-      - Analise padrões de comportamento
-      - Identifique problemas de usabilidade
-      - Sugira melhorias específicas para os usuários
+      - Foque especificamente nos TOP 10 USUÁRIOS MAIS ATIVOS
+      - Analise padrões de comportamento dos usuários mais frequentes
+      - Identifique problemas de usabilidade específicos desses usuários
+      - Sugira melhorias direcionadas aos usuários que mais pedem ajuda
       - Use formatação markdown limpa
       - Seja conciso (máximo 1200 palavras)
       - Responda em português
@@ -197,10 +234,11 @@ export default async function handler(req, res) {
           period,
           startDate,
           endDate,
-          totalTopics: top8Topics.length,
+          totalTopics: top5Topics.length,
           analysisType,
           detailsCount: detailedData ? detailedData.reduce((sum, item) => sum + item.details.length, 0) : 0,
-          note: `Análise focada em usuários - top 8 temas com detalhes dos top 6`,
+          topUsersCount: topUsers ? topUsers.length : 0,
+          note: `Análise focada nos top 10 usuários - top 5 temas com detalhes consolidados`,
           tokensUsed: response.usageMetadata?.totalTokenCount || 'N/A',
           model: 'gemini-2.0-flash',
           limits: {

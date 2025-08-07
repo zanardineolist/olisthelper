@@ -459,12 +459,12 @@ export default function HelpTopicsData() {
       setLoadingGemini(true);
       setOpenGeminiModal(true);
       setGeminiAnalysis('');
-      setStagedAnalysis({
-        stage: 'collecting',
-        progress: 0,
-        message: 'Coletando dados dos usuários...',
-        includeDetails: false
-      });
+                          setStagedAnalysis({
+                      stage: 'collecting',
+                      progress: 0,
+                      message: 'Coletando dados dos top 10 usuários mais ativos...',
+                      includeDetails: false
+                    });
 
       const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
       const formattedEndDate = formatDateBR(endDate, 'yyyy-MM-dd');
@@ -487,11 +487,11 @@ export default function HelpTopicsData() {
       }
 
       // Simular progresso da coleta de dados
-      setStagedAnalysis(prev => ({
-        ...prev,
-        progress: 25,
-        message: 'Analisando padrões dos usuários...'
-      }));
+                          setStagedAnalysis(prev => ({
+                      ...prev,
+                      progress: 25,
+                      message: 'Analisando padrões dos top 10 usuários...'
+                    }));
 
       // Configurar timeout para a requisição
       const controller = new AbortController();
@@ -519,12 +519,12 @@ export default function HelpTopicsData() {
         throw new Error(errorData.message || errorData.error || `Erro ${res.status}: ${res.statusText}`);
       }
 
-      setStagedAnalysis(prev => ({
-        ...prev,
-        stage: 'analyzing',
-        progress: 75,
-        message: 'Analisando padrões dos usuários...'
-      }));
+                          setStagedAnalysis(prev => ({
+                      ...prev,
+                      stage: 'analyzing',
+                      progress: 75,
+                      message: 'Analisando padrões dos top 10 usuários...'
+                    }));
 
       const data = await res.json();
       
@@ -534,10 +534,15 @@ export default function HelpTopicsData() {
         analysisText = `📝 ${data.metadata.note}\n\n${analysisText}`;
       }
       
-      // Adicionar informações sobre detalhes incluídos
-      if (data.metadata?.detailsCount) {
-        analysisText = `👥 Análise com ${data.metadata.detailsCount} registros de usuários\n\n${analysisText}`;
-      }
+                          // Adicionar informações sobre detalhes incluídos
+                    if (data.metadata?.detailsCount) {
+                      analysisText = `👥 Análise com ${data.metadata.detailsCount} registros de usuários\n\n${analysisText}`;
+                    }
+                    
+                    // Adicionar informações sobre top usuários
+                    if (data.metadata?.topUsersCount) {
+                      analysisText = `👤 Análise dos ${data.metadata.topUsersCount} usuários mais ativos\n\n${analysisText}`;
+                    }
       
       setGeminiAnalysis(analysisText);
       setCacheMisses(prev => prev + 1);
@@ -550,32 +555,32 @@ export default function HelpTopicsData() {
         }
       })); // Adicionar ao cache com timestamp
       
-      setStagedAnalysis({
-        stage: 'complete',
-        progress: 100,
-        message: 'Análise de usuários concluída com sucesso!',
-        includeDetails: false
-      });
+                          setStagedAnalysis({
+                      stage: 'complete',
+                      progress: 100,
+                      message: 'Análise dos top 10 usuários concluída com sucesso!',
+                      includeDetails: false
+                    });
     } catch (error) {
       console.error('Erro na análise de usuários do Gemini:', error);
       
-      let errorMessage = 'Não foi possível gerar a análise de usuários.';
-      if (error.name === 'AbortError') {
-        errorMessage = 'A análise demorou muito. Tente com um período menor.';
-      } else if (error.message.includes('504')) {
-        errorMessage = 'Servidor sobrecarregado. Tente novamente em alguns instantes.';
-      } else if (error.message.includes('timeout')) {
-        errorMessage = 'Tempo limite excedido. Tente com período menor.';
-      } else if (error.message.includes('quota')) {
-        errorMessage = 'Limite de requisições da IA excedido. Tente novamente em alguns minutos.';
-      } else if (error.message.includes('API key')) {
-        errorMessage = 'Erro de configuração da IA. Entre em contato com o administrador.';
-      } else if (error.message.includes('500')) {
-        errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes.';
-      }
-      
-      Swal.fire('Erro', errorMessage, 'error');
-      setGeminiAnalysis('Erro ao gerar análise de usuários. Tente novamente.');
+                          let errorMessage = 'Não foi possível gerar a análise dos top 10 usuários.';
+                    if (error.name === 'AbortError') {
+                      errorMessage = 'A análise demorou muito. Tente com um período menor.';
+                    } else if (error.message.includes('504')) {
+                      errorMessage = 'Servidor sobrecarregado. Tente novamente em alguns instantes.';
+                    } else if (error.message.includes('timeout')) {
+                      errorMessage = 'Tempo limite excedido. Tente com período menor.';
+                    } else if (error.message.includes('quota')) {
+                      errorMessage = 'Limite de requisições da IA excedido. Tente novamente em alguns minutos.';
+                    } else if (error.message.includes('API key')) {
+                      errorMessage = 'Erro de configuração da IA. Entre em contato com o administrador.';
+                    } else if (error.message.includes('500')) {
+                      errorMessage = 'Erro interno do servidor. Tente novamente em alguns instantes.';
+                    }
+                    
+                    Swal.fire('Erro', errorMessage, 'error');
+                    setGeminiAnalysis('Erro ao gerar análise dos top 10 usuários. Tente novamente.');
       setStagedAnalysis({
         stage: null,
         progress: 0,
@@ -915,8 +920,8 @@ export default function HelpTopicsData() {
                 lineHeight: 1.5
               }}
             >
-              <strong>Análise IA:</strong> Análise otimizada com registros dos top 10 temas (25s)<br/>
-              <strong>Análise de Usuários:</strong> Foco nos padrões dos usuários e suas dúvidas (25s)
+                              <strong>Análise IA:</strong> Análise otimizada com registros dos top 10 temas (25s)<br/>
+                <strong>Análise de Usuários:</strong> Foco nos top 10 usuários mais ativos dos 5 principais temas (25s)
             </Typography>
             
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
