@@ -437,7 +437,7 @@ export default function HelpTopicsData() {
         stage: 'collecting',
         progress: 0,
         message: 'Coletando dados básicos dos temas...',
-        includeDetails
+        includeDetails: false
       });
 
       const formattedStartDate = formatDateBR(startDate, 'yyyy-MM-dd');
@@ -480,7 +480,7 @@ export default function HelpTopicsData() {
           period,
           startDate: formattedStartDate,
           endDate: formattedEndDate,
-          analysisType
+          analysisType: 'insights'
         }),
         signal: controller.signal
       });
