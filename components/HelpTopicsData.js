@@ -427,7 +427,7 @@ export default function HelpTopicsData() {
     setTopicDetails([]);
   };
 
-  // Função para análise ultra-otimizada
+  // Função para análise com IA
   const handleUltraAnalysis = async () => {
     try {
       setLoadingGemini(true);
@@ -463,12 +463,12 @@ export default function HelpTopicsData() {
       setStagedAnalysis(prev => ({
         ...prev,
         progress: 25,
-        message: 'Coletando dados ultra-otimizados...'
+        message: 'Coletando dados para análise...'
       }));
 
       // Configurar timeout para a requisição
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 35000); // 35 segundos para análise ultra
+      const timeoutId = setTimeout(() => controller.abort(), 35000); // 35 segundos para análise
 
       const res = await fetch('/api/gemini-analysis-ultra', {
         method: 'POST',
@@ -522,9 +522,9 @@ export default function HelpTopicsData() {
         includeDetails: false
       });
     } catch (error) {
-      console.error('Erro na análise ultra-otimizada do Gemini:', error);
+      console.error('Erro na análise do Gemini:', error);
       
-      let errorMessage = 'Não foi possível gerar a análise ultra-otimizada.';
+      let errorMessage = 'Não foi possível gerar a análise.';
       if (error.name === 'AbortError') {
         errorMessage = 'A análise demorou muito. Tente com um período menor.';
       } else if (error.message.includes('504')) {
@@ -540,7 +540,7 @@ export default function HelpTopicsData() {
       }
       
       Swal.fire('Erro', errorMessage, 'error');
-      setGeminiAnalysis('Erro ao gerar análise ultra-otimizada. Tente novamente.');
+      setGeminiAnalysis('Erro ao gerar análise. Tente novamente.');
       setStagedAnalysis({
         stage: null,
         progress: 0,
@@ -746,7 +746,7 @@ export default function HelpTopicsData() {
                 lineHeight: 1.5
               }}
             >
-              <strong>Análise IA:</strong> Análise ultra-otimizada com registros dos top 3 temas (30s)<br/>
+              <strong>Análise IA:</strong> Análise com registros dos top 3 temas (30s)<br/>
               <strong>Chat IA:</strong> Conversa interativa sobre os dados
             </Typography>
             
@@ -1525,7 +1525,7 @@ export default function HelpTopicsData() {
                   {stagedAnalysis.message || 'Processando dados...'}
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.5, textAlign: 'center', fontSize: '0.75rem' }}>
-                  Análise ultra-otimizada - pode levar até 30 segundos
+                  Análise com IA - pode levar até 30 segundos
                 </Typography>
                 {stagedAnalysis.stage === 'collecting' && stagedAnalysis.progress > 0 && (
                   <Typography variant="caption" sx={{ color: 'var(--color-primary)', fontWeight: 600 }}>

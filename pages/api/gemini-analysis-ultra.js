@@ -47,7 +47,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // ULTRA-OTIMIZAÇÃO: Apenas top 3 temas com detalhes
+    // OTIMIZAÇÃO: Apenas top 3 temas com detalhes
     const top3Topics = topics.slice(0, 3);
     const topicsData = top3Topics.map((topic, index) => ({
       ranking: index + 1,
@@ -68,7 +68,9 @@ export default async function handler(req, res) {
             details: details.slice(0, 5).map(record => ({
               description: record.description?.substring(0, 200) || '', // Limitar descrição
               date: record.formattedDate,
-              analyst: record.analyst_name
+              analyst: record.analyst_name,
+              requester: record.requester_name || 'Usuário não identificado',
+              time: record.formattedTime
             }))
           };
         } catch (detailError) {
@@ -86,7 +88,7 @@ export default async function handler(req, res) {
       detailedData = null;
     }
 
-    // Prompt ultra-simplificado
+    // Prompt para análise completa
     const analysisPrompt = `
       Analise os dados de temas de dúvidas do sistema ERP da Olist (${period}: ${startDate} a ${endDate}):
       
@@ -94,53 +96,54 @@ export default async function handler(req, res) {
       ${JSON.stringify(topicsData, null, 2)}
       
       ${detailedData ? `
-      REGISTROS DE AJUDA (TOP 3 TEMAS):
+      REGISTROS DETALHADOS DE AJUDA (TOP 3 TEMAS):
+      Inclui: descrições das solicitações, usuários solicitantes, analistas responsáveis, datas e horários
       ${JSON.stringify(detailedData, null, 2)}
       ` : ''}
       
-      Forneça uma análise concisa:
+      Forneça uma análise completa considerando:
       
       ## 1. PADRÕES PRINCIPAIS
       - 2 principais padrões nos temas de dúvidas
       - Distribuição percentual dos temas críticos
-      ${detailedData ? '- Padrões nos registros de ajuda' : ''}
+      ${detailedData ? '- Padrões nas descrições das solicitações' : ''}
       
-      ## 2. CAUSAS DAS DÚVIDAS
+      ## 2. ANÁLISE DOS USUÁRIOS E SOLICITAÇÕES
       - Por que os temas principais geram mais dúvidas
-      - Problemas de usabilidade ou documentação
-      ${detailedData ? '- Análise das descrições dos registros' : ''}
+      - Problemas de usabilidade ou documentação identificados
+      ${detailedData ? '- Análise das descrições e usuários solicitantes' : ''}
       
       ## 3. MELHORIAS SUGERIDAS
       - 2 melhorias principais para documentação
       - 2 treinamentos prioritários
-      ${detailedData ? '- Sugestões baseadas nos registros' : ''}
+      ${detailedData ? '- Sugestões baseadas nas solicitações reais' : ''}
       
       ## 4. AÇÕES IMEDIATAS
       - 2 ações para reduzir volume de dúvidas
       - Melhorias no sistema para problemas recorrentes
-      ${detailedData ? '- Ações específicas baseadas nos dados' : ''}
+      ${detailedData ? '- Ações específicas baseadas nos dados dos usuários' : ''}
       
       IMPORTANTE:
       - Use formatação markdown
       - Foco no contexto de suporte técnico do ERP da Olist
       - Seja conciso e direto
       - Responda em português
-      ${detailedData ? '- Inclua insights dos registros de ajuda' : ''}
+      ${detailedData ? '- Analise os padrões dos usuários e suas solicitações' : ''}
     `;
 
-    // Gerar análise com Gemini (configuração ultra-otimizada)
+    // Gerar análise com Gemini (configuração otimizada)
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 2048, // Ultra-reduzido
+        maxOutputTokens: 2048, // Otimizado
         temperature: 0.7,
         topP: 0.8,
         topK: 40,
       }
     });
     
-    // Timeout ultra-agressivo
+    // Timeout otimizado
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
 
@@ -161,7 +164,7 @@ export default async function handler(req, res) {
           totalTopics: top3Topics.length,
           analysisType,
           detailsCount: detailedData ? detailedData.reduce((sum, item) => sum + item.details.length, 0) : 0,
-          note: `Análise ultra-otimizada - apenas top 3 temas com detalhes limitados`,
+          note: `Análise otimizada - apenas top 3 temas com detalhes limitados`,
           tokensUsed: response.usageMetadata?.totalTokenCount || 'N/A'
         }
       });
