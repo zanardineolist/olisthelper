@@ -44,7 +44,7 @@ const TIMEZONE = 'America/Sao_Paulo';
 const toBRTimezone = (date) => utcToZonedTime(date, TIMEZONE);
 const fromBRTimezone = (date) => zonedTimeToUtc(date, TIMEZONE);
 
-// Função para formatar o texto da análise com markdown
+// Função para formatar o texto da análise com markdown melhorado
 const formatAnalysisText = (text) => {
   if (!text) return '';
   
@@ -54,52 +54,64 @@ const formatAnalysisText = (text) => {
     .replace(/^### (.*$)/gim, '<h3 style="color: var(--title-color); margin: 24px 0 12px 0; font-size: 1.15rem; font-weight: 600;">$1</h3>')
     .replace(/^#### (.*$)/gim, '<h4 style="color: var(--title-color); margin: 20px 0 10px 0; font-size: 1.05rem; font-weight: 600;">$1</h4>')
     
-    // Bold text
+    // Bold text (melhorado para evitar asteriscos soltos)
     .replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 600; color: var(--title-color);">$1</strong>')
     
     // Italic text
     .replace(/\*(.*?)\*/g, '<em style="font-style: italic;">$1</em>')
     
-    // Lists
-    .replace(/^\- (.*$)/gim, '<li style="margin: 10px 0; padding-left: 12px; line-height: 1.6;">$1</li>')
-    .replace(/^(\d+)\. (.*$)/gim, '<li style="margin: 10px 0; padding-left: 12px; line-height: 1.6;">$2</li>')
+    // Lists numeradas
+    .replace(/^(\d+)\. (.*$)/gim, '<li style="margin: 8px 0; padding-left: 16px; line-height: 1.6; list-style-type: decimal;">$2</li>')
     
-    // Wrap lists in ul/ol
-    .replace(/(<li.*<\/li>)/gs, '<ul style="margin: 20px 0; padding-left: 24px;">$1</ul>')
+    // Lists com marcadores
+    .replace(/^\- (.*$)/gim, '<li style="margin: 8px 0; padding-left: 16px; line-height: 1.6; list-style-type: disc;">$1</li>')
+    
+    // Wrap lists numeradas em ol
+    .replace(/(<li.*?list-style-type: decimal.*?<\/li>)/gs, '<ol style="margin: 16px 0; padding-left: 20px;">$1</ol>')
+    
+    // Wrap lists com marcadores em ul
+    .replace(/(<li.*?list-style-type: disc.*?<\/li>)/gs, '<ul style="margin: 16px 0; padding-left: 20px;">$1</ul>')
     
     // Paragraphs
-    .replace(/\n\n/g, '</p><p style="margin: 18px 0; line-height: 1.7;">')
+    .replace(/\n\n/g, '</p><p style="margin: 16px 0; line-height: 1.7;">')
     
     // Line breaks
     .replace(/\n/g, '<br>')
     
     // Wrap in paragraph tags
-    .replace(/^(.*)$/gm, '<p style="margin: 10px 0; line-height: 1.7;">$1</p>')
+    .replace(/^(.*)$/gm, '<p style="margin: 12px 0; line-height: 1.7;">$1</p>')
     
     // Clean up empty paragraphs
-    .replace(/<p style="margin: 10px 0; line-height: 1.7;"><\/p>/g, '')
-    .replace(/<p style="margin: 18px 0; line-height: 1.7;"><\/p>/g, '')
+    .replace(/<p style="margin: 12px 0; line-height: 1.7;"><\/p>/g, '')
+    .replace(/<p style="margin: 16px 0; line-height: 1.7;"><\/p>/g, '')
     
     // Clean up list formatting
-    .replace(/<p style="margin: 10px 0; line-height: 1.7;"><li/g, '<li')
+    .replace(/<p style="margin: 12px 0; line-height: 1.7;"><li/g, '<li')
     .replace(/<\/li><\/p>/g, '</li>')
-    .replace(/<p style="margin: 18px 0; line-height: 1.7;"><li/g, '<li')
+    .replace(/<p style="margin: 16px 0; line-height: 1.7;"><li/g, '<li')
     
     // Clean up header formatting
-    .replace(/<p style="margin: 10px 0; line-height: 1.7;"><h2/g, '<h2')
+    .replace(/<p style="margin: 12px 0; line-height: 1.7;"><h2/g, '<h2')
     .replace(/<\/h2><\/p>/g, '</h2>')
-    .replace(/<p style="margin: 10px 0; line-height: 1.7;"><h3/g, '<h3')
+    .replace(/<p style="margin: 12px 0; line-height: 1.7;"><h3/g, '<h3')
     .replace(/<\/h3><\/p>/g, '</h3>')
-    .replace(/<p style="margin: 10px 0; line-height: 1.7;"><h4/g, '<h4')
+    .replace(/<p style="margin: 12px 0; line-height: 1.7;"><h4/g, '<h4')
     .replace(/<\/h4><\/p>/g, '</h4>')
     
     // Add spacing around headers
-    .replace(/<\/h2>/g, '</h2><div style="margin-bottom: 20px;"></div>')
-    .replace(/<\/h3>/g, '</h3><div style="margin-bottom: 16px;"></div>')
-    .replace(/<\/h4>/g, '</h4><div style="margin-bottom: 12px;"></div>')
+    .replace(/<\/h2>/g, '</h2><div style="margin-bottom: 24px;"></div>')
+    .replace(/<\/h3>/g, '</h3><div style="margin-bottom: 20px;"></div>')
+    .replace(/<\/h4>/g, '</h4><div style="margin-bottom: 16px;"></div>')
     
-    // Add extra spacing for better readability
-    .replace(/<\/ul>/g, '</ul><div style="margin-bottom: 16px;"></div>');
+    // Clean up multiple line breaks
+    .replace(/(<br>\s*){3,}/g, '<br><br>')
+    
+    // Remove asteriscos soltos que não são formatação
+    .replace(/(?<!\*)\*(?!\*)/g, '')
+    
+    // Remove extra spaces
+    .replace(/\s+/g, ' ')
+    .trim();
 };
 
 // Versões das funções do date-fns ajustadas para o fuso horário do Brasil

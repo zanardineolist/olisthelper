@@ -88,7 +88,7 @@ export default async function handler(req, res) {
       detailedData = null;
     }
 
-    // Prompt otimizado para top 10 temas
+    // Prompt otimizado para top 10 temas com formatação melhorada
     const analysisPrompt = `
       Analise os dados de temas de dúvidas do sistema ERP da Olist (${period}: ${startDate} a ${endDate}):
       
@@ -100,29 +100,58 @@ export default async function handler(req, res) {
       ${JSON.stringify(detailedData, null, 2)}
       ` : ''}
       
-      Forneça uma análise concisa e estruturada:
+      Forneça uma análise concisa e estruturada com formatação markdown limpa:
       
       ## 1. PADRÕES PRINCIPAIS
-      - 3 padrões mais relevantes nos temas (top 10)
-      - Distribuição percentual dos temas críticos
+      
+      **Padrão 1:** [Nome do padrão]
+      [Descrição detalhada do primeiro padrão]
+      
+      **Padrão 2:** [Nome do padrão]
+      [Descrição detalhada do segundo padrão]
+      
+      **Padrão 3:** [Nome do padrão]
+      [Descrição detalhada do terceiro padrão]
+      
+      **Distribuição Percentual:** Os 5 principais temas representam [X]% do total de dúvidas.
       
       ## 2. ANÁLISE DOS USUÁRIOS
-      - Padrões nas solicitações dos usuários
-      - Problemas de usabilidade identificados
+      
+      **Padrões nas Solicitações:**
+      - [Padrão específico identificado]
+      - [Outro padrão identificado]
+      - [Mais um padrão relevante]
+      
+      **Problemas de Usabilidade:**
+      - [Problema específico identificado]
+      - [Outro problema identificado]
+      - [Mais um problema relevante]
       
       ## 3. MELHORIAS SUGERIDAS
-      - 3 melhorias para documentação
-      - 3 treinamentos prioritários
+      
+      **Melhorias para Documentação:**
+      1. [Primeira melhoria específica]
+      2. [Segunda melhoria específica]
+      3. [Terceira melhoria específica]
+      
+      **Treinamentos Prioritários:**
+      1. [Primeiro treinamento prioritário]
+      2. [Segundo treinamento prioritário]
+      3. [Terceiro treinamento prioritário]
       
       ## 4. AÇÕES IMEDIATAS
-      - 3 ações para reduzir volume de dúvidas
       
-      IMPORTANTE:
-      - Use formatação markdown
+      1. [Primeira ação específica para reduzir dúvidas]
+      2. [Segunda ação específica para reduzir dúvidas]
+      3. [Terceira ação específica para reduzir dúvidas]
+      
+      **IMPORTANTE:**
+      - Use formatação markdown limpa (sem asteriscos desnecessários)
       - Foco no contexto ERP da Olist
       - Seja conciso (máximo 1200 palavras)
       - Responda em português
       - Analise todos os 10 temas principais
+      - Use listas numeradas e com marcadores de forma consistente
     `;
 
     // Configuração otimizada para limites do Gemini 2.0 Flash
