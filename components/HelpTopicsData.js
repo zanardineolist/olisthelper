@@ -466,9 +466,9 @@ export default function HelpTopicsData() {
         message: includeDetails ? 'Coletando detalhes dos registros de ajuda...' : 'Preparando dados para análise...'
       }));
 
-      // Configurar timeout para a requisição
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 segundos para análises complexas
+              // Configurar timeout para a requisição
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos para análises otimizadas
 
       const res = await fetch('/api/gemini-analysis-staged', {
         method: 'POST',
@@ -831,8 +831,8 @@ export default function HelpTopicsData() {
                 lineHeight: 1.5
               }}
             >
-              <strong>Análise IA:</strong> Análise básica dos temas principais (rápida)<br/>
-              <strong>Análise Detalhada:</strong> Inclui registros de ajuda para insights mais profundos<br/>
+              <strong>Análise IA:</strong> Análise básica dos temas principais (45s)<br/>
+              <strong>Análise Detalhada:</strong> Inclui registros dos top 5 temas (45s)<br/>
               <strong>Análise Rápida:</strong> Versão simplificada para casos de emergência
             </Typography>
             
@@ -1654,8 +1654,8 @@ export default function HelpTopicsData() {
                 </Typography>
                 <Typography variant="caption" sx={{ color: 'var(--text-color2)', opacity: 0.5, textAlign: 'center', fontSize: '0.75rem' }}>
                   {stagedAnalysis.includeDetails ? 
-                    'Análise detalhada com registros de ajuda - pode levar até 90 segundos' :
-                    'Análise otimizada - pode levar até 60 segundos'
+                    'Análise detalhada com registros de ajuda - pode levar até 45 segundos' :
+                    'Análise otimizada - pode levar até 45 segundos'
                   }
                 </Typography>
                 {stagedAnalysis.stage === 'collecting' && stagedAnalysis.progress > 0 && (

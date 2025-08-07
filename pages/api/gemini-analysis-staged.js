@@ -56,11 +56,14 @@ export default async function handler(req, res) {
       percentage: topic.percentage
     }));
 
-    // ETAPA 2: Se solicitado, coletar detalhes de cada tema
+    // ETAPA 2: Se solicitado, coletar detalhes de cada tema (otimizado)
     let detailedData = null;
     if (includeDetails) {
       try {
-        const detailsPromises = limitedTopics.map(async (topic) => {
+        // Reduzir para apenas os top 5 temas para análise detalhada
+        const topTopics = limitedTopics.slice(0, 5);
+        
+        const detailsPromises = topTopics.map(async (topic) => {
           try {
             // Verificar se o topic tem id, caso contrário usar o nome para buscar
             const topicId = topic.id || topic.name;
@@ -68,7 +71,7 @@ export default async function handler(req, res) {
             return {
               topicId: topicId,
               topicName: topic.name,
-              details: details.slice(0, 20) // Limitar a 20 registros por tema para não sobrecarregar
+              details: details.slice(0, 10) // Reduzir para 10 registros por tema
             };
           } catch (detailError) {
             console.error(`Erro ao buscar detalhes para tema ${topic.name}:`, detailError);
@@ -100,38 +103,38 @@ export default async function handler(req, res) {
           ${JSON.stringify(topicsData, null, 2)}
           
           ${detailedData ? `
-          DETALHES DOS REGISTROS DE AJUDA:
+          DETALHES DOS REGISTROS DE AJUDA (TOP 5 TEMAS):
           ${JSON.stringify(detailedData, null, 2)}
           ` : ''}
           
-          Forneça uma análise completa sobre:
+          Forneça uma análise concisa sobre:
           
           ## 1. PADRÕES PRINCIPAIS
-          - 3 principais padrões nos temas de dúvidas
+          - 2 principais padrões nos temas de dúvidas
           - Distribuição percentual dos temas mais críticos
-          ${detailedData ? '- Padrões nos registros de ajuda detalhados' : ''}
+          ${detailedData ? '- Padrões nos registros de ajuda' : ''}
           
           ## 2. CAUSAS DAS DÚVIDAS
           - Por que os temas principais geram mais dúvidas
           - Problemas de usabilidade ou documentação
-          ${detailedData ? '- Análise das descrições dos registros de ajuda' : ''}
+          ${detailedData ? '- Análise das descrições dos registros' : ''}
           
           ## 3. MELHORIAS SUGERIDAS
-          - 3 melhorias principais para documentação
-          - 3 treinamentos prioritários
-          ${detailedData ? '- Sugestões baseadas nos registros detalhados' : ''}
+          - 2 melhorias principais para documentação
+          - 2 treinamentos prioritários
+          ${detailedData ? '- Sugestões baseadas nos registros' : ''}
           
           ## 4. AÇÕES IMEDIATAS
-          - 3 ações para reduzir volume de dúvidas
+          - 2 ações para reduzir volume de dúvidas
           - Melhorias no sistema para problemas recorrentes
-          ${detailedData ? '- Ações específicas baseadas nos dados detalhados' : ''}
+          ${detailedData ? '- Ações específicas baseadas nos dados' : ''}
           
           IMPORTANTE:
           - Use formatação markdown
           - Foco no contexto de suporte técnico do ERP da Olist
-          - Seja detalhado e completo
+          - Seja conciso e direto
           - Responda em português
-          ${detailedData ? '- Inclua insights específicos dos registros de ajuda' : ''}
+          ${detailedData ? '- Inclua insights dos registros de ajuda' : ''}
         `;
         responseFormat = 'text';
         break;
@@ -144,43 +147,43 @@ export default async function handler(req, res) {
           ${JSON.stringify(topicsData, null, 2)}
           
           ${detailedData ? `
-          DETALHES DOS REGISTROS DE AJUDA:
+          DETALHES DOS REGISTROS DE AJUDA (TOP 5 TEMAS):
           ${JSON.stringify(detailedData, null, 2)}
           ` : ''}
           
-          Gere recomendações detalhadas:
+          Gere recomendações concisas:
           
           ## 1. TREINAMENTOS PRIORITÁRIOS
-          - 3 temas que precisam de treinamento urgente
+          - 2 temas que precisam de treinamento urgente
           - Formatos de treinamento recomendados
-          ${detailedData ? '- Treinamentos específicos baseados nos registros' : ''}
+          ${detailedData ? '- Treinamentos baseados nos registros' : ''}
           
           ## 2. MELHORIAS NA DOCUMENTAÇÃO
-          - 3 seções que precisam ser melhoradas
+          - 2 seções que precisam ser melhoradas
           - Exemplos práticos que podem ser adicionados
-          ${detailedData ? '- Melhorias baseadas nos problemas identificados' : ''}
+          ${detailedData ? '- Melhorias baseadas nos problemas' : ''}
           
           ## 3. OTIMIZAÇÕES DE PROCESSO
-          - 3 fluxos que podem ser simplificados
+          - 2 fluxos que podem ser simplificados
           - Melhorias na interface do sistema
-          ${detailedData ? '- Otimizações baseadas nos dados reais' : ''}
+          ${detailedData ? '- Otimizações baseadas nos dados' : ''}
           
           ## 4. FERRAMENTAS ÚTEIS
-          - 3 ferramentas que podem facilitar o suporte
+          - 2 ferramentas que podem facilitar o suporte
           - Recursos de conhecimento compartilhado
-          ${detailedData ? '- Ferramentas específicas para os problemas identificados' : ''}
+          ${detailedData ? '- Ferramentas para os problemas identificados' : ''}
           
           ## 5. MÉTRICAS IMPORTANTES
-          - 3 KPIs para medir redução de dúvidas
+          - 2 KPIs para medir redução de dúvidas
           - Indicadores de satisfação
-          ${detailedData ? '- Métricas baseadas nos dados detalhados' : ''}
+          ${detailedData ? '- Métricas baseadas nos dados' : ''}
           
           IMPORTANTE:
           - Use formatação markdown
           - Foco no contexto de suporte técnico do ERP da Olist
-          - Seja detalhado e completo
+          - Seja conciso e direto
           - Responda em português
-          ${detailedData ? '- Inclua recomendações específicas baseadas nos registros' : ''}
+          ${detailedData ? '- Inclua recomendações baseadas nos registros' : ''}
         `;
         responseFormat = 'text';
         break;
@@ -194,16 +197,16 @@ export default async function handler(req, res) {
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-2.0-flash',
       generationConfig: {
-        maxOutputTokens: 4096, // Aumentado para análises mais completas
+        maxOutputTokens: 3072, // Otimizado para análises concisas
         temperature: 0.7,
         topP: 0.8,
         topK: 40,
       }
     });
     
-    // Timeout mais longo para análises complexas
+    // Timeout otimizado para análises
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 segundos
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // 45 segundos para análises otimizadas
 
     try {
       const result = await model.generateContent(analysisPrompt);
