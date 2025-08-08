@@ -13,6 +13,16 @@
   transition: filter 0.3s ease;
 }
 
+/* Limita e centraliza o conteúdo para telas grandes (até 2k) */
+.pageInner {
+  width: 100%;
+  max-width: 1680px; /* confortável em 2k */
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .container.blurred {
   filter: blur(2px);
   pointer-events: none;
@@ -505,7 +515,7 @@
 .topGrid {
   width: 100%;
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
+  grid-template-columns: 520px minmax(640px, 1fr);
   gap: 24px;
   align-items: start;
 }
@@ -522,6 +532,30 @@
   padding: 16px;
 }
 
+/* Cartões pequenos de estatísticas */
+.statCard {
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+/* Ajuste de altura do bloco de últimos registros */
+.recentHelpsContainer {
+  background-color: var(--box-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.recentHelpsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 420px; /* altura consistente para 1366x768 */
+  overflow-y: auto;
+}
+
 @media (max-width: 1024px) {
   .topGrid {
     grid-template-columns: 1fr;
@@ -530,6 +564,26 @@
     grid-template-columns: 1fr;
   }
   .dateRangeRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Telas muito largas: dá um respiro lateral e mantém linhas curtas */
+@media (min-width: 1920px) {
+  .pageInner {
+    max-width: 1760px;
+  }
+}
+
+/* Grid do histórico (parte de baixo) */
+.historyGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 1200px) {
+  .historyGrid {
     grid-template-columns: 1fr;
   }
 }

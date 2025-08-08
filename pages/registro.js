@@ -731,6 +731,7 @@ const customSelectStyles = {
       </Head>
 
       <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
+        <div className={styles.pageInner}>
         <div className={styles.topGrid}>
           {/* Esquerda: Formulário */}
           <div className={styles.leftPane}>
@@ -850,7 +851,7 @@ const customSelectStyles = {
               </div>
             </div>
 
-            <div className={styles.helpCounter}>
+            <div className={`${styles.statCard} ${styles.helpCounter}`}>
               <div className={styles.counterHeader}>
                 <h3>Ajudas prestadas hoje</h3>
               </div>
@@ -908,7 +909,7 @@ const customSelectStyles = {
         {/* Base: Histórico e Fechamento */}
         <div className={styles.formContainerWithSpacing}>
           <h2 className={styles.formTitle}>Histórico e Fechamento</h2>
-            <div className={styles.historyControls}>
+          <div className={styles.historyControls}>
               <div className={styles.dateRangeRow}>
                 <div className={styles.dateField}>
                   <label>Início</label>
@@ -923,7 +924,7 @@ const customSelectStyles = {
                 </button>
               </div>
             </div>
-
+          <div className={styles.historyGrid}>
             <div className={styles.historyContainer}>
               {historyLoading ? (
                 <ThreeDotsLoader message="Carregando histórico..." />
@@ -953,18 +954,20 @@ const customSelectStyles = {
                       </div>
                     )}
                   </div>
-                  <div className={styles.copyBox}>
-                    <label>Resumo para Slack</label>
-                    <textarea className={styles.formTextarea} readOnly value={fechamentoTexto} />
-                    <div className={styles.formButtonContainer}>
-                      <button type="button" className={styles.submitButton} onClick={copiarFechamento}>
-                        Copiar fechamento
-                      </button>
-                    </div>
-                  </div>
                 </>
               )}
             </div>
+            <div className={styles.copyBox}>
+              <label>Resumo para Slack</label>
+              <textarea className={styles.formTextarea} readOnly value={fechamentoTexto} />
+              <div className={styles.formButtonContainer}>
+                <button type="button" className={styles.submitButton} onClick={copiarFechamento}>
+                  Copiar fechamento
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
         </div>
       </div>
 
