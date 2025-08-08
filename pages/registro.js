@@ -1,7 +1,7 @@
 // pages/registro.js
 import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
@@ -23,6 +23,17 @@ export default function RegistroPage({ user }) {
   const [submitting, setSubmitting] = useState(false);
   const [helpRequests, setHelpRequests] = useState({ today: 0 });
   const [recentHelps, setRecentHelps] = useState([]);
+  // Abas e contadores
+  const [activeTab, setActiveTab] = useState('registrar'); // registrar | historico
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [counters, setCounters] = useState({ calls: 0, rfcs: 0, helps: 0 });
+  const [savingCounters, setSavingCounters] = useState(false);
+  // Histórico
+  const [historyStart, setHistoryStart] = useState(() => new Date(new Date().setDate(new Date().getDate() - 6)).toISOString().slice(0, 10));
+  const [historyEnd, setHistoryEnd] = useState(() => new Date().toISOString().slice(0, 10));
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyRecords, setHistoryRecords] = useState([]);
+  const [historyTotals, setHistoryTotals] = useState({ calls: 0, rfcs: 0, helps: 0 });
   const [formData, setFormData] = useState({
     user: null,
     category: null,
@@ -54,7 +65,8 @@ export default function RegistroPage({ user }) {
         setStatsLoading(true);
         await Promise.all([
           fetchHelpRequests(),
-          fetchRecentHelps()
+          fetchRecentHelps(),
+          fetchDailyCounters(selectedDate),
         ]);
         setStatsLoading(false);
       } catch (err) {
@@ -68,6 +80,12 @@ export default function RegistroPage({ user }) {
       loadUsersAndCategories();
     }
   }, [user.id]);
+
+  // Atualiza contadores quando a data muda
+  useEffect(() => {
+    if (!user?.id) return;
+    fetchDailyCounters(selectedDate);
+  }, [selectedDate, user?.id]);
 
   // Função para buscar ajudas prestadas
   const fetchHelpRequests = async () => {
@@ -95,6 +113,127 @@ export default function RegistroPage({ user }) {
       }
     } catch (err) {
       console.error('Erro ao buscar registros recentes:', err);
+    }
+  };
+
+  // Daily counters API helpers
+  const fetchDailyCounters = async (dateStr) => {
+    try {
+      const res = await fetch(`/api/daily-counters?analystId=${user.id}&date=${dateStr}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      const rec = data.record || {};
+      setCounters({
+        calls: rec.calls_count || 0,
+        rfcs: rec.rfcs_count || 0,
+        helps: rec.helps_count || 0,
+      });
+    } catch (e) {
+      console.error('Erro ao carregar contadores diários:', e);
+    }
+  };
+
+  const applyCounterDelta = async (delta) => {
+    try {
+      setSavingCounters(true);
+      const body = {
+        analystId: user.id,
+        date: selectedDate,
+        callsDelta: delta.calls || 0,
+        rfcsDelta: delta.rfcs || 0,
+        helpsDelta: delta.helps || 0,
+      };
+      const res = await fetch('/api/daily-counters', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error('Falha ao atualizar contadores');
+      const { record } = await res.json();
+      setCounters({
+        calls: record.calls_count || 0,
+        rfcs: record.rfcs_count || 0,
+        helps: record.helps_count || 0,
+      });
+    } catch (e) {
+      console.error(e);
+      Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível atualizar o contador.' });
+    } finally {
+      setSavingCounters(false);
+    }
+  };
+
+  const setCountersAbsolute = async (next) => {
+    try {
+      setSavingCounters(true);
+      const body = {
+        analystId: user.id,
+        date: selectedDate,
+        callsCount: Math.max(0, next.calls ?? counters.calls),
+        rfcsCount: Math.max(0, next.rfcs ?? counters.rfcs),
+        helpsCount: Math.max(0, next.helps ?? counters.helps),
+      };
+      const res = await fetch('/api/daily-counters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error('Falha ao salvar contadores');
+      const { record } = await res.json();
+      setCounters({
+        calls: record.calls_count || 0,
+        rfcs: record.rfcs_count || 0,
+        helps: record.helps_count || 0,
+      });
+    } catch (e) {
+      console.error(e);
+      Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível salvar os contadores.' });
+    } finally {
+      setSavingCounters(false);
+    }
+  };
+
+  // Histórico helpers
+  const fetchHistory = async () => {
+    if (!user?.id) return;
+    if (!historyStart || !historyEnd) return;
+    try {
+      setHistoryLoading(true);
+      const qs = new URLSearchParams({
+        analystId: user.id,
+        startDate: historyStart,
+        endDate: historyEnd,
+      }).toString();
+      const res = await fetch(`/api/daily-counters?${qs}`);
+      if (!res.ok) throw new Error('Erro ao buscar histórico');
+      const { records, totals } = await res.json();
+      setHistoryRecords(records || []);
+      setHistoryTotals(totals || { calls: 0, rfcs: 0, helps: 0 });
+    } catch (e) {
+      console.error(e);
+      Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível carregar o histórico.' });
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const fechamentoTexto = useMemo(() => {
+    const formatBR = (iso) => {
+      try { return new Date(iso).toLocaleDateString('pt-BR'); } catch { return iso; }
+    };
+    const periodo = historyStart && historyEnd
+      ? `${formatBR(historyStart)} a ${formatBR(historyEnd)}`
+      : formatBR(selectedDate);
+    return `Fechamento - Período ${periodo}\nChamados = ${historyTotals.calls}\nRFC's = ${historyTotals.rfcs}\nAjudas = ${historyTotals.helps}`;
+  }, [historyStart, historyEnd, selectedDate, historyTotals]);
+
+  const copiarFechamento = async () => {
+    try {
+      await navigator.clipboard.writeText(fechamentoTexto);
+      Swal.fire({ icon: 'success', title: 'Copiado!', timer: 1000, showConfirmButton: false });
+    } catch (e) {
+      console.error('Erro ao copiar:', e);
+      Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível copiar.' });
     }
   };
 
@@ -480,6 +619,9 @@ export default function RegistroPage({ user }) {
           fetchRecentHelps()
         ]);
         setStatsLoading(false);
+
+        // Incrementar contador de ajudas do dia
+        await applyCounterDelta({ helps: 1 });
       } else {
         Swal.fire({
           icon: 'error',
@@ -590,8 +732,73 @@ const customSelectStyles = {
       </Head>
 
       <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
-        <div className={styles.formContainerWithSpacing}>
-          <h2 className={styles.formTitle}>Registrar Ajuda</h2>
+        {/* Tabs */}
+        <div className={styles.tabsContainer}>
+          <div className={styles.tabNav}>
+            <button
+              className={`${styles.tabButton} ${activeTab === 'registrar' ? styles.activeTab : ''}`}
+              onClick={() => setActiveTab('registrar')}
+            >
+              <i className="fa-solid fa-clipboard-check"></i> Registrar
+            </button>
+            <button
+              className={`${styles.tabButton} ${activeTab === 'historico' ? styles.activeTab : ''}`}
+              onClick={() => setActiveTab('historico')}
+            >
+              <i className="fa-solid fa-clock-rotate-left"></i> Histórico
+            </button>
+          </div>
+        </div>
+
+        {activeTab === 'registrar' && (
+          <>
+            {/* Data selecionada */}
+            <div className={styles.formContainerWithSpacing}>
+              <div className={styles.dateRow}>
+                <label>Data</label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className={styles.dateInput}
+                />
+              </div>
+            </div>
+
+            {/* Counters grid */}
+            <div className={styles.countersGrid}>
+              {/* Chamados */}
+              <div className={styles.counterCard}>
+                <div className={styles.counterTitle}><i className="fa-solid fa-ticket"></i> Chamados</div>
+                <div className={styles.counterControls}>
+                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ calls: -1 })}>-</button>
+                  <div className={styles.counterValueBig}>{counters.calls}</div>
+                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ calls: +1 })}>+</button>
+                </div>
+              </div>
+              {/* RFCs */}
+              <div className={styles.counterCard}>
+                <div className={styles.counterTitle}><i className="fa-solid fa-envelope-circle-check"></i> RFC's</div>
+                <div className={styles.counterControls}>
+                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ rfcs: -1 })}>-</button>
+                  <div className={styles.counterValueBig}>{counters.rfcs}</div>
+                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ rfcs: +1 })}>+</button>
+                </div>
+              </div>
+              {/* Ajudas */}
+              <div className={styles.counterCard}>
+                <div className={styles.counterTitle}><i className="fa-solid fa-handshake-angle"></i> Ajudas</div>
+                <div className={styles.counterControls}>
+                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ helps: -1 })}>-</button>
+                  <div className={styles.counterValueBig}>{counters.helps}</div>
+                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ helps: +1 })}>+</button>
+                </div>
+              </div>
+            </div>
+
+            {/* Formulário de ajuda */}
+            <div className={styles.formContainerWithSpacing}>
+              <h2 className={styles.formTitle}>Registrar Ajuda</h2>
           
           {formLoading ? (
             <ThreeDotsLoader message="Carregando formulário..." />
@@ -668,10 +875,10 @@ const customSelectStyles = {
               </div>
             </form>
           )}
-        </div>
+            </div>
         
-        {/* Seção de estatísticas e registros recentes */}
-        <div className={styles.statsContainer}>
+            {/* Seção de estatísticas e registros recentes */}
+            <div className={styles.statsContainer}>
           {/* Contador de ajudas prestadas no dia */}
           <div className={styles.helpCounter}>
             <div className={styles.counterHeader}>
@@ -727,7 +934,73 @@ const customSelectStyles = {
               )}
             </div>
           </div>
-        </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'historico' && (
+          <div className={styles.formContainerWithSpacing}>
+            <h2 className={styles.formTitle}>Histórico e Fechamento</h2>
+            <div className={styles.historyControls}>
+              <div className={styles.dateRangeRow}>
+                <div className={styles.dateField}>
+                  <label>Início</label>
+                  <input type="date" value={historyStart} onChange={(e) => setHistoryStart(e.target.value)} className={styles.dateInput} />
+                </div>
+                <div className={styles.dateField}>
+                  <label>Fim</label>
+                  <input type="date" value={historyEnd} onChange={(e) => setHistoryEnd(e.target.value)} className={styles.dateInput} />
+                </div>
+                <button type="button" className={styles.submitButton} onClick={fetchHistory}>
+                  {historyLoading ? 'Buscando...' : 'Buscar'}
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.historyContainer}>
+              {historyLoading ? (
+                <ThreeDotsLoader message="Carregando histórico..." />
+              ) : (
+                <>
+                  <div className={styles.historyTotals}>
+                    <div>Chamados: <strong>{historyTotals.calls}</strong></div>
+                    <div>RFC's: <strong>{historyTotals.rfcs}</strong></div>
+                    <div>Ajudas: <strong>{historyTotals.helps}</strong></div>
+                  </div>
+                  <div className={styles.historyList}>
+                    {historyRecords && historyRecords.length > 0 ? (
+                      historyRecords.map((r) => (
+                        <div key={r.id || `${r.date}`} className={styles.historyItem}>
+                          <div className={styles.historyDate}>{new Date(r.date).toLocaleDateString('pt-BR')}</div>
+                          <div className={styles.historyCounts}>
+                            <span>Chamados: {r.calls_count}</span>
+                            <span>RFC's: {r.rfcs_count}</span>
+                            <span>Ajudas: {r.helps_count}</span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className={styles.noRecentHelps}>
+                        <i className="fa-solid fa-circle-info"></i>
+                        <p>Nenhum registro no período</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.copyBox}>
+                    <label>Resumo para Slack</label>
+                    <textarea className={styles.formTextarea} readOnly value={fechamentoTexto} />
+                    <div className={styles.formButtonContainer}>
+                      <button type="button" className={styles.submitButton} onClick={copiarFechamento}>
+                        Copiar fechamento
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+        
       </div>
 
       {/* Modal para adicionar nova categoria */}

@@ -368,6 +368,183 @@
   width: 100%;
 }
 
+/* Abas */
+.tabsContainer {
+  width: 100%;
+  max-width: 1024px;
+}
+
+.tabNav {
+  display: flex;
+  gap: 8px;
+}
+
+.tabButton {
+  background: var(--box-color);
+  color: var(--text-color);
+  border: 1px solid var(--color-border);
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.tabButton:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.activeTab {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* Data e contadores */
+.dateRow {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.dateInput {
+  background: var(--labels-bg);
+  color: var(--text-color);
+  border: 1px solid var(--labels-border);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.countersGrid {
+  width: 100%;
+  max-width: 1024px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.counterCard {
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.counterTitle {
+  color: var(--text-color);
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.counterControls {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.counterControls button {
+  background: var(--labels-bg);
+  color: var(--text-color);
+  border: 1px solid var(--color-border);
+  padding: 10px 0;
+  border-radius: 8px;
+  font-size: 18px;
+}
+
+.counterControls button:hover {
+  border-color: var(--color-primary);
+}
+
+.counterValueBig {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* Histórico */
+.historyControls {
+  width: 100%;
+}
+
+.dateRangeRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.dateField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.historyContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.historyTotals {
+  display: flex;
+  gap: 24px;
+  background: var(--labels-bg);
+  border: 1px solid var(--color-border);
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.historyItem {
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+}
+
+.historyDate {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.historyCounts {
+  display: flex;
+  gap: 14px;
+  color: var(--text-color2);
+}
+
+.copyBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (max-width: 1024px) {
+  .countersGrid {
+    grid-template-columns: 1fr;
+  }
+  .dateRangeRow {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Estilos responsivos para telas menores */
 @media (max-width: 600px) {
   .formContainer {
