@@ -765,33 +765,24 @@ const customSelectStyles = {
               </div>
             </div>
 
-            {/* Counters grid */}
+            {/* Contadores (Ajudas são calculadas automaticamente via formulário) */}
             <div className={styles.countersGrid}>
               {/* Chamados */}
               <div className={styles.counterCard}>
                 <div className={styles.counterTitle}><i className="fa-solid fa-ticket"></i> Chamados</div>
                 <div className={styles.counterControls}>
-                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ calls: -1 })}>-</button>
+                  <button aria-label="Diminuir chamados" disabled={savingCounters || counters.calls <= 0} onClick={() => applyCounterDelta({ calls: -1 })}>-</button>
                   <div className={styles.counterValueBig}>{counters.calls}</div>
-                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ calls: +1 })}>+</button>
+                  <button aria-label="Aumentar chamados" disabled={savingCounters} onClick={() => applyCounterDelta({ calls: +1 })}>+</button>
                 </div>
               </div>
               {/* RFCs */}
               <div className={styles.counterCard}>
                 <div className={styles.counterTitle}><i className="fa-solid fa-envelope-circle-check"></i> RFC's</div>
                 <div className={styles.counterControls}>
-                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ rfcs: -1 })}>-</button>
+                  <button aria-label="Diminuir RFCs" disabled={savingCounters || counters.rfcs <= 0} onClick={() => applyCounterDelta({ rfcs: -1 })}>-</button>
                   <div className={styles.counterValueBig}>{counters.rfcs}</div>
-                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ rfcs: +1 })}>+</button>
-                </div>
-              </div>
-              {/* Ajudas */}
-              <div className={styles.counterCard}>
-                <div className={styles.counterTitle}><i className="fa-solid fa-handshake-angle"></i> Ajudas</div>
-                <div className={styles.counterControls}>
-                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ helps: -1 })}>-</button>
-                  <div className={styles.counterValueBig}>{counters.helps}</div>
-                  <button disabled={savingCounters} onClick={() => applyCounterDelta({ helps: +1 })}>+</button>
+                  <button aria-label="Aumentar RFCs" disabled={savingCounters} onClick={() => applyCounterDelta({ rfcs: +1 })}>+</button>
                 </div>
               </div>
             </div>
