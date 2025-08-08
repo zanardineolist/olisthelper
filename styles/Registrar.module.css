@@ -625,6 +625,37 @@
   gap: 24px;
 }
 
+/* Cartão do histórico segue a largura da coluna de contadores */
+.historyCard {
+  width: 100%;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.sectionHeader {
+  font-size: 0.9rem;
+  color: var(--text-color2);
+  font-weight: 600;
+}
+
+.historyListScrollable {
+  max-height: 420px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.actionRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
 @media (max-width: 1200px) {
   .historyGrid {
     grid-template-columns: 1fr;

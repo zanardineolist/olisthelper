@@ -892,9 +892,20 @@ const customSelectStyles = {
               </div>
             </div>
 
-            <div className={`${styles.formContainerWithSpacing} ${styles.widePanel}`}>
+            <div className={`${styles.sideCard} ${styles.historyCard}`}>
               <h2 className={styles.formTitle}>Histórico e Fechamento</h2>
-              <div className={styles.historyControls}>
+
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>Contagem (Chamados | RFC's | Ajudas)</div>
+                <div className={styles.historyTotals}>
+                  <div>Chamados: <strong>{historyTotals.calls}</strong></div>
+                  <div>RFC's: <strong>{historyTotals.rfcs}</strong></div>
+                  <div>Ajudas: <strong>{historyTotals.helps}</strong></div>
+                </div>
+              </div>
+
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>Data</div>
                 <div className={styles.dateRangeRow}>
                   <div className={styles.dateField}>
                     <label>Início</label>
@@ -914,6 +925,10 @@ const customSelectStyles = {
                     {historyLoading ? 'Buscando...' : 'Buscar'}
                   </button>
                 </div>
+              </div>
+
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>Períodos</div>
                 <div className={styles.presetChips}>
                   <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d); s.setDate(d.getDate()-6); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); }}>Últimos 7 dias</button>
                   <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d.getFullYear(), d.getMonth(), 1); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); }}>Este mês</button>
@@ -921,48 +936,35 @@ const customSelectStyles = {
                 </div>
               </div>
 
-              <div className={styles.historyGrid}>
-                <div className={styles.historyContainer}>
+              <div className={styles.section}>
+                <div className={styles.sectionHeader}>Registros</div>
+                <div className={styles.historyListScrollable}>
                   {historyLoading ? (
                     <ThreeDotsLoader message="Carregando histórico..." />
+                  ) : historyRecords && historyRecords.length > 0 ? (
+                    historyRecords.map((r) => (
+                      <div key={r.id || `${r.date}`} className={styles.historyItem}>
+                        <div className={styles.historyDate}>{new Date(r.date).toLocaleDateString('pt-BR')}</div>
+                        <div className={styles.historyCounts}>
+                          <span>Chamados: {r.calls_count}</span>
+                          <span>RFC's: {r.rfcs_count}</span>
+                          <span>Ajudas: {r.helps_count}</span>
+                        </div>
+                      </div>
+                    ))
                   ) : (
-                    <>
-                      <div className={styles.historyTotals}>
-                        <div>Chamados: <strong>{historyTotals.calls}</strong></div>
-                        <div>RFC's: <strong>{historyTotals.rfcs}</strong></div>
-                        <div>Ajudas: <strong>{historyTotals.helps}</strong></div>
-                      </div>
-                      <div className={styles.historyList}>
-                        {historyRecords && historyRecords.length > 0 ? (
-                          historyRecords.map((r) => (
-                            <div key={r.id || `${r.date}`} className={styles.historyItem}>
-                              <div className={styles.historyDate}>{new Date(r.date).toLocaleDateString('pt-BR')}</div>
-                              <div className={styles.historyCounts}>
-                                <span>Chamados: {r.calls_count}</span>
-                                <span>RFC's: {r.rfcs_count}</span>
-                                <span>Ajudas: {r.helps_count}</span>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className={styles.noRecentHelps}>
-                            <i className="fa-solid fa-circle-info"></i>
-                            <p>Nenhum registro no período</p>
-                          </div>
-                        )}
-                      </div>
-                    </>
+                    <div className={styles.noRecentHelps}>
+                      <i className="fa-solid fa-circle-info"></i>
+                      <p>Nenhum registro no período</p>
+                    </div>
                   )}
                 </div>
-                <div className={styles.copyBox}>
-                  <label>Resumo para Slack</label>
-                  <textarea className={styles.formTextarea} readOnly value={fechamentoTexto} />
-                  <div className={styles.formButtonContainer}>
-                    <button type="button" className={styles.submitButton} onClick={copiarFechamento}>
-                      Copiar fechamento
-                    </button>
-                  </div>
-                </div>
+              </div>
+
+              <div className={styles.actionRow}>
+                <button type="button" className={styles.submitButton} onClick={copiarFechamento}>
+                  Copiar fechamento
+                </button>
               </div>
             </div>
           </div>
