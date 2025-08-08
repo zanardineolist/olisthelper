@@ -746,7 +746,7 @@ const customSelectStyles = {
               )}
             </div>
 
-            <div className={styles.formContainerWithSpacing}>
+            <div className={`${styles.formContainerWithSpacing} ${styles.widePanel}`}>
               <h2 className={styles.formTitle}>Registrar Ajuda</h2>
           
           {formLoading ? (
@@ -892,7 +892,7 @@ const customSelectStyles = {
               </div>
             </div>
 
-            <div className={styles.formContainerWithSpacing}>
+            <div className={`${styles.formContainerWithSpacing} ${styles.widePanel}`}>
               <h2 className={styles.formTitle}>Histórico e Fechamento</h2>
               <div className={styles.historyControls}>
                 <div className={styles.dateRangeRow}>

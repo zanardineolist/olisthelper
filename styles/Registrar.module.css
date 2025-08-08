@@ -116,9 +116,9 @@
 /* Estilo para a caixa de texto de descrição */
 .formTextarea {
   width: 100%;
-  max-width: 500px;
-  min-width: 500px;
-  max-height: 200px;
+  max-width: 100%;
+  min-width: 100%;
+  max-height: 220px;
   resize: vertical;
   padding: 10px;
   border-radius: 5px;
@@ -455,6 +455,35 @@
   grid-template-columns: repeat(2, 1fr) auto;
   gap: 12px;
   align-items: end;
+}
+
+.presetChips {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.chip {
+  background: var(--labels-bg);
+  color: var(--text-color);
+  border: 1px solid var(--color-border);
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.chip:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.chipActive {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
 }
 
 .dateField {
