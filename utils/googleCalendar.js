@@ -31,7 +31,6 @@ export async function createExcecaoDadosEvent({
   description,
   date, // 'YYYY-MM-DD'
   timeZone = 'America/Sao_Paulo',
-  userAccessToken,
 }) {
   const calendarId = process.env.EXCECAO_DADOS_CALENDAR_ID;
   if (!calendarId) return null; // opcional: não bloquear se agenda não estiver configurada
@@ -51,16 +50,6 @@ export async function createExcecaoDadosEvent({
     end: { date: nextDay, timeZone },
   };
 
-  if (userAccessToken) {
-    // Usar conta do usuário autenticado
-    const auth = new google.auth.OAuth2();
-    auth.setCredentials({ access_token: userAccessToken });
-    const calendar = google.calendar({ version: 'v3', auth });
-    const { data } = await calendar.events.insert({ calendarId, requestBody: event });
-    return data;
-  }
-
-  // Fallback: service account
   return await createCalendarEvent(calendarId, event);
 }
 
