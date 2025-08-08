@@ -29,13 +29,31 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Campos obrigatórios ausentes' });
     }
 
+    // Datas: formatar para folha (dd/MM/yyyy) e calendário (YYYY-MM-DD)
+    const toDDMMYYYY = (isoLike) => {
+      const d = new Date(isoLike);
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = String(d.getFullYear());
+      return `${dd}/${mm}/${yyyy}`;
+    };
+    const hojeDDMMYYYY = toDDMMYYYY(new Date());
+    const dataRemocaoDDMMYYYY = toDDMMYYYY(dataRemocao);
+    const calendarDate = (() => {
+      // Espera-se dataRemocao como 'YYYY-MM-DD' do input do formulário
+      if (/^\d{4}-\d{2}-\d{2}$/.test(dataRemocao)) return dataRemocao;
+      const [dd, mm, yyyy] = (dataRemocao || '').split('/');
+      return yyyy && mm && dd ? `${yyyy}-${mm}-${dd}` : new Date(dataRemocao).toISOString().slice(0,10);
+    })();
+
     // 1) Registrar na planilha específica
     await appendExcecaoDadosRow({
+      criadoEm: hojeDDMMYYYY,
       linkChamado,
       responsavel,
       espacoAtual,
       espacoAdicional,
-      dataRemocao,
+      dataRemocao: dataRemocaoDDMMYYYY,
       situacao,
     });
 
@@ -76,10 +94,14 @@ export default async function handler(req, res) {
 
     // 3) Criar evento na agenda específica (opcional, se EXCECAO_DADOS_CALENDAR_ID estiver configurado)
     try {
+      const summaryText = espacoAdicional
+        ? `Remover ${espacoAdicional} espaço adicional + ${responsavel}`
+        : `Remover dados + ${responsavel}`;
+
       await createExcecaoDadosEvent({
-        summary: `Remover dados - ${responsavel}`,
-        description: `${linkChamado}\nEspaço atual: ${espacoAtual || '-'}\nAdicional: ${espacoAdicional || '-'}\nSituação: ${situacao}`,
-        date: dataRemocao,
+        summary: summaryText,
+        description: `${linkChamado}`,
+        date: calendarDate,
       });
     } catch (e) {
       // Não bloquear o fluxo por falha de agenda

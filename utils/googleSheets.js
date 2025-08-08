@@ -430,11 +430,12 @@ export const EXCECAO_DADOS_SHEET_NAME = 'Exceção de Dados';
  * @param {string} row.situacao - ex.: 'Liberado' | 'Removido'
  */
 export async function appendExcecaoDadosRow({
+  criadoEm, // dd/MM/yyyy
   linkChamado,
   responsavel,
   espacoAtual,
   espacoAdicional,
-  dataRemocao,
+  dataRemocao, // dd/MM/yyyy
   situacao,
 }) {
   const spreadsheetId = process.env.EXCECAO_DADOS_SHEET_ID;
@@ -443,6 +444,7 @@ export async function appendExcecaoDadosRow({
   }
 
   const values = [[
+    criadoEm || '',
     linkChamado || '',
     responsavel || '',
     espacoAtual ?? '',
@@ -455,6 +457,19 @@ export async function appendExcecaoDadosRow({
     spreadsheetId,
     EXCECAO_DADOS_SHEET_NAME,
     values,
-    'A:F'
+    'A:G'
   );
+}
+
+/**
+ * Atualiza um intervalo específico (A1) em uma planilha específica
+ */
+export async function updateSpecificSheetRange(spreadsheetId, rangeA1, values) {
+  const sheets = await getAuthenticatedGoogleSheets();
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: rangeA1,
+    valueInputOption: 'USER_ENTERED',
+    resource: { values },
+  });
 }

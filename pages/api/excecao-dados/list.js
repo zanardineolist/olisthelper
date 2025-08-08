@@ -19,18 +19,19 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'EXCECAO_DADOS_SHEET_ID não configurado' });
     }
 
-    // A:F conforme especificação
-    const values = await getSheetValuesFromSpecificSheet(spreadsheetId, EXCECAO_DADOS_SHEET_NAME, 'A:F');
+    // A:G (A=criadoEm, B=link, C=responsavel, D=espacoAtual, E=espacoAdicional, F=dataRemocao, G=situacao)
+    const values = await getSheetValuesFromSpecificSheet(spreadsheetId, EXCECAO_DADOS_SHEET_NAME, 'A:G');
 
     // Converter para objetos legíveis
     const items = (values || []).slice(1).map((row, idx) => ({
-      id: idx + 1, // índice relativo (não persistente)
-      linkChamado: row[0] || '',
-      responsavel: row[1] || '',
-      espacoAtual: row[2] || '',
-      espacoAdicional: row[3] || '',
-      dataRemocao: row[4] || '',
-      situacao: row[5] || '',
+      id: idx + 2, // número da linha na planilha (considerando header na linha 1)
+      criadoEm: row[0] || '',
+      linkChamado: row[1] || '',
+      responsavel: row[2] || '',
+      espacoAtual: row[3] || '',
+      espacoAdicional: row[4] || '',
+      dataRemocao: row[5] || '',
+      situacao: row[6] || '',
     }));
 
     return res.status(200).json({ items });

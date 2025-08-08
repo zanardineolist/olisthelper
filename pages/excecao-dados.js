@@ -1,23 +1,52 @@
 // pages/excecao-dados.js
 import Head from 'next/head';
 import { getSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Layout from '../components/Layout';
 import styles from '../styles/ExcecaoDados.module.css';
-import Swal from 'sweetalert2';
+import { Toaster, toast } from 'react-hot-toast';
 
 export default function ExcecaoDadosPage({ user }) {
-  const [form, setForm] = useState({
+  const initialForm = useMemo(() => ({
     linkChamado: '',
     responsavel: user?.name || '',
     espacoAtual: '',
     espacoAdicional: '',
     dataRemocao: '', // yyyy-MM-dd
     situacao: 'Liberado',
-  });
+  }), [user?.name]);
+  const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState([]);
   const [listLoading, setListLoading] = useState(false);
+  const [editing, setEditing] = useState(null);
+
+  function normalizeToBRDate(value) {
+    if (!value) return '';
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return value;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [y, m, d] = value.split('-');
+      return `${d}/${m}/${y}`;
+    }
+    const d = new Date(value);
+    if (isNaN(d)) return String(value);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = String(d.getFullYear());
+    return `${dd}/${mm}/${yyyy}`;
+  }
+
+  function toISOInputDate(brOrIso) {
+    if (!brOrIso) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(brOrIso)) return brOrIso;
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(brOrIso)) {
+      const [dd, mm, yyyy] = brOrIso.split('/');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+    const d = new Date(brOrIso);
+    if (isNaN(d)) return '';
+    return d.toISOString().slice(0, 10);
+  }
 
   const loadList = async () => {
     try {
@@ -25,7 +54,11 @@ export default function ExcecaoDadosPage({ user }) {
       const res = await fetch('/api/excecao-dados/list');
       if (!res.ok) throw new Error('Falha ao carregar lista');
       const data = await res.json();
-      setItems(data.items || []);
+      setItems((data.items || []).map((it) => ({
+        ...it,
+        criadoEm: normalizeToBRDate(it.criadoEm),
+        dataRemocao: normalizeToBRDate(it.dataRemocao),
+      })));
     } catch (e) {
       console.error(e);
     } finally {
@@ -37,6 +70,10 @@ export default function ExcecaoDadosPage({ user }) {
     loadList();
   }, []);
 
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, responsavel: user?.name || '' }));
+  }, [user?.name]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -45,7 +82,7 @@ export default function ExcecaoDadosPage({ user }) {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!form.linkChamado || !form.responsavel || !form.dataRemocao || !form.situacao) {
-      Swal.fire({ icon: 'error', title: 'Preencha os campos obrigatórios' });
+      toast.error('Preencha os campos obrigatórios');
       return;
     }
     try {
@@ -56,19 +93,82 @@ export default function ExcecaoDadosPage({ user }) {
         body: JSON.stringify(form),
       });
       if (!res.ok) throw new Error('Falha ao registrar');
-      Swal.fire({ icon: 'success', title: 'Registrado com sucesso', timer: 1500, showConfirmButton: false });
-      setForm({
-        linkChamado: '',
-        responsavel: user?.name || '',
-        espacoAtual: '',
-        espacoAdicional: '',
-        dataRemocao: '',
-        situacao: 'Liberado',
-      });
+      toast.success('Registro adicionado');
+      setForm({ ...initialForm });
       loadList();
     } catch (e) {
       console.error(e);
-      Swal.fire({ icon: 'error', title: 'Erro ao registrar' });
+      toast.error('Erro ao registrar');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMarkRemoved = async (item) => {
+    try {
+      const res = await fetch('/api/excecao-dados/mark-removed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          criadoEm: item.criadoEm,
+          linkChamado: item.linkChamado,
+          responsavel: item.responsavel,
+          dataRemocao: item.dataRemocao,
+          espacoAdicional: item.espacoAdicional,
+        }),
+      });
+      if (!res.ok) throw new Error('Falha ao marcar como removido');
+      toast.success('Marcado como removido e agenda atualizada');
+      loadList();
+    } catch (e) {
+      console.error(e);
+      toast.error('Erro ao marcar como removido');
+    }
+  };
+
+  const startEdit = (item) => {
+    setEditing(item);
+    setForm({
+      linkChamado: item.linkChamado,
+      responsavel: item.responsavel || user?.name || '',
+      espacoAtual: item.espacoAtual,
+      espacoAdicional: item.espacoAdicional,
+      dataRemocao: toISOInputDate(item.dataRemocao),
+      situacao: item.situacao || 'Liberado',
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditing(null);
+    setForm({ ...initialForm });
+  };
+
+  const submitEdit = async (e) => {
+    e.preventDefault();
+    if (!editing) return;
+    try {
+      setLoading(true);
+      const res = await fetch('/api/excecao-dados/edit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          criadoEm: editing.criadoEm,
+          original: {
+            linkChamado: editing.linkChamado,
+            responsavel: editing.responsavel,
+            dataRemocao: editing.dataRemocao,
+          },
+          updated: { ...form },
+        }),
+      });
+      if (!res.ok) throw new Error('Falha ao editar');
+      toast.success('Registro atualizado');
+      setEditing(null);
+      setForm({ ...initialForm });
+      loadList();
+    } catch (e) {
+      console.error(e);
+      toast.error('Erro ao atualizar');
     } finally {
       setLoading(false);
     }
@@ -79,6 +179,7 @@ export default function ExcecaoDadosPage({ user }) {
       <Head>
         <title>Exceção de Dados</title>
       </Head>
+      <Toaster position="bottom-right" />
       <div className={styles.container}>
         <div className={styles.header}>
           <div>
@@ -89,32 +190,32 @@ export default function ExcecaoDadosPage({ user }) {
 
         <section className={styles.card}>
           <div className={styles.cardBody}>
-            <form onSubmit={onSubmit}>
+            <form onSubmit={editing ? submitEdit : onSubmit}>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Link do chamado (A)</label>
+                  <label className={styles.label}>Link do chamado</label>
                   <input className={styles.input} name="linkChamado" value={form.linkChamado} onChange={handleChange} placeholder="https://..." required />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Responsável (B)</label>
+                  <label className={styles.label}>Responsável</label>
                   <input className={styles.input} name="responsavel" value={form.responsavel} onChange={handleChange} required />
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Espaço atual (C)</label>
+                  <label className={styles.label}>Espaço atual</label>
                   <input className={styles.input} name="espacoAtual" value={form.espacoAtual} onChange={handleChange} placeholder="Ex.: 15 GB" />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Espaço adicional (D)</label>
+                  <label className={styles.label}>Espaço adicional</label>
                   <input className={styles.input} name="espacoAdicional" value={form.espacoAdicional} onChange={handleChange} placeholder="Ex.: +10 GB" />
                 </div>
 
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Data que será removido (E)</label>
+                  <label className={styles.label}>Data que será removido</label>
                   <input className={styles.date} type="date" name="dataRemocao" value={form.dataRemocao} onChange={handleChange} required />
                 </div>
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Situação (F)</label>
+                  <label className={styles.label}>Situação</label>
                   <select className={styles.select} name="situacao" value={form.situacao} onChange={handleChange}>
                     <option value="Liberado">Liberado</option>
                     <option value="Removido">Removido</option>
@@ -123,7 +224,12 @@ export default function ExcecaoDadosPage({ user }) {
               </div>
 
               <div className={styles.actions}>
-                <button className={styles.submit} type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Registrar'}</button>
+                {editing && (
+                  <button type="button" className={styles.submit} onClick={cancelEdit} disabled={loading}>Cancelar</button>
+                )}
+                <button className={styles.submit} type="submit" disabled={loading}>
+                  {loading ? 'Salvando...' : editing ? 'Salvar alterações' : 'Registrar'}
+                </button>
               </div>
             </form>
           </div>
@@ -140,19 +246,22 @@ export default function ExcecaoDadosPage({ user }) {
               <table className={styles.table}>
                 <thead>
                   <tr>
+                    <th>Criado em</th>
                     <th>Link</th>
                     <th>Responsável</th>
                     <th>Espaço atual</th>
                     <th>Espaço adicional</th>
                     <th>Remover em</th>
                     <th>Situação</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {items.length === 0 ? (
-                    <tr><td className={styles.empty} colSpan={6}>Nenhum registro</td></tr>
+                    <tr><td className={styles.empty} colSpan={8}>Nenhum registro</td></tr>
                   ) : items.map((it, i) => (
                     <tr key={i}>
+                      <td>{it.criadoEm}</td>
                       <td>
                         {it.linkChamado?.startsWith('http') ? (
                           <a className={styles.link} href={it.linkChamado} target="_blank" rel="noreferrer">Chamado</a>
@@ -165,6 +274,16 @@ export default function ExcecaoDadosPage({ user }) {
                       <td>{it.espacoAdicional}</td>
                       <td>{it.dataRemocao}</td>
                       <td>{it.situacao}</td>
+                      <td>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button className={styles.submit} onClick={() => handleMarkRemoved(it)} disabled={it.situacao === 'Removido'}>
+                            Marcar removido
+                          </button>
+                          <button className={styles.submit} onClick={() => startEdit(it)}>
+                            Editar
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
