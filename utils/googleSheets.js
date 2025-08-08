@@ -384,3 +384,77 @@ export async function getAllSheetNamesFromSpecificSheet(spreadsheetId) {
     throw new Error(`Erro ao obter nomes das abas da planilha ${spreadsheetId}: ${error.message}`);
   }
 }
+
+/**
+ * Adiciona valores (linhas) em uma planilha específica (por ID) e aba informada
+ * @param {string} spreadsheetId - ID da planilha específica
+ * @param {string} sheetName - Nome da aba (ex.: 'Exceção de Dados')
+ * @param {Array<Array<string>>} values - Matriz de valores (linhas) a serem adicionadas
+ * @param {string} range - Range base a inserir (default 'A:F')
+ */
+export async function appendValuesToSpecificSheet(spreadsheetId, sheetName, values, range = 'A:F') {
+  try {
+    const sheets = await getAuthenticatedGoogleSheets();
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: spreadsheetId,
+      range: `${sheetName}!${range}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values },
+    });
+  } catch (error) {
+    console.error(`Erro ao adicionar valores à aba ${sheetName} na planilha ${spreadsheetId}:`, error);
+    throw new Error(`Erro ao adicionar valores à aba ${sheetName} na planilha ${spreadsheetId}.`);
+  }
+}
+
+// ===================== Funções dedicadas: Exceção de Dados =====================
+
+export const EXCECAO_DADOS_SHEET_NAME = 'Exceção de Dados';
+
+/**
+ * Adiciona uma linha na página "Exceção de Dados" da planilha definida em EXCECAO_DADOS_SHEET_ID
+ * Mapeamento:
+ *  A = link do chamado
+ *  B = Responsável (analista)
+ *  C = Espaço atual da conta
+ *  D = Espaço adicional liberado
+ *  E = Data que será removido
+ *  F = Situação (liberado e removido)
+ * @param {Object} row
+ * @param {string} row.linkChamado
+ * @param {string} row.responsavel
+ * @param {string|number} row.espacoAtual
+ * @param {string|number} row.espacoAdicional
+ * @param {string} row.dataRemocao - data em string (ex.: dd/MM/yyyy ou ISO)
+ * @param {string} row.situacao - ex.: 'Liberado' | 'Removido'
+ */
+export async function appendExcecaoDadosRow({
+  linkChamado,
+  responsavel,
+  espacoAtual,
+  espacoAdicional,
+  dataRemocao,
+  situacao,
+}) {
+  const spreadsheetId = process.env.EXCECAO_DADOS_SHEET_ID;
+  if (!spreadsheetId) {
+    throw new Error('Variável de ambiente EXCECAO_DADOS_SHEET_ID não configurada.');
+  }
+
+  const values = [[
+    linkChamado || '',
+    responsavel || '',
+    espacoAtual ?? '',
+    espacoAdicional ?? '',
+    dataRemocao || '',
+    situacao || '',
+  ]];
+
+  await appendValuesToSpecificSheet(
+    spreadsheetId,
+    EXCECAO_DADOS_SHEET_NAME,
+    values,
+    'A:F'
+  );
+}

@@ -149,6 +149,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
         menuItems.primary = [
           { href: '/profile-analyst', icon: FaUser, label: 'Meu Perfil', tooltip: 'Meu Perfil' },
           { href: '/registro', icon: FaClipboardList, label: 'Registrar Ajuda', tooltip: 'Registrar Ajuda' },
+        { href: '/excecao-dados', icon: FaFileAlt, label: 'Exceção de Dados', tooltip: 'Exceção de Dados' },
           { href: '/dashboard-analyst', icon: FaTachometerAlt, label: 'Dashboard', tooltip: 'Dashboard' },
           { href: '/tools', icon: FaTools, label: 'Ferramentas', tooltip: 'Ferramentas' },
           { href: '/manager', icon: FaCogs, label: 'Gerenciador', tooltip: 'Gerenciador' }
