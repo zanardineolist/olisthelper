@@ -28,7 +28,7 @@ export default function RegistroPage({ user }) {
   const [counters, setCounters] = useState({ calls: 0, rfcs: 0, helps: 0 });
   const [savingCounters, setSavingCounters] = useState(false);
   // Histórico
-  const [historyStart, setHistoryStart] = useState(() => new Date(new Date().setDate(new Date().getDate() - 6)).toISOString().slice(0, 10));
+  const [historyStart, setHistoryStart] = useState(() => new Date().toISOString().slice(0, 10));
   const [historyEnd, setHistoryEnd] = useState(() => new Date().toISOString().slice(0, 10));
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyRecords, setHistoryRecords] = useState([]);
@@ -186,7 +186,7 @@ export default function RegistroPage({ user }) {
       });
     } catch (e) {
       console.error(e);
-      Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível salvar os contadores.' });
+      showToast('Não foi possível salvar os contadores.', 'error');
     } finally {
       setSavingCounters(false);
     }
@@ -210,7 +210,7 @@ export default function RegistroPage({ user }) {
       setHistoryTotals(totals || { calls: 0, rfcs: 0, helps: 0 });
     } catch (e) {
       console.error(e);
-      Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível carregar o histórico.' });
+      showToast('Não foi possível carregar o histórico.', 'error');
     } finally {
       setHistoryLoading(false);
     }
@@ -229,10 +229,10 @@ export default function RegistroPage({ user }) {
   const copiarFechamento = async () => {
     try {
       await navigator.clipboard.writeText(fechamentoTexto);
-      Swal.fire({ icon: 'success', title: 'Copiado!', timer: 1000, showConfirmButton: false });
+      showToast('Copiado!', 'success');
     } catch (e) {
       console.error('Erro ao copiar:', e);
-      Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível copiar.' });
+      showToast('Não foi possível copiar.', 'error');
     }
   };
 
@@ -896,7 +896,6 @@ const customSelectStyles = {
               <h2 className={styles.formTitle}>Histórico e Fechamento</h2>
 
               <div className={styles.section}>
-                <div className={styles.sectionHeader}>Contagem (Chamados | RFC's | Ajudas)</div>
                 <div className={styles.historyTotals}>
                   <div>Chamados: <strong>{historyTotals.calls}</strong></div>
                   <div>RFC's: <strong>{historyTotals.rfcs}</strong></div>
@@ -905,7 +904,6 @@ const customSelectStyles = {
               </div>
 
               <div className={styles.section}>
-                <div className={styles.sectionHeader}>Data</div>
                 <div className={styles.dateRangeRow}>
                   <div className={styles.dateField}>
                     <label>Início</label>
@@ -928,7 +926,6 @@ const customSelectStyles = {
               </div>
 
               <div className={styles.section}>
-                <div className={styles.sectionHeader}>Períodos</div>
                 <div className={styles.presetChips}>
                   <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d); s.setDate(d.getDate()-6); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); }}>Últimos 7 dias</button>
                   <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d.getFullYear(), d.getMonth(), 1); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); }}>Este mês</button>
