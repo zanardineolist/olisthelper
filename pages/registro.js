@@ -746,7 +746,7 @@ const customSelectStyles = {
               )}
             </div>
 
-            <div className={`${styles.formContainerWithSpacing} ${styles.widePanel}`}>
+            <div className={styles.formContainerWithSpacing}>
               <h2 className={styles.formTitle}>Registrar Ajuda</h2>
           
           {formLoading ? (

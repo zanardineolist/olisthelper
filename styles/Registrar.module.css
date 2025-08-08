@@ -179,7 +179,7 @@
 .helpCounterContainer {
   margin-top: 30px;
   width: 100%;
-  max-width: 600px;
+  max-width: 650px;
   display: flex;
   justify-content: center;
 }
@@ -191,6 +191,8 @@
   padding: 1.5rem;
   text-align: center;
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 650px;
 }
 
 .helpCounter:hover {
@@ -236,6 +238,8 @@
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
+  width: 100%;
+  max-width: 650px;
 }
 
 .recentHelpsHeader {
@@ -573,6 +577,8 @@
   border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 20px;
+  width: 100%;
+  max-width: 650px;
 }
 
 /* Cartões pequenos de estatísticas */
@@ -581,6 +587,8 @@
   border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 16px;
+  width: 100%;
+  max-width: 650px;
 }
 
 /* Ajuste de altura do bloco de últimos registros */
@@ -597,6 +605,10 @@
   gap: 1rem;
   max-height: 460px; /* um pouco mais alto para 1366x768 */
   overflow-y: auto;
+}
+
+.rightPane > * {
+  max-width: 650px;
 }
 
 @media (max-width: 1024px) {
