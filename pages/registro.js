@@ -23,8 +23,7 @@ export default function RegistroPage({ user }) {
   const [submitting, setSubmitting] = useState(false);
   const [helpRequests, setHelpRequests] = useState({ today: 0 });
   const [recentHelps, setRecentHelps] = useState([]);
-  // Abas e contadores
-  const [activeTab, setActiveTab] = useState('registrar'); // registrar | historico
+  // Contadores
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [counters, setCounters] = useState({ calls: 0, rfcs: 0, helps: 0 });
   const [savingCounters, setSavingCounters] = useState(false);
@@ -732,62 +731,9 @@ const customSelectStyles = {
       </Head>
 
       <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
-        {/* Tabs */}
-        <div className={styles.tabsContainer}>
-          <div className={styles.tabNav}>
-            <button
-              className={`${styles.tabButton} ${activeTab === 'registrar' ? styles.activeTab : ''}`}
-              onClick={() => setActiveTab('registrar')}
-            >
-              <i className="fa-solid fa-clipboard-check"></i> Registrar
-            </button>
-            <button
-              className={`${styles.tabButton} ${activeTab === 'historico' ? styles.activeTab : ''}`}
-              onClick={() => setActiveTab('historico')}
-            >
-              <i className="fa-solid fa-clock-rotate-left"></i> Histórico
-            </button>
-          </div>
-        </div>
-
-        {activeTab === 'registrar' && (
-          <>
-            {/* Data selecionada */}
-            <div className={styles.formContainerWithSpacing}>
-              <div className={styles.dateRow}>
-                <label>Data</label>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className={styles.dateInput}
-                />
-              </div>
-            </div>
-
-            {/* Contadores (Ajudas são calculadas automaticamente via formulário) */}
-            <div className={styles.countersGrid}>
-              {/* Chamados */}
-              <div className={styles.counterCard}>
-                <div className={styles.counterTitle}><i className="fa-solid fa-ticket"></i> Chamados</div>
-                <div className={styles.counterControls}>
-                  <button aria-label="Diminuir chamados" disabled={savingCounters || counters.calls <= 0} onClick={() => applyCounterDelta({ calls: -1 })}>-</button>
-                  <div className={styles.counterValueBig}>{counters.calls}</div>
-                  <button aria-label="Aumentar chamados" disabled={savingCounters} onClick={() => applyCounterDelta({ calls: +1 })}>+</button>
-                </div>
-              </div>
-              {/* RFCs */}
-              <div className={styles.counterCard}>
-                <div className={styles.counterTitle}><i className="fa-solid fa-envelope-circle-check"></i> RFC's</div>
-                <div className={styles.counterControls}>
-                  <button aria-label="Diminuir RFCs" disabled={savingCounters || counters.rfcs <= 0} onClick={() => applyCounterDelta({ rfcs: -1 })}>-</button>
-                  <div className={styles.counterValueBig}>{counters.rfcs}</div>
-                  <button aria-label="Aumentar RFCs" disabled={savingCounters} onClick={() => applyCounterDelta({ rfcs: +1 })}>+</button>
-                </div>
-              </div>
-            </div>
-
-            {/* Formulário de ajuda */}
+        <div className={styles.topGrid}>
+          {/* Esquerda: Formulário */}
+          <div className={styles.leftPane}>
             <div className={styles.formContainerWithSpacing}>
               <h2 className={styles.formTitle}>Registrar Ajuda</h2>
           
@@ -867,71 +813,101 @@ const customSelectStyles = {
             </form>
           )}
             </div>
-        
-            {/* Seção de estatísticas e registros recentes */}
-            <div className={styles.statsContainer}>
-          {/* Contador de ajudas prestadas no dia */}
-          <div className={styles.helpCounter}>
-            <div className={styles.counterHeader}>
-              <h3>Ajudas prestadas hoje</h3>
-            </div>
-            {statsLoading ? (
-              <ThreeDotsLoader message="Carregando estatísticas..." />
-            ) : (
-              <div className={styles.counterValue}>{helpRequests.today || 0}</div>
-            )}
           </div>
-          
-          {/* Lista de registros recentes */}
-          <div className={styles.recentHelpsContainer}>
-            <div className={styles.recentHelpsHeader}>
-              <h3>Últimos registros</h3>
-              <button 
-                className={styles.viewAllButton}
-                onClick={navigateToAllRecords}
-              >
-                Ver todos <i className="fa-solid fa-arrow-right"></i>
-              </button>
+
+          {/* Direita: Controles e contadores */}
+          <div className={styles.rightPane}>
+            <div className={styles.sideCard}>
+              <div className={styles.dateRow}>
+                <label>Data</label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className={styles.dateInput}
+                />
+              </div>
             </div>
-            
-            <div className={styles.recentHelpsList}>
-              {statsLoading ? (
-                <ThreeDotsLoader message="Carregando registros..." />
-              ) : recentHelps.length > 0 ? (
-                recentHelps.map((help) => (
-                  <div key={help.id} className={styles.recentHelpCard}>
-                    <div className={styles.recentHelpHeader}>
-                      <div className={styles.recentHelpCategory}>
-                        <i className="fa-solid fa-tag"></i> {help.category}
-                      </div>
-                      <div className={styles.recentHelpTime}>
-                        <i className="fa-regular fa-clock"></i> {help.formattedDate} • {help.formattedTime}
-                      </div>
-                    </div>
-                    <div className={styles.recentHelpUser}>
-                      <i className="fa-regular fa-user"></i> {help.requesterName}
-                    </div>
-                    <div className={styles.recentHelpDescription}>
-                      <div className={styles.descriptionLabel}>Descrição:</div>
-                      <div className={styles.descriptionText}>{help.description}</div>
-                    </div>
+
+            <div className={styles.sideCard}>
+              <div className={styles.countersGrid}>
+                <div className={styles.counterCard}>
+                  <div className={styles.counterTitle}><i className="fa-solid fa-ticket"></i> Chamados</div>
+                  <div className={styles.counterControls}>
+                    <button aria-label="Diminuir chamados" disabled={savingCounters || counters.calls <= 0} onClick={() => applyCounterDelta({ calls: -1 })}>-</button>
+                    <div className={styles.counterValueBig}>{counters.calls}</div>
+                    <button aria-label="Aumentar chamados" disabled={savingCounters} onClick={() => applyCounterDelta({ calls: +1 })}>+</button>
                   </div>
-                ))
-              ) : (
-                <div className={styles.noRecentHelps}>
-                  <i className="fa-solid fa-clipboard-list"></i>
-                  <p>Nenhum registro recente encontrado</p>
                 </div>
+                <div className={styles.counterCard}>
+                  <div className={styles.counterTitle}><i className="fa-solid fa-envelope-circle-check"></i> RFC's</div>
+                  <div className={styles.counterControls}>
+                    <button aria-label="Diminuir RFCs" disabled={savingCounters || counters.rfcs <= 0} onClick={() => applyCounterDelta({ rfcs: -1 })}>-</button>
+                    <div className={styles.counterValueBig}>{counters.rfcs}</div>
+                    <button aria-label="Aumentar RFCs" disabled={savingCounters} onClick={() => applyCounterDelta({ rfcs: +1 })}>+</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.helpCounter}>
+              <div className={styles.counterHeader}>
+                <h3>Ajudas prestadas hoje</h3>
+              </div>
+              {statsLoading ? (
+                <ThreeDotsLoader message="Carregando estatísticas..." />
+              ) : (
+                <div className={styles.counterValue}>{helpRequests.today || 0}</div>
               )}
             </div>
-          </div>
-            </div>
-          </>
-        )}
 
-        {activeTab === 'historico' && (
-          <div className={styles.formContainerWithSpacing}>
-            <h2 className={styles.formTitle}>Histórico e Fechamento</h2>
+            <div className={styles.recentHelpsContainer}>
+              <div className={styles.recentHelpsHeader}>
+                <h3>Últimos registros</h3>
+                <button 
+                  className={styles.viewAllButton}
+                  onClick={navigateToAllRecords}
+                >
+                  Ver todos <i className="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+              <div className={styles.recentHelpsList}>
+                {statsLoading ? (
+                  <ThreeDotsLoader message="Carregando registros..." />
+                ) : recentHelps.length > 0 ? (
+                  recentHelps.map((help) => (
+                    <div key={help.id} className={styles.recentHelpCard}>
+                      <div className={styles.recentHelpHeader}>
+                        <div className={styles.recentHelpCategory}>
+                          <i className="fa-solid fa-tag"></i> {help.category}
+                        </div>
+                        <div className={styles.recentHelpTime}>
+                          <i className="fa-regular fa-clock"></i> {help.formattedDate} • {help.formattedTime}
+                        </div>
+                      </div>
+                      <div className={styles.recentHelpUser}>
+                        <i className="fa-regular fa-user"></i> {help.requesterName}
+                      </div>
+                      <div className={styles.recentHelpDescription}>
+                        <div className={styles.descriptionLabel}>Descrição:</div>
+                        <div className={styles.descriptionText}>{help.description}</div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className={styles.noRecentHelps}>
+                    <i className="fa-solid fa-clipboard-list"></i>
+                    <p>Nenhum registro recente encontrado</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Base: Histórico e Fechamento */}
+        <div className={styles.formContainerWithSpacing}>
+          <h2 className={styles.formTitle}>Histórico e Fechamento</h2>
             <div className={styles.historyControls}>
               <div className={styles.dateRangeRow}>
                 <div className={styles.dateField}>
@@ -989,9 +965,7 @@ const customSelectStyles = {
                 </>
               )}
             </div>
-          </div>
-        )}
-        
+        </div>
       </div>
 
       {/* Modal para adicionar nova categoria */}
