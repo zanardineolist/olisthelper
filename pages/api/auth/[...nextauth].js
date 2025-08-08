@@ -13,6 +13,13 @@ export const authOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          scope: 'openid email profile https://www.googleapis.com/auth/calendar',
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
@@ -38,12 +45,17 @@ export const authOptions = {
         session.id = token.id;
         session.role = token.role;
         session.user.profile = token.role; // Para compatibilidade
+        // Token de acesso ao Google para uso em rotas server-side
+        if (token.accessToken) session.accessToken = token.accessToken;
       }
       return session;
     },
-    async jwt({ token, user }) {
-      // Atribuir informações ao token
-      if (user) {
+    async jwt({ token, user, account }) {
+      // Inicial: preencher com dados da conta Google (tokens)
+      if (account && user) {
+        token.accessToken = account.access_token;
+        token.refreshToken = account.refresh_token;
+        token.expiresAt = account.expires_at ? account.expires_at * 1000 : Date.now() + 55 * 60 * 1000; // ms
         try {
           const userDetails = await getOrCreateUser(user);
           if (userDetails) {
@@ -52,6 +64,17 @@ export const authOptions = {
           }
         } catch (error) {
           console.error("Erro ao obter detalhes do usuário:", error);
+        }
+        return token;
+      }
+      // Refresh se expirado
+      if (token.expiresAt && Date.now() >= token.expiresAt - 60 * 1000) {
+        try {
+          const refreshed = await refreshGoogleAccessToken(token.refreshToken);
+          token.accessToken = refreshed.accessToken;
+          token.expiresAt = refreshed.expiresAt;
+        } catch (e) {
+          console.error('Falha ao renovar token do Google:', e);
         }
       }
       return token;
@@ -135,4 +158,21 @@ async function getOrCreateUser(user) {
     console.error("Erro ao processar usuário:", error);
     return null;
   }
+}
+
+// ===== Helper para refresh de access token Google =====
+import { google } from 'googleapis';
+
+async function refreshGoogleAccessToken(refreshToken) {
+  const client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.NEXTAUTH_URL
+  );
+  client.setCredentials({ refresh_token: refreshToken });
+  const { credentials } = await client.refreshAccessToken();
+  return {
+    accessToken: credentials.access_token,
+    expiresAt: Date.now() + (credentials.expires_in ? credentials.expires_in * 1000 : 55 * 60 * 1000),
+  };
 }

@@ -6,12 +6,12 @@ let calendarInstance = null;
 export async function getAuthenticatedGoogleCalendar() {
   if (calendarInstance) return calendarInstance;
 
-  const auth = new google.auth.JWT(
-    process.env.GOOGLE_CLIENT_EMAIL,
-    null,
-    process.env.GOOGLE_PRIVATE_KEY?.replace(/\n/g, '\n'),
-    ['https://www.googleapis.com/auth/calendar']
-  );
+  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+  const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  const scopes = ['https://www.googleapis.com/auth/calendar'];
+  const subject = process.env.EXCECAO_DADOS_CALENDAR_IMPERSONATE || undefined;
+
+  const auth = new google.auth.JWT(clientEmail, null, privateKey, scopes, subject);
 
   calendarInstance = google.calendar({ version: 'v3', auth });
   return calendarInstance;
@@ -31,6 +31,7 @@ export async function createExcecaoDadosEvent({
   description,
   date, // 'YYYY-MM-DD'
   timeZone = 'America/Sao_Paulo',
+  userAccessToken,
 }) {
   const calendarId = process.env.EXCECAO_DADOS_CALENDAR_ID;
   if (!calendarId) return null; // opcional: não bloquear se agenda não estiver configurada
@@ -50,6 +51,16 @@ export async function createExcecaoDadosEvent({
     end: { date: nextDay, timeZone },
   };
 
+  if (userAccessToken) {
+    // Usar conta do usuário autenticado
+    const auth = new google.auth.OAuth2();
+    auth.setCredentials({ access_token: userAccessToken });
+    const calendar = google.calendar({ version: 'v3', auth });
+    const { data } = await calendar.events.insert({ calendarId, requestBody: event });
+    return data;
+  }
+
+  // Fallback: service account
   return await createCalendarEvent(calendarId, event);
 }
 

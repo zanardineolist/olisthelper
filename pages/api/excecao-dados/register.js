@@ -102,6 +102,7 @@ export default async function handler(req, res) {
         summary: summaryText,
         description: `${linkChamado}`,
         date: calendarDate,
+        userAccessToken: (session && session.accessToken) ? session.accessToken : undefined,
       });
     } catch (e) {
       // Não bloquear o fluxo por falha de agenda
