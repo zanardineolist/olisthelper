@@ -6,10 +6,21 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { userName, userEmail, category, description, analystId } = req.body;
+  const {
+    userName: rawUserName,
+    userEmail: rawUserEmail,
+    category: rawCategory,
+    description: rawDescription,
+    analystId,
+  } = req.body || {};
 
-  if (!userName || !userEmail || !category || !description || !analystId) {
-    return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+  const userName = typeof rawUserName === 'string' ? rawUserName.trim() : '';
+  const userEmail = typeof rawUserEmail === 'string' ? rawUserEmail.trim() : '';
+  const category = typeof rawCategory === 'string' ? rawCategory.trim() : '';
+  const description = typeof rawDescription === 'string' ? rawDescription.trim() : '';
+
+  if (!userName || !category || !description || !analystId) {
+    return res.status(400).json({ error: 'Campos obrigatórios ausentes' });
   }
 
   try {
@@ -17,12 +28,12 @@ export default async function handler(req, res) {
     const { data: categoryData, error: categoryError } = await supabaseAdmin
       .from('categories')
       .select('id')
-      .eq('name', category)
+      .ilike('name', category)
       .eq('active', true)
       .single();
     
     if (categoryError || !categoryData) {
-      throw new Error('Categoria não encontrada');
+      return res.status(400).json({ error: 'Categoria não encontrada' });
     }
 
     // Registrar a ajuda
@@ -31,7 +42,7 @@ export default async function handler(req, res) {
       .insert([{
         analyst_id: analystId,
         requester_name: userName,
-        requester_email: userEmail,
+        requester_email: userEmail || '',
         category_id: categoryData.id,
         description
       }]);
