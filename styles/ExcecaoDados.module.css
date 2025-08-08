@@ -1,0 +1,161 @@
+/* Página Exceção de Dados - UI consistente com Olist Helper e tema via vars */
+
+.container {
+  width: 100%;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--title-color);
+}
+
+.subtitle {
+  margin: 6px 0 0 0;
+  color: var(--text-secondary);
+}
+
+.card {
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.cardBody {
+  padding: 20px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.formRow {
+  display: contents;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.input, .select, .date, .text {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--modals-inputs);
+  color: var(--text-color);
+}
+
+.input:focus, .select:focus, .date:focus, .text:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(10, 78, 228, 0.15);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.submit {
+  background: var(--color-primary);
+  color: var(--color-white);
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 2px solid var(--color-primary);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--primary-light);
+  border-color: var(--primary-light);
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.listHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0 20px;
+}
+
+.listTitle {
+  margin: 0;
+  color: var(--title-color);
+  font-weight: 600;
+}
+
+.tableWrapper {
+  padding: 16px 20px 20px 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--color-border);
+}
+
+.table th, .table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table thead th {
+  background: var(--color-thead);
+  color: var(--text-th);
+  text-align: left;
+  font-weight: 600;
+}
+
+.table tbody tr:nth-child(odd) {
+  background: var(--color-trodd);
+}
+
+.table tbody tr:nth-child(even) {
+  background: var(--color-treven);
+}
+
+.link {
+  color: var(--color-primary);
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 20px 0;
+}
+
+@media (max-width: 900px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+

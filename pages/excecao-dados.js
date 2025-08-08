@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { getSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
-import styles from '../styles/Tools.module.css';
+import styles from '../styles/ExcecaoDados.module.css';
 import Swal from 'sweetalert2';
 
 export default function ExcecaoDadosPage({ user }) {
@@ -80,50 +80,63 @@ export default function ExcecaoDadosPage({ user }) {
         <title>Exceção de Dados</title>
       </Head>
       <div className={styles.container}>
-        <h2>Exceção de Dados</h2>
-        <form onSubmit={onSubmit} className={styles.form}>
-          <div className={styles.formGroup}>
-            <label>Link do chamado (A)</label>
-            <input name="linkChamado" value={form.linkChamado} onChange={handleChange} placeholder="https://..." required />
+        <div className={styles.header}>
+          <div>
+            <h1 className={styles.title}>Exceção de Dados</h1>
+            <p className={styles.subtitle}>Registre liberações temporárias de armazenamento e acompanhe o histórico.</p>
           </div>
-          <div className={styles.formGroup}>
-            <label>Responsável (B)</label>
-            <input name="responsavel" value={form.responsavel} onChange={handleChange} required />
-          </div>
-          <div className={styles.formGroupRow}>
-            <div className={styles.formGroup}>
-              <label>Espaço atual (C)</label>
-              <input name="espacoAtual" value={form.espacoAtual} onChange={handleChange} placeholder="Ex.: 15 GB" />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Espaço adicional (D)</label>
-              <input name="espacoAdicional" value={form.espacoAdicional} onChange={handleChange} placeholder="Ex.: +10 GB" />
-            </div>
-          </div>
-          <div className={styles.formGroupRow}>
-            <div className={styles.formGroup}>
-              <label>Data que será removido (E)</label>
-              <input type="date" name="dataRemocao" value={form.dataRemocao} onChange={handleChange} required />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Situação (F)</label>
-              <select name="situacao" value={form.situacao} onChange={handleChange}>
-                <option value="Liberado">Liberado</option>
-                <option value="Removido">Removido</option>
-              </select>
-            </div>
-          </div>
-          <div className={styles.actions}>
-            <button type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Registrar'}</button>
-          </div>
-        </form>
+        </div>
 
-        <div className={styles.list}>
-          <h3>Histórico</h3>
-          {listLoading ? (
-            <div>Carregando...</div>
-          ) : (
-            <div className={styles.tableWrapper}>
+        <section className={styles.card}>
+          <div className={styles.cardBody}>
+            <form onSubmit={onSubmit}>
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Link do chamado (A)</label>
+                  <input className={styles.input} name="linkChamado" value={form.linkChamado} onChange={handleChange} placeholder="https://..." required />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Responsável (B)</label>
+                  <input className={styles.input} name="responsavel" value={form.responsavel} onChange={handleChange} required />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Espaço atual (C)</label>
+                  <input className={styles.input} name="espacoAtual" value={form.espacoAtual} onChange={handleChange} placeholder="Ex.: 15 GB" />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Espaço adicional (D)</label>
+                  <input className={styles.input} name="espacoAdicional" value={form.espacoAdicional} onChange={handleChange} placeholder="Ex.: +10 GB" />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Data que será removido (E)</label>
+                  <input className={styles.date} type="date" name="dataRemocao" value={form.dataRemocao} onChange={handleChange} required />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Situação (F)</label>
+                  <select className={styles.select} name="situacao" value={form.situacao} onChange={handleChange}>
+                    <option value="Liberado">Liberado</option>
+                    <option value="Removido">Removido</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.actions}>
+                <button className={styles.submit} type="submit" disabled={loading}>{loading ? 'Salvando...' : 'Registrar'}</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section className={styles.card} style={{ marginTop: 20 }}>
+          <div className={styles.listHeader}>
+            <h3 className={styles.listTitle}>Histórico</h3>
+          </div>
+          <div className={styles.tableWrapper}>
+            {listLoading ? (
+              <div className={styles.empty}>Carregando...</div>
+            ) : (
               <table className={styles.table}>
                 <thead>
                   <tr>
@@ -136,14 +149,13 @@ export default function ExcecaoDadosPage({ user }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.length === 0 && (
-                    <tr><td colSpan={6}>Nenhum registro</td></tr>
-                  )}
-                  {items.map((it, i) => (
+                  {items.length === 0 ? (
+                    <tr><td className={styles.empty} colSpan={6}>Nenhum registro</td></tr>
+                  ) : items.map((it, i) => (
                     <tr key={i}>
                       <td>
                         {it.linkChamado?.startsWith('http') ? (
-                          <a href={it.linkChamado} target="_blank" rel="noreferrer">Chamado</a>
+                          <a className={styles.link} href={it.linkChamado} target="_blank" rel="noreferrer">Chamado</a>
                         ) : (
                           it.linkChamado
                         )}
@@ -157,9 +169,9 @@ export default function ExcecaoDadosPage({ user }) {
                   ))}
                 </tbody>
               </table>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </section>
       </div>
     </Layout>
   );
