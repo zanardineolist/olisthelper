@@ -733,8 +733,19 @@ const customSelectStyles = {
       <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
         <div className={styles.pageInner}>
         <div className={styles.topGrid}>
-          {/* Esquerda: Formulário */}
-          <div className={styles.leftPane}>
+          {/* Grid 1: Ajudas hoje + Formulário + Últimos registros */}
+          <div className={`${styles.leftPane} ${styles.columnStack}`}>
+            <div className={`${styles.statCard} ${styles.helpCounter}`}>
+              <div className={styles.counterHeader}>
+                <h3>Ajudas prestadas hoje</h3>
+              </div>
+              {statsLoading ? (
+                <ThreeDotsLoader message="Carregando estatísticas..." />
+              ) : (
+                <div className={styles.counterValue}>{helpRequests.today || 0}</div>
+              )}
+            </div>
+
             <div className={styles.formContainerWithSpacing}>
               <h2 className={styles.formTitle}>Registrar Ajuda</h2>
           
@@ -762,7 +773,7 @@ const customSelectStyles = {
                   required
                 />
               </div>
-
+ 
               <div className={styles.formGroup}>
                 <div className={styles.categoryHeader}>
                   <label htmlFor="category">Tema da ajuda</label>
@@ -791,7 +802,7 @@ const customSelectStyles = {
                   required
                 />
               </div>
-
+ 
               <div className={styles.formGroup}>
                 <label htmlFor="description">Descrição da ajuda</label>
                 <textarea
@@ -805,7 +816,7 @@ const customSelectStyles = {
                   className={`${styles.formTextarea} ${styles.formFieldHover}`}
                 />
               </div>
-
+ 
               <div className={styles.formButtonContainer}>
                 <button type="submit" className={styles.submitButton} disabled={submitting}>
                   {submitting ? 'Registrando...' : 'Registrar'}
@@ -813,53 +824,6 @@ const customSelectStyles = {
               </div>
             </form>
           )}
-            </div>
-          </div>
-
-          {/* Direita: Controles e contadores */}
-          <div className={styles.rightPane}>
-            <div className={styles.sideCard}>
-              <div className={styles.dateRow}>
-                <label>Data</label>
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  className={styles.dateInput}
-                />
-              </div>
-            </div>
-
-            <div className={styles.sideCard}>
-              <div className={styles.countersGrid}>
-                <div className={styles.counterCard}>
-                  <div className={styles.counterTitle}><i className="fa-solid fa-ticket"></i> Chamados</div>
-                  <div className={styles.counterControls}>
-                    <button aria-label="Diminuir chamados" disabled={savingCounters || counters.calls <= 0} onClick={() => applyCounterDelta({ calls: -1 })}>-</button>
-                    <div className={styles.counterValueBig}>{counters.calls}</div>
-                    <button aria-label="Aumentar chamados" disabled={savingCounters} onClick={() => applyCounterDelta({ calls: +1 })}>+</button>
-                  </div>
-                </div>
-                <div className={styles.counterCard}>
-                  <div className={styles.counterTitle}><i className="fa-solid fa-envelope-circle-check"></i> RFC's</div>
-                  <div className={styles.counterControls}>
-                    <button aria-label="Diminuir RFCs" disabled={savingCounters || counters.rfcs <= 0} onClick={() => applyCounterDelta({ rfcs: -1 })}>-</button>
-                    <div className={styles.counterValueBig}>{counters.rfcs}</div>
-                    <button aria-label="Aumentar RFCs" disabled={savingCounters} onClick={() => applyCounterDelta({ rfcs: +1 })}>+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className={`${styles.statCard} ${styles.helpCounter}`}>
-              <div className={styles.counterHeader}>
-                <h3>Ajudas prestadas hoje</h3>
-              </div>
-              {statsLoading ? (
-                <ThreeDotsLoader message="Carregando estatísticas..." />
-              ) : (
-                <div className={styles.counterValue}>{helpRequests.today || 0}</div>
-              )}
             </div>
 
             <div className={styles.recentHelpsContainer}>
@@ -904,66 +868,101 @@ const customSelectStyles = {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Base: Histórico e Fechamento */}
-        <div className={styles.formContainerWithSpacing}>
-          <h2 className={styles.formTitle}>Histórico e Fechamento</h2>
-          <div className={styles.historyControls}>
-              <div className={styles.dateRangeRow}>
-                <div className={styles.dateField}>
-                  <label>Início</label>
-                  <input type="date" value={historyStart} onChange={(e) => setHistoryStart(e.target.value)} className={styles.dateInput} />
+          {/* Grid 2: Contadores + Histórico */}
+          <div className={`${styles.rightPane} ${styles.columnStack}`}>
+            <div className={styles.sideCard}>
+              <div className={styles.countersGrid}>
+                <div className={styles.counterCard}>
+                  <div className={styles.counterTitle}><i className="fa-solid fa-ticket"></i> Chamados</div>
+                  <div className={styles.counterControls}>
+                    <button aria-label="Diminuir chamados" disabled={savingCounters || counters.calls <= 0} onClick={() => applyCounterDelta({ calls: -1 })}>-</button>
+                    <div className={styles.counterValueBig}>{counters.calls}</div>
+                    <button aria-label="Aumentar chamados" disabled={savingCounters} onClick={() => applyCounterDelta({ calls: +1 })}>+</button>
+                  </div>
                 </div>
-                <div className={styles.dateField}>
-                  <label>Fim</label>
-                  <input type="date" value={historyEnd} onChange={(e) => setHistoryEnd(e.target.value)} className={styles.dateInput} />
+                <div className={styles.counterCard}>
+                  <div className={styles.counterTitle}><i className="fa-solid fa-envelope-circle-check"></i> RFC's</div>
+                  <div className={styles.counterControls}>
+                    <button aria-label="Diminuir RFCs" disabled={savingCounters || counters.rfcs <= 0} onClick={() => applyCounterDelta({ rfcs: -1 })}>-</button>
+                    <div className={styles.counterValueBig}>{counters.rfcs}</div>
+                    <button aria-label="Aumentar RFCs" disabled={savingCounters} onClick={() => applyCounterDelta({ rfcs: +1 })}>+</button>
+                  </div>
                 </div>
-                <button type="button" className={styles.submitButton} onClick={fetchHistory}>
-                  {historyLoading ? 'Buscando...' : 'Buscar'}
-                </button>
               </div>
             </div>
-          <div className={styles.historyGrid}>
-            <div className={styles.historyContainer}>
-              {historyLoading ? (
-                <ThreeDotsLoader message="Carregando histórico..." />
-              ) : (
-                <>
-                  <div className={styles.historyTotals}>
-                    <div>Chamados: <strong>{historyTotals.calls}</strong></div>
-                    <div>RFC's: <strong>{historyTotals.rfcs}</strong></div>
-                    <div>Ajudas: <strong>{historyTotals.helps}</strong></div>
+
+            <div className={styles.formContainerWithSpacing}>
+              <h2 className={styles.formTitle}>Histórico e Fechamento</h2>
+              <div className={styles.historyControls}>
+                <div className={styles.dateRangeRow}>
+                  <div className={styles.dateField}>
+                    <label>Início</label>
+                    <div className={styles.dateInputWrapper}>
+                      <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
+                      <input type="date" value={historyStart} onChange={(e) => setHistoryStart(e.target.value)} className={styles.dateInput} />
+                    </div>
                   </div>
-                  <div className={styles.historyList}>
-                    {historyRecords && historyRecords.length > 0 ? (
-                      historyRecords.map((r) => (
-                        <div key={r.id || `${r.date}`} className={styles.historyItem}>
-                          <div className={styles.historyDate}>{new Date(r.date).toLocaleDateString('pt-BR')}</div>
-                          <div className={styles.historyCounts}>
-                            <span>Chamados: {r.calls_count}</span>
-                            <span>RFC's: {r.rfcs_count}</span>
-                            <span>Ajudas: {r.helps_count}</span>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className={styles.noRecentHelps}>
-                        <i className="fa-solid fa-circle-info"></i>
-                        <p>Nenhum registro no período</p>
+                  <div className={styles.dateField}>
+                    <label>Fim</label>
+                    <div className={styles.dateInputWrapper}>
+                      <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
+                      <input type="date" value={historyEnd} onChange={(e) => setHistoryEnd(e.target.value)} className={styles.dateInput} />
+                    </div>
+                  </div>
+                  <button type="button" className={styles.submitButton} onClick={fetchHistory}>
+                    {historyLoading ? 'Buscando...' : 'Buscar'}
+                  </button>
+                </div>
+                <div className={styles.presetChips}>
+                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d); s.setDate(d.getDate()-6); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); }}>Últimos 7 dias</button>
+                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d.getFullYear(), d.getMonth(), 1); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); }}>Este mês</button>
+                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d.getFullYear(), d.getMonth()-1, 1); const e=new Date(d.getFullYear(), d.getMonth(), 0); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(e.toISOString().slice(0,10)); }}>Mês passado</button>
+                </div>
+              </div>
+
+              <div className={styles.historyGrid}>
+                <div className={styles.historyContainer}>
+                  {historyLoading ? (
+                    <ThreeDotsLoader message="Carregando histórico..." />
+                  ) : (
+                    <>
+                      <div className={styles.historyTotals}>
+                        <div>Chamados: <strong>{historyTotals.calls}</strong></div>
+                        <div>RFC's: <strong>{historyTotals.rfcs}</strong></div>
+                        <div>Ajudas: <strong>{historyTotals.helps}</strong></div>
                       </div>
-                    )}
+                      <div className={styles.historyList}>
+                        {historyRecords && historyRecords.length > 0 ? (
+                          historyRecords.map((r) => (
+                            <div key={r.id || `${r.date}`} className={styles.historyItem}>
+                              <div className={styles.historyDate}>{new Date(r.date).toLocaleDateString('pt-BR')}</div>
+                              <div className={styles.historyCounts}>
+                                <span>Chamados: {r.calls_count}</span>
+                                <span>RFC's: {r.rfcs_count}</span>
+                                <span>Ajudas: {r.helps_count}</span>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className={styles.noRecentHelps}>
+                            <i className="fa-solid fa-circle-info"></i>
+                            <p>Nenhum registro no período</p>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div className={styles.copyBox}>
+                  <label>Resumo para Slack</label>
+                  <textarea className={styles.formTextarea} readOnly value={fechamentoTexto} />
+                  <div className={styles.formButtonContainer}>
+                    <button type="button" className={styles.submitButton} onClick={copiarFechamento}>
+                      Copiar fechamento
+                    </button>
                   </div>
-                </>
-              )}
-            </div>
-            <div className={styles.copyBox}>
-              <label>Resumo para Slack</label>
-              <textarea className={styles.formTextarea} readOnly value={fechamentoTexto} />
-              <div className={styles.formButtonContainer}>
-                <button type="button" className={styles.submitButton} onClick={copiarFechamento}>
-                  Copiar fechamento
-                </button>
+                </div>
               </div>
             </div>
           </div>

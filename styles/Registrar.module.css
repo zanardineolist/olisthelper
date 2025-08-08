@@ -515,7 +515,7 @@
 .topGrid {
   width: 100%;
   display: grid;
-  grid-template-columns: 520px minmax(640px, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
   align-items: start;
 }
@@ -523,6 +523,12 @@
 .leftPane,
 .rightPane {
   width: 100%;
+}
+
+.columnStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .sideCard {
