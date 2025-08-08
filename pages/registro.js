@@ -909,27 +909,24 @@ const customSelectStyles = {
                     <label>Início</label>
                     <div className={styles.dateInputWrapper}>
                       <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
-                      <input type="date" value={historyStart} onChange={(e) => setHistoryStart(e.target.value)} className={styles.dateInput} />
+                      <input type="date" value={historyStart} onChange={(e) => { setHistoryStart(e.target.value); fetchHistory(); }} className={styles.dateInput} />
                     </div>
                   </div>
                   <div className={styles.dateField}>
                     <label>Fim</label>
                     <div className={styles.dateInputWrapper}>
                       <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
-                      <input type="date" value={historyEnd} onChange={(e) => setHistoryEnd(e.target.value)} className={styles.dateInput} />
+                      <input type="date" value={historyEnd} onChange={(e) => { setHistoryEnd(e.target.value); fetchHistory(); }} className={styles.dateInput} />
                     </div>
                   </div>
-                  <button type="button" className={styles.submitButton} onClick={fetchHistory}>
-                    {historyLoading ? 'Buscando...' : 'Buscar'}
-                  </button>
                 </div>
               </div>
 
               <div className={styles.section}>
                 <div className={styles.presetChips}>
-                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d); s.setDate(d.getDate()-6); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); }}>Últimos 7 dias</button>
-                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d.getFullYear(), d.getMonth(), 1); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); }}>Este mês</button>
-                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d.getFullYear(), d.getMonth()-1, 1); const e=new Date(d.getFullYear(), d.getMonth(), 0); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(e.toISOString().slice(0,10)); }}>Mês passado</button>
+                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d); s.setDate(d.getDate()-6); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); fetchHistory(); }}>Últimos 7 dias</button>
+                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d.getFullYear(), d.getMonth(), 1); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); fetchHistory(); }}>Este mês</button>
+                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d.getFullYear(), d.getMonth()-1, 1); const e=new Date(d.getFullYear(), d.getMonth(), 0); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(e.toISOString().slice(0,10)); fetchHistory(); }}>Mês passado</button>
                 </div>
               </div>
 

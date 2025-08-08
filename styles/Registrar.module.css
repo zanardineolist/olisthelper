@@ -557,7 +557,7 @@
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 30px;
   align-items: start;
 }
 
@@ -634,7 +634,7 @@
 .historyGrid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
-  gap: 24px;
+  gap: 30px;
 }
 
 /* Cartão do histórico segue a largura da coluna de contadores */
