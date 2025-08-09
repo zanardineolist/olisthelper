@@ -2,7 +2,7 @@
 .container {
   width: 100%;
   min-height: 100vh;
-  padding-top: calc(64px + 0.5rem);
+  padding-top: 0.5rem;
   background-color: var(--background-color);
   transition: filter 0.3s ease;
 }

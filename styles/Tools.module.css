@@ -1,7 +1,7 @@
 /* ===== CONTAINER PRINCIPAL ===== */
 .container {
   width: 100%;
-  padding-top: calc(64px + 10px);
+  padding-top: 10px;
   padding-left: 2rem;
   padding-right: 2rem;
   padding-bottom: 2rem;
@@ -313,7 +313,7 @@
    ======================================== */
 @media (max-width: 768px) {
   .container {
-    padding-top: calc(64px + 10px);
+    padding-top: 10px;
     padding-left: 1rem;
     padding-right: 1rem;
     padding-bottom: 1rem;
