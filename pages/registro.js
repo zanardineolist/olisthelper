@@ -186,7 +186,10 @@ export default function RegistroPage({ user }) {
       });
     } catch (e) {
       console.error(e);
-      showToast('Não foi possível salvar os contadores.', 'error');
+      if (typeof window !== 'undefined' && window.Swal) {
+        const Toast = window.Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+        Toast.fire({ icon: 'error', title: 'Não foi possível salvar os contadores.' });
+      }
     } finally {
       setSavingCounters(false);
     }
@@ -210,7 +213,10 @@ export default function RegistroPage({ user }) {
       setHistoryTotals(totals || { calls: 0, rfcs: 0, helps: 0 });
     } catch (e) {
       console.error(e);
-      showToast('Não foi possível carregar o histórico.', 'error');
+      if (typeof window !== 'undefined' && window.Swal) {
+        const Toast = window.Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+        Toast.fire({ icon: 'error', title: 'Não foi possível carregar o histórico.' });
+      }
     } finally {
       setHistoryLoading(false);
     }
@@ -229,10 +235,16 @@ export default function RegistroPage({ user }) {
   const copiarFechamento = async () => {
     try {
       await navigator.clipboard.writeText(fechamentoTexto);
-      showToast('Copiado!', 'success');
+      if (typeof window !== 'undefined' && window.Swal) {
+        const Toast = window.Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+        Toast.fire({ icon: 'success', title: 'Copiado!' });
+      }
     } catch (e) {
       console.error('Erro ao copiar:', e);
-      showToast('Não foi possível copiar.', 'error');
+      if (typeof window !== 'undefined' && window.Swal) {
+        const Toast = window.Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+        Toast.fire({ icon: 'error', title: 'Não foi possível copiar.' });
+      }
     }
   };
 
@@ -882,7 +894,7 @@ const customSelectStyles = {
                   </div>
                 </div>
                 <div className={styles.counterCard}>
-                  <div className={styles.counterTitle}><i className="fa-solid fa-envelope-circle-check"></i> RFC's</div>
+                  <div className={styles.counterTitle}><i className="fa-solid fa-comments"></i> RFC's</div>
                   <div className={styles.counterControls}>
                     <button aria-label="Diminuir RFCs" disabled={savingCounters || counters.rfcs <= 0} onClick={() => applyCounterDelta({ rfcs: -1 })}>-</button>
                     <div className={styles.counterValueBig}>{counters.rfcs}</div>
