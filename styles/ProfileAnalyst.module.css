@@ -335,6 +335,23 @@
   color: var(--text-secondary);
 }
 
+/* Diferenciar cores dos ícones de tendência por métrica */
+.trendValue .metricTrendIcon {
+  color: inherit;
+}
+
+.trendValue .metricTrendIcon.helps {
+  color: var(--excellent-color) !important; /* verde */
+}
+
+.trendValue .metricTrendIcon.calls {
+  color: var(--primary-color) !important; /* azul */
+}
+
+.trendValue .metricTrendIcon.rfcs {
+  color: var(--good-color) !important; /* amarelo/âmbar */
+}
+
 /* ===== SEÇÃO 2: PERFORMANCE ===== */
 .performanceSection {
   margin-bottom: 3rem;

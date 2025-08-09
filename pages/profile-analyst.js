@@ -682,6 +682,54 @@ export default function ProfileAnalystPage({ user }) {
               </div>
             </div>
 
+            {/* Variação Mensal - Chamados */}
+            <div className={styles.trendIndicator}>
+              <div className={`${styles.trendValue} ${(() => {
+                const pct = countersSummary.lastMonth.calls > 0
+                  ? ((countersSummary.currentMonth.calls - countersSummary.lastMonth.calls) / countersSummary.lastMonth.calls) * 100
+                  : 0;
+                return pct > 0 ? styles.positive : pct < 0 ? styles.negative : styles.neutral;
+              })()}`}>
+                <i className={`fa-solid ${(() => {
+                  const pct = countersSummary.lastMonth.calls > 0
+                    ? ((countersSummary.currentMonth.calls - countersSummary.lastMonth.calls) / countersSummary.lastMonth.calls) * 100
+                    : 0;
+                  return pct > 0 ? 'fa-trending-up' : pct < 0 ? 'fa-trending-down' : 'fa-minus';
+                })()} ${styles.metricTrendIcon} calls`}></i>
+                <span>
+                  {countersSummary.lastMonth.calls > 0
+                    ? Math.abs(((countersSummary.currentMonth.calls - countersSummary.lastMonth.calls) / countersSummary.lastMonth.calls) * 100).toFixed(1)
+                    : '0.0'
+                  }%
+                </span>
+              </div>
+              <span className={styles.trendLabel}>Variação Mensal (Chamados)</span>
+            </div>
+
+            {/* Variação Mensal - RFC's */}
+            <div className={styles.trendIndicator}>
+              <div className={`${styles.trendValue} ${(() => {
+                const pct = countersSummary.lastMonth.rfcs > 0
+                  ? ((countersSummary.currentMonth.rfcs - countersSummary.lastMonth.rfcs) / countersSummary.lastMonth.rfcs) * 100
+                  : 0;
+                return pct > 0 ? styles.positive : pct < 0 ? styles.negative : styles.neutral;
+              })()}`}>
+                <i className={`fa-solid ${(() => {
+                  const pct = countersSummary.lastMonth.rfcs > 0
+                    ? ((countersSummary.currentMonth.rfcs - countersSummary.lastMonth.rfcs) / countersSummary.lastMonth.rfcs) * 100
+                    : 0;
+                  return pct > 0 ? 'fa-trending-up' : pct < 0 ? 'fa-trending-down' : 'fa-minus';
+                })()} ${styles.metricTrendIcon} rfcs`}></i>
+                <span>
+                  {countersSummary.lastMonth.rfcs > 0
+                    ? Math.abs(((countersSummary.currentMonth.rfcs - countersSummary.lastMonth.rfcs) / countersSummary.lastMonth.rfcs) * 100).toFixed(1)
+                    : '0.0'
+                  }%
+                </span>
+              </div>
+              <span className={styles.trendLabel}>Variação Mensal (RFC's)</span>
+            </div>
+
             <div className={styles.trendIndicator}>
               <div className={`${styles.trendValue} ${(() => {
                 const percentageChange = helpRequests.lastMonth > 0 ? 
@@ -692,7 +740,7 @@ export default function ProfileAnalystPage({ user }) {
                   const percentageChange = helpRequests.lastMonth > 0 ? 
                     ((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100 : 0;
                   return percentageChange > 0 ? 'fa-trending-up' : percentageChange < 0 ? 'fa-trending-down' : 'fa-minus';
-                })()}`}></i>
+                })()} ${styles.metricTrendIcon} helps`}></i>
                 <span>
                   {helpRequests.lastMonth > 0 ? 
                     Math.abs(((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100).toFixed(1) : 
