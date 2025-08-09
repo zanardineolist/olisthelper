@@ -274,7 +274,20 @@ export default function RegistroPage({ user }) {
 
   const onDeleteRecord = async (recordId) => {
     try {
-      const res = await fetch(`/api/manage-records?recordId=${recordId}`, { method: 'DELETE' });
+      // Confirmação via swal
+      if (typeof window !== 'undefined' && window.Swal) {
+        const result = await window.Swal.fire({
+          title: 'Excluir registro?',
+          text: 'Esta ação não poderá ser desfeita.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Excluir',
+          cancelButtonText: 'Cancelar'
+        });
+        if (!result.isConfirmed) return;
+      }
+
+      const res = await fetch(`/api/manage-records?recordId=${encodeURIComponent(recordId)}&userId=${encodeURIComponent(user.id)}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Falha ao excluir');
       toast('Registro excluído');
       // Refresh recentes e histórico
@@ -285,13 +298,30 @@ export default function RegistroPage({ user }) {
     }
   };
 
-  const onEditRecord = async (recordId) => {
+  const onEditRecord = async (record) => {
     try {
-      // Exemplo simples: reusa descrição atual e acrescenta marcador (em produção abrir modal)
-      const newDescription = prompt('Nova descrição para o registro:');
-      if (newDescription == null || newDescription.trim() === '') return;
-      const body = { record: { id: recordId, name: '—', email: '—', category: '—', description: newDescription } };
-      const res = await fetch('/api/manage-records', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      // Modal simples com Swal para editar somente a descrição (rápido). Podemos expandir para nome/email/categoria depois.
+      let newDescription = record.description || '';
+      if (typeof window !== 'undefined' && window.Swal) {
+        const { value } = await window.Swal.fire({
+          title: 'Editar descrição',
+          input: 'textarea',
+          inputValue: newDescription,
+          inputAttributes: { 'aria-label': 'Descrição' },
+          showCancelButton: true,
+          confirmButtonText: 'Salvar',
+          cancelButtonText: 'Cancelar'
+        });
+        if (value === undefined) return; // cancelado
+        newDescription = value;
+      } else {
+        newDescription = prompt('Nova descrição', newDescription);
+        if (newDescription == null) return;
+      }
+      if (!newDescription || !newDescription.trim()) return;
+
+      const body = { record: { id: record.id, name: record.requesterName || '—', email: record.requesterEmail || '—', category: record.category || '—', description: newDescription } };
+      const res = await fetch(`/api/manage-records?userId=${encodeURIComponent(user.id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       if (!res.ok) throw new Error('Falha ao editar');
       toast('Registro atualizado');
       await Promise.all([fetchRecentHelps(), fetchHistory()]);
@@ -918,16 +948,16 @@ const customSelectStyles = {
                   <div className={styles.recentHelpUser}>
                     <i className="fa-regular fa-user"></i> {help.requesterName}
                   </div>
-                      <div className={styles.recentHelpDescription}>
+                  <div className={styles.recentHelpDescription}>
                         <div className={styles.descriptionLabel}>Descrição:</div>
                         <div className={styles.descriptionText}>{help.description}</div>
                       </div>
                   <div className={styles.recordActions}>
-                    <button type="button" className={styles.iconButton} onClick={() => onEditRecord(help.id)}>
-                      <i className="fa-solid fa-pen"></i> Editar
+                    <button type="button" className={styles.iconButton} title="Editar" onClick={() => onEditRecord(help)}>
+                      <i className="fa-solid fa-pen"></i>
                     </button>
-                    <button type="button" className={styles.iconButton} onClick={() => onDeleteRecord(help.id)}>
-                      <i className="fa-solid fa-trash"></i> Excluir
+                    <button type="button" className={styles.iconButton} title="Excluir" onClick={() => onDeleteRecord(help.id)}>
+                      <i className="fa-solid fa-trash"></i>
                     </button>
                   </div>
                     </div>
