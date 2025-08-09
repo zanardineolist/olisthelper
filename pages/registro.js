@@ -1387,9 +1387,9 @@ const customSelectStyles = {
             onChange={(e) => setNewUserProfile(e.target.value)}
             className={managerStyles.inputField}
           >
-            <option value="analyst">Analyst</option>
-            <option value="tax">Tax</option>
             <option value="support">Support</option>
+            <option value="partner">Partner</option>
+            <option value="other">Other</option>
           </select>
           <button
             onClick={handleSaveUser}
