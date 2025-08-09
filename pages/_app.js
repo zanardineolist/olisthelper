@@ -1,5 +1,6 @@
 // pages/_app.js
 import '../styles/globals.css';
+import 'sweetalert2/dist/sweetalert2.min.css';
 import '../styles/shared-messages/variables.css';
 import { SessionProvider, useSession } from 'next-auth/react';
 import { Toaster } from 'react-hot-toast';

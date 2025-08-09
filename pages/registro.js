@@ -262,10 +262,10 @@ export default function RegistroPage({ user }) {
       await fetchHistory();
     } catch (e) {
       console.error(e);
-      if (typeof window !== 'undefined' && window.Swal) {
-        const Toast = window.Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+      try {
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
         Toast.fire({ icon: 'error', title: 'Não foi possível salvar os contadores.' });
-      }
+      } catch {}
     } finally {
       setSavingCounters(false);
     }
@@ -291,10 +291,10 @@ export default function RegistroPage({ user }) {
       setHistoryTotals(totals || { calls: 0, rfcs: 0, helps: 0 });
     } catch (e) {
       console.error(e);
-      if (typeof window !== 'undefined' && window.Swal) {
-        const Toast = window.Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+      try {
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
         Toast.fire({ icon: 'error', title: 'Não foi possível carregar o histórico.' });
-      }
+      } catch {}
     } finally {
       setHistoryLoading(false);
     }
@@ -356,18 +356,16 @@ export default function RegistroPage({ user }) {
 
   const onDeleteRecord = async (recordId) => {
     try {
-      // Confirmação via swal
-      if (typeof window !== 'undefined' && window.Swal) {
-        const result = await window.Swal.fire({
-          title: 'Excluir registro?',
-          text: 'Esta ação não poderá ser desfeita.',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Excluir',
-          cancelButtonText: 'Cancelar'
-        });
-        if (!result.isConfirmed) return;
-      }
+      // Confirmação via SweetAlert2
+      const result = await Swal.fire({
+        title: 'Excluir registro?',
+        text: 'Esta ação não poderá ser desfeita.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Excluir',
+        cancelButtonText: 'Cancelar'
+      });
+      if (!result.isConfirmed) return;
 
       const res = await fetch(`/api/manage-records?recordId=${encodeURIComponent(recordId)}&userId=${encodeURIComponent(user.id)}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Falha ao excluir');
@@ -382,31 +380,25 @@ export default function RegistroPage({ user }) {
 
   const onEditRecord = async (record) => {
     try {
-      // Modal simples com Swal para editar somente a descrição (rápido). Podemos expandir depois.
-      // Garante que recebemos o objeto completo do registro recente; se vier id simples, abre fallback
+      // Modal com SweetAlert2 para editar a descrição
       let newDescription = (record && record.description) ? record.description : '';
-      if (typeof window !== 'undefined' && window.Swal) {
-        const result = await window.Swal.fire({
-          title: 'Editar descrição',
-          input: 'textarea',
-          inputValue: newDescription,
-          inputAttributes: { 'aria-label': 'Descrição' },
-          showCancelButton: true,
-          confirmButtonText: 'Salvar',
-          cancelButtonText: 'Cancelar',
-          inputValidator: (value) => {
-            if (!value || !value.trim()) {
-              return 'Descrição não pode ficar vazia';
-            }
-            return undefined;
+      const result = await Swal.fire({
+        title: 'Editar descrição',
+        input: 'textarea',
+        inputValue: newDescription,
+        inputAttributes: { 'aria-label': 'Descrição' },
+        showCancelButton: true,
+        confirmButtonText: 'Salvar',
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+          if (!value || !value.trim()) {
+            return 'Descrição não pode ficar vazia';
           }
-        });
-        if (!result || result.isDismissed) return; // cancelado/fechado
-        newDescription = result.value;
-      } else {
-        newDescription = prompt('Nova descrição', newDescription);
-        if (newDescription == null) return;
-      }
+          return undefined;
+        }
+      });
+      if (!result || result.isDismissed) return; // cancelado/fechado
+      newDescription = result.value;
       if (!newDescription || !newDescription.trim()) return;
 
       const body = { record: { id: record.id, name: record.requesterName || '—', email: record.requesterEmail || '—', category: record.category || '—', description: newDescription.trim() } };
@@ -423,8 +415,7 @@ export default function RegistroPage({ user }) {
   // Editar registro do histórico (daily_counters): permite alterar somente chamados e RFCs
   const onEditDailyRecord = async (rec) => {
     try {
-      if (typeof window === 'undefined' || !window.Swal) return;
-      const { value } = await window.Swal.fire({
+      const { value } = await Swal.fire({
         title: 'Editar contadores',
         html: `
           <div style="display:flex;flex-direction:column;gap:8px;text-align:left">
@@ -443,7 +434,7 @@ export default function RegistroPage({ user }) {
           const callsVal = parseInt(document.getElementById('swal-calls').value, 10);
           const rfcsVal = parseInt(document.getElementById('swal-rfcs').value, 10);
           if (Number.isNaN(callsVal) || callsVal < 0 || Number.isNaN(rfcsVal) || rfcsVal < 0) {
-            window.Swal.showValidationMessage('Informe números válidos (>= 0).');
+            Swal.showValidationMessage('Informe números válidos (>= 0).');
             return false;
           }
           return { calls: callsVal, rfcs: rfcsVal };
