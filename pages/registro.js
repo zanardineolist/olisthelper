@@ -1388,8 +1388,8 @@ const customSelectStyles = {
             className={managerStyles.inputField}
           >
             <option value="support">Support</option>
-            <option value="partner">Partner</option>
-            <option value="other">Other</option>
+            <option value="partner">Parceiro</option>
+            <option value="other">Outro</option>
           </select>
           <button
             onClick={handleSaveUser}
