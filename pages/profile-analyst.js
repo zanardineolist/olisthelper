@@ -584,8 +584,8 @@ export default function ProfileAnalystPage({ user }) {
               </h3>
             </div>
             
-            {/* Cabeçalho das colunas */}
-            <div className={styles.helpStatsHeader}>
+            {/* Cabeçalho das colunas (único) */}
+            <div className={`${styles.helpStatsHeader} ${styles.global}`}>
               <div className={styles.helpStatsHeaderItem}>Hoje</div>
               <div className={styles.helpStatsHeaderItem}>Mês Atual</div>
               <div className={styles.helpStatsHeaderItem}>Mês Anterior</div>
@@ -621,11 +621,6 @@ export default function ProfileAnalystPage({ user }) {
             </div>
 
             {/* Chamados */}
-            <div className={styles.helpStatsHeader}>
-              <div className={styles.helpStatsHeaderItem}>Hoje</div>
-              <div className={styles.helpStatsHeaderItem}>Mês Atual</div>
-              <div className={styles.helpStatsHeaderItem}>Mês Anterior</div>
-            </div>
             <div className={styles.helpStatsExpanded}>
               <div className={styles.helpStatMain}>
                 <div className={styles.helpStatIcon}>
@@ -656,11 +651,6 @@ export default function ProfileAnalystPage({ user }) {
             </div>
 
             {/* RFC's */}
-            <div className={styles.helpStatsHeader}>
-              <div className={styles.helpStatsHeaderItem}>Hoje</div>
-              <div className={styles.helpStatsHeaderItem}>Mês Atual</div>
-              <div className={styles.helpStatsHeaderItem}>Mês Anterior</div>
-            </div>
             <div className={styles.helpStatsExpanded}>
               <div className={styles.helpStatMain}>
                 <div className={styles.helpStatIcon}>

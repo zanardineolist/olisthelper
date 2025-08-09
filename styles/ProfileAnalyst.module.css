@@ -278,6 +278,12 @@
   font-size: 0.9rem;
 }
 
+/* Cabeçalho fixo único acima de todo o bloco */
+.helpStatsHeader.global {
+  margin-top: -4px;
+  margin-bottom: 12px;
+}
+
 .helpStatMain {
   display: flex;
   align-items: center;
