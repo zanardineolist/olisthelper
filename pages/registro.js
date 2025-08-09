@@ -316,17 +316,26 @@ export default function RegistroPage({ user }) {
 
   const copiarFechamento = async () => {
     try {
-      await navigator.clipboard.writeText(fechamentoTexto);
-      if (typeof window !== 'undefined' && window.Swal) {
-        const Toast = window.Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
-        Toast.fire({ icon: 'success', title: 'Copiado!' });
+      // Tenta API moderna
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(fechamentoTexto);
+        toast.success('Fechamento copiado');
+        return;
       }
+      // Fallback (navegadores antigos)
+      const textarea = document.createElement('textarea');
+      textarea.value = fechamentoTexto;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'absolute';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      toast.success('Fechamento copiado');
     } catch (e) {
       console.error('Erro ao copiar:', e);
-      if (typeof window !== 'undefined' && window.Swal) {
-        const Toast = window.Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
-        Toast.fire({ icon: 'error', title: 'Não foi possível copiar.' });
-      }
+      toast.error('Não foi possível copiar.');
     }
   };
 
