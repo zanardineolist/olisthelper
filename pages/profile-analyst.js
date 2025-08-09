@@ -682,80 +682,9 @@ export default function ProfileAnalystPage({ user }) {
               </div>
             </div>
 
-            {/* Linha única de variações: Ajudas, Chamados, RFCs */}
-            <div className={styles.trendRow}>
-              {/* Ajudas */}
-              <div className={styles.trendItem}>
-                <div className={`${styles.trendValue} ${(() => {
-                  const pct = helpRequests.lastMonth > 0 ? ((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100 : 0;
-                  return pct > 0 ? styles.positive : pct < 0 ? styles.negative : styles.neutral;
-                })()}`}>
-                  <i className={`fa-solid ${(() => {
-                    const pct = helpRequests.lastMonth > 0 ? ((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100 : 0;
-                    return pct > 0 ? 'fa-trending-up' : pct < 0 ? 'fa-trending-down' : 'fa-minus';
-                  })()} ${styles.metricTrendIcon} helps`}></i>
-                  <span>
-                    {helpRequests.lastMonth > 0 ? Math.abs(((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100).toFixed(1) : '0.0'}%
-                  </span>
-                </div>
-                <span className={styles.trendLabel}>Ajudas</span>
-              </div>
+            {/* Removida a linha única de variações para evitar duplicidade e informação excessiva */}
 
-              {/* Chamados */}
-              <div className={styles.trendItem}>
-                <div className={`${styles.trendValue} ${(() => {
-                  const pct = countersSummary.lastMonth.calls > 0 ? ((countersSummary.currentMonth.calls - countersSummary.lastMonth.calls) / countersSummary.lastMonth.calls) * 100 : 0;
-                  return pct > 0 ? styles.positive : pct < 0 ? styles.negative : styles.neutral;
-                })()}`}>
-                  <i className={`fa-solid ${(() => {
-                    const pct = countersSummary.lastMonth.calls > 0 ? ((countersSummary.currentMonth.calls - countersSummary.lastMonth.calls) / countersSummary.lastMonth.calls) * 100 : 0;
-                    return pct > 0 ? 'fa-trending-up' : pct < 0 ? 'fa-trending-down' : 'fa-minus';
-                  })()} ${styles.metricTrendIcon} calls`}></i>
-                  <span>
-                    {countersSummary.lastMonth.calls > 0 ? Math.abs(((countersSummary.currentMonth.calls - countersSummary.lastMonth.calls) / countersSummary.lastMonth.calls) * 100).toFixed(1) : '0.0'}%
-                  </span>
-                </div>
-                <span className={styles.trendLabel}>Chamados</span>
-              </div>
-
-              {/* RFCs */}
-              <div className={styles.trendItem}>
-                <div className={`${styles.trendValue} ${(() => {
-                  const pct = countersSummary.lastMonth.rfcs > 0 ? ((countersSummary.currentMonth.rfcs - countersSummary.lastMonth.rfcs) / countersSummary.lastMonth.rfcs) * 100 : 0;
-                  return pct > 0 ? styles.positive : pct < 0 ? styles.negative : styles.neutral;
-                })()}`}>
-                  <i className={`fa-solid ${(() => {
-                    const pct = countersSummary.lastMonth.rfcs > 0 ? ((countersSummary.currentMonth.rfcs - countersSummary.lastMonth.rfcs) / countersSummary.lastMonth.rfcs) * 100 : 0;
-                    return pct > 0 ? 'fa-trending-up' : pct < 0 ? 'fa-trending-down' : 'fa-minus';
-                  })()} ${styles.metricTrendIcon} rfcs`}></i>
-                  <span>
-                    {countersSummary.lastMonth.rfcs > 0 ? Math.abs(((countersSummary.currentMonth.rfcs - countersSummary.lastMonth.rfcs) / countersSummary.lastMonth.rfcs) * 100).toFixed(1) : '0.0'}%
-                  </span>
-                </div>
-                <span className={styles.trendLabel}>RFC's</span>
-              </div>
-            </div>
-
-            <div className={styles.trendIndicator}>
-              <div className={`${styles.trendValue} ${(() => {
-                const percentageChange = helpRequests.lastMonth > 0 ? 
-                  ((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100 : 0;
-                return percentageChange > 0 ? styles.positive : percentageChange < 0 ? styles.negative : styles.neutral;
-              })()}`}>
-                <i className={`fa-solid ${(() => {
-                  const percentageChange = helpRequests.lastMonth > 0 ? 
-                    ((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100 : 0;
-                  return percentageChange > 0 ? 'fa-trending-up' : percentageChange < 0 ? 'fa-trending-down' : 'fa-minus';
-                })()} ${styles.metricTrendIcon} helps`}></i>
-                <span>
-                  {helpRequests.lastMonth > 0 ? 
-                    Math.abs(((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100).toFixed(1) : 
-                    '0.0'
-                  }%
-                </span>
-              </div>
-              <span className={styles.trendLabel}>Variação Mensal</span>
-            </div>
+            {/* Removido bloco isolado de variação mensal para evitar duplicidade */}
           </div>
         </section>
 
