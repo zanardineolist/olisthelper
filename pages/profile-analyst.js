@@ -593,7 +593,7 @@ export default function ProfileAnalystPage({ user }) {
 
             <div className={styles.helpStatsExpanded}>
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon}>
+                <div className={styles.helpStatIcon} title="Ajudas prestadas hoje">
                   <i className="fa-solid fa-calendar-day"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -602,7 +602,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
               
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon}>
+                <div className={styles.helpStatIcon} title="Ajudas prestadas no mês atual">
                   <i className="fa-solid fa-calendar"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -611,7 +611,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
               
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon}>
+                <div className={styles.helpStatIcon} title="Ajudas prestadas no mês anterior">
                   <i className="fa-solid fa-calendar-xmark"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -623,7 +623,7 @@ export default function ProfileAnalystPage({ user }) {
             {/* Chamados */}
             <div className={styles.helpStatsExpanded}>
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon}>
+                <div className={styles.helpStatIcon} title="Chamados resolvidos hoje">
                   <i className="fa-solid fa-ticket"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -632,7 +632,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
 
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon}>
+                <div className={styles.helpStatIcon} title="Chamados resolvidos no mês atual">
                   <i className="fa-solid fa-ticket"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -641,7 +641,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
 
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon}>
+                <div className={styles.helpStatIcon} title="Chamados resolvidos no mês anterior">
                   <i className="fa-solid fa-ticket"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -653,7 +653,7 @@ export default function ProfileAnalystPage({ user }) {
             {/* RFC's */}
             <div className={styles.helpStatsExpanded}>
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon}>
+                <div className={styles.helpStatIcon} title="RFC's registrados hoje">
                   <i className="fa-solid fa-comments"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -662,7 +662,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
 
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon}>
+                <div className={styles.helpStatIcon} title="RFC's registrados no mês atual">
                   <i className="fa-solid fa-comments"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -671,7 +671,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
 
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon}>
+                <div className={styles.helpStatIcon} title="RFC's registrados no mês anterior">
                   <i className="fa-solid fa-comments"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -683,7 +683,7 @@ export default function ProfileAnalystPage({ user }) {
             {/* Linha de variação mensal (Ajudas, Chamados e RFC's) */}
             <div className={styles.trendRow}>
               {/* Ajudas */}
-              <div className={styles.trendItem}>
+              <div className={styles.trendItem} title="Variação mensal de Ajudas (mês atual vs mês anterior)">
                 <div className={`${styles.trendValue} ${(() => {
                   const pct = helpRequests.lastMonth > 0
                     ? ((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100
@@ -706,7 +706,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
 
               {/* Chamados */}
-              <div className={styles.trendItem}>
+              <div className={styles.trendItem} title="Variação mensal de Chamados (mês atual vs mês anterior)">
                 <div className={`${styles.trendValue} ${(() => {
                   const pct = countersSummary.lastMonth.calls > 0
                     ? ((countersSummary.currentMonth.calls - countersSummary.lastMonth.calls) / countersSummary.lastMonth.calls) * 100
@@ -729,7 +729,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
 
               {/* RFC's */}
-              <div className={styles.trendItem}>
+              <div className={styles.trendItem} title="Variação mensal de RFC's (mês atual vs mês anterior)">
                 <div className={`${styles.trendValue} ${(() => {
                   const pct = countersSummary.lastMonth.rfcs > 0
                     ? ((countersSummary.currentMonth.rfcs - countersSummary.lastMonth.rfcs) / countersSummary.lastMonth.rfcs) * 100

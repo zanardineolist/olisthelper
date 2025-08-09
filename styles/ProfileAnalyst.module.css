@@ -272,7 +272,7 @@
 }
 
 .helpStatsHeaderItem {
-  text-align: center;
+  text-align: left;
   color: var(--text-secondary);
   font-weight: 600;
   font-size: 0.9rem;
