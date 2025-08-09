@@ -7,6 +7,8 @@ import {
   supabaseAdmin
 } from '../../utils/supabase/supabaseClient';
 import { logAction } from '../../utils/firebase/firebaseLogging';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -25,6 +27,25 @@ export default async function handler(req, res) {
   const isUserValid = reqUser && reqUser.id && reqUser.name && reqUser.role;
 
   try {
+    // Requer sessão e permissão para gerenciar categorias (admin ou can_register_help)
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.id) {
+      return res.status(401).json({ error: 'Não autorizado' });
+    }
+    // Buscar permissões do usuário
+    const { data: me, error: meErr } = await supabaseAdmin
+      .from('users')
+      .select('id, admin, can_register_help')
+      .eq('id', session.id)
+      .single();
+    if (meErr || !me) {
+      return res.status(403).json({ error: 'Proibido' });
+    }
+    const canManage = !!(me.admin || me.can_register_help);
+    if (!canManage) {
+      return res.status(403).json({ error: 'Proibido' });
+    }
+
     switch (method) {
       case 'GET':
         try {
@@ -88,7 +109,7 @@ export default async function handler(req, res) {
         }
 
         try {
-          const createdCategory = await createCategory(newCategoryName.trim(), userId);
+          const createdCategory = await createCategory(newCategoryName.trim(), userId || session.id);
           if (!createdCategory) {
             return res.status(500).json({ 
               error: 'Erro interno do servidor ao criar categoria. Tente novamente em alguns instantes.' 
@@ -97,9 +118,9 @@ export default async function handler(req, res) {
 
           if (isUserValid) {
             await logAction(
-              reqUser.id,
-              reqUser.name,
-              reqUser.role,
+              session.id,
+              reqUser?.name || 'unknown',
+              reqUser?.role || 'unknown',
               'create_category',
               'Categoria',
               null,
@@ -169,7 +190,7 @@ export default async function handler(req, res) {
             });
           }
 
-          const updatedCategory = await updateCategory(categoryUuid, updatedName.trim(), userId);
+          const updatedCategory = await updateCategory(categoryUuid, updatedName.trim(), userId || session.id);
           if (!updatedCategory) {
             return res.status(500).json({ 
               error: 'Erro interno do servidor ao atualizar categoria. Tente novamente em alguns instantes.' 
@@ -178,9 +199,9 @@ export default async function handler(req, res) {
 
           if (isUserValid) {
             await logAction(
-              reqUser.id,
-              reqUser.name,
-              reqUser.role,
+              session.id,
+              reqUser?.name || 'unknown',
+              reqUser?.role || 'unknown',
               'update_category',
               'Categoria',
               { categoryName: existingCategory.name },
@@ -233,7 +254,7 @@ export default async function handler(req, res) {
             });
           }
 
-          const deleted = await deleteCategory(categoryToDelete.id, userId);
+          const deleted = await deleteCategory(categoryToDelete.id, userId || session.id);
           if (!deleted) {
             return res.status(500).json({ 
               error: 'Erro interno do servidor ao excluir categoria. Tente novamente em alguns instantes.' 
@@ -242,9 +263,9 @@ export default async function handler(req, res) {
 
           if (isUserValid) {
             await logAction(
-              reqUser.id,
-              reqUser.name,
-              reqUser.role,
+              session.id,
+              reqUser?.name || 'unknown',
+              reqUser?.role || 'unknown',
               'delete_category',
               'Categoria',
               { categoryName: categoryToDelete.name },

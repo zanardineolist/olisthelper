@@ -1,5 +1,7 @@
 // pages/api/register-analyst-help.js
 import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -24,6 +26,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Exigir sessão e validar vínculo com analystId
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.id) {
+      return res.status(401).json({ error: 'Não autorizado' });
+    }
+    if (session.id !== analystId) {
+      return res.status(403).json({ error: 'Proibido' });
+    }
+
     // Buscar o ID da categoria pelo nome
     const { data: categoryData, error: categoryError } = await supabaseAdmin
       .from('categories')

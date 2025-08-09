@@ -1,5 +1,7 @@
 // pages/api/get-users.js
 import { createClient } from '@supabase/supabase-js';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -12,6 +14,26 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Exigir sessão e checar permissão (admin)
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.id) {
+      return res.status(401).json({ error: 'Não autorizado' });
+    }
+
+    const { data: me, error: meErr } = await supabase
+      .from('users')
+      .select('id, admin, profile')
+      .eq('id', session.id)
+      .single();
+    if (meErr || !me) {
+      return res.status(403).json({ error: 'Proibido' });
+    }
+    const allowedProfiles = ['analyst', 'tax'];
+    const isAllowed = me.admin || allowedProfiles.includes((me.profile || '').toLowerCase());
+    if (!isAllowed) {
+      return res.status(403).json({ error: 'Proibido' });
+    }
+
     // Buscar usuários e dados de performance para obter supervisores
     const [usersResult, performanceResult] = await Promise.all([
       supabase

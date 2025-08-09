@@ -19,6 +19,11 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'ID do analista é obrigatório' });
     }
 
+    // Garantir que o usuário só acesse seus próprios registros
+    if (session.id !== analystId) {
+      return res.status(403).json({ error: 'Proibido' });
+    }
+
     // Buscar os últimos três registros do analista
     const { data: recentHelps, error } = await supabaseAdmin
       .from('help_records')

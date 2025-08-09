@@ -1,12 +1,14 @@
 // pages/api/manage-records.js
 import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
 import { logAction } from '../../utils/firebase/firebaseLogging';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 
 export default async function handler(req, res) {
   const { method } = req;
   const { userId } = req.query;
 
-  // Extrair informações do usuário dos cookies
+  // Extrair informações do usuário dos cookies (apenas para logging)
   const requesterId = req.cookies['user-id'];
   const requesterName = req.cookies['user-name'];
   const requesterRole = req.cookies['user-role'];
@@ -26,9 +28,19 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Validar sessão e associação ao userId informado
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.id) {
+      return res.status(401).json({ error: 'Não autorizado' });
+    }
+
     switch (method) {
       case 'GET':
         try {
+          // Somente o próprio analista pode listar seus registros
+          if (session.id !== userId) {
+            return res.status(403).json({ error: 'Proibido' });
+          }
           const { data: records, error: fetchRecordsError } = await supabaseAdmin
             .from('help_records')
             .select(`
@@ -118,6 +130,19 @@ export default async function handler(req, res) {
         }
 
         try {
+          // Validar propriedade do registro antes de atualizar
+          const { data: ownerCheck, error: ownerErr } = await supabaseAdmin
+            .from('help_records')
+            .select('analyst_id')
+            .eq('id', recordId)
+            .single();
+          if (ownerErr || !ownerCheck) {
+            return res.status(404).json({ error: 'Registro não encontrado.' });
+          }
+          if (ownerCheck.analyst_id !== session.id) {
+            return res.status(403).json({ error: 'Proibido' });
+          }
+
           // Buscar categoria pelo nome
           const { data: categoryData, error: categoryError } = await supabaseAdmin
             .from('categories')
@@ -210,6 +235,22 @@ export default async function handler(req, res) {
         }
 
         try {
+          // Validar propriedade do registro antes de deletar
+          const { data: ownerCheck, error: ownerErr } = await supabaseAdmin
+            .from('help_records')
+            .select('analyst_id')
+            .eq('id', deleteId)
+            .single();
+
+          if (ownerErr || !ownerCheck) {
+            return res.status(404).json({ 
+              error: 'Registro não encontrado. O registro pode ter sido removido anteriormente.' 
+            });
+          }
+          if (ownerCheck.analyst_id !== session.id) {
+            return res.status(403).json({ error: 'Proibido' });
+          }
+
           // Buscar registro antes de deletar para logging
           const { data: recordToDelete, error: fetchDeleteError } = await supabaseAdmin
             .from('help_records')

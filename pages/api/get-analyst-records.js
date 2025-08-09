@@ -1,4 +1,6 @@
 import { getAnalystRecords, getAnalystLeaderboard, getCategoryRanking } from '../../utils/supabase/helpQueries';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
 
 export default async function handler(req, res) {
   const { 
@@ -13,6 +15,19 @@ export default async function handler(req, res) {
 
   if (!analystId) {
     return res.status(400).json({ error: 'ID do analista é obrigatório' });
+  }
+
+  // Garantir que o usuário só acesse seus próprios dados, a menos que tenhamos um modo especial no futuro
+  try {
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.id) {
+      return res.status(401).json({ error: 'Não autorizado' });
+    }
+    if (session.id !== analystId) {
+      return res.status(403).json({ error: 'Proibido' });
+    }
+  } catch (e) {
+    return res.status(500).json({ error: 'Erro na validação de sessão' });
   }
   
   // Validar datas se fornecidas
