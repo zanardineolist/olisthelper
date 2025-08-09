@@ -89,6 +89,13 @@ export default function RegistroPage({ user }) {
   const [newCategory, setNewCategory] = useState('');
   const [savingCategory, setSavingCategory] = useState(false);
 
+  // Modal de novo usuário
+  const [userModalOpen, setUserModalOpen] = useState(false);
+  const [newUserName, setNewUserName] = useState('');
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserProfile, setNewUserProfile] = useState('analyst');
+  const [savingUser, setSavingUser] = useState(false);
+
   // Carregar usuários e categorias
   useEffect(() => {
     const loadUsersAndCategories = async () => {
@@ -492,6 +499,62 @@ export default function RegistroPage({ user }) {
 
   const handleNewCategoryChange = (e) => {
     setNewCategory(e.target.value);
+  };
+
+  // Funções do modal de novo usuário
+  const openUserModal = () => {
+    setNewUserName('');
+    setNewUserEmail('');
+    setNewUserProfile('analyst');
+    setUserModalOpen(true);
+  };
+
+  const closeUserModal = () => setUserModalOpen(false);
+
+  const handleSaveUser = async () => {
+    const name = newUserName.trim();
+    const email = newUserEmail.trim().toLowerCase();
+    const profile = newUserProfile;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!name || !email || !profile) {
+      Swal.fire({ icon: 'error', title: 'Erro', text: 'Preencha nome, e-mail e perfil.' });
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      Swal.fire({ icon: 'error', title: 'E-mail inválido', text: 'Informe um e-mail válido.' });
+      return;
+    }
+    try {
+      setSavingUser(true);
+      const res = await fetch('/api/manage-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, profile }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.error || 'Falha ao criar usuário');
+      }
+      // Recarregar lista de usuários e selecionar o novo
+      const usersRes = await fetch('/api/get-users');
+      const usersData = await usersRes.json();
+      setUsers(usersData.users);
+      const createdId = data?.id;
+      const created = usersData.users.find(u => u.id === createdId) || usersData.users.find(u => u.email?.toLowerCase() === email);
+      if (created) {
+        setFormData(prev => ({
+          ...prev,
+          user: { value: created.id, label: created.name, email: created.email },
+        }));
+      }
+      setUserModalOpen(false);
+      Swal.fire({ icon: 'success', title: 'Usuário adicionado', timer: 1500, showConfirmButton: false });
+    } catch (e) {
+      console.error('Novo usuário:', e);
+      Swal.fire({ icon: 'error', title: 'Erro', text: String(e.message || e) });
+    } finally {
+      setSavingUser(false);
+    }
   };
 
   const handleSaveCategory = async () => {
@@ -972,7 +1035,16 @@ const customSelectStyles = {
           ) : (
             <form onSubmit={handleSubmit}>
               <div className={styles.formGroup}>
-                <label htmlFor="user">Selecione o usuário</label>
+                <div className={styles.categoryHeader}>
+                  <label htmlFor="user">Selecione o usuário</label>
+                  <button
+                    type="button"
+                    className={styles.newCategoryButton}
+                    onClick={openUserModal}
+                  >
+                    <i className="fa-solid fa-plus"></i> Novo usuário
+                  </button>
+                </div>
                 <Select
                   id="user"
                   name="user"
@@ -1276,6 +1348,57 @@ const customSelectStyles = {
             {savingCategory ? 'Salvando...' : 'Adicionar Categoria'}
           </button>
           <button onClick={closeCategoryModal} className={managerStyles.cancelButton}>
+            Cancelar
+          </button>
+        </div>
+      </Modal>
+
+      {/* Modal para adicionar novo usuário */}
+      <Modal
+        isOpen={userModalOpen}
+        onRequestClose={closeUserModal}
+        contentLabel="Adicionar Novo Usuário"
+        className={managerStyles.modal}
+        overlayClassName={managerStyles.overlay}
+        ariaHideApp={false}
+      >
+        <h2 className={managerStyles.modalTitle}>Adicionar Novo Usuário</h2>
+        <div className={managerStyles.formContainer}>
+          <input
+            type="text"
+            value={newUserName}
+            placeholder="Nome"
+            className={managerStyles.inputField}
+            onChange={(e) => setNewUserName(e.target.value)}
+            required
+            autoComplete="off"
+          />
+          <input
+            type="email"
+            value={newUserEmail}
+            placeholder="E-mail"
+            className={managerStyles.inputField}
+            onChange={(e) => setNewUserEmail(e.target.value)}
+            required
+            autoComplete="off"
+          />
+          <select
+            value={newUserProfile}
+            onChange={(e) => setNewUserProfile(e.target.value)}
+            className={managerStyles.inputField}
+          >
+            <option value="analyst">Analyst</option>
+            <option value="tax">Tax</option>
+            <option value="support">Support</option>
+          </select>
+          <button
+            onClick={handleSaveUser}
+            disabled={savingUser}
+            className={managerStyles.saveButton}
+          >
+            {savingUser ? 'Salvando...' : 'Adicionar Usuário'}
+          </button>
+          <button onClick={closeUserModal} className={managerStyles.cancelButton}>
             Cancelar
           </button>
         </div>
