@@ -25,26 +25,53 @@ export default function RegistroPage({ user }) {
   const [recentHelps, setRecentHelps] = useState([]);
   // Contadores
   const [selectedDate, setSelectedDate] = useState(() => {
-    const now = new Date();
-    // Ajuste para America/Sao_Paulo (UTC-3 aprox; para precisão maior considerar Intl)
-    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-    const saoPaulo = new Date(utc - 3 * 60 * 60 * 1000);
-    return saoPaulo.toISOString().slice(0, 10);
+    // Usa Intl para obter data local em America/Sao_Paulo
+    try {
+      const fmt = new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' });
+      const parts = fmt.formatToParts(new Date());
+      const y = parts.find(p => p.type === 'year')?.value;
+      const m = parts.find(p => p.type === 'month')?.value;
+      const d = parts.find(p => p.type === 'day')?.value;
+      return `${y}-${m}-${d}`;
+    } catch {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const saoPaulo = new Date(utc - 3 * 60 * 60 * 1000);
+      return saoPaulo.toISOString().slice(0, 10);
+    }
   });
   const [counters, setCounters] = useState({ calls: 0, rfcs: 0, helps: 0 });
   const [savingCounters, setSavingCounters] = useState(false);
   // Histórico
   const [historyStart, setHistoryStart] = useState(() => {
-    const now = new Date();
-    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-    const saoPaulo = new Date(utc - 3 * 60 * 60 * 1000);
-    return saoPaulo.toISOString().slice(0, 10);
+    try {
+      const fmt = new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' });
+      const parts = fmt.formatToParts(new Date());
+      const y = parts.find(p => p.type === 'year')?.value;
+      const m = parts.find(p => p.type === 'month')?.value;
+      const d = parts.find(p => p.type === 'day')?.value;
+      return `${y}-${m}-${d}`;
+    } catch {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const saoPaulo = new Date(utc - 3 * 60 * 60 * 1000);
+      return saoPaulo.toISOString().slice(0, 10);
+    }
   });
   const [historyEnd, setHistoryEnd] = useState(() => {
-    const now = new Date();
-    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-    const saoPaulo = new Date(utc - 3 * 60 * 60 * 1000);
-    return saoPaulo.toISOString().slice(0, 10);
+    try {
+      const fmt = new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' });
+      const parts = fmt.formatToParts(new Date());
+      const y = parts.find(p => p.type === 'year')?.value;
+      const m = parts.find(p => p.type === 'month')?.value;
+      const d = parts.find(p => p.type === 'day')?.value;
+      return `${y}-${m}-${d}`;
+    } catch {
+      const now = new Date();
+      const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+      const saoPaulo = new Date(utc - 3 * 60 * 60 * 1000);
+      return saoPaulo.toISOString().slice(0, 10);
+    }
   });
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyRecords, setHistoryRecords] = useState([]);
@@ -1027,9 +1054,35 @@ const customSelectStyles = {
 
               <div className={styles.section}>
                 <div className={styles.presetChips}>
-                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d); s.setDate(d.getDate()-6); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); fetchHistory(); }}>Últimos 7 dias</button>
-                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d.getFullYear(), d.getMonth(), 1); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(d.toISOString().slice(0,10)); fetchHistory(); }}>Este mês</button>
-                  <button type="button" className={styles.chip} onClick={() => { const d=new Date(); const s=new Date(d.getFullYear(), d.getMonth()-1, 1); const e=new Date(d.getFullYear(), d.getMonth(), 0); setHistoryStart(s.toISOString().slice(0,10)); setHistoryEnd(e.toISOString().slice(0,10)); fetchHistory(); }}>Mês passado</button>
+                  <button type="button" className={styles.chip} onClick={() => {
+                    const tz = 'America/Sao_Paulo';
+                    const now = new Date();
+                    const sixDaysAgo = new Date(now);
+                    sixDaysAgo.setDate(now.getDate() - 6);
+                    const fmt = (d) => new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+                    setHistoryStart(fmt(sixDaysAgo));
+                    setHistoryEnd(fmt(now));
+                    fetchHistory();
+                  }}>Últimos 7 dias</button>
+                  <button type="button" className={styles.chip} onClick={() => {
+                    const tz = 'America/Sao_Paulo';
+                    const now = new Date();
+                    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const fmt = (d) => new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+                    setHistoryStart(fmt(start));
+                    setHistoryEnd(fmt(now));
+                    fetchHistory();
+                  }}>Este mês</button>
+                  <button type="button" className={styles.chip} onClick={() => {
+                    const tz = 'America/Sao_Paulo';
+                    const now = new Date();
+                    const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    const end = new Date(now.getFullYear(), now.getMonth(), 0);
+                    const fmt = (d) => new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+                    setHistoryStart(fmt(start));
+                    setHistoryEnd(fmt(end));
+                    fetchHistory();
+                  }}>Mês passado</button>
                 </div>
               </div>
 
