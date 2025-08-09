@@ -829,8 +829,7 @@ export default function RegistroPage({ user }) {
           timer: 1500,
         });
         setFormData({ user: null, category: null, description: '' });
-        // Incrementar contador de ajudas do dia e sincronizar tudo
-        await applyCounterDelta({ helps: 1 });
+        // Não aplicar delta aqui para evitar duplicidade, pois o trigger já incrementa helps_count
         await refreshAll();
       } else {
         Swal.fire({

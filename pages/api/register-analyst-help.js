@@ -47,8 +47,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Categoria não encontrada' });
     }
 
-    // Registrar a ajuda
-    const { error: insertError } = await supabaseAdmin
+    // Registrar a ajuda e retornar created_at
+    const { data: inserted, error: insertError } = await supabaseAdmin
       .from('help_records')
       .insert([{
         analyst_id: analystId,
@@ -56,11 +56,28 @@ export default async function handler(req, res) {
         requester_email: userEmail || '',
         category_id: categoryData.id,
         description
-      }]);
+      }])
+      .select()
+      .single();
 
     if (insertError) throw insertError;
 
-    res.status(200).json({ message: 'Ajuda registrada com sucesso.' });
+    // Derivar data (YYYY-MM-DD) em São Paulo a partir do created_at inserido
+    const createdAt = new Date(inserted.created_at);
+    const utcMs = createdAt.getTime() + createdAt.getTimezoneOffset() * 60000;
+    const saoPaulo = new Date(utcMs - 3 * 60 * 60 * 1000);
+    const dateStr = saoPaulo.toISOString().slice(0, 10);
+
+    // Obter contadores atualizados do dia (trigger já incrementou helps_count)
+    const { data: counter, error: counterErr } = await supabaseAdmin
+      .from('daily_counters')
+      .select('*')
+      .eq('analyst_id', analystId)
+      .eq('date', dateStr)
+      .maybeSingle();
+
+    // Responder com o record de contadores (se disponível)
+    res.status(200).json({ message: 'Ajuda registrada com sucesso.', counter: counter || null });
   } catch (error) {
     console.error('Erro ao registrar ajuda:', error);
     res.status(500).json({ error: 'Erro ao registrar a ajuda. Por favor, tente novamente.' });
