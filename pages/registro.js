@@ -1125,14 +1125,12 @@ const customSelectStyles = {
               <div className={styles.section}>
                 <div className={styles.dateRangeRow}>
                   <div className={styles.dateField}>
-                    <label>Início</label>
                     <div className={styles.dateInputWrapper}>
                       <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
                       <input type="date" value={historyStart} onChange={(e) => { setHistoryStart(e.target.value); fetchHistory(); }} className={styles.dateInput} />
                     </div>
                   </div>
                   <div className={styles.dateField}>
-                    <label>Fim</label>
                     <div className={styles.dateInputWrapper}>
                       <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
                       <input type="date" value={historyEnd} onChange={(e) => { setHistoryEnd(e.target.value); fetchHistory(); }} className={styles.dateInput} />

@@ -403,7 +403,7 @@
   color: var(--text-color);
   border: 1px solid var(--labels-border);
   border-radius: 6px;
-  padding: 10px 12px;
+  padding: 10px 14px; /* mais respiro para ícone */
 }
 
 .countersGrid {
@@ -465,7 +465,7 @@
 .dateRangeRow {
   display: grid;
   grid-template-columns: repeat(2, 1fr) auto;
-  gap: 12px;
+  gap: 16px; /* mais espaço entre campos */
   align-items: end;
 }
 
@@ -501,7 +501,16 @@
 .dateField {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px; /* remover rótulo, reduz o espaço vertical */
+}
+.dateInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* aumenta o gap do ícone de calendário */
+}
+
+.dateIcon {
+  color: var(--text-color2);
 }
 
 .historyContainer {
@@ -527,23 +536,26 @@
 }
 
 .historyItem {
-  background: var(--box-color);
+  background: var(--labels-bg);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 12px;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 14px 16px;
 }
 
 .historyDate {
-  color: var(--text-color);
-  font-weight: 600;
+  color: var(--title-color);
+  font-weight: 700;
 }
 
 .historyCounts {
   display: flex;
-  gap: 14px;
-  color: var(--text-color2);
+  gap: 18px;
+  color: var(--text-color);
+  justify-content: center;
+  align-items: center;
 }
 
 .copyBox {
