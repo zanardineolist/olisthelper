@@ -682,8 +682,31 @@ export default function ProfileAnalystPage({ user }) {
               </div>
             </div>
 
-            {/* Linha de variação mensal (somente Chamados e RFC's) */}
+            {/* Linha de variação mensal (Ajudas, Chamados e RFC's) */}
             <div className={styles.trendRow}>
+              {/* Ajudas */}
+              <div className={styles.trendItem}>
+                <div className={`${styles.trendValue} ${(() => {
+                  const pct = helpRequests.lastMonth > 0
+                    ? ((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100
+                    : 0;
+                  return pct > 0 ? styles.positive : pct < 0 ? styles.negative : styles.neutral;
+                })()}`}>
+                  <i className={`fa-solid ${(() => {
+                    const pct = helpRequests.lastMonth > 0
+                      ? ((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100
+                      : 0;
+                    return pct > 0 ? 'fa-trending-up' : pct < 0 ? 'fa-trending-down' : 'fa-minus';
+                  })()} ${styles.metricTrendIcon} helps`}></i>
+                  <span>
+                    {helpRequests.lastMonth > 0
+                      ? Math.abs(((helpRequests.currentMonth - helpRequests.lastMonth) / helpRequests.lastMonth) * 100).toFixed(1)
+                      : '0.0'}%
+                  </span>
+                </div>
+                <span className={styles.trendLabel}>Ajudas</span>
+              </div>
+
               {/* Chamados */}
               <div className={styles.trendItem}>
                 <div className={`${styles.trendValue} ${(() => {
