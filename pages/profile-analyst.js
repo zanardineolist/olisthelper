@@ -330,6 +330,11 @@ const CategoryRanking = ({ categories, loading }) => {
 export default function ProfileAnalystPage({ user }) {
   const [greeting, setGreeting] = useState('');
   const [helpRequests, setHelpRequests] = useState({ currentMonth: 0, lastMonth: 0, today: 0 });
+  const [countersSummary, setCountersSummary] = useState({
+    today: { calls: 0, rfcs: 0 },
+    currentMonth: { calls: 0, rfcs: 0 },
+    lastMonth: { calls: 0, rfcs: 0 },
+  });
   const [performanceData, setPerformanceData] = useState(null);
   const [categoryRanking, setCategoryRanking] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -393,6 +398,44 @@ export default function ProfileAnalystPage({ user }) {
             ...performanceDataResult,
             totalAjudas: helpData.currentMonth
           });
+        }
+
+        // Buscar totais de Chamados e RFCs (hoje, mês atual e mês anterior)
+        try {
+          const tz = 'America/Sao_Paulo';
+          const fmt = (d) => new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+          const now = new Date();
+          const today = fmt(now);
+          const startMonth = fmt(new Date(now.getFullYear(), now.getMonth(), 1));
+          const startLast = fmt(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+          const endLast = fmt(new Date(now.getFullYear(), now.getMonth(), 0));
+
+          const [todayRes, monthRes, lastRes] = await Promise.all([
+            fetch(`/api/daily-counters?analystId=${user.id}&startDate=${today}&endDate=${today}`),
+            fetch(`/api/daily-counters?analystId=${user.id}&startDate=${startMonth}&endDate=${today}`),
+            fetch(`/api/daily-counters?analystId=${user.id}&startDate=${startLast}&endDate=${endLast}`),
+          ]);
+
+          const safeTotals = async (res) => {
+            try {
+              if (!res || !res.ok) return { calls: 0, rfcs: 0 };
+              const data = await res.json();
+              const t = data?.totals || {};
+              return { calls: t.calls || 0, rfcs: t.rfcs || 0 };
+            } catch {
+              return { calls: 0, rfcs: 0 };
+            }
+          };
+
+          const [tTotals, mTotals, lTotals] = await Promise.all([
+            safeTotals(todayRes),
+            safeTotals(monthRes),
+            safeTotals(lastRes),
+          ]);
+
+          setCountersSummary({ today: tTotals, currentMonth: mTotals, lastMonth: lTotals });
+        } catch (e) {
+          console.error('Erro ao buscar totais de chamados/RFCs:', e);
         }
       } catch (error) {
         console.error('Erro ao buscar dados:', error);
@@ -569,6 +612,72 @@ export default function ProfileAnalystPage({ user }) {
                 <div className={styles.helpStatContent}>
                   <span className={styles.helpStatValue}>{helpRequests.lastMonth}</span>
                   <span className={styles.helpStatLabel}>Mês Anterior</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Chamados */}
+            <div className={styles.helpStatsExpanded}>
+              <div className={styles.helpStatMain}>
+                <div className={styles.helpStatIcon}>
+                  <i className="fa-solid fa-ticket"></i>
+                </div>
+                <div className={styles.helpStatContent}>
+                  <span className={styles.helpStatValue}>{countersSummary.today.calls}</span>
+                  <span className={styles.helpStatLabel}>Chamados (Hoje)</span>
+                </div>
+              </div>
+
+              <div className={styles.helpStatMain}>
+                <div className={styles.helpStatIcon}>
+                  <i className="fa-solid fa-ticket"></i>
+                </div>
+                <div className={styles.helpStatContent}>
+                  <span className={styles.helpStatValue}>{countersSummary.currentMonth.calls}</span>
+                  <span className={styles.helpStatLabel}>Chamados (Mês Atual)</span>
+                </div>
+              </div>
+
+              <div className={styles.helpStatMain}>
+                <div className={styles.helpStatIcon}>
+                  <i className="fa-solid fa-ticket"></i>
+                </div>
+                <div className={styles.helpStatContent}>
+                  <span className={styles.helpStatValue}>{countersSummary.lastMonth.calls}</span>
+                  <span className={styles.helpStatLabel}>Chamados (Mês Anterior)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* RFC's */}
+            <div className={styles.helpStatsExpanded}>
+              <div className={styles.helpStatMain}>
+                <div className={styles.helpStatIcon}>
+                  <i className="fa-solid fa-comments"></i>
+                </div>
+                <div className={styles.helpStatContent}>
+                  <span className={styles.helpStatValue}>{countersSummary.today.rfcs}</span>
+                  <span className={styles.helpStatLabel}>RFC's (Hoje)</span>
+                </div>
+              </div>
+
+              <div className={styles.helpStatMain}>
+                <div className={styles.helpStatIcon}>
+                  <i className="fa-solid fa-comments"></i>
+                </div>
+                <div className={styles.helpStatContent}>
+                  <span className={styles.helpStatValue}>{countersSummary.currentMonth.rfcs}</span>
+                  <span className={styles.helpStatLabel}>RFC's (Mês Atual)</span>
+                </div>
+              </div>
+
+              <div className={styles.helpStatMain}>
+                <div className={styles.helpStatIcon}>
+                  <i className="fa-solid fa-comments"></i>
+                </div>
+                <div className={styles.helpStatContent}>
+                  <span className={styles.helpStatValue}>{countersSummary.lastMonth.rfcs}</span>
+                  <span className={styles.helpStatLabel}>RFC's (Mês Anterior)</span>
                 </div>
               </div>
             </div>
