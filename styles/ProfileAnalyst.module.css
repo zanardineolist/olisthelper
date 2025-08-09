@@ -352,6 +352,25 @@
   color: var(--good-color) !important; /* amarelo/âmbar */
 }
 
+/* Linha de variações lado a lado */
+.trendRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.trendItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--neutral-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
 /* ===== SEÇÃO 2: PERFORMANCE ===== */
 .performanceSection {
   margin-bottom: 3rem;
