@@ -593,7 +593,7 @@ export default function ProfileAnalystPage({ user }) {
 
             <div className={styles.helpStatsExpanded}>
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon} title="Ajudas hoje">
+                <div className={`${styles.helpStatIcon} ${styles.iconHelps}`} title="Ajudas hoje">
                   <i className="fa-solid fa-calendar-day"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -602,7 +602,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
               
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon} title="Ajudas no mês atual">
+                <div className={`${styles.helpStatIcon} ${styles.iconHelps}`} title="Ajudas no mês atual">
                   <i className="fa-solid fa-calendar"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -611,7 +611,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
               
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon} title="Ajudas no mês anterior">
+                <div className={`${styles.helpStatIcon} ${styles.iconHelps}`} title="Ajudas no mês anterior">
                   <i className="fa-solid fa-calendar-xmark"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -623,7 +623,7 @@ export default function ProfileAnalystPage({ user }) {
             {/* Chamados */}
             <div className={styles.helpStatsExpanded}>
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon} title="Chamados hoje">
+                <div className={`${styles.helpStatIcon} ${styles.iconCalls}`} title="Chamados hoje">
                   <i className="fa-solid fa-ticket"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -632,7 +632,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
 
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon} title="Chamados no mês atual">
+                <div className={`${styles.helpStatIcon} ${styles.iconCalls}`} title="Chamados no mês atual">
                   <i className="fa-solid fa-ticket"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -641,7 +641,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
 
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon} title="Chamados no mês anterior">
+                <div className={`${styles.helpStatIcon} ${styles.iconCalls}`} title="Chamados no mês anterior">
                   <i className="fa-solid fa-ticket"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -653,7 +653,7 @@ export default function ProfileAnalystPage({ user }) {
             {/* RFC's */}
             <div className={styles.helpStatsExpanded}>
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon} title="RFC's hoje">
+                <div className={`${styles.helpStatIcon} ${styles.iconRfcs}`} title="RFC's hoje">
                   <i className="fa-solid fa-comments"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -662,7 +662,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
 
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon} title="RFC's no mês atual">
+                <div className={`${styles.helpStatIcon} ${styles.iconRfcs}`} title="RFC's no mês atual">
                   <i className="fa-solid fa-comments"></i>
                 </div>
                 <div className={styles.helpStatContent}>
@@ -671,7 +671,7 @@ export default function ProfileAnalystPage({ user }) {
               </div>
 
               <div className={styles.helpStatMain}>
-                <div className={styles.helpStatIcon} title="RFC's no mês anterior">
+                <div className={`${styles.helpStatIcon} ${styles.iconRfcs}`} title="RFC's no mês anterior">
                   <i className="fa-solid fa-comments"></i>
                 </div>
                 <div className={styles.helpStatContent}>

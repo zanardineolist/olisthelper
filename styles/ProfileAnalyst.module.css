@@ -303,6 +303,19 @@
   font-size: 1.125rem;
 }
 
+/* Variações de cor por tipo de métrica */
+.iconHelps {
+  background: var(--color-primary) !important; /* azul */
+}
+
+.iconCalls {
+  background: var(--excellent-color) !important; /* verde */
+}
+
+.iconRfcs {
+  background: var(--good-color) !important; /* âmbar */
+}
+
 .helpStatContent {
   display: flex;
   flex-direction: column;
