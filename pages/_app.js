@@ -2,6 +2,7 @@
 import '../styles/globals.css';
 import '../styles/shared-messages/variables.css';
 import { SessionProvider, useSession } from 'next-auth/react';
+import { Toaster } from 'react-hot-toast';
 import { LoadingProvider } from '../components/LoadingIndicator';
 import { NotificationProvider } from '../contexts/NotificationContext';
 import { useRouter } from 'next/router';
@@ -38,6 +39,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
       <LoadingProvider>
         <NotificationProvider>
           <Component {...pageProps} />
+          <Toaster position="top-right" toastOptions={{ duration: 2500 }} />
         </NotificationProvider>
       </LoadingProvider>
     </SessionProvider>

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
+import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 import Layout from '../components/Layout';
 import { ThreeDotsLoader } from '../components/LoadingIndicator';
@@ -338,10 +339,10 @@ export default function RegistroPage({ user }) {
   };
 
   // Editar / Excluir registros - ações via toast
-  const toast = (title, icon = 'success', ms = 2200) => {
-    if (typeof window === 'undefined' || !window.Swal) return;
-    const Toast = window.Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: ms });
-    Toast.fire({ icon, title });
+  const notify = (message, type = 'success') => {
+    if (type === 'success') return toast.success(message);
+    if (type === 'error') return toast.error(message);
+    return toast(message);
   };
 
   const onDeleteRecord = async (recordId) => {
@@ -361,12 +362,12 @@ export default function RegistroPage({ user }) {
 
       const res = await fetch(`/api/manage-records?recordId=${encodeURIComponent(recordId)}&userId=${encodeURIComponent(user.id)}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Falha ao excluir');
-      toast('Registro excluído');
+      notify('Registro excluído', 'success');
       // Refresh completo (recentes, histórico, hoje)
       await refreshAll();
     } catch (e) {
       console.error('Excluir registro:', e);
-      toast('Erro ao excluir registro', 'error');
+      notify('Erro ao excluir registro', 'error');
     }
   };
 
@@ -395,11 +396,11 @@ export default function RegistroPage({ user }) {
       const body = { record: { id: record.id, name: record.requesterName || '—', email: record.requesterEmail || '—', category: record.category || '—', description: newDescription } };
       const res = await fetch(`/api/manage-records?userId=${encodeURIComponent(user.id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       if (!res.ok) throw new Error('Falha ao editar');
-      toast('Registro atualizado');
+      notify('Registro atualizado', 'success');
       await refreshAll();
     } catch (e) {
       console.error('Editar registro:', e);
-      toast('Erro ao atualizar registro', 'error');
+      notify('Erro ao atualizar registro', 'error');
     }
   };
 
@@ -447,11 +448,11 @@ export default function RegistroPage({ user }) {
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error('Falha ao salvar contadores');
-      toast('Contadores atualizados');
+      notify('Contadores atualizados', 'success');
       await refreshAll({ date: rec.date === selectedDate ? selectedDate : undefined });
     } catch (e) {
       console.error('Editar contadores diários:', e);
-      toast('Erro ao atualizar contadores', 'error');
+      notify('Erro ao atualizar contadores', 'error');
     }
   };
 
