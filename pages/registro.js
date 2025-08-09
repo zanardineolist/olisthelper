@@ -103,13 +103,26 @@ export default function RegistroPage({ user }) {
         setCategories(categoriesData.categories);
         setFormLoading(false);
 
-        // Buscar dados de estatísticas em paralelo
+        // Buscar dados de estatísticas em paralelo usando "hoje" em SP
         setStatsLoading(true);
+        const tz = 'America/Sao_Paulo';
+        const fmt = new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' });
+        const today = fmt.format(new Date());
+        setSelectedDate(today);
         await Promise.all([
           fetchHelpRequests(),
           fetchRecentHelps(),
-          fetchDailyCounters(selectedDate),
+          fetchDailyCounters(today),
         ]);
+        // Pré-carrega histórico padrão: últimos 7 dias terminando hoje
+        const now = new Date();
+        const sixDaysAgo = new Date(now);
+        sixDaysAgo.setDate(now.getDate() - 6);
+        const start = fmt.format(sixDaysAgo);
+        const end = today;
+        setHistoryStart(start);
+        setHistoryEnd(end);
+        await fetchHistory(start, end);
         setStatsLoading(false);
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
@@ -142,6 +155,22 @@ export default function RegistroPage({ user }) {
       }
     } catch (err) {
       console.error('Erro ao buscar ajudas prestadas:', err);
+    }
+  };
+
+  // Refresh geral para estatísticas e histórico, mantendo UI sincronizada sem recarregar a página
+  const refreshAll = async (opts = {}) => {
+    const dateForCounters = opts.date || selectedDate;
+    try {
+      setStatsLoading(true);
+      await Promise.all([
+        fetchHelpRequests(),
+        fetchRecentHelps(),
+        fetchDailyCounters(dateForCounters),
+        fetchHistory(),
+      ]);
+    } finally {
+      setStatsLoading(false);
     }
   };
   
@@ -198,6 +227,8 @@ export default function RegistroPage({ user }) {
         rfcs: record.rfcs_count || 0,
         helps: record.helps_count || 0,
       });
+      // Atualiza histórico se o dia impacta o período atual
+      await fetchHistory();
     } catch (e) {
       console.error(e);
       Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível atualizar o contador.' });
@@ -228,6 +259,7 @@ export default function RegistroPage({ user }) {
         rfcs: record.rfcs_count || 0,
         helps: record.helps_count || 0,
       });
+      await fetchHistory();
     } catch (e) {
       console.error(e);
       if (typeof window !== 'undefined' && window.Swal) {
@@ -240,15 +272,17 @@ export default function RegistroPage({ user }) {
   };
 
   // Histórico helpers
-  const fetchHistory = async () => {
+  const fetchHistory = async (overrideStart, overrideEnd) => {
     if (!user?.id) return;
-    if (!historyStart || !historyEnd) return;
+    const s = overrideStart || historyStart;
+    const e = overrideEnd || historyEnd;
+    if (!s || !e) return;
     try {
       setHistoryLoading(true);
       const qs = new URLSearchParams({
         analystId: user.id,
-        startDate: historyStart,
-        endDate: historyEnd,
+        startDate: s,
+        endDate: e,
       }).toString();
       const res = await fetch(`/api/daily-counters?${qs}`);
       if (!res.ok) throw new Error('Erro ao buscar histórico');
@@ -268,7 +302,11 @@ export default function RegistroPage({ user }) {
 
   const fechamentoTexto = useMemo(() => {
     const formatBR = (iso) => {
-      try { return new Date(iso).toLocaleDateString('pt-BR'); } catch { return iso; }
+      if (typeof iso === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+        const [y, m, d] = iso.split('-');
+        return `${d}/${m}/${y}`;
+      }
+      try { return new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }); } catch { return iso; }
     };
     const periodo = historyStart && historyEnd
       ? `${formatBR(historyStart)} a ${formatBR(historyEnd)}`
@@ -290,6 +328,14 @@ export default function RegistroPage({ user }) {
         Toast.fire({ icon: 'error', title: 'Não foi possível copiar.' });
       }
     }
+  };
+
+  const formatYMDToBR = (value) => {
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [y, m, d] = value.split('-');
+      return `${d}/${m}/${y}`;
+    }
+    try { return new Date(value).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }); } catch { return String(value); }
   };
 
   // Editar / Excluir registros - ações via toast
@@ -317,8 +363,8 @@ export default function RegistroPage({ user }) {
       const res = await fetch(`/api/manage-records?recordId=${encodeURIComponent(recordId)}&userId=${encodeURIComponent(user.id)}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Falha ao excluir');
       toast('Registro excluído');
-      // Refresh recentes e histórico
-      await Promise.all([fetchRecentHelps(), fetchHistory()]);
+      // Refresh completo (recentes, histórico, hoje)
+      await refreshAll();
     } catch (e) {
       console.error('Excluir registro:', e);
       toast('Erro ao excluir registro', 'error');
@@ -351,10 +397,62 @@ export default function RegistroPage({ user }) {
       const res = await fetch(`/api/manage-records?userId=${encodeURIComponent(user.id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       if (!res.ok) throw new Error('Falha ao editar');
       toast('Registro atualizado');
-      await Promise.all([fetchRecentHelps(), fetchHistory()]);
+      await refreshAll();
     } catch (e) {
       console.error('Editar registro:', e);
       toast('Erro ao atualizar registro', 'error');
+    }
+  };
+
+  // Editar registro do histórico (daily_counters): permite alterar somente chamados e RFCs
+  const onEditDailyRecord = async (rec) => {
+    try {
+      if (typeof window === 'undefined' || !window.Swal) return;
+      const { value } = await window.Swal.fire({
+        title: 'Editar contadores',
+        html: `
+          <div style="display:flex;flex-direction:column;gap:8px;text-align:left">
+            <label>Chamados</label>
+            <input id="swal-calls" type="number" min="0" value="${rec.calls_count ?? 0}" class="swal2-input" style="width:100%" />
+            <label>RFC's</label>
+            <input id="swal-rfcs" type="number" min="0" value="${rec.rfcs_count ?? 0}" class="swal2-input" style="width:100%" />
+            <small style="opacity:.8">Ajudas são editadas apenas pelo formulário de registro.</small>
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Salvar',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+          const callsVal = parseInt(document.getElementById('swal-calls').value, 10);
+          const rfcsVal = parseInt(document.getElementById('swal-rfcs').value, 10);
+          if (Number.isNaN(callsVal) || callsVal < 0 || Number.isNaN(rfcsVal) || rfcsVal < 0) {
+            window.Swal.showValidationMessage('Informe números válidos (>= 0).');
+            return false;
+          }
+          return { calls: callsVal, rfcs: rfcsVal };
+        }
+      });
+      if (!value) return;
+
+      const body = {
+        analystId: user.id,
+        date: rec.date,
+        callsCount: Math.max(0, value.calls),
+        rfcsCount: Math.max(0, value.rfcs),
+        helpsCount: Math.max(0, rec.helps_count ?? 0), // mantém ajudas
+      };
+      const res = await fetch('/api/daily-counters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error('Falha ao salvar contadores');
+      toast('Contadores atualizados');
+      await refreshAll({ date: rec.date === selectedDate ? selectedDate : undefined });
+    } catch (e) {
+      console.error('Editar contadores diários:', e);
+      toast('Erro ao atualizar contadores', 'error');
     }
   };
 
@@ -732,17 +830,9 @@ export default function RegistroPage({ user }) {
           timer: 1500,
         });
         setFormData({ user: null, category: null, description: '' });
-        
-        // Atualizar o contador de ajudas e registros recentes após o registro bem-sucedido
-        setStatsLoading(true);
-        await Promise.all([
-          fetchHelpRequests(),
-          fetchRecentHelps()
-        ]);
-        setStatsLoading(false);
-
-        // Incrementar contador de ajudas do dia
+        // Incrementar contador de ajudas do dia e sincronizar tudo
         await applyCounterDelta({ helps: 1 });
+        await refreshAll();
       } else {
         Swal.fire({
           icon: 'error',
@@ -1060,18 +1150,22 @@ const customSelectStyles = {
                     const sixDaysAgo = new Date(now);
                     sixDaysAgo.setDate(now.getDate() - 6);
                     const fmt = (d) => new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
-                    setHistoryStart(fmt(sixDaysAgo));
-                    setHistoryEnd(fmt(now));
-                    fetchHistory();
+                    const start = fmt(sixDaysAgo);
+                    const end = fmt(now);
+                    setHistoryStart(start);
+                    setHistoryEnd(end);
+                    fetchHistory(start, end);
                   }}>Últimos 7 dias</button>
                   <button type="button" className={styles.chip} onClick={() => {
                     const tz = 'America/Sao_Paulo';
                     const now = new Date();
                     const start = new Date(now.getFullYear(), now.getMonth(), 1);
                     const fmt = (d) => new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
-                    setHistoryStart(fmt(start));
-                    setHistoryEnd(fmt(now));
-                    fetchHistory();
+                    const s = fmt(start);
+                    const e = fmt(now);
+                    setHistoryStart(s);
+                    setHistoryEnd(e);
+                    fetchHistory(s, e);
                   }}>Este mês</button>
                   <button type="button" className={styles.chip} onClick={() => {
                     const tz = 'America/Sao_Paulo';
@@ -1079,10 +1173,21 @@ const customSelectStyles = {
                     const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
                     const end = new Date(now.getFullYear(), now.getMonth(), 0);
                     const fmt = (d) => new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
-                    setHistoryStart(fmt(start));
-                    setHistoryEnd(fmt(end));
-                    fetchHistory();
+                    const s = fmt(start);
+                    const e = fmt(end);
+                    setHistoryStart(s);
+                    setHistoryEnd(e);
+                    fetchHistory(s, e);
                   }}>Mês passado</button>
+                  <button type="button" className={styles.chip} onClick={() => {
+                    const tz = 'America/Sao_Paulo';
+                    const now = new Date();
+                    const fmt = (d) => new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+                    const today = fmt(now);
+                    setHistoryStart(today);
+                    setHistoryEnd(today);
+                    fetchHistory(today, today);
+                  }}>Hoje</button>
                 </div>
               </div>
 
@@ -1094,18 +1199,15 @@ const customSelectStyles = {
                   ) : historyRecords && historyRecords.length > 0 ? (
                     historyRecords.map((r) => (
                       <div key={r.id || `${r.date}`} className={styles.historyItem}>
-                        <div className={styles.historyDate}>{new Date(r.date).toLocaleDateString('pt-BR')}</div>
+                        <div className={styles.historyDate}>{formatYMDToBR(r.date)}</div>
                       <div className={styles.historyCounts}>
                           <span>Chamados: {r.calls_count}</span>
                           <span>RFC's: {r.rfcs_count}</span>
                           <span>Ajudas: {r.helps_count}</span>
                         </div>
                       <div className={styles.recordActions}>
-                        <button type="button" className={styles.iconButton} onClick={() => onEditRecord(r.id)}>
+                        <button type="button" className={styles.iconButton} onClick={() => onEditDailyRecord(r)}>
                           <i className="fa-solid fa-pen"></i> Editar
-                        </button>
-                        <button type="button" className={styles.iconButton} onClick={() => onDeleteRecord(r.id)}>
-                          <i className="fa-solid fa-trash"></i> Excluir
                         </button>
                       </div>
                       </div>
