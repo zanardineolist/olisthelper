@@ -584,6 +584,13 @@ export default function ProfileAnalystPage({ user }) {
               </h3>
             </div>
             
+            {/* Cabeçalho das colunas */}
+            <div className={styles.helpStatsHeader}>
+              <div className={styles.helpStatsHeaderItem}>Hoje</div>
+              <div className={styles.helpStatsHeaderItem}>Mês Atual</div>
+              <div className={styles.helpStatsHeaderItem}>Mês Anterior</div>
+            </div>
+
             <div className={styles.helpStatsExpanded}>
               <div className={styles.helpStatMain}>
                 <div className={styles.helpStatIcon}>
@@ -591,7 +598,6 @@ export default function ProfileAnalystPage({ user }) {
                 </div>
                 <div className={styles.helpStatContent}>
                   <span className={styles.helpStatValue}>{helpRequests.today}</span>
-                  <span className={styles.helpStatLabel}>Hoje</span>
                 </div>
               </div>
               
@@ -601,7 +607,6 @@ export default function ProfileAnalystPage({ user }) {
                 </div>
                 <div className={styles.helpStatContent}>
                   <span className={styles.helpStatValue}>{helpRequests.currentMonth}</span>
-                  <span className={styles.helpStatLabel}>Mês Atual</span>
                 </div>
               </div>
               
@@ -611,12 +616,16 @@ export default function ProfileAnalystPage({ user }) {
                 </div>
                 <div className={styles.helpStatContent}>
                   <span className={styles.helpStatValue}>{helpRequests.lastMonth}</span>
-                  <span className={styles.helpStatLabel}>Mês Anterior</span>
                 </div>
               </div>
             </div>
 
             {/* Chamados */}
+            <div className={styles.helpStatsHeader}>
+              <div className={styles.helpStatsHeaderItem}>Hoje</div>
+              <div className={styles.helpStatsHeaderItem}>Mês Atual</div>
+              <div className={styles.helpStatsHeaderItem}>Mês Anterior</div>
+            </div>
             <div className={styles.helpStatsExpanded}>
               <div className={styles.helpStatMain}>
                 <div className={styles.helpStatIcon}>
@@ -624,7 +633,6 @@ export default function ProfileAnalystPage({ user }) {
                 </div>
                 <div className={styles.helpStatContent}>
                   <span className={styles.helpStatValue}>{countersSummary.today.calls}</span>
-                  <span className={styles.helpStatLabel}>Chamados (Hoje)</span>
                 </div>
               </div>
 
@@ -634,7 +642,6 @@ export default function ProfileAnalystPage({ user }) {
                 </div>
                 <div className={styles.helpStatContent}>
                   <span className={styles.helpStatValue}>{countersSummary.currentMonth.calls}</span>
-                  <span className={styles.helpStatLabel}>Chamados (Mês Atual)</span>
                 </div>
               </div>
 
@@ -644,12 +651,16 @@ export default function ProfileAnalystPage({ user }) {
                 </div>
                 <div className={styles.helpStatContent}>
                   <span className={styles.helpStatValue}>{countersSummary.lastMonth.calls}</span>
-                  <span className={styles.helpStatLabel}>Chamados (Mês Anterior)</span>
                 </div>
               </div>
             </div>
 
             {/* RFC's */}
+            <div className={styles.helpStatsHeader}>
+              <div className={styles.helpStatsHeaderItem}>Hoje</div>
+              <div className={styles.helpStatsHeaderItem}>Mês Atual</div>
+              <div className={styles.helpStatsHeaderItem}>Mês Anterior</div>
+            </div>
             <div className={styles.helpStatsExpanded}>
               <div className={styles.helpStatMain}>
                 <div className={styles.helpStatIcon}>
@@ -657,7 +668,6 @@ export default function ProfileAnalystPage({ user }) {
                 </div>
                 <div className={styles.helpStatContent}>
                   <span className={styles.helpStatValue}>{countersSummary.today.rfcs}</span>
-                  <span className={styles.helpStatLabel}>RFC's (Hoje)</span>
                 </div>
               </div>
 
@@ -667,7 +677,6 @@ export default function ProfileAnalystPage({ user }) {
                 </div>
                 <div className={styles.helpStatContent}>
                   <span className={styles.helpStatValue}>{countersSummary.currentMonth.rfcs}</span>
-                  <span className={styles.helpStatLabel}>RFC's (Mês Atual)</span>
                 </div>
               </div>
 
@@ -677,7 +686,6 @@ export default function ProfileAnalystPage({ user }) {
                 </div>
                 <div className={styles.helpStatContent}>
                   <span className={styles.helpStatValue}>{countersSummary.lastMonth.rfcs}</span>
-                  <span className={styles.helpStatLabel}>RFC's (Mês Anterior)</span>
                 </div>
               </div>
             </div>

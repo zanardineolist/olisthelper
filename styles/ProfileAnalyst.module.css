@@ -263,6 +263,21 @@
   margin-bottom: 2rem;
 }
 
+/* Cabeçalho das 3 colunas: Hoje | Mês Atual | Mês Anterior */
+.helpStatsHeader {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin: 0 0 8px 0;
+}
+
+.helpStatsHeaderItem {
+  text-align: center;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
 .helpStatMain {
   display: flex;
   align-items: center;
@@ -272,6 +287,7 @@
 .helpStatIcon {
   width: 44px;
   height: 44px;
+  min-width: 44px;
   background: var(--color-accent3);
   border-radius: 10px;
   display: flex;
@@ -350,6 +366,13 @@
 
 .trendValue .metricTrendIcon.rfcs {
   color: var(--good-color) !important; /* amarelo/âmbar */
+}
+
+/* Garante largura mínima do ícone de tendência */
+.metricTrendIcon {
+  display: inline-block;
+  min-width: 20px;
+  text-align: center;
 }
 
 /* Linha de variações lado a lado */
