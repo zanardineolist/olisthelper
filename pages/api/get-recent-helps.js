@@ -26,6 +26,7 @@ export default async function handler(req, res) {
         id,
         created_at,
         requester_name,
+        requester_email,
         categories:category_id(name),
         description
       `)
@@ -47,6 +48,7 @@ export default async function handler(req, res) {
         formattedDate: createdAt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
         formattedTime: createdAt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
         requesterName: help.requester_name,
+        requesterEmail: help.requester_email || '',
         category: help.categories?.name || 'Sem categoria',
         description: help.description
       };

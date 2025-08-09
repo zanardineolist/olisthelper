@@ -24,12 +24,28 @@ export default function RegistroPage({ user }) {
   const [helpRequests, setHelpRequests] = useState({ today: 0 });
   const [recentHelps, setRecentHelps] = useState([]);
   // Contadores
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const now = new Date();
+    // Ajuste para America/Sao_Paulo (UTC-3 aprox; para precisão maior considerar Intl)
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const saoPaulo = new Date(utc - 3 * 60 * 60 * 1000);
+    return saoPaulo.toISOString().slice(0, 10);
+  });
   const [counters, setCounters] = useState({ calls: 0, rfcs: 0, helps: 0 });
   const [savingCounters, setSavingCounters] = useState(false);
   // Histórico
-  const [historyStart, setHistoryStart] = useState(() => new Date().toISOString().slice(0, 10));
-  const [historyEnd, setHistoryEnd] = useState(() => new Date().toISOString().slice(0, 10));
+  const [historyStart, setHistoryStart] = useState(() => {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const saoPaulo = new Date(utc - 3 * 60 * 60 * 1000);
+    return saoPaulo.toISOString().slice(0, 10);
+  });
+  const [historyEnd, setHistoryEnd] = useState(() => {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const saoPaulo = new Date(utc - 3 * 60 * 60 * 1000);
+    return saoPaulo.toISOString().slice(0, 10);
+  });
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyRecords, setHistoryRecords] = useState([]);
   const [historyTotals, setHistoryTotals] = useState({ calls: 0, rfcs: 0, helps: 0 });
@@ -135,6 +151,7 @@ export default function RegistroPage({ user }) {
   const applyCounterDelta = async (delta) => {
     try {
       setSavingCounters(true);
+      // Garantir data no fuso de São Paulo
       const body = {
         analystId: user.id,
         date: selectedDate,
@@ -245,6 +262,42 @@ export default function RegistroPage({ user }) {
         const Toast = window.Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
         Toast.fire({ icon: 'error', title: 'Não foi possível copiar.' });
       }
+    }
+  };
+
+  // Editar / Excluir registros - ações via toast
+  const toast = (title, icon = 'success', ms = 2200) => {
+    if (typeof window === 'undefined' || !window.Swal) return;
+    const Toast = window.Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: ms });
+    Toast.fire({ icon, title });
+  };
+
+  const onDeleteRecord = async (recordId) => {
+    try {
+      const res = await fetch(`/api/manage-records?recordId=${recordId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Falha ao excluir');
+      toast('Registro excluído');
+      // Refresh recentes e histórico
+      await Promise.all([fetchRecentHelps(), fetchHistory()]);
+    } catch (e) {
+      console.error('Excluir registro:', e);
+      toast('Erro ao excluir registro', 'error');
+    }
+  };
+
+  const onEditRecord = async (recordId) => {
+    try {
+      // Exemplo simples: reusa descrição atual e acrescenta marcador (em produção abrir modal)
+      const newDescription = prompt('Nova descrição para o registro:');
+      if (newDescription == null || newDescription.trim() === '') return;
+      const body = { record: { id: recordId, name: '—', email: '—', category: '—', description: newDescription } };
+      const res = await fetch('/api/manage-records', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!res.ok) throw new Error('Falha ao editar');
+      toast('Registro atualizado');
+      await Promise.all([fetchRecentHelps(), fetchHistory()]);
+    } catch (e) {
+      console.error('Editar registro:', e);
+      toast('Erro ao atualizar registro', 'error');
     }
   };
 
@@ -862,13 +915,21 @@ const customSelectStyles = {
                           <i className="fa-regular fa-clock"></i> {help.formattedDate} • {help.formattedTime}
                         </div>
                       </div>
-                      <div className={styles.recentHelpUser}>
-                        <i className="fa-regular fa-user"></i> {help.requesterName}
-                      </div>
+                  <div className={styles.recentHelpUser}>
+                    <i className="fa-regular fa-user"></i> {help.requesterName}
+                  </div>
                       <div className={styles.recentHelpDescription}>
                         <div className={styles.descriptionLabel}>Descrição:</div>
                         <div className={styles.descriptionText}>{help.description}</div>
                       </div>
+                  <div className={styles.recordActions}>
+                    <button type="button" className={styles.iconButton} onClick={() => onEditRecord(help.id)}>
+                      <i className="fa-solid fa-pen"></i> Editar
+                    </button>
+                    <button type="button" className={styles.iconButton} onClick={() => onDeleteRecord(help.id)}>
+                      <i className="fa-solid fa-trash"></i> Excluir
+                    </button>
+                  </div>
                     </div>
                   ))
                 ) : (
@@ -951,11 +1012,19 @@ const customSelectStyles = {
                     historyRecords.map((r) => (
                       <div key={r.id || `${r.date}`} className={styles.historyItem}>
                         <div className={styles.historyDate}>{new Date(r.date).toLocaleDateString('pt-BR')}</div>
-                        <div className={styles.historyCounts}>
+                      <div className={styles.historyCounts}>
                           <span>Chamados: {r.calls_count}</span>
                           <span>RFC's: {r.rfcs_count}</span>
                           <span>Ajudas: {r.helps_count}</span>
                         </div>
+                      <div className={styles.recordActions}>
+                        <button type="button" className={styles.iconButton} onClick={() => onEditRecord(r.id)}>
+                          <i className="fa-solid fa-pen"></i> Editar
+                        </button>
+                        <button type="button" className={styles.iconButton} onClick={() => onDeleteRecord(r.id)}>
+                          <i className="fa-solid fa-trash"></i> Excluir
+                        </button>
+                      </div>
                       </div>
                     ))
                   ) : (
