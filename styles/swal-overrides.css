@@ -1,0 +1,97 @@
+/* SweetAlert2 overrides alinhados ao tema da aplicação */
+
+:root {
+  /* Fallbacks caso alguma var não exista */
+  --swal-bg: var(--box-color, #1f1f1f);
+  --swal-fg: var(--text-color, #e5e7eb);
+  --swal-muted: var(--text-color2, #9ca3af);
+  --swal-border: var(--color-border, #2d2d2d);
+  --swal-primary: var(--color-primary, #6c5ce7);
+  --swal-label-bg: var(--labels-bg, #161616);
+  --swal-row: var(--color-trodd, #2a2a2a);
+}
+
+.swal2-container {
+  padding: 1.25rem;
+}
+
+.swal2-popup {
+  background: var(--swal-bg) !important;
+  color: var(--swal-fg) !important;
+  border: 1px solid var(--swal-border) !important;
+  border-radius: 12px !important;
+  width: min(560px, calc(100% - 2rem)) !important;
+  padding: 20px 20px 16px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.35) !important;
+}
+
+.swal2-title {
+  color: var(--swal-fg) !important;
+  font-size: 22px !important;
+  font-weight: 700 !important;
+}
+
+.swal2-html-container {
+  margin: 12px 0 0 !important;
+  color: var(--swal-fg) !important;
+  overflow: visible !important; /* evita barra de rolagem horizontal/vertical desnecessária */
+}
+
+/* Inputs */
+.swal2-popup .swal2-input,
+.swal2-popup .swal2-textarea,
+.swal2-popup .swal2-select {
+  background-color: var(--swal-label-bg) !important;
+  color: var(--swal-fg) !important;
+  border: 1px solid var(--swal-border) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  margin: 0 !important; /* remove margin default que quebra layout custom no html */
+}
+
+.swal2-popup .swal2-input:focus,
+.swal2-popup .swal2-textarea:focus,
+.swal2-popup .swal2-select:focus {
+  border-color: var(--swal-primary) !important;
+  outline: none !important;
+}
+
+.swal2-popup small {
+  color: var(--swal-muted) !important;
+}
+
+/* Ações / botões */
+.swal2-actions {
+  margin: 18px 0 0 !important;
+  gap: 10px !important;
+}
+
+.swal2-styled {
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+}
+
+.swal2-styled.swal2-confirm {
+  background: var(--swal-primary) !important;
+}
+
+.swal2-styled.swal2-cancel {
+  background: transparent !important;
+  color: var(--swal-fg) !important;
+  border: 1px solid var(--swal-border) !important;
+}
+
+.swal2-styled.swal2-cancel:hover {
+  background: var(--swal-row) !important;
+}
+
+/* Mensagens de validação */
+.swal2-validation-message {
+  background: transparent !important;
+  color: var(--swal-fg) !important;
+  border: 1px solid var(--swal-border) !important;
+  border-radius: 8px !important;
+}
+
+
