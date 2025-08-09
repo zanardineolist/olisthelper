@@ -24,7 +24,19 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Proibido' });
     }
 
-    // Buscar os últimos três registros do analista
+    // Calcular início e fim do dia atual em America/Sao_Paulo
+    const saoPauloOffsetMinutes = -3 * 60; // SP UTC-3 (sem horário de verão atualmente)
+    const now = new Date();
+    const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+    const saoPauloNow = new Date(utcMs + saoPauloOffsetMinutes * 60000);
+    const spStart = new Date(saoPauloNow);
+    spStart.setHours(0, 0, 0, 0);
+    const spEnd = new Date(saoPauloNow);
+    spEnd.setHours(23, 59, 59, 999);
+    const startUTC = new Date(spStart.getTime() - saoPauloOffsetMinutes * 60000); // volta para UTC
+    const endUTC = new Date(spEnd.getTime() - saoPauloOffsetMinutes * 60000);
+
+    // Buscar todos os registros do dia atual do analista
     const { data: recentHelps, error } = await supabaseAdmin
       .from('help_records')
       .select(`
@@ -36,8 +48,9 @@ export default async function handler(req, res) {
         description
       `)
       .eq('analyst_id', analystId)
-      .order('created_at', { ascending: false })
-      .limit(3);
+      .gte('created_at', startUTC.toISOString())
+      .lte('created_at', endUTC.toISOString())
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Erro ao buscar registros recentes:', error);

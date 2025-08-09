@@ -90,28 +90,26 @@ export default async function handler(req, res) {
             const startUTC = new Date(`${targetDate}T03:00:00.000Z`); // 00:00 SP = 03:00Z
             const endUTC = new Date(startUTC.getTime() + (24 * 60 * 60 * 1000) - 1); // 23:59:59.999 SP
 
-            const { data: helpsData, error: helpsErr } = await supabaseAdmin
-              .from('help_records')
+            // Usar view São Paulo se existir; fallback para created_at
+            let helpsCount = 0;
+            const { data: spView, error: spErr } = await supabaseAdmin
+              .from('help_records_sao_paulo')
               .select('id')
               .eq('analyst_id', analystId)
-              .gte('created_at', startUTC.toISOString())
-              .lte('created_at', endUTC.toISOString());
+              .eq('created_date', targetDate);
 
-            if (helpsErr) {
-              console.error('Erro ao contar helps do dia para inicialização:', helpsErr);
-              // fallback sem upsert
-              return res.status(200).json({
-                record: {
-                  analyst_id: analystId,
-                  date: targetDate,
-                  calls_count: 0,
-                  rfcs_count: 0,
-                  helps_count: 0,
-                },
-              });
+            if (!spErr && Array.isArray(spView)) {
+              helpsCount = spView.length;
+            } else {
+              const { data: helpsData, error: helpsErr } = await supabaseAdmin
+                .from('help_records')
+                .select('id')
+                .eq('analyst_id', analystId)
+                .gte('created_at', startUTC.toISOString())
+                .lte('created_at', endUTC.toISOString());
+              if (helpsErr) throw helpsErr;
+              helpsCount = helpsData?.length || 0;
             }
-
-            const helpsCount = helpsData?.length || 0;
             // Persistir inicialização via upsert para manter histórico consistente
             const payload = {
               analyst_id: analystId,

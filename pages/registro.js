@@ -76,6 +76,8 @@ export default function RegistroPage({ user }) {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyRecords, setHistoryRecords] = useState([]);
   const [historyTotals, setHistoryTotals] = useState({ calls: 0, rfcs: 0, helps: 0 });
+  const [activePreset, setActivePreset] = useState('today');
+  const [presetBusy, setPresetBusy] = useState(false);
   const [formData, setFormData] = useState({
     user: null,
     category: null,
@@ -114,11 +116,8 @@ export default function RegistroPage({ user }) {
           fetchRecentHelps(),
           fetchDailyCounters(today),
         ]);
-        // Pré-carrega histórico padrão: últimos 7 dias terminando hoje
-        const now = new Date();
-        const sixDaysAgo = new Date(now);
-        sixDaysAgo.setDate(now.getDate() - 6);
-        const start = fmt.format(sixDaysAgo);
+        // Pré-carrega histórico padrão: HOJE (período atual)
+        const start = today;
         const end = today;
         setHistoryStart(start);
         setHistoryEnd(end);
@@ -1144,7 +1143,20 @@ const customSelectStyles = {
 
               <div className={styles.section}>
                 <div className={styles.presetChips}>
-                  <button type="button" className={styles.chip} onClick={() => {
+                  <button type="button" className={`${styles.chip} ${activePreset==='today' ? styles.chipActive : ''}`} disabled={historyLoading || statsLoading || presetBusy} onClick={async () => {
+                    if (presetBusy) return; setPresetBusy(true);
+                    const tz = 'America/Sao_Paulo';
+                    const now = new Date();
+                    const fmt = (d) => new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+                    const today = fmt(now);
+                    setHistoryStart(today);
+                    setHistoryEnd(today);
+                    setActivePreset('today');
+                    await fetchHistory(today, today);
+                    setPresetBusy(false);
+                  }}>Hoje</button>
+                  <button type="button" className={`${styles.chip} ${activePreset==='7d' ? styles.chipActive : ''}`} disabled={historyLoading || statsLoading || presetBusy} onClick={async () => {
+                    if (presetBusy) return; setPresetBusy(true);
                     const tz = 'America/Sao_Paulo';
                     const now = new Date();
                     const sixDaysAgo = new Date(now);
@@ -1154,9 +1166,12 @@ const customSelectStyles = {
                     const end = fmt(now);
                     setHistoryStart(start);
                     setHistoryEnd(end);
-                    fetchHistory(start, end);
-                  }}>Últimos 7 dias</button>
-                  <button type="button" className={styles.chip} onClick={() => {
+                    setActivePreset('7d');
+                    await fetchHistory(start, end);
+                    setPresetBusy(false);
+                  }}>7 dias</button>
+                  <button type="button" className={`${styles.chip} ${activePreset==='month' ? styles.chipActive : ''}`} disabled={historyLoading || statsLoading || presetBusy} onClick={async () => {
+                    if (presetBusy) return; setPresetBusy(true);
                     const tz = 'America/Sao_Paulo';
                     const now = new Date();
                     const start = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -1165,9 +1180,12 @@ const customSelectStyles = {
                     const e = fmt(now);
                     setHistoryStart(s);
                     setHistoryEnd(e);
-                    fetchHistory(s, e);
+                    setActivePreset('month');
+                    await fetchHistory(s, e);
+                    setPresetBusy(false);
                   }}>Este mês</button>
-                  <button type="button" className={styles.chip} onClick={() => {
+                  <button type="button" className={`${styles.chip} ${activePreset==='last' ? styles.chipActive : ''}`} disabled={historyLoading || statsLoading || presetBusy} onClick={async () => {
+                    if (presetBusy) return; setPresetBusy(true);
                     const tz = 'America/Sao_Paulo';
                     const now = new Date();
                     const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -1177,17 +1195,10 @@ const customSelectStyles = {
                     const e = fmt(end);
                     setHistoryStart(s);
                     setHistoryEnd(e);
-                    fetchHistory(s, e);
+                    setActivePreset('last');
+                    await fetchHistory(s, e);
+                    setPresetBusy(false);
                   }}>Mês passado</button>
-                  <button type="button" className={styles.chip} onClick={() => {
-                    const tz = 'America/Sao_Paulo';
-                    const now = new Date();
-                    const fmt = (d) => new Intl.DateTimeFormat('sv-SE', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
-                    const today = fmt(now);
-                    setHistoryStart(today);
-                    setHistoryEnd(today);
-                    fetchHistory(today, today);
-                  }}>Hoje</button>
                 </div>
               </div>
 
