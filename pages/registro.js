@@ -382,27 +382,34 @@ export default function RegistroPage({ user }) {
 
   const onEditRecord = async (record) => {
     try {
-      // Modal simples com Swal para editar somente a descrição (rápido). Podemos expandir para nome/email/categoria depois.
-      let newDescription = record.description || '';
+      // Modal simples com Swal para editar somente a descrição (rápido). Podemos expandir depois.
+      // Garante que recebemos o objeto completo do registro recente; se vier id simples, abre fallback
+      let newDescription = (record && record.description) ? record.description : '';
       if (typeof window !== 'undefined' && window.Swal) {
-        const { value } = await window.Swal.fire({
+        const result = await window.Swal.fire({
           title: 'Editar descrição',
           input: 'textarea',
           inputValue: newDescription,
           inputAttributes: { 'aria-label': 'Descrição' },
           showCancelButton: true,
           confirmButtonText: 'Salvar',
-          cancelButtonText: 'Cancelar'
+          cancelButtonText: 'Cancelar',
+          inputValidator: (value) => {
+            if (!value || !value.trim()) {
+              return 'Descrição não pode ficar vazia';
+            }
+            return undefined;
+          }
         });
-        if (value === undefined) return; // cancelado
-        newDescription = value;
+        if (!result || result.isDismissed) return; // cancelado/fechado
+        newDescription = result.value;
       } else {
         newDescription = prompt('Nova descrição', newDescription);
         if (newDescription == null) return;
       }
       if (!newDescription || !newDescription.trim()) return;
 
-      const body = { record: { id: record.id, name: record.requesterName || '—', email: record.requesterEmail || '—', category: record.category || '—', description: newDescription } };
+      const body = { record: { id: record.id, name: record.requesterName || '—', email: record.requesterEmail || '—', category: record.category || '—', description: newDescription.trim() } };
       const res = await fetch(`/api/manage-records?userId=${encodeURIComponent(user.id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       if (!res.ok) throw new Error('Falha ao editar');
       notify('Registro atualizado', 'success');
@@ -1132,23 +1139,6 @@ const customSelectStyles = {
               </div>
 
               <div className={styles.section}>
-                <div className={styles.dateRangeRow}>
-                  <div className={styles.dateField}>
-                    <div className={styles.dateInputWrapper}>
-                      <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
-                      <input type="date" value={historyStart} onChange={(e) => { setHistoryStart(e.target.value); fetchHistory(); }} className={styles.dateInput} />
-                    </div>
-                  </div>
-                  <div className={styles.dateField}>
-                    <div className={styles.dateInputWrapper}>
-                      <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
-                      <input type="date" value={historyEnd} onChange={(e) => { setHistoryEnd(e.target.value); fetchHistory(); }} className={styles.dateInput} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.section}>
                 <div className={styles.presetChips}>
                   <button type="button" className={`${styles.chip} ${activePreset==='today' ? styles.chipActive : ''}`} disabled={historyLoading || statsLoading || presetBusy} onClick={async () => {
                     if (presetBusy) return; setPresetBusy(true);
@@ -1210,6 +1200,23 @@ const customSelectStyles = {
               </div>
 
               <div className={styles.section}>
+                <div className={styles.dateRangeRow}>
+                  <div className={styles.dateField}>
+                    <div className={styles.dateInputWrapper}>
+                      <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
+                      <input type="date" value={historyStart} onChange={(e) => { setHistoryStart(e.target.value); fetchHistory(); }} className={styles.dateInput} />
+                    </div>
+                  </div>
+                  <div className={styles.dateField}>
+                    <div className={styles.dateInputWrapper}>
+                      <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
+                      <input type="date" value={historyEnd} onChange={(e) => { setHistoryEnd(e.target.value); fetchHistory(); }} className={styles.dateInput} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.section}>
                 <div className={styles.sectionHeader}>Registros</div>
                 <div className={styles.historyListScrollable}>
                   {historyLoading ? (
@@ -1223,9 +1230,9 @@ const customSelectStyles = {
                           <span>RFC's: {r.rfcs_count}</span>
                           <span>Ajudas: {r.helps_count}</span>
                         </div>
-                      <div className={styles.recordActions}>
-                        <button type="button" className={styles.iconButton} onClick={() => onEditDailyRecord(r)}>
-                          <i className="fa-solid fa-pen"></i> Editar
+                      <div className={styles.historyActions}>
+                        <button type="button" className={styles.iconButton} title="Editar" onClick={() => onEditDailyRecord(r)}>
+                          <i className="fa-solid fa-pen"></i>
                         </button>
                       </div>
                       </div>

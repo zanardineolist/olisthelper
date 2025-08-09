@@ -540,8 +540,9 @@
   border: 1px solid var(--color-border);
   border-radius: 10px;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: auto 1fr auto; /* data | contagens (centro) | ação (direita) */
   align-items: center;
+  column-gap: 16px;
   padding: 14px 16px;
 }
 
@@ -556,6 +557,16 @@
   color: var(--text-color);
   justify-content: center;
   align-items: center;
+}
+
+.historyActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.historyActions .iconButton {
+  padding: 6px 8px;
 }
 
 .copyBox {
