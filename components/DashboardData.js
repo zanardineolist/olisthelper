@@ -633,6 +633,22 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
             </span>
           )}
 
+          {/* Squad tag */}
+          {props.data.squad && (
+            <span
+              style={{
+                backgroundColor: '#0A4EE4',
+                color: '#FFF',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                marginLeft: '10px',
+                fontSize: '0.8em',
+              }}
+            >
+              #{props.data.squad}
+            </span>
+          )}
+
           {/* Adicionando novas tags para Chamado, Telefone e Chat se forem TRUE */}
           {props.data.chamado && (
             <span
@@ -887,9 +903,10 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
               .filter((u) => u && (u.active !== false) && isValidRole(u.role))
               .map((u) => ({
                 value: u,
-                label: `${u.name || 'Nome não disponível'}${u.squad ? ` · #${u.squad}` : ''}`,
+                label: u.name || 'Nome não disponível',
                 role: (u.role || 'unknown').toLowerCase(),
                 color: getColorForRole(u.role || 'unknown'),
+                squad: u.squad || null,
                 supervisor: u.supervisor || null,
                 chamado: u.chamado || false,
                 telefone: u.telefone || false,

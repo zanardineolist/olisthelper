@@ -346,6 +346,21 @@ export default function TicketLoggerDashboard({ user, users: usersFromProps = []
           >
             {getRoleLabel(props.data.role)}
           </span>
+          {/* Squad tag */}
+          {props.data.squad && (
+            <span
+              style={{
+                backgroundColor: '#0A4EE4',
+                color: '#FFF',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                marginLeft: '10px',
+                fontSize: '0.8em',
+              }}
+            >
+              #{props.data.squad}
+            </span>
+          )}
         </div>
       </selectComponents.Option>
     );
@@ -417,9 +432,10 @@ export default function TicketLoggerDashboard({ user, users: usersFromProps = []
               .filter((u) => u && (u.active !== false) && isValidRole(u.role))
               .map((u) => ({
                 value: u,
-                label: `${u.name || 'Nome não disponível'}${u.squad ? ` · #${u.squad}` : ''}`,
+                label: u.name || 'Nome não disponível',
                 role: (u.role || 'unknown').toLowerCase(),
                 color: getColorForRole(u.role || 'unknown'),
+                squad: u.squad || null,
               }))}
             onChange={handleUserSelect}
             isClearable

@@ -405,6 +405,33 @@ export default function GraphData({ users }) {
     }),
   };
 
+  // Renderização customizada das opções para incluir tag de squad
+  const CustomOption = (props) => {
+    return (
+      <div
+        {...props.innerProps}
+        className={`react-select__option ${props.isFocused ? 'is-focused' : ''}`}
+        style={{ display: 'flex', alignItems: 'center', padding: '8px 12px' }}
+      >
+        <span>{props.label}</span>
+        {props.data.squad && (
+          <span
+            style={{
+              backgroundColor: '#0A4EE4',
+              color: '#FFF',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              marginLeft: '10px',
+              fontSize: '0.8em',
+            }}
+          >
+            #{props.data.squad}
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className={styles.graphDataContainer}>
       <div className={styles.controlPanel}>
@@ -415,8 +442,9 @@ export default function GraphData({ users }) {
               .filter(u => u && (u.active !== false) && typeof u.role === 'string' && ['analyst', 'tax'].includes(u.role.toLowerCase()))
               .map(u => ({
                 value: u,
-                label: `${u.name}${u.squad ? ` · #${u.squad}` : ''}`,
+                label: u.name,
                 id: u.id,
+                squad: u.squad || null,
               }))}
             onChange={(selectedOptions) => {
               setSelectedUsers(selectedOptions ? selectedOptions.map(option => option.value) : []);
@@ -426,6 +454,7 @@ export default function GraphData({ users }) {
             styles={customSelectStyles}
             classNamePrefix="react-select"
             noOptionsMessage={() => 'Sem resultados'}
+            components={{ Option: CustomOption }}
           />
         </div>
 
