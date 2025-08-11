@@ -69,14 +69,13 @@ export default async function handler(req, res) {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: typeof user.profile === 'string' ? user.profile.toLowerCase().trim() : '',
-      active: user.active,
+      role: user.profile?.toLowerCase().trim(), // Normalizar role
       squad: user.squad,
       chamado: user.can_ticket,
       telefone: user.can_phone,
       chat: user.can_chat,
       supervisor: supervisorMap[user.email?.toLowerCase()] || null,
-      remoto: false,
+      remoto: false, // Campo removido da nova estrutura
     }));
 
     return res.status(200).json({ users: mappedUsers });

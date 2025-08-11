@@ -42,7 +42,6 @@ export default function GraphData({ users }) {
   const [chartData, setChartData] = useState(null);
   const [chartType, setChartType] = useState('bar'); // 'bar' ou 'line'
   const [selectedUserDetail, setSelectedUserDetail] = useState(null);
-  const [userCounters, setUserCounters] = useState({}); // { [userId]: { calls, rfcs, helps } }
 
   // Paleta de cores fornecida
   const colors = [
@@ -193,7 +192,6 @@ export default function GraphData({ users }) {
       const labels = generateDateLabels();
       let hasData = false;
       const userDataMap = {}; // Para armazenar os dados de cada usuário
-      const countersMap = {}; // Para armazenar contadores Calls/RFCs/Ajudas por usuário
 
       for (const [index, user] of selectedUsers.entries()) {
         // Obter período com base no filtro
@@ -216,16 +214,11 @@ export default function GraphData({ users }) {
           url += `&filter=${filterMap[periodFilter.value] || '7'}`;
         }
         
-        const [res, countersRes] = await Promise.all([
-          fetch(url),
-          fetch(`/api/daily-counters?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}`)
-        ]);
-
+        const res = await fetch(url);
         if (!res.ok) throw new Error(`Erro ao buscar registros do usuário ${user.name}`);
 
-        const [userData, countersData] = await Promise.all([res.json(), countersRes.ok ? countersRes.json() : Promise.resolve(null)]);
+        const userData = await res.json();
         userDataMap[user.id] = userData; // Armazenar dados do usuário
-        countersMap[user.id] = countersData?.totals || { calls: 0, rfcs: 0, helps: 0 };
         
         let userCounts;
         
@@ -265,10 +258,8 @@ export default function GraphData({ users }) {
           datasets,
           userData: userDataMap
         });
-        setUserCounters(countersMap);
       } else {
         setChartData(null);
-        setUserCounters({});
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
@@ -716,7 +707,6 @@ export default function GraphData({ users }) {
               {chartData.datasets.map((dataset, index) => {
                 const stats = calculateUserStats(dataset);
                 const user = selectedUsers.find(u => u.id === dataset.userId);
-                const counters = userCounters[dataset.userId] || { calls: 0, rfcs: 0, helps: stats.total };
                 
                 return (
                   <div 
@@ -730,18 +720,6 @@ export default function GraphData({ users }) {
                     </div>
                     <div className={styles.cardBody}>
                       <div className={styles.metricGrid}>
-                        <div className={styles.metric}>
-                          <span className={styles.metricLabel}>Ajudas (período):</span>
-                          <span className={styles.metricValue}>{counters.helps}</span>
-                        </div>
-                        <div className={styles.metric}>
-                          <span className={styles.metricLabel}>Chamados (período):</span>
-                          <span className={styles.metricValue}>{counters.calls}</span>
-                        </div>
-                        <div className={styles.metric}>
-                          <span className={styles.metricLabel}>RFC's (período):</span>
-                          <span className={styles.metricValue}>{counters.rfcs}</span>
-                        </div>
                         <div className={styles.metric}>
                           <span className={styles.metricLabel}>Total:</span>
                           <span className={styles.metricValue}>{stats.total}</span>

@@ -214,23 +214,6 @@
     color: var(--text-color2);
 }
 
-/* Avatar do colaborador (imagem ou iniciais) */
-.profileImage {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    overflow: hidden;
-    flex-shrink: 0;
-    background: var(--color-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: 600;
-    font-size: 1.2rem;
-    object-fit: cover;
-}
-
 .roleTag {
     background: var(--color-primary);
     color: white;

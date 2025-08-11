@@ -24,10 +24,7 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Não autorizado' });
     }
     if (session.id !== analystId) {
-      // Permitir que supervisores consultem registros de qualquer analista
-      if (session.role !== 'super') {
-        return res.status(403).json({ error: 'Proibido' });
-      }
+      return res.status(403).json({ error: 'Proibido' });
     }
   } catch (e) {
     return res.status(500).json({ error: 'Erro na validação de sessão' });

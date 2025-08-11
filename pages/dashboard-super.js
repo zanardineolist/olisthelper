@@ -76,11 +76,7 @@ export default function DashboardSuper({ user }) {
         const res = await fetch('/api/get-users');
         if (!res.ok) throw new Error('Erro ao carregar usuários');
         const data = await res.json();
-        setUsers(
-          data.users
-            .filter(user => ['analyst', 'tax'].includes(user.role.toLowerCase()))
-            .filter(user => user.active !== false)
-        );
+        setUsers(data.users.filter(user => ['analyst', 'tax'].includes(user.role.toLowerCase())));
       } catch (err) {
         console.error('Erro ao carregar usuários:', err);
         Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
