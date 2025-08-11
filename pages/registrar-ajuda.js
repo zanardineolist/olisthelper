@@ -48,13 +48,14 @@ export default function RegistrarAjudaPage({ user }) {
           fetch('/api/get-users'),
           fetch('/api/get-analysts-categories')
         ]);
-        
-        const usersData = await usersRes.json();
-        const categoriesData = await categoriesRes.json();
-        
-        // Seguindo a mesma linha do registro.js - sem filtros
-        setAgents(usersData.users);
-        setCategories(categoriesData.categories);
+
+        const [usersData, categoriesData] = await Promise.all([
+          usersRes.ok ? usersRes.json() : Promise.resolve({ users: [] }),
+          categoriesRes.ok ? categoriesRes.json() : Promise.resolve({ categories: [] })
+        ]);
+
+        setAgents(Array.isArray(usersData.users) ? usersData.users : []);
+        setCategories(Array.isArray(categoriesData.categories) ? categoriesData.categories : []);
         setFormLoading(false);
 
         // Buscar dados de estatísticas em paralelo

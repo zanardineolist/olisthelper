@@ -20,16 +20,18 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Não autorizado' });
     }
 
-    const { data: me, error: meErr } = await supabase
+  const { data: me, error: meErr } = await supabase
       .from('users')
-      .select('id, admin, profile')
+      .select('id, admin, profile, can_register_help')
       .eq('id', session.id)
       .single();
     if (meErr || !me) {
       return res.status(403).json({ error: 'Proibido' });
     }
     const allowedProfiles = ['analyst', 'tax', 'super'];
-    const isAllowed = me.admin || allowedProfiles.includes((me.profile || '').toLowerCase());
+    const isAllowed = me.admin 
+      || me.can_register_help 
+      || allowedProfiles.includes((me.profile || '').toLowerCase());
     if (!isAllowed) {
       return res.status(403).json({ error: 'Proibido' });
     }
