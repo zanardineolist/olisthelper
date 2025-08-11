@@ -246,7 +246,7 @@ const isValidRole = (role) => {
   return VALID_ROLES.includes(normalizedRole);
 };
 
-export default function DashboardData({ user }) {
+export default function DashboardData({ user, users: usersFromProps = [] }) {
   // Estados básicos
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -277,8 +277,12 @@ export default function DashboardData({ user }) {
 
   // Carregar lista de usuários (apenas uma vez)
   useEffect(() => {
+    if (Array.isArray(usersFromProps) && usersFromProps.length > 0) {
+      setUsers(usersFromProps);
+      return;
+    }
     loadUsers();
-  }, []);
+  }, [usersFromProps]);
 
   // Exibir/ocultar o seletor de datas personalizadas
   useEffect(() => {
@@ -880,16 +884,16 @@ export default function DashboardData({ user }) {
           </h3>
           <Select
             options={users
-              .filter((user) => user && isValidRole(user.role))
-              .map((user) => ({
-                value: user,
-                label: user.name || 'Nome não disponível',
-                role: user.role || 'unknown',
-                color: getColorForRole(user.role || 'unknown'),
-                supervisor: user.supervisor || null,
-                chamado: user.chamado || false,
-                telefone: user.telefone || false,
-                chat: user.chat || false,
+              .filter((u) => u && u.active && isValidRole(u.role))
+              .map((u) => ({
+                value: u,
+                label: `${u.name || 'Nome não disponível'}${u.squad ? ` · #${u.squad}` : ''}`,
+                role: (u.role || 'unknown').toLowerCase(),
+                color: getColorForRole(u.role || 'unknown'),
+                supervisor: u.supervisor || null,
+                chamado: u.chamado || false,
+                telefone: u.telefone || false,
+                chat: u.chat || false,
               }))}
             onChange={handleUserSelect}
             isClearable

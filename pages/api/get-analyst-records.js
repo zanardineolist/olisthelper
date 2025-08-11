@@ -23,7 +23,8 @@ export default async function handler(req, res) {
     if (!session?.id) {
       return res.status(401).json({ error: 'Não autorizado' });
     }
-    if (session.id !== analystId) {
+    const isSuper = session.role === 'super';
+    if (!isSuper && session.id !== analystId) {
       return res.status(403).json({ error: 'Proibido' });
     }
   } catch (e) {

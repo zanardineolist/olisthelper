@@ -24,7 +24,8 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'analystId é obrigatório' });
         }
 
-        if (analystId !== session.id) {
+        const isSuper = session.role === 'super';
+        if (!isSuper && analystId !== session.id) {
           return res.status(403).json({ error: 'Proibido' });
         }
 
@@ -153,7 +154,8 @@ export default async function handler(req, res) {
         if (!analystId || !isValidDateStr(date)) {
           return res.status(400).json({ error: 'analystId e date (YYYY-MM-DD) são obrigatórios' });
         }
-        if (analystId !== session.id) {
+        const isSuperPost = session.role === 'super';
+        if (!isSuperPost && analystId !== session.id) {
           return res.status(403).json({ error: 'Proibido' });
         }
         if (callsCount < 0 || rfcsCount < 0 || helpsCount < 0) {
@@ -188,7 +190,8 @@ export default async function handler(req, res) {
         if (!analystId || !isValidDateStr(date)) {
           return res.status(400).json({ error: 'analystId e date (YYYY-MM-DD) são obrigatórios' });
         }
-        if (analystId !== session.id) {
+        const isSuperPatch = session.role === 'super';
+        if (!isSuperPatch && analystId !== session.id) {
           return res.status(403).json({ error: 'Proibido' });
         }
         if ([callsDelta, rfcsDelta, helpsDelta].every((n) => !n)) {

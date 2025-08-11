@@ -76,7 +76,11 @@ export default function DashboardSuper({ user }) {
         const res = await fetch('/api/get-users');
         if (!res.ok) throw new Error('Erro ao carregar usuários');
         const data = await res.json();
-        setUsers(data.users.filter(user => ['analyst', 'tax'].includes(user.role.toLowerCase())));
+        setUsers(
+          (data.users || []).filter(u =>
+            u && u.active && typeof u.role === 'string' && ['analyst', 'tax'].includes(u.role.toLowerCase())
+          )
+        );
       } catch (err) {
         console.error('Erro ao carregar usuários:', err);
         Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
@@ -87,7 +91,9 @@ export default function DashboardSuper({ user }) {
 
     loadUsers();
 
-    const hash = window.location.hash;
+    // Definir aba inicial conforme hash atual (SSR-safe)
+    const asPath = typeof window === 'undefined' ? '' : window.location.href; // fallback
+    const hash = (asPath.split('#')[1] && `#${asPath.split('#')[1]}`) || '';
     if (hash === '#Dashboard') {
       setCurrentTab(0);
     } else if (hash === '#TicketLogger') {
@@ -96,6 +102,8 @@ export default function DashboardSuper({ user }) {
       setCurrentTab(2);
     } else if (hash === '#HelpTopics') {
       setCurrentTab(3);
+    } else {
+      setCurrentTab(0);
     }
   }, []);
 
@@ -118,7 +126,8 @@ export default function DashboardSuper({ user }) {
       default:
         break;
     }
-    router.push(`${window.location.pathname}${hash}`, undefined, { shallow: true });
+    const basePath = router.asPath.split('#')[0];
+    router.replace(`${basePath}${hash}`, undefined, { shallow: true });
   };
 
   return (
@@ -132,7 +141,7 @@ export default function DashboardSuper({ user }) {
         {/* Header da página */}
         <header className={styles.header}>
           <div className={styles.greetingText}>
-            {greeting}, <span className={styles.userName}>{user.name.split(' ')[0]}</span>
+            {greeting}, <span className={styles.userName}>{user?.name?.split?.(' ')?.[0] || 'Usuário'}</span>
           </div>
           <p className={styles.subtitle}>
             Bem-vindo ao seu painel de controle. Aqui você pode monitorar o desempenho da sua equipe.
@@ -163,13 +172,13 @@ export default function DashboardSuper({ user }) {
           <div className={styles.tabContent}>
             {currentTab === 0 && (
               <div className={styles.tabPanel}>
-                <DashboardData user={user} />
+                <DashboardData user={user} users={users} />
               </div>
             )}
             
             {currentTab === 1 && (
               <div className={styles.tabPanel}>
-                <TicketLoggerDashboard user={user} />
+                <TicketLoggerDashboard user={user} users={users} />
               </div>
             )}
             

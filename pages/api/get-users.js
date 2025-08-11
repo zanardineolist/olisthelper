@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     if (meErr || !me) {
       return res.status(403).json({ error: 'Proibido' });
     }
-    const allowedProfiles = ['analyst', 'tax'];
+    const allowedProfiles = ['analyst', 'tax', 'super'];
     const isAllowed = me.admin || allowedProfiles.includes((me.profile || '').toLowerCase());
     if (!isAllowed) {
       return res.status(403).json({ error: 'Proibido' });

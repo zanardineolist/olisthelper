@@ -81,7 +81,7 @@ const UserAvatar = ({ user, className }) => {
 };
 
 // Componente principal
-export default function TicketLoggerDashboard({ user }) {
+export default function TicketLoggerDashboard({ user, users: usersFromProps = [] }) {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -116,8 +116,12 @@ export default function TicketLoggerDashboard({ user }) {
 
   // Carregar lista de usuários
   useEffect(() => {
+    if (Array.isArray(usersFromProps) && usersFromProps.length > 0) {
+      setUsers(usersFromProps);
+      return;
+    }
     loadUsers();
-  }, []);
+  }, [usersFromProps]);
 
   // Mostrar/ocultar seletor de datas personalizadas
   useEffect(() => {
@@ -408,14 +412,14 @@ export default function TicketLoggerDashboard({ user }) {
             <i className="fa-solid fa-users"></i>
             Selecione um Colaborador
           </h3>
-          <Select
+           <Select
             options={users
-              .filter((user) => user && isValidRole(user.role))
-              .map((user) => ({
-                value: user,
-                label: user.name || 'Nome não disponível',
-                role: user.role || 'unknown',
-                color: getColorForRole(user.role || 'unknown'),
+              .filter((u) => u && u.active && isValidRole(u.role))
+              .map((u) => ({
+                value: u,
+                label: `${u.name || 'Nome não disponível'}${u.squad ? ` · #${u.squad}` : ''}`,
+                role: (u.role || 'unknown').toLowerCase(),
+                color: getColorForRole(u.role || 'unknown'),
               }))}
             onChange={handleUserSelect}
             isClearable

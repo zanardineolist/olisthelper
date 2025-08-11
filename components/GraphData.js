@@ -411,11 +411,13 @@ export default function GraphData({ users }) {
         <div className={styles.panelSection}>
           <h3 className={styles.sectionTitle}>Selecione os Colaboradores</h3>
           <Select
-            options={users.filter(user => ['analyst', 'tax'].includes(user.role.toLowerCase())).map(user => ({
-              value: user,
-              label: user.name,
-              id: user.id,
-            }))}
+            options={users
+              .filter(u => u && u.active && typeof u.role === 'string' && ['analyst', 'tax'].includes(u.role.toLowerCase()))
+              .map(u => ({
+                value: u,
+                label: `${u.name}${u.squad ? ` · #${u.squad}` : ''}`,
+                id: u.id,
+              }))}
             onChange={(selectedOptions) => {
               setSelectedUsers(selectedOptions ? selectedOptions.map(option => option.value) : []);
             }}
@@ -501,6 +503,9 @@ export default function GraphData({ users }) {
             >
               <i className="fa-solid fa-chart-line"></i> Linhas
             </button>
+            {selectedUsers.length > 5 && (
+              <span className={styles.helperText}>Você selecionou muitos usuários. Gráfico pode ficar pesado.</span>
+            )}
           </div>
         )}
       </div>
