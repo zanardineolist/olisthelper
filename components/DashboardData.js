@@ -278,7 +278,7 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
   // Carregar lista de usuários (apenas uma vez)
   useEffect(() => {
     if (Array.isArray(usersFromProps) && usersFromProps.length > 0) {
-      setUsers(usersFromProps);
+      setUsers(usersFromProps.filter(u => u && (u.active !== false)));
       return;
     }
     loadUsers();
@@ -884,7 +884,7 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
           </h3>
           <Select
             options={users
-              .filter((u) => u && u.active && isValidRole(u.role))
+              .filter((u) => u && (u.active !== false) && isValidRole(u.role))
               .map((u) => ({
                 value: u,
                 label: `${u.name || 'Nome não disponível'}${u.squad ? ` · #${u.squad}` : ''}`,

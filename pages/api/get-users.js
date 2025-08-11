@@ -64,19 +64,25 @@ export default async function handler(req, res) {
       });
     }
 
-    // Mapear dados para manter compatibilidade com o frontend
-    const mappedUsers = users.map(user => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.profile?.toLowerCase().trim(), // Normalizar role
-      squad: user.squad,
-      chamado: user.can_ticket,
-      telefone: user.can_phone,
-      chat: user.can_chat,
-      supervisor: supervisorMap[user.email?.toLowerCase()] || null,
-      remoto: false, // Campo removido da nova estrutura
-    }));
+    // Mapear dados para manter compatibilidade com o frontend (resiliente)
+    const mappedUsers = users.map(user => {
+      const normalizedRole = typeof user.profile === 'string'
+        ? user.profile.toLowerCase().trim()
+        : 'support';
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: normalizedRole,
+        active: user.active,
+        squad: user.squad,
+        chamado: user.can_ticket,
+        telefone: user.can_phone,
+        chat: user.can_chat,
+        supervisor: supervisorMap[user.email?.toLowerCase()] || null,
+        remoto: false,
+      };
+    });
 
     return res.status(200).json({ users: mappedUsers });
   } catch (error) {

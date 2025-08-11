@@ -412,7 +412,7 @@ export default function GraphData({ users }) {
           <h3 className={styles.sectionTitle}>Selecione os Colaboradores</h3>
           <Select
             options={users
-              .filter(u => u && u.active && typeof u.role === 'string' && ['analyst', 'tax'].includes(u.role.toLowerCase()))
+              .filter(u => u && (u.active !== false) && typeof u.role === 'string' && ['analyst', 'tax'].includes(u.role.toLowerCase()))
               .map(u => ({
                 value: u,
                 label: `${u.name}${u.squad ? ` · #${u.squad}` : ''}`,
