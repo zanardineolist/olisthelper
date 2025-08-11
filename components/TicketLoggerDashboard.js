@@ -105,8 +105,8 @@ export default function TicketLoggerDashboard({ user, users: usersFromProps = []
     { value: 'custom', label: 'Período personalizado' }
   ];
 
-  // Roles válidas para exibição
-  const VALID_ROLES = ['support', 'analyst', 'tax'];
+  // Roles válidas para exibição (somente suporte)
+  const VALID_ROLES = ['support'];
 
   const isValidRole = (role) => {
     if (!role || typeof role !== 'string') return false;
@@ -117,8 +117,13 @@ export default function TicketLoggerDashboard({ user, users: usersFromProps = []
   // Carregar lista de usuários
   useEffect(() => {
     if (Array.isArray(usersFromProps) && usersFromProps.length > 0) {
-      setUsers(usersFromProps.filter(u => u && (u.active !== false)));
-      return;
+      const onlySupport = usersFromProps.filter(
+        u => u && (u.active !== false) && isValidRole(u.role)
+      );
+      if (onlySupport.length > 0) {
+        setUsers(onlySupport);
+        return;
+      }
     }
     loadUsers();
   }, [usersFromProps]);
@@ -141,8 +146,11 @@ export default function TicketLoggerDashboard({ user, users: usersFromProps = []
       const res = await fetch('/api/get-users');
       if (!res.ok) throw new Error('Erro ao carregar usuários');
       const data = await res.json();
-      
-      setUsers(data.users || []);
+      // Manter somente perfis de suporte ativos
+      const supportUsers = (data.users || []).filter(
+        (u) => u && (u.active !== false) && isValidRole(u.role)
+      );
+      setUsers(supportUsers);
     } catch (err) {
       console.error('Erro ao carregar usuários:', err);
       Swal.fire('Erro', 'Erro ao carregar usuários.', 'error');
