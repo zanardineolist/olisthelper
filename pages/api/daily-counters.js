@@ -25,7 +25,10 @@ export default async function handler(req, res) {
         }
 
         if (analystId !== session.id) {
-          return res.status(403).json({ error: 'Proibido' });
+          // Permitir que supervisores consultem contadores de qualquer analista
+          if (session.role !== 'super') {
+            return res.status(403).json({ error: 'Proibido' });
+          }
         }
 
         if (date && !isValidDateStr(date)) {
