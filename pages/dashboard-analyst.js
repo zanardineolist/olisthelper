@@ -23,6 +23,7 @@ export default function DashboardAnalyst({ user }) {
   const [recordsLoading, setRecordsLoading] = useState(false);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);
   const [categoryLoading, setCategoryLoading] = useState(false);
+  const [periodCounters, setPeriodCounters] = useState({ calls: 0, rfcs: 0, helps: 0 });
   
   const { callApi } = useApiLoader();
   const { loading: routerLoading } = useLoading();
@@ -67,6 +68,7 @@ export default function DashboardAnalyst({ user }) {
       fetchRecords();
       fetchLeaderboard();
       fetchCategoryRanking();
+      fetchPeriodCounters();
     }
   }, [periodFilter, customDateRange, user]);
 
@@ -233,6 +235,27 @@ export default function DashboardAnalyst({ user }) {
       setCategoryRanking([]);
     } finally {
       setCategoryLoading(false);
+    }
+  };
+
+  const fetchPeriodCounters = async () => {
+    if (!user?.id) return;
+    try {
+      const { startDate, endDate } = getDateRange();
+      const data = await callApi(
+        `/api/daily-counters?analystId=${user.id}&startDate=${startDate}&endDate=${endDate}`,
+        {},
+        { showLoading: false }
+      );
+      const totals = data?.totals || {};
+      setPeriodCounters({
+        calls: totals.calls || 0,
+        rfcs: totals.rfcs || 0,
+        helps: totals.helps || 0,
+      });
+    } catch (e) {
+      console.error('Erro ao buscar contadores do período:', e);
+      setPeriodCounters({ calls: 0, rfcs: 0, helps: 0 });
     }
   };
 
@@ -434,6 +457,21 @@ export default function DashboardAnalyst({ user }) {
             <div className={styles.summaryMetric}>
               <div className={styles.metricValue}>{categoryRanking.length}</div>
               <div className={styles.metricLabel}>Categorias</div>
+            </div>
+          </div>
+
+          <div className={styles.summaryContent}>
+            <div className={styles.summaryMetric}>
+              <div className={styles.metricValue}>{periodCounters.helps}</div>
+              <div className={styles.metricLabel}>Ajudas (período)</div>
+            </div>
+            <div className={styles.summaryMetric}>
+              <div className={styles.metricValue}>{periodCounters.calls}</div>
+              <div className={styles.metricLabel}>Chamados (período)</div>
+            </div>
+            <div className={styles.summaryMetric}>
+              <div className={styles.metricValue}>{periodCounters.rfcs}</div>
+              <div className={styles.metricLabel}>RFC's (período)</div>
             </div>
           </div>
         </div>
