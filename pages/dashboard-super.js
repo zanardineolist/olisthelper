@@ -78,7 +78,7 @@ export default function DashboardSuper({ user }) {
         const data = await res.json();
         setUsers(
           (data.users || []).filter(u =>
-            u && (u.active !== false) && typeof u.role === 'string' && ['analyst', 'tax'].includes(u.role.toLowerCase())
+            u && (u.active !== false) && typeof u.role === 'string' && ['support', 'analyst', 'tax'].includes(u.role.toLowerCase())
           )
         );
       } catch (err) {

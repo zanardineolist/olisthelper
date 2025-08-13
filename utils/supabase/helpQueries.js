@@ -22,53 +22,78 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
       .eq('analyst_id', analystId)
       .order('created_at', { ascending: false });
 
-    // Se for modo profile, buscar todos os registros para calcular contagens
-    if (mode !== 'profile') {
-      // Verifica se days é uma string que contém "-" (indicativo de data ISO)
-      if (typeof days === 'string' && days.includes('-')) {
-        // Estamos recebendo um range de datas
-        try {
-          // Usar as funções de utilitário para tratar as datas
-          const startDate = setStartOfDay(days);
-          const endDateTime = endDate ? setEndOfDay(endDate) : new Date();
-          
-          // Aplicar o filtro de data no range completo
-          query = query
-            .gte('created_at', startDate.toISOString())
-            .lte('created_at', endDateTime.toISOString());
-        } catch (error) {
-          console.error('Erro ao processar datas:', error);
-          // Fallback para o comportamento padrão
-          query = query.gte('created_at', getDaysAgo(30).toISOString());
-        }
-      } else {
-        // Comportamento original - usando days como número de dias atrás
-        const daysNum = parseInt(days) || 30;
-        query = query.gte('created_at', getDaysAgo(daysNum).toISOString());
+    // Aplicar filtros de data independentemente do modo
+    // Se recebermos um range (days como data no formato YYYY-MM-DD), usamos startDate/endDate
+    if (typeof days === 'string' && days.includes('-')) {
+      try {
+        const startDate = setStartOfDay(days);
+        const endDateTime = endDate ? setEndOfDay(endDate) : new Date();
+        query = query
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDateTime.toISOString());
+      } catch (error) {
+        console.error('Erro ao processar datas:', error);
+        query = query.gte('created_at', getDaysAgo(30).toISOString());
       }
+    } else if (mode !== 'profile') {
+      // Quando não é um range explícito e não estamos em profile, aplica filtro de últimos N dias
+      const daysNum = parseInt(days) || 30;
+      query = query.gte('created_at', getDaysAgo(daysNum).toISOString());
     }
 
     const { data, error } = await query;
     if (error) throw error;
 
-    // Se for modo profile, calcular contagens por mês e por dia atual
+    // Se for modo profile, calcular contagens respeitando o período selecionado (se houver)
     if (mode === 'profile') {
-      const now = new Date();
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
-      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+      // Quando recebemos um range (days como YYYY-MM-DD e endDate definido), tratamos como "Período Atual"
+      let currentPeriodCount = data.length;
+      let previousPeriodCount = 0;
 
-      const currentMonthCount = data.filter(record => {
-        const date = new Date(record.created_at);
-        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-      }).length;
+      if (typeof days === 'string' && days.includes('-') && endDate) {
+        try {
+          const currentStart = setStartOfDay(days);
+          const currentEnd = setEndOfDay(endDate);
+          const msInDay = 24 * 60 * 60 * 1000;
+          const diffMs = currentEnd.getTime() - currentStart.getTime();
+          const previousEnd = new Date(currentStart.getTime() - msInDay);
+          const previousStart = new Date(previousEnd.getTime() - diffMs);
 
-      const lastMonthCount = data.filter(record => {
-        const date = new Date(record.created_at);
-        return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
-      }).length;
-      
+          // Buscar período anterior de mesma duração
+          const { data: prevData, error: prevError } = await supabaseAdmin
+            .from('help_records')
+            .select('id')
+            .eq('analyst_id', analystId)
+            .gte('created_at', previousStart.toISOString())
+            .lte('created_at', previousEnd.toISOString());
+
+          if (prevError) {
+            throw prevError;
+          }
+          previousPeriodCount = prevData?.length || 0;
+        } catch (e) {
+          console.error('Erro ao calcular período anterior:', e);
+          previousPeriodCount = 0;
+        }
+      } else {
+        // Sem range explícito: manter comportamento mensal atual/anterior
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+        currentPeriodCount = data.filter(record => {
+          const date = new Date(record.created_at);
+          return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+        }).length;
+
+        previousPeriodCount = data.filter(record => {
+          const date = new Date(record.created_at);
+          return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
+        }).length;
+      }
+
       // Calcular contagem de ajudas do dia atual usando lógica correta de timezone
       let todayCount = 0;
       
@@ -111,8 +136,8 @@ export async function getAnalystRecords(analystId, days = 30, mode = 'standard',
       }
 
       return {
-        currentMonth: currentMonthCount,
-        lastMonth: lastMonthCount,
+        currentMonth: currentPeriodCount,
+        lastMonth: previousPeriodCount,
         today: todayCount,
         rows: data.map(row => [
           formatDateBR(row.created_at),
