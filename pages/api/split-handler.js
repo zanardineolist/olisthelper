@@ -178,8 +178,20 @@ async function processProductFile(rows, header) {
   const skuIndex = header.findIndex(col => col === 'Código (SKU)');
 
   if (productTypeIndex === -1 || parentCodeIndex === -1 || skuIndex === -1) {
-    // Caso não encontre as colunas necessárias, processar como arquivo normal
-    return processFileStream(rows, header, linesPerPart);
+    // Fallback: dividir genericamente usando os dados já carregados
+    const parts = [];
+    let currentPart = [header];
+    for (let i = 0; i < rows.length; i++) {
+      currentPart.push(rows[i]);
+      if (currentPart.length - 1 === linesPerPart) {
+        parts.push([...currentPart]);
+        currentPart = [header];
+      }
+    }
+    if (currentPart.length > 1) {
+      parts.push(currentPart);
+    }
+    return parts;
   }
 
   for (let i = 0; i < rows.length; i++) {

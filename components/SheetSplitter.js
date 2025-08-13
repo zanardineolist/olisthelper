@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   FaFileExcel, 
   FaUpload, 
@@ -17,7 +17,7 @@ import {
 } from 'react-icons/fa';
 import styles from '../styles/SheetSplitter.module.css';
 import { useApiLoader } from '../utils/apiLoader';
-import { LocalLoader } from './LoadingIndicator';
+// import { LocalLoader } from './LoadingIndicator';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
@@ -37,6 +37,34 @@ const SheetSplitter = () => {
   const [processCompleted, setProcessCompleted] = useState(false);
   const [processPhase, setProcessPhase] = useState('idle'); // 'idle', 'validating', 'splitting', 'complete'
   const [validationProgress, setValidationProgress] = useState(0);
+
+  // Refs para controle de timers, abort e input
+  const fileInputRef = useRef(null);
+  const validationTimerRef = useRef(null);
+  const processingTimerRef = useRef(null);
+  const splitAbortControllerRef = useRef(null);
+  const isMountedRef = useRef(true);
+  const validationRequestIdRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (validationTimerRef.current) {
+        clearInterval(validationTimerRef.current);
+        validationTimerRef.current = null;
+      }
+      if (processingTimerRef.current) {
+        clearInterval(processingTimerRef.current);
+        processingTimerRef.current = null;
+      }
+      if (splitAbortControllerRef.current) {
+        try { splitAbortControllerRef.current.abort(); } catch {}
+      }
+      if (fileUrl) {
+        try { URL.revokeObjectURL(fileUrl); } catch {}
+      }
+    };
+  }, []);
 
   const layoutOptions = [
     { value: 'produtos', label: 'Produtos', icon: <FaTable /> },
@@ -119,15 +147,22 @@ const SheetSplitter = () => {
       setSuccessMessage('Validando formato da planilha...');
       
       // Simulação de progresso de validação
-      let validationTimer = setInterval(() => {
+      validationTimerRef.current = setInterval(() => {
         setValidationProgress(prev => {
           if (prev >= 90) {
-            clearInterval(validationTimer);
+            if (validationTimerRef.current) {
+              clearInterval(validationTimerRef.current);
+              validationTimerRef.current = null;
+            }
             return 90; // Mantém em 90% até a resposta da API
           }
           return prev + 10;
         });
       }, 150);
+
+      // Guard para corrida de requisições
+      const requestId = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      validationRequestIdRef.current = requestId;
       
       const response = await callApi('/api/validate-layout', {
         method: 'POST',
@@ -143,11 +178,15 @@ const SheetSplitter = () => {
       });
       
       // Validação concluída, ajusta para 100%
-      clearInterval(validationTimer);
+      if (validationTimerRef.current) {
+        clearInterval(validationTimerRef.current);
+        validationTimerRef.current = null;
+      }
       setValidationProgress(100);
       
       // Após breve pausa para mostrar 100%, define o sucesso
       setTimeout(() => {
+        if (!isMountedRef.current || validationRequestIdRef.current !== requestId) return;
         // Se chegarmos aqui, a validação foi bem-sucedida
         setError('');
         setSuccessMessage('Validação concluída! A planilha está no formato correto.');
@@ -252,14 +291,17 @@ const SheetSplitter = () => {
       toast.error('Erro na validação do arquivo');
       
       // Limpar campo de arquivo para permitir nova seleção
-      const fileInput = document.getElementById('file-input');
-      if (fileInput) fileInput.value = '';
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } finally {
       setIsProcessing(false);
     }
   };
 
   const resetForm = () => {
+    // Revogar URL anterior, se houver
+    if (fileUrl) {
+      try { URL.revokeObjectURL(fileUrl); } catch {}
+    }
     setFile(null);
     setProgress(0);
     setValidationProgress(0);
@@ -275,8 +317,7 @@ const SheetSplitter = () => {
     setActiveStep(1);
     
     // Limpar campo de arquivo
-    const fileInput = document.getElementById('file-input');
-    if (fileInput) fileInput.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleOptionChange = (event) => {
@@ -313,6 +354,9 @@ const SheetSplitter = () => {
     formData.append('layoutType', selectedOption);
 
     try {
+      // Preparar cancelamento com AbortController
+      const controller = new AbortController();
+      splitAbortControllerRef.current = controller;
       // Usar axios diretamente para ter mais controle sobre o tipo de resposta
       const response = await axios.post('/api/split-handler', formData, {
         headers: { 
@@ -327,10 +371,13 @@ const SheetSplitter = () => {
             setSuccessMessage('Arquivo enviado, iniciando o processamento...');
             
             // Após o upload completo, simulamos o progresso de processamento (40% a 90%)
-            let processingTimer = setInterval(() => {
+            processingTimerRef.current = setInterval(() => {
               setProgress(prev => {
                 if (prev >= 90) {
-                  clearInterval(processingTimer);
+                  if (processingTimerRef.current) {
+                    clearInterval(processingTimerRef.current);
+                    processingTimerRef.current = null;
+                  }
                   return 90; // Mantém em 90% até a resposta final
                 }
                 return prev + 2;
@@ -339,11 +386,15 @@ const SheetSplitter = () => {
             
             // Limpeza do timer em caso de resposta ou erro
             setTimeout(() => {
-              clearInterval(processingTimer);
+              if (processingTimerRef.current) {
+                clearInterval(processingTimerRef.current);
+                processingTimerRef.current = null;
+              }
             }, 15000); // Timeout de segurança
           }
         },
         responseType: 'blob', // Isso garante que a resposta seja tratada como blob
+        signal: controller.signal,
       });
 
       // Quando a resposta chega, o progresso vai para 100%
@@ -351,19 +402,17 @@ const SheetSplitter = () => {
       setSuccessMessage('Finalizado! Gerando arquivo para download...');
 
       // Verificando se a resposta é um formato JSON de erro
-      const contentType = response.headers['content-type'];
-      if (contentType && contentType.includes('application/json')) {
-        // É um erro em formato JSON
-        const reader = new FileReader();
-        reader.onload = () => {
-          try {
-            const errorData = JSON.parse(reader.result);
-            throw new Error(errorData.error || 'Erro desconhecido durante o processamento');
-          } catch (jsonError) {
-            throw new Error('Erro no formato da resposta do servidor');
-          }
-        };
-        reader.readAsText(response.data);
+      const contentType = response.headers['content-type'] || '';
+      const isJsonError = contentType.includes('application/json') || (response.data && response.data.type === 'application/json');
+      if (isJsonError) {
+        const text = await response.data.text();
+        let errorData = null;
+        try {
+          errorData = JSON.parse(text);
+        } catch {
+          throw new Error('Erro no formato da resposta do servidor');
+        }
+        throw new Error(errorData.error || 'Erro desconhecido durante o processamento');
       } else {
         // É um arquivo ZIP válido - Aguardar um pouco para mostrar o 100% antes de concluir
         setTimeout(() => {
@@ -386,8 +435,7 @@ const SheetSplitter = () => {
           setProcessPhase('complete');
           
           // Limpa campo de arquivo
-          const fileInput = document.getElementById('file-input');
-          if (fileInput) fileInput.value = '';
+          if (fileInputRef.current) fileInputRef.current.value = '';
           
           // Exibe notificação de sucesso
           toast.success('Planilha dividida com sucesso!');
@@ -396,16 +444,29 @@ const SheetSplitter = () => {
     } catch (error) {
       setProcessPhase('error');
       let errorMessage = error.message || 'Erro desconhecido';
-      
-      // Tratamento específico para mensagens de erro conhecidas
-      if (errorMessage.includes('layout')) {
-        errorMessage = 'Formato da planilha incorreto. Verifique se está usando o modelo correto.';
-      } else if (errorMessage.includes('limite')) {
-        errorMessage = 'Arquivo muito grande: O limite máximo é de 5MB.';
-      } else if (errorMessage.includes('vazio')) {
-        errorMessage = 'A planilha está vazia ou contém apenas cabeçalho.';
-      } else if (errorMessage.includes('JSON')) {
-        errorMessage = 'Erro de comunicação com o servidor. Por favor, tente novamente.';
+
+      // Preferir mapeamento por status HTTP quando disponível
+      if (error.response) {
+        const status = error.response.status;
+        const serverMsg = error.response.data && (error.response.data.error || error.response.data.message);
+        if (status === 413) {
+          errorMessage = 'Arquivo muito grande: O limite máximo é de 5MB.';
+        } else if (status === 400) {
+          errorMessage = serverMsg || 'Formato da planilha incorreto. Verifique se está usando o modelo correto.';
+        } else if (status >= 500) {
+          errorMessage = serverMsg || 'Erro no servidor ao processar a planilha.';
+        }
+      } else {
+        // Tratamento específico para mensagens de erro conhecidas
+        if (errorMessage.includes('layout')) {
+          errorMessage = 'Formato da planilha incorreto. Verifique se está usando o modelo correto.';
+        } else if (errorMessage.includes('limite')) {
+          errorMessage = 'Arquivo muito grande: O limite máximo é de 5MB.';
+        } else if (errorMessage.includes('vazio')) {
+          errorMessage = 'A planilha está vazia ou contém apenas cabeçalho.';
+        } else if (errorMessage.includes('JSON')) {
+          errorMessage = 'Erro de comunicação com o servidor. Por favor, tente novamente.';
+        }
       }
       
       setError(`Erro ao processar o arquivo: ${errorMessage}`);
@@ -415,9 +476,15 @@ const SheetSplitter = () => {
       toast.error('Erro ao processar a planilha');
       
       // Limpa campo de arquivo
-      const fileInput = document.getElementById('file-input');
-      if (fileInput) fileInput.value = '';
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } finally {
+      if (processingTimerRef.current) {
+        clearInterval(processingTimerRef.current);
+        processingTimerRef.current = null;
+      }
+      if (splitAbortControllerRef.current) {
+        splitAbortControllerRef.current = null;
+      }
       setIsProcessing(false);
     }
   };
@@ -712,7 +779,7 @@ const SheetSplitter = () => {
     }
     
     return (
-      <div className={styles.processingStatus}>
+          <div className={styles.processingStatus} aria-busy={isProcessing}>
         {/* Cabeçalho de status */}
         <div className={styles.processingStatusHeader}>
           {isProcessing && processPhase === 'validating' ? (
@@ -895,7 +962,7 @@ const SheetSplitter = () => {
 
       <div className={styles.contentContainer}>
         {error && (
-          <div className={styles.errorMessage}>
+          <div className={styles.errorMessage} aria-live="polite">
             {typeof error === 'string' ? (
               <>
                 <FaExclamationTriangle />
@@ -908,7 +975,7 @@ const SheetSplitter = () => {
         )}
 
         {successMessage && !isProcessing && (
-          <div className={styles.successMessage}>
+          <div className={styles.successMessage} aria-live="polite">
             <FaCheckCircle />
             <span>{successMessage}</span>
           </div>
@@ -997,6 +1064,7 @@ const SheetSplitter = () => {
                     onChange={handleFileChange}
                     disabled={!selectedOption || processCompleted || isProcessing}
                     className={styles.fileInput}
+                    ref={fileInputRef}
                   />
                 </div>
   

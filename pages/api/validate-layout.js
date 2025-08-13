@@ -8,8 +8,8 @@ export const config = {
   },
 };
 
-// Layouts esperados para cada tipo de planilha
-const layouts = {
+// Layouts base (esperados) para cada tipo de planilha
+const baseLayouts = {
   produtos: [
     'ID', 'Código (SKU)', 'Descrição', 'Unidade', 'NCM (Classificação fiscal)', 'Origem', 'Preço', 'Valor IPI fixo',
     'Observações', 'Situação', 'Estoque', 'Preço de custo', 'Cód do fornecedor', 'Fornecedor', 'Localização',
@@ -59,37 +59,83 @@ async function validateLayout(filePath, fileType) {
     }
 
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const fileHeader = XLSX.utils.sheet_to_json(sheet, { header: 1 })[0];
-    const expectedLayout = layouts[fileType];
+    const fileHeaderRaw = XLSX.utils.sheet_to_json(sheet, { header: 1 })[0];
 
-    if (!expectedLayout) {
+    // Normalizações para evitar falhas por BOM/aspas/whitespace
+    const normalizeHeaderValue = (value) => {
+      if (value === undefined || value === null) return '';
+      let result = String(value);
+      // Remover BOM
+      result = result.replace(/^\uFEFF/, '');
+      // Remover todas aspas duplas residuais comuns em CSVs exportados
+      result = result.replace(/"/g, '');
+      // Normalizar espaços
+      result = result.replace(/\s+/g, ' ').trim();
+      return result;
+    };
+
+    const fileHeader = (fileHeaderRaw || []).map(normalizeHeaderValue);
+
+    // Variantes aceitáveis por layout (além do base)
+    const layoutVariants = {
+      produtos: [baseLayouts.produtos],
+      clientes: [baseLayouts.clientes],
+      contatos: [baseLayouts.contatos],
+      inventario: [baseLayouts.inventario],
+      // contas_receber: aceitar também variante sem a coluna "Competência"
+      contas_receber: [
+        baseLayouts.contas_receber,
+        baseLayouts.contas_receber.filter((col) => col !== 'Competência')
+      ],
+      contas_pagar: [baseLayouts.contas_pagar],
+    };
+
+    const expectedVariants = layoutVariants[fileType];
+
+    if (!expectedVariants) {
       throw new Error(`O layout para o tipo de arquivo "${fileType}" não foi definido.`);
     }
     
-    // Melhorar o retorno detalhado para o componente de validação
-    const validationResult = {
-      expected: expectedLayout,
-      found: fileHeader
-    };
-    
-    if (fileHeader.length !== expectedLayout.length) {
-      const error = new Error(`Número de colunas incorreto. Esperado: ${expectedLayout.length}, Recebido: ${fileHeader.length}.`);
-      error.details = validationResult;
-      throw error;
+    // Tentar casar com qualquer uma das variantes
+    const normalized = (arr) => arr.map(normalizeHeaderValue);
+    let matchedVariant = null;
+    for (const variant of expectedVariants) {
+      const normalizedVariant = normalized(variant);
+      if (
+        fileHeader.length === normalizedVariant.length &&
+        fileHeader.every((val, idx) => val === normalizedVariant[idx])
+      ) {
+        matchedVariant = variant;
+        break;
+      }
     }
 
-    for (let i = 0; i < fileHeader.length; i++) {
-      if (fileHeader[i] !== expectedLayout[i]) {
-        const error = new Error(`Erro na coluna ${i + 1}: Esperado "${expectedLayout[i]}", mas encontrado "${fileHeader[i]}" na posição ${i + 1}. Verifique e ajuste o arquivo.`);
+    if (!matchedVariant) {
+      // Montar detalhes tomando como base o primeiro layout esperado
+      const primaryExpected = expectedVariants[0];
+      const validationResult = {
+        expected: primaryExpected,
+        found: fileHeader,
+      };
+      if (fileHeader.length !== primaryExpected.length) {
+        const error = new Error(`Número de colunas incorreto. Esperado: ${primaryExpected.length}, Recebido: ${fileHeader.length}.`);
         error.details = validationResult;
         throw error;
+      }
+      // Mesmo tamanho, mas alguma coluna difere
+      for (let i = 0; i < fileHeader.length; i++) {
+        if (normalizeHeaderValue(fileHeader[i]) !== normalizeHeaderValue(primaryExpected[i])) {
+          const error = new Error(`Erro na coluna ${i + 1}: Esperado "${primaryExpected[i]}", mas encontrado "${fileHeader[i]}" na posição ${i + 1}. Verifique e ajuste o arquivo.`);
+          error.details = validationResult;
+          throw error;
+        }
       }
     }
     
     // Retornar informações mais detalhadas para o sucesso
     return {
       valid: true,
-      columns: expectedLayout
+      columns: matchedVariant || expectedVariants[0]
     };
   } catch (error) {
     throw error;
