@@ -346,7 +346,7 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
       } else if (selectedUser.role === 'analyst') {
         // Para analyst, carregar dados de ajudas prestadas, ranking de categorias e total de chamados
         const [helpResponse, performanceResponse] = await Promise.all([
-          fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`),
+          fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile&startDate=${startDate}&endDate=${endDate}`),
           fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
         ]);
 
@@ -375,7 +375,7 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
       } else if (selectedUser.role === 'tax') {
         // Para fiscal, combinar dados do suporte e analyst
         const [helpResponse, performanceResponse] = await Promise.all([
-          fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile`),
+          fetch(`/api/get-analyst-records?analystId=${selectedUser.id}&mode=profile&startDate=${startDate}&endDate=${endDate}`),
           fetch(`/api/get-user-performance?userEmail=${selectedUser.email}`)
         ]);
 
