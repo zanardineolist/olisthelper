@@ -157,8 +157,38 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
 
   const ToolsMenu = () => {
     const isToolsActive = router.pathname === '/tools';
+
+    const ToolsSubItem = ({ tab, isActiveTool }) => {
+      const [tooltipStyle, setTooltipStyle] = useState({});
+      const handleMouseEnter = (e) => {
+        if (isCollapsed) {
+          const rect = e.currentTarget.getBoundingClientRect();
+          setTooltipStyle({
+            position: 'fixed',
+            top: `${rect.top + rect.height / 2}px`,
+            left: `${rect.right + 12}px`,
+            transform: 'translateY(-50%)'
+          });
+        }
+      };
+      return (
+        <li className={styles.submenuItem} role="none">
+          <Link
+            href={`/tools${tab.hash}`}
+            className={`${styles.submenuLink} ${isActiveTool ? styles.active : ''}`}
+            role="menuitem"
+            onClick={() => setIsToolsOpen(false)}
+            onMouseEnter={handleMouseEnter}
+          >
+            <span className={styles.navIcon}><tab.icon /></span>
+            <span className={styles.navLabel}>{tab.label}</span>
+          </Link>
+          <span className={styles.navTooltip} style={isCollapsed ? tooltipStyle : {}}>{tab.label}</span>
+        </li>
+      );
+    };
     return (
-      <li className={`${styles.navItem} ${isToolsOpen ? styles.open : ''}`} onMouseLeave={() => setIsToolsOpen(false)}>
+      <li className={`${styles.navItem} ${isToolsOpen ? styles.open : ''}`}>
         <button 
           className={`${styles.navLink} ${isToolsActive ? styles.active : ''}`}
           ref={toolsButtonRef}
@@ -190,27 +220,14 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
         </button>
         <span className={styles.navTooltip}>Ferramentas</span>
         {isToolsOpen && (
-          <ul className={`${styles.submenu} ${isCollapsed ? styles.submenuOpen : ''}`} role="menu" style={toolsMenuStyle}
-              onMouseEnter={() => setIsToolsOpen(true)}
-              onMouseLeave={() => setIsToolsOpen(false)}
-          >
+          <ul className={`${styles.submenu} ${isCollapsed ? styles.submenuOpen : ''}`} role="menu" style={toolsMenuStyle}>
             {availableToolsTabs.map((tab) => {
               const asPath = router.asPath || '';
               const hashIndex = asPath.indexOf('#');
               const currentHash = hashIndex >= 0 ? asPath.substring(hashIndex) : '';
               const isActiveTool = isToolsActive && currentHash === tab.hash;
               return (
-                <li key={tab.id} className={styles.submenuItem} role="none">
-                  <Link 
-                    href={`/tools${tab.hash}`}
-                    className={`${styles.submenuLink} ${isActiveTool ? styles.active : ''}`}
-                    role="menuitem"
-                    onClick={() => setIsToolsOpen(false)}
-                  >
-                    <span className={styles.navIcon}><tab.icon /></span>
-                    <span className={styles.navLabel}>{tab.label}</span>
-                  </Link>
-                </li>
+                <ToolsSubItem key={tab.id} tab={tab} isActiveTool={isActiveTool} />
               );
             })}
           </ul>

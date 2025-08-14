@@ -290,8 +290,8 @@
   transform: scale(1.1);
 }
 
-/* Mostrar submenu apenas ao passar o mouse sobre o item no modo colapsado */
-.sidebar.collapsed .navItem:hover > .submenu {
+/* Mostrar submenu no modo colapsado apenas quando aberto via classe controlada por JS */
+.sidebar.collapsed .submenuOpen {
   display: block;
 }
 
