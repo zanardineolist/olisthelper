@@ -2,6 +2,8 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { createClient } from '@supabase/supabase-js';
+import securityLogger from '../../utils/securityLogger';
+import { SECURITY_CONFIG, SecurityValidators } from '../../utils/securityConfig';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -16,19 +18,44 @@ export const authOptions = {
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    maxAge: SECURITY_CONFIG.SESSION.MAX_AGE,
+    updateAge: SECURITY_CONFIG.SESSION.UPDATE_AGE,
+  },
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user, account }) {
       try {
+        // Validação adicional de segurança
+        if (!user.email || !user.email.includes('@')) {
+          console.error("Email inválido fornecido:", user.email);
+          return false;
+        }
+
+        // Verificar se é uma conta Google válida
+        if (account?.provider !== 'google') {
+          securityLogger.logAuthError("Provedor de autenticação inválido", { provider: account?.provider, email: user.email });
+          return false;
+        }
+
         // Verificar ou criar usuário no Supabase
         const userDetails = await getOrCreateUser(user);
         if (!userDetails) {
-          console.error("Usuário não autorizado ou erro durante criação:", user.email);
+          securityLogger.logAuthError("Usuário não autorizado ou erro durante criação", { email: user.email });
           return false;
         }
-        console.log("Usuário autorizado:", userDetails);
+        
+        // Log de login bem-sucedido
+        const clientIP = req?.headers?.['x-forwarded-for'] || req?.connection?.remoteAddress || 'unknown';
+        const userAgent = req?.headers?.['user-agent'] || 'unknown';
+        securityLogger.logLoginAttempt(user.email, true, clientIP, userAgent);
+        
         return true;
       } catch (error) {
-        console.error("Erro durante a verificação do login:", error);
+        securityLogger.logAuthError(error, { 
+          email: user.email, 
+          provider: account?.provider,
+          errorType: 'LOGIN_VERIFICATION_ERROR'
+        });
         return false;
       }
     },
@@ -76,14 +103,11 @@ export default NextAuth(authOptions);
  */
 async function getOrCreateUser(user) {
   try {
-    // Verificar se o email é do domínio permitido
-    const allowedDomains = ['olist.com', 'tiny.com.br'];
-    const emailDomain = user.email.split('@')[1];
-    
-    if (!allowedDomains.includes(emailDomain)) {
-      console.log('Domínio de email não autorizado:', emailDomain);
-      return null;
-    }
+            // Verificar se o email é do domínio permitido
+        if (!SecurityValidators.isValidEmailDomain(user.email)) {
+          console.log('Domínio de email não autorizado:', user.email);
+          return null;
+        }
 
     // Buscar usuário existente
     const { data: existingUser, error: fetchError } = await supabase

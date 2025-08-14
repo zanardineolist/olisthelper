@@ -2,8 +2,17 @@
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import { getUserPermissions } from './utils/supabase/supabaseClient';
+import rateLimiter from './utils/rateLimiter';
+import securityLogger from './utils/securityLogger';
 
 export async function middleware(req) {
+  // Rate limiting básico
+  const clientIP = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
+  if (!rateLimiter.isAllowed(clientIP)) {
+    securityLogger.logRateLimit(clientIP, req.nextUrl.pathname);
+    return new NextResponse('Too Many Requests', { status: 429 });
+  }
+
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
@@ -13,7 +22,7 @@ export async function middleware(req) {
   // Buscar permissões atualizadas do usuário no Supabase
   const permissions = await getUserPermissions(token.id);
   if (!permissions) {
-    console.error('Erro ao buscar permissões do usuário:', token.id);
+    securityLogger.logAuthError('Erro ao buscar permissões do usuário', { userId: token.id, route: req.nextUrl.pathname });
     return NextResponse.redirect(new URL('/', req.url));
   }
 
@@ -54,31 +63,27 @@ export async function middleware(req) {
     // NOVA LÓGICA: Verificar se é rota baseada em permissão específica
     if (routeConfig.permission) {
       if (!permissions[routeConfig.permission]) {
+        securityLogger.logRouteAccess(req.nextUrl.pathname, token.id, clientIP, false);
         return NextResponse.redirect(new URL('/', req.url));
       }
     } 
     // SISTEMA LEGADO: Verificar roles tradicionais
     else if (routeConfig.profiles && !routeConfig.profiles.includes(permissions.profile)) {
+      securityLogger.logRouteAccess(req.nextUrl.pathname, token.id, clientIP, false);
       return NextResponse.redirect(new URL('/', req.url));
     }
+    
+    // Log de acesso bem-sucedido
+    securityLogger.logRouteAccess(req.nextUrl.pathname, token.id, clientIP, true);
   }
 
-  // Criar resposta com cookies atualizados (INCLUINDO NOVAS PERMISSÕES)
+  // Criar resposta com cookies mínimos necessários
   const response = NextResponse.next();
   
-  // Definir cookies com informações do usuário e suas permissões
+  // Definir apenas cookies essenciais (sem informações sensíveis)
   response.cookies.set('user-id', token.id);
   response.cookies.set('user-name', token.name);
-  response.cookies.set('user-role', permissions.profile);
-  response.cookies.set('user-admin', permissions.admin ? 'true' : 'false');
-  response.cookies.set('user-permissions', JSON.stringify({
-    can_ticket: permissions.can_ticket,
-    can_phone: permissions.can_phone,
-    can_chat: permissions.can_chat,
-    can_register_help: permissions.can_register_help, // NOVO
-    can_remote_access: permissions.can_remote_access, // NOVO
-    admin: permissions.admin
-  }));
+  // NOTA: Permissões são verificadas em tempo real, não armazenadas em cookies
 
   return response;
 }
