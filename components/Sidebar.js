@@ -207,7 +207,6 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
                     <span className={styles.navIcon}><tab.icon /></span>
                     <span className={styles.navLabel}>{tab.label}</span>
                   </Link>
-                  <span className={styles.navTooltip}>{tab.label}</span>
                 </li>
               );
             })}

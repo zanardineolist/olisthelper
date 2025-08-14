@@ -291,6 +291,11 @@
   transform: scale(1.1);
 }
 
+/* Mostrar submenu apenas ao passar o mouse sobre o item no modo colapsado */
+.sidebar.collapsed .navItem:hover > .submenu {
+  display: block;
+}
+
 /* Setinha do dropdown */
 .dropdownArrow {
   margin-left: auto;
@@ -327,6 +332,7 @@
   z-index: 10000;
   overflow-y: auto;
   overflow-x: hidden;
+  display: none;
 }
 
 .submenuItem {}
