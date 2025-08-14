@@ -29,6 +29,7 @@ import {
   FaExclamationTriangle
 } from 'react-icons/fa';
 import { FaComments } from 'react-icons/fa';
+import { FaChevronDown } from 'react-icons/fa';
 
 export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, toggleTheme }) {
   const [clickedLinks, setClickedLinks] = useState({});
@@ -155,11 +156,11 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
   const availableToolsTabs = TOOLS_TABS.filter(tab => !tab.requiresTicketAccess || hasTicketCounterAccess);
 
   const ToolsMenu = () => {
+    const isToolsActive = router.pathname === '/tools';
     return (
-      <li className={`${styles.navItem} ${isToolsOpen ? styles.open : ''}`}
-          onMouseLeave={() => setIsToolsOpen(false)}>
+      <li className={`${styles.navItem} ${isToolsOpen ? styles.open : ''}`}>
         <button 
-          className={styles.navLink}
+          className={`${styles.navLink} ${isToolsActive ? styles.active : ''}`}
           ref={toolsButtonRef}
           onClick={() => {
             const next = !isToolsOpen;
@@ -184,23 +185,28 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
         >
           <span className={styles.navIcon}><FaTools /></span>
           <span className={styles.navLabel}>Ferramentas</span>
+          <span className={styles.dropdownArrow}><FaChevronDown /></span>
         </button>
         <span className={styles.navTooltip}>Ferramentas</span>
         {isToolsOpen && (
           <ul className={styles.submenu} role="menu" style={toolsMenuStyle}>
-            {availableToolsTabs.map((tab) => (
-              <li key={tab.id} className={styles.submenuItem} role="none">
-                <Link 
-                  href={`/tools${tab.hash}`}
-                  className={styles.submenuLink}
-                  role="menuitem"
-                  onClick={(e) => handleNavLinkClick(e, `/tools${tab.hash}`)}
-                >
-                  <span className={styles.navIcon}><tab.icon /></span>
-                  <span className={styles.navLabel}>{tab.label}</span>
-                </Link>
-              </li>
-            ))}
+            {availableToolsTabs.map((tab) => {
+              const currentHash = typeof window !== 'undefined' ? window.location.hash : '';
+              const isActiveTool = isToolsActive && currentHash === tab.hash;
+              return (
+                <li key={tab.id} className={styles.submenuItem} role="none">
+                  <Link 
+                    href={`/tools${tab.hash}`}
+                    className={`${styles.submenuLink} ${isActiveTool ? styles.active : ''}`}
+                    role="menuitem"
+                    onClick={() => setIsToolsOpen(false)}
+                  >
+                    <span className={styles.navIcon}><tab.icon /></span>
+                    <span className={styles.navLabel}>{tab.label}</span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         )}
       </li>

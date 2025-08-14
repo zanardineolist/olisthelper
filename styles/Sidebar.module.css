@@ -288,6 +288,19 @@
   transform: scale(1.1);
 }
 
+/* Setinha do dropdown */
+.dropdownArrow {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.open > .navLink .dropdownArrow {
+  transform: rotate(180deg);
+}
+
 /* Submenu para Ferramentas */
 .submenu {
   list-style: none;
@@ -326,6 +339,11 @@
 .submenuLink:hover {
   background: var(--box-color2);
   color: var(--title-color);
+}
+
+.submenuLink.active {
+  background: rgba(10, 78, 228, 0.12);
+  color: var(--color-primary);
 }
 
 @media (max-width: 1024px) {
