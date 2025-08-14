@@ -501,6 +501,9 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
     };
   };
 
+  // Pré-calcular ranges para uso no layout
+  const comparisonRanges = getComparisonRanges();
+
   const handleUserSelect = (selectedOption) => {
     setSelectedUser(selectedOption ? selectedOption.value : null);
   };
@@ -1134,8 +1137,9 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
               </p>
             )}
                     
-                     <div className={styles.helpStatsExpanded || ''}>
-                      <div className={styles.helpStatMain || ''}>
+                    <div className={styles.helpStatsExpanded || ''}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div className={styles.helpStatMain || ''}>
                         <div className={styles.helpStatIcon || ''}>
                           <i className="fa-solid fa-calendar"></i>
                         </div>
@@ -1143,9 +1147,14 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
                           <span className={styles.helpStatValue || ''}>{currentMonth}</span>
                             <span className={styles.helpStatLabel || ''}>Período Atual</span>
                         </div>
+                        </div>
+                        {(selectedUser?.role === 'analyst' || selectedUser?.role === 'tax') && (
+                          <small style={{ color: 'var(--text-color2)', marginTop: '6px' }}>{comparisonRanges.current}</small>
+                        )}
                       </div>
                       
-                      <div className={styles.helpStatMain || ''}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          <div className={styles.helpStatMain || ''}>
                         <div className={styles.helpStatIcon || ''}>
                           <i className="fa-solid fa-calendar-xmark"></i>
                         </div>
@@ -1153,6 +1162,10 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
                           <span className={styles.helpStatValue || ''}>{lastMonth}</span>
                             <span className={styles.helpStatLabel || ''}>Período Anterior</span>
                         </div>
+                          </div>
+                          {(selectedUser?.role === 'analyst' || selectedUser?.role === 'tax') && (
+                            <small style={{ color: 'var(--text-color2)', marginTop: '6px' }}>{comparisonRanges.previous}</small>
+                          )}
                       </div>
                       
                       <div className={styles.helpStatMain || ''}>
