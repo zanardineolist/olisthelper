@@ -334,6 +334,7 @@
   overflow-x: hidden;
   display: none;
   width: 80px;
+  box-sizing: border-box;
 }
 
 /* Força exibição do submenu quando aberto por interação (classe aplicada via JS) */
@@ -366,9 +367,10 @@
 /* Modo colapsado: itens do submenu com tamanho e alinhamento padronizados */
 .sidebar.collapsed .submenuLink {
   justify-content: center;
-  padding: 0;
+  padding: 10px;
   width: 100%;
   height: 44px;
+  box-sizing: border-box;
 }
 
 .sidebar.collapsed .submenu .navIcon {
