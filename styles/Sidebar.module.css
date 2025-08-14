@@ -17,7 +17,8 @@
 
 .sidebar.collapsed {
   width: 80px;
-  overflow: visible;
+  overflow-y: visible;
+  overflow-x: hidden;
 }
 
 /* Sidebar Header */
@@ -247,6 +248,7 @@
   width: 100%;
   display: flex;
   align-items: center;
+  overflow: hidden;
 }
 
 .navIcon {
@@ -276,6 +278,7 @@
   opacity: 0;
   pointer-events: none;
   width: 0;
+  overflow: hidden;
 }
 
 .navLink:hover {
@@ -322,6 +325,8 @@
   border-radius: 10px;
   box-shadow: var(--shadow-lg);
   z-index: 10000;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .submenuItem {}

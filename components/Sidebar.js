@@ -173,7 +173,8 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
                   top: `${rect.top}px`,
                   left: `${rect.right + 12}px`,
                   maxHeight: '70vh',
-                  overflowY: 'auto'
+                  overflowY: 'auto',
+                  overflowX: 'hidden'
                 });
               } else {
                 setToolsMenuStyle({});
@@ -206,6 +207,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
                     <span className={styles.navIcon}><tab.icon /></span>
                     <span className={styles.navLabel}>{tab.label}</span>
                   </Link>
+                  <span className={styles.navTooltip}>{tab.label}</span>
                 </li>
               );
             })}
