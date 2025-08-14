@@ -17,8 +17,7 @@
 
 .sidebar.collapsed {
   width: 80px;
-  overflow-y: visible;
-  overflow-x: hidden;
+  overflow: visible;
 }
 
 /* Sidebar Header */
@@ -333,6 +332,11 @@
   overflow-y: auto;
   overflow-x: hidden;
   display: none;
+}
+
+/* Força exibição do submenu quando aberto por interação (classe aplicada via JS) */
+.sidebar.collapsed .submenuOpen {
+  display: block;
 }
 
 .submenuItem {}

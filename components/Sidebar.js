@@ -158,7 +158,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
   const ToolsMenu = () => {
     const isToolsActive = router.pathname === '/tools';
     return (
-      <li className={`${styles.navItem} ${isToolsOpen ? styles.open : ''}`}>
+      <li className={`${styles.navItem} ${isToolsOpen ? styles.open : ''}`} onMouseLeave={() => setIsToolsOpen(false)}>
         <button 
           className={`${styles.navLink} ${isToolsActive ? styles.active : ''}`}
           ref={toolsButtonRef}
@@ -190,7 +190,10 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
         </button>
         <span className={styles.navTooltip}>Ferramentas</span>
         {isToolsOpen && (
-          <ul className={styles.submenu} role="menu" style={toolsMenuStyle}>
+          <ul className={`${styles.submenu} ${isCollapsed ? styles.submenuOpen : ''}`} role="menu" style={toolsMenuStyle}
+              onMouseEnter={() => setIsToolsOpen(true)}
+              onMouseLeave={() => setIsToolsOpen(false)}
+          >
             {availableToolsTabs.map((tab) => {
               const asPath = router.asPath || '';
               const hashIndex = asPath.indexOf('#');
