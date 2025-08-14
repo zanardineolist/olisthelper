@@ -42,10 +42,15 @@ export const authOptions = {
           return false;
         }
         
-        console.log("Usuário autorizado:", userDetails);
+        // Log de segurança básico
+        const timestamp = new Date().toISOString();
+        const clientIP = req?.headers?.['x-forwarded-for'] || 'unknown';
+        console.log(`[SECURITY] Login bem-sucedido: ${user.email} - IP: ${clientIP} - ${timestamp}`);
+        
         return true;
       } catch (error) {
-        console.error("Erro durante a verificação do login:", error);
+        const timestamp = new Date().toISOString();
+        console.error(`[SECURITY] Erro durante verificação do login: ${user.email} - ${timestamp}`, error);
         return false;
       }
     },
@@ -55,6 +60,9 @@ export const authOptions = {
         session.id = token.id;
         session.role = token.role;
         session.user.profile = token.role; // Para compatibilidade
+        
+        // Log de sessão criada
+        console.log(`[SECURITY] Sessão criada para usuário: ${session.user.email} - Role: ${token.role}`);
       }
       return session;
     },
@@ -99,8 +107,11 @@ async function getOrCreateUser(user) {
         
         if (!allowedDomains.includes(emailDomain)) {
           console.log('Domínio de email não autorizado:', emailDomain);
+          console.log('Email completo:', user.email);
           return null;
         }
+        
+        console.log('Domínio autorizado:', emailDomain);
 
     // Buscar usuário existente
     const { data: existingUser, error: fetchError } = await supabase

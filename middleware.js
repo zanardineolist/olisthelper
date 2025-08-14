@@ -2,8 +2,16 @@
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import { getUserPermissions } from './utils/supabase/supabaseClient';
+const rateLimiter = require('./utils/simpleRateLimiter');
 
 export async function middleware(req) {
+  // Rate limiting básico
+  const clientIP = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
+  if (!rateLimiter.isAllowed(clientIP)) {
+    console.log(`Rate limit excedido para IP: ${clientIP}`);
+    return new NextResponse('Too Many Requests', { status: 429 });
+  }
+
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
