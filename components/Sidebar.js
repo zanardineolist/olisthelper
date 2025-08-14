@@ -88,7 +88,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       setTogglerTooltipStyle({
         position: 'fixed',
         top: `${rect.top + rect.height / 2}px`,
-        left: `${rect.right + 12}px`,
+        left: `${rect.right + 5}px`,
         transform: 'translateY(-50%)'
       });
     }
@@ -106,7 +106,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
         setTooltipStyle({
           position: 'fixed',
           top: `${rect.top + rect.height / 2}px`,
-          left: `${rect.right + 12}px`,
+            left: `${rect.right + 5}px`,
           transform: 'translateY(-50%)'
         });
       }
@@ -167,7 +167,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
           setTooltipStyle({
             position: 'fixed',
             top: `${rect.top + rect.height / 2}px`,
-            left: `${rect.right + 12}px`,
+              left: `${rect.right + 5}px`,
             transform: 'translateY(-50%)'
           });
         }
@@ -219,6 +219,18 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
           }}
           aria-expanded={isToolsOpen}
           aria-haspopup="true"
+          onMouseEnter={(e) => {
+            if (isCollapsed) {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const tooltipEl = e.currentTarget.nextElementSibling;
+              if (tooltipEl) {
+                tooltipEl.style.position = 'fixed';
+                tooltipEl.style.top = `${rect.top + rect.height / 2}px`;
+                tooltipEl.style.left = `${rect.right + 5}px`;
+                tooltipEl.style.transform = 'translateY(-50%)';
+              }
+            }
+          }}
         >
           <span className={styles.navIcon}><FaTools /></span>
           <span className={styles.navLabel}>Ferramentas</span>
@@ -451,7 +463,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
                   if (tooltipEl) {
                     tooltipEl.style.position = 'fixed';
                     tooltipEl.style.top = `${rect.top + rect.height / 2}px`;
-                    tooltipEl.style.left = `${rect.right + 12}px`;
+                    tooltipEl.style.left = `${rect.right + 5}px`;
                     tooltipEl.style.transform = 'translateY(-50%)';
                   }
                 }
@@ -484,7 +496,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
                   if (tooltipEl) {
                     tooltipEl.style.position = 'fixed';
                     tooltipEl.style.top = `${rect.top + rect.height / 2}px`;
-                    tooltipEl.style.left = `${rect.right + 12}px`;
+                    tooltipEl.style.left = `${rect.right + 5}px`;
                     tooltipEl.style.transform = 'translateY(-50%)';
                   }
                 }
@@ -511,7 +523,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
                   if (tooltipEl) {
                     tooltipEl.style.position = 'fixed';
                     tooltipEl.style.top = `${rect.top + rect.height / 2}px`;
-                    tooltipEl.style.left = `${rect.right + 12}px`;
+                    tooltipEl.style.left = `${rect.right + 5}px`;
                     tooltipEl.style.transform = 'translateY(-50%)';
                   }
                 }

@@ -243,11 +243,12 @@
 
 .sidebar.collapsed .navLink {
   justify-content: center;
-  padding: 12px;
+  padding: 10px;
   width: 100%;
   display: flex;
   align-items: center;
   overflow: hidden;
+  height: 44px;
 }
 
 .navIcon {
@@ -332,6 +333,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   display: none;
+  width: 240px;
 }
 
 /* Força exibição do submenu quando aberto por interação (classe aplicada via JS) */
@@ -497,7 +499,7 @@
   border: 1px solid var(--color-primary);
   transition: all 0.3s ease;
   font-size: 13px;
-  z-index: 9999;
+  z-index: 10001;
   font-weight: 500;
   min-width: max-content;
 }
@@ -507,6 +509,12 @@
 }
 
 .sidebar.collapsed .navItem:hover > .navTooltip {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Mostrar tooltip também para itens do submenu quando a sidebar estiver colapsada */
+.sidebar.collapsed .submenuItem:hover > .navTooltip {
   opacity: 1;
   pointer-events: auto;
 }
