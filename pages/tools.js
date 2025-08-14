@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { getSession } from 'next-auth/react';
 import { 
@@ -10,8 +10,6 @@ import {
   FaMapMarkerAlt, 
   FaFileExcel, 
   FaVideo,
-  FaChevronLeft,
-  FaChevronRight,
   FaTag,
   FaExclamationTriangle
 } from 'react-icons/fa';
@@ -129,17 +127,9 @@ const TAB_CONFIG = [
 ];
 
 export default function ToolsPage({ user }) {
-  const [currentTab, setCurrentTab] = useState(0);
   const { loading: routerLoading } = useLoading();
-  const [isMobile, setIsMobile] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-  const [showLeftGradient, setShowLeftGradient] = useState(false);
-  const [showRightGradient, setShowRightGradient] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
-  const tabsListRef = useRef(null);
+  const [selectedHash, setSelectedHash] = useState('');
   
   // Verifica se o usuário tem acesso ao contador de chamados
   const hasTicketCounterAccess = useMemo(() => 
@@ -162,180 +152,34 @@ export default function ToolsPage({ user }) {
     return mapping;
   }, [availableTabs]);
 
-  // Detecta se é mobile
+  // Sincroniza com o hash da URL
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
+    const applyHash = () => {
+      setSelectedHash(window.location.hash || '');
     };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    applyHash();
+    window.addEventListener('hashchange', applyHash);
+    return () => window.removeEventListener('hashchange', applyHash);
   }, []);
 
-  // Detecta scroll da página para aplicar efeito nas tabs
-  useEffect(() => {
-    const handlePageScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      setIsScrolled(scrollTop > 100); // Aplica efeito após 100px de scroll
-    };
+  // Resolve tab atual pelo hash
+  const currentTabIndex = useMemo(() => {
+    if (!selectedHash) return 0;
+    const index = availableTabs.findIndex(t => t.hash === selectedHash);
+    return index >= 0 ? index : 0;
+  }, [selectedHash, availableTabs]);
 
-    window.addEventListener('scroll', handlePageScroll);
-    return () => window.removeEventListener('scroll', handlePageScroll);
-  }, []);
-
-  // Verifica se pode fazer scroll nas tabs
-  const checkScrollButtons = () => {
-    if (tabsListRef.current && !isMobile) {
-      const { scrollLeft, scrollWidth, clientWidth } = tabsListRef.current;
-      const canLeft = scrollLeft > 5; // Pequena margem para evitar problemas de precisão
-      const canRight = scrollLeft < scrollWidth - clientWidth - 5;
-      
-      setCanScrollLeft(canLeft);
-      setCanScrollRight(canRight);
-      setShowLeftGradient(canLeft);
-      setShowRightGradient(canRight);
-    }
-  };
-
-  // Funções de scroll
-  const scrollTabs = (direction) => {
-    if (tabsListRef.current) {
-      const scrollAmount = 200;
-      const currentScroll = tabsListRef.current.scrollLeft;
-      const newScrollLeft = direction === 'left' 
-        ? Math.max(0, currentScroll - scrollAmount)
-        : currentScroll + scrollAmount;
-      
-      tabsListRef.current.scrollTo({
-        left: newScrollLeft,
-        behavior: 'smooth'
-      });
-      
-      // Força verificação após scroll (necessário para animação)
-      setTimeout(() => {
-        checkScrollButtons();
-      }, 300);
-    }
-  };
-
-  // Scroll horizontal com mouse wheel (apenas na área das tabs)
-  const handleWheelScroll = (e) => {
-    if (tabsListRef.current && !isMobile) {
-      // Verifica se o elemento ou seus pais estão na área das tabs
-      const target = e.target;
-      const isInTabsArea = target.closest(`[class*="tabsWrapper"]`) || 
-                          target.closest(`[class*="tabsContainer"]`) || 
-                          target.closest(`[class*="tabsNavigation"]`) ||
-                          target.closest(`[class*="tabsListWrapper"]`) ||
-                          target.closest(`[class*="tabsList"]`) ||
-                          target.closest(`[class*="tabButton"]`) ||
-                          target.closest(`[class*="scrollButton"]`);
-      
-      if (isInTabsArea) {
-        // Detecta se é scroll horizontal (deltaX) ou vertical (deltaY)
-        const deltaX = e.deltaX;
-        const deltaY = e.deltaY;
-        
-        // Se há deltaX (scroll horizontal nativo) ou deltaY (scroll vertical que queremos converter)
-        if (Math.abs(deltaX) > 0 || Math.abs(deltaY) > 0) {
-          e.preventDefault();
-          
-          // Usa deltaX se disponível, senão converte deltaY para horizontal
-          const scrollAmount = deltaX !== 0 ? deltaX : deltaY;
-          
-          tabsListRef.current.scrollBy({
-            left: scrollAmount,
-            behavior: 'smooth'
-          });
-        }
-      }
-    }
-  };
-
-  // Monitora scroll das tabs
-  useEffect(() => {
-    const tabsList = tabsListRef.current;
-    if (tabsList) {
-      checkScrollButtons();
-      tabsList.addEventListener('scroll', checkScrollButtons);
-      
-      // Adiciona wheel listener no documento para capturar em qualquer lugar
-      document.addEventListener('wheel', handleWheelScroll, { passive: false });
-      window.addEventListener('resize', checkScrollButtons);
-      
-      return () => {
-        tabsList.removeEventListener('scroll', checkScrollButtons);
-        document.removeEventListener('wheel', handleWheelScroll);
-        window.removeEventListener('resize', checkScrollButtons);
-      };
-    }
-  }, [isMobile, availableTabs]);
-
-  // Verifica botões quando as tabs disponíveis mudarem
-  useEffect(() => {
-    setTimeout(() => {
-      checkScrollButtons();
-    }, 200);
-  }, [availableTabs]);
-
-  useEffect(() => {
-    const hash = window.location.hash;
-    const tabIndex = hashToTabIndex[hash];
-    
-    if (tabIndex !== undefined) {
-      setCurrentTab(tabIndex);
-    } else {
-      setCurrentTab(0); // Primeira aba disponível
-    }
-    
-    // Força verificação dos botões após carregar (necessário para inicialização)
-    setTimeout(() => {
-      checkScrollButtons();
-    }, 100);
-  }, [hashToTabIndex]);
-
-  const handleTabChange = (newValue) => {
-    setCurrentTab(newValue);
-    setShowMobileMenu(false);
-    const selectedTab = availableTabs[newValue];
-    
-    if (selectedTab) {
-      // Use replace em vez de push para evitar problemas de navegação
-      window.history.replaceState(null, '', `${window.location.pathname}${selectedTab.hash}`);
-    }
-
-    // Scroll para mostrar a tab ativa em desktop (necessário para UX)
-    if (!isMobile && tabsListRef.current) {
-      setTimeout(() => {
-        const activeButton = tabsListRef.current.children[newValue];
-        if (activeButton) {
-          activeButton.scrollIntoView({
-            behavior: 'smooth',
-            block: 'nearest',
-            inline: 'center'
-          });
-        }
-      }, 100);
-    }
-  };
-
-  // Renderiza o conteúdo da aba atual
+  const currentTabConfig = availableTabs[currentTabIndex];
   const renderTabContent = () => {
-    const currentTabConfig = availableTabs[currentTab];
     if (!currentTabConfig) return null;
-
     const Component = currentTabConfig.component;
-
-    // Tratamento especial para CepIbgeValidator
     if (currentTabConfig.id === 'CepIbgeValidator') {
       return (
         <>
           <div className={styles.pageHeader}>
             <h1 className={styles.pageTitle}>Validador CEP</h1>
             <p className={styles.pageDescription}>
-              Ferramenta para verificar a correspondência entre a cidade retornada pelos Correios e a nomenclatura 
-              oficial do IBGE que é utilizada pela SEFAZ para validação de notas fiscais.
+              Ferramenta para verificar a correspondência entre a cidade retornada pelos Correios e a nomenclatura oficial do IBGE que é utilizada pela SEFAZ para validação de notas fiscais.
             </p>
           </div>
           <Component />
@@ -343,12 +187,8 @@ export default function ToolsPage({ user }) {
         </>
       );
     }
-
-    // Renderização padrão para outros componentes
     return <Component user={user} />;
   };
-
-  const currentTabConfig = availableTabs[currentTab];
 
   return (
     <Layout user={user}>
@@ -358,78 +198,6 @@ export default function ToolsPage({ user }) {
       </Head>
 
       <div className={`${styles.container} ${routerLoading ? styles.blurred : ''}`}>
-        {/* Sistema de Tabs Moderno */}
-        <div className={`${styles.tabsWrapper} ${isScrolled ? styles.scrolled : ''}`}>
-          {/* Mobile Menu Button */}
-          {isMobile && (
-            <button 
-              className={styles.mobileMenuButton}
-              onClick={() => setShowMobileMenu(!showMobileMenu)}
-              aria-label="Menu de ferramentas"
-            >
-              <span className={styles.mobileMenuIcon}>
-                {currentTabConfig?.icon && <currentTabConfig.icon />}
-              </span>
-              <span className={styles.mobileMenuText}>
-                {currentTabConfig?.label}
-              </span>
-              <span className={styles.mobileMenuArrow}>
-                {showMobileMenu ? '▲' : '▼'}
-              </span>
-            </button>
-          )}
-
-          {/* Tabs Container */}
-          <div className={`${styles.tabsContainer} ${isMobile && showMobileMenu ? styles.mobileMenuOpen : ''}`}>
-            <div className={styles.tabsNavigation}>
-              {/* Botão Scroll Esquerda */}
-              {!isMobile && (
-                <button
-                  className={`${styles.scrollButton} ${styles.scrollButtonLeft}`}
-                  onClick={() => scrollTabs('left')}
-                  disabled={!canScrollLeft}
-                  aria-label="Rolar tabs para esquerda"
-                >
-                  <FaChevronLeft />
-                </button>
-              )}
-              
-              {/* Lista de Tabs */}
-              <div className={`${styles.tabsListWrapper} ${showLeftGradient ? styles.showLeftGradient : ''} ${showRightGradient ? styles.showRightGradient : ''}`}>
-                <div className={styles.tabsList} ref={tabsListRef}>
-                  {availableTabs.map((tab, index) => (
-                    <button
-                      key={tab.id}
-                      className={`${styles.tabButton} ${currentTab === index ? styles.tabActive : ''}`}
-                      onClick={() => handleTabChange(index)}
-                      title={tab.description}
-                    >
-                      <span className={styles.tabIcon}>
-                        <tab.icon />
-                      </span>
-                      <span className={styles.tabLabel}>{tab.label}</span>
-                      {currentTab === index && <div className={styles.tabIndicator} />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Botão Scroll Direita */}
-              {!isMobile && (
-                <button
-                  className={`${styles.scrollButton} ${styles.scrollButtonRight}`}
-                  onClick={() => scrollTabs('right')}
-                  disabled={!canScrollRight}
-                  aria-label="Rolar tabs para direita"
-                >
-                  <FaChevronRight />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Tab Content */}
         <div className={styles.tabContent}>
           <div className={styles.tabPanel}>
             {renderTabContent()}

@@ -19,27 +19,41 @@ import {
   FaSun,
   FaChartLine,
   FaHandsHelping,
-  FaFileAlt
+  FaFileAlt,
+  FaDatabase,
+  FaSearch,
+  FaMapMarkerAlt,
+  FaFileExcel,
+  FaVideo,
+  FaTag,
+  FaExclamationTriangle
 } from 'react-icons/fa';
+import { FaComments } from 'react-icons/fa';
 
 export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, toggleTheme }) {
   const [clickedLinks, setClickedLinks] = useState({});
   const [isMobileMenuActive, setIsMobileMenuActive] = useState(false);
   const [togglerTooltipStyle, setTogglerTooltipStyle] = useState({});
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [toolsMenuStyle, setToolsMenuStyle] = useState({});
   const router = useRouter();
   const sidebarRef = useRef(null);
   const togglerRef = useRef(null);
+  const toolsButtonRef = useRef(null);
 
   // Resetar estado de clique quando a navegação for concluída
   useEffect(() => {
     const handleRouteComplete = () => {
       setClickedLinks({});
       setIsMobileMenuActive(false);
+      setIsToolsOpen(false);
     };
 
     router.events.on('routeChangeComplete', handleRouteComplete);
+    router.events.on('hashChangeComplete', handleRouteComplete);
     return () => {
       router.events.off('routeChangeComplete', handleRouteComplete);
+      router.events.off('hashChangeComplete', handleRouteComplete);
     };
   }, [router]);
 
@@ -118,6 +132,77 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
         >
           {tooltip}
         </span>
+      </li>
+    );
+  };
+
+  // Config das ferramentas (mesma origem do Tools)
+  const ROLES_WITH_TICKET_ACCESS = ['support', 'analyst', 'super', 'tax'];
+  const TOOLS_TABS = [
+    { id: 'MyBase', label: 'Minha Base', icon: FaDatabase, hash: '#MyBase', requiresTicketAccess: false },
+    { id: 'ErrosComuns', label: 'Base de Erros', icon: FaSearch, hash: '#ErrosComuns', requiresTicketAccess: false },
+    { id: 'Ocorrencias', label: 'Ocorrências', icon: FaExclamationTriangle, hash: '#Ocorrencias', requiresTicketAccess: false },
+    { id: 'TicketCounter', label: 'Contador de Chamados', icon: FaChartLine, hash: '#TicketCounter', requiresTicketAccess: true },
+    { id: 'TicketLogger', label: 'Registro de Chamados', icon: FaChartLine, hash: '#TicketLogger', requiresTicketAccess: true },
+    { id: 'SharedMessages', label: 'Respostas Compartilhadas', icon: FaComments, hash: '#SharedMessages', requiresTicketAccess: false },
+    { id: 'BibliotecaVideos', label: 'Biblioteca de Vídeos', icon: FaVideo, hash: '#BibliotecaVideos', requiresTicketAccess: false },
+    { id: 'CepIbgeValidator', label: 'Validador CEP', icon: FaMapMarkerAlt, hash: '#CepIbgeValidator', requiresTicketAccess: false },
+    { id: 'SheetSplitter', label: 'Divisor de Planilhas', icon: FaFileExcel, hash: '#SheetSplitter', requiresTicketAccess: false },
+    { id: 'ValidadorML', label: 'Validador ML', icon: FaTag, hash: '#ValidadorML', requiresTicketAccess: false }
+  ];
+
+  const hasTicketCounterAccess = user?.role ? ROLES_WITH_TICKET_ACCESS.includes(user.role) : false;
+  const availableToolsTabs = TOOLS_TABS.filter(tab => !tab.requiresTicketAccess || hasTicketCounterAccess);
+
+  const ToolsMenu = () => {
+    return (
+      <li className={`${styles.navItem} ${isToolsOpen ? styles.open : ''}`}
+          onMouseLeave={() => setIsToolsOpen(false)}>
+        <button 
+          className={styles.navLink}
+          ref={toolsButtonRef}
+          onClick={() => {
+            const next = !isToolsOpen;
+            setIsToolsOpen(next);
+            if (next) {
+              if (isCollapsed && toolsButtonRef.current) {
+                const rect = toolsButtonRef.current.getBoundingClientRect();
+                setToolsMenuStyle({
+                  position: 'fixed',
+                  top: `${rect.top}px`,
+                  left: `${rect.right + 12}px`,
+                  maxHeight: '70vh',
+                  overflowY: 'auto'
+                });
+              } else {
+                setToolsMenuStyle({});
+              }
+            }
+          }}
+          aria-expanded={isToolsOpen}
+          aria-haspopup="true"
+        >
+          <span className={styles.navIcon}><FaTools /></span>
+          <span className={styles.navLabel}>Ferramentas</span>
+        </button>
+        <span className={styles.navTooltip}>Ferramentas</span>
+        {isToolsOpen && (
+          <ul className={styles.submenu} role="menu" style={toolsMenuStyle}>
+            {availableToolsTabs.map((tab) => (
+              <li key={tab.id} className={styles.submenuItem} role="none">
+                <Link 
+                  href={`/tools${tab.hash}`}
+                  className={styles.submenuLink}
+                  role="menuitem"
+                  onClick={(e) => handleNavLinkClick(e, `/tools${tab.hash}`)}
+                >
+                  <span className={styles.navIcon}><tab.icon /></span>
+                  <span className={styles.navLabel}>{tab.label}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </li>
     );
   };
@@ -289,15 +374,20 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
       <nav className={styles.sidebarNav}>
         {/* Primary Navigation */}
         <ul className={`${styles.navList} ${styles.primaryNav}`}>
-          {menuItems.primary.map((item, index) => (
-            <NavLink
-              key={index}
-              href={item.href}
-              icon={item.icon}
-              label={item.label}
-              tooltip={item.tooltip}
-            />
-          ))}
+          {menuItems.primary.map((item, index) => {
+            if (item.href === '/tools') {
+              return <ToolsMenu key={`tools-menu-${index}`} />;
+            }
+            return (
+              <NavLink
+                key={index}
+                href={item.href}
+                icon={item.icon}
+                label={item.label}
+                tooltip={item.tooltip}
+              />
+            );
+          })}
         </ul>
 
         {/* Secondary Navigation */}
