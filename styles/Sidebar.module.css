@@ -506,7 +506,7 @@
   display: block;
 }
 
-.sidebar.collapsed .navItem:hover .navTooltip {
+.sidebar.collapsed .navItem:hover > .navTooltip {
   opacity: 1;
   pointer-events: auto;
 }

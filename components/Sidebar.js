@@ -160,9 +160,10 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
 
     const ToolsSubItem = ({ tab, isActiveTool }) => {
       const [tooltipStyle, setTooltipStyle] = useState({});
-      const handleMouseEnter = (e) => {
-        if (isCollapsed) {
-          const rect = e.currentTarget.getBoundingClientRect();
+      const itemRef = useRef(null);
+      const handleMouseEnter = () => {
+        if (isCollapsed && itemRef.current) {
+          const rect = itemRef.current.getBoundingClientRect();
           setTooltipStyle({
             position: 'fixed',
             top: `${rect.top + rect.height / 2}px`,
@@ -171,14 +172,19 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
           });
         }
       };
+      const handleMouseLeave = () => {
+        if (isCollapsed) setTooltipStyle({});
+      };
       return (
-        <li className={styles.submenuItem} role="none">
+        <li className={styles.submenuItem} role="none" ref={itemRef}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        >
           <Link
             href={`/tools${tab.hash}`}
             className={`${styles.submenuLink} ${isActiveTool ? styles.active : ''}`}
             role="menuitem"
             onClick={() => setIsToolsOpen(false)}
-            onMouseEnter={handleMouseEnter}
           >
             <span className={styles.navIcon}><tab.icon /></span>
             <span className={styles.navLabel}>{tab.label}</span>
