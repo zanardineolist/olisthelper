@@ -481,6 +481,26 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
     return { startDate, endDate };
   };
 
+  // Gera rótulos de período atual e anterior para exibir no UI (somente para analyst/tax)
+  const getComparisonRanges = () => {
+    const { startDate, endDate } = getDateRange();
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
+    const diffDays = end.diff(start, 'day');
+    const prevEnd = start.subtract(1, 'day');
+    const prevStart = prevEnd.subtract(diffDays, 'day');
+
+    const formatRange = (s, e) =>
+      s.isSame(e, 'day')
+        ? s.format('DD/MM/YYYY')
+        : `${s.format('DD/MM/YYYY')} a ${e.format('DD/MM/YYYY')}`;
+
+    return {
+      current: formatRange(start, end),
+      previous: formatRange(prevStart, prevEnd)
+    };
+  };
+
   const handleUserSelect = (selectedOption) => {
     setSelectedUser(selectedOption ? selectedOption.value : null);
   };
@@ -1109,14 +1129,20 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
                       </h3>
                     </div>
                     
-                    <div className={styles.helpStatsExpanded || ''}>
+                     <div className={styles.helpStatsExpanded || ''}>
                       <div className={styles.helpStatMain || ''}>
                         <div className={styles.helpStatIcon || ''}>
                           <i className="fa-solid fa-calendar"></i>
                         </div>
                         <div className={styles.helpStatContent || ''}>
                           <span className={styles.helpStatValue || ''}>{currentMonth}</span>
-                          <span className={styles.helpStatLabel || ''}>Período Atual</span>
+                           <span className={styles.helpStatLabel || ''}>Período Atual</span>
+                           {(selectedUser?.role === 'analyst' || selectedUser?.role === 'tax') && (() => {
+                             const ranges = getComparisonRanges();
+                             return (
+                               <small style={{ color: 'var(--text-color2)' }}>{ranges.current}</small>
+                             );
+                           })()}
                         </div>
                       </div>
                       
@@ -1126,7 +1152,13 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
                         </div>
                         <div className={styles.helpStatContent || ''}>
                           <span className={styles.helpStatValue || ''}>{lastMonth}</span>
-                          <span className={styles.helpStatLabel || ''}>Período Anterior</span>
+                           <span className={styles.helpStatLabel || ''}>Período Anterior</span>
+                           {(selectedUser?.role === 'analyst' || selectedUser?.role === 'tax') && (() => {
+                             const ranges = getComparisonRanges();
+                             return (
+                               <small style={{ color: 'var(--text-color2)' }}>{ranges.previous}</small>
+                             );
+                           })()}
                         </div>
                       </div>
                       
