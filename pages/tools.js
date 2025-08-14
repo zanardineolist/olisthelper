@@ -152,15 +152,13 @@ export default function ToolsPage({ user }) {
     return mapping;
   }, [availableTabs]);
 
-  // Sincroniza com o hash da URL
+  // Sincroniza com o hash via Next Router (inclui navegação por Link)
   useEffect(() => {
-    const applyHash = () => {
-      setSelectedHash(window.location.hash || '');
-    };
-    applyHash();
-    window.addEventListener('hashchange', applyHash);
-    return () => window.removeEventListener('hashchange', applyHash);
-  }, []);
+    const asPath = router.asPath || '';
+    const idx = asPath.indexOf('#');
+    const hash = idx >= 0 ? asPath.substring(idx) : '';
+    setSelectedHash(hash);
+  }, [router.asPath]);
 
   // Resolve tab atual pelo hash
   const currentTabIndex = useMemo(() => {

@@ -191,7 +191,9 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
         {isToolsOpen && (
           <ul className={styles.submenu} role="menu" style={toolsMenuStyle}>
             {availableToolsTabs.map((tab) => {
-              const currentHash = typeof window !== 'undefined' ? window.location.hash : '';
+              const asPath = router.asPath || '';
+              const hashIndex = asPath.indexOf('#');
+              const currentHash = hashIndex >= 0 ? asPath.substring(hashIndex) : '';
               const isActiveTool = isToolsActive && currentHash === tab.hash;
               return (
                 <li key={tab.id} className={styles.submenuItem} role="none">
