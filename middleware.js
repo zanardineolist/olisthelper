@@ -2,17 +2,8 @@
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import { getUserPermissions } from './utils/supabase/supabaseClient';
-const rateLimiter = require('./utils/rateLimiter');
-const securityLogger = require('./utils/securityLogger');
 
 export async function middleware(req) {
-  // Rate limiting básico
-  const clientIP = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
-  if (!rateLimiter.isAllowed(clientIP)) {
-    securityLogger.logRateLimit(clientIP, req.nextUrl.pathname);
-    return new NextResponse('Too Many Requests', { status: 429 });
-  }
-
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
@@ -22,7 +13,7 @@ export async function middleware(req) {
   // Buscar permissões atualizadas do usuário no Supabase
   const permissions = await getUserPermissions(token.id);
   if (!permissions) {
-    securityLogger.logAuthError('Erro ao buscar permissões do usuário', { userId: token.id, route: req.nextUrl.pathname });
+    console.error('Erro ao buscar permissões do usuário:', token.id);
     return NextResponse.redirect(new URL('/', req.url));
   }
 
@@ -63,18 +54,13 @@ export async function middleware(req) {
     // NOVA LÓGICA: Verificar se é rota baseada em permissão específica
     if (routeConfig.permission) {
       if (!permissions[routeConfig.permission]) {
-        securityLogger.logRouteAccess(req.nextUrl.pathname, token.id, clientIP, false);
         return NextResponse.redirect(new URL('/', req.url));
       }
     } 
     // SISTEMA LEGADO: Verificar roles tradicionais
     else if (routeConfig.profiles && !routeConfig.profiles.includes(permissions.profile)) {
-      securityLogger.logRouteAccess(req.nextUrl.pathname, token.id, clientIP, false);
       return NextResponse.redirect(new URL('/', req.url));
     }
-    
-    // Log de acesso bem-sucedido
-    securityLogger.logRouteAccess(req.nextUrl.pathname, token.id, clientIP, true);
   }
 
   // Criar resposta com cookies mínimos necessários
