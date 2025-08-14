@@ -8,7 +8,7 @@ export async function middleware(req) {
   // Rate limiting básico
   const clientIP = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
   if (!rateLimiter.isAllowed(clientIP)) {
-    console.log(`Rate limit excedido para IP: ${clientIP}`);
+    console.log(`[SECURITY] Rate limit excedido para IP: ${clientIP} - Rota: ${req.nextUrl.pathname}`);
     return new NextResponse('Too Many Requests', { status: 429 });
   }
 
@@ -21,9 +21,11 @@ export async function middleware(req) {
   // Buscar permissões atualizadas do usuário no Supabase
   const permissions = await getUserPermissions(token.id);
   if (!permissions) {
-    console.error('Erro ao buscar permissões do usuário:', token.id);
+    console.error(`[SECURITY] Erro ao buscar permissões do usuário: ${token.id} - Rota: ${req.nextUrl.pathname}`);
     return NextResponse.redirect(new URL('/', req.url));
   }
+  
+  console.log(`[SECURITY] Permissões carregadas para usuário: ${token.id} - Role: ${permissions.profile}`);
 
 
 
@@ -62,13 +64,18 @@ export async function middleware(req) {
     // NOVA LÓGICA: Verificar se é rota baseada em permissão específica
     if (routeConfig.permission) {
       if (!permissions[routeConfig.permission]) {
+        console.log(`[SECURITY] Acesso negado - Usuário: ${token.id} - Permissão necessária: ${routeConfig.permission} - Rota: ${req.nextUrl.pathname}`);
         return NextResponse.redirect(new URL('/', req.url));
       }
+      console.log(`[SECURITY] Acesso permitido por permissão - Usuário: ${token.id} - Permissão: ${routeConfig.permission} - Rota: ${req.nextUrl.pathname}`);
     } 
     // SISTEMA LEGADO: Verificar roles tradicionais
     else if (routeConfig.profiles && !routeConfig.profiles.includes(permissions.profile)) {
+      console.log(`[SECURITY] Acesso negado - Usuário: ${token.id} - Role atual: ${permissions.profile} - Roles permitidos: ${routeConfig.profiles.join(', ')} - Rota: ${req.nextUrl.pathname}`);
       return NextResponse.redirect(new URL('/', req.url));
     }
+    
+    console.log(`[SECURITY] Acesso permitido por role - Usuário: ${token.id} - Role: ${permissions.profile} - Rota: ${req.nextUrl.pathname}`);
   }
 
   // Criar resposta com cookies mínimos necessários

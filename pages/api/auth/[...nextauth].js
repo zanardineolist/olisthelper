@@ -44,8 +44,7 @@ export const authOptions = {
         
         // Log de segurança básico
         const timestamp = new Date().toISOString();
-        const clientIP = req?.headers?.['x-forwarded-for'] || 'unknown';
-        console.log(`[SECURITY] Login bem-sucedido: ${user.email} - IP: ${clientIP} - ${timestamp}`);
+        console.log(`[SECURITY] Login bem-sucedido: ${user.email} - Role: ${userDetails.profile} - ${timestamp}`);
         
         return true;
       } catch (error) {
@@ -62,7 +61,7 @@ export const authOptions = {
         session.user.profile = token.role; // Para compatibilidade
         
         // Log de sessão criada
-        console.log(`[SECURITY] Sessão criada para usuário: ${session.user.email} - Role: ${token.role}`);
+        console.log(`[SECURITY] Sessão criada para usuário: ${session.user.email} - Role: ${token.role} - ID: ${token.id}`);
       }
       return session;
     },
