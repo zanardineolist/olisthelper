@@ -2,8 +2,8 @@
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import { getUserPermissions } from './utils/supabase/supabaseClient';
-import rateLimiter from './utils/rateLimiter';
-import securityLogger from './utils/securityLogger';
+const rateLimiter = require('./utils/rateLimiter');
+const securityLogger = require('./utils/securityLogger');
 
 export async function middleware(req) {
   // Rate limiting básico

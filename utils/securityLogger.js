@@ -114,4 +114,4 @@ const securityLogger = new SecurityLogger();
 // Limpeza automática a cada hora
 setInterval(() => securityLogger.cleanupOldLogs(), 60 * 60 * 1000);
 
-export default securityLogger;
+module.exports = securityLogger;

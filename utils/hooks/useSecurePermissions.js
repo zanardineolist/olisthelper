@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 
-export function useSecurePermissions() {
+const useSecurePermissions = () => {
   const { data: session, status } = useSession();
   const [permissions, setPermissions] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -86,4 +86,6 @@ export function useSecurePermissions() {
       }
     }
   };
-}
+};
+
+module.exports = { useSecurePermissions };

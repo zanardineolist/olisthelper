@@ -2,8 +2,8 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { createClient } from '@supabase/supabase-js';
-import securityLogger from '../../utils/securityLogger';
-import { SECURITY_CONFIG, SecurityValidators } from '../../utils/securityConfig';
+const securityLogger = require('../../../utils/securityLogger');
+const { SECURITY_CONFIG, SecurityValidators } = require('../../../utils/securityConfig');
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,

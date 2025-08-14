@@ -47,4 +47,4 @@ const rateLimiter = new RateLimiter();
 // Limpeza automática a cada 15 minutos
 setInterval(() => rateLimiter.cleanup(), 15 * 60 * 1000);
 
-export default rateLimiter;
+module.exports = rateLimiter;

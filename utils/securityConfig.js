@@ -1,7 +1,7 @@
 // utils/securityConfig.js
 // Configurações centralizadas de segurança
 
-export const SECURITY_CONFIG = {
+const SECURITY_CONFIG = {
   // Rate Limiting
   RATE_LIMIT: {
     MAX_REQUESTS: 100,        // Máximo de requisições por IP
@@ -65,7 +65,7 @@ export const SECURITY_CONFIG = {
 };
 
 // Funções de validação
-export const SecurityValidators = {
+const SecurityValidators = {
   // Validar domínio de email
   isValidEmailDomain: (email) => {
     if (!email || !email.includes('@')) return false;
@@ -92,7 +92,7 @@ export const SecurityValidators = {
 };
 
 // Funções de sanitização
-export const SecuritySanitizers = {
+const SecuritySanitizers = {
   // Sanitizar entrada de usuário
   sanitizeInput: (input) => {
     if (typeof input !== 'string') return input;
@@ -107,3 +107,5 @@ export const SecuritySanitizers = {
     return email.toLowerCase().trim();
   }
 };
+
+module.exports = { SECURITY_CONFIG, SecurityValidators, SecuritySanitizers };
