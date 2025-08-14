@@ -1119,30 +1119,29 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
                     <div className="standardBoxLoader"></div>
                   </div>
                 ) : (
-                  <>
-                    <div className={styles.cardHeader || ''}>
-                      <h3 className={styles.cardTitle || ''}>
-                        <i className="fa-solid fa-heart-hand"></i>
-                        {selectedUser.role === 'support'
-                          ? 'Ajudas Solicitadas' 
-                          : 'Ajudas Prestadas'}
-                      </h3>
-                    </div>
+          <>
+            <div className={styles.cardHeader || ''}>
+              <h3 className={styles.cardTitle || ''}>
+                <i className="fa-solid fa-heart-hand"></i>
+                {selectedUser.role === 'support'
+                  ? 'Ajudas Solicitadas' 
+                  : 'Ajudas Prestadas'}
+              </h3>
+            </div>
+            {(selectedUser?.role === 'analyst' || selectedUser?.role === 'tax') && (
+              <p className={styles.sectionSubtitle || ''} style={{ margin: '6px 0 12px', color: 'var(--text-color2)' }}>
+                {(() => { const ranges = getComparisonRanges(); return `${ranges.current} • ${ranges.previous}`; })()}
+              </p>
+            )}
                     
                      <div className={styles.helpStatsExpanded || ''}>
                       <div className={styles.helpStatMain || ''}>
                         <div className={styles.helpStatIcon || ''}>
                           <i className="fa-solid fa-calendar"></i>
                         </div>
-                        <div className={styles.helpStatContent || ''}>
+                          <div className={styles.helpStatContent || ''}>
                           <span className={styles.helpStatValue || ''}>{currentMonth}</span>
-                           <span className={styles.helpStatLabel || ''}>Período Atual</span>
-                           {(selectedUser?.role === 'analyst' || selectedUser?.role === 'tax') && (() => {
-                             const ranges = getComparisonRanges();
-                             return (
-                               <small style={{ color: 'var(--text-color2)' }}>{ranges.current}</small>
-                             );
-                           })()}
+                            <span className={styles.helpStatLabel || ''}>Período Atual</span>
                         </div>
                       </div>
                       
@@ -1150,15 +1149,9 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
                         <div className={styles.helpStatIcon || ''}>
                           <i className="fa-solid fa-calendar-xmark"></i>
                         </div>
-                        <div className={styles.helpStatContent || ''}>
+                          <div className={styles.helpStatContent || ''}>
                           <span className={styles.helpStatValue || ''}>{lastMonth}</span>
-                           <span className={styles.helpStatLabel || ''}>Período Anterior</span>
-                           {(selectedUser?.role === 'analyst' || selectedUser?.role === 'tax') && (() => {
-                             const ranges = getComparisonRanges();
-                             return (
-                               <small style={{ color: 'var(--text-color2)' }}>{ranges.previous}</small>
-                             );
-                           })()}
+                            <span className={styles.helpStatLabel || ''}>Período Anterior</span>
                         </div>
                       </div>
                       
