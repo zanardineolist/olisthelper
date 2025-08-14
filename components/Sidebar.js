@@ -236,9 +236,7 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
           <span className={styles.navLabel}>Ferramentas</span>
           <span className={styles.dropdownArrow}><FaChevronDown /></span>
         </button>
-        {!isToolsOpen && (
-          <span className={styles.navTooltip}>Ferramentas</span>
-        )}
+        <span className={styles.navTooltip}>Ferramentas</span>
         {isToolsOpen && (
           <ul className={`${styles.submenu} ${isCollapsed ? styles.submenuOpen : ''}`} role="menu" style={toolsMenuStyle}>
             {availableToolsTabs.map((tab) => {
