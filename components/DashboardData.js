@@ -1131,11 +1131,7 @@ export default function DashboardData({ user, users: usersFromProps = [] }) {
                   : 'Ajudas Prestadas'}
               </h3>
             </div>
-            {(selectedUser?.role === 'analyst' || selectedUser?.role === 'tax') && (
-              <p className={styles.sectionSubtitle || ''} style={{ margin: '6px 0 12px', color: 'var(--text-color2)' }}>
-                {(() => { const ranges = getComparisonRanges(); return `${ranges.current} • ${ranges.previous}`; })()}
-              </p>
-            )}
+            
                     
                     <div className={styles.helpStatsExpanded || ''}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
