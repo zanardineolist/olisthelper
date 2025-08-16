@@ -1188,6 +1188,21 @@ const customSelectStyles = {
                   </div>
                 </div>
               </div>
+              
+              {/* Card de Total */}
+              <div className={styles.totalCard}>
+                <div className={styles.totalTitle}>
+                  <i className="fa-solid fa-calculator"></i> Total do Dia
+                </div>
+                <div className={styles.totalValue}>
+                  {(counters.calls || 0) + (counters.rfcs || 0) + (helpRequests.today || 0)}
+                </div>
+                <div className={styles.totalBreakdown}>
+                  <span data-label="Ajudas">{helpRequests.today || 0}</span>
+                  <span data-label="Chamados">{counters.calls}</span>
+                  <span data-label="RFC's">{counters.rfcs}</span>
+                </div>
+              </div>
             </div>
 
             <div className={`${styles.sideCard} ${styles.historyCard}`}>

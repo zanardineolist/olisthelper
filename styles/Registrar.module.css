@@ -457,6 +457,58 @@
   color: var(--color-primary);
 }
 
+/* Card de Total */
+.totalCard {
+  background: var(--box-color);
+  border: 2px solid var(--color-primary);
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.totalTitle {
+  color: var(--title-color);
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.totalValue {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: 16px;
+}
+
+.totalBreakdown {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+  font-size: 0.9rem;
+  color: var(--text-color2);
+}
+
+.totalBreakdown span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.totalBreakdown span::before {
+  content: attr(data-label);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* Histórico */
 .historyControls {
   width: 100%;
@@ -644,6 +696,10 @@
   .dateRangeRow {
     grid-template-columns: 1fr;
   }
+  .totalBreakdown {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 
 /* Telas muito largas: dá um respiro lateral e mantém linhas curtas */
@@ -710,6 +766,18 @@
   .submitButton {
     padding: 12px;
     font-size: 0.9rem;
+  }
+  
+  .totalCard {
+    padding: 16px;
+  }
+  
+  .totalValue {
+    font-size: 28px;
+  }
+  
+  .totalBreakdown {
+    font-size: 0.8rem;
   }
 }
 
