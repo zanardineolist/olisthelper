@@ -1,4 +1,4 @@
-// API específica para extensão Chrome - buscar mensagens por comando de macro
+// API específica para extensão Chrome - buscar macros
 import { supabaseAdmin } from '../../../utils/supabase/supabaseClient';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]';
@@ -16,8 +16,7 @@ export default async function handler(req, res) {
   }
   
   const userId = session.user.id;
-
-  const { command, search, limit = 50 } = req.query;
+  const { search, limit = 100 } = req.query;
 
   try {
     let query = supabaseAdmin
@@ -35,16 +34,11 @@ export default async function handler(req, res) {
           name
         )
       `)
-      .order('created_at', { ascending: false })
+      .order('copy_count', { ascending: false })
       .limit(parseInt(limit));
 
-    // Se um comando específico foi fornecido, buscar por ele
-    if (command) {
-      query = query.eq('command', command);
-    } else {
-      // Buscar apenas mensagens que têm comando definido
-      query = query.not('command', 'is', null);
-    }
+    // Buscar apenas mensagens que têm comando definido (macros)
+    query = query.not('command', 'is', null);
 
     // Filtrar por mensagens públicas OU mensagens privadas do próprio usuário
     query = query.or(`is_public.eq.true,user_id.eq.${userId}`);
@@ -57,31 +51,31 @@ export default async function handler(req, res) {
     const { data, error } = await query;
     
     if (error) {
-      console.error('Erro ao buscar mensagens:', error);
+      console.error('Erro ao buscar macros:', error);
       throw error;
     }
 
     // Formatar dados para a extensão
-    const messages = data.map(msg => ({
-      id: msg.id,
-      title: msg.title,
-      content: msg.content,
-      command: msg.command,
-      tags: msg.tags || [],
-      isPublic: msg.is_public,
-      copyCount: msg.copy_count || 0,
-      authorName: msg.users?.name || 'Usuário desconhecido',
-      createdAt: msg.created_at
+    const macros = data.map(macro => ({
+      id: macro.id,
+      title: macro.title,
+      content: macro.content,
+      command: macro.command,
+      tags: macro.tags || [],
+      isPublic: macro.is_public,
+      copyCount: macro.copy_count || 0,
+      authorName: macro.users?.name || 'Usuário desconhecido',
+      createdAt: macro.created_at
     }));
 
     return res.status(200).json({
       success: true,
-      messages,
-      total: messages.length
+      macros,
+      total: macros.length
     });
 
   } catch (error) {
-    console.error('Erro ao processar requisição:', error);
+    console.error('Erro ao processar requisição de macros:', error);
     return res.status(500).json({ 
       success: false,
       error: 'Erro interno do servidor' 
@@ -90,10 +84,9 @@ export default async function handler(req, res) {
 }
 
 /**
- * Função auxiliar para buscar mensagem específica por comando
- * Pode ser usada pela extensão para busca rápida
+ * Função auxiliar para buscar macro específica por comando
  */
-export async function getMessageByCommand(command, userId) {
+export async function getMacroByCommand(command, userId) {
   try {
     const { data, error } = await supabaseAdmin
       .from('shared_responses')
@@ -126,7 +119,7 @@ export async function getMessageByCommand(command, userId) {
       authorName: data.users?.name || 'Usuário desconhecido'
     };
   } catch (error) {
-    console.error('Erro ao buscar mensagem por comando:', error);
+    console.error('Erro ao buscar macro por comando:', error);
     return null;
   }
 }

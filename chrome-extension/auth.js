@@ -39,7 +39,7 @@ class AuthManager {
 
   // Realizar verificação de autenticação
   async performAuthCheck() {
-    const apiBaseUrl = await this.getApiBaseUrl();
+    const apiBaseUrl = this.getApiBaseUrl();
     
     // Obter cookies de sessão
     const sessionCookies = await this.getSessionCookies(apiBaseUrl);
@@ -82,20 +82,30 @@ class AuthManager {
       const url = new URL(baseUrl);
       const domain = url.hostname;
       
+      console.log('Buscando cookies para domínio:', domain);
+      
       // Buscar cookies relevantes para autenticação
       const cookies = await chrome.cookies.getAll({
         domain: domain
       });
       
-      // Filtrar cookies de sessão (geralmente next-auth, session, etc.)
+      console.log('Todos os cookies encontrados:', cookies.map(c => c.name));
+      
+      // Filtrar cookies de sessão do NextAuth
       const sessionCookies = cookies.filter(cookie => {
         const name = cookie.name.toLowerCase();
         return name.includes('session') || 
                name.includes('auth') || 
                name.includes('token') ||
                name.startsWith('next-auth') ||
-               name.startsWith('__session');
+               name.startsWith('__session') ||
+               name.startsWith('__secure-next-auth') ||
+               name.startsWith('__host-next-auth') ||
+               name === 'next-auth.session-token' ||
+               name === '__secure-next-auth.session-token';
       });
+      
+      console.log('Cookies de sessão filtrados:', sessionCookies.map(c => c.name));
       
       return sessionCookies;
     } catch (error) {
@@ -114,6 +124,9 @@ class AuthManager {
           .map(cookie => `${cookie.name}=${cookie.value}`)
           .join('; ');
         
+        console.log('Fazendo requisição para:', `${baseUrl}/api/auth/session`);
+        console.log('Cookie header:', cookieHeader);
+        
         const response = await fetch(`${baseUrl}/api/auth/session`, {
           method: 'GET',
           headers: {
@@ -122,6 +135,8 @@ class AuthManager {
           },
           credentials: 'include'
         });
+        
+        console.log('Status da resposta:', response.status);
         
         if (response.ok) {
           const sessionData = await response.json();
@@ -163,13 +178,9 @@ class AuthManager {
     };
   }
 
-  // Obter URL base da API
-  async getApiBaseUrl() {
-    return new Promise((resolve) => {
-      chrome.storage.sync.get(['apiBaseUrl'], (result) => {
-        resolve(result.apiBaseUrl || 'http://localhost:3000');
-      });
-    });
+  // URL base da API é fixa para o Vercel
+  getApiBaseUrl() {
+    return 'https://olisthelper.vercel.app';
   }
 
   // Salvar estado de autenticação
@@ -215,7 +226,7 @@ class AuthManager {
   // Fazer logout
   async logout() {
     try {
-      const apiBaseUrl = await this.getApiBaseUrl();
+      const apiBaseUrl = this.getApiBaseUrl();
       
       // Tentar fazer logout no backend
       await fetch(`${apiBaseUrl}/api/auth/signout`, {
@@ -260,7 +271,7 @@ class AuthManager {
 
   // Obter headers de autenticação para requisições
   async getAuthHeaders() {
-    const apiBaseUrl = await this.getApiBaseUrl();
+    const apiBaseUrl = this.getApiBaseUrl();
     const cookies = await this.getSessionCookies(apiBaseUrl);
     
     const headers = {
@@ -325,10 +336,11 @@ class AuthManager {
 // Instância global do gerenciador de autenticação
 const authManager = new AuthManager();
 
-// Exportar para uso em outros scripts
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { AuthManager, authManager };
-} else if (typeof window !== 'undefined') {
+// Exportar para uso em outros scripts (ES6 modules)
+export { AuthManager, authManager };
+
+// Compatibilidade com window para content scripts
+if (typeof window !== 'undefined') {
   window.authManager = authManager;
 }
 

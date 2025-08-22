@@ -11,7 +11,6 @@ const elements = {
   refreshLoading: document.getElementById('refresh-loading'),
   refreshText: document.getElementById('refresh-text'),
   testMacroBtn: document.getElementById('test-macro-btn'),
-  apiUrl: document.getElementById('api-url'),
   macroTrigger: document.getElementById('macro-trigger'),
   saveSettingsBtn: document.getElementById('save-settings-btn')
 };
@@ -57,20 +56,17 @@ async function initializePopup() {
 async function loadSettings() {
   return new Promise((resolve) => {
     chrome.storage.sync.get([
-      'apiBaseUrl',
       'macroTrigger',
       'enableNotifications',
       'cacheEnabled'
     ], (result) => {
       currentSettings = {
-        apiBaseUrl: result.apiBaseUrl || 'http://localhost:3000',
         macroTrigger: result.macroTrigger || '//',
         enableNotifications: result.enableNotifications !== false,
         cacheEnabled: result.cacheEnabled !== false
       };
       
       // Preencher campos
-      elements.apiUrl.value = currentSettings.apiBaseUrl;
       elements.macroTrigger.value = currentSettings.macroTrigger;
       
       resolve();
@@ -206,12 +202,12 @@ async function loadMacrosInfo() {
     }
     
     const response = await chrome.runtime.sendMessage({
-      action: 'fetchMessages',
+      action: 'fetchMacros',
       filters: { limit: 100 }
     });
     
     if (response && response.success) {
-      const count = response.messages ? response.messages.length : 0;
+      const count = response.macros ? response.macros.length : 0;
       elements.macrosCount.textContent = count;
       elements.lastSync.textContent = new Date().toLocaleTimeString('pt-BR', {
         hour: '2-digit',
@@ -401,7 +397,6 @@ function setupEventListeners() {
   }
   
   // Validação em tempo real dos campos
-  elements.apiUrl.addEventListener('input', validateApiUrl);
   elements.macroTrigger.addEventListener('input', validateMacroTrigger);
 }
 
@@ -449,7 +444,6 @@ async function handleTestMacro() {
 async function handleSaveSettings() {
   try {
     const newSettings = {
-      apiBaseUrl: elements.apiUrl.value.trim(),
       macroTrigger: elements.macroTrigger.value.trim()
     };
     
@@ -466,7 +460,7 @@ async function handleSaveSettings() {
     // Atualizar configuração da API no background
     await chrome.runtime.sendMessage({
       action: 'updateApiConfig',
-      baseUrl: newSettings.apiBaseUrl
+      baseUrl: 'https://olisthelper.vercel.app'
     });
     
     currentSettings = { ...currentSettings, ...newSettings };
@@ -487,14 +481,6 @@ async function handleSaveSettings() {
 
 // Validar configurações
 function validateSettings(settings) {
-  // Validar URL da API
-  try {
-    new URL(settings.apiBaseUrl);
-  } catch {
-    showError('URL da API inválida');
-    return false;
-  }
-  
   // Validar trigger de macro
   if (!settings.macroTrigger || settings.macroTrigger.length < 1 || settings.macroTrigger.length > 5) {
     showError('Trigger deve ter entre 1 e 5 caracteres');
@@ -502,19 +488,6 @@ function validateSettings(settings) {
   }
   
   return true;
-}
-
-// Validar URL da API em tempo real
-function validateApiUrl() {
-  const url = elements.apiUrl.value.trim();
-  if (url) {
-    try {
-      new URL(url);
-      elements.apiUrl.style.borderColor = 'rgba(255, 255, 255, 0.3)';
-    } catch {
-      elements.apiUrl.style.borderColor = '#ef4444';
-    }
-  }
 }
 
 // Validar trigger de macro em tempo real

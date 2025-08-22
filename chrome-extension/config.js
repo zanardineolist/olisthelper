@@ -132,13 +132,21 @@ class ConfigManager {
   
   // Aplicar configurações
   applyConfig() {
-    this.applyTheme();
-    this.applyAccessibility();
-    this.applyPerformance();
+    // Verificar se estamos em um contexto que suporta DOM (não service worker)
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      this.applyTheme();
+      this.applyAccessibility();
+      this.applyPerformance();
+    }
   }
   
   // Aplicar tema
   applyTheme() {
+    // Verificar se estamos em um contexto que suporta DOM
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+    
     const theme = this.config.ui.theme;
     if (theme === 'auto') {
       // Detectar preferência do sistema
@@ -151,6 +159,11 @@ class ConfigManager {
   
   // Aplicar configurações de acessibilidade
   applyAccessibility() {
+    // Verificar se estamos em um contexto que suporta DOM
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+    
     const { accessibility } = this.config;
     
     document.documentElement.classList.toggle('high-contrast', accessibility.highContrast);
@@ -334,7 +347,5 @@ class ConfigManager {
 // Instância global do gerenciador de configurações
 const configManager = new ConfigManager();
 
-// Exportar para uso em outros scripts
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ConfigManager, configManager };
-}
+// Exportar para uso em outros scripts (ES6 modules)
+export { ConfigManager, configManager };

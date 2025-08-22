@@ -11,8 +11,7 @@
   ],
   
   "host_permissions": [
-    "http://localhost:3000/*",
-    "https://*.olisthelper.com/*"
+    "https://olisthelper.vercel.app/*"
   ],
   
   "background": {

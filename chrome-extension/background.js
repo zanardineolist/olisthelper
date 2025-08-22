@@ -1,23 +1,23 @@
 // Background script para a extensão Olist Helper
 // Gerencia comunicação com a API e cache de mensagens
 
-// Importar sistemas
-importScripts('auth.js');
-importScripts('cache.js');
-importScripts('config.js');
+// Importar sistemas usando ES6 modules
+import { authManager } from './auth.js';
+import { cacheManager } from './cache.js';
+import { configManager } from './config.js';
 
 // Configurações da API
 const API_CONFIG = {
-  baseUrl: 'http://localhost:3000',
+  baseUrl: 'https://olisthelper.vercel.app',
   endpoints: {
     messages: '/api/extension/messages',
+    macros: '/api/extension/macros',
     auth: '/api/auth/session'
   },
   timeout: 10000
 };
 
-// Sistema de cache gerenciado pelo CacheManager
-let cacheManager = new CacheManager();
+// Sistema de cache gerenciado pelo CacheManager (importado)
 
 // Buscar mensagens da API
 async function fetchMessages(filters = {}) {
@@ -80,6 +80,62 @@ async function fetchMessages(filters = {}) {
       success: false,
       error: error.message,
       messages: []
+    };
+  }
+}
+
+// Buscar macros da API
+async function fetchMacros(filters = {}) {
+  try {
+    // Verificar autenticação primeiro
+    const authResult = await authManager.checkAuthentication();
+    if (!authResult.isAuthenticated) {
+      return {
+        success: false,
+        error: 'Usuário não autenticado',
+        macros: [],
+        needsAuth: true
+      };
+    }
+    
+    const apiBaseUrl = await authManager.getApiBaseUrl();
+    const url = new URL(apiBaseUrl + API_CONFIG.endpoints.macros);
+    
+    // Adicionar filtros como query parameters
+    Object.keys(filters).forEach(key => {
+      if (filters[key]) {
+        url.searchParams.append(key, filters[key]);
+      }
+    });
+    
+    const response = await authManager.authenticatedFetch(url.toString(), {
+      method: 'GET'
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        return {
+          success: false,
+          error: 'Sessão expirada',
+          macros: [],
+          needsAuth: true
+        };
+      }
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return {
+      success: true,
+      macros: data.macros || data,
+      total: data.total || data.length
+    };
+  } catch (error) {
+    console.error('Erro ao buscar macros:', error);
+    return {
+      success: false,
+      error: error.message,
+      macros: []
     };
   }
 }
@@ -176,6 +232,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         .catch(error => sendResponse({ success: false, error: error.message }));
       return true; // Indica resposta assíncrona
       
+    case 'fetchMacros':
+      fetchMacros(request.filters || {})
+        .then(result => sendResponse(result))
+        .catch(error => sendResponse({ success: false, error: error.message }));
+      return true;
+      
     case 'searchMessages':
       searchCachedMessages(request.query, { limit: request.limit || 10, ...request.filters })
         .then(result => sendResponse(result))
@@ -268,7 +330,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.baseUrl) {
         API_CONFIG.baseUrl = request.baseUrl;
         // Limpar cache ao mudar configuração
-        messagesCache = { data: [], lastUpdate: 0, ttl: 5 * 60 * 1000 };
+        cacheManager.clearAllCache();
         sendResponse({ success: true });
       } else {
         sendResponse({ success: false, error: 'URL base é obrigatória' });
@@ -288,51 +350,16 @@ chrome.runtime.onInstalled.addListener((details) => {
     
     // Configurar valores padrão no storage
     chrome.storage.sync.set({
-      apiBaseUrl: API_CONFIG.baseUrl,
       macroTrigger: '//',
       enableNotifications: true,
       cacheEnabled: true
     });
   }
-  
-  // Inicializar sistema de configurações
-  configManager.initialize().catch(error => {
-    console.error('Erro ao inicializar sistema de configurações:', error);
-  });
-  
-  // Inicializar sistema de autenticação
-  authManager.initialize().catch(error => {
-    console.error('Erro ao inicializar sistema de autenticação:', error);
-  });
-  
-  // Inicializar sistema de cache
-  cacheManager.initialize().catch(error => {
-    console.error('Erro ao inicializar sistema de cache:', error);
-  });
 });
 
-// Carregar configurações do storage ao iniciar
-chrome.storage.sync.get(['apiBaseUrl'], (result) => {
-  if (result.apiBaseUrl) {
-    API_CONFIG.baseUrl = result.apiBaseUrl;
-  }
-});
-
-// Listener para mudanças nas configurações
-chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (namespace === 'sync') {
-    if (changes.apiBaseUrl) {
-      API_CONFIG.baseUrl = changes.apiBaseUrl.newValue;
-      // Limpar cache ao mudar configuração
-      messagesCache = { data: [], lastUpdate: 0, ttl: 5 * 60 * 1000 };
-      
-      // Revalidar autenticação com nova URL
-      authManager.checkAuthentication(true).catch(error => {
-        console.error('Erro ao revalidar autenticação:', error);
-      });
-    }
-  }
-});
+// A URL da API é fixa para o Vercel - não precisa ser configurável
+// Isso garante que a extensão sempre aponte para o servidor correto
+console.log('API configurada para:', API_CONFIG.baseUrl);
 
 // Inicializar sistema de autenticação quando o script carrega
 authManager.initialize().then(() => {
@@ -356,12 +383,13 @@ cacheManager.initialize().then(() => {
 
 // Função para debug
 function debugInfo() {
+  const cacheStats = cacheManager.getCacheStats();
   return {
     apiConfig: API_CONFIG,
     cacheInfo: {
-      itemsCount: messagesCache.data.length,
-      lastUpdate: new Date(messagesCache.lastUpdate).toISOString(),
-      isValid: isCacheValid()
+      itemsCount: cacheStats.messages?.itemsCount || 0,
+      lastUpdate: cacheStats.messages?.lastUpdate || 'Never',
+      isValid: cacheStats.messages?.isValid || false
     }
   };
 }

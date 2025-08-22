@@ -39,6 +39,11 @@ class CacheManager {
     this.initializeCache();
   }
 
+  // Método público para inicialização (compatibilidade com outros managers)
+  async initialize() {
+    return this.initializeCache();
+  }
+
   // Inicializar sistema de cache
   async initializeCache() {
     try {
@@ -299,6 +304,9 @@ class CacheManager {
         case 'messages':
           action = 'fetchMessages';
           break;
+        case 'macros':
+          action = 'fetchMacros';
+          break;
         case 'search':
           action = 'searchMessages';
           break;
@@ -345,7 +353,7 @@ class CacheManager {
       this.syncCache();
     }, this.syncInterval);
     
-    // Sincronização ao focar na aba
+    // Sincronização ao focar na aba (apenas em contextos com DOM)
     if (typeof document !== 'undefined') {
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
@@ -437,10 +445,11 @@ class CacheManager {
 // Instância global do gerenciador de cache
 const cacheManager = new CacheManager();
 
-// Exportar para uso em outros scripts
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { CacheManager, cacheManager };
-} else if (typeof window !== 'undefined') {
+// Exportar para uso em outros scripts (ES6 modules)
+export { CacheManager, cacheManager };
+
+// Compatibilidade com window para content scripts
+if (typeof window !== 'undefined') {
   window.cacheManager = cacheManager;
 }
 
