@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes, FaCheck, FaGlobe, FaLock, FaTag, FaInfo } from 'react-icons/fa';
+import { FaTimes, FaCheck, FaGlobe, FaLock, FaTag, FaInfo, FaTerminal } from 'react-icons/fa';
 import TagInput from './TagInput';
 import styles from '../../styles/shared-messages/Form.module.css';
 
@@ -34,6 +34,14 @@ const MessageForm = ({ formData: initialFormData, setFormData: setParentFormData
     
     if (!formData.content.trim()) {
       newErrors.content = 'Conteúdo é obrigatório';
+    }
+    
+    // Validar comando se fornecido
+    if (formData.command && formData.command.trim()) {
+      const commandRegex = /^\/[a-zA-Z0-9]{1,49}$/;
+      if (!commandRegex.test(formData.command.trim())) {
+        newErrors.command = 'Comando deve começar com "/" e conter apenas letras e números (2-50 caracteres)';
+      }
     }
     
     setErrors(newErrors);
@@ -155,6 +163,36 @@ const MessageForm = ({ formData: initialFormData, setFormData: setParentFormData
                   {errors.title}
                 </div>
               )}
+            </div>
+            
+            <div className={styles.formGroup}>
+              <label htmlFor="command" className={styles.formLabel}>
+                <FaTerminal className={styles.labelIcon} />
+                Comando de Macro (opcional)
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  id="command"
+                  name="command"
+                  type="text"
+                  value={formData.command || ''}
+                  onChange={handleChange}
+                  className={`${styles.formControl} ${errors.command ? styles.hasError : ''}`}
+                  placeholder="Ex: /remoto, /suporte"
+                  aria-invalid={errors.command ? "true" : "false"}
+                  aria-describedby={errors.command ? "command-error" : "command-hint"}
+                  maxLength="50"
+                />
+              </div>
+              {errors.command && (
+                <div id="command-error" className={styles.errorMessage} role="alert">
+                  {errors.command}
+                </div>
+              )}
+              <div id="command-hint" className={styles.formHint}>
+                <FaInfo className={styles.hintIcon} />
+                <span>Defina um comando personalizado para usar na extensão Chrome (ex: /remoto)</span>
+              </div>
             </div>
             
             <div className={styles.formGroup}>

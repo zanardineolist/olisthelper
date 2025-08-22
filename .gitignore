@@ -87,3 +87,4 @@ docs/layout planilhas olist erp/estoque_inventario.xls
 docs/layout planilhas olist erp/produtos.csv
 docs/layout planilhas olist erp/produtos.xls
 SECURITY_IMPROVEMENTS.md
+supabase/migrations/20241221000001_add_command_field_to_shared_responses.sql

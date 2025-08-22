@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "Olist Helper - Macro Extension",
+  "version": "1.0.0",
+  "description": "Extensão para usar macros de mensagens compartilhadas do Olist Helper em qualquer campo de texto",
+  
+  "permissions": [
+    "activeTab",
+    "storage",
+    "cookies"
+  ],
+  
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://*.olisthelper.com/*"
+  ],
+  
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Olist Helper Macros",
+    "default_icon": "icon.svg"
+  },
+  
+  "icons": {
+    "16": "icon.svg",
+    "32": "icon.svg",
+    "48": "icon.svg",
+    "128": "icon.svg"
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": ["macro-interface.html", "styles.css", "popup.html", "settings.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

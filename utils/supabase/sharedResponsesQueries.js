@@ -141,6 +141,7 @@ export async function addResponse(response) {
         content: response.content,
         tags: response.tags,
         is_public: response.isPublic,
+        command: response.command || null, // Campo para comando de macro
         copy_count: 0, // Inicializa contagem de cópias
         created_at: new Date(),
         updated_at: new Date()
@@ -169,6 +170,7 @@ export async function updateResponse(responseId, updates) {
         content: updates.content,
         tags: updates.tags,
         is_public: updates.isPublic,
+        command: updates.command || null, // Campo para comando de macro
         updated_at: new Date()
       })
       .eq('id', responseId)

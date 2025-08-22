@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste - Olist Helper Extension</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .test-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .test-section h3 {
+      color: #333;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 8px;
+    }
+    
+    .test-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+      margin-bottom: 10px;
+      transition: border-color 0.3s ease;
+    }
+    
+    .test-input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .test-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: monospace;
+      resize: vertical;
+      margin-bottom: 10px;
+    }
+    
+    .test-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      transition: background 0.3s ease;
+    }
+    
+    .btn:hover {
+      background: #5a6fd8;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    
+    .status {
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+    
+    .log {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 15px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      margin-top: 10px;
+    }
+    
+    .instructions {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .instructions h4 {
+      color: #856404;
+      margin-bottom: 10px;
+    }
+    
+    .instructions ol {
+      color: #856404;
+      margin-left: 20px;
+    }
+    
+    .instructions li {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🧪 Teste da Extensão Olist Helper</h1>
+    <p>Página para testar as funcionalidades da extensão Chrome</p>
+  </div>
+  
+  <div class="instructions">
+    <h4>📋 Instruções para Teste:</h4>
+    <ol>
+      <li>Certifique-se de que a extensão está instalada e ativada no Chrome</li>
+      <li>Digite "//" em qualquer campo de texto para ativar a busca de macros</li>
+      <li>Use os campos abaixo para testar diferentes cenários</li>
+      <li>Verifique se a interface de busca aparece corretamente</li>
+      <li>Teste os atalhos de teclado e navegação</li>
+    </ol>
+  </div>
+  
+  <div class="test-section">
+    <h3>🔍 Teste de Detecção de Macro</h3>
+    <p>Digite "//" neste campo para ativar a busca de macros:</p>
+    <input type="text" class="test-input" id="macroTest" placeholder="Digite // para testar a detecção de macro...">
+    <div id="macroStatus" class="status" style="display: none;"></div>
+  </div>
+  
+  <div class="test-section">
+    <h3>📝 Teste em Textarea</h3>
+    <p>Teste a funcionalidade em uma área de texto maior:</p>
+    <textarea class="test-textarea" id="textareaTest" placeholder="Digite // em qualquer lugar deste texto para testar..."></textarea>
+    <div id="textareaStatus" class="status" style="display: none;"></div>
+  </div>
+  
+  <div class="test-section">
+    <h3>📧 Simulação de Campo de Email</h3>
+    <p>Simula um campo de resposta de email do Mercado Livre:</p>
+    <input type="email" class="test-input" id="emailTest" placeholder="Digite sua resposta aqui... (use // para macros)">
+    <div id="emailStatus" class="status" style="display: none;"></div>
+  </div>
+  
+  <div class="test-section">
+    <h3>🎛️ Controles de Teste</h3>
+    <button class="btn" onclick="testExtensionStatus()">🔍 Verificar Status da Extensão</button>
+    <button class="btn" onclick="testConfigLoad()">⚙️ Testar Carregamento de Config</button>
+    <button class="btn" onclick="testCacheStatus()">💾 Verificar Cache</button>
+    <button class="btn btn-secondary" onclick="clearLog()">🗑️ Limpar Log</button>
+    <div id="controlStatus" class="status" style="display: none;"></div>
+  </div>
+  
+  <div class="test-section">
+    <h3>📊 Log de Eventos</h3>
+    <div id="eventLog" class="log">Aguardando eventos...
+</div>
+  </div>
+  
+  <script>
+    // Test functionality
+    let logContainer = document.getElementById('eventLog');
+    
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+      logContainer.textContent += logEntry;
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+    
+    function showStatus(elementId, message, type) {
+      const statusEl = document.getElementById(elementId);
+      statusEl.textContent = message;
+      statusEl.className = `status ${type}`;
+      statusEl.style.display = 'block';
+      
+      setTimeout(() => {
+        statusEl.style.display = 'none';
+      }, 5000);
+    }
+    
+    // Test extension status
+    async function testExtensionStatus() {
+      try {
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+          log('Chrome extension API disponível');
+          showStatus('controlStatus', 'Extensão detectada com sucesso!', 'success');
+          
+          // Try to communicate with background script
+          try {
+            const response = await chrome.runtime.sendMessage({ action: 'ping' });
+            log('Comunicação com background script: ' + (response ? 'OK' : 'FALHOU'));
+          } catch (error) {
+            log('Erro na comunicação com background: ' + error.message, 'error');
+          }
+        } else {
+          log('Chrome extension API não disponível', 'error');
+          showStatus('controlStatus', 'Extensão não detectada', 'error');
+        }
+      } catch (error) {
+        log('Erro ao verificar status: ' + error.message, 'error');
+        showStatus('controlStatus', 'Erro ao verificar extensão', 'error');
+      }
+    }
+    
+    // Test config loading
+    async function testConfigLoad() {
+      try {
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+          const response = await chrome.runtime.sendMessage({ action: 'getConfig' });
+          if (response && response.success) {
+            log('Configurações carregadas com sucesso');
+            log('Config: ' + JSON.stringify(response.config, null, 2));
+            showStatus('controlStatus', 'Configurações carregadas!', 'success');
+          } else {
+            log('Falha ao carregar configurações: ' + (response?.error || 'Resposta inválida'), 'error');
+            showStatus('controlStatus', 'Erro ao carregar config', 'error');
+          }
+        } else {
+          showStatus('controlStatus', 'Extensão não disponível', 'error');
+        }
+      } catch (error) {
+        log('Erro ao testar config: ' + error.message, 'error');
+        showStatus('controlStatus', 'Erro no teste de config', 'error');
+      }
+    }
+    
+    // Test cache status
+    async function testCacheStatus() {
+      try {
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+          const response = await chrome.runtime.sendMessage({ action: 'getCacheStats' });
+          if (response && response.success) {
+            log('Estatísticas do cache obtidas');
+            log('Cache stats: ' + JSON.stringify(response.stats, null, 2));
+            showStatus('controlStatus', 'Cache verificado!', 'success');
+          } else {
+            log('Falha ao obter stats do cache: ' + (response?.error || 'Resposta inválida'), 'error');
+            showStatus('controlStatus', 'Erro ao verificar cache', 'error');
+          }
+        } else {
+          showStatus('controlStatus', 'Extensão não disponível', 'error');
+        }
+      } catch (error) {
+        log('Erro ao testar cache: ' + error.message, 'error');
+        showStatus('controlStatus', 'Erro no teste de cache', 'error');
+      }
+    }
+    
+    function clearLog() {
+      logContainer.textContent = 'Log limpo...\n';
+    }
+    
+    // Monitor input events
+    document.addEventListener('input', (e) => {
+      if (e.target.matches('.test-input, .test-textarea')) {
+        const value = e.target.value;
+        const fieldId = e.target.id;
+        
+        log(`Input em ${fieldId}: "${value}"`);
+        
+        if (value.includes('//')) {
+          log(`Macro detectada em ${fieldId}!`, 'success');
+          showStatus(fieldId.replace('Test', 'Status'), 'Macro "//" detectada!', 'success');
+        }
+      }
+    });
+    
+    // Monitor focus events
+    document.addEventListener('focus', (e) => {
+      if (e.target.matches('.test-input, .test-textarea')) {
+        log(`Foco em ${e.target.id}`);
+      }
+    }, true);
+    
+    // Monitor key events
+    document.addEventListener('keydown', (e) => {
+      if (e.target.matches('.test-input, .test-textarea')) {
+        if (e.key === 'Escape') {
+          log('Tecla Escape pressionada');
+        } else if (e.key === 'Enter') {
+          log('Tecla Enter pressionada');
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+          log(`Tecla ${e.key} pressionada`);
+        }
+      }
+    });
+    
+    // Initialize
+    log('Página de teste carregada');
+    log('Aguardando interações...');
+    
+    // Auto-test extension status on load
+    setTimeout(testExtensionStatus, 1000);
+  </script>
+</body>
+</html>

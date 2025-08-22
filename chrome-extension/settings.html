@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações - Olist Helper</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    
+    .header p {
+      opacity: 0.9;
+      font-size: 16px;
+    }
+    
+    .nav-tabs {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .nav-tab {
+      flex: 1;
+      padding: 15px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6c757d;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-tab:hover {
+      background: #e9ecef;
+      color: #495057;
+    }
+    
+    .nav-tab.active {
+      background: white;
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+    }
+    
+    .content {
+      padding: 30px;
+    }
+    
+    .tab-panel {
+      display: none;
+    }
+    
+    .tab-panel.active {
+      display: block;
+    }
+    
+    .setting-group {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .setting-group:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    .setting-group h3 {
+      font-size: 18px;
+      color: #495057;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+    }
+    
+    .setting-label {
+      flex: 1;
+    }
+    
+    .setting-label h4 {
+      font-size: 14px;
+      color: #495057;
+      margin-bottom: 4px;
+    }
+    
+    .setting-label p {
+      font-size: 12px;
+      color: #6c757d;
+      line-height: 1.4;
+    }
+    
+    .setting-control {
+      min-width: 200px;
+      text-align: right;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+    
+    .form-select {
+      background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 12px;
+      padding-right: 30px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 24px;
+      background: #ccc;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    .toggle-switch.active {
+      background: #667eea;
+    }
+    
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .toggle-switch.active::after {
+      transform: translateX(26px);
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #5a6fd8;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: #c82333;
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #667eea;
+      color: #667eea;
+    }
+    
+    .btn-outline:hover {
+      background: #667eea;
+      color: white;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      padding: 20px 0;
+      border-top: 1px solid #e9ecef;
+      margin-top: 30px;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      background: #28a745;
+    }
+    
+    .notification.error {
+      background: #dc3545;
+    }
+    
+    .notification.info {
+      background: #17a2b8;
+    }
+    
+    .import-export {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .file-input {
+      display: none;
+    }
+    
+    .shortcut-input {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      min-width: 120px;
+    }
+    
+    .range-input {
+      width: 100%;
+      margin: 8px 0;
+    }
+    
+    .range-value {
+      font-size: 12px;
+      color: #6c757d;
+      text-align: center;
+      margin-top: 4px;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 8px;
+      }
+      
+      .content {
+        padding: 20px;
+      }
+      
+      .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .setting-control {
+        width: 100%;
+        text-align: left;
+      }
+      
+      .nav-tab {
+        padding: 12px 8px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚙️ Configurações</h1>
+      <p>Personalize sua experiência com o Olist Helper</p>
+    </div>
+    
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-tab="interface">🎨 Interface</button>
+      <button class="nav-tab" data-tab="shortcuts">⌨️ Atalhos</button>
+      <button class="nav-tab" data-tab="cache">💾 Cache</button>
+      <button class="nav-tab" data-tab="search">🔍 Busca</button>
+      <button class="nav-tab" data-tab="accessibility">♿ Acessibilidade</button>
+      <button class="nav-tab" data-tab="advanced">🔧 Avançado</button>
+    </div>
+    
+    <div class="content">
+      <!-- Interface Tab -->
+      <div class="tab-panel active" id="interface">
+        <div class="setting-group">
+          <h3>🎨 Aparência</h3>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Tema</h4>
+              <p>Escolha o tema da interface</p>
+            </div>
+            <div class="setting-control">
+              <select class="form-control form-select" data-config="ui.theme">
+                <option value="light">Claro</option>
+                <option value="dark">Escuro</option>
+                <option value="auto">Automático</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Posição da Interface</h4>
+              <p>Onde a interface de busca aparece</p>
+            </div>
+            <div class="setting-control">
+              <select class="form-control form-select" data-config="ui.position">
+                <option value="top-left">Superior Esquerda</option>
+                <option value="top-right">Superior Direita</option>
+                <option value="bottom-left">Inferior Esquerda</option>
+                <option value="bottom-right">Inferior Direita</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Tamanho da Fonte</h4>
+              <p>Tamanho do texto na interface</p>
+            </div>
+            <div class="setting-control">
+              <select class="form-control form-select" data-config="ui.fontSize">
+                <option value="small">Pequeno</option>
+                <option value="medium">Médio</option>
+                <option value="large">Grande</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Máximo de Resultados</h4>
+              <p>Quantos resultados mostrar por vez</p>
+            </div>
+            <div class="setting-control">
+              <input type="range" class="range-input" min="5" max="50" data-config="ui.maxResults">
+              <div class="range-value">10 resultados</div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Mostrar Preview</h4>
+              <p>Exibir preview das mensagens</p>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" data-config="ui.showPreview"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Shortcuts Tab -->
+      <div class="tab-panel" id="shortcuts">
+        <div class="setting-group">
+          <h3>⌨️ Atalhos de Teclado</h3>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Ativar Macro</h4>
+              <p>Sequência para ativar a busca de macros</p>
+            </div>
+            <div class="setting-control">
+              <input type="text" class="form-control shortcut-input" data-config="shortcuts.triggerMacro">
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Fechar Interface</h4>
+              <p>Tecla para fechar a interface</p>
+            </div>
+            <div class="setting-control">
+              <input type="text" class="form-control shortcut-input" data-config="shortcuts.closeInterface">
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Busca Rápida</h4>
+              <p>Atalho para busca rápida global</p>
+            </div>
+            <div class="setting-control">
+              <input type="text" class="form-control shortcut-input" data-config="shortcuts.quickSearch">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Cache Tab -->
+      <div class="tab-panel" id="cache">
+        <div class="setting-group">
+          <h3>💾 Gerenciamento de Cache</h3>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Habilitar Cache</h4>
+              <p>Usar cache local para melhor performance</p>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" data-config="cache.enabled"></div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Tempo de Vida (TTL)</h4>
+              <p>Por quanto tempo manter dados no cache</p>
+            </div>
+            <div class="setting-control">
+              <select class="form-control form-select" data-config="cache.ttl">
+                <option value="60000">1 minuto</option>
+                <option value="300000">5 minutos</option>
+                <option value="600000">10 minutos</option>
+                <option value="1800000">30 minutos</option>
+                <option value="3600000">1 hora</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Tamanho Máximo</h4>
+              <p>Máximo de itens no cache</p>
+            </div>
+            <div class="setting-control">
+              <input type="range" class="range-input" min="10" max="200" data-config="cache.maxSize">
+              <div class="range-value">50 itens</div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Sincronização Automática</h4>
+              <p>Sincronizar cache automaticamente</p>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" data-config="cache.autoSync"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Search Tab -->
+      <div class="tab-panel" id="search">
+        <div class="setting-group">
+          <h3>🔍 Configurações de Busca</h3>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Mínimo de Caracteres</h4>
+              <p>Mínimo de caracteres para iniciar busca</p>
+            </div>
+            <div class="setting-control">
+              <input type="range" class="range-input" min="1" max="10" data-config="search.minQueryLength">
+              <div class="range-value">2 caracteres</div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Delay da Busca</h4>
+              <p>Tempo de espera antes de buscar</p>
+            </div>
+            <div class="setting-control">
+              <input type="range" class="range-input" min="0" max="1000" step="100" data-config="search.searchDelay">
+              <div class="range-value">300ms</div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Busca Aproximada</h4>
+              <p>Permitir busca com erros de digitação</p>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" data-config="search.fuzzySearch"></div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Destacar Resultados</h4>
+              <p>Destacar termos encontrados</p>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" data-config="search.highlightMatches"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Accessibility Tab -->
+      <div class="tab-panel" id="accessibility">
+        <div class="setting-group">
+          <h3>♿ Acessibilidade</h3>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Alto Contraste</h4>
+              <p>Usar cores de alto contraste</p>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" data-config="accessibility.highContrast"></div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Texto Grande</h4>
+              <p>Usar texto em tamanho maior</p>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" data-config="accessibility.largeText"></div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Reduzir Animações</h4>
+              <p>Minimizar efeitos de animação</p>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" data-config="accessibility.reduceMotion"></div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Navegação por Teclado</h4>
+              <p>Habilitar navegação completa por teclado</p>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" data-config="accessibility.keyboardNavigation"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Advanced Tab -->
+      <div class="tab-panel" id="advanced">
+        <div class="setting-group">
+          <h3>🔧 Configurações Avançadas</h3>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Modo Debug</h4>
+              <p>Habilitar logs detalhados para debug</p>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" data-config="advanced.debugMode"></div>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Nível de Log</h4>
+              <p>Nível de detalhamento dos logs</p>
+            </div>
+            <div class="setting-control">
+              <select class="form-control form-select" data-config="advanced.logLevel">
+                <option value="error">Apenas Erros</option>
+                <option value="warn">Avisos e Erros</option>
+                <option value="info">Informações</option>
+                <option value="debug">Debug Completo</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Recursos Beta</h4>
+              <p>Habilitar recursos experimentais</p>
+            </div>
+            <div class="setting-control">
+              <div class="toggle-switch" data-config="advanced.betaFeatures"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="setting-group">
+          <h3>📁 Importar/Exportar</h3>
+          
+          <div class="setting-item">
+            <div class="setting-label">
+              <h4>Backup de Configurações</h4>
+              <p>Exportar ou importar suas configurações</p>
+            </div>
+            <div class="setting-control">
+              <div class="import-export">
+                <button class="btn btn-outline" id="exportBtn">📤 Exportar</button>
+                <button class="btn btn-outline" id="importBtn">📥 Importar</button>
+                <input type="file" class="file-input" id="importFile" accept=".json">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="actions">
+      <button class="btn btn-secondary" id="resetBtn">🔄 Restaurar Padrões</button>
+      <button class="btn btn-primary" id="saveBtn">💾 Salvar Configurações</button>
+    </div>
+  </div>
+  
+  <script src="settings.js"></script>
+</body>
+</html>
