@@ -30,9 +30,7 @@ export default async function handler(req, res) {
         is_public,
         copy_count,
         created_at,
-        users (
-          name
-        )
+        user_id
       `)
       .order('copy_count', { ascending: false })
       .limit(parseInt(limit));
@@ -64,7 +62,7 @@ export default async function handler(req, res) {
       tags: macro.tags || [],
       isPublic: macro.is_public,
       copyCount: macro.copy_count || 0,
-      authorName: macro.users?.name || 'Usuário desconhecido',
+      authorName: 'Usuário',
       createdAt: macro.created_at
     }));
 
