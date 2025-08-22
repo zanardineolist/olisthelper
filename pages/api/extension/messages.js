@@ -15,7 +15,12 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Usuário não autenticado' });
   }
   
-  const userId = session.user.id;
+  const userId = session.id;
+  
+  // Verificar se userId é válido
+  if (!userId) {
+    return res.status(400).json({ error: 'ID do usuário não encontrado na sessão' });
+  }
 
   const { command, search, limit = 50 } = req.query;
 
