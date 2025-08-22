@@ -10,13 +10,21 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log('[DEBUG] Verificando sessão...');
+    console.log('[DEBUG] Headers:', req.headers.cookie ? 'Cookies presentes' : 'Sem cookies');
+    
     // Obter a sessão do usuário
     const session = await getServerSession(req, res, authOptions);
     
+    console.log('[DEBUG] Sessão obtida:', session ? 'Sessão válida' : 'Sem sessão');
+    
     if (!session) {
+      console.log('[DEBUG] Retornando 401 - Não autenticado');
       return res.status(401).json({ error: 'Não autenticado' });
     }
 
+    console.log('[DEBUG] Sessão válida para usuário:', session.user?.email);
+    
     // Retornar dados da sessão no formato esperado pela extensão
     return res.status(200).json({
       user: {

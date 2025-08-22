@@ -97,3 +97,5 @@ chrome-extension/config.js
 chrome-extension/manifest.json
 chrome-extension/popup.html
 chrome-extension/popup.js
+chrome-extension/auth.js
+chrome-extension/cache.js

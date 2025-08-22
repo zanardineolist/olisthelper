@@ -331,6 +331,38 @@ class AuthManager {
       this.checkAuthentication(true);
     }, this.authCheckInterval);
   }
+
+  // Método de debug para testar sessão
+  async debugSession() {
+    try {
+      console.log('[DEBUG] === TESTE DE SESSÃO ===');
+      
+      // Testar endpoint de debug
+      const response = await fetch('https://olisthelper.vercel.app/api/auth/session-debug', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('[DEBUG] Status da resposta:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[DEBUG] Dados da sessão:', data);
+        return data;
+      } else {
+        const errorText = await response.text();
+        console.log('[DEBUG] Erro da resposta:', errorText);
+        return { error: errorText, status: response.status };
+      }
+      
+    } catch (error) {
+      console.error('[DEBUG] Erro no teste de sessão:', error);
+      return { error: error.message };
+    }
+  }
 }
 
 // Instância global do gerenciador de autenticação

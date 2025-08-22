@@ -297,37 +297,92 @@ class CacheManager {
 
   // Buscar da API através do background script
   async fetchFromAPI(endpoint, params = {}) {
-    return new Promise((resolve, reject) => {
-      let action;
+    const API_BASE_URL = 'https://olisthelper.vercel.app';
+    
+    let url;
+    switch (endpoint) {
+      case 'messages':
+        url = `${API_BASE_URL}/api/extension/messages`;
+        break;
+      case 'macros':
+        url = `${API_BASE_URL}/api/extension/macros`;
+        break;
+      case 'session':
+        url = `${API_BASE_URL}/api/auth/session`;
+        break;
+      case 'session-debug':
+        url = `${API_BASE_URL}/api/auth/session-debug`;
+        break;
+      default:
+        throw new Error('Endpoint não suportado');
+    }
+    
+    // Construir query string
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value);
+      }
+    });
+    
+    if (queryParams.toString()) {
+      url += `?${queryParams.toString()}`;
+    }
+    
+    console.log(`[DEBUG] Fazendo requisição para: ${url}`);
+    
+    // Obter cookies de autenticação
+    const cookies = await this.getAuthCookies();
+    console.log(`[DEBUG] Usando cookies: ${cookies ? 'Sim' : 'Não'}`);
+    
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': cookies
+        },
+        credentials: 'include'
+      });
       
-      switch (endpoint) {
-        case 'messages':
-          action = 'fetchMessages';
-          break;
-        case 'macros':
-          action = 'fetchMacros';
-          break;
-        case 'search':
-          action = 'searchMessages';
-          break;
-        default:
-          reject(new Error('Endpoint não suportado'));
-          return;
+      console.log(`[DEBUG] Resposta: ${response.status} ${response.statusText}`);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log(`[DEBUG] Erro da resposta: ${errorText}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
-      chrome.runtime.sendMessage({
-        action: action,
-        filters: params,
-        query: params.query,
-        limit: params.limit
-      }, (response) => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
-        } else if (response && response.success) {
-          resolve(response);
-        } else {
-          reject(new Error(response?.error || 'Erro desconhecido'));
-        }
+      const data = await response.json();
+      console.log(`[DEBUG] Dados recebidos:`, data);
+      return data;
+    } catch (error) {
+      console.error(`[DEBUG] Erro na requisição API:`, error);
+      throw error;
+    }
+  }
+  
+  async getAuthCookies() {
+    return new Promise((resolve) => {
+      chrome.cookies.getAll({
+        domain: 'olisthelper.vercel.app'
+      }, (cookies) => {
+        console.log('[DEBUG] Todos os cookies encontrados:', cookies.map(c => c.name));
+        
+        const authCookies = cookies.filter(cookie => 
+          cookie.name.includes('next-auth') || 
+          cookie.name.includes('__Secure-next-auth') ||
+          cookie.name.includes('__Host-next-auth')
+        );
+        
+        console.log('[DEBUG] Cookies de autenticação encontrados:', authCookies.map(c => c.name));
+        
+        const cookieString = authCookies
+          .map(cookie => `${cookie.name}=${cookie.value}`)
+          .join('; ');
+          
+        console.log('[DEBUG] String de cookies:', cookieString ? 'Cookies presentes' : 'Nenhum cookie');
+        resolve(cookieString);
       });
     });
   }
