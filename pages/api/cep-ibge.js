@@ -1,23 +1,56 @@
 // pages/api/cep-ibge.js
 import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
+import rateLimiter from '../../utils/rateLimiter';
+import { applyCors } from '../../utils/corsConfig';
 
 // Cache para armazenar consultas anteriores e reduzir chamadas à API
 const cepCache = new Map();
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 horas
 
 export default async function handler(req, res) {
+  // Aplicar configuração de CORS
+  applyCors(req, res);
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Método não permitido' });
   }
 
+  // Rate limiting - obter IP do cliente
+  const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
+  
+  if (!rateLimiter.isAllowed(clientIp)) {
+    return res.status(429).json({ 
+      error: 'Muitas requisições. Tente novamente em alguns minutos.',
+      retryAfter: 900 // 15 minutos em segundos
+    });
+  }
+
   const { cep } = req.query;
 
-  // Validação básica do CEP
-  if (!cep || !/^\d{5}-?\d{3}$/.test(cep)) {
+  // Validação e sanitização robusta do CEP
+  if (!cep || typeof cep !== 'string') {
+    return res.status(400).json({ error: 'CEP é obrigatório e deve ser uma string.' });
+  }
+
+  // Limitar tamanho da entrada para evitar ataques
+  if (cep.length > 20) {
+    return res.status(400).json({ error: 'CEP muito longo.' });
+  }
+
+  // Sanitizar entrada removendo caracteres perigosos
+  const cepSanitizado = cep.trim().replace(/[^0-9-]/g, '');
+  
+  // Validação do formato do CEP
+  if (!/^\d{5}-?\d{3}$/.test(cepSanitizado)) {
     return res.status(400).json({ error: 'CEP inválido. Formato esperado: 00000-000 ou 00000000' });
   }
 
   // Remover hífens e outros caracteres não numéricos
-  const cepNumerico = cep.replace(/\D/g, '');
+  const cepNumerico = cepSanitizado.replace(/\D/g, '');
+  
+  // Validação adicional do CEP numérico
+  if (cepNumerico.length !== 8 || !/^\d{8}$/.test(cepNumerico)) {
+    return res.status(400).json({ error: 'CEP deve conter exatamente 8 dígitos.' });
+  }
 
   try {
     // Verificar se o resultado está em cache

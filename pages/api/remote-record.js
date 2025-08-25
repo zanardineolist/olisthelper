@@ -1,8 +1,23 @@
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
+import { getUserPermissions } from '../../utils/supabase/supabaseClient';
 import { createRemoteAccess } from '../../utils/supabase/remoteAccessQueries';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Verificar autenticação
+  const session = await getServerSession(req, res, authOptions);
+  if (!session) {
+    return res.status(401).json({ error: 'Não autenticado.' });
+  }
+
+  // Verificar permissões - usuário deve ter permissão de acesso remoto
+  const userPermissions = await getUserPermissions(session.id);
+  if (!userPermissions?.remoteAccess) {
+    return res.status(403).json({ error: 'Acesso negado. Você não tem permissão para registrar acessos remotos.' });
   }
 
   const { date, time, name, email, chamado, tema, description } = req.body;

@@ -1,8 +1,23 @@
 import MercadoLivreAPI from '../../../utils/mercadolivre';
+import rateLimiter from '../../../utils/rateLimiter';
+import { applyCors } from '../../../utils/corsConfig';
 
 export default async function handler(req, res) {
+  // Aplicar configuração de CORS
+  applyCors(req, res);
+  
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Método não permitido' });
+  }
+
+  // Rate limiting - obter IP do cliente
+  const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
+  
+  if (!rateLimiter.isAllowed(clientIp)) {
+    return res.status(429).json({ 
+      error: 'Muitas requisições. Tente novamente em alguns minutos.',
+      retryAfter: 900 // 15 minutos em segundos
+    });
   }
 
   const ml = new MercadoLivreAPI();
@@ -56,4 +71,4 @@ export default async function handler(req, res) {
       error: error.message 
     });
   }
-} 
+}

@@ -1,4 +1,7 @@
 // pages/api/get-super-dashboard-data.js
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
+import { getUserPermissions } from '../../utils/supabase/supabaseClient';
 import { getUserPerformanceByEmail } from '../../utils/supabase/performanceQueriesNew';
 import { getUserHelpRequests, getUserHelpRequestsComplete } from '../../utils/supabase/helpQueries';
 import { getUserCategoryRanking, getUserCategoryRankingComplete } from '../../utils/supabase/helpQueries';
@@ -6,6 +9,18 @@ import { getUserCategoryRanking, getUserCategoryRankingComplete } from '../../ut
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Verificar autenticação
+  const session = await getServerSession(req, res, authOptions);
+  if (!session) {
+    return res.status(401).json({ error: 'Não autenticado.' });
+  }
+
+  // Verificar permissões - apenas super e quality podem acessar dados de dashboard
+  const userPermissions = await getUserPermissions(session.id);
+  if (!userPermissions || (session.role !== 'super' && session.role !== 'quality')) {
+    return res.status(403).json({ error: 'Acesso negado. Apenas usuários com perfil super ou quality podem acessar estes dados.' });
   }
 
   const { userEmail, includeAgentHelps } = req.query;
