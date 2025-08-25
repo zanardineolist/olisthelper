@@ -1,6 +1,10 @@
 // pages/api/manage-user.js
 import { createClient } from '@supabase/supabase-js';
 import { logAction } from '../../utils/firebase/firebaseLogging';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
+import { getUserPermissions } from '../../utils/supabase/supabaseClient';
+import { applyCors } from '../../utils/corsConfig';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -8,22 +12,32 @@ const supabase = createClient(
 );
 
 export default async function handler(req, res) {
+  // Aplicar CORS
+  await applyCors(req, res);
+
   const { method } = req;
 
-  // Extrair informações do usuário dos cookies
-  const userId = req.cookies['user-id'];
-  const userName = req.cookies['user-name'];
-  const userRole = req.cookies['user-role'];
-
-  const reqUser = {
-    id: userId,
-    name: userName,
-    role: userRole,
-  };
-
-  const isUserValid = reqUser && reqUser.id && reqUser.name && reqUser.role;
-
   try {
+    // Verificar autenticação
+    const session = await getServerSession(req, res, authOptions);
+    if (!session) {
+      return res.status(401).json({ error: 'Não autenticado.' });
+    }
+
+    // Verificar permissões de administrador
+    const userPermissions = await getUserPermissions(session.id);
+    if (!userPermissions?.admin) {
+      return res.status(403).json({ error: 'Acesso negado. Apenas administradores podem gerenciar usuários.' });
+    }
+
+    const reqUser = {
+      id: session.id,
+      name: session.user.name,
+      role: session.role,
+    };
+
+    const isUserValid = true; // Sempre válido se passou pela autenticação
+
     switch (method) {
       case 'GET':
         const { data: users, error: fetchUsersError } = await supabase

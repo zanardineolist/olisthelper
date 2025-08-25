@@ -3,6 +3,11 @@ import fs from 'fs/promises';
 import XLSX from 'xlsx';
 import archiver from 'archiver';
 import { Readable } from 'stream';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
+import { getUserPermissions } from '../../utils/supabase/supabaseClient';
+import { validateFile, generateSafeFilename } from '../../utils/fileValidation';
+import { applyCors } from '../../utils/corsConfig';
 
 export const config = {
   api: {
@@ -13,11 +18,25 @@ export const config = {
 const maxFileSize = 5 * 1024 * 1024; // 5MB
 
 export default async function handler(req, res) {
+  // Aplicar CORS
+  await applyCors(req, res);
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido. Utilize POST.' });
   }
 
   try {
+    // Verificar autenticação
+    const session = await getServerSession(req, res, authOptions);
+    if (!session) {
+      return res.status(401).json({ error: 'Não autenticado.' });
+    }
+
+    // Verificar permissões (usuários autenticados podem usar a ferramenta)
+    const userPermissions = await getUserPermissions(session.id);
+    if (!userPermissions) {
+      return res.status(403).json({ error: 'Acesso negado.' });
+    }
     const options = {
       maxFileSize: maxFileSize,
       keepExtensions: true,
@@ -38,6 +57,20 @@ export default async function handler(req, res) {
     if (!file || !layoutType) {
       return res.status(400).json({ error: 'Arquivo ou tipo de layout não fornecido' });
     }
+
+    // Validar arquivo usando o utilitário de segurança
+    const fileBuffer = await fs.readFile(file.filepath);
+    const validation = validateFile(file, 'spreadsheets', fileBuffer);
+    
+    if (!validation.isValid) {
+      return res.status(400).json({ 
+        error: 'Arquivo inválido', 
+        details: validation.errors 
+      });
+    }
+
+    // Gerar nome seguro para o arquivo
+    const safeFilename = generateSafeFilename(file.originalFilename);
 
     try {
       const fileStats = await fs.stat(file.filepath);
@@ -263,4 +296,4 @@ async function createZip(parts) {
 
     output.finalize();
   });
-} 
+}

@@ -1,8 +1,19 @@
 import { getSession } from 'next-auth/react';
 import { GoogleAuth } from 'google-auth-library';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
+import { applyCors } from '../../utils/corsConfig';
+
+// Função auxiliar para validar datas
+function isValidDate(dateString) {
+  if (!dateString || typeof dateString !== 'string') return false;
+  const date = new Date(dateString);
+  return date instanceof Date && !isNaN(date.getTime());
+}
 
 export default async function handler(req, res) {
+  // Aplicar CORS
+  await applyCors(req, res);
+
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
@@ -22,8 +33,56 @@ export default async function handler(req, res) {
 
     const { topics, analysis, period, startDate, endDate } = req.body;
 
+    // Validação robusta de entrada
     if (!topics || !Array.isArray(topics)) {
-      return res.status(400).json({ message: 'Dados de temas são obrigatórios' });
+      return res.status(400).json({ message: 'Dados de temas são obrigatórios e devem ser um array' });
+    }
+
+    if (topics.length === 0) {
+      return res.status(400).json({ message: 'Lista de temas não pode estar vazia' });
+    }
+
+    if (topics.length > 100) {
+      return res.status(400).json({ message: 'Máximo de 100 temas permitidos por exportação' });
+    }
+
+    // Validar período
+    if (!period || typeof period !== 'string') {
+      return res.status(400).json({ message: 'Período é obrigatório' });
+    }
+
+    // Sanitizar período
+    const sanitizedPeriod = period.trim().replace(/[^a-zA-Z0-9_-]/g, '');
+    if (sanitizedPeriod.length === 0 || sanitizedPeriod.length > 50) {
+      return res.status(400).json({ message: 'Período inválido' });
+    }
+
+    // Validar datas se fornecidas
+    if (startDate && !isValidDate(startDate)) {
+      return res.status(400).json({ message: 'Data de início inválida' });
+    }
+
+    if (endDate && !isValidDate(endDate)) {
+      return res.status(400).json({ message: 'Data de fim inválida' });
+    }
+
+    // Validar cada tópico
+    for (const topic of topics) {
+      if (!topic || typeof topic !== 'object') {
+        return res.status(400).json({ message: 'Formato de tópico inválido' });
+      }
+      
+      if (!topic.name || typeof topic.name !== 'string' || topic.name.trim().length === 0) {
+        return res.status(400).json({ message: 'Nome do tópico é obrigatório' });
+      }
+      
+      if (topic.name.length > 200) {
+        return res.status(400).json({ message: 'Nome do tópico muito longo (máximo 200 caracteres)' });
+      }
+      
+      if (typeof topic.count !== 'number' || topic.count < 0) {
+        return res.status(400).json({ message: 'Contagem do tópico deve ser um número positivo' });
+      }
     }
 
     // Configurar autenticação do Google
@@ -172,4 +231,4 @@ async function formatSheet(sheet, rowCount) {
   } catch (error) {
     console.error('Erro ao formatar planilha:', error);
   }
-} 
+}

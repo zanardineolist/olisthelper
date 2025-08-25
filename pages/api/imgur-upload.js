@@ -1,10 +1,16 @@
 import { supabase } from '../../utils/supabase/supabaseClient';
 import formidable from 'formidable';
 import fs from 'fs';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './auth/[...nextauth]';
+import { getUserPermissions } from '../../utils/supabase/supabaseClient';
+const rateLimiter = require('../../utils/rateLimiter');
+import { validateFile, generateSafeFilename } from '../../utils/fileValidation';
+import { applyCors } from '../../utils/corsConfig';
 
 // Configurações do Imgur
-const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID; // Você precisa adicionar isso no .env.local
-const IMGUR_CLIENT_SECRET = process.env.IMGUR_CLIENT_SECRET; // Você precisa adicionar isso no .env.local
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID;
+const IMGUR_CLIENT_SECRET = process.env.IMGUR_CLIENT_SECRET;
 
 // Configurar para não fazer parse automático do body
 export const config = {
@@ -14,11 +20,34 @@ export const config = {
 };
 
 export default async function handler(req, res) {
+  // Aplicar CORS
+  await applyCors(req, res);
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método não permitido' });
   }
 
   try {
+    // Rate limiting
+    const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
+    if (!rateLimiter.isAllowed(clientIp)) {
+      return res.status(429).json({ 
+        error: 'Muitas requisições. Tente novamente em alguns minutos.',
+        retryAfter: 900
+      });
+    }
+
+    // Verificar autenticação
+    const session = await getServerSession(req, res, authOptions);
+    if (!session) {
+      return res.status(401).json({ error: 'Não autenticado.' });
+    }
+
+    // Verificar permissões (usuários autenticados podem fazer upload)
+    const userPermissions = await getUserPermissions(session.id);
+    if (!userPermissions) {
+      return res.status(403).json({ error: 'Acesso negado.' });
+    }
     // Verificar se as credenciais do Imgur estão configuradas
     if (!IMGUR_CLIENT_ID) {
       return res.status(500).json({ 
@@ -39,13 +68,19 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Nenhuma imagem enviada' });
     }
 
-    // Validar tipo de arquivo
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.mimetype)) {
+    // Validar arquivo usando o utilitário de segurança
+    const fileBuffer = fs.readFileSync(file.filepath);
+    const validation = validateFile(file, 'images', fileBuffer);
+    
+    if (!validation.isValid) {
       return res.status(400).json({ 
-        error: 'Tipo de arquivo não suportado. Use: JPEG, PNG, GIF ou WebP' 
+        error: 'Arquivo inválido', 
+        details: validation.errors 
       });
     }
+
+    // Gerar nome seguro para o arquivo
+    const safeFilename = generateSafeFilename(file.originalFilename);
 
     // Ler o arquivo
     const imageData = fs.readFileSync(file.filepath);
@@ -103,4 +138,4 @@ export default async function handler(req, res) {
       details: error.message 
     });
   }
-} 
+}
