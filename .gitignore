@@ -5,6 +5,8 @@
 Analyst IDS.txt
 IDS.txt
 
+chrome-extension
+
 config.toml
 
 .vscode
@@ -87,3 +89,13 @@ docs/layout planilhas olist erp/estoque_inventario.xls
 docs/layout planilhas olist erp/produtos.csv
 docs/layout planilhas olist erp/produtos.xls
 SECURITY_IMPROVEMENTS.md
+supabase/migrations/20241221000001_add_command_field_to_shared_responses.sql
+chrome-extension/auth.js
+chrome-extension/background.js
+chrome-extension/cache.js
+chrome-extension/config.js
+chrome-extension/manifest.json
+chrome-extension/popup.html
+chrome-extension/popup.js
+chrome-extension/auth.js
+chrome-extension/cache.js

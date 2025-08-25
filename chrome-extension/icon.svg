@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="url(#grad1)" stroke="#fff" stroke-width="4"/>
+  
+  <!-- Chat bubble -->
+  <path d="M32 40 C32 35, 35 32, 40 32 L88 32 C93 32, 96 35, 96 40 L96 65 C96 70, 93 73, 88 73 L50 73 L38 85 L38 73 C35 73, 32 70, 32 65 Z" fill="#fff" opacity="0.9"/>
+  
+  <!-- Macro symbol (//) -->
+  <text x="64" y="58" font-family="monospace" font-size="20" font-weight="bold" text-anchor="middle" fill="#667eea">//</text>
+  
+  <!-- Lightning bolt for speed -->
+  <path d="M75 45 L85 45 L78 55 L82 55 L72 70 L76 60 L72 60 Z" fill="#ffd700" stroke="#ff6b35" stroke-width="1"/>
+</svg>

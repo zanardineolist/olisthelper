@@ -19,6 +19,19 @@ export const authOptions = {
   session: {
     maxAge: 24 * 60 * 60, // 24 horas
     updateAge: 60 * 60,   // 1 hora
+    strategy: 'jwt',
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined,
+      },
+    },
   },
   callbacks: {
     async signIn({ user, account }) {

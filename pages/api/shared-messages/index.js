@@ -23,11 +23,16 @@ export default async function handler(req, res) {
         return res.status(200).json({ messages });
 
       case 'POST':
-        const { title, content, isPublic } = req.body;
+        const { title, content, isPublic, command } = req.body;
         const messageTags = req.body.tags || [];
 
         if (!title || !content) {
           return res.status(400).json({ error: 'Título e conteúdo são obrigatórios' });
+        }
+
+        // Validar formato do comando se fornecido
+        if (command && (!/^\/[a-zA-Z0-9_-]+$/.test(command) || command.length < 2 || command.length > 50)) {
+          return res.status(400).json({ error: 'Comando deve começar com "/" e conter apenas letras, números, _ ou -' });
         }
 
         const newMessage = await addResponse({
@@ -35,7 +40,8 @@ export default async function handler(req, res) {
           title,
           content,
           tags: messageTags,
-          isPublic
+          isPublic,
+          command
         });
 
         return res.status(201).json(newMessage);

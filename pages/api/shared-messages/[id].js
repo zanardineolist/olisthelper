@@ -12,17 +12,23 @@ export default async function handler(req, res) {
   try {
     switch (method) {
       case 'PUT':
-        const { title, content, isPublic, tags } = req.body;
+        const { title, content, isPublic, tags, command } = req.body;
         
         if (!title || !content) {
           return res.status(400).json({ error: 'Título e conteúdo são obrigatórios' });
+        }
+
+        // Validar formato do comando se fornecido
+        if (command && (!/^\/[a-zA-Z0-9_-]+$/.test(command) || command.length < 2 || command.length > 50)) {
+          return res.status(400).json({ error: 'Comando deve começar com "/" e conter apenas letras, números, _ ou -' });
         }
 
         const updatedMessage = await updateResponse(id, {
           title,
           content,
           tags,
-          isPublic
+          isPublic,
+          command
         });
 
         return res.status(200).json(updatedMessage);

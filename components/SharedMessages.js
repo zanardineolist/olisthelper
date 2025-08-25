@@ -41,6 +41,7 @@ const SharedMessages = ({ user }) => {
     title: '',
     content: '',
     tags: '',
+    command: '',
     isPublic: false
   });
 
@@ -202,6 +203,7 @@ const SharedMessages = ({ user }) => {
         title: messageData.title,
         content: messageData.content,
         tags,
+        command: messageData.command || null,
         isPublic: messageData.isPublic
       };
   
@@ -229,6 +231,7 @@ const SharedMessages = ({ user }) => {
         title: '',
         content: '',
         tags: '',
+        command: '',
         isPublic: false
       });
   
@@ -312,6 +315,7 @@ const SharedMessages = ({ user }) => {
       title: message.title,
       content: message.content,
       tags: message.tags.join(', '),
+      command: message.command || '',
       isPublic: message.is_public
     });
     setShowAddModal(true);
@@ -542,6 +546,7 @@ const SharedMessages = ({ user }) => {
           content: newContent,
           isPublic: messageToUpdate.is_public,
           tags: messageToUpdate.tags,
+          command: messageToUpdate.command || null,
         }),
       });
   
@@ -627,6 +632,7 @@ const SharedMessages = ({ user }) => {
                 title: '',
                 content: '',
                 tags: '',
+                command: '',
                 isPublic: false
               });
               setShowAddModal(true);

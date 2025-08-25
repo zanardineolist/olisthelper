@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Olist Helper - Macros</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 350px;
+      min-height: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .header {
+      padding: 20px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .status {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .status-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .status-label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .status-value {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-left: 8px;
+    }
+
+    .status-connected {
+      background: #10b981;
+    }
+
+    .status-disconnected {
+      background: #ef4444;
+    }
+
+    .status.connected {
+      color: #10b981;
+    }
+    
+    .status.disconnected {
+      color: #ef4444;
+    }
+    
+    .auth-status {
+      font-weight: 500;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    
+    .auth-status.authenticated {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+    
+    .auth-status.not-authenticated {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .user-info-container {
+      margin: 8px 0;
+      padding: 8px;
+      background: rgba(59, 130, 246, 0.1);
+      border-radius: 6px;
+      border-left: 3px solid #3b82f6;
+    }
+    
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    
+    .user-name {
+      font-weight: 600;
+      color: #1f2937;
+      font-size: 13px;
+    }
+    
+    .user-role {
+      font-size: 11px;
+      color: #6b7280;
+      text-transform: capitalize;
+    }
+    
+    .cache-section {
+      margin-top: 15px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .section-header h3 {
+      font-size: 14px;
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+    
+    .cache-info {
+      margin: 8px 0;
+    }
+    
+    .cache-summary {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    
+    .cache-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    
+    .settings-section {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #e9ecef;
+    }
+    
+    .settings-section h3 {
+      font-size: 14px;
+      color: #495057;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .settings-actions {
+      display: flex;
+      justify-content: center;
+    }
+    
+    .settings-actions .btn {
+      width: 100%;
+      font-size: 13px;
+      padding: 8px 12px;
+    }
+    
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+      min-height: auto;
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: rgba(255, 255, 255, 0.9);
+      color: #667eea;
+    }
+
+    .btn-primary:hover {
+      background: white;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.8);
+      border-color: rgba(239, 68, 68, 0.9);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.9);
+    }
+
+    .settings {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .setting-group {
+      margin-bottom: 16px;
+    }
+
+    .setting-label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      opacity: 0.9;
+    }
+
+    .setting-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 14px;
+    }
+
+    .setting-input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .setting-input:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .help {
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .help-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .help-text {
+      opacity: 0.9;
+    }
+
+    .footer {
+      padding: 16px 20px;
+      text-align: center;
+      font-size: 12px;
+      opacity: 0.7;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">📝</div>
+    <div class="title">Olist Helper</div>
+    <div class="subtitle">Extensão de Macros</div>
+  </div>
+
+  <div class="content">
+    <div class="status">
+      <div class="status-item">
+        <span class="status-label">Status da Conexão</span>
+        <div style="display: flex; align-items: center;">
+          <span class="status-value" id="connection-status">Verificando...</span>
+          <div class="status-indicator" id="connection-indicator"></div>
+        </div>
+      </div>
+      
+      <div class="status-item">
+        <span class="status-label">Autenticação</span>
+        <span class="status-value" id="auth-status">Verificando...</span>
+      </div>
+      
+      <div id="user-info" class="user-info-container" style="display: none;">
+        <!-- Informações do usuário serão inseridas aqui -->
+      </div>
+      
+      <div class="status-item">
+        <span class="status-label">Macros Carregadas</span>
+        <span class="status-value" id="macros-count">-</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Última Sincronização</span>
+        <span class="status-value" id="last-sync">-</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="refresh-btn">
+        <span class="loading hidden" id="refresh-loading"></span>
+        <span id="refresh-text">🔄 Atualizar Macros</span>
+      </button>
+      
+      <button class="btn" id="test-macro-btn">
+        💬 Testar Macro
+      </button>
+      
+      <a href="http://localhost:3000/shared-messages" target="_blank" class="btn">
+        🌐 Abrir Olist Helper
+      </a>
+      
+      <button class="btn btn-danger" id="logout-btn" style="display: none;">
+        🚪 Logout
+      </button>
+    </div>
+
+    <div class="cache-section">
+      <div class="section-header">
+        <h3>Cache Local</h3>
+      </div>
+      <div id="cacheInfo" class="cache-info">
+        <div class="cache-summary">
+          <span>📦 Carregando...</span>
+        </div>
+      </div>
+      <div class="cache-actions">
+        <button id="syncCacheBtn" class="btn btn-secondary btn-small">🔄 Sincronizar</button>
+        <button id="clearCacheBtn" class="btn btn-secondary btn-small">🗑️ Limpar</button>
+      </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div class="settings-section">
+      <h3>⚙️ Configurações</h3>
+      <div class="settings-actions">
+        <button id="openSettingsBtn" class="btn btn-primary">🎨 Personalizar Extensão</button>
+      </div>
+    </div>
+
+    <div class="settings">
+      <div class="setting-group">
+        <label class="setting-label" for="macro-trigger">Trigger de Macro</label>
+        <input 
+          type="text" 
+          id="macro-trigger" 
+          class="setting-input" 
+          placeholder="//"
+          maxlength="5"
+        >
+      </div>
+      
+      <button class="btn" id="save-settings-btn">
+        💾 Salvar Configurações
+      </button>
+    </div>
+
+    <div class="help">
+      <div class="help-title">Como usar:</div>
+      <div class="help-text">
+        1. Digite <strong>//</strong> em qualquer campo de texto<br>
+        2. Use as setas ↑↓ para navegar<br>
+        3. Pressione Enter para selecionar<br>
+        4. Pressione Esc para fechar
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Versão 1.0.0 - Olist Helper Extension
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
