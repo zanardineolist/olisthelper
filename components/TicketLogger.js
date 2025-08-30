@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Minus, Trash2, Download, TrendingUp, BarChart3, ExternalLink, X, Link } from 'lucide-react';
+import { Plus, Minus, Trash2, Download, TrendingUp, BarChart3, ExternalLink, X, Link, Copy } from 'lucide-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -762,6 +762,27 @@ function TicketLogger() {
     }
   };
 
+  const exportFechamento = async () => {
+    try {
+      const dataAtual = dayjs().tz().format('DD/MM/YYYY');
+      const typeStats = statistics.typeStats || { novo: 0, interacao: 0, rfc: 0 };
+      
+      const fechamentoText = `Fechamento: ${dataAtual}
+
+Novos: ${typeStats.novo}
+Retornos: ${typeStats.interacao}
+RFC: ${typeStats.rfc}`;
+      
+      // Copiar para área de transferência
+      await navigator.clipboard.writeText(fechamentoText);
+      
+      showToast('📋 Dados de fechamento copiados para área de transferência!', 'success');
+    } catch (error) {
+      console.error('Erro ao copiar para área de transferência:', error);
+      showToast('Erro ao copiar dados de fechamento', 'error');
+    }
+  };
+
   const customSelectStyles = {
     control: (provided, state) => ({
       ...provided,
@@ -1095,7 +1116,7 @@ function TicketLogger() {
       </motion.div>
 
       {/* Botões de ação */}
-      <motion.div 
+      <motion.div
         className={styles.actionButtons}
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -1111,6 +1132,18 @@ function TicketLogger() {
         >
           <Download size={18} />
           <span>Exportar CSV</span>
+        </motion.button>
+        
+        <motion.button
+          className={styles.exportButton}
+          onClick={exportFechamento}
+          disabled={loading}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Copy size={18} />
+          <span>Exportar Fechamento</span>
         </motion.button>
       </motion.div>
 
