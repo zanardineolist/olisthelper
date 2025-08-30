@@ -1076,7 +1076,6 @@ RFC: ${typeStats.rfc}`;
         {/* Totalizadores por tipo de registro */}
         {statistics.typeStats && (
           <div className={styles.typeStatsSection}>
-            <h4 className={styles.typeStatsTitle}>Totalizadores por Tipo</h4>
             <div className={styles.typeStatsGrid}>
               <div className={styles.typeStatCard}>
                 <div className={styles.typeStatValue} style={{ color: '#10b981' }}>
