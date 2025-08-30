@@ -94,7 +94,6 @@ function TicketLogger() {
       timerProgressBar: true,
       background: 'linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255,255,255,0.95) 100%)',
       color: 'var(--text-color)',
-      borderRadius: '12px',
       padding: '12px 16px',
       width: '320px',
       showClass: {
@@ -125,6 +124,7 @@ function TicketLogger() {
             border-left: 4px solid ${type === 'success' ? 'var(--excellent-color)' : 
                                      type === 'error' ? 'var(--poor-color)' : 
                                      'var(--good-color)'} !important;
+            border-radius: 12px !important;
             position: relative !important;
             overflow: hidden !important;
           }
@@ -153,41 +153,50 @@ function TicketLogger() {
             height: 3px !important;
             border-radius: 0 0 12px 12px !important;
           }
-          .swal2-icon {
+          .swal2-toast .swal2-icon {
             border: none !important;
-            margin: 0 10px 0 0 !important;
-            width: 20px !important;
-            height: 20px !important;
+            margin: 0 8px 0 0 !important;
+            width: 18px !important;
+            height: 18px !important;
+            min-width: 18px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+            flex-shrink: 0 !important;
           }
-          .swal2-icon.swal2-success {
+          .swal2-toast .swal2-icon.swal2-success {
             color: var(--excellent-color) !important;
             background: rgba(34, 197, 94, 0.1) !important;
             border-radius: 50% !important;
           }
-          .swal2-icon.swal2-error {
+          .swal2-toast .swal2-icon.swal2-error {
             color: var(--poor-color) !important;
             background: rgba(239, 68, 68, 0.1) !important;
             border-radius: 50% !important;
           }
-          .swal2-icon.swal2-warning {
+          .swal2-toast .swal2-icon.swal2-warning {
             color: var(--good-color) !important;
             background: rgba(251, 191, 36, 0.1) !important;
             border-radius: 50% !important;
           }
-          .swal2-title {
+          .swal2-toast .swal2-title {
             font-size: 14px !important;
             margin: 0 !important;
             padding: 0 !important;
             line-height: 1.4 !important;
             font-weight: 600 !important;
             letter-spacing: -0.01em !important;
+            display: flex !important;
+            align-items: center !important;
           }
           .swal2-toast .swal2-html-container {
             margin: 0 !important;
             padding: 0 !important;
+          }
+          .swal2-toast .swal2-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0 !important;
           }
         `;
         document.head.appendChild(style);
