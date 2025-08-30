@@ -122,68 +122,108 @@ function TicketCounter() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [loading, count, showShortcuts]);
 
-  // Toast para feedback visual sutil e moderno
+  // Toast moderno e profissional
   const showToast = (message, type = 'success') => {
     const Toast = Swal.mixin({
       toast: true,
       position: 'top-end',
       showConfirmButton: false,
-      timer: 2500,
+      timer: 3000,
       timerProgressBar: true,
-      background: 'var(--bg-secondary)',
+      background: 'linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255,255,255,0.95) 100%)',
       color: 'var(--text-color)',
-      borderRadius: '8px',
-      padding: '8px 12px',
-      width: '280px',
+      borderRadius: '12px',
+      padding: '12px 16px',
+      width: '320px',
       showClass: {
-        popup: 'animate__animated animate__fadeInRight animate__faster'
+        popup: 'animate__animated animate__slideInRight animate__faster'
       },
       hideClass: {
-        popup: 'animate__animated animate__fadeOutRight animate__faster'
+        popup: 'animate__animated animate__slideOutRight animate__faster'
       },
       customClass: {
-        popup: 'subtle-toast',
-        timerProgressBar: 'subtle-timer-bar'
+        popup: 'modern-toast',
+        timerProgressBar: 'modern-timer-bar'
       },
       didOpen: (toast) => {
         toast.addEventListener('mouseenter', Swal.stopTimer);
         toast.addEventListener('mouseleave', Swal.resumeTimer);
         
-        // Adicionar estilos customizados sutis
+        // Estilos modernos e profissionais
         const style = document.createElement('style');
         style.textContent = `
-          .subtle-toast {
-            border: 1px solid var(--color-border) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-            font-family: 'Plus Jakarta Sans', sans-serif !important;
-            font-size: 13px !important;
-            font-weight: 500 !important;
-            backdrop-filter: blur(8px) !important;
+          .modern-toast {
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border-left: 4px solid ${type === 'success' ? 'var(--excellent-color)' : 
+                                     type === 'error' ? 'var(--poor-color)' : 
+                                     'var(--good-color)'} !important;
+            position: relative !important;
+            overflow: hidden !important;
           }
-          .subtle-timer-bar {
-            background: ${type === 'success' ? 'var(--excellent-color)' : 
-                         type === 'error' ? 'var(--poor-color)' : 
-                         'var(--good-color)'} !important;
-            height: 2px !important;
-            opacity: 0.8 !important;
+          .modern-toast::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            background: linear-gradient(135deg, 
+              ${type === 'success' ? 'rgba(34, 197, 94, 0.05)' : 
+                type === 'error' ? 'rgba(239, 68, 68, 0.05)' : 
+                'rgba(251, 191, 36, 0.05)'} 0%, 
+              transparent 100%) !important;
+            pointer-events: none !important;
+          }
+          .modern-timer-bar {
+            background: linear-gradient(90deg, 
+              ${type === 'success' ? 'var(--excellent-color)' : 
+                type === 'error' ? 'var(--poor-color)' : 
+                'var(--good-color)'} 0%, 
+              ${type === 'success' ? 'rgba(34, 197, 94, 0.7)' : 
+                type === 'error' ? 'rgba(239, 68, 68, 0.7)' : 
+                'rgba(251, 191, 36, 0.7)'} 100%) !important;
+            height: 3px !important;
+            border-radius: 0 0 12px 12px !important;
           }
           .swal2-icon {
             border: none !important;
-            margin: 0 6px 0 0 !important;
-            width: 16px !important;
-            height: 16px !important;
+            margin: 0 10px 0 0 !important;
+            width: 20px !important;
+            height: 20px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
           }
           .swal2-icon.swal2-success {
             color: var(--excellent-color) !important;
+            background: rgba(34, 197, 94, 0.1) !important;
+            border-radius: 50% !important;
           }
           .swal2-icon.swal2-error {
             color: var(--poor-color) !important;
+            background: rgba(239, 68, 68, 0.1) !important;
+            border-radius: 50% !important;
           }
           .swal2-icon.swal2-warning {
             color: var(--good-color) !important;
+            background: rgba(251, 191, 36, 0.1) !important;
+            border-radius: 50% !important;
           }
           .swal2-title {
-            font-size: 13px !important;
+            font-size: 14px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1.4 !important;
+            font-weight: 600 !important;
+            letter-spacing: -0.01em !important;
+          }
+          .swal2-toast .swal2-html-container {
             margin: 0 !important;
             padding: 0 !important;
           }
@@ -195,7 +235,7 @@ function TicketCounter() {
           if (document.head.contains(style)) {
             document.head.removeChild(style);
           }
-        }, 3000);
+        }, 3500);
       }
     });
 
@@ -477,8 +517,15 @@ function TicketCounter() {
         type: "local"
       });
       
-      setCount(prev => Math.max(0, prev - 1));
-      await loadHistoryData();
+      // Atualizar o estado local primeiro
+      const newCount = Math.max(0, count - 1);
+      setCount(newCount);
+      
+      // Forçar atualização do histórico com um pequeno delay para garantir sincronização
+      setTimeout(async () => {
+        await loadHistoryData();
+      }, 100);
+      
       showToast('Chamado removido! (-1)', 'success');
     } catch (error) {
       console.error('Erro ao decrementar:', error);
@@ -516,8 +563,13 @@ function TicketCounter() {
           type: "local"
         });
         
+        // Atualizar o estado local primeiro
         setCount(0);
-        await loadHistoryData();
+        
+        // Forçar atualização do histórico com um pequeno delay para garantir sincronização
+        setTimeout(async () => {
+          await loadHistoryData();
+        }, 100);
         showToast('Contagem zerada com sucesso!', 'success');
       } catch (error) {
         console.error('Erro ao limpar:', error);
@@ -585,8 +637,16 @@ function TicketCounter() {
           count_date: today,
           total_count: count
         });
-      } else if (todayRecord && count > 0) {
-        todayRecord.total_count = Math.max(todayRecord.total_count, count);
+      } else if (todayRecord) {
+        // Sempre atualizar com o valor atual do estado, seja maior ou menor
+        todayRecord.total_count = count;
+        // Se a contagem for 0, remover o registro do histórico visual
+        if (count === 0) {
+          const index = processedRecords.findIndex(r => r.count_date === today);
+          if (index > -1) {
+            processedRecords.splice(index, 1);
+          }
+        }
       }
 
       const sortedRecords = processedRecords.sort((a, b) => 
