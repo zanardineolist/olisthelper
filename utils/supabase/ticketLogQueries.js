@@ -75,7 +75,7 @@ export async function getTicketLogs(userId, startDate, endDate, page = 1, pageSi
     // Buscar registros do período com paginação
     const { data, error, count } = await supabaseAdmin
       .from('ticket_logs')
-      .select('id, user_id, ticket_url, description, logged_date, logged_time::text, timezone, created_at', { count: 'exact' })
+      .select('id, user_id, ticket_url, description, ticket_type, logged_date, logged_time::text, timezone, created_at', { count: 'exact' })
       .eq('user_id', userId)
       .gte('logged_date', start.format('YYYY-MM-DD'))
       .lte('logged_date', end.format('YYYY-MM-DD'))
