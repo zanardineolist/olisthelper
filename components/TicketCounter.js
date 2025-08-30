@@ -496,7 +496,7 @@ function TicketCounter() {
       
       // Forçar atualização do histórico com um pequeno delay para garantir sincronização
       setTimeout(async () => {
-        await loadHistoryData();
+        await loadHistoryData(newCount);
       }, 100);
       
       showToast('Chamado adicionado! (+1)', 'success');
@@ -530,7 +530,7 @@ function TicketCounter() {
       
       // Forçar atualização do histórico com um pequeno delay para garantir sincronização
       setTimeout(async () => {
-        await loadHistoryData();
+        await loadHistoryData(newCount);
       }, 100);
       
       showToast('Chamado removido! (-1)', 'success');
@@ -575,7 +575,7 @@ function TicketCounter() {
         
         // Forçar atualização do histórico com um pequeno delay para garantir sincronização
         setTimeout(async () => {
-          await loadHistoryData();
+          await loadHistoryData(0);
         }, 100);
         showToast('Contagem zerada com sucesso!', 'success');
       } catch (error) {
@@ -588,13 +588,16 @@ function TicketCounter() {
     }
   };
 
-  const loadHistoryData = async () => {
+  const loadHistoryData = async (currentCount = null) => {
     try {
       setLoadingHistory(true);
       
       let startDate, endDate;
       const today = dayjs().tz().format('YYYY-MM-DD');
       const now = dayjs().tz();
+      
+      // Usar o valor passado como parâmetro ou o estado atual
+      const countToUse = currentCount !== null ? currentCount : count;
 
       switch (dateFilter.value) {
         case 'today':
@@ -643,11 +646,11 @@ function TicketCounter() {
         // Sempre adicionar o registro de hoje, mesmo se count for 0
         processedRecords.unshift({
           count_date: today,
-          total_count: count
+          total_count: countToUse
         });
       } else {
         // Sempre atualizar com o valor atual do estado
-        todayRecord.total_count = count;
+        todayRecord.total_count = countToUse;
       }
 
       const sortedRecords = processedRecords.sort((a, b) => 
