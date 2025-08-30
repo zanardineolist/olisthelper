@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Minus, Trash2, Download, TrendingUp, BarChart3, ExternalLink, X, Link, Copy } from 'lucide-react';
+import { Plus, Minus, Trash2, Download, TrendingUp, BarChart3, ExternalLink, X, Link, Copy, Check } from 'lucide-react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -131,41 +131,7 @@ function TicketLogger() {
             height: 3px !important;
           }
           .swal2-toast .swal2-icon {
-            border: none !important;
-            margin: 0 12px 0 0 !important;
-            width: 20px !important;
-            height: 20px !important;
-            min-width: 20px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            flex-shrink: 0 !important;
-            font-size: 16px !important;
-            background: none !important;
-          }
-          .swal2-toast .swal2-icon.swal2-success {
-            color: #22c55e !important;
-            background: none !important;
-          }
-          .swal2-toast .swal2-icon.swal2-success .swal2-success-ring {
             display: none !important;
-          }
-          .swal2-toast .swal2-icon.swal2-success .swal2-success-fix {
-            display: none !important;
-          }
-          .swal2-toast .swal2-icon.swal2-success::after {
-            content: '✓' !important;
-            font-size: 16px !important;
-            font-weight: bold !important;
-            color: #22c55e !important;
-          }
-          .swal2-toast .swal2-icon.swal2-error {
-            color: #ef4444 !important;
-            background: none !important;
-          }
-          .swal2-toast .swal2-icon.swal2-warning {
-            color: #f59e0b !important;
-            background: none !important;
           }
           .swal2-toast .swal2-title {
             font-size: 14px !important;
@@ -202,8 +168,17 @@ function TicketLogger() {
     });
 
     Toast.fire({
-      icon: type,
-      title: message
+      icon: false,
+      html: `
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="color: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#f59e0b'}; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex-shrink: 0;">
+            ${type === 'success' ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>' : 
+              type === 'error' ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>' : 
+              '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'}
+          </div>
+          <span style="flex: 1; font-size: 14px; font-weight: 500; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">${message}</span>
+        </div>
+      `
     });
   };
 
