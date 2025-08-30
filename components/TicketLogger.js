@@ -84,7 +84,7 @@ function TicketLogger() {
     { value: 'custom', label: 'Período específico' }
   ];
 
-  // Toast moderno e profissional
+  // Toast profissional e limpo
   const showToast = (message, type = 'success') => {
     const Toast = Swal.mixin({
       toast: true,
@@ -92,10 +92,10 @@ function TicketLogger() {
       showConfirmButton: false,
       timer: 3000,
       timerProgressBar: true,
-      background: 'linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255,255,255,0.95) 100%)',
+      background: 'var(--box-color)',
       color: 'var(--text-color)',
-      padding: '12px 16px',
-      width: '320px',
+      padding: '16px 20px',
+      width: '350px',
       showClass: {
         popup: 'animate__animated animate__slideInRight animate__faster'
       },
@@ -103,91 +103,64 @@ function TicketLogger() {
         popup: 'animate__animated animate__slideOutRight animate__faster'
       },
       customClass: {
-        popup: 'modern-toast-logger',
-        timerProgressBar: 'modern-timer-bar-logger'
+        popup: 'clean-toast-logger',
+        timerProgressBar: 'clean-timer-bar-logger'
       },
       didOpen: (toast) => {
         toast.addEventListener('mouseenter', Swal.stopTimer);
         toast.addEventListener('mouseleave', Swal.resumeTimer);
         
-        // Estilos modernos e profissionais
+        // Estilos limpos e profissionais
         const style = document.createElement('style');
         style.textContent = `
-          .modern-toast-logger {
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+          .clean-toast-logger {
+            border: 1px solid var(--color-border) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
             font-size: 14px !important;
-            font-weight: 600 !important;
-            backdrop-filter: blur(16px) !important;
-            -webkit-backdrop-filter: blur(16px) !important;
-            border-left: 4px solid ${type === 'success' ? 'var(--excellent-color)' : 
-                                     type === 'error' ? 'var(--poor-color)' : 
-                                     'var(--good-color)'} !important;
-            border-radius: 12px !important;
-            position: relative !important;
-            overflow: hidden !important;
+            font-weight: 500 !important;
+            border-radius: 8px !important;
+            border-left: 4px solid ${type === 'success' ? '#22c55e' : 
+                                     type === 'error' ? '#ef4444' : 
+                                     '#f59e0b'} !important;
           }
-          .modern-toast-logger::before {
-            content: '' !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            background: linear-gradient(135deg, 
-              ${type === 'success' ? 'rgba(34, 197, 94, 0.05)' : 
-                type === 'error' ? 'rgba(239, 68, 68, 0.05)' : 
-                'rgba(251, 191, 36, 0.05)'} 0%, 
-              transparent 100%) !important;
-            pointer-events: none !important;
-          }
-          .modern-timer-bar-logger {
-            background: linear-gradient(90deg, 
-              ${type === 'success' ? 'var(--excellent-color)' : 
-                type === 'error' ? 'var(--poor-color)' : 
-                'var(--good-color)'} 0%, 
-              ${type === 'success' ? 'rgba(34, 197, 94, 0.7)' : 
-                type === 'error' ? 'rgba(239, 68, 68, 0.7)' : 
-                'rgba(251, 191, 36, 0.7)'} 100%) !important;
+          .clean-timer-bar-logger {
+            background: ${type === 'success' ? '#22c55e' : 
+                          type === 'error' ? '#ef4444' : 
+                          '#f59e0b'} !important;
             height: 3px !important;
-            border-radius: 0 0 12px 12px !important;
           }
           .swal2-toast .swal2-icon {
             border: none !important;
-            margin: 0 8px 0 0 !important;
-            width: 18px !important;
-            height: 18px !important;
-            min-width: 18px !important;
+            margin: 0 12px 0 0 !important;
+            width: 20px !important;
+            height: 20px !important;
+            min-width: 20px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             flex-shrink: 0 !important;
+            font-size: 16px !important;
           }
           .swal2-toast .swal2-icon.swal2-success {
-            color: var(--excellent-color) !important;
-            background: rgba(34, 197, 94, 0.1) !important;
-            border-radius: 50% !important;
+            color: #22c55e !important;
           }
           .swal2-toast .swal2-icon.swal2-error {
-            color: var(--poor-color) !important;
-            background: rgba(239, 68, 68, 0.1) !important;
-            border-radius: 50% !important;
+            color: #ef4444 !important;
           }
           .swal2-toast .swal2-icon.swal2-warning {
-            color: var(--good-color) !important;
-            background: rgba(251, 191, 36, 0.1) !important;
-            border-radius: 50% !important;
+            color: #f59e0b !important;
           }
           .swal2-toast .swal2-title {
             font-size: 14px !important;
             margin: 0 !important;
             padding: 0 !important;
-            line-height: 1.4 !important;
-            font-weight: 600 !important;
-            letter-spacing: -0.01em !important;
-            display: flex !important;
-            align-items: center !important;
+            line-height: 1.5 !important;
+            font-weight: 500 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            white-space: normal !important;
+            flex: 1 !important;
           }
           .swal2-toast .swal2-html-container {
             margin: 0 !important;
@@ -195,8 +168,10 @@ function TicketLogger() {
           }
           .swal2-toast .swal2-content {
             display: flex !important;
-            align-items: center !important;
+            align-items: flex-start !important;
             gap: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
           }
         `;
         document.head.appendChild(style);
@@ -212,10 +187,7 @@ function TicketLogger() {
 
     Toast.fire({
       icon: type,
-      title: message,
-      iconColor: type === 'success' ? 'var(--excellent-color)' : 
-                type === 'error' ? 'var(--poor-color)' : 
-                'var(--good-color)'
+      title: message
     });
   };
 
