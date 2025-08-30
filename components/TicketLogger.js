@@ -107,10 +107,7 @@ function TicketLogger() {
         timerProgressBar: 'clean-timer-bar-logger'
       },
       didOpen: (toast) => {
-        toast.addEventListener('mouseenter', Swal.stopTimer);
-        toast.addEventListener('mouseleave', Swal.resumeTimer);
-        
-        // Estilos limpos e profissionais
+        // Estilos limpos e profissionais sem eventos de hover
         const style = document.createElement('style');
         style.textContent = `
           .clean-toast-logger {
@@ -123,12 +120,25 @@ function TicketLogger() {
             border-left: 4px solid ${type === 'success' ? '#22c55e' : 
                                      type === 'error' ? '#ef4444' : 
                                      '#f59e0b'} !important;
+            transition: none !important;
+          }
+          .clean-toast-logger:hover {
+            border-left: 4px solid ${type === 'success' ? '#22c55e' : 
+                                     type === 'error' ? '#ef4444' : 
+                                     '#f59e0b'} !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
           }
           .clean-timer-bar-logger {
             background: ${type === 'success' ? '#22c55e' : 
                           type === 'error' ? '#ef4444' : 
                           '#f59e0b'} !important;
             height: 3px !important;
+            transition: none !important;
+          }
+          .clean-timer-bar-logger:hover {
+            background: ${type === 'success' ? '#22c55e' : 
+                          type === 'error' ? '#ef4444' : 
+                          '#f59e0b'} !important;
           }
           .swal2-toast .swal2-icon {
             display: none !important;
