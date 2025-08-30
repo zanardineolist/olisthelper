@@ -25,6 +25,7 @@ function TicketLogger() {
   const [showModal, setShowModal] = useState(false);
   const [ticketUrl, setTicketUrl] = useState('');
   const [description, setDescription] = useState('');
+  const [ticketType, setTicketType] = useState({ value: 'novo', label: 'Novo', color: '#10B981' });
   const [modalLoading, setModalLoading] = useState(false);
   const [urlValidationError, setUrlValidationError] = useState('');
   
@@ -47,10 +48,32 @@ function TicketLogger() {
   const [statistics, setStatistics] = useState({
     totalTickets: 0,
     dailyAverage: 0,
-    bestDay: null
+    bestDay: null,
+    typeStats: {
+      novo: 0,
+      interacao: 0,
+      rfc: 0
+    }
   });
 
   const { callApi } = useApiLoader();
+
+  // Função para obter informações do tipo de chamado
+  const getTicketTypeInfo = (type) => {
+    const typeMap = {
+      'novo': { label: 'Novo', color: '#10B981' },
+      'interacao': { label: '+Interação', color: '#3B82F6' },
+      'rfc': { label: 'RFC', color: '#F59E0B' }
+    };
+    return typeMap[type] || { label: 'Novo', color: '#10B981' };
+  };
+
+  // Opções de tipo de chamado
+  const ticketTypeOptions = [
+    { value: 'novo', label: 'Novo', color: '#10B981' },
+    { value: 'interacao', label: '+Interação', color: '#3B82F6' },
+    { value: 'rfc', label: 'RFC', color: '#F59E0B' }
+  ];
 
   const filterOptions = [
     { value: 'today', label: 'Hoje' },
@@ -380,13 +403,35 @@ function TicketLogger() {
         { showLoading: false }
       );
 
-      setStatistics(stats);
+      // Calcular totalizadores por tipo baseado no histórico atual
+      const typeStats = {
+        novo: 0,
+        interacao: 0,
+        rfc: 0
+      };
+
+      history.forEach(record => {
+        const ticketType = record.ticket_type || 'novo';
+        if (typeStats.hasOwnProperty(ticketType)) {
+          typeStats[ticketType]++;
+        }
+      });
+
+      setStatistics({
+        ...stats,
+        typeStats
+      });
     } catch (error) {
       console.error('Erro ao carregar estatísticas:', error);
       setStatistics({
         totalTickets: 0,
         dailyAverage: 0,
-        bestDay: null
+        bestDay: null,
+        typeStats: {
+          novo: 0,
+          interacao: 0,
+          rfc: 0
+        }
       });
     }
   };
@@ -569,13 +614,15 @@ function TicketLogger() {
         },
         body: JSON.stringify({
           ticketUrl: ticketUrl.trim(),
-          description: description.trim()
+          description: description.trim(),
+          ticketType: ticketType.value
         })
       });
 
       // Resetar modal
       setTicketUrl('');
       setDescription('');
+      setTicketType({ value: 'novo', label: 'Novo', color: '#10B981' });
       setUrlValidationError('');
       setShowModal(false);
       
@@ -850,6 +897,7 @@ function TicketLogger() {
               if (!modalLoading) {
                 setTicketUrl('');
                 setDescription('');
+                setTicketType({ value: 'novo', label: 'Novo', color: '#10B981' });
                 setUrlValidationError('');
                 setShowModal(false);
               }
@@ -873,6 +921,7 @@ function TicketLogger() {
                     if (!modalLoading) {
                       setTicketUrl('');
                       setDescription('');
+                      setTicketType({ value: 'novo', label: 'Novo', color: '#10B981' });
                       setUrlValidationError('');
                       setShowModal(false);
                     }
@@ -908,6 +957,71 @@ function TicketLogger() {
                 </div>
 
                 <div className={styles.inputGroup}>
+                  <label htmlFor="ticketType">Tipo de Chamado *</label>
+                  <Select
+                    id="ticketType"
+                    value={ticketType}
+                    onChange={setTicketType}
+                    options={ticketTypeOptions}
+                    isDisabled={modalLoading}
+                    placeholder="Selecione o tipo..."
+                    formatOptionLabel={(option) => (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div
+                          style={{
+                            width: '12px',
+                            height: '12px',
+                            borderRadius: '50%',
+                            backgroundColor: option.color
+                          }}
+                        />
+                        <span>{option.label}</span>
+                      </div>
+                    )}
+                    styles={{
+                      control: (provided, state) => ({
+                        ...provided,
+                        backgroundColor: 'var(--bg-secondary)',
+                        borderColor: state.isFocused ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.1)',
+                        borderRadius: '8px',
+                        minHeight: '44px',
+                        boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.1)' : 'none',
+                        '&:hover': {
+                          borderColor: 'var(--primary-color)'
+                        }
+                      }),
+                      menu: (provided) => ({
+                        ...provided,
+                        backgroundColor: 'var(--bg-secondary)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                      }),
+                      option: (provided, state) => ({
+                        ...provided,
+                        backgroundColor: state.isSelected 
+                          ? 'var(--primary-color)' 
+                          : state.isFocused 
+                          ? 'rgba(255, 255, 255, 0.05)' 
+                          : 'transparent',
+                        color: 'var(--text-color)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                        }
+                      }),
+                      singleValue: (provided) => ({
+                        ...provided,
+                        color: 'var(--text-color)'
+                      }),
+                      placeholder: (provided) => ({
+                        ...provided,
+                        color: 'rgba(255, 255, 255, 0.5)'
+                      })
+                    }}
+                  />
+                </div>
+
+                <div className={styles.inputGroup}>
                   <label htmlFor="description">Descrição (opcional)</label>
                   <textarea
                     id="description"
@@ -927,6 +1041,7 @@ function TicketLogger() {
                   onClick={() => {
                     setTicketUrl('');
                     setDescription('');
+                    setTicketType({ value: 'novo', label: 'Novo', color: '#10B981' });
                     setUrlValidationError('');
                     setShowModal(false);
                   }}
@@ -981,6 +1096,47 @@ function TicketLogger() {
             </div>
           )}
         </div>
+        
+        {/* Totalizadores por tipo de chamado */}
+        {statistics.typeStats && (
+          <div className={styles.typeStatsSection}>
+            <h4 className={styles.typeStatsTitle}>Totalizadores por Tipo</h4>
+            <div className={styles.typeStatsGrid}>
+              <div className={styles.typeStatCard}>
+                <div className={styles.typeStatValue} style={{ color: '#10b981' }}>
+                  {statistics.typeStats.novo}
+                </div>
+                <div className={styles.typeStatLabel}>
+                  <span className={styles.typeTag} style={{ backgroundColor: '#10b981', color: 'white' }}>
+                    Novo
+                  </span>
+                </div>
+              </div>
+              
+              <div className={styles.typeStatCard}>
+                <div className={styles.typeStatValue} style={{ color: '#3b82f6' }}>
+                  {statistics.typeStats.interacao}
+                </div>
+                <div className={styles.typeStatLabel}>
+                  <span className={styles.typeTag} style={{ backgroundColor: '#3b82f6', color: 'white' }}>
+                    +Interação
+                  </span>
+                </div>
+              </div>
+              
+              <div className={styles.typeStatCard}>
+                <div className={styles.typeStatValue} style={{ color: '#f59e0b' }}>
+                  {statistics.typeStats.rfc}
+                </div>
+                <div className={styles.typeStatLabel}>
+                  <span className={styles.typeTag} style={{ backgroundColor: '#f59e0b', color: 'white' }}>
+                    RFC
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </motion.div>
 
       {/* Botões de ação */}
@@ -1090,6 +1246,7 @@ function TicketLogger() {
               <thead>
                 <tr className={tableStyles.tableHeader}>
                   <th className={tableStyles.tableHeaderCell}>Data/Hora</th>
+                  <th className={tableStyles.tableHeaderCell}>Tipo</th>
                   <th className={tableStyles.tableHeaderCell}>Chamado</th>
                   <th className={tableStyles.tableHeaderCell}>Descrição</th>
                   <th className={tableStyles.tableHeaderCell}>Ações</th>
@@ -1124,6 +1281,29 @@ function TicketLogger() {
                           </small>
                         </div>
                       </td>
+                      <td className={`${tableStyles.tableCell} ${styles.typeCell}`}>
+                        {(() => {
+                          const typeInfo = getTicketTypeInfo(record.ticket_type);
+                          return (
+                            <div 
+                              className={styles.ticketTypeTag}
+                              style={{
+                                backgroundColor: typeInfo.color,
+                                color: 'white',
+                                padding: '4px 8px',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                textAlign: 'center',
+                                whiteSpace: 'nowrap',
+                                display: 'inline-block'
+                              }}
+                            >
+                              {typeInfo.label}
+                            </div>
+                          );
+                        })()} 
+                      </td>
                       <td className={`${tableStyles.tableCell} ${styles.linkCell}`}>
                         <a
                           href={record.ticket_url}
@@ -1151,7 +1331,7 @@ function TicketLogger() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className={tableStyles.emptyMessage}>
+                    <td colSpan="5" className={tableStyles.emptyMessage}>
                       Nenhum registro encontrado
                     </td>
                   </tr>

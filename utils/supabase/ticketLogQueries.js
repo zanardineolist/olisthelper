@@ -11,7 +11,7 @@ dayjs.tz.setDefault("America/Sao_Paulo");
 /**
  * Adicionar novo log de chamado
  */
-export async function addTicketLog(userId, ticketUrl, description = '') {
+export async function addTicketLog(userId, ticketUrl, description = '', ticketType = 'novo') {
   try {
     if (!userId || !ticketUrl) {
       throw new Error('User ID e URL do chamado são obrigatórios');
@@ -32,6 +32,7 @@ export async function addTicketLog(userId, ticketUrl, description = '') {
         user_id: userId,
         ticket_url: ticketUrl.trim(),
         description: description?.trim() || null,
+        ticket_type: ticketType || 'novo',
         logged_date: now.format('YYYY-MM-DD'),
         logged_time: now.format('HH:mm:ss'),
         timezone: 'America/Sao_Paulo'
@@ -252,4 +253,4 @@ export async function getTicketLogStats(userId, startDate, endDate) {
     console.error('Erro ao buscar estatísticas:', error);
     throw error;
   }
-} 
+}

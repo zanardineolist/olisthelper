@@ -35,13 +35,13 @@ export default async function handler(req, res) {
           return res.status(403).json({ error: 'Você só pode adicionar logs para sua própria conta' });
         }
 
-        const { ticketUrl, description } = req.body;
+        const { ticketUrl, description, ticketType } = req.body;
         
         if (!ticketUrl) {
           return res.status(400).json({ error: 'URL do chamado é obrigatória' });
         }
 
-        const newLog = await addTicketLog(userId, ticketUrl, description);
+        const newLog = await addTicketLog(userId, ticketUrl, description, ticketType);
         return res.status(201).json(newLog);
 
       case 'DELETE':
@@ -117,4 +117,4 @@ export default async function handler(req, res) {
 
     return res.status(500).json({ error: 'Erro interno do servidor' });
   }
-} 
+}

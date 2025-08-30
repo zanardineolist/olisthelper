@@ -1406,3 +1406,75 @@
 .urlExample strong {
   color: #1e40af;
 }
+
+/* ========================================
+   TOTALIZADORES POR TIPO DE CHAMADO
+   ======================================== */
+.typeStatsSection {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.typeStatsTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--title-color);
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.typeStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.typeStatCard {
+  background: var(--box-color);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.typeStatCard:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.typeStatValue {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.typeStatLabel {
+  display: flex;
+  justify-content: center;
+}
+
+.typeTag {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .typeStatsGrid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .typeStatCard {
+    padding: 10px;
+  }
+  
+  .typeStatValue {
+    font-size: 1.2rem;
+  }
+}
