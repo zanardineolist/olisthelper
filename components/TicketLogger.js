@@ -412,24 +412,7 @@ function TicketLogger() {
         { showLoading: false }
       );
 
-      // Calcular totalizadores por tipo baseado no histórico atual
-      const typeStats = {
-        novo: 0,
-        interacao: 0,
-        rfc: 0
-      };
-
-      history.forEach(record => {
-        const ticketType = record.ticket_type || 'novo';
-        if (typeStats.hasOwnProperty(ticketType)) {
-          typeStats[ticketType]++;
-        }
-      });
-
-      setStatistics({
-        ...stats,
-        typeStats
-      });
+      setStatistics(stats);
     } catch (error) {
       console.error('Erro ao carregar estatísticas:', error);
       setStatistics({

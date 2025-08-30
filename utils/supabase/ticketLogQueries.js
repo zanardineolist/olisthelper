@@ -220,7 +220,7 @@ export async function getTicketLogStats(userId, startDate, endDate) {
 
     const { data, error } = await supabaseAdmin
       .from('ticket_logs')
-      .select('logged_date, logged_time')
+      .select('logged_date, logged_time, ticket_type')
       .eq('user_id', userId)
       .gte('logged_date', start.format('YYYY-MM-DD'))
       .lte('logged_date', end.format('YYYY-MM-DD'));
@@ -243,11 +243,26 @@ export async function getTicketLogStats(userId, startDate, endDate) {
       return count > (best.count || 0) ? { date, count } : best;
     }, {});
 
+    // Calcular totalizadores por tipo
+    const typeStats = {
+      novo: 0,
+      interacao: 0,
+      rfc: 0
+    };
+
+    data?.forEach(record => {
+      const ticketType = record.ticket_type || 'novo';
+      if (typeStats.hasOwnProperty(ticketType)) {
+        typeStats[ticketType]++;
+      }
+    });
+
     return {
       totalTickets,
       dailyAverage: parseFloat(dailyAverage),
       bestDay: bestDay.count ? bestDay : null,
-      daysBetween
+      daysBetween,
+      typeStats
     };
   } catch (error) {
     console.error('Erro ao buscar estatísticas:', error);
