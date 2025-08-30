@@ -141,15 +141,31 @@ function TicketLogger() {
             justify-content: center !important;
             flex-shrink: 0 !important;
             font-size: 16px !important;
+            background: none !important;
           }
           .swal2-toast .swal2-icon.swal2-success {
+            color: #22c55e !important;
+            background: none !important;
+          }
+          .swal2-toast .swal2-icon.swal2-success .swal2-success-ring {
+            display: none !important;
+          }
+          .swal2-toast .swal2-icon.swal2-success .swal2-success-fix {
+            display: none !important;
+          }
+          .swal2-toast .swal2-icon.swal2-success::after {
+            content: '✓' !important;
+            font-size: 16px !important;
+            font-weight: bold !important;
             color: #22c55e !important;
           }
           .swal2-toast .swal2-icon.swal2-error {
             color: #ef4444 !important;
+            background: none !important;
           }
           .swal2-toast .swal2-icon.swal2-warning {
             color: #f59e0b !important;
+            background: none !important;
           }
           .swal2-toast .swal2-title {
             font-size: 14px !important;
