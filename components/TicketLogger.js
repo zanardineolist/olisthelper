@@ -58,20 +58,20 @@ function TicketLogger() {
 
   const { callApi } = useApiLoader();
 
-  // Função para obter informações do tipo de chamado
+  // Função para obter informações do tipo de registro
   const getTicketTypeInfo = (type) => {
     const typeMap = {
       'novo': { label: 'Novo', color: '#10B981' },
-      'interacao': { label: '+Interação', color: '#3B82F6' },
+      'interacao': { label: 'Retorno', color: '#3B82F6' },
       'rfc': { label: 'RFC', color: '#F59E0B' }
     };
     return typeMap[type] || { label: 'Novo', color: '#10B981' };
   };
 
-  // Opções de tipo de chamado
+  // Opções de tipo de registro
   const ticketTypeOptions = [
     { value: 'novo', label: 'Novo', color: '#10B981' },
-    { value: 'interacao', label: '+Interação', color: '#3B82F6' },
+    { value: 'interacao', label: 'Retorno', color: '#3B82F6' },
     { value: 'rfc', label: 'RFC', color: '#F59E0B' }
   ];
 
@@ -957,68 +957,31 @@ function TicketLogger() {
                 </div>
 
                 <div className={styles.inputGroup}>
-                  <label htmlFor="ticketType">Tipo de Chamado *</label>
-                  <Select
-                    id="ticketType"
-                    value={ticketType}
-                    onChange={setTicketType}
-                    options={ticketTypeOptions}
-                    isDisabled={modalLoading}
-                    placeholder="Selecione o tipo..."
-                    formatOptionLabel={(option) => (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div
-                          style={{
-                            width: '12px',
-                            height: '12px',
-                            borderRadius: '50%',
-                            backgroundColor: option.color
-                          }}
+                  <label>Tipo de Registro *</label>
+                  <div className={styles.radioGroup}>
+                    {ticketTypeOptions.map((option) => (
+                      <label key={option.value} className={styles.radioOption}>
+                        <input
+                          type="radio"
+                          name="ticketType"
+                          value={option.value}
+                          checked={ticketType?.value === option.value}
+                          onChange={() => setTicketType(option)}
+                          disabled={modalLoading}
+                          className={styles.radioInput}
                         />
-                        <span>{option.label}</span>
-                      </div>
-                    )}
-                    styles={{
-                      control: (provided, state) => ({
-                        ...provided,
-                        backgroundColor: 'var(--bg-secondary)',
-                        borderColor: state.isFocused ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.1)',
-                        borderRadius: '8px',
-                        minHeight: '44px',
-                        boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.1)' : 'none',
-                        '&:hover': {
-                          borderColor: 'var(--primary-color)'
-                        }
-                      }),
-                      menu: (provided) => ({
-                        ...provided,
-                        backgroundColor: 'var(--bg-secondary)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-                      }),
-                      option: (provided, state) => ({
-                        ...provided,
-                        backgroundColor: state.isSelected 
-                          ? 'var(--primary-color)' 
-                          : state.isFocused 
-                          ? 'rgba(255, 255, 255, 0.05)' 
-                          : 'transparent',
-                        color: 'var(--text-color)',
-                        '&:hover': {
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)'
-                        }
-                      }),
-                      singleValue: (provided) => ({
-                        ...provided,
-                        color: 'var(--text-color)'
-                      }),
-                      placeholder: (provided) => ({
-                        ...provided,
-                        color: 'rgba(255, 255, 255, 0.5)'
-                      })
-                    }}
-                  />
+                        <div className={styles.radioLabel}>
+                          <div
+                            className={styles.radioIndicator}
+                            style={{
+                              backgroundColor: option.color
+                            }}
+                          />
+                          <span>{option.label}</span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 <div className={styles.inputGroup}>
@@ -1097,7 +1060,7 @@ function TicketLogger() {
           )}
         </div>
         
-        {/* Totalizadores por tipo de chamado */}
+        {/* Totalizadores por tipo de registro */}
         {statistics.typeStats && (
           <div className={styles.typeStatsSection}>
             <h4 className={styles.typeStatsTitle}>Totalizadores por Tipo</h4>
@@ -1119,7 +1082,7 @@ function TicketLogger() {
                 </div>
                 <div className={styles.typeStatLabel}>
                   <span className={styles.typeTag} style={{ backgroundColor: '#3b82f6', color: 'white' }}>
-                    +Interação
+                    Retorno
                   </span>
                 </div>
               </div>
