@@ -490,8 +490,15 @@ function TicketCounter() {
         type: "local"
       });
       
-      setCount(prev => prev + 1);
-      await loadHistoryData();
+      // Atualizar o estado local primeiro
+      const newCount = count + 1;
+      setCount(newCount);
+      
+      // Forçar atualização do histórico com um pequeno delay para garantir sincronização
+      setTimeout(async () => {
+        await loadHistoryData();
+      }, 100);
+      
       showToast('Chamado adicionado! (+1)', 'success');
     } catch (error) {
       console.error('Erro ao incrementar:', error);
@@ -632,21 +639,15 @@ function TicketCounter() {
       const processedRecords = [...data.records];
 
       const todayRecord = processedRecords.find(r => r.count_date === today);
-      if (!todayRecord && count > 0) {
+      if (!todayRecord) {
+        // Sempre adicionar o registro de hoje, mesmo se count for 0
         processedRecords.unshift({
           count_date: today,
           total_count: count
         });
-      } else if (todayRecord) {
-        // Sempre atualizar com o valor atual do estado, seja maior ou menor
+      } else {
+        // Sempre atualizar com o valor atual do estado
         todayRecord.total_count = count;
-        // Se a contagem for 0, remover o registro do histórico visual
-        if (count === 0) {
-          const index = processedRecords.findIndex(r => r.count_date === today);
-          if (index > -1) {
-            processedRecords.splice(index, 1);
-          }
-        }
       }
 
       const sortedRecords = processedRecords.sort((a, b) => 
@@ -971,37 +972,43 @@ function TicketCounter() {
           <div className={styles.loadingContainer}>
             <ThreeDotsLoader message="Carregando histórico..." />
           </div>
-        ) : chartData && chartData.length > 0 ? (
+        ) : (
           <div className={styles.chartContainer}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                  dataKey="date"
-                  tick={{ fill: 'var(--text-color)' }}
-                />
-                <YAxis 
-                  tick={{ fill: 'var(--text-color)' }}
-                />
-                <Tooltip 
-                  contentStyle={{
-                    backgroundColor: 'var(--box-color)',
-                    border: '1px solid var(--color-border)',
-                    color: 'var(--text-color)'
-                  }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="count" 
-                  stroke="var(--color-accent3)" 
-                  strokeWidth={2}
-                  dot={{ fill: 'var(--color-accent3)', strokeWidth: 2 }}
-                  activeDot={{ r: 6, fill: 'var(--color-accent3)' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {chartData && chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="date"
+                    tick={{ fill: 'var(--text-color)' }}
+                  />
+                  <YAxis 
+                    tick={{ fill: 'var(--text-color)' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'var(--box-color)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--text-color)'
+                    }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="count" 
+                    stroke="var(--color-accent3)" 
+                    strokeWidth={2}
+                    dot={{ fill: 'var(--color-accent3)', strokeWidth: 2 }}
+                    activeDot={{ r: 6, fill: 'var(--color-accent3)' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className={styles.emptyChart}>
+                <p>Nenhum dado disponível para o período selecionado</p>
+              </div>
+            )}
           </div>
-        ) : null}
+        )}
 
         {/* Tabela de Histórico */}
         <div className={tableStyles.tableWrapper}>
