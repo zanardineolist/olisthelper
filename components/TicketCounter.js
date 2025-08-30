@@ -943,7 +943,7 @@ function TicketCounter() {
             <table className={tableStyles.modernTable}>
               <thead>
                 <tr className={tableStyles.tableHeader}>
-                  <th className={tableStyles.tableHeaderCell}>Data</th>
+                  <th className={tableStyles.tableHeaderCell}>Data e Hora</th>
                   <th className={tableStyles.tableHeaderCell}>Total de Chamados</th>
                   <th className={tableStyles.tableHeaderCell}>Status</th>
                 </tr>
@@ -954,6 +954,11 @@ function TicketCounter() {
                     <tr key={index} className={tableStyles.tableRow}>
                       <td className={`${tableStyles.tableCell} ${tableStyles.dateCell}`}>
                         {dayjs(record.count_date).format('DD/MM/YYYY')}
+                        {record.last_update_formatted && (
+                          <span style={{ display: 'block', fontSize: '0.85em', color: '#666', marginTop: '2px' }}>
+                            {record.last_update_formatted}
+                          </span>
+                        )}
                       </td>
                       <td className={`${tableStyles.tableCell} ${tableStyles.countCell}`}>
                         {record.total_count}

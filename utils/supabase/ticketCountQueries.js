@@ -53,13 +53,15 @@ export async function getTicketCountHistory(userId, startDate, endDate, page = 1
         acc[date] = {
           count_date: date,
           total_count: 0,
-          last_update: curr.count_time
+          last_update: curr.count_time,
+          last_update_formatted: dayjs(`${curr.count_date} ${curr.count_time}`).format('HH:mm')
         };
       }
       acc[date].total_count += curr.count_value;
       // Atualizar horário se for mais recente
       if (!acc[date].last_update || curr.count_time > acc[date].last_update) {
         acc[date].last_update = curr.count_time;
+        acc[date].last_update_formatted = dayjs(`${curr.count_date} ${curr.count_time}`).format('HH:mm');
       }
       return acc;
     }, {});
