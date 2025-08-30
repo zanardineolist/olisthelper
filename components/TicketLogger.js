@@ -61,23 +61,89 @@ function TicketLogger() {
     { value: 'custom', label: 'Período específico' }
   ];
 
-  // Toast para feedback
+  // Toast para feedback sutil e moderno
   const showToast = (message, type = 'success') => {
     const Toast = Swal.mixin({
       toast: true,
       position: 'top-end',
       showConfirmButton: false,
-      timer: 3000,
+      timer: 2500,
       timerProgressBar: true,
       background: 'var(--bg-secondary)',
       color: 'var(--text-color)',
-      borderRadius: '12px',
-      padding: '16px 20px'
+      borderRadius: '8px',
+      padding: '8px 12px',
+      width: '280px',
+      showClass: {
+        popup: 'animate__animated animate__fadeInRight animate__faster'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutRight animate__faster'
+      },
+      customClass: {
+        popup: 'subtle-toast-logger',
+        timerProgressBar: 'subtle-timer-bar-logger'
+      },
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+        
+        // Adicionar estilos customizados sutis
+        const style = document.createElement('style');
+        style.textContent = `
+          .subtle-toast-logger {
+            border: 1px solid var(--color-border) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            backdrop-filter: blur(8px) !important;
+          }
+          .subtle-timer-bar-logger {
+            background: ${type === 'success' ? 'var(--excellent-color)' : 
+                         type === 'error' ? 'var(--poor-color)' : 
+                         'var(--good-color)'} !important;
+            height: 2px !important;
+            opacity: 0.8 !important;
+          }
+          .swal2-icon {
+            border: none !important;
+            margin: 0 6px 0 0 !important;
+            width: 16px !important;
+            height: 16px !important;
+          }
+          .swal2-icon.swal2-success {
+            color: var(--excellent-color) !important;
+          }
+          .swal2-icon.swal2-error {
+            color: var(--poor-color) !important;
+          }
+          .swal2-icon.swal2-warning {
+            color: var(--good-color) !important;
+          }
+          .swal2-title {
+            font-size: 13px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Remover o estilo após o toast desaparecer
+        setTimeout(() => {
+          if (document.head.contains(style)) {
+            document.head.removeChild(style);
+          }
+        }, 3000);
+      }
     });
 
     Toast.fire({
       icon: type,
-      title: message
+      title: message,
+      iconColor: type === 'success' ? 'var(--excellent-color)' : 
+                type === 'error' ? 'var(--poor-color)' : 
+                'var(--good-color)'
     });
   };
 
@@ -1087,4 +1153,4 @@ function TicketLogger() {
   );
 }
 
-export default TicketLogger; 
+export default TicketLogger;
