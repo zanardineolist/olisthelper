@@ -7,6 +7,8 @@ import timezone from 'dayjs/plugin/timezone';
 import Select from 'react-select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useToast } from '../utils/hooks/useToast';
+import { useConfirm } from '../utils/hooks/useConfirm';
+import ConfirmModal from './ConfirmModal';
 import styles from '../styles/Tools.module.css';
 import tableStyles from '../styles/HistoryTable.module.css';
 import ProgressBar from './ProgressBar';
@@ -52,6 +54,7 @@ function TicketCounter() {
   const { callApi } = useApiLoader();
   const { startLoading, stopLoading } = useLoading();
   const toast = useToast();
+  const { confirmState, confirmExport, confirmClear, closeConfirm, handleConfirm } = useConfirm();
 
   // Carregar Animate.css para animações suaves do toast
   useEffect(() => {
@@ -232,46 +235,12 @@ function TicketCounter() {
         periodDescription = 'Período atual';
     }
 
-    const result = await Swal.fire({
-      title: 'Exportar Relatório CSV',
-      html: `
-        <div style="text-align: left; padding: 10px; min-width: 400px;">
-          <p style="margin: 10px 0; color: #333; font-size: 14px;"><strong>📊 Período que será exportado:</strong></p>
-          <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid #e9ecef; color: #495057;">
-            ${periodDescription}
-          </div>
-          
-          <p style="margin: 15px 0 10px 0; color: #333; font-size: 14px;"><strong>📁 O arquivo incluirá:</strong></p>
-          <ul style="margin: 10px 0; padding-left: 20px; color: #495057; font-size: 14px;">
-            <li style="margin-bottom: 5px;">Data de cada registro</li>
-            <li style="margin-bottom: 5px;">Total de chamados por dia</li>
-            <li style="margin-bottom: 5px;">Dia da semana</li>
-          </ul>
-          
-          <div style="background: rgba(13, 110, 253, 0.1); padding: 12px; border-radius: 6px; border-left: 4px solid #0d6efd; margin: 15px 0; color: #495057;">
-            <p style="margin: 0; font-size: 13px;"><strong>💡 Dica:</strong> Para alterar o período, use o filtro acima da tabela de histórico antes de exportar.</p>
-          </div>
-          
-          <p style="margin-top: 15px; color: #333; font-size: 14px;"><strong>Total de registros:</strong> ${history.length}</p>
-        </div>
-      `,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: '📥 Exportar CSV',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#0d6efd',
-      cancelButtonColor: '#6c757d',
-      width: '520px',
-      padding: '1.5rem',
-      allowOutsideClick: false,
-      allowEscapeKey: true,
-      backdrop: true,
-      customClass: {
-        popup: styles.exportCsvModalFixed
-      }
-    });
+    // Usar modal de confirmação elegante
+    const confirmed = await confirmExport(
+      `Exportar relatório CSV com ${history.length} registros do período selecionado?`
+    );
 
-    if (!result.isConfirmed) {
+    if (!confirmed) {
       return;
     }
 
@@ -346,7 +315,7 @@ function TicketCounter() {
       setCount(data.count);
     } catch (error) {
       console.error('Erro ao carregar contagem:', error);
-      Swal.fire('Erro', 'Erro ao carregar contagem do dia', 'error');
+      toast.error('Erro ao carregar contagem do dia');
     } finally {
       setLoading(false);
     }
@@ -421,18 +390,10 @@ function TicketCounter() {
   };
 
   const handleClear = async () => {
-    const result = await Swal.fire({
-      title: 'Limpar contagem do dia?',
-      text: 'Esta ação irá zerar a contagem do dia. Os registros anteriores serão mantidos.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sim, limpar',
-      cancelButtonText: 'Cancelar',
-      background: 'var(--box-color)',
-      color: 'var(--text-color)'
-    });
+    // Usar modal de confirmação elegante
+    const confirmed = await confirmClear();
 
-    if (result.isConfirmed) {
+    if (confirmed) {
       try {
         startLoading({ 
           message: "Limpando contagem...",
@@ -966,6 +927,18 @@ function TicketCounter() {
           )}
         </div>
       </div>
+      
+      {/* Modal de Confirmação */}
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={closeConfirm}
+        onConfirm={handleConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmText={confirmState.confirmText}
+        cancelText={confirmState.cancelText}
+        type={confirmState.type}
+      />
     </div>
   );
 }
