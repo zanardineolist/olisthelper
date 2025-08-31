@@ -1,0 +1,184 @@
+/* Backdrop */
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+/* Modal Container */
+.modal {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 400px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: modalEnter 0.2s ease-out;
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+/* Content */
+.content {
+  padding: 16px 24px;
+}
+
+.message {
+  margin: 0;
+  color: #374151;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px 20px;
+  justify-content: flex-end;
+}
+
+/* Buttons */
+.cancelButton {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 80px;
+}
+
+.cancelButton:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.confirmButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 80px;
+  color: white;
+}
+
+/* Button variants */
+.defaultButton {
+  background-color: #3b82f6;
+}
+
+.defaultButton:hover {
+  background-color: #2563eb;
+}
+
+.dangerButton {
+  background-color: #ef4444;
+}
+
+.dangerButton:hover {
+  background-color: #dc2626;
+}
+
+.warningButton {
+  background-color: #f59e0b;
+}
+
+.warningButton:hover {
+  background-color: #d97706;
+}
+
+/* Modal variants */
+.danger .title {
+  color: #dc2626;
+}
+
+.warning .title {
+  color: #d97706;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .modal {
+    margin: 16px;
+    width: calc(100% - 32px);
+  }
+  
+  .header {
+    padding: 16px 20px 12px;
+  }
+  
+  .content {
+    padding: 12px 20px;
+  }
+  
+  .footer {
+    padding: 12px 20px 16px;
+    flex-direction: column-reverse;
+  }
+  
+  .footer button {
+    width: 100%;
+  }
+}

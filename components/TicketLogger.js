@@ -7,6 +7,8 @@ import timezone from 'dayjs/plugin/timezone';
 import Select from 'react-select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useToast } from '../utils/hooks/useToast';
+import useConfirm from '../utils/hooks/useConfirm';
+import ConfirmModal from './ConfirmModal';
 import styles from '../styles/Tools.module.css';
 import tableStyles from '../styles/HistoryTable.module.css';
 import ProgressBarLogger from './ProgressBarLogger';
@@ -58,6 +60,7 @@ function TicketLogger() {
 
   const { callApi } = useApiLoader();
   const toast = useToast();
+  const { confirmState, confirmDelete, confirmClear, closeConfirm, handleConfirm } = useConfirm();
 
   // Função para obter informações do tipo de registro
   const getTicketTypeInfo = (type) => {
@@ -307,8 +310,8 @@ function TicketLogger() {
       return;
     }
 
-    // Usar confirmação simples do navegador
-    const confirmed = window.confirm('Remover último chamado? Esta ação não pode ser desfeita.');
+    // Usar modal de confirmação elegante
+    const confirmed = await confirmDelete('o último chamado');
 
     if (confirmed) {
       try {
@@ -445,8 +448,8 @@ function TicketLogger() {
   };
 
   const handleClear = async () => {
-    // Usar confirmação simples do navegador
-    const confirmed = window.confirm('Limpar contagem do dia? Esta ação irá remover todos os chamados registrados hoje. Não pode ser desfeita.');
+    // Usar modal de confirmação elegante
+    const confirmed = await confirmClear();
 
     if (confirmed) {
       try {
@@ -485,8 +488,8 @@ function TicketLogger() {
   };
 
   const handleRemoveTicket = async (logId) => {
-    // Usar confirmação simples do navegador
-    const confirmed = window.confirm('Remover chamado? Esta ação não pode ser desfeita.');
+    // Usar modal de confirmação elegante
+    const confirmed = await confirmDelete('este chamado');
 
     if (confirmed) {
       try {
@@ -1154,6 +1157,18 @@ RFC: ${typeStats.rfc}`;
           )}
         </div>
       </div>
+      
+      {/* Modal de Confirmação */}
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={closeConfirm}
+        onConfirm={handleConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        confirmText={confirmState.confirmText}
+        cancelText={confirmState.cancelText}
+        type={confirmState.type}
+      />
     </div>
   );
 }
