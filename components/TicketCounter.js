@@ -7,7 +7,7 @@ import timezone from 'dayjs/plugin/timezone';
 import Select from 'react-select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useToast } from '../utils/hooks/useToast';
-import { useConfirm } from '../utils/hooks/useConfirm';
+import useConfirm from '../utils/hooks/useConfirm';
 import ConfirmModal from './ConfirmModal';
 import styles from '../styles/Tools.module.css';
 import tableStyles from '../styles/HistoryTable.module.css';
