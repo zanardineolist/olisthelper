@@ -4,7 +4,7 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import '../styles/swal-overrides.css';
 import '../styles/shared-messages/variables.css';
 import { SessionProvider, useSession } from 'next-auth/react';
-import { Toaster } from 'react-hot-toast';
+import ToastProvider from '../components/ToastProvider';
 import { LoadingProvider } from '../components/LoadingIndicator';
 import { NotificationProvider } from '../contexts/NotificationContext';
 import { useRouter } from 'next/router';
@@ -40,8 +40,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
     <SessionProvider session={session}>
       <LoadingProvider>
         <NotificationProvider>
-          <Component {...pageProps} />
-          <Toaster position="top-right" toastOptions={{ duration: 2500 }} />
+          <ToastProvider position="top-right">
+            <Component {...pageProps} />
+          </ToastProvider>
         </NotificationProvider>
       </LoadingProvider>
     </SessionProvider>

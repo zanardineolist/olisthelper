@@ -6,7 +6,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Select from 'react-select';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import Swal from 'sweetalert2';
+import { useToast } from '../utils/hooks/useToast';
 import styles from '../styles/Tools.module.css';
 import tableStyles from '../styles/HistoryTable.module.css';
 import ProgressBar from './ProgressBar';
@@ -51,6 +51,7 @@ function TicketCounter() {
   // Usando os hooks do sistema de loading centralizado
   const { callApi } = useApiLoader();
   const { startLoading, stopLoading } = useLoading();
+  const toast = useToast();
 
   // Carregar Animate.css para animações suaves do toast
   useEffect(() => {
@@ -122,131 +123,7 @@ function TicketCounter() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [loading, count, showShortcuts]);
 
-  // Toast moderno e profissional
-  const showToast = (message, type = 'success') => {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      background: 'linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255,255,255,0.95) 100%)',
-      color: 'var(--text-color)',
-      borderRadius: '12px',
-      padding: '12px 16px',
-      width: '320px',
-      showClass: {
-        popup: 'animate__animated animate__slideInRight animate__faster'
-      },
-      hideClass: {
-        popup: 'animate__animated animate__slideOutRight animate__faster'
-      },
-      customClass: {
-        popup: 'modern-toast',
-        timerProgressBar: 'modern-timer-bar'
-      },
-      didOpen: (toast) => {
-        toast.addEventListener('mouseenter', Swal.stopTimer);
-        toast.addEventListener('mouseleave', Swal.resumeTimer);
-        
-        // Estilos modernos e profissionais
-        const style = document.createElement('style');
-        style.textContent = `
-          .modern-toast {
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-            font-size: 14px !important;
-            font-weight: 600 !important;
-            backdrop-filter: blur(16px) !important;
-            -webkit-backdrop-filter: blur(16px) !important;
-            border-left: 4px solid ${type === 'success' ? 'var(--excellent-color)' : 
-                                     type === 'error' ? 'var(--poor-color)' : 
-                                     'var(--good-color)'} !important;
-            position: relative !important;
-            overflow: hidden !important;
-          }
-          .modern-toast::before {
-            content: '' !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            background: linear-gradient(135deg, 
-              ${type === 'success' ? 'rgba(34, 197, 94, 0.05)' : 
-                type === 'error' ? 'rgba(239, 68, 68, 0.05)' : 
-                'rgba(251, 191, 36, 0.05)'} 0%, 
-              transparent 100%) !important;
-            pointer-events: none !important;
-          }
-          .modern-timer-bar {
-            background: linear-gradient(90deg, 
-              ${type === 'success' ? 'var(--excellent-color)' : 
-                type === 'error' ? 'var(--poor-color)' : 
-                'var(--good-color)'} 0%, 
-              ${type === 'success' ? 'rgba(34, 197, 94, 0.7)' : 
-                type === 'error' ? 'rgba(239, 68, 68, 0.7)' : 
-                'rgba(251, 191, 36, 0.7)'} 100%) !important;
-            height: 3px !important;
-            border-radius: 0 0 12px 12px !important;
-          }
-          .swal2-icon {
-            border: none !important;
-            margin: 0 10px 0 0 !important;
-            width: 20px !important;
-            height: 20px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-          }
-          .swal2-icon.swal2-success {
-            color: var(--excellent-color) !important;
-            background: rgba(34, 197, 94, 0.1) !important;
-            border-radius: 50% !important;
-          }
-          .swal2-icon.swal2-error {
-            color: var(--poor-color) !important;
-            background: rgba(239, 68, 68, 0.1) !important;
-            border-radius: 50% !important;
-          }
-          .swal2-icon.swal2-warning {
-            color: var(--good-color) !important;
-            background: rgba(251, 191, 36, 0.1) !important;
-            border-radius: 50% !important;
-          }
-          .swal2-title {
-            font-size: 14px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            line-height: 1.4 !important;
-            font-weight: 600 !important;
-            letter-spacing: -0.01em !important;
-          }
-          .swal2-toast .swal2-html-container {
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-        `;
-        document.head.appendChild(style);
-        
-        // Remover o estilo após o toast desaparecer
-        setTimeout(() => {
-          if (document.head.contains(style)) {
-            document.head.removeChild(style);
-          }
-        }, 3500);
-      }
-    });
 
-    Toast.fire({
-      icon: type,
-      title: message,
-      iconColor: type === 'success' ? 'var(--excellent-color)' : 
-                type === 'error' ? 'var(--poor-color)' : 
-                'var(--good-color)'
-    });
-  };
 
   // MELHORIA 3: Cálculo de estatísticas
   const calculateStatistics = useCallback((historyData) => {
@@ -324,7 +201,7 @@ function TicketCounter() {
   // MELHORIA 4: Exportação CSV melhorada
   const exportToCSV = async () => {
     if (!history || history.length === 0) {
-      showToast('Nenhum dado para exportar', 'warning');
+      toast.warning('Nenhum dado para exportar');
       return;
     }
 
@@ -421,10 +298,10 @@ function TicketCounter() {
       link.click();
       document.body.removeChild(link);
       
-      showToast('📊 Arquivo CSV exportado com sucesso!', 'success');
+      toast.success('📊 Arquivo CSV exportado com sucesso!');
     } catch (error) {
       console.error('Erro na exportação:', error);
-      showToast('Erro ao exportar arquivo CSV', 'error');
+      toast.error('Erro ao exportar arquivo CSV');
     }
   };
 
@@ -499,10 +376,10 @@ function TicketCounter() {
         await loadHistoryData(newCount);
       }, 100);
       
-      showToast('Chamado adicionado! (+1)', 'success');
+      toast.success('Chamado adicionado! (+1)');
     } catch (error) {
       console.error('Erro ao incrementar:', error);
-      showToast('Erro ao adicionar contagem', 'error');
+      toast.error('Erro ao adicionar contagem');
     } finally {
       stopLoading();
       setLoading(false);
@@ -533,10 +410,10 @@ function TicketCounter() {
         await loadHistoryData(newCount);
       }, 100);
       
-      showToast('Chamado removido! (-1)', 'success');
+      toast.success('Chamado removido! (-1)');
     } catch (error) {
       console.error('Erro ao decrementar:', error);
-      showToast('Erro ao remover contagem', 'error');
+      toast.error('Erro ao remover contagem');
     } finally {
       stopLoading();
       setLoading(false);
@@ -577,10 +454,10 @@ function TicketCounter() {
         setTimeout(async () => {
           await loadHistoryData(0);
         }, 100);
-        showToast('Contagem zerada com sucesso!', 'success');
+        toast.success('Contagem zerada com sucesso!');
       } catch (error) {
         console.error('Erro ao limpar:', error);
-        showToast('Erro ao limpar contagem', 'error');
+        toast.error('Erro ao limpar contagem');
       } finally {
         stopLoading();
         setLoading(false);
@@ -673,7 +550,7 @@ function TicketCounter() {
     } catch (error) {
       console.error('Erro ao carregar histórico:', error);
       if (!error.message.includes('no data')) {
-        showToast('Erro ao carregar histórico', 'error');
+        toast.error('Erro ao carregar histórico');
       }
       setHistory([]);
       setChartData(null);

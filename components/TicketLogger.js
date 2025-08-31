@@ -6,7 +6,7 @@ import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import Select from 'react-select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import Swal from 'sweetalert2';
+import { useToast } from '../utils/hooks/useToast';
 import styles from '../styles/Tools.module.css';
 import tableStyles from '../styles/HistoryTable.module.css';
 import ProgressBarLogger from './ProgressBarLogger';
@@ -57,6 +57,7 @@ function TicketLogger() {
   });
 
   const { callApi } = useApiLoader();
+  const toast = useToast();
 
   // Função para obter informações do tipo de registro
   const getTicketTypeInfo = (type) => {
@@ -84,113 +85,7 @@ function TicketLogger() {
     { value: 'custom', label: 'Período específico' }
   ];
 
-  // Toast profissional e limpo
-  const showToast = (message, type = 'success') => {
-    const Toast = Swal.mixin({
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      background: 'var(--box-color)',
-      color: 'var(--text-color)',
-      padding: '16px 20px',
-      width: '350px',
-      showClass: {
-        popup: 'animate__animated animate__slideInRight animate__faster'
-      },
-      hideClass: {
-        popup: 'animate__animated animate__slideOutRight animate__faster'
-      },
-      customClass: {
-        popup: 'clean-toast-logger',
-        timerProgressBar: 'clean-timer-bar-logger'
-      },
-      didOpen: (toast) => {
-        // Estilos limpos e profissionais sem eventos de hover
-        const style = document.createElement('style');
-        style.textContent = `
-          .clean-toast-logger {
-            border: 1px solid var(--color-border) !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
-            border-radius: 8px !important;
-            border-left: 4px solid ${type === 'success' ? '#22c55e' : 
-                                     type === 'error' ? '#ef4444' : 
-                                     '#f59e0b'} !important;
-            transition: none !important;
-          }
-          .clean-toast-logger:hover {
-            border-left: 4px solid ${type === 'success' ? '#22c55e' : 
-                                     type === 'error' ? '#ef4444' : 
-                                     '#f59e0b'} !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-          }
-          .clean-timer-bar-logger {
-            background: ${type === 'success' ? '#22c55e' : 
-                          type === 'error' ? '#ef4444' : 
-                          '#f59e0b'} !important;
-            height: 3px !important;
-            transition: none !important;
-          }
-          .clean-timer-bar-logger:hover {
-            background: ${type === 'success' ? '#22c55e' : 
-                          type === 'error' ? '#ef4444' : 
-                          '#f59e0b'} !important;
-          }
-          .swal2-toast .swal2-icon {
-            display: none !important;
-          }
-          .swal2-toast .swal2-title {
-            font-size: 14px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            line-height: 1.5 !important;
-            font-weight: 500 !important;
-            word-wrap: break-word !important;
-            overflow-wrap: break-word !important;
-            white-space: normal !important;
-            flex: 1 !important;
-          }
-          .swal2-toast .swal2-html-container {
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-          .swal2-toast .swal2-content {
-            display: flex !important;
-            align-items: flex-start !important;
-            gap: 0 !important;
-            padding: 0 !important;
-            margin: 0 !important;
-          }
-        `;
-        document.head.appendChild(style);
-        
-        // Remover o estilo após o toast desaparecer
-        setTimeout(() => {
-          if (document.head.contains(style)) {
-            document.head.removeChild(style);
-          }
-        }, 3500);
-      }
-    });
 
-    Toast.fire({
-      icon: false,
-      html: `
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="color: ${type === 'success' ? '#22c55e' : type === 'error' ? '#ef4444' : '#f59e0b'}; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex-shrink: 0;">
-            ${type === 'success' ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>' : 
-              type === 'error' ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>' : 
-              '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'}
-          </div>
-          <span style="flex: 1; font-size: 14px; font-weight: 500; line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">${message}</span>
-        </div>
-      `
-    });
-  };
 
   // Atalhos de teclado
   useEffect(() => {
@@ -408,7 +303,7 @@ function TicketLogger() {
   const handleDecrement = async () => {
     // Buscar o último registro do dia para remover
     if (count === 0) {
-      showToast('Nenhum chamado para remover', 'warning');
+      toast.warning('Nenhum chamado para remover');
       return;
     }
 
@@ -444,13 +339,13 @@ function TicketLogger() {
           await loadHistoryData();
           await loadHourlyData();
           
-          showToast('Último chamado removido com sucesso!', 'success');
+          toast.success('Último chamado removido com sucesso!');
         } else {
-          showToast('Nenhum chamado encontrado para remover', 'warning');
+          toast.warning('Nenhum chamado encontrado para remover');
         }
       } catch (error) {
         console.error('Erro ao remover último chamado:', error);
-        showToast('Erro ao remover chamado', 'error');
+        toast.error('Erro ao remover chamado');
       }
     }
   };
@@ -501,7 +396,7 @@ function TicketLogger() {
 
   const handleAddTicket = async () => {
     if (!ticketUrl.trim()) {
-      showToast('URL do chamado é obrigatória', 'error');
+      toast.error('URL do chamado é obrigatória');
       return;
     }
 
@@ -509,7 +404,7 @@ function TicketLogger() {
     try {
       new URL(ticketUrl);
     } catch {
-      showToast('URL inválida', 'error');
+      toast.error('URL inválida');
       return;
     }
 
@@ -596,10 +491,10 @@ function TicketLogger() {
       await loadHistoryData();
       await loadHourlyData();
       
-      showToast('Chamado registrado com sucesso!', 'success');
+      toast.success('Chamado registrado com sucesso!');
     } catch (error) {
       console.error('Erro ao adicionar chamado:', error);
-      showToast('Erro ao registrar chamado', 'error');
+      toast.error('Erro ao registrar chamado');
     } finally {
       setModalLoading(false);
     }
@@ -641,13 +536,13 @@ function TicketLogger() {
           await loadHistoryData();
           await loadHourlyData();
           
-          showToast('Contagem zerada com sucesso!', 'success');
+          toast.success('Contagem zerada com sucesso!');
         } else {
-          showToast('Nenhum registro encontrado para limpar', 'warning');
+          toast.warning('Nenhum registro encontrado para limpar');
         }
       } catch (error) {
         console.error('Erro ao limpar contagem:', error);
-        showToast('Erro ao limpar contagem', 'error');
+        toast.error('Erro ao limpar contagem');
       }
     }
   };
@@ -674,17 +569,17 @@ function TicketLogger() {
         await loadHistoryData();
         await loadHourlyData();
         
-        showToast('Chamado removido com sucesso!', 'success');
+        toast.success('Chamado removido com sucesso!');
       } catch (error) {
         console.error('Erro ao remover chamado:', error);
-        showToast('Erro ao remover chamado', 'error');
+        toast.error('Erro ao remover chamado');
       }
     }
   };
 
   const exportToCSV = async () => {
     if (!history || history.length === 0) {
-      showToast('Nenhum dado para exportar', 'warning');
+      toast.warning('Nenhum dado para exportar');
       return;
     }
 
@@ -728,10 +623,10 @@ function TicketLogger() {
       link.click();
       document.body.removeChild(link);
       
-      showToast('📊 Arquivo CSV exportado com sucesso!', 'success');
+      toast.success('📊 Arquivo CSV exportado com sucesso!');
     } catch (error) {
       console.error('Erro na exportação:', error);
-      showToast('Erro ao exportar arquivo CSV', 'error');
+      toast.error('Erro ao exportar arquivo CSV');
     }
   };
 
@@ -749,10 +644,10 @@ RFC: ${typeStats.rfc}`;
       // Copiar para área de transferência
       await navigator.clipboard.writeText(fechamentoText);
       
-      showToast('📋 Dados de fechamento copiados para área de transferência!', 'success');
+      toast.success('📋 Dados de fechamento copiados para área de transferência!');
     } catch (error) {
       console.error('Erro ao copiar para área de transferência:', error);
-      showToast('Erro ao copiar dados de fechamento', 'error');
+      toast.error('Erro ao copiar dados de fechamento');
     }
   };
 
