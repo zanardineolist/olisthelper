@@ -307,18 +307,10 @@ function TicketLogger() {
       return;
     }
 
-    const result = await Swal.fire({
-      title: 'Remover último chamado?',
-      text: 'Esta ação não pode ser desfeita.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sim, remover',
-      cancelButtonText: 'Cancelar',
-      background: 'var(--box-color)',
-      color: 'var(--text-color)'
-    });
+    // Usar confirmação simples do navegador
+    const confirmed = window.confirm('Remover último chamado? Esta ação não pode ser desfeita.');
 
-    if (result.isConfirmed) {
+    if (confirmed) {
       try {
         // Buscar o último registro do dia
         const today = dayjs().tz().format('YYYY-MM-DD');
@@ -338,6 +330,7 @@ function TicketLogger() {
           await loadTodayCount();
           await loadHistoryData();
           await loadHourlyData();
+          await loadStatistics();
           
           toast.success('Último chamado removido com sucesso!');
         } else {
@@ -410,57 +403,7 @@ function TicketLogger() {
 
     // Validar se segue o padrão do ERP (Olist ou Tiny)
     if (!validateErpUrl(ticketUrl)) {
-      await Swal.fire({
-        title: 'URL Inválida',
-        html: `
-          <div style="text-align: left; padding: 10px;">
-            <p style="margin-bottom: 15px; color: #dc2626; font-weight: 500;">
-              ❌ A URL não segue o padrão exigido dos sistemas ERP.
-            </p>
-            
-            <p style="margin-bottom: 10px; font-weight: 500; color: #333;">
-              📋 <strong>Formatos aceitos:</strong>
-            </p>
-            <div style="background: #f3f4f6; padding: 12px; border-radius: 6px; border: 1px solid #d1d5db; margin-bottom: 15px;">
-              <code style="color: #059669; font-family: monospace; font-size: 13px;">
-                https://erp.olist.com/suporte#edit/ID_DO_CHAMADO
-              </code>
-              <br />
-              <code style="color: #059669; font-family: monospace; font-size: 13px;">
-                https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO
-              </code>
-            </div>
-            
-            <p style="margin-bottom: 10px; font-weight: 500; color: #333;">
-              💡 <strong>Exemplos válidos:</strong>
-            </p>
-            <div style="background: #ecfdf5; padding: 12px; border-radius: 6px; border: 1px solid #bbf7d0; margin-bottom: 15px;">
-              <code style="color: #059669; font-family: monospace; font-size: 13px;">
-                https://erp.olist.com/suporte#edit/1062209674
-              </code>
-              <br />
-              <code style="color: #059669; font-family: monospace; font-size: 13px;">
-                https://erp.tiny.com.br/suporte#edit/1062209674
-              </code>
-            </div>
-            
-            <p style="margin-bottom: 5px; color: #6b7280; font-size: 14px;">
-              <strong>Verifique se:</strong>
-            </p>
-            <ul style="margin: 5px 0 0 20px; color: #6b7280; font-size: 14px;">
-              <li>A URL começa com <code>https://erp.olist.com/suporte#edit/</code> ou <code>https://erp.tiny.com.br/suporte#edit/</code></li>
-              <li>Termina com o ID numérico do chamado</li>
-              <li>Não possui caracteres extras no final</li>
-            </ul>
-          </div>
-        `,
-        icon: 'error',
-        confirmButtonText: 'Entendi',
-        confirmButtonColor: '#dc2626',
-        background: 'var(--box-color)',
-        color: 'var(--text-color)',
-        width: '550px'
-      });
+      toast.error('URL deve seguir o padrão: https://erp.olist.com/suporte#edit/ID_NUMERICO ou https://erp.tiny.com.br/suporte#edit/ID_NUMERICO');
       return;
     }
 
@@ -490,6 +433,7 @@ function TicketLogger() {
       await loadTodayCount();
       await loadHistoryData();
       await loadHourlyData();
+      await loadStatistics();
       
       toast.success('Chamado registrado com sucesso!');
     } catch (error) {
@@ -501,18 +445,10 @@ function TicketLogger() {
   };
 
   const handleClear = async () => {
-    const result = await Swal.fire({
-      title: 'Limpar contagem do dia?',
-      text: 'Esta ação irá remover todos os chamados registrados hoje. Não pode ser desfeita.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sim, limpar',
-      cancelButtonText: 'Cancelar',
-      background: 'var(--box-color)',
-      color: 'var(--text-color)'
-    });
+    // Usar confirmação simples do navegador
+    const confirmed = window.confirm('Limpar contagem do dia? Esta ação irá remover todos os chamados registrados hoje. Não pode ser desfeita.');
 
-    if (result.isConfirmed) {
+    if (confirmed) {
       try {
         // Buscar todos os registros do dia
         const today = dayjs().tz().format('YYYY-MM-DD');
@@ -535,6 +471,7 @@ function TicketLogger() {
           await loadTodayCount();
           await loadHistoryData();
           await loadHourlyData();
+          await loadStatistics();
           
           toast.success('Contagem zerada com sucesso!');
         } else {
@@ -548,18 +485,10 @@ function TicketLogger() {
   };
 
   const handleRemoveTicket = async (logId) => {
-    const result = await Swal.fire({
-      title: 'Remover chamado?',
-      text: 'Esta ação não pode ser desfeita.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sim, remover',
-      cancelButtonText: 'Cancelar',
-      background: 'var(--box-color)',
-      color: 'var(--text-color)'
-    });
+    // Usar confirmação simples do navegador
+    const confirmed = window.confirm('Remover chamado? Esta ação não pode ser desfeita.');
 
-    if (result.isConfirmed) {
+    if (confirmed) {
       try {
         await callApi(`/api/ticket-logs?logId=${logId}`, {
           method: 'DELETE'
@@ -568,6 +497,7 @@ function TicketLogger() {
         await loadTodayCount();
         await loadHistoryData();
         await loadHourlyData();
+        await loadStatistics();
         
         toast.success('Chamado removido com sucesso!');
       } catch (error) {
