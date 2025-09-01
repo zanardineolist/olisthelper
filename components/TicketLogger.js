@@ -707,15 +707,6 @@ RFC: ${typeStats.rfc}`;
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => {
-              if (!modalLoading) {
-                setTicketUrl('');
-                setDescription('');
-                setTicketType({ value: 'novo', label: 'Novo', color: '#10B981' });
-                setUrlValidationError('');
-                setShowModal(false);
-              }
-            }}
           >
             <motion.div
               className={styles.modalContent}
