@@ -130,21 +130,21 @@ const ProgressBarLogger = ({ count }) => {
 
   const getProgressMessage = () => {
     if (count > maxTarget) {
-      return `🎉 Superou a meta! +${count - maxTarget} chamados`;
+      return `Superou a meta! +${count - maxTarget} chamados`;
     }
     if (count >= maxTarget) {
-      return '🎯 Meta de 24 chamados atingida!';
+      return 'Meta de 24 chamados atingida!';
     }
     if (count >= minTarget) {
-      return `✅ Acima do mínimo! Faltam ${maxTarget - count} para a meta`;
+      return `Acima do mínimo! Faltam ${maxTarget - count} para a meta`;
     }
     if (count >= minTarget * 0.7) {
-      return `📈 Progredindo bem! Faltam ${maxTarget - count} chamados`;
+      return `Progredindo bem! Faltam ${maxTarget - count} chamados`;
     }
     if (count > 0) {
-      return `🚀 Continue assim! Faltam ${maxTarget - count} chamados`;
+      return `Continue assim! Faltam ${maxTarget - count} chamados`;
     }
-    return '💪 Comece seu dia registrando chamados!';
+    return 'Comece seu dia registrando chamados!';
   };
 
   return (
