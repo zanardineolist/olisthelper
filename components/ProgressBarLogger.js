@@ -229,7 +229,27 @@ const ProgressBarLogger = ({ count }) => {
               animate="animate"
               exit="exit"
             >
-              {getProgressMessage()}
+              {count > maxTarget ? (
+                <div className={styles.messageSuccess}>
+                  <span className={styles.messageIcon}>🎉</span>
+                  {getProgressMessage()}
+                </div>
+              ) : count >= maxTarget ? (
+                <div className={styles.messageSuccess}>
+                  <span className={styles.messageIcon}>🎯</span>
+                  {getProgressMessage()}
+                </div>
+              ) : count >= minTarget ? (
+                <div className={styles.messageWarning}>
+                  <span className={styles.messageIcon}>✅</span>
+                  {getProgressMessage()}
+                </div>
+              ) : (
+                <div className={styles.messageInfo}>
+                  <span className={styles.messageIcon}>💪</span>
+                  {getProgressMessage()}
+                </div>
+              )}
             </motion.div>
           </AnimatePresence>
         )}
@@ -240,4 +260,4 @@ const ProgressBarLogger = ({ count }) => {
   );
 };
 
-export default ProgressBarLogger; 
+export default ProgressBarLogger;
