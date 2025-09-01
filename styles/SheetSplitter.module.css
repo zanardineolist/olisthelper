@@ -958,29 +958,172 @@
 }
 
 .errorDetails {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  font-size: 14px;
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #fff5f5;
+  border-radius: 8px;
+  border: 1px solid #fed7d7;
 }
 
-.errorDetails summary {
-  padding: 8px 12px;
-  cursor: pointer;
-  color: #f8f9fa;
+.errorDetails h4 {
+  margin: 0 0 15px 0;
+  color: #c53030;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.errorsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.errorItem {
+  background-color: #ffffff;
+  border: 1px solid #fed7d7;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.errorItemContent {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.errorIcon {
+  color: #e53e3e;
+  font-size: 1.1em;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.errorItemContent strong {
+  color: #2d3748;
+  font-size: 0.95em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.errorItemContent p {
+  margin: 2px 0;
+  color: #4a5568;
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+.headerComparison {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.headerComparison h4 {
+  margin: 0 0 15px 0;
+  color: #2d3748;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.comparisonTable {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.comparisonColumn h5 {
+  margin: 0 0 10px 0;
+  color: #4a5568;
+  font-size: 0.95em;
+  font-weight: 600;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.headerList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.headerItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.headerItem.headerError {
+  background-color: #fed7d7;
+  border-color: #fc8181;
+}
+
+.headerPosition {
+  font-weight: 600;
+  color: #718096;
+  font-size: 0.85em;
+  min-width: 25px;
+}
+
+.headerName {
+  flex: 1;
+  color: #2d3748;
+  font-size: 0.9em;
+  font-family: 'Courier New', monospace;
+}
+
+.headerError .headerName {
+  color: #c53030;
   font-weight: 500;
 }
 
-.errorDetails summary:hover {
-  color: #ffffff;
+.headerErrorIcon {
+  color: #e53e3e;
+  font-size: 0.9em;
 }
 
-.errorDetails p {
-  padding: 8px 12px;
-  margin: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e9ecef;
+.technicalDetails {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border-left: 4px solid #dc3545;
+}
+
+.technicalDetails summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: #495057;
+}
+
+.technicalDetails p {
+  margin: 10px 0 0 0;
+  color: #6c757d;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
   white-space: pre-wrap;
-  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .comparisonTable {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .errorItemContent {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .errorIcon {
+    align-self: flex-start;
+  }
 }
 
 .errorHelp {
@@ -1320,4 +1463,4 @@
   100% {
     transform: translateX(100%);
   }
-} 
+}

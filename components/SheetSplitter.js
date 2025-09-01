@@ -270,20 +270,90 @@ const SheetSplitter = () => {
           <div className={styles.errorDescription}>
             {errorMessage}
           </div>
-          {detailedError && (
+          
+          {/* Exibir erros detalhados se disponíveis */}
+          {validationDetails && validationDetails.errors && validationDetails.errors.length > 0 && (
             <div className={styles.errorDetails}>
+              <h4>Detalhes dos erros encontrados:</h4>
+              <div className={styles.errorsList}>
+                {validationDetails.errors.map((err, index) => (
+                  <div key={index} className={styles.errorItem}>
+                    {err.type === 'column_count_mismatch' ? (
+                      <div className={styles.errorItemContent}>
+                        <FaExclamationTriangle className={styles.errorIcon} />
+                        <div>
+                          <strong>Número de colunas incorreto</strong>
+                          <p>Esperado: {err.expected_count} colunas | Encontrado: {err.found_count} colunas</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={styles.errorItemContent}>
+                        <FaExclamationTriangle className={styles.errorIcon} />
+                        <div>
+                          <strong>Posição {err.position}</strong>
+                          <p>Esperado: "{err.expected}"</p>
+                          <p>Encontrado: "{err.found}"</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Comparação de cabeçalhos se disponível */}
+          {validationDetails && validationDetails.expected && validationDetails.found && (
+            <div className={styles.headerComparison}>
+              <h4>Comparação de cabeçalhos:</h4>
+              <div className={styles.comparisonTable}>
+                <div className={styles.comparisonColumn}>
+                  <h5>Esperado ({getLayoutLabel(selectedOption)})</h5>
+                  <div className={styles.headerList}>
+                    {validationDetails.expected.map((header, index) => (
+                      <div key={index} className={styles.headerItem}>
+                        <span className={styles.headerPosition}>{index + 1}.</span>
+                        <span className={styles.headerName}>{header}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.comparisonColumn}>
+                  <h5>Encontrado no arquivo</h5>
+                  <div className={styles.headerList}>
+                    {validationDetails.found.map((header, index) => {
+                      const isError = validationDetails.errors && 
+                        validationDetails.errors.some(err => err.position === index + 1);
+                      return (
+                        <div key={index} className={`${styles.headerItem} ${isError ? styles.headerError : ''}`}>
+                          <span className={styles.headerPosition}>{index + 1}.</span>
+                          <span className={styles.headerName}>{header || '(vazio)'}</span>
+                          {isError && <FaExclamationTriangle className={styles.headerErrorIcon} />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {detailedError && (
+            <div className={styles.technicalDetails}>
               <details>
                 <summary>Detalhes técnicos</summary>
                 <p>{detailedError}</p>
               </details>
             </div>
           )}
+          
           <div className={styles.errorHelp}>
             <strong>Sugestões:</strong>
             <ul>
               <li>Verifique se selecionou o tipo correto de planilha no menu</li>
               <li>Certifique-se de que o arquivo segue exatamente o layout esperado</li>
               <li>Compare o cabeçalho do seu arquivo com o modelo oficial</li>
+              <li>Baixe o modelo de referência e compare coluna por coluna</li>
             </ul>
           </div>
         </div>
@@ -1173,4 +1243,4 @@ const SheetSplitter = () => {
   );
 };
 
-export default SheetSplitter; 
+export default SheetSplitter;

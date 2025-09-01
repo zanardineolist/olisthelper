@@ -116,19 +116,58 @@ async function validateLayout(filePath, fileType) {
       const validationResult = {
         expected: primaryExpected,
         found: fileHeader,
+        errors: []
       };
+      
+      // Verificar se o número de colunas está correto
       if (fileHeader.length !== primaryExpected.length) {
-        const error = new Error(`Número de colunas incorreto. Esperado: ${primaryExpected.length}, Recebido: ${fileHeader.length}.`);
+        const errorMsg = `Número de colunas incorreto. Esperado: ${primaryExpected.length} colunas, mas encontrado: ${fileHeader.length} colunas.`;
+        validationResult.errors.push({
+          type: 'column_count_mismatch',
+          message: errorMsg,
+          expected_count: primaryExpected.length,
+          found_count: fileHeader.length
+        });
+        
+        const error = new Error(errorMsg);
         error.details = validationResult;
         throw error;
       }
-      // Mesmo tamanho, mas alguma coluna difere
+      
+      // Verificar cada coluna individualmente
+      const columnErrors = [];
       for (let i = 0; i < fileHeader.length; i++) {
-        if (normalizeHeaderValue(fileHeader[i]) !== normalizeHeaderValue(primaryExpected[i])) {
-          const error = new Error(`Erro na coluna ${i + 1}: Esperado "${primaryExpected[i]}", mas encontrado "${fileHeader[i]}" na posição ${i + 1}. Verifique e ajuste o arquivo.`);
-          error.details = validationResult;
-          throw error;
+        const normalizedFound = normalizeHeaderValue(fileHeader[i]);
+        const normalizedExpected = normalizeHeaderValue(primaryExpected[i]);
+        
+        if (normalizedFound !== normalizedExpected) {
+          const columnError = {
+            type: 'column_name_mismatch',
+            position: i + 1,
+            expected: primaryExpected[i],
+            found: fileHeader[i] || '(vazio)',
+            message: `Coluna ${i + 1}: Esperado "${primaryExpected[i]}", mas encontrado "${fileHeader[i] || '(vazio)'}"`
+          };
+          columnErrors.push(columnError);
+          validationResult.errors.push(columnError);
         }
+      }
+      
+      // Se há erros de coluna, criar mensagem detalhada
+      if (columnErrors.length > 0) {
+        let errorMessage;
+        if (columnErrors.length === 1) {
+          errorMessage = columnErrors[0].message;
+        } else {
+          errorMessage = `Encontrados ${columnErrors.length} erros no cabeçalho:\n`;
+          columnErrors.forEach((err, index) => {
+            errorMessage += `${index + 1}. ${err.message}\n`;
+          });
+        }
+        
+        const error = new Error(errorMessage);
+        error.details = validationResult;
+        throw error;
       }
     }
     
@@ -201,4 +240,4 @@ export default async function handler(req, res) {
     console.error('Erro ao processar o formulário:', error);
     return res.status(500).json({ error: 'Erro ao processar o arquivo' });
   }
-} 
+}
