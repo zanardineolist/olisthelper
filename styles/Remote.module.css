@@ -196,6 +196,137 @@
 }
 
 /* ================== FORMULÁRIO ================== */
+/* Loading Styles */
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.loadingSpinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #6b7280;
+}
+
+.loadingSpinner i {
+  font-size: 2rem;
+  color: #3b82f6;
+}
+
+/* User Dashboard Styles */
+.nameCell {
+  padding: 12px 16px;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inactiveTag {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.emailCell {
+  padding: 12px 16px;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.numberCell {
+  padding: 12px 16px;
+  text-align: center;
+}
+
+.accessCount {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.accessCount.active {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.accessCount.inactive {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.dateCell {
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.hasAccess {
+  color: #059669;
+  font-weight: 500;
+}
+
+.noAccess {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.sortable:hover {
+  background-color: #f9fafb;
+}
+
+.sortable i {
+  margin-left: 8px;
+  color: #6b7280;
+}
+
+.emailColumn {
+  width: 200px;
+  min-width: 180px;
+}
+
+.numberColumn {
+  width: 120px;
+  min-width: 100px;
+  text-align: center;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.totalCount {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 .formContainer {
   display: grid;
   gap: 1.5rem;

@@ -1,169 +1,229 @@
 import { useEffect, useState } from 'react';
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import styles from '../styles/Remote.module.css';
 
 export default function AllAccessRecords({ user, currentTab }) {
-  const [allRecords, setAllRecords] = useState([]);
-  const [allMonthTotal, setAllMonthTotal] = useState(0);
-  const [allTotal, setAllTotal] = useState(0);
+  const [userStats, setUserStats] = useState([]);
+  const [summary, setSummary] = useState({});
   const [chartData, setChartData] = useState(null);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState('');
-  const [modalTitle, setModalTitle] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [sortBy, setSortBy] = useState('totalAccesses');
+  const [sortOrder, setSortOrder] = useState('desc');
 
   useEffect(() => {
     if (currentTab === 0) {
-      loadAllRecords();
+      loadUserStats();
     }
   }, [currentTab]);
 
-  const loadAllRecords = async () => {
+  const loadUserStats = async () => {
+    setLoading(true);
     try {
-      const response = await fetch('/api/get-remote-records');
+      const response = await fetch('/api/get-remote-stats');
       if (response.ok) {
         const data = await response.json();
-        const records = data.allRecords || [];
-        setAllRecords(records);
-        setAllTotal(records.length);
-
-        // Filtrar registros do mês atual
-        const today = new Date();
-        const currentMonth = today.getMonth();
-        const currentYear = today.getFullYear();
-
-        const monthRecords = records.filter(record => {
-          if (!record.date) return false;
-          const [day, month, year] = record.date.split('/');
-          const recordDate = new Date(year, month - 1, day);
-          return (
-            recordDate.getMonth() === currentMonth &&
-            recordDate.getFullYear() === currentYear
-          );
-        });
-
-        setAllMonthTotal(monthRecords.length);
-
-        // Preparar os dados para o gráfico
-        prepareChartData(records);
+        setUserStats(data.userStats || []);
+        setSummary(data.summary || {});
+        
+        // Preparar dados para o gráfico
+        prepareChartData(data.userStats || []);
       } else {
-        console.error('Erro ao buscar todos os registros');
+        console.error('Erro ao buscar estatísticas de usuários');
       }
     } catch (error) {
-      console.error('Erro ao buscar todos os registros:', error);
+      console.error('Erro ao buscar estatísticas de usuários:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const prepareChartData = (records) => {
-    // Agrupar registros por mês
-    const monthlyCounts = records.reduce((acc, record) => {
-      if (!record.date) return acc;
-      
-      const [day, month, year] = record.date.split('/');
-      const monthYear = `${month}/${year}`;
-      acc[monthYear] = (acc[monthYear] || 0) + 1;
-      return acc;
-    }, {});
+  const prepareChartData = (stats) => {
+    // Pegar os top 10 usuários com mais acessos
+    const topUsers = stats
+      .filter(user => user.totalAccesses > 0)
+      .slice(0, 10);
 
-    // Ordenar meses cronologicamente
-    const sortedMonths = Object.keys(monthlyCounts).sort((a, b) => {
-      const [monthA, yearA] = a.split('/').map(Number);
-      const [monthB, yearB] = b.split('/').map(Number);
-      return new Date(yearA, monthA - 1) - new Date(yearB, monthB - 1);
-    });
-
-    // Configurar os dados do gráfico
     setChartData({
-      labels: sortedMonths,
+      labels: topUsers.map(user => user.name),
       datasets: [
         {
-          label: 'Acessos por Mês',
-          data: sortedMonths.map(month => monthlyCounts[month]),
-          fill: false,
-          borderColor: 'rgba(75,192,192,1)',
-          backgroundColor: 'rgba(75,192,192,0.2)',
-          tension: 0.1,
+          label: 'Total de Acessos',
+          data: topUsers.map(user => user.totalAccesses),
+          backgroundColor: 'rgba(54, 162, 235, 0.6)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1,
+        },
+        {
+          label: 'Acessos no Mês',
+          data: topUsers.map(user => user.monthlyAccesses),
+          backgroundColor: 'rgba(255, 99, 132, 0.6)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1,
         },
       ],
     });
   };
 
-  const handleDescriptionClick = (description, recordInfo) => {
-    setModalTitle(`Descrição do Acesso - ${recordInfo.ticket_number || 'N/A'}`);
-    setModalContent(description || 'Sem descrição disponível');
-    setModalOpen(true);
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortOrder('desc');
+    }
   };
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setModalContent('');
-    setModalTitle('');
+  const getSortedUsers = () => {
+    return [...userStats].sort((a, b) => {
+      const aValue = a[sortBy];
+      const bValue = b[sortBy];
+      
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
   };
+
+  const formatLastAccess = (dateString) => {
+    if (!dateString) return 'Nunca';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR') + ' às ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}>
+          <i className="fa-solid fa-spinner fa-spin"></i>
+          <span>Carregando estatísticas...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
-      {/* Caixas de Contadores */}
+      {/* Cards de Estatísticas Gerais */}
       <div className={styles.statsContainer}>
         <div className={styles.statBox}>
-          <h3>Acessos no Mês Atual</h3>
-          <div className={styles.statNumber}>{allMonthTotal}</div>
+          <h3>Total de Usuários</h3>
+          <div className={styles.statNumber}>{summary.totalUsers || 0}</div>
+          <small>com permissão de acesso</small>
         </div>
         <div className={styles.statBox}>
-          <h3>Acessos Realizados</h3>
-          <div className={styles.statNumber}>{allTotal}</div>
+          <h3>Usuários Ativos</h3>
+          <div className={styles.statNumber}>{summary.activeUsers || 0}</div>
+          <small>com pelo menos 1 acesso</small>
+        </div>
+        <div className={styles.statBox}>
+          <h3>Total de Acessos</h3>
+          <div className={styles.statNumber}>{summary.totalAccesses || 0}</div>
+          <small>registrados no sistema</small>
+        </div>
+        <div className={styles.statBox}>
+          <h3>Acessos no Mês</h3>
+          <div className={styles.statNumber}>{summary.monthlyTotalAccesses || 0}</div>
+          <small>no mês atual</small>
         </div>
       </div>
 
-      {/* Tabela de Registros */}
+      {/* Tabela de Usuários */}
       <div className={styles.cardContainer}>
         <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>Acessos Realizados</h2>
+          <h2 className={styles.cardTitle}>Dashboard de Usuários - Acessos Remotos</h2>
+          <div className={styles.cardActions}>
+            <span className={styles.totalCount}>
+              {userStats.length} usuários com permissão
+            </span>
+          </div>
         </div>
         
         <div className={styles.tableContainer}>
           <table className={styles.recordsTable}>
             <thead>
               <tr>
-                <th className={styles.dateColumn}>Data</th>
-                <th className={styles.timeColumn}>Hora</th>
-                <th className={styles.nameColumn}>Nome</th>
-                <th className={styles.ticketColumn}>Chamado</th>
-                <th className={styles.themeColumn}>Tema</th>
-                <th className={styles.descriptionColumn}>Descrição</th>
-                <th className={styles.actionsColumn}></th>
+                <th 
+                  className={`${styles.nameColumn} ${styles.sortable}`}
+                  onClick={() => handleSort('name')}
+                >
+                  Nome 
+                  {sortBy === 'name' && (
+                    <i className={`fa-solid fa-sort-${sortOrder === 'asc' ? 'up' : 'down'}`}></i>
+                  )}
+                </th>
+                <th className={styles.emailColumn}>Email</th>
+                <th 
+                  className={`${styles.numberColumn} ${styles.sortable}`}
+                  onClick={() => handleSort('totalAccesses')}
+                >
+                  Total de Acessos
+                  {sortBy === 'totalAccesses' && (
+                    <i className={`fa-solid fa-sort-${sortOrder === 'asc' ? 'up' : 'down'}`}></i>
+                  )}
+                </th>
+                <th 
+                  className={`${styles.numberColumn} ${styles.sortable}`}
+                  onClick={() => handleSort('monthlyAccesses')}
+                >
+                  Acessos no Mês
+                  {sortBy === 'monthlyAccesses' && (
+                    <i className={`fa-solid fa-sort-${sortOrder === 'asc' ? 'up' : 'down'}`}></i>
+                  )}
+                </th>
+                <th 
+                  className={`${styles.numberColumn} ${styles.sortable}`}
+                  onClick={() => handleSort('last30DaysAccesses')}
+                >
+                  Últimos 30 Dias
+                  {sortBy === 'last30DaysAccesses' && (
+                    <i className={`fa-solid fa-sort-${sortOrder === 'asc' ? 'up' : 'down'}`}></i>
+                  )}
+                </th>
+                <th className={styles.dateColumn}>Último Acesso</th>
               </tr>
             </thead>
             <tbody>
-              {allRecords.length > 0 ? (
-                allRecords.map((record, index) => (
-                  <tr key={record.id || index} className={styles.tableRow}>
-                    <td>{record.date}</td>
-                    <td>{record.time}</td>
-                    <td>{record.name}</td>
-                    <td>{record.ticket_number}</td>
-                    <td>{record.theme}</td>
-                    <td className={styles.descriptionCell}>
-                      <div className={styles.truncatedText}>
-                        {record.description || 'N/A'}
+              {getSortedUsers().length > 0 ? (
+                getSortedUsers().map((user, index) => (
+                  <tr key={user.id || index} className={styles.tableRow}>
+                    <td className={styles.nameCell}>
+                      <div className={styles.userInfo}>
+                        <strong>{user.name}</strong>
+                        {user.totalAccesses === 0 && (
+                          <span className={styles.inactiveTag}>Inativo</span>
+                        )}
                       </div>
                     </td>
-                    <td>
-                      {record.description && (
-                        <button
-                          className={styles.expandButton}
-                          onClick={() => handleDescriptionClick(record.description, record)}
-                          title="Ver descrição completa"
-                        >
-                          Ver mais
-                        </button>
-                      )}
+                    <td className={styles.emailCell}>{user.email}</td>
+                    <td className={styles.numberCell}>
+                      <span className={`${styles.accessCount} ${user.totalAccesses > 0 ? styles.active : styles.inactive}`}>
+                        {user.totalAccesses}
+                      </span>
+                    </td>
+                    <td className={styles.numberCell}>
+                      <span className={`${styles.accessCount} ${user.monthlyAccesses > 0 ? styles.active : styles.inactive}`}>
+                        {user.monthlyAccesses}
+                      </span>
+                    </td>
+                    <td className={styles.numberCell}>
+                      <span className={`${styles.accessCount} ${user.last30DaysAccesses > 0 ? styles.active : styles.inactive}`}>
+                        {user.last30DaysAccesses}
+                      </span>
+                    </td>
+                    <td className={styles.dateCell}>
+                      <span className={user.lastAccess ? styles.hasAccess : styles.noAccess}>
+                        {formatLastAccess(user.lastAccess)}
+                      </span>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className={styles.noRecordsMessage}>
-                    Nenhum registro encontrado.
+                  <td colSpan="6" className={styles.noRecordsMessage}>
+                    Nenhum usuário encontrado.
                   </td>
                 </tr>
               )}
@@ -172,14 +232,14 @@ export default function AllAccessRecords({ user, currentTab }) {
         </div>
       </div>
 
-      {/* Gráfico de Linha */}
-      {chartData && (
+      {/* Gráfico de Barras */}
+      {chartData && chartData.labels.length > 0 && (
         <div className={styles.cardContainer}>
           <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>Progressão dos Acessos Mensais</h2>
+            <h2 className={styles.cardTitle}>Top 10 Usuários - Acessos Remotos</h2>
           </div>
           <div style={{ padding: '1rem' }}>
-            <Line 
+            <Bar 
               data={chartData} 
               options={{ 
                 responsive: true, 
@@ -188,35 +248,38 @@ export default function AllAccessRecords({ user, currentTab }) {
                   legend: {
                     display: true,
                     position: 'top',
+                  },
+                  tooltip: {
+                    mode: 'index',
+                    intersect: false,
                   }
                 },
                 scales: {
+                  x: {
+                    display: true,
+                    title: {
+                      display: true,
+                      text: 'Usuários'
+                    }
+                  },
                   y: {
                     beginAtZero: true,
                     ticks: {
                       stepSize: 1
+                    },
+                    title: {
+                      display: true,
+                      text: 'Quantidade de Acessos'
                     }
                   }
+                },
+                interaction: {
+                  mode: 'nearest',
+                  axis: 'x',
+                  intersect: false
                 }
               }} 
             />
-          </div>
-        </div>
-      )}
-
-      {/* Modal */}
-      {modalOpen && (
-        <div className={styles.modalOverlay} onClick={closeModal}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>{modalTitle}</h3>
-              <button className={styles.modalCloseButton} onClick={closeModal}>
-                <i className="fa-solid fa-times"></i>
-              </button>
-            </div>
-            <div className={styles.modalBody}>
-              <p>{modalContent}</p>
-            </div>
           </div>
         </div>
       )}
