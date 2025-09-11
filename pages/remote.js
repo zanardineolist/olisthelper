@@ -130,6 +130,8 @@ export async function getServerSideProps(context) {
         id: session.id,
         name: session.user.name,
         email: session.user.email,
+        // Garantir que role seja definido corretamente para o Sidebar
+        role: userPermissions.profile || userPermissions.role || 'support',
       },
     },
   };

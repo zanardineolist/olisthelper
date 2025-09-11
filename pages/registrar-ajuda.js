@@ -935,8 +935,9 @@ export async function getServerSideProps(context) {
         id: session.id,
         name: session.user.name,
         email: session.user.email,
-        role: session.role, // Manter para compatibilidade
+        // Garantir que role seja definido corretamente para o Sidebar
+        role: userPermissions.profile || session.role || 'support',
       },
     },
   };
-} 
+}
