@@ -53,11 +53,26 @@ export default function AllAccessRecords({ user, currentTab }) {
     }
   };
 
+  const getThemeColors = () => {
+    const root = document.documentElement;
+    const primaryColor = getComputedStyle(root).getPropertyValue('--color-primary').trim();
+    const accentColor = getComputedStyle(root).getPropertyValue('--color-accent1').trim();
+    const textColor = getComputedStyle(root).getPropertyValue('--text-color').trim();
+    
+    return {
+      primary: primaryColor || '#0A4EE4',
+      accent: accentColor || '#E64E36',
+      text: textColor || '#B4B4B4'
+    };
+  };
+
   const prepareChartData = (stats) => {
     // Pegar os top 10 usuários com mais acessos
     const topUsers = stats
       .filter(user => user.totalAccesses > 0)
       .slice(0, 10);
+
+    const colors = getThemeColors();
 
     setChartData({
       labels: topUsers.map(user => user.name),
@@ -65,16 +80,16 @@ export default function AllAccessRecords({ user, currentTab }) {
         {
           label: 'Total de Acessos',
           data: topUsers.map(user => user.totalAccesses),
-          backgroundColor: 'rgba(54, 162, 235, 0.6)',
-          borderColor: 'rgba(54, 162, 235, 1)',
-          borderWidth: 1,
+          backgroundColor: `${colors.primary}99`, // 60% opacity
+          borderColor: colors.primary,
+          borderWidth: 2,
         },
         {
           label: 'Acessos no Mês',
           data: topUsers.map(user => user.monthlyAccesses),
-          backgroundColor: 'rgba(255, 99, 132, 0.6)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          borderWidth: 1,
+          backgroundColor: `${colors.accent}99`, // 60% opacity
+          borderColor: colors.accent,
+          borderWidth: 2,
         },
       ],
     });
@@ -179,31 +194,25 @@ export default function AllAccessRecords({ user, currentTab }) {
       }
     });
 
+    const colors = getThemeColors();
+    const themeColors = [
+      colors.primary,
+      colors.accent,
+      '#F0A028', // accent2
+      '#779E3D', // accent3
+      '#2A2A2A', // accent4
+      colors.primary + '80', // primary with opacity
+      colors.accent + '80', // accent with opacity
+      colors.text + '80' // text with opacity
+    ];
+
     const chartData = {
       labels: Object.keys(themeGroups),
       datasets: [{
         label: 'Acessos por Tema',
         data: Object.values(themeGroups),
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.8)',
-          'rgba(255, 99, 132, 0.8)',
-          'rgba(255, 205, 86, 0.8)',
-          'rgba(75, 192, 192, 0.8)',
-          'rgba(153, 102, 255, 0.8)',
-          'rgba(255, 159, 64, 0.8)',
-          'rgba(199, 199, 199, 0.8)',
-          'rgba(83, 102, 255, 0.8)'
-        ],
-        borderColor: [
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 99, 132, 1)',
-          'rgba(255, 205, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)',
-          'rgba(199, 199, 199, 1)',
-          'rgba(83, 102, 255, 1)'
-        ],
+        backgroundColor: themeColors.map(color => color + 'CC'), // 80% opacity
+        borderColor: themeColors,
         borderWidth: 2
       }]
     };
@@ -419,10 +428,16 @@ export default function AllAccessRecords({ user, currentTab }) {
                            padding: 20,
                            font: {
                              size: 12
-                           }
+                           },
+                           color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#B4B4B4'
                          }
                        },
                        tooltip: {
+                         backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--box-color').trim() || '#2F2F2F',
+                         titleColor: getComputedStyle(document.documentElement).getPropertyValue('--title-color').trim() || '#ECECEC',
+                         bodyColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#B4B4B4',
+                         borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() || '#383838',
+                         borderWidth: 1,
                          callbacks: {
                            label: function(context) {
                              const total = context.dataset.data.reduce((a, b) => a + b, 0);
@@ -544,10 +559,18 @@ export default function AllAccessRecords({ user, currentTab }) {
                       legend: {
                         display: true,
                         position: 'top',
+                        labels: {
+                          color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#B4B4B4'
+                        }
                       },
                       tooltip: {
                         mode: 'index',
                         intersect: false,
+                        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--box-color').trim() || '#2F2F2F',
+                        titleColor: getComputedStyle(document.documentElement).getPropertyValue('--title-color').trim() || '#ECECEC',
+                        bodyColor: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#B4B4B4',
+                        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() || '#383838',
+                        borderWidth: 1
                       }
                     },
                     scales: {
@@ -555,17 +578,29 @@ export default function AllAccessRecords({ user, currentTab }) {
                         display: true,
                         title: {
                           display: true,
-                          text: 'Usuários'
+                          text: 'Usuários',
+                          color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#B4B4B4'
+                        },
+                        ticks: {
+                          color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#B4B4B4'
+                        },
+                        grid: {
+                          color: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() || '#383838'
                         }
                       },
                       y: {
                         beginAtZero: true,
                         ticks: {
-                          stepSize: 1
+                          stepSize: 1,
+                          color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#B4B4B4'
                         },
                         title: {
                           display: true,
-                          text: 'Quantidade de Acessos'
+                          text: 'Quantidade de Acessos',
+                          color: getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#B4B4B4'
+                        },
+                        grid: {
+                          color: getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim() || '#383838'
                         }
                       }
                     },
