@@ -14,7 +14,14 @@ export async function createRemoteAccess(accessData) {
       .eq('email', accessData.email)
       .single();
     
-    if (userError) throw userError;
+    if (userError) {
+      console.error('Erro ao buscar usuário por email:', userError);
+      throw new Error(`Usuário não encontrado para o email: ${accessData.email}`);
+    }
+    
+    if (!userData || !userData.id) {
+      throw new Error(`Usuário não encontrado para o email: ${accessData.email}`);
+    }
     
     const { data, error } = await supabaseAdmin
       .from('remote_access')
@@ -104,4 +111,4 @@ export async function getUserCurrentMonthRemoteAccess(email) {
     console.error('Erro ao buscar registros do mês atual:', error);
     return [];
   }
-} 
+}

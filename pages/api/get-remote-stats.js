@@ -34,15 +34,12 @@ export default async function handler(req, res) {
       throw recordsError;
     }
 
-    // Buscar contagem de acessos por usuário (para estatísticas)
-    const accessCounts = allRecords.map(record => ({
-      email: record.email,
-      created_at: record.created_at
-    }));
-
-    // Processar dados para criar estatísticas
+    // Processar dados para criar estatísticas usando support_id como chave primária
     const userStats = usersWithAccess.map(user => {
-      const userAccesses = accessCounts.filter(access => access.email === user.email);
+      // Filtrar registros por support_id (UUID) primeiro, depois por email como fallback
+      const userAccesses = allRecords.filter(record => 
+        record.support_id === user.id || record.email === user.email
+      );
       
       // Calcular acessos no mês atual
       const today = new Date();
