@@ -1,27 +1,32 @@
 // utils/supabase/supabaseClient.js
 import { createClient } from '@supabase/supabase-js';
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-  throw new Error('As variáveis de ambiente do Supabase não estão configuradas.');
+// Verificação de variáveis de ambiente apenas em runtime, não durante o build
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (typeof window !== 'undefined' && (!supabaseUrl || !supabaseAnonKey)) {
+  console.warn('As variáveis de ambiente do Supabase não estão configuradas.');
 }
 
 // Cliente Supabase com chave anônima (para operações do cliente)
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+export const supabase = supabaseUrl && supabaseAnonKey ? createClient(
+  supabaseUrl,
+  supabaseAnonKey
+) : null;
 
 // Cliente Supabase com chave de serviço (para operações administrativas)
-export const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
+export const supabaseAdmin = supabaseUrl && supabaseServiceKey ? createClient(
+  supabaseUrl,
+  supabaseServiceKey,
   {
     auth: {
       autoRefreshToken: false,
       persistSession: false
     }
   }
-);
+) : null;
 
 /**
  * Busca um usuário pelo email
@@ -30,6 +35,11 @@ export const supabaseAdmin = createClient(
  */
 export async function getUserByEmail(email) {
   try {
+    if (!supabaseAdmin) {
+      console.warn('Supabase Admin não está configurado');
+      return null;
+    }
+    
     const { data, error } = await supabaseAdmin
       .from('users')
       .select('*')

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Line, Doughnut } from 'react-chartjs-2';
+import { Line, Doughnut, Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -528,62 +528,61 @@ export default function AllAccessRecords({ user, currentTab }) {
             </tbody>
           </table>
         </div>
-      </div>
 
-      {/* Gráfico de Barras */}
-      {chartData && chartData.labels.length > 0 && (
-        <div className={styles.cardContainer}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>Top 10 Usuários - Acessos Remotos</h2>
-          </div>
-          <div style={{ padding: '1rem' }}>
-            <Bar 
-              data={chartData} 
-              options={{ 
-                responsive: true, 
-                animation: { duration: 1000 },
-                plugins: {
-                  legend: {
-                    display: true,
-                    position: 'top',
-                  },
-                  tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                  }
-                },
-                scales: {
-                  x: {
-                    display: true,
-                    title: {
-                      display: true,
-                      text: 'Usuários'
-                    }
-                  },
-                  y: {
-                    beginAtZero: true,
-                    ticks: {
-                      stepSize: 1
+          {/* Gráfico de Barras */}
+          {chartData && chartData.labels.length > 0 && (
+            <div className={styles.cardContainer}>
+              <div className={styles.cardHeader}>
+                <h2 className={styles.cardTitle}>Top 10 Usuários - Acessos Remotos</h2>
+              </div>
+              <div style={{ padding: '1rem' }}>
+                <Bar 
+                  data={chartData} 
+                  options={{ 
+                    responsive: true, 
+                    animation: { duration: 1000 },
+                    plugins: {
+                      legend: {
+                        display: true,
+                        position: 'top',
+                      },
+                      tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                      }
                     },
-                    title: {
-                      display: true,
-                      text: 'Quantidade de Acessos'
+                    scales: {
+                      x: {
+                        display: true,
+                        title: {
+                          display: true,
+                          text: 'Usuários'
+                        }
+                      },
+                      y: {
+                        beginAtZero: true,
+                        ticks: {
+                          stepSize: 1
+                        },
+                        title: {
+                          display: true,
+                          text: 'Quantidade de Acessos'
+                        }
+                      }
+                    },
+                    interaction: {
+                      mode: 'nearest',
+                      axis: 'x',
+                      intersect: false
                     }
-                  }
-                },
-                interaction: {
-                  mode: 'nearest',
-                  axis: 'x',
-                  intersect: false
-                }
-              }} 
-            />
-          </div>
-        </div>
+                  }} 
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Aba de Todos os Registros */}
       {activeTab === 'records' && (
         <div className={styles.cardContainer}>
           <div className={styles.cardHeader}>
