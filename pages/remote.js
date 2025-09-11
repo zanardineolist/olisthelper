@@ -17,17 +17,20 @@ export default function RemotePage({ user }) {
   const getTabs = () => {
     const tabs = [];
     
-    // Qualquer usuário com permissão de acesso remoto pode registrar e ver seus registros
-    if (user.can_remote_access) {
+    // Supervisores têm acesso a todas as funcionalidades
+    if (user.role === 'super') {
+      tabs.push(
+        { id: 'register', label: 'Registrar Acesso', icon: 'fa-plus-circle' },
+        { id: 'my-records', label: 'Meus Registros', icon: 'fa-list-alt' },
+        { id: 'all-records', label: 'Todos os Registros', icon: 'fa-database' }
+      );
+    }
+    // Usuários com permissão específica podem registrar e ver seus registros
+    else if (user.can_remote_access) {
       tabs.push(
         { id: 'register', label: 'Registrar Acesso', icon: 'fa-plus-circle' },
         { id: 'my-records', label: 'Meus Registros', icon: 'fa-list-alt' }
       );
-    }
-    
-    // Apenas supervisores podem ver todos os registros
-    if (user.role === 'super') {
-      tabs.push({ id: 'all-records', label: 'Todos os Registros', icon: 'fa-database' });
     }
     
     return tabs;

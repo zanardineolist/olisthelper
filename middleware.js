@@ -63,11 +63,15 @@ export async function middleware(req) {
     
     // NOVA LÓGICA: Verificar se é rota baseada em permissão específica
     if (routeConfig.permission) {
-      if (!permissions[routeConfig.permission]) {
+      // Exceção especial: usuários "Super" podem acessar /remote sem a permissão específica
+      if (routeConfig.permission === 'can_remote_access' && permissions.profile === 'super') {
+        console.log(`[SECURITY] Acesso permitido para Super - Usuário: ${token.id} - Rota: ${req.nextUrl.pathname}`);
+      } else if (!permissions[routeConfig.permission]) {
         console.log(`[SECURITY] Acesso negado - Usuário: ${token.id} - Permissão necessária: ${routeConfig.permission} - Rota: ${req.nextUrl.pathname}`);
         return NextResponse.redirect(new URL('/', req.url));
+      } else {
+        console.log(`[SECURITY] Acesso permitido por permissão - Usuário: ${token.id} - Permissão: ${routeConfig.permission} - Rota: ${req.nextUrl.pathname}`);
       }
-      console.log(`[SECURITY] Acesso permitido por permissão - Usuário: ${token.id} - Permissão: ${routeConfig.permission} - Rota: ${req.nextUrl.pathname}`);
     } 
     // SISTEMA LEGADO: Verificar roles tradicionais
     else if (routeConfig.profiles && !routeConfig.profiles.includes(permissions.profile)) {

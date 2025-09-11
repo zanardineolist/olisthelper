@@ -326,7 +326,8 @@ export default function Sidebar({ user, isCollapsed, setIsCollapsed, theme, togg
     };
 
     // Menu de Acesso Remoto (SISTEMA MODULAR)
-    if (user.can_remote_access === true) {
+    // Usuários Super podem acessar sem a permissão específica
+    if (user.can_remote_access === true || user.role === 'super') {
       addMenuItemIfNotExists({
         href: '/remote',
         icon: FaDesktop,
