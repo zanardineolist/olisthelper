@@ -1,8 +1,9 @@
 import { supabaseAdmin } from '../../utils/supabase/supabaseClient';
 
 /**
- * API endpoint para buscar estatísticas de acessos remotos por usuário
+ * API endpoint para buscar estatísticas e registros de acessos remotos
  * Retorna dados agregados para usuários com permissão can_remote_access
+ * e todos os registros da tabela remote_access
  */
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -22,16 +23,22 @@ export default async function handler(req, res) {
       throw usersError;
     }
 
-    // Buscar contagem de acessos por usuário
-    const { data: accessCounts, error: countsError } = await supabaseAdmin
+    // Buscar todos os registros de acesso remoto com todos os campos
+    const { data: allRecords, error: recordsError } = await supabaseAdmin
       .from('remote_access')
-      .select('email, created_at')
+      .select('*')
       .order('created_at', { ascending: false });
 
-    if (countsError) {
-      console.error('Erro ao buscar contagens:', countsError);
-      throw countsError;
+    if (recordsError) {
+      console.error('Erro ao buscar registros:', recordsError);
+      throw recordsError;
     }
+
+    // Buscar contagem de acessos por usuário (para estatísticas)
+    const accessCounts = allRecords.map(record => ({
+      email: record.email,
+      created_at: record.created_at
+    }));
 
     // Processar dados para criar estatísticas
     const userStats = usersWithAccess.map(user => {
@@ -89,7 +96,8 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       summary,
-      userStats
+      userStats,
+      allRecords: allRecords || []
     });
 
   } catch (error) {

@@ -543,6 +543,241 @@
 
 .nameColumn {
   width: 15%;
+  min-width: 120px;
+}
+
+.ticketColumn {
+  width: 12%;
+  min-width: 100px;
+}
+
+.themeColumn {
+  width: 15%;
+  min-width: 120px;
+}
+
+.descriptionColumn {
+  width: 30%;
+  min-width: 200px;
+}
+
+/* Estilos das Abas */
+.tabsContainer {
+  display: flex;
+  gap: 8px;
+  margin: 1.5rem 0;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 0;
+}
+
+.tabButton {
+  background: transparent;
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  font-weight: 500;
+  color: var(--text-color2);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  border-bottom: 3px solid transparent;
+}
+
+.tabButton:hover {
+  background-color: var(--color-hover);
+  color: var(--text-color);
+}
+
+.tabButton.activeTab {
+  background-color: var(--box-color);
+  color: var(--color-primary);
+  border-bottom: 3px solid var(--color-primary);
+  font-weight: 600;
+}
+
+.tabButton i {
+  font-size: 0.9rem;
+}
+
+/* Estilos dos Filtros */
+.filtersContainer {
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: end;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.filterLabel {
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.dateFilters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dateInput {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--body-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.dateSeparator {
+  color: var(--text-color2);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.themeSelect {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--body-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.themeSelect:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.clearFiltersBtn {
+  background: var(--color-danger);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  height: fit-content;
+}
+
+.clearFiltersBtn:hover {
+  background: var(--color-danger-hover, #dc2626);
+  transform: translateY(-1px);
+}
+
+.clearFiltersBtn i {
+  font-size: 0.8rem;
+}
+
+.noRecords {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-color2);
+  font-style: italic;
+}
+
+/* Estilos do Gráfico Filtrado */
+.chartContainer {
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.chartHeader {
+  margin-bottom: 1rem;
+}
+
+.chartTitle {
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.chartTitle i {
+  color: var(--color-primary);
+  font-size: 1rem;
+}
+
+.chartWrapper {
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Estilos dos Botões de Exportação */
+.exportButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.exportBtn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  min-width: 80px;
+  justify-content: center;
+}
+
+.exportBtn:hover:not(:disabled) {
+  background: var(--color-primary-hover, #2563eb);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.exportBtn:disabled {
+  background: var(--color-border);
+  color: var(--text-color2);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.exportBtn i {
+  font-size: 0.8rem;
+}
   min-width: 150px;
 }
 
