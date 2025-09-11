@@ -22,9 +22,8 @@ export default function AllAccessRecords({ user, currentTab }) {
   const [filteredChartData, setFilteredChartData] = useState(null);
 
   useEffect(() => {
-    if (currentTab === 0) {
-      loadUserStats();
-    }
+    // Carregar dados sempre que o componente for montado ou currentTab mudar
+    loadUserStats();
   }, [currentTab]);
 
   const loadUserStats = async () => {

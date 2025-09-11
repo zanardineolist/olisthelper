@@ -175,3 +175,4 @@ database_migration.sql
 docs/TOAST_SYSTEM.md
 docs/REMOTE_PAGE_ANALYSIS.md
 .env.example
+remote_access_rows.sql
