@@ -736,7 +736,8 @@ export default function AllAccessRecords({ user, currentTab }) {
           </div>
         </div>
         
-        <DialogContent className={styles.dialogContent}>
+        <DialogContent className={styles.modalBody}>
+          <div className={styles.modalBodyContent}>
           {selectedRecord && (
             <>
               <div className={styles.modalSection}>
@@ -815,6 +816,7 @@ export default function AllAccessRecords({ user, currentTab }) {
               </div>
             </>
           )}
+          </div>
         </DialogContent>
 
         <DialogActions className={styles.dialogActions}>
