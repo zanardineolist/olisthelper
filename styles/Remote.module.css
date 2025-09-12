@@ -79,19 +79,22 @@
 
 /* ================== SISTEMA DE TABS ================== */
 .tabsContainer {
-  background-color: var(--box-color);
-  border-radius: 8px;
-  padding: 0.5rem;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--color-border);
+  background: linear-gradient(135deg, var(--box-color) 0%, rgba(255,255,255,0.05) 100%);
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  margin-bottom: 1.5rem;
 }
 
 .tabsNav {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  padding: 0.25rem;
 }
 
 .tabsNav::-webkit-scrollbar {
@@ -101,30 +104,67 @@
 .tabButton {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
   border: none;
-  border-radius: 6px;
-  background-color: transparent;
+  border-radius: 10px;
+  background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.02) 100%);
   color: var(--text-color);
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+}
+
+.tabButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.tabButton:hover::before {
+  left: 100%;
 }
 
 .tabButton:hover {
-  background-color: var(--color-hover);
+  background: linear-gradient(135deg, var(--color-hover) 0%, rgba(255,255,255,0.05) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .tabButton.active {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover, var(--color-primary)) 100%);
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(var(--color-primary-rgb, 10, 78, 228), 0.3), 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.tabButton.active::before {
+  display: none;
 }
 
 .tabButton i {
-  font-size: 1rem;
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.tabButton:hover i {
+  transform: scale(1.1);
+}
+
+.tabButton.active i {
+  transform: scale(1.05);
 }
 
 /* ================== CONTEÚDO DAS TABS ================== */
@@ -570,36 +610,72 @@
   padding-bottom: 0;
 }
 
-.tabButton {
-  background: transparent;
+/* Tabs alternativas para seções específicas */
+.tabButtonAlt {
+  background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.02) 100%);
   border: none;
-  padding: 12px 20px;
+  padding: 1rem 1.5rem;
   cursor: pointer;
-  border-radius: 8px 8px 0 0;
-  font-weight: 500;
+  border-radius: 10px;
+  font-weight: 600;
   color: var(--text-color2);
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  border-bottom: 3px solid transparent;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
 }
 
-.tabButton:hover {
-  background-color: var(--color-hover);
+.tabButtonAlt::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.tabButtonAlt:hover::before {
+  left: 100%;
+}
+
+.tabButtonAlt:hover {
+  background: linear-gradient(135deg, var(--color-hover) 0%, rgba(255,255,255,0.05) 100%);
   color: var(--text-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-.tabButton.activeTab {
-  background-color: var(--box-color);
-  color: var(--color-primary);
-  border-bottom: 3px solid var(--color-primary);
-  font-weight: 600;
+.tabButtonAlt.activeTab {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover, var(--color-primary)) 100%);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(var(--color-primary-rgb, 10, 78, 228), 0.3), 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
 }
 
-.tabButton i {
-  font-size: 0.9rem;
+.tabButtonAlt.activeTab::before {
+  display: none;
+}
+
+.tabButtonAlt i {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.tabButtonAlt:hover i {
+  transform: scale(1.1);
+}
+
+.tabButtonAlt.activeTab i {
+  transform: scale(1.05);
 }
 
 /* Estilos dos Filtros */
