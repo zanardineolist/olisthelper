@@ -960,7 +960,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: var(--overlay-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -970,14 +970,14 @@
 }
 
 .modalContent {
-  background: var(--background-color);
+  background: var(--box-color);
   border-radius: 12px;
   box-shadow: var(--shadow-xl);
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   animation: modalSlideIn 0.3s ease-out;
 }
 
@@ -997,9 +997,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover, var(--color-primary)) 100%);
-  color: white;
+  color: var(--color-white);
   border-radius: 12px 12px 0 0;
 }
 
@@ -1058,7 +1058,7 @@
   color: var(--color-primary);
   margin: 0 0 1rem 0;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--color-primary-light, rgba(var(--color-primary-rgb, 59, 130, 246), 0.1));
+  border-bottom: 2px solid var(--color-border);
 }
 
 .sectionTitle i {
@@ -1080,30 +1080,30 @@
 
 .infoLabel {
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-color2);
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .infoValue {
-  color: var(--text-primary);
+  color: var(--title-color);
   font-size: 1rem;
   padding: 0.75rem;
-  background: var(--background-secondary, #f8fafc);
+  background: var(--box-color2);
   border-radius: 6px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   min-height: 1.5rem;
   display: flex;
   align-items: center;
 }
 
 .descriptionBox {
-  background: var(--background-secondary, #f8fafc);
-  border: 1px solid var(--border-color);
+  background: var(--box-color2);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 1rem;
-  color: var(--text-primary);
+  color: var(--text-color);
   line-height: 1.6;
   min-height: 4rem;
   white-space: pre-wrap;
@@ -1112,16 +1112,16 @@
 
 .modalFooter {
   padding: 1.5rem 2rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--color-border);
   display: flex;
   justify-content: flex-end;
-  background: var(--background-secondary, #f8fafc);
+  background: var(--box-color);
   border-radius: 0 0 12px 12px;
 }
 
 .modalCloseButton {
-  background: var(--color-secondary, #6b7280);
-  color: white;
+  background: var(--color-accent1);
+  color: var(--color-white);
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 6px;
@@ -1135,7 +1135,7 @@
 }
 
 .modalCloseButton:hover {
-  background: var(--color-secondary-hover, #4b5563);
+  background: var(--color-primary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
