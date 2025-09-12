@@ -4,6 +4,8 @@ import 'chart.js/auto';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import { Dialog, DialogContent, DialogActions, Button, IconButton, Typography } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 import styles from '../styles/Remote.module.css';
 
 export default function AllAccessRecords({ user, currentTab }) {
@@ -708,28 +710,42 @@ export default function AllAccessRecords({ user, currentTab }) {
       )}
 
       {/* Modal de Detalhes do Registro */}
-      {showModal && selectedRecord && (
-        <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>
-                <i className="fas fa-info-circle"></i>
-                Detalhes do Acesso Remoto
-              </h3>
-              <button 
-                className={styles.modalCloseBtn}
-                onClick={() => setShowModal(false)}
-              >
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            
-            <div className={styles.modalBody}>
+      <Dialog
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        maxWidth="md"
+        fullWidth
+        className={styles.detailsDialog}
+        PaperProps={{
+          className: styles.dialogPaper
+        }}
+      >
+        <div className={styles.dialogTitle}>
+          <div className={styles.dialogTitleContent}>
+            <Typography variant="h6" className={styles.modalTitle}>
+              <i className="fas fa-info-circle" style={{ marginRight: '8px' }}></i>
+              Detalhes do Acesso Remoto
+            </Typography>
+            <IconButton
+              onClick={() => setShowModal(false)}
+              size="small"
+              className={styles.modalCloseBtn}
+            >
+              <CloseIcon />
+            </IconButton>
+          </div>
+        </div>
+        
+        <DialogContent className={styles.dialogContent}>
+          {selectedRecord && (
+            <>
               <div className={styles.modalSection}>
-                <h4 className={styles.sectionTitle}>
-                  <i className="fas fa-user"></i>
-                  Informações do Usuário
-                </h4>
+                <div className={styles.sectionTitleWrapper}>
+                  <i className="fas fa-user" style={{ color: 'var(--color-primary)', marginRight: '8px' }}></i>
+                  <Typography variant="h6" className={styles.sectionTitle}>
+                    Informações do Usuário
+                  </Typography>
+                </div>
                 <div className={styles.infoGrid}>
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Nome:</span>
@@ -743,10 +759,12 @@ export default function AllAccessRecords({ user, currentTab }) {
               </div>
 
               <div className={styles.modalSection}>
-                <h4 className={styles.sectionTitle}>
-                  <i className="fas fa-ticket-alt"></i>
-                  Informações do Chamado
-                </h4>
+                <div className={styles.sectionTitleWrapper}>
+                  <i className="fas fa-ticket-alt" style={{ color: 'var(--color-primary)', marginRight: '8px' }}></i>
+                  <Typography variant="h6" className={styles.sectionTitle}>
+                    Informações do Chamado
+                  </Typography>
+                </div>
                 <div className={styles.infoGrid}>
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Número do Chamado:</span>
@@ -760,10 +778,12 @@ export default function AllAccessRecords({ user, currentTab }) {
               </div>
 
               <div className={styles.modalSection}>
-                <h4 className={styles.sectionTitle}>
-                  <i className="fas fa-calendar-alt"></i>
-                  Data e Hora
-                </h4>
+                <div className={styles.sectionTitleWrapper}>
+                  <i className="fas fa-calendar-alt" style={{ color: 'var(--color-primary)', marginRight: '8px' }}></i>
+                  <Typography variant="h6" className={styles.sectionTitle}>
+                    Data e Hora
+                  </Typography>
+                </div>
                 <div className={styles.infoGrid}>
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Data:</span>
@@ -781,28 +801,33 @@ export default function AllAccessRecords({ user, currentTab }) {
               </div>
 
               <div className={styles.modalSection}>
-                <h4 className={styles.sectionTitle}>
-                  <i className="fas fa-file-text"></i>
-                  Descrição
-                </h4>
-                <div className={styles.descriptionBox}>
-                  {selectedRecord.description || 'Nenhuma descrição fornecida.'}
+                <div className={styles.sectionTitleWrapper}>
+                  <i className="fas fa-file-text" style={{ color: 'var(--color-primary)', marginRight: '8px' }}></i>
+                  <Typography variant="h6" className={styles.sectionTitle}>
+                    Descrição
+                  </Typography>
+                </div>
+                <div className={styles.solutionBox}>
+                  <Typography className={styles.dialogText}>
+                    {selectedRecord.description || 'Nenhuma descrição fornecida.'}
+                  </Typography>
                 </div>
               </div>
-            </div>
+            </>
+          )}
+        </DialogContent>
 
-            <div className={styles.modalFooter}>
-              <button 
-                className={styles.modalCloseButton}
-                onClick={() => setShowModal(false)}
-              >
-                <i className="fas fa-times"></i>
-                Fechar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        <DialogActions className={styles.dialogActions}>
+          <Button
+            onClick={() => setShowModal(false)}
+            variant="contained"
+            className={styles.btnContained}
+            startIcon={<CloseIcon />}
+          >
+            Fechar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
