@@ -529,6 +529,7 @@
 
 .tableRow {
   transition: background-color 0.2s ease;
+  cursor: pointer;
 }
 
 .tableRow:hover {
@@ -985,9 +986,6 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 1.2rem;
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
 }
 
 .modalCloseBtn:hover {
@@ -1052,8 +1050,6 @@
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--title-color);
-  margin: 0 0 1.25rem 0;
-  padding-bottom: 0.75rem;
 }
 
 .sectionTitle i {
