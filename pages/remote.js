@@ -17,11 +17,9 @@ export default function RemotePage({ user }) {
   const getTabs = () => {
     const tabs = [];
     
-    // Supervisores têm acesso a todas as funcionalidades
+    // Supervisores têm acesso apenas a todos os registros
     if (user.role === 'super') {
       tabs.push(
-        { id: 'register', label: 'Registrar Acesso', icon: 'fa-plus-circle' },
-        { id: 'my-records', label: 'Meus Registros', icon: 'fa-list-alt' },
         { id: 'all-records', label: 'Todos os Registros', icon: 'fa-database' }
       );
     }
