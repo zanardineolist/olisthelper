@@ -953,6 +953,197 @@
   font-size: 1rem;
 }
 
+/* ================== MODAL STYLES ================== */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+}
+
+.modalContent {
+  background: var(--background-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover, var(--color-primary)) 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.modalTitle i {
+  font-size: 1.5rem;
+  opacity: 0.9;
+}
+
+.modalCloseBtn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.modalCloseBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.modalBody {
+  padding: 2rem;
+}
+
+.modalSection {
+  margin-bottom: 2rem;
+}
+
+.modalSection:last-child {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-primary-light, rgba(var(--color-primary-rgb, 59, 130, 246), 0.1));
+}
+
+.sectionTitle i {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.infoLabel {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoValue {
+  color: var(--text-primary);
+  font-size: 1rem;
+  padding: 0.75rem;
+  background: var(--background-secondary, #f8fafc);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  min-height: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.descriptionBox {
+  background: var(--background-secondary, #f8fafc);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 4rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.modalFooter {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  background: var(--background-secondary, #f8fafc);
+  border-radius: 0 0 12px 12px;
+}
+
+.modalCloseButton {
+  background: var(--color-secondary, #6b7280);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.modalCloseButton:hover {
+  background: var(--color-secondary-hover, #4b5563);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.modalCloseButton i {
+  font-size: 0.9rem;
+}
+
 /* ================== RESPONSIVIDADE ================== */
 @media (max-width: 768px) {
   .main {
@@ -987,7 +1178,23 @@
 
   .modalContent {
     margin: 1rem;
+    padding: 0;
+  }
+
+  .modalHeader {
+    padding: 1rem 1.5rem;
+  }
+
+  .modalBody {
     padding: 1.5rem;
+  }
+
+  .modalFooter {
+    padding: 1rem 1.5rem;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
   }
 }
 

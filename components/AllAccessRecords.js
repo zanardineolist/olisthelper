@@ -20,6 +20,8 @@ export default function AllAccessRecords({ user, currentTab }) {
   const [themeFilter, setThemeFilter] = useState('');
   const [availableThemes, setAvailableThemes] = useState([]);
   const [filteredChartData, setFilteredChartData] = useState(null);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     // Carregar dados sempre que o componente for montado ou currentTab mudar
@@ -615,18 +617,20 @@ export default function AllAccessRecords({ user, currentTab }) {
               </select>
             </div>
 
-            <div className={styles.filterGroup}>
-               <button
-                 className={styles.clearFiltersBtn}
-                 onClick={() => {
-                   setDateFilter({ start: '', end: '' });
-                   setThemeFilter('');
-                 }}
-               >
-                 <i className="fas fa-times"></i>
-                 Limpar Filtros
-               </button>
-             </div>
+            {(dateFilter.start || dateFilter.end || themeFilter) && (
+              <div className={styles.filterGroup}>
+                 <button
+                   className={styles.clearFiltersBtn}
+                   onClick={() => {
+                     setDateFilter({ start: '', end: '' });
+                     setThemeFilter('');
+                   }}
+                 >
+                   <i className="fas fa-times"></i>
+                   Limpar Filtros
+                 </button>
+               </div>
+            )}
 
              <div className={styles.filterGroup}>
                <label className={styles.filterLabel}>Exportar:</label>
@@ -668,7 +672,14 @@ export default function AllAccessRecords({ user, currentTab }) {
                    filteredRecords.map((record, index) => {
                      const dateTime = formatDateTime(record.created_at);
                      return (
-                       <tr key={record.id || index} className={styles.tableRow}>
+                       <tr 
+                         key={record.id || index} 
+                         className={`${styles.tableRow} ${styles.clickableRow}`}
+                         onClick={() => {
+                           setSelectedRecord(record);
+                           setShowModal(true);
+                         }}
+                       >
                          <td className={styles.dateColumn}>{record.date || dateTime.date}</td>
                          <td className={styles.timeColumn}>{record.time || dateTime.time}</td>
                          <td className={styles.nameColumn}>{record.name}</td>
@@ -692,6 +703,103 @@ export default function AllAccessRecords({ user, currentTab }) {
                  )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Detalhes do Registro */}
+      {showModal && selectedRecord && (
+        <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>
+                <i className="fas fa-info-circle"></i>
+                Detalhes do Acesso Remoto
+              </h3>
+              <button 
+                className={styles.modalCloseBtn}
+                onClick={() => setShowModal(false)}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            
+            <div className={styles.modalBody}>
+              <div className={styles.modalSection}>
+                <h4 className={styles.sectionTitle}>
+                  <i className="fas fa-user"></i>
+                  Informações do Usuário
+                </h4>
+                <div className={styles.infoGrid}>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Nome:</span>
+                    <span className={styles.infoValue}>{selectedRecord.name || '-'}</span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Email:</span>
+                    <span className={styles.infoValue}>{selectedRecord.email || '-'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.modalSection}>
+                <h4 className={styles.sectionTitle}>
+                  <i className="fas fa-ticket-alt"></i>
+                  Informações do Chamado
+                </h4>
+                <div className={styles.infoGrid}>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Número do Chamado:</span>
+                    <span className={styles.infoValue}>{selectedRecord.ticket_number || '-'}</span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Tema:</span>
+                    <span className={styles.infoValue}>{selectedRecord.theme || '-'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.modalSection}>
+                <h4 className={styles.sectionTitle}>
+                  <i className="fas fa-calendar-alt"></i>
+                  Data e Hora
+                </h4>
+                <div className={styles.infoGrid}>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Data:</span>
+                    <span className={styles.infoValue}>
+                      {selectedRecord.date || formatDateTime(selectedRecord.created_at).date}
+                    </span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Hora:</span>
+                    <span className={styles.infoValue}>
+                      {selectedRecord.time || formatDateTime(selectedRecord.created_at).time}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.modalSection}>
+                <h4 className={styles.sectionTitle}>
+                  <i className="fas fa-file-text"></i>
+                  Descrição
+                </h4>
+                <div className={styles.descriptionBox}>
+                  {selectedRecord.description || 'Nenhuma descrição fornecida.'}
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button 
+                className={styles.modalCloseButton}
+                onClick={() => setShowModal(false)}
+              >
+                <i className="fas fa-times"></i>
+                Fechar
+              </button>
+            </div>
           </div>
         </div>
       )}
