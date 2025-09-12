@@ -965,8 +965,11 @@
 }
 
 .modalTitle i {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modalCloseBtn {
@@ -1051,12 +1054,14 @@
   color: var(--title-color);
   margin: 0 0 1.25rem 0;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--color-border);
 }
 
 .sectionTitle i {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .infoGrid {
