@@ -79,20 +79,21 @@
 
 /* ================== SISTEMA DE TABS ================== */
 .tabsContainer {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 4px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-md);
 }
 
 .tabsNav {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   padding: 0;
   margin: 0;
   justify-content: center;
+  align-items: center;
 }
 
 .tabsNav::-webkit-scrollbar {
@@ -100,11 +101,11 @@
 }
 
 .tabButton {
-  background: #6c757d;
-  border: none;
-  color: white;
+  background: var(--box-color2);
+  border: 1px solid var(--color-border);
+  color: var(--text-color);
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
@@ -112,23 +113,30 @@
   text-align: center;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 8px;
   font-size: 0.95rem;
   white-space: nowrap;
   justify-content: center;
+  min-width: 140px;
 }
 
 .tabButton:hover {
-  background: #5a6268;
+  background: var(--manager-menu-bg-hover);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .tabButton.active {
-  background: #007bff;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
 }
 
 .tabButton i {
-  font-size: 1.1rem;
+  font-size: 16px;
+  margin-right: 0;
 }
 
 /* ================== CONTEÚDO DAS TABS ================== */
@@ -576,31 +584,38 @@
 
 /* Tabs alternativas para seções específicas */
 .tabButtonAlt {
-  background: #6c757d;
-  border: none;
-  color: white;
+  background: var(--box-color2);
+  border: 1px solid var(--color-border);
+  color: var(--text-color);
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 8px;
   font-size: 0.95rem;
+  min-width: 140px;
 }
 
 .tabButtonAlt:hover {
-  background: #5a6268;
+  background: var(--manager-menu-bg-hover);
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .tabButtonAlt.activeTab {
-  background: #007bff;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
 }
 
 .tabButtonAlt i {
-  font-size: 1.1rem;
+  font-size: 16px;
+  margin-right: 0;
 }
 
 /* Estilos dos Filtros */
