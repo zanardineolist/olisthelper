@@ -383,11 +383,6 @@ export default function AllAccessRecords({ user, currentTab }) {
         <div className={styles.cardContainer}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Dashboard de Usuários - Acessos Remotos</h2>
-          <div className={styles.cardActions}>
-            <span className={styles.totalCount}>
-              {userStats.length} usuários com permissão
-            </span>
-          </div>
         </div>
 
            {/* Gráfico dos dados filtrados */}
@@ -581,11 +576,6 @@ export default function AllAccessRecords({ user, currentTab }) {
         <div className={styles.cardContainer}>
           <div className={styles.cardHeader}>
             <h2 className={styles.cardTitle}>Todos os Registros de Acesso Remoto</h2>
-            <div className={styles.cardActions}>
-              <span className={styles.totalCount}>
-                {filteredRecords.length} de {allRecords.length} registros
-              </span>
-            </div>
           </div>
 
           {/* Filtros */}
