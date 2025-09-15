@@ -48,7 +48,16 @@ export async function fetchWithLoading(url, options = {}, loadingOptions = {}) {
     
     // Verifica se houve erro na resposta HTTP
     if (!response.ok) {
-      throw new Error(`Erro ${response.status}: ${response.statusText}`);
+      let errorMessage = `Erro ${response.status}: ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } catch (e) {
+        // Se não conseguir parsear o JSON do erro, usa a mensagem padrão
+      }
+      throw new Error(errorMessage);
     }
     
     // Converte a resposta para JSON
@@ -116,10 +125,20 @@ export function useApiLoader() {
       const response = await fetch(url, options);
       
       if (!response.ok) {
-        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+        let errorMessage = `Erro ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch (e) {
+          // Se não conseguir parsear o JSON do erro, usa a mensagem padrão
+        }
+        throw new Error(errorMessage);
       }
       
-      return await response.json();
+      const data = await response.json();
+      return data;
     } catch (error) {
       // Verifica se deve suprimir os erros no console
       if (!options.suppressConsoleError) {
@@ -134,4 +153,4 @@ export function useApiLoader() {
   };
   
   return { callApi };
-} 
+}

@@ -5,6 +5,8 @@
   padding-left: 2rem;
   padding-right: 2rem;
   padding-bottom: 2rem;
+  max-width: none;
+  margin: 0;
   transition: filter 0.3s ease;
 }
 
@@ -14,12 +16,73 @@
   opacity: 0.7;
 }
 
-/* ===== TAB CONTENT ===== */
-.tabContent {
+/* ========================================
+   HEADER DA PÁGINA
+   ======================================== */
+.pageHeader {
+  width: 100%;
+  text-align: left;
+  padding: 0 0 2rem 0;
+  margin-bottom: 1.5rem;
+}
+
+.mainTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--title-color);
+  margin: 0 0 12px 0;
+  letter-spacing: -0.02em;
+}
+
+.mainDescription {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+/* ========================================
+   SISTEMA DE TABS MODERNO
+   ======================================== */
+.tabsWrapper {
+  width: 100%;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 64px;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.3s ease;
+  margin-bottom: 2rem;
+}
+
+.tabsWrapper.scrolled {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.tabsContainer {
   width: 100%;
   max-width: 1300px;
   margin: 0 auto;
-  padding: 32px 20px;
+  padding: 0 20px;
+  position: relative;
+}
+
+/* ========================================
+   CONTEÚDO DAS ABAS
+   ======================================== */
+.contentSection {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+}
+
+.tabContent {
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 /* ================== Botão Adicionar Item ================== */
