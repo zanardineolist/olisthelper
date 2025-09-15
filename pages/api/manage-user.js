@@ -23,6 +23,9 @@ export default async function handler(req, res) {
 
   const isUserValid = reqUser && reqUser.id && reqUser.name && reqUser.role;
 
+  // Regex para validação de e-mail (usado em múltiplos cases)
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   try {
     switch (method) {
       case 'GET':
@@ -72,7 +75,6 @@ export default async function handler(req, res) {
         }
 
         // Validar formato do e-mail
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(newUser.email)) {
           return res.status(400).json({ 
             error: 'Formato de e-mail inválido. Por favor, insira um e-mail válido (exemplo: usuario@empresa.com).' 
