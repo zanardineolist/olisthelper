@@ -9,6 +9,32 @@ dayjs.extend(timezone);
 dayjs.tz.setDefault("America/Sao_Paulo");
 
 /**
+ * Validar URL do ERP (Olist, Tiny ou Salesforce Lightning)
+ */
+function validateErpUrl(url) {
+  const cleanUrl = url.trim();
+  
+  // Bloquear URLs de exemplo
+  if (cleanUrl === 'https://erp.olist.com/suporte#edit/ID_DO_CHAMADO' || 
+      cleanUrl === 'https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO' ||
+      cleanUrl === 'https://olist.lightning.force.com/') {
+    return false;
+  }
+  
+  // Padrões aceitos: 
+  // - https://erp.olist.com/suporte#edit/ID_NUMERICO
+  // - https://erp.tiny.com.br/suporte#edit/ID_NUMERICO
+  // - https://olist.lightning.force.com/lightning/r/Case/ID_ALFANUMERICO/view
+  // - https://olist.lightning.force.com/lightning/r/Case/ID_ALFANUMERICO/edit
+  // - https://olist.lightning.force.com/ (qualquer URL válida do Salesforce Lightning)
+  const olistUrlPattern = /^https:\/\/erp\.olist\.com\/suporte#edit\/\d+$/;
+  const tinyUrlPattern = /^https:\/\/erp\.tiny\.com\.br\/suporte#edit\/\d+$/;
+  const salesforceUrlPattern = /^https:\/\/olist\.lightning\.force\.com\/.+$/;
+  
+  return olistUrlPattern.test(cleanUrl) || tinyUrlPattern.test(cleanUrl) || salesforceUrlPattern.test(cleanUrl);
+}
+
+/**
  * Adicionar novo log de chamado
  */
 export async function addTicketLog(userId, ticketUrl, description = '', ticketType = 'novo') {
@@ -22,6 +48,11 @@ export async function addTicketLog(userId, ticketUrl, description = '', ticketTy
       new URL(ticketUrl);
     } catch {
       throw new Error('URL do chamado inválida');
+    }
+
+    // Validar se segue o padrão do ERP (Olist, Tiny ou Salesforce Lightning)
+    if (!validateErpUrl(ticketUrl)) {
+      throw new Error('URL deve seguir um dos padrões: https://erp.olist.com/suporte#edit/ID_NUMERICO, https://erp.tiny.com.br/suporte#edit/ID_NUMERICO ou https://olist.lightning.force.com/...');
     }
 
     const now = dayjs().tz();

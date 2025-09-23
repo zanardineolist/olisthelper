@@ -346,23 +346,28 @@ function TicketLogger() {
     }
   };
 
-  // Função para validar URL do ERP (Olist ou Tiny)
+  // Função para validar URL do ERP (Olist, Tiny ou Salesforce Lightning)
   const validateErpUrl = (url) => {
     const cleanUrl = url.trim();
     
     // Bloquear URLs de exemplo
     if (cleanUrl === 'https://erp.olist.com/suporte#edit/ID_DO_CHAMADO' || 
-        cleanUrl === 'https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO') {
+        cleanUrl === 'https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO' ||
+        cleanUrl === 'https://olist.lightning.force.com/') {
       return false;
     }
     
     // Padrões aceitos: 
     // - https://erp.olist.com/suporte#edit/ID_NUMERICO
     // - https://erp.tiny.com.br/suporte#edit/ID_NUMERICO
+    // - https://olist.lightning.force.com/lightning/r/Case/ID_ALFANUMERICO/view
+    // - https://olist.lightning.force.com/lightning/r/Case/ID_ALFANUMERICO/edit
+    // - https://olist.lightning.force.com/ (qualquer URL válida do Salesforce Lightning)
     const olistUrlPattern = /^https:\/\/erp\.olist\.com\/suporte#edit\/\d+$/;
     const tinyUrlPattern = /^https:\/\/erp\.tiny\.com\.br\/suporte#edit\/\d+$/;
+    const salesforceUrlPattern = /^https:\/\/olist\.lightning\.force\.com\/.+$/;
     
-    return olistUrlPattern.test(cleanUrl) || tinyUrlPattern.test(cleanUrl);
+    return olistUrlPattern.test(cleanUrl) || tinyUrlPattern.test(cleanUrl) || salesforceUrlPattern.test(cleanUrl);
   };
 
   // Validação em tempo real da URL
@@ -382,9 +387,9 @@ function TicketLogger() {
       return;
     }
 
-    // Verificar se segue o padrão do ERP (Olist ou Tiny)
+    // Verificar se segue o padrão do ERP (Olist, Tiny ou Salesforce Lightning)
     if (!validateErpUrl(value)) {
-      setUrlValidationError('URL deve seguir o padrão: https://erp.olist.com/suporte#edit/ID_NUMERICO ou https://erp.tiny.com.br/suporte#edit/ID_NUMERICO');
+      setUrlValidationError('URL deve seguir um dos padrões: https://erp.olist.com/suporte#edit/ID_NUMERICO, https://erp.tiny.com.br/suporte#edit/ID_NUMERICO ou https://olist.lightning.force.com/...');
     } else {
       setUrlValidationError('');
     }
@@ -404,9 +409,9 @@ function TicketLogger() {
       return;
     }
 
-    // Validar se segue o padrão do ERP (Olist ou Tiny)
+    // Validar se segue o padrão do ERP (Olist, Tiny ou Salesforce Lightning)
     if (!validateErpUrl(ticketUrl)) {
-      toast.error('URL deve seguir o padrão: https://erp.olist.com/suporte#edit/ID_NUMERICO ou https://erp.tiny.com.br/suporte#edit/ID_NUMERICO');
+      toast.error('URL deve seguir um dos padrões: https://erp.olist.com/suporte#edit/ID_NUMERICO, https://erp.tiny.com.br/suporte#edit/ID_NUMERICO ou https://olist.lightning.force.com/...');
       return;
     }
 
@@ -745,7 +750,7 @@ RFC: ${typeStats.rfc}`;
                     type="url"
                     value={ticketUrl}
                     onChange={(e) => handleUrlChange(e.target.value)}
-                    placeholder="https://erp.olist.com/suporte#edit/ID_DO_CHAMADO"
+                    placeholder="https://olist.lightning.force.com/lightning/r/Case/ID_DO_CHAMADO/view"
                     className={`${styles.modalInput} ${urlValidationError ? styles.inputError : ''}`}
                     disabled={modalLoading}
                   />
@@ -756,7 +761,7 @@ RFC: ${typeStats.rfc}`;
                   )}
                   <div className={styles.urlExample}>
                     <small>
-                      <strong>Exemplos:</strong> https://erp.olist.com/suporte#edit/ID_DO_CHAMADO ou https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO
+                      <strong>Exemplos:</strong> https://erp.olist.com/suporte#edit/ID_DO_CHAMADO, https://erp.tiny.com.br/suporte#edit/ID_DO_CHAMADO ou https://olist.lightning.force.com/lightning/r/Case/ID_DO_CHAMADO/view
                     </small>
                   </div>
                 </div>

@@ -111,6 +111,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'URL do chamado inválida' });
     }
     
+    if (error.message.includes('URL deve seguir um dos padrões')) {
+      return res.status(400).json({ error: error.message });
+    }
+    
     if (error.message.includes('Datas inválidas')) {
       return res.status(400).json({ error: 'Datas inválidas fornecidas' });
     }
