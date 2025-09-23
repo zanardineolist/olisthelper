@@ -318,7 +318,8 @@ export default function RegistroPage({ user }) {
     const periodo = historyStart && historyEnd
       ? `${formatBR(historyStart)} a ${formatBR(historyEnd)}`
       : formatBR(selectedDate);
-    return `Fechamento - Período ${periodo}\nChamados = ${historyTotals.calls}\nRFC's = ${historyTotals.rfcs}\nAjudas = ${historyTotals.helps}`;
+    const total = historyTotals.calls + historyTotals.rfcs + historyTotals.helps;
+    return `*Fechamento - Período ${periodo}*\n*Chamados = ${historyTotals.calls}*\n*RFC's = ${historyTotals.rfcs}*\n*Ajudas = ${historyTotals.helps}*\n*Total = ${total}*`;
   }, [historyStart, historyEnd, selectedDate, historyTotals]);
 
   const copiarFechamento = async () => {
@@ -1282,13 +1283,13 @@ const customSelectStyles = {
                   <div className={styles.dateField}>
                     <div className={styles.dateInputWrapper}>
                       <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
-                      <input type="date" value={historyStart} onChange={(e) => { setHistoryStart(e.target.value); fetchHistory(); }} className={styles.dateInput} />
+                      <input type="date" value={historyStart} onChange={(e) => { const newStart = e.target.value; setHistoryStart(newStart); setActivePreset(''); fetchHistory(newStart, historyEnd); }} className={styles.dateInput} />
                     </div>
                   </div>
                   <div className={styles.dateField}>
                     <div className={styles.dateInputWrapper}>
                       <i className={`fa-regular fa-calendar ${styles.dateIcon}`}></i>
-                      <input type="date" value={historyEnd} onChange={(e) => { setHistoryEnd(e.target.value); fetchHistory(); }} className={styles.dateInput} />
+                      <input type="date" value={historyEnd} onChange={(e) => { const newEnd = e.target.value; setHistoryEnd(newEnd); setActivePreset(''); fetchHistory(historyStart, newEnd); }} className={styles.dateInput} />
                     </div>
                   </div>
                 </div>

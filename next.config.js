@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  swcMinify: false,
+  compiler: {
+    // Disable SWC and use Babel
+    removeConsole: false,
+  },
   
   // Headers de segurança
   async headers() {
