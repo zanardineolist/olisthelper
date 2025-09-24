@@ -234,7 +234,34 @@ export default async function handler(req, res) {
           return res.status(500).json({ error: 'Erro ao salvar contadores' });
         }
 
-        return res.status(200).json({ record: data });
+        // Buscar dados de último registro
+        const { data: lastCallData } = await supabaseAdmin
+          .from('ticket_logs')
+          .select('logged_time')
+          .eq('user_id', analystId)
+          .eq('logged_date', date)
+          .in('ticket_type', ['novo', 'interacao'])
+          .order('logged_time', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        const { data: lastRfcData } = await supabaseAdmin
+          .from('ticket_logs')
+          .select('logged_time')
+          .eq('user_id', analystId)
+          .eq('logged_date', date)
+          .eq('ticket_type', 'rfc')
+          .order('logged_time', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        const record = {
+          ...data,
+          last_call_time: lastCallData?.logged_time || null,
+          last_rfc_time: lastRfcData?.logged_time || null
+        };
+
+        return res.status(200).json({ record });
       }
 
       case 'PATCH': {
@@ -336,7 +363,34 @@ export default async function handler(req, res) {
           return res.status(500).json({ error: 'Erro ao atualizar contadores' });
         }
 
-        return res.status(200).json({ record: data });
+        // Buscar dados de último registro
+        const { data: lastCallData } = await supabaseAdmin
+          .from('ticket_logs')
+          .select('logged_time')
+          .eq('user_id', analystId)
+          .eq('logged_date', date)
+          .in('ticket_type', ['novo', 'interacao'])
+          .order('logged_time', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        const { data: lastRfcData } = await supabaseAdmin
+          .from('ticket_logs')
+          .select('logged_time')
+          .eq('user_id', analystId)
+          .eq('logged_date', date)
+          .eq('ticket_type', 'rfc')
+          .order('logged_time', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        const record = {
+          ...data,
+          last_call_time: lastCallData?.logged_time || null,
+          last_rfc_time: lastRfcData?.logged_time || null
+        };
+
+        return res.status(200).json({ record });
       }
 
       default:
