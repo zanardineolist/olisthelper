@@ -426,8 +426,8 @@ export default function RegistroPage({ user }) {
       const res = await fetch(`/api/manage-records?recordId=${encodeURIComponent(recordId)}&userId=${encodeURIComponent(user.id)}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Falha ao excluir');
       notify('Registro excluído', 'success');
-      // Refresh completo (recentes, histórico, hoje)
-      await refreshAll();
+        // Refresh completo (recentes, histórico, hoje) - não preservar para atualizar último registro
+        await refreshAll();
     } catch (e) {
       console.error('Excluir registro:', e);
       notify('Erro ao excluir registro', 'error');
@@ -461,7 +461,7 @@ export default function RegistroPage({ user }) {
       const res = await fetch(`/api/manage-records?userId=${encodeURIComponent(user.id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       if (!res.ok) throw new Error('Falha ao editar');
       notify('Registro atualizado', 'success');
-      await refreshAll();
+      await refreshAll({ preserveLastTimes: true });
     } catch (e) {
       console.error('Editar registro:', e);
       notify('Erro ao atualizar registro', 'error');
@@ -512,7 +512,10 @@ export default function RegistroPage({ user }) {
       });
       if (!res.ok) throw new Error('Falha ao salvar contadores');
       notify('Contadores atualizados', 'success');
-      await refreshAll({ date: rec.date === selectedDate ? selectedDate : undefined });
+      await refreshAll({ 
+        date: rec.date === selectedDate ? selectedDate : undefined,
+        preserveLastTimes: true 
+      });
     } catch (e) {
       console.error('Editar contadores diários:', e);
       notify('Erro ao atualizar contadores', 'error');
