@@ -169,14 +169,27 @@ export default function RegistroPage({ user }) {
   // Refresh geral para estatísticas e histórico, mantendo UI sincronizada sem recarregar a página
   const refreshAll = async (opts = {}) => {
     const dateForCounters = opts.date || selectedDate;
+    const preserveLastTimes = opts.preserveLastTimes || false;
     try {
       setStatsLoading(true);
+      
+      // Salvar os dados de último registro antes de atualizar
+      const currentLastTimes = preserveLastTimes ? { ...lastRegistrationTimes } : null;
+      
       await Promise.all([
         fetchHelpRequests(),
         fetchRecentHelps(),
         fetchDailyCounters(dateForCounters),
         fetchHistory(),
       ]);
+      
+      // Restaurar os dados de último registro se solicitado
+      if (preserveLastTimes && currentLastTimes) {
+        setLastRegistrationTimes(prev => ({
+          lastCallTime: currentLastTimes.lastCallTime || prev.lastCallTime,
+          lastRfcTime: currentLastTimes.lastRfcTime || prev.lastRfcTime
+        }));
+      }
     } finally {
       setStatsLoading(false);
     }
@@ -937,7 +950,8 @@ export default function RegistroPage({ user }) {
         });
         setFormData({ user: null, category: null, description: '' });
         // Não aplicar delta aqui para evitar duplicidade, pois o trigger já incrementa helps_count
-        await refreshAll();
+        // Preservar os dados de último registro pois ajudas não afetam ticket_logs
+        await refreshAll({ preserveLastTimes: true });
       } else {
         Swal.fire({
           icon: 'error',
