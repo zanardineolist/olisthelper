@@ -84,6 +84,45 @@ export default async function handler(req, res) {
           return res.status(500).json({ error: 'Erro ao buscar contador diário' });
         }
 
+        // Buscar informações do último registro de chamado e RFC
+        let lastCallTime = null;
+        let lastRfcTime = null;
+
+        try {
+          // Buscar último chamado do dia
+          const { data: lastCall } = await supabaseAdmin
+            .from('ticket_logs')
+            .select('logged_time')
+            .eq('user_id', analystId)
+            .eq('logged_date', targetDate)
+            .in('ticket_type', ['novo', 'interacao'])
+            .order('logged_time', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (lastCall?.logged_time) {
+            lastCallTime = lastCall.logged_time;
+          }
+
+          // Buscar último RFC do dia
+          const { data: lastRfc } = await supabaseAdmin
+            .from('ticket_logs')
+            .select('logged_time')
+            .eq('user_id', analystId)
+            .eq('logged_date', targetDate)
+            .eq('ticket_type', 'rfc')
+            .order('logged_time', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (lastRfc?.logged_time) {
+            lastRfcTime = lastRfc.logged_time;
+          }
+        } catch (lastRegError) {
+          console.error('Erro ao buscar últimos registros:', lastRegError);
+          // Não falhar a requisição por causa disso
+        }
+
         // Se não existe registro ainda, inicializar helps_count com base em help_records do dia (TZ America/Sao_Paulo)
         if (!data) {
           try {
@@ -130,7 +169,13 @@ export default async function handler(req, res) {
               return res.status(200).json({ record: payload });
             }
 
-            return res.status(200).json({ record: upserted });
+            return res.status(200).json({ 
+              record: {
+                ...upserted,
+                last_call_time: lastCallTime,
+                last_rfc_time: lastRfcTime
+              }
+            });
           } catch (initErr) {
             console.error('Erro na inicialização dos contadores:', initErr);
             return res.status(200).json({
@@ -140,12 +185,20 @@ export default async function handler(req, res) {
                 calls_count: 0,
                 rfcs_count: 0,
                 helps_count: 0,
+                last_call_time: lastCallTime,
+                last_rfc_time: lastRfcTime
               },
             });
           }
         }
 
-        return res.status(200).json({ record: data });
+        return res.status(200).json({ 
+          record: {
+            ...data,
+            last_call_time: lastCallTime,
+            last_rfc_time: lastRfcTime
+          }
+        });
       }
 
       case 'POST': {

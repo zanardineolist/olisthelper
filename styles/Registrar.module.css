@@ -500,6 +500,57 @@
   gap: 4px;
 }
 
+/* Card de Últimos Registros */
+.lastRegistrationCard {
+  background: var(--box-color);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.lastRegistrationTitle {
+  color: var(--title-color);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lastRegistrationContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lastRegistrationItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.lastRegistrationItem:last-child {
+  border-bottom: none;
+}
+
+.lastRegistrationLabel {
+  color: var(--text-color2);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lastRegistrationTime {
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
 .totalBreakdown span::before {
   content: attr(data-label);
   font-size: 0.75rem;

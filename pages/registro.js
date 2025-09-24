@@ -43,6 +43,7 @@ export default function RegistroPage({ user }) {
   });
   const [counters, setCounters] = useState({ calls: 0, rfcs: 0, helps: 0 });
   const [savingCounters, setSavingCounters] = useState(false);
+  const [lastRegistrationTimes, setLastRegistrationTimes] = useState({ lastCallTime: null, lastRfcTime: null });
   // Histórico
   const [historyStart, setHistoryStart] = useState(() => {
     try {
@@ -180,6 +181,28 @@ export default function RegistroPage({ user }) {
       setStatsLoading(false);
     }
   };
+
+  // Função para formatar horário
+  const formatTime = (timeStr) => {
+    if (!timeStr) return null;
+    
+    try {
+      // Se for um timestamp completo, extrair apenas a hora
+      if (timeStr.includes('T') || timeStr.includes(' ')) {
+        return timeStr.split('T')[0] ? timeStr.split('T')[1]?.substring(0, 5) : timeStr.substring(0, 5);
+      }
+      
+      // Se for apenas time, usar formato simples
+      if (timeStr.includes(':')) {
+        const timeParts = timeStr.split(':');
+        return `${timeParts[0]}:${timeParts[1]}`;
+      }
+      
+      return timeStr;
+    } catch {
+      return timeStr;
+    }
+  };
   
   // Função para buscar os registros recentes
   const fetchRecentHelps = async () => {
@@ -205,6 +228,10 @@ export default function RegistroPage({ user }) {
         calls: rec.calls_count || 0,
         rfcs: rec.rfcs_count || 0,
         helps: rec.helps_count || 0,
+      });
+      setLastRegistrationTimes({
+        lastCallTime: rec.last_call_time || null,
+        lastRfcTime: rec.last_rfc_time || null
       });
     } catch (e) {
       console.error('Erro ao carregar contadores diários:', e);
@@ -1204,6 +1231,37 @@ const customSelectStyles = {
                   <span data-label="RFC's">{counters.rfcs}</span>
                 </div>
               </div>
+
+              {/* Card de Últimos Registros */}
+              {(lastRegistrationTimes.lastCallTime || lastRegistrationTimes.lastRfcTime) && (
+                <div className={styles.lastRegistrationCard}>
+                  <div className={styles.lastRegistrationTitle}>
+                    <i className="fa-solid fa-clock"></i> Últimos Registros
+                  </div>
+                  <div className={styles.lastRegistrationContent}>
+                    {lastRegistrationTimes.lastCallTime && (
+                      <div className={styles.lastRegistrationItem}>
+                        <span className={styles.lastRegistrationLabel}>
+                          <i className="fa-solid fa-ticket"></i> Último Chamado:
+                        </span>
+                        <span className={styles.lastRegistrationTime}>
+                          {formatTime(lastRegistrationTimes.lastCallTime)}
+                        </span>
+                      </div>
+                    )}
+                    {lastRegistrationTimes.lastRfcTime && (
+                      <div className={styles.lastRegistrationItem}>
+                        <span className={styles.lastRegistrationLabel}>
+                          <i className="fa-solid fa-comments"></i> Último RFC:
+                        </span>
+                        <span className={styles.lastRegistrationTime}>
+                          {formatTime(lastRegistrationTimes.lastRfcTime)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className={`${styles.sideCard} ${styles.historyCard}`}>
