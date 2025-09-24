@@ -261,6 +261,10 @@ export default function RegistroPage({ user }) {
         rfcs: record.rfcs_count || 0,
         helps: record.helps_count || 0,
       });
+      setLastRegistrationTimes({
+        lastCallTime: record.last_call_time || null,
+        lastRfcTime: record.last_rfc_time || null
+      });
       // Atualiza histórico se o dia impacta o período atual
       await fetchHistory();
     } catch (e) {
@@ -292,6 +296,10 @@ export default function RegistroPage({ user }) {
         calls: record.calls_count || 0,
         rfcs: record.rfcs_count || 0,
         helps: record.helps_count || 0,
+      });
+      setLastRegistrationTimes({
+        lastCallTime: record.last_call_time || null,
+        lastRfcTime: record.last_rfc_time || null
       });
       await fetchHistory();
     } catch (e) {
