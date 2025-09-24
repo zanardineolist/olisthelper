@@ -1206,6 +1206,12 @@ const customSelectStyles = {
                     <div className={styles.counterValueBig}>{counters.calls}</div>
                     <button aria-label="Aumentar chamados" disabled={savingCounters} onClick={() => applyCounterDelta({ calls: +1 })}>+</button>
                   </div>
+                  {lastRegistrationTimes.lastCallTime && (
+                    <div className={styles.lastRegistrationInfo}>
+                      <i className="fa-solid fa-clock"></i>
+                      <span>Último: {formatTime(lastRegistrationTimes.lastCallTime)}</span>
+                    </div>
+                  )}
                 </div>
                 <div className={styles.counterCard}>
                   <div className={styles.counterTitle}><i className="fa-solid fa-comments"></i> RFC's</div>
@@ -1214,6 +1220,12 @@ const customSelectStyles = {
                     <div className={styles.counterValueBig}>{counters.rfcs}</div>
                     <button aria-label="Aumentar RFCs" disabled={savingCounters} onClick={() => applyCounterDelta({ rfcs: +1 })}>+</button>
                   </div>
+                  {lastRegistrationTimes.lastRfcTime && (
+                    <div className={styles.lastRegistrationInfo}>
+                      <i className="fa-solid fa-clock"></i>
+                      <span>Último: {formatTime(lastRegistrationTimes.lastRfcTime)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
               
@@ -1232,36 +1244,7 @@ const customSelectStyles = {
                 </div>
               </div>
 
-              {/* Card de Últimos Registros */}
-              {(lastRegistrationTimes.lastCallTime || lastRegistrationTimes.lastRfcTime) && (
-                <div className={styles.lastRegistrationCard}>
-                  <div className={styles.lastRegistrationTitle}>
-                    <i className="fa-solid fa-clock"></i> Últimos Registros
-                  </div>
-                  <div className={styles.lastRegistrationContent}>
-                    {lastRegistrationTimes.lastCallTime && (
-                      <div className={styles.lastRegistrationItem}>
-                        <span className={styles.lastRegistrationLabel}>
-                          <i className="fa-solid fa-ticket"></i> Último Chamado:
-                        </span>
-                        <span className={styles.lastRegistrationTime}>
-                          {formatTime(lastRegistrationTimes.lastCallTime)}
-                        </span>
-                      </div>
-                    )}
-                    {lastRegistrationTimes.lastRfcTime && (
-                      <div className={styles.lastRegistrationItem}>
-                        <span className={styles.lastRegistrationLabel}>
-                          <i className="fa-solid fa-comments"></i> Último RFC:
-                        </span>
-                        <span className={styles.lastRegistrationTime}>
-                          {formatTime(lastRegistrationTimes.lastRfcTime)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+
             </div>
 
             <div className={`${styles.sideCard} ${styles.historyCard}`}>

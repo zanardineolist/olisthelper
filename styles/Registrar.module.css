@@ -457,6 +457,26 @@
   color: var(--color-primary);
 }
 
+.lastRegistrationInfo {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-color2);
+  justify-content: center;
+}
+
+.lastRegistrationInfo i {
+  color: var(--color-primary);
+}
+
+.lastRegistrationInfo span {
+  font-weight: 500;
+}
+
 /* Card de Total */
 .totalCard {
   background: var(--box-color);
@@ -500,56 +520,7 @@
   gap: 4px;
 }
 
-/* Card de Últimos Registros */
-.lastRegistrationCard {
-  background: var(--box-color);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  padding: 16px;
-  margin-top: 16px;
-}
 
-.lastRegistrationTitle {
-  color: var(--title-color);
-  font-weight: 600;
-  font-size: 1rem;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.lastRegistrationContent {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.lastRegistrationItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.lastRegistrationItem:last-child {
-  border-bottom: none;
-}
-
-.lastRegistrationLabel {
-  color: var(--text-color2);
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.lastRegistrationTime {
-  color: var(--color-primary);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
 
 .totalBreakdown span::before {
   content: attr(data-label);
