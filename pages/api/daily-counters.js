@@ -271,6 +271,54 @@ export default async function handler(req, res) {
           helps_count: Math.max(0, (current.helps_count || 0) + Math.floor(helpsDelta)),
         };
 
+        // Registrar automaticamente na tabela ticket_logs quando há incrementos positivos
+        const now = new Date();
+        const currentTime = now.toLocaleTimeString('pt-BR', { 
+          timeZone: 'America/Sao_Paulo',
+          hour12: false 
+        });
+        
+        try {
+          // Registrar chamados incrementados
+          if (callsDelta > 0) {
+            for (let i = 0; i < callsDelta; i++) {
+              const ticketId = Math.floor(Math.random() * 1000000) + Date.now();
+              await supabaseAdmin
+                .from('ticket_logs')
+                .insert({
+                  user_id: analystId,
+                  ticket_url: `https://erp.olist.com/suporte#edit/${ticketId}`,
+                  description: 'Registro automático via contador manual',
+                  ticket_type: 'novo',
+                  logged_date: date,
+                  logged_time: currentTime,
+                  timezone: 'America/Sao_Paulo'
+                });
+            }
+          }
+          
+          // Registrar RFCs incrementados
+          if (rfcsDelta > 0) {
+            for (let i = 0; i < rfcsDelta; i++) {
+              const ticketId = Math.floor(Math.random() * 1000000) + Date.now();
+              await supabaseAdmin
+                .from('ticket_logs')
+                .insert({
+                  user_id: analystId,
+                  ticket_url: `https://erp.olist.com/suporte#edit/${ticketId}`,
+                  description: 'Registro automático via contador manual',
+                  ticket_type: 'rfc',
+                  logged_date: date,
+                  logged_time: currentTime,
+                  timezone: 'America/Sao_Paulo'
+                });
+            }
+          }
+        } catch (logError) {
+          console.error('Erro ao registrar logs automáticos:', logError);
+          // Continua mesmo se houver erro nos logs, pois o contador principal deve ser atualizado
+        }
+
         const payload = {
           analyst_id: analystId,
           date,
