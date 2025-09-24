@@ -49,7 +49,7 @@ export default async function handler(req, res) {
             .eq('analyst_id', analystId)
             .gte('date', startDate)
             .lte('date', endDate)
-            .order('date', { ascending: true });
+            .order('date', { ascending: false });
 
           if (error) {
             console.error('Erro ao buscar histórico:', error);
